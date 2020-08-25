@@ -5,9 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "jest --coverage --no-watchman",
-    "test:watch": "jest --watch --no-watchman",
-    "test:ci": "jest --ci --runInBand --no-watchman",
+    "test": "ng test",
+    "test:watch": "ng test --watch --no-watchman",
+    "test:ci": "ng test --ci --runInBand --no-watchman",
     "lint": "ng lint",
     "e2e": "npx cypress run",
     "semantic-release": "semantic-release",
@@ -43,6 +43,7 @@
     "zone.js": "~0.10.3"
   },
   "devDependencies": {
+    "@angular-builders/jest": "^10.0.0",
     "@angular-devkit/build-angular": "~0.1000.1",
     "@angular-devkit/build-ng-packagr": "~0.1000.7",
     "@angular/cli": "~10.0.1",
