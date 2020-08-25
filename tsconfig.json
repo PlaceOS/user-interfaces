@@ -15,6 +15,42 @@
     },
     {
       "path": "./e2e/tsconfig.json"
+    },
+    {
+      "path": "./projects/workplace/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/workplace/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/bookings/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/bookings/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/control/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/control/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/concierge/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/concierge/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/catering/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/catering/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared/tsconfig.spec.json"
     }
 ]
 }
