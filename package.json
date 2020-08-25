@@ -15,6 +15,16 @@
     "postversion": "node ./config/version.js"
   },
   "private": true,
+  "jest": {
+    "preset": "jest-preset-angular",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/test.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/cypress/",
+      "<rootDir>/src/test.ts"
+    ]
+  },
   "dependencies": {
     "@angular/animations": "~10.0.2",
     "@angular/cdk": "^10.1.3",
