@@ -1,0 +1,93 @@
+<mat-dialog-content>
+    <div class="main" *ngIf="!loading; else load_state">
+        <ng-container *ngIf="!show_order_details; else order_details">
+            <mat-tab-group>
+                <ng-container *ngFor="let cat of categories | async">
+                    <mat-tab *ngIf="((menu_items$ | async) || {})[cat].length" [label]="cat">
+                        <div class="list">
+                            <div
+                                class="item"
+                                *ngFor="let item of ((menu_items$ | async) || {})[cat]"
+                            >
+                                <div class="details">
+                                    <div class="name">{{ item.name }}</div>
+                                    <div class="info no-underline" *ngIf="item.options.length">
+                                        Options Available
+                                    </div>
+                                </div>
+                                <div class="price">{{ item.unit_price / 100 | currency }}</div>
+                                <button mat-icon-button (click)="addItem(item)">
+                                    <app-icon
+                                        [icon]="{ class: 'material-icons', content: 'add' }"
+                                    ></app-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </ng-container>
+            </mat-tab-group>
+        </ng-container>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="!loading">
+    <footer>
+        <ng-container *ngIf="!show_order_details; else order_actions">
+            <button mat-button class="inverse" mat-dialog-close>Cancel</button>
+            <button
+                mat-button
+                [disabled]="!order.item_count"
+                [matBadge]="order.item_count"
+                [matBadgeHidden]="!order.item_count"
+                matBadgeColor="warn"
+                (click)="confirmOrder()"
+            >
+                Confirm
+            </button>
+        </ng-container>
+        <ng-template #order_actions>
+            <button mat-button class="inverse" (click)="show_order_details = false">Back</button>
+            <button mat-button (click)="saveOrder()">Save Order</button>
+        </ng-template>
+    </footer>
+</mat-dialog-actions>
+<ng-template #load_state>
+    <div class="body">
+        <div class="info-block">
+            <div class="icon">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+            <div class="text">
+                {{ loading }}
+            </div>
+        </div>
+    </div>
+</ng-template>
+<ng-template #order_details>
+    <header>
+        <h3>Confirm Order</h3>
+    </header>
+    <div class="list">
+        <div class="item" *ngFor="let item of order.items">
+            <div class="details">
+                <div class="name">{{ item.name }}</div>
+                <div class="info" *ngIf="item.options.length" [matTooltip]="optionsFor(item)">
+                    {{ item.options.length }} option{{ item.options.length === 1 ? '' : 's' }}
+                    selected
+                </div>
+            </div>
+            <div class="price">{{ item.total_cost / 100 | currency }}</div>
+            <a-counter
+                [ngModel]="item.quantity"
+                (ngModelChange)="updateItemQuantity(item, $event)"
+            ></a-counter>
+        </div>
+    </div>
+    <div class="charge-code" [formGroup]="form">
+        <input
+            formControlName="charge_code"
+            [class.error]="form.controls.charge_code.touched && form.controls.charge_code.invalid"
+            placeholder="Charge Code*"
+            required
+        />
+    </div>
+</ng-template>

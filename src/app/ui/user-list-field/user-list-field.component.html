@@ -1,0 +1,85 @@
+<div class="user-list-field" form-field [attr.disabled]="disabled">
+    <mat-form-field appearance="outline">
+        <input
+            matInput
+            name="user-search"
+            [(ngModel)]="search_str"
+            (ngModelChange)="search$.next($event)"
+            [disabled]="disabled"
+            placeholder="Search for user..."
+            i18n-placeholder
+            [matAutocomplete]="auto"
+        />
+        <div class="prefix" matPrefix>
+            <app-icon
+                [icon]="{ type: 'icon', class: 'material-icons', content: 'search' }"
+            ></app-icon>
+        </div>
+        <div class="suffix" matSuffix *ngIf="loading">
+            <mat-spinner diameter="16"></mat-spinner>
+        </div>
+    </mat-form-field>
+    <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="addUser($event.option.value)"
+        [displayWith]="displayFn"
+    >
+        <mat-option *ngFor="let option of user_list" [value]="option">
+            <div class="user">
+                <a-user-avatar [user]="option"></a-user-avatar>
+                <div class="details">
+                    <div class="name">{{ option.name }}</div>
+                    <div class="email">{{ option.email }}</div>
+                </div>
+            </div>
+        </mat-option>
+    </mat-autocomplete>
+    <div class="user-list">
+        <mat-chip-list
+            aria-label="User List"
+            *ngIf="active_list && active_list.length; else empty_state"
+        >
+            <mat-chip
+                *ngFor="let user of active_list"
+                [id]="user.email"
+                [color]="user.visit_expected || user.is_external ? 'accent' : 'primary'"
+                (click)="user.visit_expected || user.is_external ? new_user.emit(user) : null"
+                [removable]="true"
+                (removed)="removeUser(user)"
+            >
+                {{ user.name }}
+                <app-icon
+                    matChipRemove
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"
+                ></app-icon>
+            </mat-chip>
+        </mat-chip-list>
+    </div>
+    <div class="actions">
+        <button
+            type="button"
+            name="new-contact"
+            matRipple
+            (click)="new_user.emit()"
+            i18n="Add new external attendee"
+        >
+            Add External
+        </button>
+        <button type="button" name="upload-csv" matRipple i18n="Upload attendee list from CSV file">
+            Upload CSV
+            <input type="file" (change)="addUsersFromFile($event)" />
+        </button>
+        <button
+            type="button"
+            name="download-template"
+            matRipple
+            (click)="downloadCSVTemplate()"
+            i18n="Download template CSV file"
+        >
+            CSV Template
+        </button>
+    </div>
+</div>
+<ng-template #empty_state>
+    <div i18n="Attendee empty state">No attendees</div>
+</ng-template>

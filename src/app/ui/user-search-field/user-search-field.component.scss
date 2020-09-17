@@ -1,0 +1,21 @@
+
+:host,
+mat-form-field {
+    width: 100%;
+}
+
+app-icon {
+    font-size: 1.5em;
+    position: relative;
+    top: .15em;
+    left: -.15em;
+}
+
+.name {
+    height: 1em;
+}
+
+.email {
+    font-size: .6em;
+    color: rgba(#000, .65);
+}

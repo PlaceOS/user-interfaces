@@ -1,0 +1,35 @@
+<div
+    class="time-field"
+    role="button"
+    [style.display]="show_select ? 'none' : ''"
+    [attr.disabled]="disabled"
+    form-field
+    tabindex="0"
+    (keydown.enter)="showSelect()"
+>
+    <div class="display">
+        <input
+            matInput
+            type="time"
+            [disabled]="disabled"
+            [ngModel]="time"
+            (ngModelChange)="setValue($event)"
+        />
+    </div>
+    <div class="icon" (click)="showSelect()">
+        <app-icon
+            [icon]="{
+                type: 'icon',
+                class: 'material-icons',
+                content: show_select ? 'arrow_drop_up' : 'arrow_drop_down'
+            }"
+        ></app-icon>
+    </div>
+</div>
+<mat-form-field appearance="outline" *ngIf="show_select">
+    <mat-select #select [value]="time" [disabled]="disabled" (valueChange)="setValue($event)">
+        <mat-option *ngFor="let option of time_options" [value]="option.id">
+            {{ option.name }}
+        </mat-option>
+    </mat-select>
+</mat-form-field>

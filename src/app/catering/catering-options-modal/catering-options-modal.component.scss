@@ -1,0 +1,46 @@
+main {
+    min-height: 24em;
+    overflow: auto;
+}
+
+.group {
+    border-bottom: 1px solid #ccc;
+    padding: .25em 0 .5em;
+}
+
+.name {
+    font-weight: 500;
+    padding: 0.5em;
+}
+
+mat-radio-group {
+    display: flex;
+    flex-direction: column;
+}
+
+mat-radio-button {
+    margin: .25em 0;
+}
+
+.options {
+    padding-left: 1.5em;
+    display: flex;
+    flex-direction: column;
+}
+
+.details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .name {
+        flex: 1;
+        min-width: 50%;
+        width: 16em;
+    }
+
+    .price {
+        font-size: .8em;
+        opacity: .65;
+    }
+}

@@ -1,0 +1,26 @@
+@import 'variables';
+
+header {
+    justify-content: center;
+}
+
+app-icon {
+    font-size: 2em;
+}
+
+.title {
+    font-size: 1.2em;
+    font-weight: 600;
+    flex: 1;
+}
+
+.mat-dialog-content {
+    padding: 0;
+    margin: 0;
+}
+
+mat-form-field {
+    height: 3.5em;
+    width: 100%;
+    padding: 0 0.25em;
+}

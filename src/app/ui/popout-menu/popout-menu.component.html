@@ -1,0 +1,12 @@
+<button
+    mat-icon-button
+    [class.small]="true"
+    *ngFor="let item of actions; let i = index"
+    [style.top]="show ? (-110 * i - 60) + '%' : ''"
+    (click)="action.emit(item.id); show = false"
+>
+    <app-icon [icon]="item"></app-icon>
+</button>
+<button mat-icon-button [class.show]="show" (click)="show = !show" (window:click)="show ? close() : ''">
+    <app-icon [icon]="{ class: 'material-icons', content: show ? 'add' : 'more_vert' }"></app-icon>
+</button>

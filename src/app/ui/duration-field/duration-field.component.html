@@ -1,0 +1,9 @@
+<div class="duration-field" [attr.disabled]="disabled">
+    <mat-form-field appearance="outline">
+        <mat-select #select [value]="duration" [disabled]="disabled" (valueChange)="setValue($event)">
+            <mat-option *ngFor="let option of duration_options" [value]="option.id">
+                {{ option.name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>

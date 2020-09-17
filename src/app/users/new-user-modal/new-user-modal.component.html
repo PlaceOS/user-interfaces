@@ -1,0 +1,27 @@
+<header>
+    <div class="heading" mat-dialog-title>{{ user?.id ? 'Edit' : 'Add' }} External Attendee</div>
+    <button mat-icon-button mat-dialog-close>
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"></app-icon>
+    </button>
+</header>
+<mat-dialog-content>
+    <div class="body" *ngIf="!loading; else load_state">
+        <user-form [form]="form"></user-form>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <footer *ngIf="!loading">
+        <button mat-button class="inverse" mat-dialog-close>Cancel</button>
+        <button mat-button (click)="saveChanges()">Save</button>
+    </footer>
+</mat-dialog-actions>
+<ng-template #load_state>
+    <div class="body">
+        <div class="info-block">
+            <div class="icon">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+            <div class="text">Saving attendee...</div>
+        </div>
+    </div>
+</ng-template>

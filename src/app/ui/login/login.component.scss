@@ -1,0 +1,120 @@
+
+@import 'variables';
+
+.login {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    background-color: #F0F0F0;
+    background-image: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm33.414-6l5.95-5.95L45.95.636 40 6.586 34.05.636 32.636 2.05 38.586 8l-5.95 5.95 1.414 1.414L40 9.414l5.95 5.95 1.414-1.414L41.414 8zM40 48c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zM9.414 40l5.95-5.95-1.414-1.414L8 38.586l-5.95-5.95L.636 34.05 6.586 40l-5.95 5.95 1.414 1.414L8 41.414l5.95 5.95 1.414-1.414L9.414 40z' fill='%23ad1457' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.login-form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 320px;
+    max-width: 95vh;
+    min-height: 320px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px 0 rgba(#000, .2),
+                0 1px 1px 0 rgba(#000, .14),
+                0 2px 1px -1px rgba(#000, .12);
+    margin: 1em auto;
+    padding: 1em;
+}
+
+img {
+    max-height: 60px;
+    max-width: 240px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 1em;
+    width: 100%;
+}
+
+.body {
+    width: 100%;
+    position: relative;
+    min-height: 30%;
+    flex: 1;
+}
+
+.field {
+    position: relative;
+    margin: 1em 0;
+}
+
+label {
+    position: absolute;
+    left: .25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: top 200ms, color 200ms, font-size 200ms;
+    background-color: #fff;
+    padding: 0 .25rem;
+    color: rgba(#000, .6);
+    z-index: 2;
+    border-radius: 4px;
+
+    &.focused {
+        top: 0;
+        font-size: .6em;
+        color: rgba(#000, .85);
+    }
+    &.in-focus {
+        color: rgba($color-primary, .85) !important;
+    }
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.error {
+
+    label {
+        color: $error;
+    }
+
+    input {
+        border-color: $error;
+    }
+
+    .error-message {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.error-message {
+    display: none;
+    width: 100%;
+    text-align: center;
+    color: $error;
+    font-size: .7em;
+    margin-top: -1em;
+    margin-bottom: 1em;
+}
+
+.info-block {
+    width: 100%;
+    margin: 0;
+
+    .icon {
+        height: 3em;
+        width: 3em;
+    }
+}

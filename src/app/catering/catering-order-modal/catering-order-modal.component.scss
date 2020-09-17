@@ -1,0 +1,79 @@
+@import 'variables';
+
+.list {
+    height: 24em;
+    min-width: 24em;
+    max-width: calc(100vw - 1em);
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+header {
+    height: 3.25em;
+}
+
+.main,
+mat-dialog-content {
+    min-width: 20em;
+}
+
+.name,
+.details {
+    flex: 1;
+    min-width: 50%;
+}
+
+.info {
+    font-size: 0.6em;
+    text-decoration: underline;
+}
+
+.no-underline {
+    text-decoration: none;
+}
+
+.price {
+    background-color: $color-primary;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    font-size: 0.7em;
+    margin: 0 0.5em;
+    color: #fff;
+    font-weight: 500;
+}
+
+footer {
+    button {
+        min-width: 8em;
+    }
+}
+
+input {
+    position: relative;
+    width: 100%;
+    padding: 1em;
+    border: none;
+    border-radius: 0 !important;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+    font-size: 1em;
+
+    &:focus {
+        border: none;
+        border-top: 2px solid $color-primary;
+        border-bottom: 2px solid $color-primary;
+        box-shadow: none;
+    }
+
+    &.error {
+        &::placeholder {
+            color: rgba($error, 0.45);
+        }
+    }
+}

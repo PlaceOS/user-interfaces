@@ -48,6 +48,12 @@
     },
     {
       "path": "./projects/shared/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/kiosk/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/kiosk/tsconfig.spec.json"
     }
 ]
 }

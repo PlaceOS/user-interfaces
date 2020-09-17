@@ -1,0 +1,58 @@
+<div class="login">
+    <div class="login-form">
+        <div class="header" [style.background-color]="logo?.background">
+            <div class="logo">
+                <i *ngIf="logo?.type === 'icon'" [class]="logo.class">{{ logo.content }}</i>
+                <img *ngIf="logo?.type === 'img'" [src]="logo.src | safe: 'resource'" />
+            </div>
+        </div>
+        <div class="body" [class.error]="error">
+            <ng-container *ngIf="!loading; else loading_state">
+                <div class="field">
+                    <label
+                        for="username"
+                        [class.focused]="username || focus === 'username'"
+                        [class.in-focus]="focus === 'username'"
+                        >Username</label
+                    >
+                    <input
+                        id="username"
+                        [(ngModel)]="username"
+                        (focus)="focus = 'username'"
+                        (blur)="focus = ''"
+                        (keyup.enter)="toPassword()"
+                    />
+                </div>
+                <div class="field">
+                    <label
+                        for="password"
+                        [class.focused]="password || focus === 'password'"
+                        [class.in-focus]="focus === 'password'"
+                        >Password</label
+                    >
+                    <input
+                        #pass_field
+                        id="password"
+                        type="password"
+                        [(ngModel)]="password"
+                        (focus)="focus = 'password'"
+                        (blur)="focus = ''"
+                        (keyup.enter)="login()"
+                    />
+                </div>
+                <div class="error-message">Invalid username or password</div>
+            </ng-container>
+        </div>
+        <div class="footer" *ngIf="!loading">
+            <button mat-button color="primary" (click)="login()">Login</button>
+        </div>
+    </div>
+</div>
+<ng-template #loading_state>
+    <div class="info-block center">
+        <div class="icon">
+            <mat-spinner diameter="64"></mat-spinner>
+        </div>
+        <div class="text">Checking user credentials...</div>
+    </div>
+</ng-template>

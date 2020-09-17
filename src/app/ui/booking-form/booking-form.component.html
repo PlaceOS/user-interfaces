@@ -1,0 +1,112 @@
+<div class="booking-form" *ngIf="form" [formGroup]="form">
+    <div
+        class="field"
+        *ngIf="form.controls.id && form.controls.id.value && form.controls.space_list"
+    >
+        <label for="spaces">Spaces: </label>
+        <an-action-field
+            name="spaces"
+            [placeholder]="spaces"
+            (onAction)="openSpacesModal()"
+        ></an-action-field>
+    </div>
+    <div class="field" *ngIf="form.controls.title">
+        <label
+            for="title"
+            [class.error]="form.controls.title.invalid && form.controls.title.touched"
+        >
+            Title<span>*</span>:
+        </label>
+        <mat-form-field appearance="outline">
+            <input matInput name="title" placeholder="Meeting Title" formControlName="title" />
+
+            <mat-error *ngIf="form.controls.title.invalid">Title is required</mat-error>
+        </mat-form-field>
+    </div>
+    <div class="group date">
+        <div class="field" *ngIf="form.controls.date">
+            <label for="date">Date: </label>
+            <a-date-field name="date" formControlName="date"></a-date-field>
+        </div>
+        <div class="field" *ngIf="form.controls.recurrence">
+            <label for="recurrence">Recurrence: </label>
+            <an-action-field
+                name="recurrence"
+                [placeholder]="recurrence"
+                (onAction)="openRecurrenceModal()"
+            ></an-action-field>
+        </div>
+    </div>
+    <div class="group time">
+        <div class="field" *ngIf="form.controls.date">
+            <label for="start-time">Start Time: </label>
+            <a-time-field name="start-time" formControlName="date"></a-time-field>
+        </div>
+        <div class="field" *ngIf="form.controls.duration">
+            <label for="duration">Duration: </label>
+            <a-duration-field name="duration" formControlName="duration"></a-duration-field>
+        </div>
+    </div>
+    <div class="field" *ngIf="form.controls.organiser">
+        <label for="organiser">Host: </label>
+        <a-user-search-field name="organiser" formControlName="organizer"></a-user-search-field>
+    </div>
+    <div class="field" *ngIf="form.controls.attendees">
+        <label for="attendees">Attendees: </label>
+        <a-user-list-field
+            name="attendees"
+            formControlName="attendees"
+            (newUser)="openNewUserModal()"
+        ></a-user-list-field>
+    </div>
+    <div class="field" *ngIf="form.controls.type && booking_types.length > 1">
+        <label for="booking-type">Booking Type: </label>
+        <mat-form-field appearance="outline">
+            <mat-select name="booking-type" formControlName="type">
+                <mat-option *ngFor="let type of booking_types" [value]="type.value">
+                    {{ type.display }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="group configuration" *ngIf="form.controls.configuration && available_configs.length > 1">
+        <div class="field">
+            <label for="booking-type">Room Configuration: </label>
+            <mat-form-field appearance="outline" title="{{configuration.description}}">
+                <mat-select name="configuration" formControlName="configuration">
+                    <mat-option *ngFor="let config of available_configs" [value]="config.id">
+                        {{ config.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="field info">
+            <div *ngIf="!!configuration">{{configuration.description}}</div>
+        </div>
+    </div>
+    <div
+        class="field"
+        *ngIf="catering_allowed && form.controls.catering"
+    >
+        <label for="spaces">Catering: </label>
+        <an-action-field
+            name="resources"
+            [placeholder]="catering"
+            (onAction)="openCateringModal()"
+        ></an-action-field>
+    </div>
+    <div class="field" *ngIf="form.controls.body">
+        <label for="body">Notes: </label>
+        <mat-form-field name="body" appearance="outline" *ngIf="!use_html; else html_editor">
+            <textarea
+                matInput
+                name="description"
+                placeholder="Meeting Description"
+                formControlName="body"
+            ></textarea>
+        </mat-form-field>
+        <ng-template #html_editor>
+            <editor formControlName="body"></editor>
+        </ng-template>
+    </div>
+</div>

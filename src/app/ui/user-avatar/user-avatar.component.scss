@@ -1,0 +1,22 @@
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3em;
+    width: 3em;
+    border-radius: 100%;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+.initials {
+    font-size: 1.2em;
+    color: rgba(#000, .35);
+    text-transform: uppercase;
+}
+
+img {
+    height: 100%;
+    width: 100%;
+}

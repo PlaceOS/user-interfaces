@@ -1,0 +1,81 @@
+@import 'variables';
+
+:host,
+mat-form-field {
+    width: 100%;
+}
+
+.user-list-field {
+    margin-bottom: 1em;
+}
+mat-form-field {
+    height: 3em;
+
+    app-icon {
+        font-size: 1.5em;
+        position: relative;
+        top: 0.15em;
+        left: -0.15em;
+    }
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    a-user-avatar {
+        font-size: 0.9em;
+        margin-right: 0.5em;
+    }
+}
+
+.name {
+    height: 1em;
+}
+
+.email {
+    font-size: 0.6em;
+    color: rgba(#000, 0.65);
+}
+
+.user-list {
+    padding: .5em;
+    min-height: 3em;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+
+    > div {
+        text-align: center;
+        color: rgba(#000, 0.65);
+    }
+}
+
+.actions {
+    display: flex;
+    margin: 0 0 0.5em;
+}
+
+button {
+    position: relative;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    padding: 1em;
+    font-size: .8em;
+    flex: 1;
+    border: 1px solid #ccc;
+
+    &:focus {
+        outline-color: $color-primary;
+    }
+}
+
+input[type='file'] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    width: 100%;
+    border-radius: 4px;
+}

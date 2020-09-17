@@ -1,0 +1,50 @@
+<header>
+    <h3>Select options</h3>
+    <button mat-icon-button mat-dialog-close>
+        <app-icon [icon]="{ class: 'material-icons', content: 'close' }"></app-icon>
+    </button>
+</header>
+<mat-dialog-content>
+    <main>
+        <div class="group" *ngFor="let group of groups">
+            <div class="name">{{ group.name }}</div>
+            <div class="options">
+                <ng-container *ngIf="!group.multiple; else multi_options">
+                    <mat-radio-group
+                        aria-label="Select an option"
+                        [ngModel]="''"
+                        (ngModelChange)="updateGroupOption(group, $event)"
+                    >
+                        <mat-radio-button value="">None</mat-radio-button>
+                        <mat-radio-button *ngFor="let opt of group.options" [value]="opt.id">
+                            <div class="details">
+                                <div class="name">{{ opt.name }}</div>
+                                <div class="price" *ngIf="opt.unit_price">
+                                    +{{ opt.unit_price / 100 | currency }}
+                                </div>
+                            </div>
+                        </mat-radio-button>
+                    </mat-radio-group>
+                </ng-container>
+                <ng-template #multi_options>
+                    <mat-checkbox
+                        *ngFor="let opt of group.options"
+                        [(ngModel)]="option_state[opt.id]"
+                    >
+                        <div class="details">
+                            <div class="name">{{ opt.name }}</div>
+                            <div class="price" *ngIf="opt.unit_price">
+                                +{{ opt.unit_price / 100 | currency }}
+                            </div>
+                        </div>
+                    </mat-checkbox>
+                </ng-template>
+            </div>
+        </div>
+    </main>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <footer>
+        <button mat-button (click)="saveOptions()">Save</button>
+    </footer>
+</mat-dialog-actions>

@@ -1,0 +1,22 @@
+
+.action-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2em;
+    width: 2em;
+
+    &.fade {
+        > app-icon {
+            opacity: .35;
+        }
+    }
+}
+
+[center] {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

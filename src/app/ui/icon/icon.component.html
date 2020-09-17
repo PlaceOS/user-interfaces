@@ -1,0 +1,4 @@
+<div class="app-icon" *ngIf="icon">
+    <i *ngIf="icon.type !== 'img'" [class]="icon.class">{{ icon.content }}</i>
+    <img *ngIf="icon.type === 'img'" [src]="icon.src | safe:'resource'" />
+</div>
