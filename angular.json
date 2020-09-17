@@ -23,6 +23,11 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "src/favicon.ico",
               "src/assets",
@@ -88,6 +93,11 @@
           "options": {
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "src/favicon.ico",
               "src/assets",
@@ -133,6 +143,11 @@
             "polyfills": "projects/workplace/src/polyfills.ts",
             "tsConfig": "projects/workplace/tsconfig.app.json",
             "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/workplace/src/favicon.ico",
               "projects/workplace/src/assets",
@@ -198,6 +213,11 @@
           "options": {
             "polyfills": "projects/workplace/src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/workplace/src/favicon.ico",
               "projects/workplace/src/assets",
@@ -243,6 +263,11 @@
             "polyfills": "projects/bookings/src/polyfills.ts",
             "tsConfig": "projects/bookings/tsconfig.app.json",
             "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/bookings/src/favicon.ico",
               "projects/bookings/src/assets",
@@ -308,6 +333,11 @@
           "options": {
             "polyfills": "projects/bookings/src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/bookings/src/favicon.ico",
               "projects/bookings/src/assets",
@@ -353,6 +383,11 @@
             "polyfills": "projects/control/src/polyfills.ts",
             "tsConfig": "projects/control/tsconfig.app.json",
             "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/control/src/favicon.ico",
               "projects/control/src/assets",
@@ -418,6 +453,11 @@
           "options": {
             "polyfills": "projects/control/src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/control/src/favicon.ico",
               "projects/control/src/assets",
@@ -463,6 +503,11 @@
             "polyfills": "projects/concierge/src/polyfills.ts",
             "tsConfig": "projects/concierge/tsconfig.app.json",
             "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/concierge/src/favicon.ico",
               "projects/concierge/src/assets",
@@ -528,6 +573,11 @@
           "options": {
             "polyfills": "projects/concierge/src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/concierge/src/favicon.ico",
               "projects/concierge/src/assets",
@@ -573,6 +623,11 @@
             "polyfills": "projects/catering/src/polyfills.ts",
             "tsConfig": "projects/catering/tsconfig.app.json",
             "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/catering/src/favicon.ico",
               "projects/catering/src/assets",
@@ -638,6 +693,11 @@
           "options": {
             "polyfills": "projects/catering/src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
             "assets": [
               "projects/catering/src/favicon.ico",
               "projects/catering/src/assets",
@@ -663,40 +723,131 @@
         }
       }
     },
-    "shared": {
-      "projectType": "library",
-      "root": "projects/shared",
-      "sourceRoot": "projects/shared/src",
-      "prefix": "lib",
+    "kiosk": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/kiosk",
+      "sourceRoot": "projects/kiosk/src",
+      "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "tsConfig": "projects/shared/tsconfig.lib.json",
-            "project": "projects/shared/ng-package.json"
+            "outputPath": "dist/kiosk",
+            "index": "projects/kiosk/src/index.html",
+            "main": "projects/kiosk/src/main.ts",
+            "polyfills": "projects/kiosk/src/polyfills.ts",
+            "tsConfig": "projects/kiosk/tsconfig.app.json",
+            "aot": true,
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
+            "assets": [
+              "projects/kiosk/src/favicon.ico",
+              "projects/kiosk/src/assets"
+            ],
+            "styles": [
+              "projects/kiosk/src/styles.scss"
+            ],
+            "scripts": []
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/shared/tsconfig.lib.prod.json"
+              "fileReplacements": [
+                {
+                  "replace": "projects/kiosk/src/environments/environment.ts",
+                  "with": "projects/kiosk/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
             }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "kiosk:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "kiosk:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "kiosk:build"
           }
         },
         "test": {
           "builder": "@angular-builders/jest:run",
           "options": {
-            "tsConfig": "tsconfig.spec.json"
+            "polyfills": "projects/catering/src/polyfills.ts",
+            "tsConfig": "tsconfig.spec.json",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                  "src/app/styles"
+              ]
+            },
+            "assets": [
+              "projects/kiosk/src/favicon.ico",
+              "projects/kiosk/src/assets"
+            ],
+            "styles": [
+              "projects/kiosk/src/styles.scss"
+            ],
+            "scripts": []
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/shared/tsconfig.lib.json",
-              "projects/shared/tsconfig.spec.json"
+              "projects/kiosk/tsconfig.app.json",
+              "projects/kiosk/tsconfig.spec.json",
+              "projects/kiosk/e2e/tsconfig.json"
             ],
             "exclude": [
               "**/node_modules/**"
             ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/kiosk/e2e/protractor.conf.js",
+            "devServerTarget": "kiosk:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "kiosk:serve:production"
+            }
           }
         }
       }
