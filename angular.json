@@ -15,8 +15,11 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "customWebpackConfig": {
+              "path": "webpack.config.js"
+            },
             "outputPath": "dist/template-uis",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -25,7 +28,7 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -33,9 +36,9 @@
               "src/assets",
               "src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -77,7 +80,7 @@
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
             "browserTarget": "template-uis:build",
             "proxyConfig": "config/proxy.conf.js"
@@ -101,7 +104,7 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -109,9 +112,9 @@
               "src/assets",
               "src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -156,7 +159,7 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -164,9 +167,9 @@
               "projects/workplace/src/assets",
               "projects/workplace/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -232,7 +235,7 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -240,9 +243,9 @@
               "projects/workplace/src/assets",
               "projects/workplace/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -287,7 +290,7 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -295,9 +298,9 @@
               "projects/bookings/src/assets",
               "projects/bookings/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -363,7 +366,7 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -371,9 +374,9 @@
               "projects/bookings/src/assets",
               "projects/bookings/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -418,7 +421,7 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -426,9 +429,9 @@
               "projects/control/src/assets",
               "projects/control/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -494,7 +497,7 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -502,9 +505,9 @@
               "projects/control/src/assets",
               "projects/control/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -549,7 +552,7 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -557,9 +560,9 @@
               "projects/concierge/src/assets",
               "projects/concierge/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -625,7 +628,7 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -633,9 +636,9 @@
               "projects/concierge/src/assets",
               "projects/concierge/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -680,7 +683,7 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -688,9 +691,9 @@
               "projects/catering/src/assets",
               "projects/catering/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -756,7 +759,7 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
@@ -764,9 +767,9 @@
               "projects/catering/src/assets",
               "projects/catering/src/manifest.webmanifest",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -811,16 +814,16 @@
             "aot": true,
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
               "projects/kiosk/src/favicon.ico",
               "projects/kiosk/src/assets",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -884,16 +887,16 @@
             "tsConfig": "tsconfig.spec.json",
             "stylePreprocessorOptions": {
               "includePaths": [
-                  "src/app/styles"
+                "src/app/styles"
               ]
             },
             "assets": [
               "projects/kiosk/src/favicon.ico",
               "projects/kiosk/src/assets",
               {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
+                "glob": "oauth-resp.html",
+                "input": "node_modules/@placeos/ts-client/dist/",
+                "output": "/"
               }
             ],
             "styles": [
@@ -928,6 +931,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "template-uis"
 }
