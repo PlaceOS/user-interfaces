@@ -5,24 +5,26 @@ import { first } from 'rxjs/operators';
 import { StaffUser } from './user.class';
 import { BaseAPIService } from '../common/base.service';
 import { HashMap } from '../common/types';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class StaffService extends BaseAPIService<StaffUser> {
     /** Currently logged in user */
-    private _active_user: StaffUser;
+    private _active_user = new BehaviorSubject<StaffUser>(null);
+    /** Observable for the active user */
+    public readonly active_user = this._active_user.asObservable();
 
     /** Currently logged in user */
     public get current(): StaffUser {
-        return this._active_user;
+        return this._active_user.getValue();
     }
 
     constructor() {
         super();
         this._name = 'Staff';
         this._api_route = 'people';
-        this._active_user = new StaffUser({ name: 'Local User' });
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => {
@@ -34,7 +36,7 @@ export class StaffService extends BaseAPIService<StaffUser> {
     public async load() {
         const user = await show('current', {}, this.format, 'users').toPromise();
         if (user) {
-            this._active_user = new StaffUser({ ...user, is_logged_in: true });
+            this._active_user.next(new StaffUser({ ...user, is_logged_in: true }));
         }
     }
 
