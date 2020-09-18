@@ -1,0 +1,190 @@
+@import 'variables';
+@import 'mixins';
+
+.booking-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    @include respond-to(portrait) {
+        flex-direction: column;
+    }
+
+    &.disabled {
+        pointer-events: none;
+        * {
+            pointer-events: none !important;
+        }
+
+        .overlay {
+            display: none;
+        }
+    }
+
+    &.reverse {
+        flex-direction: row-reverse;
+    }
+}
+
+.status {
+    height: 100%;
+    width: 10em;
+    background-color: #aaa;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    color: #fff;
+    transition: background-color 200ms;
+
+    @include respond-to(portrait) {
+        height: 8em;
+        width: 100%;
+        align-items: center;
+    }
+
+    @include respond-to(tablet-landscape) {
+        width: 8em;
+    }
+
+    @include respond-to(mobile-portrait) {
+        height: 4em;
+    }
+
+
+    @include respond-to(mobile-landscape) {
+        width: 6em;
+    }
+
+    &.available {
+        background-color: $success;
+    }
+
+    &.pending {
+        background-color: $pending;
+    }
+
+    &.unavailable {
+        background-color: $error;
+    }
+}
+
+.time-display {
+    margin: 1.5em .5em;
+    font-size: 1.25em;
+
+    @include respond-to(portrait) {
+        font-size: 1.5em;
+    }
+}
+
+.body {
+    position: relative;
+    min-width: 10em;
+    flex: 1;
+    height: 100%;
+    background-color: $bg-dark;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    @include respond-to(portrait) {
+        min-height: 8em;
+        height: auto;
+        width: 100%;
+    }
+}
+
+.title {
+    font-size: 3em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+    font-family: $heading-font;
+
+    @include respond-to(mobile) {
+        font-size: 2em;
+    }
+
+    &.show {
+        white-space: normal;
+    }
+}
+
+.status-text {
+    font-size: 2em;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #ccc;
+    transition: color 200ms;
+    margin-bottom: .25em;
+    transition: color 200ms;
+
+    @include respond-to(mobile) {
+        font-size: 1.5em;
+    }
+
+    &.available {
+        color: $success;
+    }
+
+    &.pending {
+        color: $pending;
+    }
+
+    &.unavailable {
+        color: $error;
+    }
+}
+
+.details-display {
+    position: relative;
+    width: 100%;
+    min-height: 12em;
+    flex: 1;
+    padding: 1em 2em;
+    overflow: hidden;
+
+    @include respond-to(mobile) {
+        padding: 1em 1.5em;
+    }
+}
+
+.timeline {
+    height: 4em;
+    width: 100%;
+    background-color: rgba(#fff, .05);
+}
+
+.no-time {
+    .status {
+        width: 6em;
+
+        @include respond-to(portrait) {
+            height: 6em;
+            width: 100%;
+            align-items: center;
+        }
+    }
+
+    .details-display {
+        font-size: .8em;
+        padding: 1em;
+    }
+}
+
+.dot {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    height: 1.5em;
+    width: 1.5em;
+    border-radius: 50%;
+    background-color: $error;
+}

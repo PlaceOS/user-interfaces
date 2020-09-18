@@ -1,20 +1,19 @@
 import { FormGroup } from '@angular/forms';
 import { formatDuration } from 'date-fns';
 
-import { randomInt } from 'src/app/common/general';
+import { predictableRandomInt } from 'src/app/common/general';
 
 import { generateMockUser } from '../users/user.utilities';
 import { HashMap } from 'src/app/common/types';
-import { BookingRule, SpaceCheckOptions, SpaceRules, SpaceRuleOptions } from './booking.interfaces';
-
-import * as faker from 'faker';
-import * as dayjs from 'dayjs';
-import * as customParseFormat from 'dayjs/plugin/customParseFormat';
-dayjs.extend(customParseFormat);
 import { CalendarEvent } from '../events/event.class';
 import { CateringItem } from '../catering/catering-item.class';
 import { Space } from '../spaces/space.class';
 import { User } from '../users/user.class';
+import { BookingRule, SpaceCheckOptions, SpaceRules, SpaceRuleOptions } from './booking.interfaces';
+
+import * as dayjs from 'dayjs';
+import * as customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 const MINUTE = 1;
 const HOUR = 60;
@@ -46,7 +45,7 @@ export function setMockBookingStartDatetime(time: number) {
     BOOKING_DATE = dayjs(time).startOf('m');
 }
 
-const randomQuarterHours = () => randomInt(5, 2) * 15;
+const randomQuarterHours = () => predictableRandomInt(5, 2) * 15;
 
 /**
  * Create mock raw API data for a booking
@@ -66,9 +65,9 @@ export function generateMockBooking(override: HashMap = {}, resetDate = false) {
     });
     return {
         id,
-        icaluid: Math.floor(Math.random() * 99999999),
-        title: `${faker.commerce.productName()} Meeting`,
-        attendees: Array(Math.floor(Math.random() * 5 + 2))
+        icaluid: predictableRandomInt(99_999_999),
+        title: `A Meeting ${predictableRandomInt(99)}`,
+        attendees: Array(predictableRandomInt(5) + 2)
             .fill(0)
             .map((i) => generateMockUser()),
         organiser: generateMockUser(),
@@ -76,16 +75,16 @@ export function generateMockBooking(override: HashMap = {}, resetDate = false) {
         end_epoch: dayjs(start).add(duration, 'm').unix(),
         date: start,
         duration,
-        description: faker.lorem.paragraph(),
-        notes: [{ type: 'other', message: faker.lorem.paragraph() }],
-        location: faker.address.city(),
-        catering: Math.floor(Math.random() * 34567) % 3 === 0,
+        description: `A Description`,
+        notes: [{ type: 'other', message: `Some notes` }],
+        location: `Your City`,
+        catering: predictableRandomInt(34567) % 3 === 0,
         extension_data: {
             catering_order: [cateringItem],
             catering_notes:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dui faucibus in ornare quam viverra orci. Metus dictum at tempor commodo ullamcorper a lacus.',
         },
-        link: Math.random() > 0.5 ? 'https://browser.zoom.fake/j/12' : '',
+        link: predictableRandomInt(10) > 5 ? 'https://browser.zoom.fake/j/12' : '',
         room_ids: [],
         ...override,
     };

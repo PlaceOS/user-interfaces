@@ -1,0 +1,61 @@
+
+@import 'variables';
+@import 'mixins';
+
+.details {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+
+    @include respond-to(mobile) {
+        font-size: 1.2em;
+    }
+}
+
+.current {
+    .time {
+        color: $error;
+    }
+}
+
+.next {
+    .time {
+        color: $pending;
+    }
+}
+
+.other {
+    .time {
+        color: $success;
+    }
+}
+
+.host {
+    font-size: .9em;
+    color: rgba($font-light, .6);
+}
+
+.time {
+    margin-bottom: .5em;
+}
+
+.information {
+    .title {
+        font-size: 1.2em;
+        margin-bottom: .6em;
+    }
+}
+
+.block {
+    display: flex;
+    align-items: center;
+
+    img {
+        max-width: 6em;
+        max-height: 6em;
+        margin-right: 1em;
+    }
+}
+
+.text {
+    font-size: .9em;
+}

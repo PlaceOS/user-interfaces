@@ -1,0 +1,40 @@
+<div class="booking-panel" [class.disabled]="interactive === false" [class.reverse]="reverse || flip_status" [class.no-time]="!show_time">
+    <div [class]="'status' + (status && !hide_all ? ' ' + status : '')">
+        <div class="time-display" *ngIf="show_time">{{ display_time }}</div>
+    </div>
+    <div class="body">
+        <div class="details-display">
+            <div class="content">
+                <div class="title" (click)="showTitle()" [class.show]="show_title">{{ space_name }}</div>
+                <div [class]="'status-text' + (status && !hide_all ? ' ' + status : '')" *ngIf="!hide_status">
+                    {{ (!hide_all ? status_display : null) || 'Not Bookable' }}
+                </div>
+                <div class="details" *ngIf="!hide_all && show_details">
+                    <panel-space-details></panel-space-details>
+                </div>
+            </div>
+            <div class="overlay" *ngIf="!hide_all && show_details">
+                <panel-booking-actions></panel-booking-actions>
+                <panel-custom-actions></panel-custom-actions>
+            </div>
+            <div class="dot" *ngIf="!websocket_connected"></div>
+        </div>
+        <div class="timeline" *ngIf="show_details">
+            <panel-timeline [space]="space"></panel-timeline>
+        </div>
+    </div>
+    <div class="bindings" *ngIf="system_id">
+        <i binding [sys]="system_id" mod="Bookings" bind="room_name" [(model)]="space_name"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="touch_enabled" [(model)]="interactive"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="timeout" [(model)]="pending_timeout"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="cancel_timeout" [(model)]="cancel_timeout"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="last_meeting_started" [(model)]="last_started"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="hide_all" [(model)]="hide_all"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="flip_status" [(model)]="flip_status"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="can_cancel" [(model)]="can_cancel"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="business_start" [(model)]="business_start"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="business_end" [(model)]="business_end"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="hide_status" [(model)]="hide_status"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="status_override" [(model)]="status_overrides"></i>
+    </div>
+</div>

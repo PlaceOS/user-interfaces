@@ -81,6 +81,36 @@ a[button],
     }
 }
 
+.panel {
+    .mat-icon-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 2em;
+        width: 2em;
+        font-size: 1em;
+
+        &.action {
+            background-color: #fff;
+            border: 2px solid #000;
+            box-shadow: 0 0 0 2px #fff;
+            color: rgba(#000, .8);
+            height: 2em;
+            width: 2em;
+        }
+
+        .mat-button-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        app-icon {
+            font-size: 1em;
+        }
+    }
+}
+
 .dropdown[widget] {
     &.default {
         width: 9.5em;
@@ -236,6 +266,19 @@ mat-select {
 
     .mat-form-field-subscript-wrapper {
         overflow: visible;
+    }
+
+    .mat-form-field-wrapper {
+        .mat-form-field-label {
+            top: 2em;
+            margin-top: -0.1em;
+        }
+    }
+
+    .mat-form-field-should-float .mat-form-field-wrapper {
+        .mat-form-field-label {
+            transform: translateY(-1.5em) scale(.75) !important;
+        }
     }
 }
 

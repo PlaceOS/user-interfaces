@@ -1,0 +1,48 @@
+
+@import 'variables';
+
+.background {
+    position: absolute;
+    height: calc(101vh);
+    width: calc(101vw);
+    background-color: #fff;
+    transform: translate(-50%, -50%);
+}
+
+.control {
+    position: absolute;
+    height: calc(100vh - 3em);
+    width: 100vw;
+    box-sizing: content-box;
+    border: 2px solid #fff;
+    border-top: 1px solid #ccc;
+    overflow: hidden;
+    background-color: $color-primary;
+    transform: translate(-50%, calc(-50% + 1.75em));
+}
+
+.control-frame,
+iframe {
+    height: 100%;
+    width: 100%;
+    border: none;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    height: 3em;
+}
+
+.countdown {
+    font-size: 1.5em;
+    margin: 0 .5em;
+}
+
+button {
+    font-size: 1.5em;
+    margin: 0 .5em;
+}

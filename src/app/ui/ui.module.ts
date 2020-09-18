@@ -21,6 +21,16 @@ import { TimeFieldComponent } from './time-field/time-field.component';
 import { UserListFieldComponent } from './user-list-field/user-list-field.component';
 import { UserSearchFieldComponent } from './user-search-field/user-search-field.component';
 
+const MAT_MODULES: any[] = [
+    MatAutocompleteModule,
+    MatMenuModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatAutocompleteModule,
+    MatSelectModule
+];
+
 const COMPONENTS: Type<any>[] = [
     ActionIconComponent,
     IconComponent,
@@ -39,17 +49,8 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        MatMenuModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatAutocompleteModule,
-        ADatePickerModule,
-    ],
+    imports: [FormsModule, ReactiveFormsModule, ADatePickerModule, ...MAT_MODULES],
     providers: [],
-    exports: [...COMPONENTS, ...DIRECTIVES],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
 })
 export class SharedUIModule {}

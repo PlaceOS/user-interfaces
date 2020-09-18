@@ -1,0 +1,56 @@
+<div class="space-booking-details">
+    <div class="details current" *ngIf="current | async">
+        <div class="time" *ngIf="!hide_availability">
+            Booked until {{ (current | async)?.display.end }}
+        </div>
+        <div class="title" *ngIf="!hide_title && !hide_details">{{ (current | async)?.title }}</div>
+        <div class="host" *ngIf="!hide_user && !hide_details">
+            {{ (current | async)?.organiser?.name }}
+        </div>
+    </div>
+    <div class="details next" *ngIf="next | async">
+        <div class="time" *ngIf="!hide_availability">
+            Next meeting at {{ (next | async).display.time }}
+        </div>
+        <div class="title" *ngIf="!hide_title && !hide_details">{{ (next | async).title }}</div>
+        <div class="host" *ngIf="!hide_user && !hide_details">
+            {{ (next | async).organiser?.name }}
+        </div>
+    </div>
+    <div class="details other" *ngIf="(current | async) && (next | async)">
+        <div class="time" *ngIf="!hide_availability">
+            Free {{ (next_free | async).start ? 'at ' + (next_free | async).start : '' }}
+            {{ (next_free | async).end ? 'until ' + (next_free | async).end : '' }}
+        </div>
+    </div>
+    <div class="information" *ngIf="title || description">
+        <div class="title">{{ title }}</div>
+        <div class="block">
+            <div class="icon" *ngIf="icon">
+                <img [src]="icon" />
+            </div>
+            <div class="text">{{ description }}</div>
+        </div>
+    </div>
+    <div class="bindings" *ngIf="system_id">
+        <i
+            binding
+            [sys]="system_id"
+            mod="Bookings"
+            bind="hide_details"
+            [(model)]="hide_details"
+        ></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="hide_title" [(model)]="hide_title"></i>
+        <i
+            binding
+            [sys]="system_id"
+            mod="Bookings"
+            bind="hide_availability"
+            [(model)]="hide_availability"
+        ></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="hide_user" [(model)]="hide_user"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="title" [(model)]="title"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="description" [(model)]="description"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="icon" [(model)]="icon"></i>
+    </div>
+</div>

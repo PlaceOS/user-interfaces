@@ -1,0 +1,27 @@
+<div class="custom-actions" *ngIf="system_id">
+    <div class="actions">
+        <button
+            mat-icon-button
+            class="action control"
+            *ngIf="can_control !== false && control_url"
+            (click)="openControl()"
+            (contextmenu)="$event.preventDefault()"
+        >
+            <app-icon [icon]="{ class: 'material-icons', content: 'dvr' }"></app-icon>
+        </button>
+        <button
+            mat-icon-button
+            class="action service"
+            *ngIf="catering"
+            (click)="confirmWaiterCall()"
+            (contextmenu)="$event.preventDefault()"
+        >
+            <app-icon [icon]="{ class: 'material-icons', content: 'room_service' }"></app-icon>
+        </button>
+    </div>
+    <div class="bindings">
+        <i binding [sys]="system_id" mod="Bookings" bind="control_url" [(model)]="control_url"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="can_control" [(model)]="can_control"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="has_catering" [(model)]="catering"></i>
+    </div>
+</div>

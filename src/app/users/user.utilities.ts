@@ -2,10 +2,8 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { HashMap } from '../common/types';
-import { unique } from '../common/general';
+import { unique, predictableRandomInt } from '../common/general';
 import { User } from './user.class';
-
-import * as faker from 'faker';
 
 let USER_COUNT = 0;
 
@@ -24,16 +22,16 @@ export function generateMockUser(id?: string, name?: string, external?: boolean)
         id = `user-${USER_COUNT++}`;
     }
     if (!name) {
-        name = `${faker.name.firstName()} ${faker.name.lastName()}`;
+        name = `User ${USER_COUNT}`;
     }
     if (external === undefined) {
-        external = !((Math.random() * 99999) % 2);
+        external = !(predictableRandomInt(99999) % 2);
     }
-    const organisation = external ? faker.company.companyName() : USER_DOMAIN.split('.')[0];
+    const organisation = external ? `Fake Co.` : USER_DOMAIN.split('.')[0];
     let delegates: string[] = [];
-    const delegate_count = Math.min(Math.random() * 4 + 1, USER_EMAILS.length);
+    const delegate_count = Math.min(predictableRandomInt(4) + 1, USER_EMAILS.length);
     for (let i = 0; i < delegate_count; i++) {
-        delegates.push(USER_EMAILS[Math.floor(Math.random() * USER_EMAILS.length)]);
+        delegates.push(USER_EMAILS[predictableRandomInt(USER_EMAILS.length)]);
     }
     delegates = unique(delegates);
     const email = `${name.split(' ').join('.').toLowerCase()}@${
@@ -46,16 +44,16 @@ export function generateMockUser(id?: string, name?: string, external?: boolean)
         first_name: name.split(' ')[0],
         last_name: name.split(' ')[1],
         email,
-        phone: faker.phone.phoneNumber(),
+        phone: `(02) 4567 8901`,
         visitor: external,
         organisation: {
             id: organisation.split(' ').join('.').toLowerCase(),
             name: organisation,
         },
-        department: faker.commerce.department(),
-        staff_code: Math.floor(Math.random() * 99999),
+        department: `Department ${predictableRandomInt(10)}`,
+        staff_code: predictableRandomInt(999_999),
         delegates,
-        image: faker.image.avatar(),
+        image: `${id}.png`,
     };
 }
 

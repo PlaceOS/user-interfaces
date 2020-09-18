@@ -1,7 +1,7 @@
 
-const domain = 'mck.aca.im';
+const domain = 'pwcme.dev.place.tech';
 const secure = true;
-const valid_ssl = true;
+const valid_ssl = false;
 
 const PROXY_CONFIG = [
     {
@@ -21,6 +21,7 @@ const PROXY_CONFIG = [
     {
         context: [
             "/control/websocket",
+            "/api",
         ],
         target: `ws${secure ? 's' : ''}://${domain}`,
         secure: valid_ssl,

@@ -1,0 +1,54 @@
+<div class="booking-actions" *ngIf="system_id">
+    <div class="actions">
+        <button
+            mat-icon-button
+            class="end large action"
+            *ngIf="status === 'endable'"
+            (click)="confirmEnd()"
+            (contextmenu)="$event.preventDefault()"
+        >
+            <div class="wrapper">
+                <app-icon [icon]="{ class: 'material-icons', content: 'event_busy' }"></app-icon>
+                <div class="text">End</div>
+            </div>
+        </button>
+        <button
+            mat-icon-button
+            class="start large action"
+            *ngIf="status === 'pending'"
+            (click)="startMeeting()"
+            (contextmenu)="$event.preventDefault()"
+        >
+            <div class="wrapper">
+                <app-icon [icon]="{ class: 'material-icons', content: 'event_available' }"></app-icon>
+                <div class="text">Start</div>
+            </div>
+        </button>
+        <button
+            mat-icon-button
+            class="book large action"
+            *ngIf="!no_booking"
+            (click)="book()"
+            (contextmenu)="$event.preventDefault()"
+        >
+            <div class="wrapper">
+                <app-icon [icon]="{ class: 'material-icons', content: 'add' }"></app-icon>
+                <div class="text">Book</div>
+            </div>
+        </button>
+    </div>
+    <div class="bindings">
+        <i binding [sys]="system_id" mod="Bookings" bind="booking_disabled" [(model)]="no_booking"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="last_meeting_started" [(model)]="last_started"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="is_endable" [(model)]="is_endable"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="timeout" [(model)]="pending_timeout"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="cancel_timeout" [(model)]="cancel_timeout"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="ask_start" [(model)]="ask_start"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="ask_end" [(model)]="ask_end"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="default_title" [(model)]="default_title"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="min_duration" [(model)]="min_duration"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="max_duration" [(model)]="max_duration"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="business_start" [(model)]="business_start"></i>
+        <i binding [sys]="system_id" mod="Bookings" bind="business_end" [(model)]="business_end"></i>
+    </div>
+</div>

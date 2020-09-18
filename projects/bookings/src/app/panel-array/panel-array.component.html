@@ -1,0 +1,27 @@
+<div class="panel-array">
+    <ng-container *ngIf="systems && systems.length > 0; else none">
+        <div
+            class="panel-outlet"
+            *ngFor="let id of systems | slice: 0:4; let i = index"
+            [style.height]="systems.length >= 2 ? '50%' : '100%'"
+        >
+            <app-booking-panel *ngIf="id; else empty_state" [system_id]="id" [show_time]="false" [reverse]="i % 2 !== 0"></app-booking-panel>
+        </div>
+    </ng-container>
+    <ng-template #none>
+        <div class="info-block">
+            <div class="text">No systems are set for displaying on the panel array</div>
+        </div>
+    </ng-template>
+</div>
+<ng-template #empty_state>
+    <div class="container">
+        <div class="content center">
+            <div class="logo" *ngIf="logo">
+                <img [src]="logo"/>
+            </div>
+            <div class="time">{{ time }}</div>
+        </div>
+    </div>
+</ng-template>
+

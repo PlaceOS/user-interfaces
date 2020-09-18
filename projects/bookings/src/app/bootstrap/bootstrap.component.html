@@ -1,0 +1,39 @@
+<div class="bootstrap">
+    <div class="options">
+        <div class="header fs-big">
+            <h1>Booking Panel Setup</h1>
+        </div>
+        <div class="body" *ngIf="!loading; else load_state">
+            <p class="description">Input the PlaceOS System ID to bootstrap</p>
+            <mat-form-field appearance="outline">
+                <mat-label>System ID</mat-label>
+                <input
+                    matInput
+                    [(ngModel)]="system_id"
+                    [matAutocomplete]="auto"
+                    placeholder="System ID"
+                    (ngModelChange)="filter($event)"
+                />
+            </mat-form-field>
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of filtered_list" [value]="option.id">
+                    <div class="details">
+                        <div class="name">{{ option.name }}</div>
+                        <div class="info">{{ option.id }}</div>
+                    </div>
+                </mat-option>
+            </mat-autocomplete>
+            <button mat-button [disabled]="!system_id" (click)="bootstrap()">Submit</button>
+        </div>
+    </div>
+</div>
+<ng-template #load_state>
+    <div class="body">
+        <div class="info-block">
+            <div class="icon">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+            <div class="text">Loading system data...</div>
+        </div>
+    </div>
+</ng-template>

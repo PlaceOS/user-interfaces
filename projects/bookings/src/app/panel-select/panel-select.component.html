@@ -1,0 +1,34 @@
+<div class="panel-select" (window:mousedown)="reset()" (window:touchstart)="reset()">
+    <div class="panel-options">
+        <ng-container *ngIf="systems && systems.length > 0; else none">
+            <div class="item" *ngFor="let id of systems | slice: 0:8; let i = index" (click)="system_name[id] ? showPanel(id) : ''">
+                <div class="bindings" *ngIf="id">
+                    <i binding [sys]="id" mod="Bookings" bind="room_name" [(model)]="system_name[id]"></i>
+                    <i binding [sys]="id" mod="Bookings" bind="icon" [(model)]="system_icon[id]"></i>
+                    <i binding [sys]="id" mod="Bookings" bind="today" (modelChange)="updateStatus(id, $event)"></i>
+                </div>
+                <div [class]="'icon' + (system_status[id] ? ' ' + system_status[id] : '')">
+                    <img *ngIf="system_name[id]" [src]="system_icon[id]">
+                    <mat-spinner *ngIf="!system_name[id]" [diameter]="32"></mat-spinner>
+                </div>
+                <div class="text">{{ system_name[id] || id + ' connecting...' }}</div>
+            </div>
+        </ng-container>
+    </div>
+    <div class="panel-outlet" *ngIf="active_system">
+        <app-booking-panel [system_id]="active_system"></app-booking-panel>
+        <div class="overlay">
+            <button widget class="action close" (click)="close()" (contextmenu)="$event.preventDefault()">
+                <div class="icon">
+                    <i class="material-icons">close</i>
+                </div>
+            </button>
+            <button widget class="action countdown" (contextmenu)="$event.preventDefault()">{{ countdown }}</button>
+        </div>
+    </div>
+    <ng-template #none>
+        <div class="info-block">
+            <div class="text">No systems are set for displaying on the panel select list</div>
+        </div>
+    </ng-template>
+</div>

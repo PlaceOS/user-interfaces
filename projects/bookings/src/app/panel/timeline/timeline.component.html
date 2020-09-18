@@ -1,0 +1,31 @@
+<div class="timeline">
+    <div class="block-list" *ngIf="time_blocks && time_blocks.length > 0">
+        <div
+            class="block"
+            *ngFor="let item of time_blocks"
+            [class.show]="item.show || item.hour"
+            [class.in-use]="item.in_use"
+            (click)="!item.in_use && !no_booking && !no_timeline_bookings ? book(item) : ''"
+        >
+            <div class="hour" *ngIf="item.hour">{{ item.hour }}</div>
+            <div class="bar" [class.hour]="item.hour"></div>
+        </div>
+    </div>
+    <div class="overlay">
+        <div class="expired" [style.width]="((options?.start_offset || 120) / (options?.duration || 720)) * 100 + '%'"></div>
+        <div class="current-block" [style.left]="((options?.start_offset || 120) / (options?.duration || 720)) * 100 + '%'">
+            <div class="bar"></div>
+            <div class="triangle"></div>
+            <div class="time-display" *ngIf="display_time">{{ display_time }}</div>
+        </div>
+    </div>
+    <div class="bindings" *ngIf="space">
+        <i binding [sys]="space.id" mod="Bookings" bind="hide_availability" [(model)]="hide_status" (modelChange)="checkBookings()"></i>
+        <i binding [sys]="space.id" mod="Bookings" bind="hide_all" [(model)]="hide_all" (modelChange)="checkBookings()"></i>
+        <i binding [sys]="space.id" mod="Bookings" bind="booking_disabled" [(model)]="no_booking"></i>
+        <i binding [sys]="space.id" mod="Bookings" bind="no_timeline_bookings" [(model)]="no_timeline_bookings"></i>
+        <i binding [sys]="space.id" mod="Bookings" bind="default_title" [(model)]="default_title"></i>
+        <i binding [sys]="space.id" mod="Bookings" bind="min_duration" [(model)]="min_duration"></i>
+        <i binding [sys]="space.id" mod="Bookings" bind="max_duration" [(model)]="max_duration"></i>
+    </div>
+</div>

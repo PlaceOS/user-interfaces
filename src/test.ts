@@ -13,7 +13,7 @@ import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { SpacesService } from 'src/app/spaces/spaces.service';
 import { SettingsService } from 'src/app/common/settings.service';
-// import { BookingsService } from './app/services/bookings/bookings.service';
+import { EventsService } from 'src/app/events/events.service';
 import { OrganisationService } from 'src/app/organisation/organisation.service';
 import { StaffService } from 'src/app/users/staff.service';
 import { IconComponent } from 'src/app/ui/icon/icon.component';
@@ -90,7 +90,7 @@ defineGlobalsInjections({
         mockProvider(SwUpdate),
         mockProvider(SpacesService, { initialised: of(true) }),
         mockProvider(SettingsService, { initialised: of(true) }),
-        // mockProvider(BookingsService, { initialised: of(true) }),
+        mockProvider(EventsService, { initialised: of(true) }),
         mockProvider(StaffService, { initialised: of(true) }),
         mockProvider(OrganisationService, { initialised: of(true) }),
     ],

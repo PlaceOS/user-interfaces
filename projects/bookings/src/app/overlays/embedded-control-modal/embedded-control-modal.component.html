@@ -1,0 +1,12 @@
+<div class="background"></div>
+<div class="modal control" [@show] (window:click)="reset()">
+    <div class="control-frame">
+        <iframe [src]="control_url | safe: 'resource'"></iframe>
+    </div>
+</div>
+<div class="overlay">
+    <div class="countdown">{{ countdown }}</div>
+    <button mat-icon-button class="close" (click)="close()" (contextmenu)="$event.preventDefault()">
+        <app-icon [icon]="{ class: 'material-icons', content: 'close' }"></app-icon>
+    </button>
+</div>

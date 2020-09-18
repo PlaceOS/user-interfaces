@@ -31,7 +31,12 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "src/styles.scss"
@@ -74,7 +79,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "template-uis:build"
+            "browserTarget": "template-uis:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -101,7 +107,12 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "src/styles.scss"
@@ -151,7 +162,12 @@
             "assets": [
               "projects/workplace/src/favicon.ico",
               "projects/workplace/src/assets",
-              "projects/workplace/src/manifest.webmanifest"
+              "projects/workplace/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/workplace/src/styles.scss"
@@ -194,7 +210,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "workplace:build"
+            "browserTarget": "workplace:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -221,7 +238,12 @@
             "assets": [
               "projects/workplace/src/favicon.ico",
               "projects/workplace/src/assets",
-              "projects/workplace/src/manifest.webmanifest"
+              "projects/workplace/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/workplace/src/styles.scss"
@@ -271,7 +293,12 @@
             "assets": [
               "projects/bookings/src/favicon.ico",
               "projects/bookings/src/assets",
-              "projects/bookings/src/manifest.webmanifest"
+              "projects/bookings/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/bookings/src/styles.scss"
@@ -314,7 +341,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "bookings:build"
+            "browserTarget": "bookings:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -341,7 +369,12 @@
             "assets": [
               "projects/bookings/src/favicon.ico",
               "projects/bookings/src/assets",
-              "projects/bookings/src/manifest.webmanifest"
+              "projects/bookings/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/bookings/src/styles.scss"
@@ -391,7 +424,12 @@
             "assets": [
               "projects/control/src/favicon.ico",
               "projects/control/src/assets",
-              "projects/control/src/manifest.webmanifest"
+              "projects/control/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/control/src/styles.scss"
@@ -434,7 +472,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "control:build"
+            "browserTarget": "control:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -461,7 +500,12 @@
             "assets": [
               "projects/control/src/favicon.ico",
               "projects/control/src/assets",
-              "projects/control/src/manifest.webmanifest"
+              "projects/control/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/control/src/styles.scss"
@@ -511,7 +555,12 @@
             "assets": [
               "projects/concierge/src/favicon.ico",
               "projects/concierge/src/assets",
-              "projects/concierge/src/manifest.webmanifest"
+              "projects/concierge/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/concierge/src/styles.scss"
@@ -554,7 +603,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "concierge:build"
+            "browserTarget": "concierge:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -581,7 +631,12 @@
             "assets": [
               "projects/concierge/src/favicon.ico",
               "projects/concierge/src/assets",
-              "projects/concierge/src/manifest.webmanifest"
+              "projects/concierge/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/concierge/src/styles.scss"
@@ -631,7 +686,12 @@
             "assets": [
               "projects/catering/src/favicon.ico",
               "projects/catering/src/assets",
-              "projects/catering/src/manifest.webmanifest"
+              "projects/catering/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/catering/src/styles.scss"
@@ -674,7 +734,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "catering:build"
+            "browserTarget": "catering:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -701,7 +762,12 @@
             "assets": [
               "projects/catering/src/favicon.ico",
               "projects/catering/src/assets",
-              "projects/catering/src/manifest.webmanifest"
+              "projects/catering/src/manifest.webmanifest",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/catering/src/styles.scss"
@@ -750,7 +816,12 @@
             },
             "assets": [
               "projects/kiosk/src/favicon.ico",
-              "projects/kiosk/src/assets"
+              "projects/kiosk/src/assets",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/kiosk/src/styles.scss"
@@ -791,7 +862,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "kiosk:build"
+            "browserTarget": "kiosk:build",
+            "proxyConfig": "config/proxy.conf.js"
           },
           "configurations": {
             "production": {
@@ -817,7 +889,12 @@
             },
             "assets": [
               "projects/kiosk/src/favicon.ico",
-              "projects/kiosk/src/assets"
+              "projects/kiosk/src/assets",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              }
             ],
             "styles": [
               "projects/kiosk/src/styles.scss"

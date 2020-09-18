@@ -40,11 +40,10 @@ $color-secondary: #e0301e;
 $color-secondary-light: lighten($color-secondary, 10);
 $color-secondary-dark: darken($color-secondary, 10);
 
-$background: #f0f0f0;
-$background-grey: #596c80;
-$background-light-grey: #7d7d7d;
-$background-dark-grey: #2d2d2d;
+$bg-light: #f0f0f0;
+$bg-dark: #263238;
 $footer-back: #263238;
+$grey: #969696;
 
 $color-ternary: #0a0d2e;
 $color-external: #151c6a;
@@ -52,7 +51,7 @@ $color-external: #151c6a;
 // Type colors for booking status
 $internal: $color-primary;
 $external: $color-external;
-$cancelled: $background-grey;
+$cancelled: $grey;
 
 /*===========*\
 ||   Fonts   ||
