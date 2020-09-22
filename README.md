@@ -25,7 +25,7 @@
 
 To run the dev server use the command `ng serve <project>` e.g. `ng serve control`
 
-By default the dev web server proxies all requests to the set live system, if you wish to use a mock system use set `mock` to `true` in the `projects/<project>/app/settings.ts` file
+By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems add `?mock=true` when loading up the application URL. e.g. `http://localhost:4200/#/?mock=true`
 
 ## Compilation
 
@@ -37,18 +37,18 @@ Default application/runtime settings can be found in `projects/<project>/app/set
 
 ## Tests
 
-Unit tests can be run using `ng test <project>`  e.g. `ng test kiosk`
+Unit tests can be run using `ng test <project>` e.g. `ng test kiosk`
 
-Integration tests can be run first starting up the webpack dev server with `ng serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `npx cypress run`  
+Integration tests can be run first starting up the webpack dev server with `ng serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `npx cypress run`
 
 ## Available Frontends
 
 There are 7 available frontends for this client
 
-- [`bookings`](./projects/bookings/README.md) | Booking Panel user interface
-- [`catering`](./projects/catering/README.md) | Interface for external caterers
-- [`concierge`](./projects/concierge/README.md) | Concierge / Front of House application
-- [`control`](./projects/control/README.md) | AV/Room Control application
-- [`enrolment`](./projects/enrolment/README.md) | Visitor enrolment UI
-- [`kiosk`](./projects/map-kiosk/README.md) | Internal building location kiosk UI
-- [`workplace`](./projects/workplace/README.md) | Staff Application
+-   [`bookings`](./projects/bookings/README.md) | Booking Panel user interface
+-   [`catering`](./projects/catering/README.md) | Interface for external caterers
+-   [`concierge`](./projects/concierge/README.md) | Concierge / Front of House application
+-   [`control`](./projects/control/README.md) | AV/Room Control application
+-   [`enrolment`](./projects/enrolment/README.md) | Visitor enrolment UI
+-   [`kiosk`](./projects/map-kiosk/README.md) | Internal building location kiosk UI
+-   [`workplace`](./projects/workplace/README.md) | Staff Application
