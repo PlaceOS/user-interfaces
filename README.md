@@ -1,27 +1,54 @@
-# TemplateUis
+# PlaceOS Template User Interfaces
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.1.
+![Bookings PROD](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-PROD/badge.svg)
+![Bookings UAT](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-DEVELOP/badge.svg)  
+![Catering PROD](https://github.com/placeos/user-interfaces/workflows/CATERING-PROD/badge.svg)
+![Catering UAT](https://github.com/placeos/user-interfaces/workflows/CATERING-DEVELOP/badge.svg)  
+![Concierge PROD](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-PROD/badge.svg)
+![Concierge UAT](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-DEVELOP/badge.svg)  
+![Control PROD](https://github.com/placeos/user-interfaces/workflows/CONTROL-PROD/badge.svg)
+![Control UAT](https://github.com/placeos/user-interfaces/workflows/CONTROL-DEVELOP/badge.svg)  
+![Enrolment PROD](https://github.com/placeos/user-interfaces/workflows/ENROLMENT-PROD/badge.svg)
+![Enrolment UAT](https://github.com/placeos/user-interfaces/workflows/ENROLMENT-DEVELOP/badge.svg)  
+![Map Kiosk PROD](https://github.com/placeos/user-interfaces/workflows/KIOSK-PROD/badge.svg)
+![Map Kiosk UAT](https://github.com/placeos/user-interfaces/workflows/KIOSK-DEVELOP/badge.svg)  
+![Workplace PROD](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-PROD/badge.svg)
+![Workplace UAT](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-DEVELOP/badge.svg)
 
-## Development server
+## Setup
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+1. Install [NodeJS](https://nodejs.org/en/download/current/)
+1. Run `npm install` in the root folder
+1. Run `npm install --global @angular/cli` to Install [Angular CLI](https://github.com/angular/angular-cli)
 
-## Code scaffolding
+## Development
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+To run the dev server use the command `ng serve <project>` e.g. `ng serve control`
 
-## Build
+By default the dev web server proxies all requests to the set live system, if you wish to use a mock system use set `mock` to `true` in the `projects/<project>/app/settings.ts` file
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Compilation
 
-## Running unit tests
+Compile the application into static files using `ng build <project>` e.g. `ng build bookings`
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The command takes the arguments `--prod` to minify the resulting build and `--aot` to compile the angular code using the angular Ahead of Time compiler.
 
-## Running end-to-end tests
+Default application/runtime settings can be found in `projects/<project>/app/settings.ts`
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+## Tests
 
-## Further help
+Unit tests can be run using `ng test <project>`  e.g. `ng test kiosk`
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+Integration tests can be run first starting up the webpack dev server with `ng serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `npx cypress run`  
+
+## Available Frontends
+
+There are 7 available frontends for this client
+
+- [`bookings`](./projects/bookings/README.md) | Booking Panel user interface
+- [`catering`](./projects/catering/README.md) | Interface for external caterers
+- [`concierge`](./projects/concierge/README.md) | Concierge / Front of House application
+- [`control`](./projects/control/README.md) | AV/Room Control application
+- [`enrolment`](./projects/enrolment/README.md) | Visitor enrolment UI
+- [`kiosk`](./projects/map-kiosk/README.md) | Internal building location kiosk UI
+- [`workplace`](./projects/workplace/README.md) | Staff Application
