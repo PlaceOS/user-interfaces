@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
-import { onlineState, queryZones, showMetadata, updateMetadata, listChildMetadata } from '@placeos/ts-client';
+import {
+    onlineState,
+    queryZones,
+    showMetadata,
+    updateMetadata,
+    listChildMetadata,
+} from '@placeos/ts-client';
 import { first, map } from 'rxjs/operators';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { Organisation } from './organisation.class';
 import { Building } from './building.class';
@@ -30,6 +36,10 @@ export class OrganisationService {
     public readonly level_list = this.levels_subject.asObservable();
     /** Observable for the currently active building */
     public readonly active_building = this.active_building_subject.asObservable();
+    /** Observable for the levels associated with the currently active building */
+    public readonly active_levels = combineLatest([this.level_list, this.active_building]).pipe(
+        map((details) => (details[1] ? this.levelsForBuilding(details[1]) : []))
+    );
     /** Organisation data for the application */
     private _organisation: Organisation;
     /** Mapping of organisation settings overrides */
@@ -91,7 +101,7 @@ export class OrganisationService {
             if (bld) {
                 this._service.overrides = [this._settings, this.buildingSettings(bld.id)];
             }
-        })
+        });
     }
 
     /**
@@ -170,9 +180,9 @@ export class OrganisationService {
         const level_list = await queryZones({ tags: 'level', limit: 2500 } as any)
             .pipe(map((i) => i.data))
             .toPromise();
-        const levels = level_list
-            .map((lvl) => new BuildingLevel(lvl))
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        const levels = level_list.map((lvl) => new BuildingLevel(lvl));
+        levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        console.log('Levels:', levels);
         this.levels_subject.next(levels);
     }
 

@@ -13,6 +13,7 @@ import { PlaceUser, onlineState } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
 import { StaffService } from 'src/app/users/staff.service';
+import { StaffUser } from 'src/app/users/user.class';
 
 @Injectable({
     providedIn: 'root',
@@ -27,23 +28,23 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: PlaceUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise();
-        const can_activate = user && (user.sys_admin || user.support);
+        const user: StaffUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise();
+        const can_activate = user && user.groups
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
-        return can_activate;
+        return !!can_activate;
     }
 
     public async canLoad(route: Route, segments: UrlSegment[]): Promise<boolean> {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: PlaceUser = await this._users.user.pipe(first((_) => !!_)).toPromise();
-        const can_activate = user && (user.sys_admin || user.support);
+        const user: StaffUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise();
+        const can_activate = user && user.groups
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
-        return can_activate;
+        return !!can_activate;
     }
 }

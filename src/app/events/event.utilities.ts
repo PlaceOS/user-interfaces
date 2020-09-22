@@ -11,7 +11,9 @@ import {
     startOfMinute,
     setHours,
     setMinutes,
+    addMinutes,
 } from 'date-fns';
+import { timePeriodsIntersect, unique } from '../common/general';
 
 import { CalendarEvent } from './event.class';
 import { SpaceRuleOptions, SpaceRules, SpaceCheckOptions } from './event.interfaces';
@@ -405,11 +407,22 @@ export function getNextFreeBookingSlot(
     return slots[slots.length - 1];
 }
 
-export function timePeriodsIntersect(start1, end1, start2, end2) {
-    return (
-        (start1 >= start2 && start1 < end2) ||
-        (end1 >= start2 && end1 < end2) ||
-        (start2 >= start1 && start2 < end1) ||
-        (end2 >= start1 && end2 < end1)
-    );
+export function replaceBookings(
+    list: CalendarEvent[],
+    new_bookings: CalendarEvent[],
+    filter_options: { space: string; from: number; to: number }
+) {
+    const from = filter_options.from;
+    const to = filter_options.to;
+    const filtered_list = list.filter((booking) => {
+        const start = new Date(booking.date);
+        const end = addMinutes(start, booking.duration);
+        return (
+            !booking.resources.find((space) => space.email === filter_options.space) ||
+            !timePeriodsIntersect(from, to, start.valueOf(), end.valueOf())
+        );
+    });
+    const updated_list = filtered_list.concat(new_bookings);
+    updated_list.sort((a, b) => a.date - b.date);
+    return unique(updated_list, 'icaluid');
 }

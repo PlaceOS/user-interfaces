@@ -19,6 +19,7 @@ import { BaseClass } from './common/base.class';
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: [
+        './styles/utility.scss',
         './styles/app.component.scss',
         './styles/custom-element.styles.scss',
         './styles/native-element.styles.scss',

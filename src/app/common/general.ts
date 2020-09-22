@@ -161,6 +161,22 @@ export function flatten<T = any>(an_array: T[]) {
     return res.reverse();
 }
 
+/**
+ * Check whether two time periods intersect with each other
+ * @param start1 Unix epoch in ms of the first period's start time
+ * @param end1 Unix epoch in ms of the first period's end time
+ * @param start2 Unix epoch in ms of the second period's start time
+ * @param end2 Unix epoch in ms of the second period's end time
+ */
+export function timePeriodsIntersect(start1, end1, start2, end2) {
+    return (
+        (start1 >= start2 && start1 < end2) ||
+        (end1 > start2 && end1 < end2) ||
+        (start2 >= start1 && start2 < end1) ||
+        (end2 > start1 && end2 <= end1)
+    );
+}
+
 const seed = xmur3('PlaceOS');
 const rand = sfc32(0x9e3779b9, 0x243f6a88, 0xb7e15162, seed());
 
