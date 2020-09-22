@@ -148,7 +148,7 @@ export class OrganisationService {
             .pipe(map((i) => i.data))
             .toPromise();
         if (org_list.length) {
-            this._organisation = new Organisation(org_list[0]);
+            this._organisation = new Organisation(org_list[0] as any);
         }
     }
 

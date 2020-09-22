@@ -92,7 +92,7 @@ export class Building extends BaseDataClass {
     private _location: ICoordinates;
 
 
-    constructor(raw_data: HashMap) {
+    constructor(raw_data: HashMap = {}) {
         super(raw_data);
         const settings = raw_data.settings || {};
         this.display_name = raw_data.display_name;

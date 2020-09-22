@@ -17,7 +17,7 @@ export class BuildingLevel {
     public readonly settings: HashMap = {};
     public readonly locations: readonly Identity[];
 
-    constructor(_data: HashMap = {}) {
+    constructor(_data: Partial<BuildingLevel> = {}) {
         this.id = _data.id || '';
         this.parent_id = _data.parent_id || '';
         this.name = _data.name || '';

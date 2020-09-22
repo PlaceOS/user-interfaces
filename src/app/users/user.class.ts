@@ -38,7 +38,7 @@ export class User extends BaseDataClass {
     /** Extra metadata associated with the user */
     public readonly extension_data: HashMap;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<User> = {}) {
         super(data);
         this.phone = data.phone || '';
         this.organisation = data.organisation || '';
@@ -48,7 +48,7 @@ export class User extends BaseDataClass {
         this.visit_expected = data.visit_expected;
         this.checked_in = data.checked_in;
         this.response_status = data.response_status;
-        this.groups = (data.groups || []).map((i) => (i || '').toLowerCase());
+        this.groups = (data.groups || []).map((i) => (i || '').toLowerCase()) as any;
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;
@@ -82,7 +82,7 @@ export class GuestUser extends User {
     /** Whether guest has accepted the terms and conditions */
     public readonly accepted_terms_conditions: boolean;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<GuestUser> = {}) {
         super(data);
         this.preferred_beverage = data.preferred_beverage || '';
         this.accepted_terms_conditions = data.accepted_terms_conditions || false;
@@ -99,7 +99,7 @@ export class StaffUser extends User {
     /** Location of the user */
     public readonly location: HashMap;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<StaffUser> = {}) {
         super(data);
         this.card_number = data.card_number || 0;
         this.staff_id = data.staff_id || '';

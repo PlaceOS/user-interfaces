@@ -26,7 +26,7 @@ export class CateringOrder {
     /** Event associated with the order */
     public readonly event: CalendarEvent | null;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<CateringOrder> = {}) {
         this.id = data.id || `order-${randomInt(9_999_999, 1_000_000)}`;
         this.event_id = data.event_id || data.event?.id || '';
         this.items = (data.items || []).map(i => new CateringItem(i));
@@ -39,6 +39,6 @@ export class CateringOrder {
         this.charge_code = data.charge_code || '';
         this.status = data.status || 'accepted';
         this.event = data.event || null;
-        this.deliver_at = data.deliver_at || data.date || this.event?.date || new Date().getTime();
+        this.deliver_at = data.deliver_at || (data as any).date || this.event?.date || new Date().getTime();
     }
 }

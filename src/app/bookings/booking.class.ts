@@ -45,13 +45,13 @@ export class Booking extends BaseDataClass {
     /** Default type */
     public readonly type: string;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<Booking> = {}) {
         super(data);
         this.asset_id = data.asset_id;
         this.zones = data.zones;
         this.booking_type = data.booking_type;
         this.type = data.type || 'booking';
-        const time = data.booking_start * 1000 || data.date;
+        const time = (data as any).booking_start * 1000 || data.date;
         const start = time
             ? dayjs(time).valueOf()
             : dayjs()
@@ -59,7 +59,7 @@ export class Booking extends BaseDataClass {
                   .startOf('m')
                   .valueOf();
         this.date = start;
-        this.duration = data.duration || dayjs(data.booking_end * 1000).diff(start, 'm') || 60;
+        this.duration = data.duration || dayjs((data as any).booking_end * 1000).diff(start, 'm') || 60;
         this.timezone = data.timezone;
         this.user_email = data.user_email;
         this.user_id = data.user_id;

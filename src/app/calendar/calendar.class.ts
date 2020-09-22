@@ -1,4 +1,3 @@
-import { HashMap } from 'src/app/common/types';
 import { Space } from '../spaces/space.class';
 import { BaseDataClass } from '../common/base-api.class';
 import { differenceInMinutes } from 'date-fns';
@@ -20,13 +19,13 @@ export class Calendar extends BaseDataClass {
     /** Availability */
     public readonly availability: CalendarAvailability[];
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<Calendar> = {}) {
         super(data);
         this.primary = data.primary;
         this.summary = data.summary;
         this.can_edit = data.can_edit;
-        this.resource = new Space(data.system);
-        this.availability = (data.availability || []).map((i) => {
+        this.resource = new Space(data.resource || (data as any).system);
+        this.availability = (data.availability || []).map((i: any) => {
             return {
                 date: new Date(i.starts_at.dateTime).valueOf(),
                 duration: differenceInMinutes(

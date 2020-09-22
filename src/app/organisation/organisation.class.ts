@@ -18,13 +18,13 @@ export class Organisation extends BaseDataClass {
     /** Map of custom settings for the building */
     private _settings: HashMap;
 
-    constructor(raw_data: HashMap = {}) {
+    constructor(raw_data: Partial<Organisation> = {}) {
         super(raw_data);
         this.description = raw_data.description;
         this.tags = raw_data.tags;
         this.count = raw_data.count;
         this.capacity = raw_data.capacity;
-        this._settings = raw_data.settings || {};
+        this._settings = (raw_data as any).settings || {};
     }
 
     /**

@@ -1,17 +1,13 @@
 import { BuildingLevel } from './level.class';
-import { HashMap } from '../common/types';
 
 export class Zone {
+    public id: string;
+    public name: string;
+    public level: BuildingLevel;
 
-    public id : string;
-
-    public name : string;
-
-    public level : BuildingLevel;
-
-    constructor(raw_data: HashMap) {
+    constructor(raw_data: Partial<Zone> = {}) {
+        this.id = raw_data.id || '';
+        this.name = raw_data.name || '';
         this.level = raw_data.level;
-        this.name = raw_data.name;
-        this.id = raw_data.id;
     }
 }

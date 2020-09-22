@@ -21,7 +21,7 @@ export class CateringItem {
     /** Total cost for the item */
     public readonly total_cost: number;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<CateringItem> = {}) {
         this.id = data.id || '';
         this.name = data.name || data.id || '';
         this.category = data.category || '';

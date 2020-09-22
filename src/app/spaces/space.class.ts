@@ -1,4 +1,4 @@
-import { HashMap, Identity } from 'src/app/common/types';
+
 import { BuildingLevel } from '../organisation/level.class';
 import { RoomConfiguration } from '../common/room-configuration.interface';
 
@@ -36,13 +36,13 @@ export class Space {
     /** List of features associated with the space */
     public readonly features: string;
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<Space> = {}) {
         this.id = data.id || '';
         this.name = data.name || '';
         this.display_name = data.display_name || '';
         this.email = data.email || '';
         this.capacity = data.capacity || -1;
-        this.feature_list = data.features || [];
+        this.feature_list = data.feature_list || (data.features as any) || [];
         this.bookable = !!data.bookable;
         this.zones = data.zones || [];
         this.support_url = data.support_url || '';

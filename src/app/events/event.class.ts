@@ -64,7 +64,7 @@ export interface RecurrenceDetails {
 
 export class CalendarEvent extends BaseDataClass {
     /** Status of the event */
-    public readonly status: 'confirmed' | 'tentative' | 'cancelled';
+    public readonly status: 'confirmed' | 'tentative' | 'cancelled' | 'none';
     /** Email address of the host */
     public readonly host: string;
     /** ID of the calendar associated with the event */
@@ -143,16 +143,17 @@ export class CalendarEvent extends BaseDataClass {
         return !!this.attendees.find((user) => user.visit_expected || user.is_external);
     }
 
-    constructor(data: HashMap = {}) {
+    constructor(data: Partial<CalendarEvent> = {}) {
         super(data);
-        this.status = data.status || '';
+        this.status = data.status || 'none';
         this.host = data.host || '';
         this.calendar = data.calendar || '';
         this.creator = data.creator || _default_user.email;
         const attendees = data.attendees || [];
-        this.attendees = attendees.filter((user) => !user.resource).map((u) => new User(u));
+        this.attendees = attendees.filter((user: any) => !user.resource).map((u) => new User(u));
         this.resources =
-            data.resources || attendees.filter((user) => user.resource).map((s) => new Space(s));
+            data.resources ||
+            attendees.filter((user: any) => user.resource).map((s) => new Space(s));
         this.title = data.title || '';
         this.body = data.body || '';
         this.private = !!data.private;
@@ -174,8 +175,12 @@ export class CalendarEvent extends BaseDataClass {
         this.master = data.master ? new CalendarEvent(data.master) : null;
         if (data.recurring) {
             this.recurrence = {
-                start: start.valueOf() || new Date(data.recurrence.range_start * 1000).valueOf(),
-                end: data.recurrence.end || new Date(data.recurrence.range_end * 1000).valueOf(),
+                start:
+                    start.valueOf() ||
+                    new Date((data.recurrence as any).range_start * 1000).valueOf(),
+                end:
+                    data.recurrence.end ||
+                    new Date((data.recurrence as any).range_end * 1000).valueOf(),
                 interval: data.recurrence.interval,
                 pattern: data.recurrence.pattern,
                 days_of_week: data.recurrence.days_of_week,
@@ -185,14 +190,14 @@ export class CalendarEvent extends BaseDataClass {
         }
         this.system = data.system;
         this.old_system = data.old_system || data.system;
-        this.attachments = data.attachements || [];
+        this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
         this.extension_data.catering = (data.catering || this.extension_data.catering || []).map(
             (i) => new CateringOrder({ ...i, event: this })
         );
         this.extension_data.configuration = data.configuration || '';
         this.extension_data.meeting_link = data.meeting_link || '';
-        this.extension_data.needs_parking = data.needs_parking || '';
+        this.extension_data.needs_parking = !!data.needs_parking;
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
     }
