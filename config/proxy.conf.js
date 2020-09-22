@@ -1,7 +1,7 @@
 
 const domain = 'pwcme.dev.place.tech';
 const secure = true;
-const valid_ssl = false;
+const valid_ssl = true;
 
 const PROXY_CONFIG = [
     {

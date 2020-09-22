@@ -26,6 +26,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
+            "baseHref": "/demo/",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -82,6 +83,7 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "template-uis:build",
             "proxyConfig": "config/proxy.conf.js"
           },
@@ -157,6 +159,7 @@
             "polyfills": "projects/workplace/src/polyfills.ts",
             "tsConfig": "projects/workplace/tsconfig.app.json",
             "aot": true,
+            "baseHref": "/workplace/",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -213,6 +216,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "workplace:build",
             "proxyConfig": "config/proxy.conf.js"
           },
@@ -288,6 +292,7 @@
             "polyfills": "projects/bookings/src/polyfills.ts",
             "tsConfig": "projects/bookings/tsconfig.app.json",
             "aot": true,
+            "baseHref": "/bookings/",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -344,6 +349,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "bookings:build",
             "proxyConfig": "config/proxy.conf.js"
           },
@@ -419,6 +425,7 @@
             "polyfills": "projects/control/src/polyfills.ts",
             "tsConfig": "projects/control/tsconfig.app.json",
             "aot": true,
+            "baseHref": "/control/",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -475,6 +482,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "control:build",
             "proxyConfig": "config/proxy.conf.js"
           },
@@ -550,6 +558,13 @@
             "polyfills": "projects/concierge/src/polyfills.ts",
             "tsConfig": "projects/concierge/tsconfig.app.json",
             "aot": true,
+            "baseHref": "/concierge/",
+            "fileReplacements": [
+              {
+                "replace": "src/app/common/settings.ts",
+                "with": "projects/concierge/src/environments/settings.ts"
+              }
+            ],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -576,6 +591,10 @@
                 {
                   "replace": "projects/concierge/src/environments/environment.ts",
                   "with": "projects/concierge/src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/app/common/settings.ts",
+                  "with": "projects/concierge/src/environments/settings.ts"
                 }
               ],
               "optimization": true,
@@ -606,6 +625,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "concierge:build",
             "proxyConfig": "config/proxy.conf.js"
           },
@@ -681,6 +701,7 @@
             "polyfills": "projects/catering/src/polyfills.ts",
             "tsConfig": "projects/catering/tsconfig.app.json",
             "aot": true,
+            "baseHref": "/catering/",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -737,6 +758,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "catering:build",
             "proxyConfig": "config/proxy.conf.js"
           },
@@ -812,6 +834,7 @@
             "polyfills": "projects/kiosk/src/polyfills.ts",
             "tsConfig": "projects/kiosk/tsconfig.app.json",
             "aot": true,
+            "baseHref": "/kiosk/",
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/app/styles"
@@ -865,6 +888,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/",
             "browserTarget": "kiosk:build",
             "proxyConfig": "config/proxy.conf.js"
           },
