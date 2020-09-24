@@ -1,7 +1,8 @@
 
 const general = {
     menu: [
-        { route: 'day-view', name: 'Calendar', icon: { class: 'material-icons', content: 'event' } }
+        { route: 'day-view', name: 'Calendar', icon: { class: 'material-icons', content: 'event' } },
+        { route: 'facilities', name: 'Facilities', icon: { class: 'material-icons', content: 'scatter_plot' } }
     ]
 }
 

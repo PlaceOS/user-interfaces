@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@acaprojects/ngx-date-picker": "^1.1.1",
+    "@acaprojects/ngx-interactive-map": "^1.1.8",
     "@acaprojects/ngx-pipes": "^1.1.1",
     "@angular-builders/custom-webpack": "10.0.1",
     "@angular-builders/jest": "^10.0.0",

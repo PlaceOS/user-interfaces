@@ -19,7 +19,11 @@
 }
 
 .rounded {
-    border-radius: 0.25em;
+    border-radius: 0.25rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
 }
 
 .rounded-full {
@@ -136,12 +140,30 @@
                 0 2px 1px -1px rgba(#000, .12);
 }
 
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
 .p-0 {
     padding: 0;
 }
 
 .p-4 {
     padding: 1rem;
+}
+
+.p-6 {
+    padding: 1.5rem;
+}
+
+.px-1 {
+    padding-left: .25rem;
+    padding-right: .25rem;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .pl-4 {
@@ -153,7 +175,7 @@
 }
 
 .pr-2 {
-    padding-right: .5em;
+    padding-right: .5rem;
 }
 
 .m-0 {
@@ -164,8 +186,16 @@
     margin-bottom: 0;
 }
 
+.mt-0 {
+    margin-top: 0;
+}
+
 .space-x-4 > * + * {
     margin-left: 1rem !important;
+}
+
+.space-y-4 > * + * {
+    margin-top: 1rem;
 }
 
 .inset-0 {
@@ -241,4 +271,8 @@
 
 .text-right {
     text-align: right;
+}
+
+.text-bold {
+    font-weight: bold;
 }
