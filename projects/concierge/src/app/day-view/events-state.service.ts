@@ -46,6 +46,8 @@ export class EventsStateService extends BaseClass {
     private _loading = new BehaviorSubject<boolean>(false);
     /** Observable for filter and booking list changes */
     private _state = combineLatest(this._bookings, this._filters, this._date, this._zones);
+    /** Event currently being viewed */
+    private _event = new BehaviorSubject<CalendarEvent>(null);
 
     /** Observable for list of bookings */
     public readonly bookings = this._bookings.asObservable();
@@ -55,6 +57,8 @@ export class EventsStateService extends BaseClass {
     public readonly zones = this._zones.asObservable();
     /** Observable for loading state of bookings */
     public readonly loading = this._loading.asObservable();
+    /** Observable for viewed event */
+    public readonly event = this._event.asObservable();
     /** Obsevable for filtered list of bookings */
     public readonly filtered = this._state.pipe(
         map(() => {
@@ -161,6 +165,14 @@ export class EventsStateService extends BaseClass {
      */
     public setZones(zones: string[]) {
         this._zones.next(zones);
+    }
+
+    /**
+     * Update the booking's zone
+     * @param details
+     */
+    public setEvent(event: CalendarEvent) {
+        this._event.next(event);
     }
 
     /**

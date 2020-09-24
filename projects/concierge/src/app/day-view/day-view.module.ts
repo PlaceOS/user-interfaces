@@ -10,6 +10,8 @@ import { DayviewTopbarComponent } from './dayview-topbar.component';
 import { DayviewTimelineComponent } from './dayview-timeline.component';
 import { DayviewSpaceComponent } from './dayview-space.component';
 import { DayviewEventComponent } from './dayview-event.component';
+import { DayviewEventDetailsComponent } from './dayview-event-details.component';
+import { UserAvatarComponent } from 'src/app/ui/user-avatar/user-avatar.component';
 
 const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
@@ -19,7 +21,8 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
         DayviewTopbarComponent,
         DayviewTimelineComponent,
         DayviewSpaceComponent,
-        DayviewEventComponent
+        DayviewEventComponent,
+        DayviewEventDetailsComponent
     ],
     imports: [CommonModule, FormsModule, UIModule, RouterModule.forChild(ROUTES)],
 })

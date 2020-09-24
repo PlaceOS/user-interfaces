@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
 
 import { CalendarEvent } from 'src/app/events/event.class';
+import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'dayview-event',
@@ -12,6 +13,7 @@ import { CalendarEvent } from 'src/app/events/event.class';
             *ngIf="event"
             [style.top]="top * 100 + '%'"
             [style.height]="height * 100 + '%'"
+            (click)="view(event)"
         >
             <div class="info">{{ event.organiser?.name }}</div>
             <div class="info flex items-center" *ngIf="event.duration > 30">
@@ -84,6 +86,8 @@ export class DayviewEventComponent implements OnChanges {
     /** Height of the event on the calendar */
     public height: number = 0;
 
+    public readonly view = (e) => this._state.setEvent(e);
+
     public get time() {
         const date = new Date(this.event.date);
         return (
@@ -98,6 +102,8 @@ export class DayviewEventComponent implements OnChanges {
             ? 'cancelled'
             : 'internal';
     }
+
+    constructor(private _state: EventsStateService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.event && this.event) {

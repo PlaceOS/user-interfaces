@@ -56,6 +56,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             </div>
         </div>
         <mat-progress-bar *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
+        <dayview-event-details *ngIf="event | async" [event]="event | async"></dayview-event-details>
     `,
     styles: [
         `
@@ -173,6 +174,8 @@ export class DayviewTimelineComponent extends BaseClass {
     public box: ClientRect;
     /** Whether event data is loading */
     public readonly loading = this._state.loading;
+    /** Whether event data is loading */
+    public readonly event = this._state.event;
     /** List of spaces to display */
     public readonly space_list = combineLatest([
         this._org.active_building,

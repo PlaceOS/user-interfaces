@@ -20,12 +20,14 @@ import { IconComponent } from 'src/app/ui/icon/icon.component';
 import { SidebarComponent } from './sidebar.component';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
+import { UserAvatarComponent } from 'src/app/ui/user-avatar/user-avatar.component';
 
 const COMPONENTS: Type<any>[] = [
     IconComponent,
     SidebarComponent,
     DateOptionsComponent,
-    SearchbarComponent
+    SearchbarComponent,
+    UserAvatarComponent
 ];
 
 const MAT_MODULES: any[] = [

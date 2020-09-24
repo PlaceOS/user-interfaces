@@ -1,3 +1,7 @@
+.fixed {
+    position: fixed;
+}
+
 .overflow-auto {
     overflow: auto;
 }
@@ -62,6 +66,30 @@
     font-size: 2.5rem;
 }
 
+.text-light {
+    color: rgba(#fff, .85);
+}
+
+.text-light-fade {
+    color: rgba(#fff, .6);
+}
+
+.text-light-disabled {
+    color: rgba(#fff, .35);
+}
+
+.text-dark {
+    color: rgba(#000, .85);
+}
+
+.text-dark-fade {
+    color: rgba(#000, .6);
+}
+
+.text-dark-disabled {
+    color: rgba(#000, .35);
+}
+
 .mb-1 {
     margin-bottom: 0.25rem;
 }
@@ -112,8 +140,32 @@
     padding: 0;
 }
 
+.p-4 {
+    padding: 1rem;
+}
+
+.pl-4 {
+    padding-left: 1rem;
+}
+
+.pl-6 {
+    padding-left: 1.5rem;
+}
+
+.pr-2 {
+    padding-right: .5em;
+}
+
 .m-0 {
     margin: 0;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.space-x-4 > * + * {
+    margin-left: 1rem !important;
 }
 
 .inset-0 {

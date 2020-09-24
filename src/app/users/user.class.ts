@@ -17,6 +17,10 @@ export type UserGroup =
     | '';
 
 export class User extends BaseDataClass {
+    /** First name of the user */
+    public readonly first_name: string;
+    /** Last name of the user */
+    public readonly last_name: string;
     /** Phone number of the user */
     public readonly phone: string;
     /** Organisation associated with the user */
@@ -40,6 +44,8 @@ export class User extends BaseDataClass {
 
     constructor(data: Partial<User> = {}) {
         super(data);
+        this.first_name = data.first_name || data.name || '';
+        this.last_name = data.last_name || '';
         this.phone = data.phone || '';
         this.organisation = data.organisation || '';
         this.notes = data.notes || '';
