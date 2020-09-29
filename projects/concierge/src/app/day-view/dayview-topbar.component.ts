@@ -5,7 +5,7 @@ import { first } from 'rxjs/operators';
 import { BaseClass } from 'src/app/common/base.class';
 import { Identity } from 'src/app/common/types';
 import { OrganisationService } from 'src/app/organisation/organisation.service';
-import { EventsStateService } from './events-state.service';
+import { BookingUIOptions, EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'dayview-topbar',
@@ -44,6 +44,18 @@ import { EventsStateService } from './events-state.service';
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-slide-toggle
+            class="m-2"
+            [ngModel]="(ui_options | async)?.show_overflow"
+            (ngModelChange)="updateUIOptions({ show_overflow: $event })"
+            ><div class="text-xs">Setup / Breakdown</div></mat-slide-toggle
+        >
+        <mat-slide-toggle
+            class="m-2"
+            [ngModel]="(ui_options | async)?.show_cleaning"
+            (ngModelChange)="updateUIOptions({ show_cleaning: $event })"
+            ><div class="text-xs">Cleaners View</div></mat-slide-toggle
+        >
         <div class="flex-full"></div>
         <searchbar class="mr-2"></searchbar>
         <date-options (dateChange)="setDate($event)"></date-options>
@@ -68,6 +80,12 @@ import { EventsStateService } from './events-state.service';
                 width: 8em;
                 margin-left: 1em;
             }
+
+            mat-slide-toggle div {
+                width: 5.5em;
+                white-space: initial;
+                line-height: 1.2em
+            }
         `,
     ],
 })
@@ -87,6 +105,8 @@ export class DayviewTopbarComponent extends BaseClass {
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */
+    public readonly ui_options = this._state.ui_options;
+    /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {
             relativeTo: this._route,
@@ -103,6 +123,10 @@ export class DayviewTopbarComponent extends BaseClass {
             }, []),
         });
 
+    public updateUIOptions(options: BookingUIOptions) {
+        this._state.setUIOptions(options);
+    }
+
     constructor(
         private _state: EventsStateService,
         private _org: OrganisationService,
@@ -113,7 +137,7 @@ export class DayviewTopbarComponent extends BaseClass {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first(_ => _)).toPromise();
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -121,7 +145,9 @@ export class DayviewTopbarComponent extends BaseClass {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
-                        if (!level) { return; }
+                        if (!level) {
+                            return;
+                        }
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );

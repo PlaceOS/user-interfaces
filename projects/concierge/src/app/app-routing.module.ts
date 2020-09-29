@@ -18,6 +18,12 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'visitors',
+        loadChildren: () => import('./visitors/visitors.module').then((m) => m.VisitorsModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: 'day-view' },
 ];
 

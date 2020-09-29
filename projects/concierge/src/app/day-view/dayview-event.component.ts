@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
 
 import { CalendarEvent } from 'src/app/events/event.class';
@@ -7,6 +7,12 @@ import { EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-event',
     template: `
+        <div
+            *ngIf="(ui_options | async)?.show_overflow"
+            [class]="'overflow-block absolute rounded overflow-hidden w-full ' + type"
+            [style.top]="overflow_top * 100 + '%'"
+            [style.height]="overflow_height * 100 + '%'"
+        ></div>
         <div
             name="event"
             [class]="'absolute rounded overflow-hidden text-sm ' + type"
@@ -17,17 +23,28 @@ import { EventsStateService } from './events-state.service';
         >
             <div class="info">{{ event.organiser?.name }}</div>
             <div class="info flex items-center" *ngIf="event.duration > 30">
-                <app-icon [icon]="{ class: 'material-icons', content: 'title' }"></app-icon>
+                <app-icon class="mx-2" [icon]="{ class: 'material-icons', content: 'title' }"></app-icon>
                 {{ event.title }}
             </div>
             <div class="info flex items-center" *ngIf="event.duration > 60">
-                <app-icon [icon]="{ class: 'material-icons', content: 'schedule' }"></app-icon>
+                <app-icon class="mx-2" [icon]="{ class: 'material-icons', content: 'schedule' }"></app-icon>
                 {{ time }}
             </div>
             <div class="info flex items-center" *ngIf="event.duration > 90">
-                <app-icon [icon]="{ class: 'material-icons', content: 'user' }"></app-icon>
+                <app-icon class="mx-2" [icon]="{ class: 'material-icons', content: 'user' }"></app-icon>
                 {{ event.attendees.length }} Attendee{{ event.attendees.length === 1 ? '' : 's' }}
             </div>
+        </div>
+        <div
+            *ngIf="(ui_options | async)?.show_cleaning"
+            class="catering-block absolute rounded overflow-hidden flex w-full shadow p-2"
+            [style.top]="overflow_top * 100 + '%'"
+            [style.height]="overflow_height * 100 + '%'"
+        >
+            <div [class]="'icon flex mr-2 text-3xl rounded ' + event.cleaning_status">
+                <app-icon [icon]="{ class: 'material-icons', content: event.cleaning_status === 'done' ? 'done' : 'warning' }"></app-icon>
+            </div>
+            <div class="text">{{ event.cleaning_status === 'done' ? 'Finished' : 'Scheduled to' }} clean at {{ event.cleaning_time }}</div>
         </div>
     `,
     styles: [
@@ -50,9 +67,31 @@ import { EventsStateService } from './events-state.service';
                 z-index: 999;
             }
 
+            .overflow-block {
+                opacity: .3;
+                width: 12rem;
+            }
+
+            .catering-block {
+                background-color: #fff;
+                width: 12rem;
+                z-index: 999;
+            }
+
             .internal {
                 background-color: #00a4c7;
                 color: #fff;
+            }
+
+            .icon {
+                height: 1.5em;
+                width: 1.5em;
+                color: #ffbf1f;
+                background-color: #f0f0f0;
+            }
+
+            .icon.done {
+                color: #21a453;
             }
 
             .external {
@@ -64,12 +103,8 @@ import { EventsStateService } from './events-state.service';
                 background-color: #eee;
             }
 
-            app-icon {
-                margin: 0 0.5em;
-            }
-
             .info:first-child {
-                padding: .75em 0.5em;
+                padding: 0.75em 0.5em;
             }
 
             .info {
@@ -85,8 +120,14 @@ export class DayviewEventComponent implements OnChanges {
     public top: number = -999;
     /** Height of the event on the calendar */
     public height: number = 0;
+    /** Top position for the event */
+    public overflow_top: number = -999;
+    /** Height of the event on the calendar */
+    public overflow_height: number = 0;
 
     public readonly view = (e) => this._state.setEvent(e);
+
+    public readonly ui_options = this._state.ui_options;
 
     public get time() {
         const date = new Date(this.event.date);
@@ -111,6 +152,10 @@ export class DayviewEventComponent implements OnChanges {
             const diff = differenceInMinutes(new Date(this.event.date), start);
             this.top = diff / (24 * 60);
             this.height = this.event.duration / (24 * 60);
+            this.overflow_top = (diff - this.event.setup) / (24 * 60);
+            this.overflow_height =
+                (this.event.duration + this.event.setup + this.event.breakdown) / (24 * 60);
+                console.log('Overflow:', this.overflow_top, this.overflow_height);
         }
     }
 }

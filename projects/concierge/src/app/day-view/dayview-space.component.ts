@@ -36,6 +36,8 @@ export class DayviewSpaceComponent {
     constructor(private _state: EventsStateService) {}
 
     ngOnInit() {
-        this._state.filtered.subscribe((events) => {});
+        this._state.filtered.subscribe((events) => {
+            console.log('Events:', events);
+        });
     }
 }

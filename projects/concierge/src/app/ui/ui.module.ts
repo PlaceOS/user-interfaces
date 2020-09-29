@@ -22,6 +22,7 @@ import { SidebarComponent } from './sidebar.component';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { UserAvatarComponent } from 'src/app/ui/user-avatar/user-avatar.component';
+import { APipesModule } from '@acaprojects/ngx-pipes';
 
 const COMPONENTS: Type<any>[] = [
     IconComponent,
@@ -48,7 +49,7 @@ const MAT_MODULES: any[] = [
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [CommonModule, FormsModule, ...MAT_MODULES, RouterModule.forChild([])],
-    exports: [...COMPONENTS, ...MAT_MODULES]
+    imports: [CommonModule, FormsModule, APipesModule, ...MAT_MODULES, RouterModule.forChild([])],
+    exports: [...COMPONENTS, ...MAT_MODULES, APipesModule]
 })
 export class UIModule { }

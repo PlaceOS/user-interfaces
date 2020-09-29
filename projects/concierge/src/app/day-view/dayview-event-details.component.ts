@@ -9,8 +9,8 @@ import { EventsStateService } from './events-state.service';
     selector: 'dayview-event-details',
     template: `
         <div class="fixed inset-0" (click)="close()"></div>
-        <div name="panel" class="absolute rounded shadow" (click)="$event.stopPropagation()">
-            <div class="p-4">
+        <div name="panel" class="absolute rounded shadow flex flex-col" (click)="$event.stopPropagation()">
+            <div class="p-4 overflow-auto flex-1">
                 <h3 class="mb-0 pl-6 mb-1">{{ event.organiser.name || event.host }}</h3>
                 <div class="text-bold mb-4 pl-6 text-dark-fade">{{ event.date | date:'fullDate' }}</div>
                 <div class="flex items-center mb-2">
@@ -40,7 +40,7 @@ import { EventsStateService } from './events-state.service';
                     <span class="text-dark-fade">Notes</span>
                 </div>
                 <div class="flex items-center pl-6 mb-2">
-                    <span class="text-dark-fade">{{ event.body || '[No notes]' }}</span>
+                    <span class="text-dark-fade" [innerHTML]="(event.body || '&lt; No notes &gt;') | sanitize"></span>
                 </div>
             </div>
             <div name="actions" class="flex items-center justify-content p-4 space-x-4">
@@ -65,6 +65,7 @@ import { EventsStateService } from './events-state.service';
                 top: 6.5em;
                 transform: translateX(-50%);
                 background-color: #fff;
+                max-height: 80vh;
             }
 
             [name="actions"] {

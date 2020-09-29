@@ -2,15 +2,16 @@
 const general = {
     menu: [
         { route: 'day-view', name: 'Calendar', icon: { class: 'material-icons', content: 'event' } },
-        { route: 'facilities', name: 'Facilities', icon: { class: 'material-icons', content: 'scatter_plot' } }
+        { route: 'facilities', name: 'Facilities', icon: { class: 'material-icons', content: 'plot' } },
+        { route: 'visitors', name: 'Visitors', icon: { class: 'material-icons', content: 'group' } }
     ]
 }
 
 
 const app = {
-    title: 'PwC Middle East',
-    description: 'Catering UI',
-    short_name: 'PwC ME',
+    title: 'PlaceOS',
+    description: 'Concierge UI',
+    short_name: 'PlaceOS',
     logo_dark: {
 
     },
@@ -24,7 +25,7 @@ export const DEFAULT_SETTINGS = {
     debug: true,
     composer: {
         domain: '',
-        route: '/catering',
+        route: '/concierge',
         protocol: '',
         port: '',
         use_domain: false,

@@ -6,7 +6,7 @@ import { map, switchMap, debounceTime, catchError, filter } from 'rxjs/operators
 import { BaseClass } from 'src/app/common/base.class';
 import { CalendarEvent } from 'src/app/events/event.class';
 import { EventsService } from 'src/app/events/events.service';
-import { flatten, timePeriodsIntersect } from 'src/app/common/general';
+import { flatten, timePeriodsIntersect, unique } from 'src/app/common/general';
 import { replaceBookings } from 'src/app/events/event.utilities';
 import { SpacesService } from 'src/app/spaces/spaces.service';
 
@@ -26,6 +26,13 @@ export interface BookingFilters {
     hide_type?: BookingType[];
 }
 
+export interface BookingUIOptions {
+    /** Whether to show setup and breakdown times for events */
+    show_overflow?: boolean;
+    /** Whether to show cleaning status of the events */
+    show_cleaning?: boolean;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -38,6 +45,8 @@ export class EventsStateService extends BaseClass {
     private _bookings = new BehaviorSubject<CalendarEvent[]>([]);
     /** Filter details for bookings */
     private _filters = new BehaviorSubject<BookingFilters>({});
+    /** Filter details for bookings */
+    private _ui_options = new BehaviorSubject<BookingUIOptions>({});
     /** Currently active date */
     private _date = new BehaviorSubject<number>(new Date().valueOf());
     /** Currently displayed zone */
@@ -55,6 +64,8 @@ export class EventsStateService extends BaseClass {
     public readonly date = this._date.asObservable();
     /** Observable for active zone */
     public readonly zones = this._zones.asObservable();
+    /** Observable for UI display options */
+    public readonly ui_options = this._ui_options.asObservable();
     /** Observable for loading state of bookings */
     public readonly loading = this._loading.asObservable();
     /** Observable for viewed event */
@@ -176,6 +187,15 @@ export class EventsStateService extends BaseClass {
     }
 
     /**
+     * Update the booking's zone
+     * @param details
+     */
+    public setUIOptions(options: BookingUIOptions) {
+        const old_options = this._ui_options.getValue();
+        this._ui_options.next({ ...old_options, ...options });
+    }
+
+    /**
      * Start polling to update bookings
      * @param delay Duration between polling events in milliseconds
      */
@@ -228,9 +248,7 @@ export class EventsStateService extends BaseClass {
      */
     public replace(booking: CalendarEvent) {
         const bookings = this._bookings.getValue();
-        const new_bookings = bookings
-            .filter((bkn) => bkn.id !== booking.id)
-            .concat([booking]);
+        const new_bookings = bookings.filter((bkn) => bkn.id !== booking.id).concat([booking]);
         this._bookings.next(new_bookings);
     }
 
@@ -254,21 +272,20 @@ export class EventsStateService extends BaseClass {
             start
         );
         let bookings = this._bookings.getValue();
-        const space_list = flatten(events.map(event => event.resources));
-        space_list.forEach(
-            (space) =>
-                (bookings = replaceBookings(
-                    bookings,
-                    events
-                        .filter((bkn) => bkn.resources.find((s) => s.id === space.id))
-                        .map((bkn) => new CalendarEvent(bkn)),
-                    {
-                        space: space.email,
-                        from: start.valueOf(),
-                        to: end.valueOf(),
-                    }
-                ))
-        );
+        const space_list = unique(flatten(events.map((event) => event.resources)), 'email');
+        space_list.forEach((space) => {
+            bookings = replaceBookings(
+                bookings,
+                events
+                    .filter((bkn) => bkn.resources.find((s) => s.email === space.email))
+                    .map((bkn) => new CalendarEvent(bkn)),
+                {
+                    space: space.email,
+                    from: start.valueOf(),
+                    to: end.valueOf(),
+                }
+            );
+        });
         this._bookings.next(bookings);
     }
 
@@ -276,7 +293,6 @@ export class EventsStateService extends BaseClass {
         const filters = this._filters.getValue();
         const bookings = this._bookings.getValue();
         const fzones = this._zones.getValue();
-        console.log('Bookings:', bookings);
         return bookings.filter((bkn) => {
             const intersects = timePeriodsIntersect(
                 start.valueOf(),
@@ -284,7 +300,9 @@ export class EventsStateService extends BaseClass {
                 bkn.date,
                 bkn.date + bkn.duration * 60 * 1000
             );
-            const in_zone = !!bkn.resources.map(r => this._spaces.find(r.id)).find((space) => fzones.find(z => space.zones.includes(z)));
+            const in_zone = !!bkn.resources
+                .map((r) => this._spaces.find(r.id))
+                .find((space) => fzones.find((z) => space.zones.includes(z)));
             const has_space =
                 !filters.space_emails?.length ||
                 !!bkn.resources.find((space) => filters.space_emails.includes(space.email));
@@ -295,7 +313,6 @@ export class EventsStateService extends BaseClass {
                 );
             const type = bkn.has_visitors ? 'external' : bkn.cancelled ? 'cancelled' : 'internal';
             const show = !filters.hide_type?.length || !filters.hide_type.includes(type as any);
-            console.log('Booking:', bkn.title, intersects, has_space, in_zone, in_zones, show);
             return intersects && has_space && in_zone && in_zones && show;
         });
     }
