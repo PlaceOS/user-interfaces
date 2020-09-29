@@ -40,7 +40,7 @@ export class Space {
         this.id = data.id || '';
         this.name = data.name || '';
         this.display_name = data.display_name || '';
-        this.email = data.email || '';
+        this.email = (data.email || '').toLowerCase();
         this.capacity = data.capacity || -1;
         this.feature_list = data.feature_list || (data.features as any) || [];
         this.bookable = !!data.bookable;

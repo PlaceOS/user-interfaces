@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { ADatePickerModule } from '@acaprojects/ngx-date-picker';
+import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { BindingDirective } from './binding/binding.directive';
 import { ActionIconComponent } from './action-icon/action-icon.component';
@@ -49,8 +50,8 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [FormsModule, ReactiveFormsModule, ADatePickerModule, ...MAT_MODULES],
+    imports: [FormsModule, ReactiveFormsModule, ADatePickerModule, APipesModule, ...MAT_MODULES],
     providers: [],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
 })
 export class SharedUIModule {}

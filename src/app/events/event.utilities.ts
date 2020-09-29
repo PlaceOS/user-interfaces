@@ -424,5 +424,5 @@ export function replaceBookings(
     });
     const updated_list = filtered_list.concat(new_bookings);
     updated_list.sort((a, b) => a.date - b.date);
-    return unique(updated_list, 'icaluid');
+    return unique(updated_list, 'id');
 }

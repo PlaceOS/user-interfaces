@@ -70,8 +70,8 @@ export class SettingsService extends BaseClass {
         const now = new Date();
         const time = new Date(VERSION.time);
         const built = isSameDay(now, time)
-            ? `Today at ${format(time, 'h:mmB')}`
-            : format(time, 'do MMM yyyy, h:mmB');
+            ? `Today at ${format(time, 'h:mma')}`
+            : format(time, 'do MMM yyyy, h:mma');
         log('CORE', `${VERSION.semver}`, null, 'debug', true);
         log('APP', `${VERSION.hash} | Built: ${built}`, null, 'debug', true);
         this.init();

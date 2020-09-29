@@ -14,6 +14,7 @@ import { setNotifyOutlet } from './common/notifications';
 import { StaffService } from './users/staff.service';
 import { setDefaultCreator } from './events/event.class';
 import { BaseClass } from './common/base.class';
+import { setAppName } from './common/general';
 
 @Component({
     selector: 'app-root',
@@ -47,6 +48,7 @@ export class AppComponent extends BaseClass implements OnInit {
         this._loading.next(true);
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first(_ => _)).toPromise();
+        setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock = !!this._settings.get('mock');
         /** Wait for authentication details to load */

@@ -3,6 +3,12 @@ import { HashMap } from './types';
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
 
+let _app_name = 'APP';
+
+export function setAppName(name: string) {
+    _app_name = name;
+}
+
 /**
  * Log data to the browser console
  * @param type Type of message
@@ -17,7 +23,7 @@ export function log(
     args?: any,
     stream: ConsoleStream = 'debug',
     force: boolean = false,
-    app_name: string = 'CATERING'
+    app_name: string = _app_name
 ) {
     if (window.debug || force) {
         const colors: string[] = ['color: #E91E63', 'color: #3F51B5', 'color: default'];

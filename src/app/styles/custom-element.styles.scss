@@ -135,6 +135,22 @@ a[button],
     background-color: rgba(#000, 0.6);
 }
 
+mat-slide-toggle {
+    .mat-slide-toggle-bar {
+        height: 24px;
+        border-radius: 12px;
+    }
+
+    .mat-slide-toggle-thumb-container {
+        top: 2px;
+        left: 2px;
+    }
+
+    &.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
+        transform: translate3d(12px, 0, 0);
+    }
+}
+
 mat-dialog-container.mat-dialog-container {
     padding: 0;
 

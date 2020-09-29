@@ -146,9 +146,9 @@ export class CalendarEvent extends BaseDataClass {
     constructor(data: Partial<CalendarEvent> = {}) {
         super(data);
         this.status = data.status || 'none';
-        this.host = data.host || '';
+        this.host = (data.host || '').toLowerCase();
         this.calendar = data.calendar || '';
-        this.creator = data.creator || _default_user.email;
+        this.creator = (data.creator || _default_user.email).toLowerCase();
         const attendees = data.attendees || [];
         this.attendees = attendees.filter((user: any) => !user.resource).map((u) => new User(u));
         this.resources =
@@ -189,6 +189,9 @@ export class CalendarEvent extends BaseDataClass {
             this.recurrence = {} as any;
         }
         this.system = data.system;
+        if (this.system.email) {
+            this.resources.push(new Space(this.system));
+        }
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
@@ -200,6 +203,7 @@ export class CalendarEvent extends BaseDataClass {
         this.extension_data.needs_parking = !!data.needs_parking;
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
+        this.resources = unique(this.resources, 'email');
     }
 
     public get visitor_type(): string {
@@ -347,12 +351,12 @@ export class CalendarEvent extends BaseDataClass {
 
     /** Setup  */
     public get setup(): number {
-        return this.extension_data.setup;
+        return this.extension_data.setup || 0;
     }
 
     /** Breakdown */
     public get breakdown(): number {
-        return this.extension_data.breakdown;
+        return this.extension_data.breakdown || 0;
     }
 
     public get event_start(): number {
