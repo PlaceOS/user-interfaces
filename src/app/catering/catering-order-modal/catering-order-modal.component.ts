@@ -32,7 +32,6 @@ export function cateringItemAvailable(
             event.space?.zones.includes(rule.name) ||
             rule.name === '*'
         ) {
-            console.log('Match:', rule);
             let matches = 0;
             for (const condition of rule.rules) {
                 const date = new Date(event.date);
@@ -133,7 +132,6 @@ export class CateringOrderModalComponent extends BaseClass {
         this.rules = await this._catering.getCateringConfig(
             this.order.event.space?.level?.parent_id
         );
-        console.log('Rulesets:', this.rules);
     }
 
     public addItem(item: CateringItem, choose_options: boolean = true) {

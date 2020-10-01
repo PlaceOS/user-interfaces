@@ -182,7 +182,6 @@ export class OrganisationService {
             .toPromise();
         const levels = level_list.map((lvl) => new BuildingLevel(lvl));
         levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        console.log('Levels:', levels);
         this.levels_subject.next(levels);
     }
 

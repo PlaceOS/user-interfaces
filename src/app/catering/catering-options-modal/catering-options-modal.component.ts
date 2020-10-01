@@ -29,7 +29,6 @@ export class CateringOptionsModalComponent {
     public option_state: HashMap<boolean> = {};
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: CateringOptionsModalData) {
-        console.log('Options:', this._data.options);
         const groups = unique(this._data.options.map((i) => i.group || 'Other'));
         const group_list = [];
         for (const group of groups) {
