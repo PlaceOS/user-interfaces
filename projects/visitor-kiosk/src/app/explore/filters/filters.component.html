@@ -1,0 +1,5 @@
+<header>{{ name }} Filters</header>
+<mat-checkbox *ngFor="let item of filters" [checked]="item.active" (change)="item.active = $event.checked">
+    {{ item.name }}
+</mat-checkbox>
+<button mat-button (click)="applyChanges()">Apply</button>

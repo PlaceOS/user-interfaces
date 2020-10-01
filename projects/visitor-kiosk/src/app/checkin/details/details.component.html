@@ -1,0 +1,216 @@
+<div class="container" *ngIf="!model.info_statement && !model.show_nda">
+    <div class="content">
+        <div class="heading">Confirm Details</div>
+        <div class="close" (click)="home()">
+            <i class="material-icons">close</i>
+        </div>
+
+        <form>
+            <mat-form-field class="custom">
+                <mat-label for="name">Name</mat-label>
+                <input
+                    matInput
+                    id="name"
+                    name="name"
+                    type="text"
+                    [(ngModel)]="model.form.name"
+                    placeholder="Full Name"
+                    autocomplete="off"
+                    #nameRef="ngModel"
+                    required
+                />
+                <mat-error *ngIf="nameRef.invalid && nameRef.dirty && nameRef.errors.required">
+                    Please enter your full name
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field class="custom">
+                <mat-label for="email">Email</mat-label>
+                <input
+                    matInput
+                    email
+                    id="email"
+                    type="email"
+                    name="email"
+                    #emailRef="ngModel"
+                    [(ngModel)]="model.form.email"
+                    placeholder="Email address"
+                    autocomplete="off"
+                    required
+                />
+                <mat-error *ngIf="emailRef.invalid && emailRef.dirty">
+                    <ng-container *ngIf="emailRef.errors.required"
+                        >Please enter your email address</ng-container
+                    >
+                    <ng-container *ngIf="!emailRef.errors.required && emailRef.errors.email"
+                        >Please enter a valid email address</ng-container
+                    >
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field class="custom">
+                <mat-label for="phone">Phone number</mat-label>
+                <input
+                    matInput
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    [(ngModel)]="model.form.phone"
+                    placeholder="Phone number"
+                    autocomplete="off"
+                />
+            </mat-form-field>
+            <mat-form-field class="custom">
+                <mat-label for="company">Organisation / Company Name</mat-label>
+                <input
+                    matInput
+                    id="company"
+                    type="text"
+                    name="company"
+                    [(ngModel)]="model.form.organisation"
+                    placeholder="Organisation / Company"
+                    autocomplete="off"
+                />
+            </mat-form-field>
+            <mat-form-field class="custom">
+                <mat-label for="host_name">Host</mat-label>
+                <input
+                    matInput
+                    id="host_name"
+                    name="host"
+                    [(ngModel)]="model.form.host"
+                    placeholder="Host email address"
+                    autocomplete="off"
+                    required
+                    #hostRef="ngModel"
+                    (blur)="onHostBlur()"
+                />
+                <mat-error
+                    *ngIf="hostRef.invalid && hostRef.dirty && hostRef.errors.required"
+                >
+                    Please enter your host's email address
+                </mat-error>
+            </mat-form-field>
+            <!-- <div class="no-code primary">
+                <mat-checkbox [checked]="model.form.store" class="primary"></mat-checkbox>
+                <label (click)="model.form.store = !model.form.store">
+                    Allow PwC to store your details for 12 months to facilitate future visits
+                </label>
+            </div>
+            <div class="no-code" (click)="model.info_statement = true">
+                Click
+                <span class="primary">here</span>
+                to read PwC's personal information collection statement
+            </div>
+            <div class="no-code" (click)="model.show_nda = true">
+                Click
+                <span class="primary"> here </span> to read
+                PwC's non-disclosure agreement
+            </div> -->
+            <div class="action">
+                <button
+                    mat-button
+                    class="wide"
+                    [disabled]="!emailRef.valid || !hostRef.valid"
+                    (click)="submit()"
+                >
+                    Next
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- <div class="container" *ngIf="model.info_statement">
+    <div class="content">
+        <div class="text">Personal information collection statement</div>
+        <p>
+            ACA Company Limited (“ACA”) collects and stores your name, email address, mobile phone
+            number and an image of your business card (or similar credential) for visitor
+            registration and related purposes. The purpose is to allow ACA to contact you or your
+            company if an emergency or other incident occurs during or after your visit.<br />
+            The confidentiality, security and privacy of your data is important to us. ACA will not
+            share your data to any third party without your expressed consent or as otherwise
+            permitted by law.<br />
+            ACA will retain your data for 90 days (or as otherwise allowed by law). To expedite
+            future visits, you may authorise ACA to retain your data for 12 months.<br />
+            You have the right to access and correct your data, as necessary. Requests for access,
+            correction, complaints or other queries to your data should be addressed to our Data
+            Protection Officer via email privacy.compliance@aca.com.
+        </p>
+        <div class="close" (click)="model.info_statement = false">
+            <i class="material-icons">close</i>
+        </div>
+    </div>
+</div>
+<div class="container" *ngIf="model.show_nda">
+    <div class="content">
+        <div class="text">ACA Non Disclosure Agreement</div>
+        <p style="text-align: left;">
+            The parties hereby agree as follows:<br /><br />In its sole discretion, the Disclosing
+            Party will provide to the Receiving Party certain confidential and proprietary
+            information for the limited purpose of allowing the Receiving Party to evaluate its
+            interest in Purpose for Sharing Confidential Information, in accordance with the
+            following terms and conditions:<br /><br />1. Definition<br /><br />For purposes of this
+            Agreement, &quot;<em>Confidential Information</em>&quot; shall mean the information
+            received by the Receiving Party from the Disclosing Party which is marked as
+            &quot;Confidential&quot; and/or &quot;Proprietary&quot; or which would logically be
+            considered &quot;Confidential&quot; and/or &quot;Proprietary&quot; in view of its
+            relationship to the whole disclosure. Information furnished orally, in written for, by
+            electronic means, or by any other means which was identified by the Disclosing Party as
+            confidential and/or proprietary at the time of disclosure, shall be treated by the
+            Receiving Party as Confidential Information.<br /><br />2. Protection and Purpose<br /><br />All
+            &quot;Confidential Information&quot; shall be maintained in confidence by the Receiving
+            Party, and shall not be disclosed to any third party and shall be protected with the
+            same degree of care as the Receiving Party normally uses in the protection of its own
+            confidential and proprietary information, but in no case with any less degree than
+            reasonable care. The Receiving Party shall not use any &quot;Confidential
+            Information&quot; received from the Disclosing Party except for the evaluation purposes
+            set forth above.<br /><br />3. Restrictions<br /><br />The restrictions herein provided
+            shall not apply with respect to &quot;Confidential Information&quot; which:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            A. Is known by the Receiving Party at the time of receipt; or<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            B. Is or becomes a part of the public domain without breach of this<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Agreement by the Receiving Party; or<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            C. Is legitimately obtained by the Receiving Party without a
+            <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; commitment of confidentiality from a
+            third party; or<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; D. Is disclosed by
+            the Disclosing Party to a third party without a
+            <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; commitment of confidentiality by the
+            third party; or<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E. Is
+            independently developed by the Receiving Party; or<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            F. Is disclosed pursuant to judicial action or government
+            <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; regulations, provided the Receiving
+            Party notifies the Disclosing <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Party
+            prior to such disclosure and cooperates with the Disclosing
+            <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Party in the event the Disclosing Party
+            elects to legally contest <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and avoid
+            such disclosure.<br /><br />4. Rights and Licenses<br /><br />This Agreement and the
+            furnishing of &quot;Confidential Information&quot; as provided herein shall not be
+            construed as establishing, either expressly or by implication, any grant of rights or
+            licenses to the Receiving Party or any relationship between the parties.<br /><br />5.
+            Ownership<br /><br />All tangible information, including drawings, specifications and
+            other information submitted hereunder by the Disclosing Party to the Receiving Party,
+            shall remain the property of the Disclosing Party. If either party&nbsp; elects not to
+            pursue any further business undertaking, the Receiving Party shall promptly return to
+            the Disclosing Party all tangible information, and all copies thereof, related to
+            &quot;Confidential Information&quot;.<br /><br />6. Export<br /><br />The Receiving
+            Party shall not export any Confidential Information without written permission from the
+            Disclosing Party. If the Disclosing Party is permitted to export Confidential
+            Information, the Disclosing Party shall&nbsp; comply with Australian Export
+            Administration Laws and regulations (EAR) and shall not export or re-export any
+            technical data or products received from the Disclosing Party or the direct product of
+            such technical data to any proscribed country listed in the &quot;EAR&quot; unless
+            properly authorized by the Australian government.<br /><br />7. Termination<br /><br />This
+            Agreement is to be construed in accordance with the laws of the Commonwealth of
+            Australia and shall terminate five (5) years from the effective date of this
+            Agreement.<br /><br /><br />DISCLOSING PARTY NAME<br /><br />Name:Name of Disclosing
+            Party<br /><br />Title: Title of Disclosing Party
+        </p>
+        <p style="text-align: left;">
+            Date: Date<br /><br /><br /><br />RECEIVING PARTY NAME<br /><br
+                style="text-align: left;"
+            />Name: Name of Receiving Party<br /><br />Title: Title of Receiving Party
+        </p>
+        <p style="text-align: left;">Date: Date</p>
+        <div class="close" (click)="model.show_nda = false">
+            <i class="material-icons">close</i>
+        </div>
+    </div>
+</div> -->

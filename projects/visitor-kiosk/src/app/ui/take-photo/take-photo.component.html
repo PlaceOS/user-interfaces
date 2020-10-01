@@ -1,0 +1,13 @@
+<div class="camera">
+  <mat-spinner diameter="32"></mat-spinner>
+  <div class="text">Please wait...</div>
+  <div class="wrapper">
+    <video id="video" #video autoplay width=200 height=355></video>
+    <canvas id="canvas" #canvas width=200 height=355></canvas>
+  </div>
+</div>
+<div class="actions">
+  <button class="take-photo" mat-button (click)="takePhoto()">Take Photo</button>
+  <button class="confirm" mat-button (click)="cancelPhoto()">Cancel</button>
+  <button class="confirm" mat-button (click)="acceptPhoto()">Accept</button>
+</div>

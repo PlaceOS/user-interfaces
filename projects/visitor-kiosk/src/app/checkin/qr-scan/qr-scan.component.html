@@ -1,0 +1,55 @@
+<div class="container">
+    <div class="content">
+        <div class="heading">Please enter your email address or scan your qr code</div>
+        <div class="icon close" (click)="home()">
+            <i class="material-icons">close</i>
+        </div>
+        <div class="search">
+            <mat-form-field>
+                <input
+                    matInput
+                    [(ngModel)]="model.email"
+                    (focus)="model.searching = true"
+                    (blur)="model.searching = false"
+                    placeholder="Enter email..."
+                    #searchRef="ngModel"
+                    email
+                    autocomplete="off"
+                />
+                <mat-error *ngIf="model.email.length > 0 && (searchRef.errors && searchRef.errors.email)">
+                    Invalid email format
+                </mat-error>
+            </mat-form-field>
+            <button
+                mat-button
+                (click)="search()"
+                [disabled]="model.email.length < 3 || (searchRef.errors && searchRef.errors.email)"
+            >
+                Check In
+            </button>
+
+        </div>
+        <div class="camera">
+            <video #video playsinline width="480" height="360" autoplay id="video"></video>
+            <div class="loading-video" *ngIf="!scanner && !unavailable">
+                <mat-spinner diameter="32"></mat-spinner>
+                <div>Loading camera feed...</div>
+            </div>
+            <div class="unavailable" *ngIf="!!unavailable">
+                <p>
+                    Camera is unavailable...
+                </p>
+                <p>
+                    You may need to grant permission for the browser to use it.
+                </p>
+                <p>
+                    <a
+                        href="https://www.google.com/search?q=browser+grant+permission+to+use+camera&oq=browser+grant+permission+to+use+camera&aqs=chrome..69i57j33.9903j0j7&sourceid=chrome&ie=UTF-8"
+                        target="_blank"
+                        >How can I turn it on?</a
+                    >
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="explore page" (window:mousedown)="resetRefresh()" (window:touchstart)="resetRefresh()">
+    <header class="header">
+        <div class="block">
+            In an Emergency dial xtn 9 or {{ emergency_phone }}
+        </div>
+        <div class="nav">
+            <a
+                mat-button
+                class="first"
+                [routerLink]="['/explore', 'none']"
+                routerLinkActive="active"
+                queryParamsHandling="preserve"
+            >
+                Workpoints
+            </a>
+            <a
+                mat-button
+                class="second"
+                [routerLink]="['/explore', 'space']"
+                routerLinkActive="active"
+                queryParamsHandling="preserve"
+            >
+                Spaces
+            </a>
+            <a
+                mat-button
+                class="third"
+                [routerLink]="['/explore', 'user']"
+                routerLinkActive="active"
+                queryParamsHandling="preserve"
+            >
+                People
+            </a>
+        </div>
+    </header>
+    <main class="body">
+        <explore-map-view></explore-map-view>
+    </main>
+</div>

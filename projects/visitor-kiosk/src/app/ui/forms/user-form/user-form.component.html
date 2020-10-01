@@ -1,0 +1,47 @@
+<div class="user form" *ngIf="form">
+    <form [formGroup]="form">
+        <div class="field" *ngIf="form.controls.name">
+            <label
+                for="first-name"
+                [class.error]="form.controls.name.invalid && form.controls.name.touched"
+                >First Name:</label
+            >
+            <mat-form-field appearance="outline">
+                <input
+                    matInput
+                    name="first-name"
+                    placeholder="First name"
+                    formControlName="first_name"
+                />
+                <mat-error *ngIf="form.controls.name.invalid">First name is required</mat-error>
+            </mat-form-field>
+        </div>
+        <div class="field" *ngIf="form.controls.name">
+            <label
+                for="system-name"
+                [class.error]="form.controls.name.invalid && form.controls.name.touched"
+                >Last Name:</label
+            >
+            <mat-form-field appearance="outline">
+                <input
+                    matInput
+                    name="last-name"
+                    placeholder="Last name"
+                    formControlName="last_name"
+                />
+                <mat-error *ngIf="form.controls.name.invalid">Last name is required</mat-error>
+            </mat-form-field>
+        </div>
+        <div class="field" *ngIf="form.controls.email">
+            <label
+                for="email"
+                [class.error]="form.controls.email.invalid && form.controls.email.touched"
+                >Email<span>*</span>:</label
+            >
+            <mat-form-field appearance="outline">
+                <input matInput name="email" placeholder="Email Address" formControlName="email" />
+                <mat-error *ngIf="form.controls.email.invalid">A valid email is required</mat-error>
+            </mat-form-field>
+        </div>
+    </form>
+</div>

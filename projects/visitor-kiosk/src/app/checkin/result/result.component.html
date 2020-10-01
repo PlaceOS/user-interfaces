@@ -1,0 +1,15 @@
+<div class="container">
+    <div class="content">
+        <div class="heading">You are checked in!</div>
+        <p>
+            Welcome, you have a meeting at {{ booking?.start_time || '' }} with {{ host?.name || '' }}.
+            {{ host?.name || '' }} has been notified and will be with you shortly.&nbsp;
+            <ng-container *ngIf="!booking?.can_access_lift">Please wait in the lobby.</ng-container>
+            <ng-container *ngIf="booking?.can_access_lift">Please use the vistor access lift over there.</ng-container>
+        </p>
+
+        <div class="action">
+            <button mat-button (click)="next()">Done</button>
+        </div>
+    </div>
+</div>

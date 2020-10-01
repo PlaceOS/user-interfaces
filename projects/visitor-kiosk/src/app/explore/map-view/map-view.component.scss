@@ -1,0 +1,179 @@
+
+@import 'variables';
+@import 'mixins';
+
+.map-view {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.header {
+    width: 100%;
+    background-color: #f8f8f8;
+}
+
+explore-search {
+    z-index: 2;
+}
+
+.body {
+    position: relative;
+    min-height: 50%;
+    flex: 1;
+    width: 100%;
+    background-color: #f8f8f8;
+    z-index: 1;
+}
+
+a-map {
+    z-index: 0;
+}
+
+[overlay] {
+    z-index: 10;
+}
+
+a-map-controls {
+    position: absolute;
+    top: .5em;
+    left: .5em;
+}
+
+a-zoom-controls {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: .5em;
+}
+
+a-map-legend {
+    position: absolute;
+    top: .5em;
+    right: .5em;
+}
+
+.time {
+    background-color: #fff;
+    padding: 1em 1.5em;
+    border-radius: 4px;
+    @include box-shadow;
+    line-height: 1em;
+    z-index: 999;
+}
+
+.message {
+    overflow: hidden;
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    background-color: #fff;
+    border-radius: 4px;
+    @include box-shadow;
+    max-width: 20rem;
+    z-index: 999;
+    font-size: 1.25em;
+
+    &.no-user {
+        top: 5em;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+
+    .loading {
+        height: 4px;
+        width: 100%;
+    }
+
+    @include respond-to(mobile) {
+        left: .5rem;
+        transform: none;
+    }
+
+    .text {
+        padding: .5em;
+    }
+}
+
+.filters {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    padding: 0 1.5rem;
+    border-radius: 1.55em;
+    border: none;
+    @include box-shadow;
+    z-index: 999;
+    font-size: 1em;
+    height: 3em;
+
+    .text {
+        margin-right: .5em;
+    }
+
+    .content {
+        display: flex;
+        align-items: center;
+    }
+
+    &.active {
+        app-icon {
+            color: #d50000;
+        }
+    }
+}
+
+.select-role {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    @include box-shadow;
+    padding: .5em;
+    border-radius: 4px 4px;
+    z-index: 1;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+
+    button {
+        flex: 1;
+        min-width: 8em;
+        margin: .25em;
+        background-color: $pwc-rose;
+        border-color: $pwc-rose;
+
+        &.inverse {
+            background-color: #fff;
+            color: $pwc-rose;
+        }
+    }
+}
+
+.time {
+    position: absolute;
+    top: 4em;
+    left: .5em;
+    padding: .5em .75em;
+    background-color: #fff;
+    @include box-shadow;
+
+    &.space,
+    &.user {
+        top: 1.5em;
+    }
+}

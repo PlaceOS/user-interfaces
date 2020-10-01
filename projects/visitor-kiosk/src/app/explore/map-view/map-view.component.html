@@ -1,0 +1,87 @@
+<div class="map-view">
+    <div class="header">
+        <explore-search
+            [options]="search_options"
+            [type]="type"
+            [zone]="active_level"
+            [clear]="clear_time"
+            [placeholder]="search_placeholder"
+        ></explore-search>
+    </div>
+    <div class="body">
+        <div class="status-list" hidden>
+            <i
+                space-status
+                [zone]="active_level"
+                (status)="status_map.spaces = $event; processStatuses()"
+                (listeners)="listener_map.spaces = $event; processListeners()"
+                (features)="feature_map.spaces = $event; processFeatures()"
+            ></i>
+            <i
+                desk-status
+                *ngIf="type === ''"
+                [filters]="desk_filters"
+                [zone]="active_level"
+                (status)="status_map.desks = $event; processStatuses()"
+                (features)="available_desk_features = $event"
+            ></i>
+            <i
+                zone-status
+                [zone]="active_level"
+                (status)="status_map.zones = $event; processStatuses()"
+            ></i>
+        </div>
+        <a-map-controls *ngIf="type !== 'user'" overlay [(level)]="active_level"></a-map-controls>
+        <a-map
+            *ngIf="!user_error"
+            [(zoom)]="zoom"
+            [(center)]="center"
+            [src]="map_url"
+            [cssStyles]="style_map"
+            [listeners]="listeners"
+            [features]="features"
+        >
+            <mat-spinner diameter="32"></mat-spinner>
+        </a-map>
+        <a-zoom-controls overlay [(zoom)]="zoom" [(position)]="center"></a-zoom-controls>
+        <div class="message" [class.no-user]="user_error" *ngIf="message">
+            <div class="text">{{ message }}</div>
+            <div class="loader">
+                <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+            </div>
+        </div>
+        <div class="select-role" *ngIf="type === 'user'">
+            <div class="info">Or search for:</div>
+            <div class="actions">
+                <button
+                    mat-button
+                    [class.inverse]="user_role !== 'fire'"
+                    (click)="setRoleUsers('fire')"
+                >
+                    Fire Wardens
+                </button>
+                <button
+                    mat-button
+                    [class.inverse]="user_role !== 'aid'"
+                    (click)="setRoleUsers('aid')"
+                >
+                    First Aiders
+                </button>
+            </div>
+        </div>
+        <button
+            *ngIf="type === ''"
+            mat-button
+            class="filters"
+            [class.active]="desk_filters && desk_filters.length"
+            (click)="openDeskFilters()"
+        >
+            <div class="content">
+                <div class="text">Filters</div>
+                <app-icon [icon]="{ class: 'material-icons', content: 'filter_list' }"></app-icon>
+            </div>
+        </button>
+    </div>
+    <a-footer-legend></a-footer-legend>
+    <div [class]="'time ' + type">{{ time }}</div>
+</div>

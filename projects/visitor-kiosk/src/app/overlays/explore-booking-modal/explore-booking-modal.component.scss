@@ -1,0 +1,27 @@
+
+@import 'variables';
+
+:host {
+    max-width: 32em;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 1em;
+}
+
+app-icon {
+    font-size: 2em;
+}
+
+.content {
+    width: 16rem;
+    text-align: center;
+    font-size: .8em;
+}
+
+footer button {
+    min-width: 8em;
+}

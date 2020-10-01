@@ -1,0 +1,20 @@
+<div class="map-controls">
+    <mat-form-field
+        class="map"
+        appearance="outline"
+        *ngIf="can_select_building && building_list.length > 1"
+    >
+        <mat-select [value]="building" (valueChange)="setBuilding($event)">
+            <mat-option *ngFor="let bld of building_list" [value]="bld.id">
+                {{ bld.name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field class="map" appearance="outline">
+        <mat-select [(value)]="level" (valueChange)="updateLevel($event)">
+            <mat-option *ngFor="let level of level_list" [value]="level.id">
+                {{ level.name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 20.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 768 683.9" style="enable-background:new 0 0 768 683.9;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#5D5E5E;stroke:#5E5F5F;stroke-width:7;stroke-miterlimit:10;}
+	.st1{fill:#5D5E5E;}
+	.st2{fill:none;stroke:#5D5E5E;stroke-width:18;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#5D5E5E;stroke-width:25;stroke-miterlimit:10;}
+	.st4{fill:none;stroke:#5D5E5E;stroke-width:29;stroke-miterlimit:10;}
+	.st5{fill:none;stroke:#5D5E5E;stroke-width:20;stroke-miterlimit:10;}
+</style>
+<title>Cafe</title>
+<g id="bell">
+	<path class="st0" d="M661.3,520.7h-1.8c-2.3-38.4-33.1-69.2-71.7-71.7v-6.6c0-2.5-1.8-4.7-4.2-4.9c-2.8-0.3-5.2,1.9-5.2,4.7v6.8
+		c-38.4,2.3-69.2,33.1-71.7,71.7h-9c-2.5,0-4.7,1.8-4.9,4.2c-0.3,2.8,1.9,5.2,4.7,5.2h171c2.6-0.1,4.7-2.2,4.6-4.8
+		c0-1.7-1-3.2-2.4-4c-0.2-0.1-0.4-0.2-0.6-0.2L661.3,520.7z M516.1,520.7c2.4-37,34.3-65.1,71.3-62.7c33.7,2.2,60.5,29,62.7,62.7
+		H516.1z"/>
+	<path class="st1" d="M591.5,478.7c-11.4,3.9-20.7,12.4-25.4,23.5c-1,2.4,0.1,5.2,2.5,6.2c0.6,0.2,1.2,0.3,1.9,0.4
+		c1.9,0,3.6-1.1,4.3-2.8c3.7-8.6,10.9-15.2,19.8-18.2c2.6-0.6,4.1-3.2,3.5-5.7c-0.6-2.6-3.2-4.1-5.7-3.5
+		C592,478.6,591.7,478.6,591.5,478.7L591.5,478.7z"/>
+</g>
+<g id="coffee-maker">
+	<circle class="st2" cx="286.4" cy="258.3" r="15.5"/>
+	<polyline class="st3" points="382.5,251.7 442.8,251.7 442.8,521.5 129.9,521.5 129.9,251.7 189.2,251.7 	"/>
+	<path class="st3" d="M381.2,366.1V238c0-43-40.6-78.2-90.3-78.2h-9c-49.7,0-90.3,35.2-90.3,78.2v128.1H381.2z"/>
+	<line class="st4" x1="106.4" y1="521.5" x2="466.3" y2="521.5"/>
+	<line class="st4" x1="287.3" y1="369.9" x2="287.3" y2="391.4"/>
+	<path class="st5" d="M358.4,431.5v41.1c0,26.9-30.8,48.9-68.5,48.9h-9.6c-37.7,0-68.5-22-68.5-48.9v-41.1H358.4z"/>
+	<path class="st5" d="M361,485.4c17.2-0.1,31.1-11.5,31.1-25.6s-13.9-25.5-31.1-25.6"/>
+</g>
+</svg>

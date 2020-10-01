@@ -1,0 +1,21 @@
+<div class="footer-legend">
+    <div class="tag" (click)="show = !show">
+        <button mat-button class="content">
+            <app-icon [icon]="{ class: 'material-icons', content: 'keyboard_arrow_up' }"></app-icon>
+        </button>
+    </div>
+    <div class="header">
+        <div class="text">Keys</div>
+    </div>
+    <div class="colour-legend">
+        <div class="colour" *ngFor="let item of colours" [class.dark]="item.dark" [style.background-color]="item.colour">
+            {{ item.name }}
+        </div>
+    </div>
+    <div class="icon-legend" [class.show]="show">
+        <div class="icon" *ngFor="let item of icon_list">
+            <app-icon [icon]="item.icon"></app-icon>
+            <div class="text">{{ item.name }}</div>
+        </div>
+    </div>
+</div>

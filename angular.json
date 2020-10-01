@@ -814,6 +814,162 @@
         }
       }
     },
+    "visitor-kiosk": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/visitor-kiosk",
+      "sourceRoot": "projects/visitor-kiosk/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/visitor-kiosk",
+            "index": "projects/visitor-kiosk/src/index.html",
+            "main": "projects/visitor-kiosk/src/main.ts",
+            "polyfills": "projects/visitor-kiosk/src/polyfills.ts",
+            "tsConfig": "projects/visitor-kiosk/tsconfig.app.json",
+            "aot": true,
+            "baseHref": "/visitor-kiosk/",
+            "fileReplacements": [
+              {
+                "replace": "src/app/common/settings.ts",
+                "with": "projects/visitor-kiosk/src/app/settings.ts"
+              }
+            ],
+            "assets": [
+              "projects/visitor-kiosk/src/favicon.ico",
+              "projects/visitor-kiosk/src/assets",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              },
+              "projects/visitor-kiosk/src/manifest.webmanifest"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/app/styles"
+              ]
+            },
+            "styles": [
+              "projects/visitor-kiosk/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                    "replace": "src/environments/environment.ts",
+                    "with": "src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/app/common/settings.ts",
+                  "with": "projects/visitor-kiosk/src/app/settings.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ],
+              "serviceWorker": true,
+              "ngswConfigPath": "projects/visitor-kiosk/ngsw-config.json"
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "baseHref": "/",
+            "browserTarget": "visitor-kiosk:build",
+            "proxyConfig": "config/proxy.conf.js"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "visitor-kiosk:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "visitor-kiosk:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-builders/jest:run",
+          "options": {
+            "polyfills": "projects/visitor-kiosk/src/polyfills.ts",
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
+              "projects/visitor-kiosk/src/favicon.ico",
+              "projects/visitor-kiosk/src/assets",
+              {
+                  "glob": "oauth-resp.html",
+                  "input": "node_modules/@placeos/ts-client/dist/",
+                  "output": "/"
+              },
+              "projects/visitor-kiosk/src/manifest.webmanifest"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/app/styles"
+              ]
+            },
+            "styles": [
+              "projects/visitor-kiosk/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/visitor-kiosk/tsconfig.app.json",
+              "projects/visitor-kiosk/tsconfig.spec.json",
+              "projects/visitor-kiosk/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/visitor-kiosk/e2e/protractor.conf.js",
+            "devServerTarget": "visitor-kiosk:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "visitor-kiosk:serve:production"
+            }
+          }
+        }
+      }
+    },
     "kiosk": {
       "projectType": "application",
       "schematics": {

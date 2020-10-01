@@ -1,0 +1,13 @@
+<header>
+    <h3 mat-dialog-title>Locate Space - {{ space.name }}</h3>
+    <button mat-icon-button mat-dialog-close>
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"></app-icon>
+    </button>
+</header>
+<div class="body" *ngIf="level">
+    <a-map [src]="level?.map_url" [features]="features">
+        <mat-spinner diameter="64"></mat-spinner>
+    </a-map>
+
+    <div class="level">{{level?.name}}</div>
+</div>

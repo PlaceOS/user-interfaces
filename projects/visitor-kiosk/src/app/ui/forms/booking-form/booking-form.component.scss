@@ -1,0 +1,65 @@
+@import 'mixins';
+@import 'variables';
+
+label {
+    min-width: 100%;
+    margin-top: 1.25em;
+    margin-right: 1em;
+    font-weight: bold;
+    font-size: .8em;
+    // @include respond-to(mobile) {
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: .5em;
+    // }
+
+    span {
+        color: $pending;
+    }
+
+    &.error {
+        color: $error;
+    }
+}
+
+.field {
+    display: flex;
+
+    // @include respond-to(mobile) {
+        flex-wrap: wrap;
+    // }
+}
+
+mat-form-field,
+a-date-field,
+an-action-field,
+editor {
+    flex: 1;
+    min-width: 50%;
+
+    @include respond-to(mobile) {
+        min-width: 16em;
+    }
+}
+
+
+.group {
+    display: flex;
+    flex-wrap: wrap;
+    > * {
+        min-width: 18em;
+        flex: 1;
+        margin: .5em;
+        &:first-child {
+            margin-left: 0;
+        }
+        &:last-child {
+            margin-right: 0;
+        }
+
+        @include respond-to(mobile) {
+            margin: 0;
+        }
+    }
+
+}

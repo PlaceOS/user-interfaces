@@ -1,0 +1,43 @@
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  & > * {
+      width: 100%;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+
+  .main {
+      flex: 1;
+      font-size: 1.5em;
+      text-align: center;
+      padding: 1em;
+      text-transform: uppercase;
+  }
+}
+
+.icon {
+  height: 1.5em;
+  width: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+
+  &.big {
+      font-size: 4em;
+  }
+
+  &.close {
+      position: absolute;
+      top: .2em;
+      right: .2em;
+      font-size: 3em;
+  }
+}

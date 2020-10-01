@@ -1,0 +1,35 @@
+@import 'variables';
+
+.topbar-header {
+    display: flex;
+    align-items: center;
+    height: 3.5em;
+    background-color: rgba(#000, 0.8);
+    color: $font-light;
+    box-shadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
+        0 2px 1px -1px rgba(#000, 0.12);
+
+    .time {
+        margin-left: auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: white;
+        padding: 0 1em;
+    }
+
+    .logo {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: black;
+        padding: 0 1em;
+
+        img {
+            max-height: 2.5em;
+            max-width: 50vw;
+        }
+    }
+}

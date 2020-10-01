@@ -1,0 +1,74 @@
+
+@import 'variables';
+@import 'mixins';
+
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    > * {
+        width: 100%;
+    }
+}
+
+.body {
+    position: relative;
+    min-width: 50%;
+    flex: 1;
+}
+
+header {
+    color: #fff;
+}
+
+.block {
+    padding: 1.25em;
+    font-size: 2em;
+    text-align: center;
+    background-color: $pwc-red;
+    font-family: $heading-font;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+}
+
+[mat-button] {
+    flex: 1;
+    padding: 1em;
+    font-size: 2.5em;
+    border-radius: 0;
+    filter: brightness(50%);
+    transition: filter 200ms;
+    font-weight: 300;
+
+    &:hover {
+        filter: brightness(110%);
+    }
+
+    &.active {
+        filter: brightness(100%);
+    }
+}
+
+.first {
+    background-color: $pwc-tangerine;
+    border-color: $pwc-tangerine;
+}
+
+.second {
+    background-color: $pwc-yellow;
+    border-color: $pwc-yellow;
+}
+
+.third {
+    background-color: $pwc-rose;
+    border-color: $pwc-rose;
+}

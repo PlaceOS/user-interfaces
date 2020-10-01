@@ -1,0 +1,63 @@
+<div class="container">
+    <div class="content">
+        <div class="heading">
+            Would you like a drink?
+        </div>
+        <div class="icon close" (click)="home()">
+            <i class="material-icons">close</i>
+        </div>
+
+        <div class="form" *ngIf="form">
+            <mat-form-field>
+                <mat-label>Drink</mat-label>
+                <mat-select
+                    [formControl]="selected_drink"
+                    placeholder="Select drink"
+                    (selectionChange)="buildForm($event)"
+                >
+                    <mat-option *ngFor="let option of drinks" [value]="option">
+                        {{ option.subcategory }} - {{ option.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <ng-container *ngIf="!!selected_drink.value && selected_drink.value.options.length">
+                <div *ngFor="let item of options | keyvalue">
+                    <div>
+                        <strong>
+                            {{ item.key }}
+                        </strong>
+                    </div>
+                    <mat-radio-group
+                        [formControl]="item.value"
+                        *ngIf="cateringOptions[item.key]?.radio_select"
+                        class="radio-group"
+                    >
+                        <mat-radio-button
+                            matInput
+                            *ngFor="let opt of cateringOptions[item.key].radio_select"
+                            [value]="opt.option"
+                            class="radio-button"
+                            [checked]="opt.option === item.value.value"
+                            >{{ opt.option }}</mat-radio-button
+                        >
+                    </mat-radio-group>
+                    <ng-container
+                        *ngIf="cateringOptions[item.key]?.multi_select"
+                        class="checkbox-div"
+                    >
+                        <mat-checkbox
+                            *ngFor="let opt of cateringOptions[item.key].multi_select"
+                            [value]="opt.option"
+                            [checked]="is_selected(item.key, opt.option)"
+                            (change)="multiselectChange($event, item.key, item.value)"
+                            >{{ opt.option }}
+                        </mat-checkbox>
+                    </ng-container>
+                </div>
+            </ng-container>
+        </div>
+        <div class="action">
+            <button mat-button (click)="continue()">Next</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+@import 'mixins';
+
+:host {
+    padding: 2em;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 500px 70px;
+    grid-template-areas: 'a camera b' 'c buttons d';
+
+    video,
+    canvas,
+    button {
+        @include fade-in('400ms');
+    }
+
+    .camera,
+    .wrapper,
+    .actions {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .camera {
+        grid-area: camera;
+        flex-direction: column;
+        box-shadow: 0 1px 3px 0 rgba(#000,.2), 0 1px 1px 0 rgba(#000,.14), 0 2px 1px -1px rgba(#000,.12);
+
+        .wrapper {
+            position: absolute;
+            left: 2em;
+            right: 2em;
+            top: 4em;
+            bottom: 4em;
+        }
+    }
+
+    .actions {
+        grid-area: buttons;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    canvas,
+    .confirm {
+        display: none;
+    }
+
+    &.has-photo {
+        video,
+        .take-photo {
+            display: none;
+        }
+
+        canvas,
+        .confirm {
+            display: unset;
+        }
+    }
+
+    button {
+      margin: 0 0.25em;
+    }
+}

@@ -1,0 +1,25 @@
+<header>
+    <h2>Book Room - {{ space.name }}</h2>
+</header>
+<mat-dialog-content>
+    <main>
+        <div class="bookings">{{ upcoming_booking }}</div>
+        <div class="equipment" *ngIf="equipment && equipment.length">
+            Room Contains:
+            <ul>
+                <li *ngFor="let item of equipment">{{ item }}</li>
+            </ul>
+        </div>
+        <div class="time">Booking on {{ date_string }} at {{ time_string }}</div>
+        <div class="time" *ngIf="is_different_tz">
+            Time at location {{ building.name }} {{ building_time }}
+        </div>
+        <a-booking-form [form]="form"></a-booking-form>
+    </main>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <footer>
+        <button mat-button class="inverse" mat-dialog-close>Cancel</button>
+        <button mat-button (click)="book()">Book</button>
+    </footer>
+</mat-dialog-actions>
