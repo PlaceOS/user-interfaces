@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { get, patch } from '@placeos/ts-client';
+import { updateMetadata } from '@placeos/ts-client';
 
 import { GuestUser } from './user.class';
 import { CalendarEvent } from '../events/event.class';
@@ -20,14 +20,13 @@ export class GuestsService extends BaseAPIService<GuestUser> {
         return new GuestUser(raw_data);
     }
 
-    public getGuest(id: string): Promise<GuestUser> {
-        const url = `${this.route()}/${id}`;
-        return get(url).toPromise().then((res) => this.process(res));
-    }
-
-    public updateGuest(id: string, body: HashMap) {
-        const url = `${this.route()}/${id}`;
-        return patch(url, body).toPromise();
+    /**
+     * Update metadata associated with guest
+     * @param email Email of the guest
+     * @param data New state of the guest's metadata
+     */
+    public updateMetadata(email: string, data: HashMap | any[]) {
+        return updateMetadata(email, { id: email, name: 'guest-metadata', details: data });
     }
 
     /**

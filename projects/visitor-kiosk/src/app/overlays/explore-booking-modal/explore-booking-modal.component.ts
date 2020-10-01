@@ -98,7 +98,7 @@ export class ExploreBookingModalComponent extends BaseClass implements OnInit {
         const time = dayjs();
         this.booking = new CalendarEvent({
             title: 'Meeting',
-            room_ids: [this.space.id],
+            system: this.space,
             date: time.minute(Math.ceil(time.minute() / 5) * 5).valueOf(),
             duration: 30,
         });

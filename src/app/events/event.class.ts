@@ -111,6 +111,8 @@ export class CalendarEvent {
     public readonly old_system: Space;
     /** Host user details of the meeting */
     public readonly organiser: User;
+    /** Whether user is allowed to access the lift */
+    public readonly can_access_lift: boolean;
     /** Whether the time of the booking has been changed */
     public time_changed: boolean;
 
@@ -199,6 +201,7 @@ export class CalendarEvent {
         this.extension_data.needs_parking = !!data.needs_parking;
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
+        this.can_access_lift = data.can_access_lift || this.extension_data.can_access_lift || false;
         this.resources = unique(this.resources, 'email');
     }
 

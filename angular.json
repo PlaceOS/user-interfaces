@@ -165,6 +165,12 @@
                 "src/app/styles"
               ]
             },
+            "fileReplacements": [
+              {
+                "replace": "src/app/common/settings.ts",
+                "with": "projects/workplace/src/app/shared/settings.ts"
+              }
+            ],
             "assets": [
               "projects/workplace/src/favicon.ico",
               "projects/workplace/src/assets",
@@ -186,6 +192,10 @@
                 {
                   "replace": "projects/workplace/src/environments/environment.ts",
                   "with": "projects/workplace/src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/app/common/settings.ts",
+                  "with": "projects/workplace/src/app/shared/settings.ts"
                 }
               ],
               "optimization": true,

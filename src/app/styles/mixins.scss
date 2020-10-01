@@ -13,6 +13,22 @@
                 0 2px 1px -1px rgba(#000, .12);
 }
 
+@mixin fade-in($wait) {
+    animation:
+        wait #{$wait},
+        fade-in 400ms #{$wait};
+}
+
+@keyframes wait {
+    0% { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 /*===================*\
 ||   Media Queries   ||
 \*===================*/

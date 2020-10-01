@@ -42,7 +42,7 @@
     right: 0;
     bottom: 0;
     width: 20em;
-    background-color: $color-primary-deep;
+    background-color: $color-primary;
     color: white;
     transform: translateX(120%);
     box-shadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
@@ -53,7 +53,7 @@
 
 .header {
     display: flex;
-    background-color: $color-primary-dark;
+    background-color: $color-primary;
     color: white;
     width: 100%;
     flex-direction: column;

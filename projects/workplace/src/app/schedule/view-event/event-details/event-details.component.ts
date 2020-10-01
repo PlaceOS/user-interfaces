@@ -7,6 +7,7 @@ import { StaffService } from 'src/app/users/staff.service';
 import { CalendarEvent } from 'src/app/events/event.class';
 
 import * as dayjs from 'dayjs';
+import { Booking } from 'src/app/bookings/booking.class';
 
 @Component({
     selector: 'schedule-event-details',
@@ -113,7 +114,7 @@ export class EventDetailsComponent extends BaseClass {
      */
     public duplicate(): void {
         if (localStorage) {
-            const booking = this.item.duplicate();
+            const booking = new Booking({ ...this.item, id: '' });
             localStorage.setItem('STAFF.booking_form', JSON.stringify(booking));
         }
         this._router.navigate(['/book']);
