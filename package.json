@@ -54,7 +54,7 @@
     "@angular/cli": "~10.0.1",
     "@angular/compiler-cli": "~10.0.2",
     "@ngneat/spectator": "^5.13.3",
-    "@placeos/ts-client": "^3.3.4",
+    "@placeos/ts-client": "^3.3.11",
     "@types/jest": "^26.0.10",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0-next.1",

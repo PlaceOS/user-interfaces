@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { onlineState, show } from '@placeos/ts-client';
+import { currentUser, onlineState } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
 import { StaffUser } from './user.class';
@@ -34,9 +34,9 @@ export class StaffService extends BaseAPIService<StaffUser> {
 
     /** Load current user */
     public async load() {
-        const user = await show('current', {}, this.format, 'users').toPromise();
+        const user = await currentUser().toPromise();
         if (user) {
-            this._active_user.next(new StaffUser({ ...user, is_logged_in: true }));
+            this._active_user.next(new StaffUser({ ...user, is_logged_in: true } as any));
         }
     }
 
