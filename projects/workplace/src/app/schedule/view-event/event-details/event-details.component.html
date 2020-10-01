@@ -1,0 +1,32 @@
+<div class="event-details" *ngIf="item">
+    <div class="header">
+        <div class="title">{{ item.title || 'No Title' }}</div>
+        <div *ngIf="can_edit" class="icons">
+            <button mat-fab color="primary" (click)="edit()">
+                <app-icon
+                    name="edit"
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'edit' }"
+                ></app-icon>
+            </button>
+            <button mat-fab *ngIf="can_cancel" color="primary" (click)="cancelBooking()">
+                <app-icon
+                    name="cancel"
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'delete_forever' }"
+                ></app-icon>
+            </button>
+            <button mat-fab color="primary" (click)="duplicate()">
+                <app-icon
+                    name="duplicate"
+                    [icon]="{
+                        type: 'icon',
+                        class: 'material-icons',
+                        content: 'control_point_duplicate'
+                    }"
+                ></app-icon>
+            </button>
+        </div>
+    </div>
+    <div class="event">
+        <schedule-event-view [event]="item"></schedule-event-view>
+    </div>
+</div>

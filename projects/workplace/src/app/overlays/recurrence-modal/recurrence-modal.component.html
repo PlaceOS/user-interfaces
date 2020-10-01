@@ -1,0 +1,59 @@
+<header>
+    <div class="heading" mat-dialog-title>Booking Recurrence</div>
+    <button mat-icon-button mat-dialog-close>
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"></app-icon>
+    </button>
+</header>
+<mat-dialog-content>
+    <main *ngIf="!loading; else load_state">
+        <form *ngIf="form" [formGroup]="form">
+            <div class="field" *ngIf="form.controls.pattern && patterns.length > 1">
+                <label for="period">Period: </label>
+                <mat-form-field appearance="outline">
+                    <mat-select
+                        name="interval"
+                        [(ngModel)]="selected_pattern"
+                        (ngModelChange)="changePattern($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="None"
+                    >
+                        <mat-option *ngFor="let type of patterns" [value]="type">
+                            {{ type.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="field" *ngIf="form.controls.end">
+                <label
+                    class="mb"
+                    for="end"
+                    [class.error]="form.controls.end.errors && form.controls.end.touched"
+                >
+                    End Date<span>*</span>:
+                </label>
+                <a-date-field name="end" formControlName="end" [from]="date"></a-date-field>
+                <div
+                    class="error-message"
+                    *ngIf="form.controls.end.errors && form.controls.end.touched"
+                >
+                    End date needs to be in the future
+                </div>
+            </div>
+        </form>
+    </main>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="!loading">
+    <footer>
+        <button mat-flat-button color="primary" (click)="save()">Add to Booking</button>
+    </footer>
+</mat-dialog-actions>
+<ng-template #load_state>
+    <div class="body">
+        <div class="info-block">
+            <div class="icon">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+            <div class="text">{{ loading }}</div>
+        </div>
+    </div>
+</ng-template>

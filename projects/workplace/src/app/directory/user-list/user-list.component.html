@@ -1,0 +1,59 @@
+<div class="directory page">
+    <header class="header">
+        <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
+    </header>
+    <div class="actions" [class.blank]="false" [class.has-back]="false">
+        <div class="search">
+            <a-searchbar
+                [(value)]="search_str"
+                (valueChange)="search$.next($event)"
+                [loading]="loading"
+                [autofocus]="true"
+                [flat]="true"
+                placeholder="Search for a person..."
+            ></a-searchbar>
+        </div>
+    </div>
+    <main>
+        <ng-container *ngIf="groupedUsers && user_list.length; else empty_state">
+            <ng-container *ngFor="let letter of letters">
+                <ng-container *ngIf="groupedUsers[letter].length">
+                    <div class="letter">{{ letter }}</div>
+                    <a-directory-user-list-item
+                        *ngFor="let user of groupedUsers[letter]"
+                        [user]="user"
+                    ></a-directory-user-list-item>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+    </main>
+    <footer class="footer">
+        <a-footer-menu></a-footer-menu>
+    </footer>
+</div>
+<ng-template #empty_state>
+    <div class="list">
+        <div class="info-block">
+            <div class="icon">
+                <app-icon
+                    [icon]="{
+                        type: 'icon',
+                        class: 'material-icons',
+                        content:
+                            search_str && search_str.length >= min_search_length
+                                ? 'close'
+                                : 'arrow_upward'
+                    }"
+                ></app-icon>
+            </div>
+            <div class="text">
+                {{
+                    search_str && search_str.length >= min_search_length
+                        ? ' No matches for "' + search_str + '"'
+                        : 'Type above to search for users'
+                }}
+            </div>
+        </div>
+    </div>
+</ng-template>
+<a-overlay-menu [(show)]="show_menu"></a-overlay-menu>

@@ -1,0 +1,24 @@
+<div class="control-list">
+    <div class="filter">
+        <a-searchbar [(value)]="search_str" [loading]="loading" [autofocus]="true"></a-searchbar>
+    </div>
+    <div class="list" *ngIf="filtered_list.length; else empty_state">
+        <div class="item" *ngFor="let space of filtered_list">
+            <a-control-space-list-item [space]="space"></a-control-space-list-item>
+        </div>
+    </div>
+</div>
+<ng-template #empty_state>
+    <div class="list">
+        <div class="info-block">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"
+                ></app-icon>
+            </div>
+            <div class="text">
+                {{ search_str ? ' No matches for "' + search_str + '"' : 'No controllable spaces' }}
+            </div>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,44 @@
+@import 'variables';
+@import 'mixins';
+
+.event-view {
+    background-color: #fff;
+    @include box-shadow;
+
+    button {
+        color: $color-primary;
+    }
+
+    .field {
+        padding: 1em;
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 0;
+            bottom: -2px;
+            left: 0;
+            height: 2px;
+            z-index: 1;
+            border-radius: inherit;
+            background: linear-gradient(to left, $bg-light calc(100% - 4em), transparent 3em);
+        }
+
+        &:last-of-type {
+            &:after {
+                content: unset;
+            }
+        }
+        label {
+            flex: 1;
+        }
+        app-icon {
+            font-size: 2em;
+            margin-right: 0.2em;
+        }
+    }
+}

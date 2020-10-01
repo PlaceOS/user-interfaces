@@ -1,0 +1,32 @@
+
+.item {
+    display: flex;
+    align-items: center;
+    padding: .5em;
+
+}
+
+.details {
+    flex: 1;
+}
+
+.name {
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info {
+    font-size: .65em;
+}
+
+.capacity {
+    display: flex;
+    align-items: center;
+    margin-left: .5em;
+}
+
+.actions {
+    margin-left: .5em;
+}

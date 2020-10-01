@@ -1,0 +1,25 @@
+<div class="footer-menu" *ngIf="tiles && tiles.length">
+    <ng-container *ngFor="let item of tiles">
+        <a
+            *ngIf="item.route"
+            [routerLink]="[item.route]"
+            [queryParams]="item.query_params"
+            [class.active]="isLinkActive(item.route)"
+        >
+            <div class="tile">
+                <div class="icon">
+                    <app-icon [icon]="item.icon"></app-icon>
+                </div>
+                <div class="text">{{ item.name }}</div>
+            </div>
+        </a>
+        <a *ngIf="!item.route" [href]="item.link | safe: 'url'">
+            <div class="tile">
+                <div class="icon">
+                    <app-icon [icon]="item.icon"></app-icon>
+                </div>
+                <div class="text">{{ item.name }}</div>
+            </div>
+        </a>
+    </ng-container>
+</div>

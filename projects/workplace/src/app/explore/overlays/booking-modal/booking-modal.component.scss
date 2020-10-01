@@ -1,0 +1,35 @@
+@import 'variables';
+
+.header {
+    width: 100%;
+    text-align: center;
+    .title {
+        font-size: 1.2em;
+        font-weight: 600;
+        margin-top: 0.5em;
+    }
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+
+.body .title {
+    margin-bottom: 0.5em;
+}
+
+main {
+    padding: 1em 1em 0;
+}
+
+.icon {
+    font-size: 2.5em;
+    color: $success;
+}
+
+footer {
+    button {
+        width: 8em;
+    }
+}

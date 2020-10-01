@@ -1,0 +1,63 @@
+<div class="explore page">
+    <header class="header">
+        <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
+    </header>
+    <div class="actions" [class.blank]="false" [class.has-back]="false">
+        <div class="search">
+            <explore-search></explore-search>
+            <a-map-controls
+                [(level)]="active_level"
+                (levelChange)="onLevelChange()"
+            ></a-map-controls>
+        </div>
+    </div>
+    <main class="body">
+        <div class="status-list" hidden>
+            <i
+                space-status
+                [zone]="active_level"
+                (status)="status_map.spaces = $event; processStatuses()"
+                (listeners)="listener_map.spaces = $event; processListeners()"
+                (features)="feature_map.spaces = $event; processFeatures()"
+            ></i>
+            <!-- <i
+                desk-status
+                [zone]="active_level"
+                (status)="status_map.desks = $event; processStatuses()"
+            ></i> -->
+            <i
+                zone-status
+                [zone]="active_level"
+                (status)="status_map.zones = $event; processStatuses()"
+            ></i>
+        </div>
+        <a-map
+            [(zoom)]="zoom"
+            [(center)]="center"
+            [src]="map_url"
+            [cssStyles]="style_map"
+            [listeners]="listeners"
+            [features]="features"
+            [focus]="focus"
+        >
+            <mat-spinner diameter="32"></mat-spinner>
+        </a-map>
+        <a-zoom-controls overlay [(zoom)]="zoom" [(position)]="center"></a-zoom-controls>
+        <a-map-legend overlay></a-map-legend>
+        <a-map-zones
+            overlay
+            [showZones]="show_zones"
+            (click)="showZonesChanged(!show_zones)"
+        ></a-map-zones>
+        <div class="message" *ngIf="message">
+            <div class="text">{{ message }}</div>
+            <div class="loader">
+                <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <a-footer-menu></a-footer-menu>
+    </footer>
+</div>
+<a-overlay-menu [(show)]="show_menu"></a-overlay-menu>

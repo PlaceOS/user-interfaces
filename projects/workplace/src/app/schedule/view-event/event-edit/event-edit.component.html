@@ -1,0 +1,9 @@
+<form *ngIf="form && event" [formGroup]="form" (ngSubmit)="save()">
+    <booking-edit [form]="form" [event]="event"></booking-edit>
+    <div class="footer">
+        <button type="button" type="button" name="cancel" (click)="cancel()">
+            Cancel
+        </button>
+        <button class="black" type="submit">Save</button>
+    </div>
+</form>

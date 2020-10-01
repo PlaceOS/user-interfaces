@@ -1,0 +1,71 @@
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: #f0f0f0;
+
+    main {
+        flex: 1;
+        overflow: auto;
+    }
+
+    header {
+        height: 3.5em;
+    }
+
+    .actions {
+        background: white;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            button {
+                display: none;
+            }
+        }
+
+        &.has-back {
+            .back {
+                button {
+                    display: block;
+                    app-icon {
+                        margin-left: 0.5em;
+                        font-size: 1.5em;
+                    }
+                }
+            }
+        }
+
+        .search {
+            height: 100%;
+        }
+
+        &.blank {
+            background: transparent;
+
+            .search,
+            .back-button {
+                display: none;
+            }
+        }
+    }
+
+    footer {
+        height: 3.5em;
+        background: white;
+    }
+}

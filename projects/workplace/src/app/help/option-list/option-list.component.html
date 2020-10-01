@@ -1,0 +1,22 @@
+<div class="help-option-list" [style.background-image]="('url(' + settings?.background + ')') | safe:'style'">
+    <div
+        class="tile"
+        *ngFor="let item of tiles"
+        [style.min-width]="tile_width + '%'"
+        [style.height]="tile_height + '%'"
+    >
+        <a *ngIf="item.link" class="link" [href]="item.link" target="_blank">
+            <ng-container *ngTemplateOutlet="inner; context: { item: item }"></ng-container>
+        </a>
+        <a *ngIf="!item.link" class="route" [routerLink]="[item.route]" routerLinkActive="active">
+            <ng-container *ngTemplateOutlet="inner; context: { item: item }"></ng-container>
+        </a>
+    </div>
+</div>
+<ng-template #inner let-item="item">
+    <div class="inner" [style.background-image]="('url(' + item?.background + ')') | safe:'style'">
+        <div class="overlay" *ngIf="item?.background"></div>
+        <app-icon [icon]="item?.icon"></app-icon>
+        <div class="text">{{ item?.name }}</div>
+    </div>
+</ng-template>

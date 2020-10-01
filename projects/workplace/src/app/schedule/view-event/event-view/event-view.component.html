@@ -1,0 +1,55 @@
+<div class="event-view" *ngIf="event">
+    <div class="field">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'perm_identity' }"
+        ></app-icon>
+        <label>{{ organiser }}</label>
+    </div>
+    <div class="field">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'schedule' }"
+        ></app-icon>
+        <label>{{ when }}</label>
+    </div>
+    <div class="field" *ngIf="spaces && spaces.length">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
+        <div class="space-list" *ngIf="event.type === 'event'">
+            <div class="space" *ngFor="let item of spaces">
+                <label>{{ item?.name || 'No location' }}</label>
+                <button mat-button *ngIf="item?.map_id" (click)="showSpace(item)">
+                    View
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="field" *ngIf="attendees?.length">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'people_outline' }"
+        ></app-icon>
+        <label>{{ attendees.length }} Attendees</label>
+        <button mat-button *ngIf="attendees.length > 0" (click)="showAttendees()">
+            View
+        </button>
+    </div>
+    <div class="field" *ngIf="link">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'screen_share' }"
+        ></app-icon>
+        <label>
+            <a href="{{ link }}" target="blank">{{ link }}</a>
+        </label>
+    </div>
+    <div class="field" *ngIf="catering_items?.length">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'room_service' }"
+        ></app-icon>
+        <label name="catering">Catering</label>
+        <button mat-button *ngIf="catering_items" (click)="showCatering()">
+            View
+        </button>
+    </div>
+    <div class="field" *ngIf="body">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'subject' }"></app-icon>
+        <label name="body" [innerHTML]="body"></label>
+    </div>
+</div>

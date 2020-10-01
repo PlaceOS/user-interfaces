@@ -1,0 +1,61 @@
+@import 'variables';
+
+.heading {
+    flex: 1;
+    text-align: center;
+}
+
+main {
+    padding: 1em;
+}
+
+label {
+    font-weight: bold;
+    &.mb {
+        margin-bottom: 0.5em;
+    }
+    span {
+        color: $pending;
+    }
+
+    &.error {
+        color: $error;
+    }
+}
+
+.error-message {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: $error;
+    margin-top: -1em;
+}
+
+.field {
+    display: flex;
+
+    // @include respond-to(mobile) {
+    flex-wrap: wrap;
+    // }
+
+    > * {
+        width: 100%;
+    }
+}
+
+mat-dialog-actions {
+    button {
+        min-width: 9em;
+    }
+}
+
+button[mat-dialog-close] {
+    app-icon {
+        font-size: 1.25em;
+    }
+}
+
+footer {
+    width: 100%;
+    text-align: center;
+    padding: 1em 0;
+}

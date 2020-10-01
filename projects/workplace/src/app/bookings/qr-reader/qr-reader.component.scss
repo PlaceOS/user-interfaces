@@ -1,0 +1,159 @@
+.page {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-wrapper {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: black;
+    position: relative;
+
+    video {
+        object-fit: cover;
+        min-width: 100%;
+        min-height: 100%;
+    }
+}
+
+.qr-overlay {
+    position: absolute;
+    color: white;
+    text-align: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+
+    .prompt {
+        display: flex;
+        z-index: 1;
+        flex: 1;
+        justify-content: flex-end;
+        align-items: center;
+        flex-direction: column;
+
+        h2 {
+            font-family: 'Grotesk Condensed';
+            text-transform: uppercase;
+            font-smooth: auto;
+            font-size: 2em;
+            margin-bottom: 0.2em;
+        }
+
+        span {
+            font-size: 1.2em;
+            margin-bottom: 1em;
+            display: block;
+            width: 40vh;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    .scanbox-wrapper {
+        flex: 2;
+        height: 50vh;
+        min-height: 50vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .scanbox {
+        border-radius: 2vh;
+        width: 45vh;
+        height: 45vh;
+        box-shadow: 0px 0px 0px 100vw rgba(#000, 0.5);
+        margin: 2vh;
+        transition: all ease-out 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2em;
+
+        &.input {
+            width: 90vw;
+            height: 10vh;
+            background: white;
+            box-shadow: 0px 0px 0px 100vw rgba(#000, 0.8);
+
+            .input-details {
+                opacity: 1;
+            }
+        }
+
+        .input-details {
+            width: 100%;
+            transition: all ease-out 0.2s;
+            color: black;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            align-items: flex-start;
+            justify-content: center;
+
+            span {
+                font-family: 'Grotesk Bold';
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            input {
+                border: none;
+                background: none;
+                width: 100%;
+                font-size: 1.6em;
+                text-align: left;
+            }
+        }
+    }
+
+    .toggle-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        width: 100vw;
+        padding: 1em;
+    }
+
+    .toggle-body {
+        background: rgba(255, 255, 255, 0.5);
+        width: 100%;
+        border-radius: 0.5em;
+        display: flex;
+        flex-direction: row;
+        padding: 0.6em 1.2em;
+
+        .toggle-tab {
+            background: none;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8em;
+            font-family: 'Grotesk Condensed';
+            color: #000;
+            text-transform: uppercase;
+            font-size: 1.2em;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.5);
+                cursor: pointer;
+            }
+
+            &.selected {
+                background: white;
+            }
+        }
+    }
+}

@@ -1,0 +1,70 @@
+@import 'variables';
+@import 'mixins';
+
+.header {
+    padding: 1em 0;
+    width: 100%;
+    .title {
+        width: 100%;
+        text-align: center;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 0.5em;
+    }
+    .icons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        button {
+            margin-right: 0.5em;
+        }
+        app-icon {
+            font-size: 1.5em;
+        }
+    }
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+.booking {
+    background-color: #fff;
+    @include box-shadow;
+}
+
+button {
+    color: $color-primary;
+}
+
+.field {
+    position: relative;
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    .icon {
+        font-size: 2em;
+        margin-right: 0.2em;
+    }
+    .value {
+        flex: 1;
+    }
+    &:after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        right: 0;
+        bottom: -2px;
+        left: 0;
+        height: 2px;
+        z-index: 1;
+        border-radius: inherit;
+        background: linear-gradient(to left, $bg-light calc(100% - 3em), transparent 3em);
+    }
+
+    &:last-of-type {
+        &:after {
+            content: unset;
+        }
+    }
+}

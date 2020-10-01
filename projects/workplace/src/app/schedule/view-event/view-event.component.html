@@ -1,0 +1,53 @@
+<div class="event page">
+    <header class="header">
+        <a-topbar-header (menuChange)="menu.emit($event)"></a-topbar-header>
+    </header>
+    <div class="actions" [class.blank]="false" [class.has-back]="true">
+        <div class="back">
+            <button mat-button (click)="back()">
+                <div class="row">
+                    <app-icon
+                        [icon]="{
+                            tye: 'icon',
+                            class: 'material-icons',
+                            content: 'keyboard_backspace'
+                        }"
+                    ></app-icon>
+                    Back
+                </div>
+            </button>
+        </div>
+        <div class="search"></div>
+    </div>
+    <main class="body">
+        <ng-container *ngIf="loading">
+            <div class="no-item center">
+                <div class="icon">
+                    <mat-spinner diameter="100"></mat-spinner>
+                </div>
+                <div class="text">
+                    {{ loading }}
+                </div>
+            </div>
+        </ng-container>
+        <div [hidden]="loading" *ngIf="event">
+            <ng-container [ngSwitch]="type">
+                <schedule-booking-details
+                    *ngSwitchCase="'booking'"
+                    [item]="event"
+                    (loading)="loading = $event"
+                >
+                </schedule-booking-details>
+                <schedule-event-details
+                    *ngSwitchDefault
+                    [item]="event"
+                    (event)="onChange($event)"
+                    (loading)="loading = $event"
+                ></schedule-event-details>
+            </ng-container>
+        </div>
+    </main>
+    <footer class="footer">
+        <a-footer-menu></a-footer-menu>
+    </footer>
+</div>

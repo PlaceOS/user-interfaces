@@ -1,0 +1,12 @@
+<ng-container [ngSwitch]="page">
+    <ng-container *ngSwitchCase="'view'">
+        <schedule-view-event (menu)="show_menu = $event"></schedule-view-event>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+        <schedule-event-list
+            (menu)="show_menu = $event"
+            (eventList)="updateEvents($event)"
+        ></schedule-event-list>
+    </ng-container>
+</ng-container>
+<a-overlay-menu [(show)]="show_menu"></a-overlay-menu>

@@ -1,0 +1,96 @@
+<div
+    class="overlay-menu"
+    [class.left]="settings?.position === 'left'"
+    [class.middle]="settings?.position === 'middle'"
+    [class.show]="show"
+    (click)="delayedClose()"
+>
+    <div class="menu" (click)="cancelClose()">
+        <div class="header">
+            <button mat-icon-button (click)="close()">
+                <img [src]="'assets/img/menu-white.svg'" />
+            </button>
+
+            <div class="profile" *ngIf="current">
+                <div class="avatar">
+                    <img
+                        [src]="current.photo ? current.photo : 'assets/img/avatar.svg'"
+                        alt="avatar"
+                    />
+                </div>
+                <div>
+                    <div class="name">{{ current.name }}</div>
+                    <div class="location" *ngIf="current.location">
+                        {{ current.location }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <ul>
+                <ng-container *ngIf="!!menu_items">
+                    <ng-container *ngFor="let item of menu_items">
+                        <ng-container *ngIf="item.route; else external_link">
+                            <a
+                                [routerLink]="[item.route]"
+                                routerLinkActive="active"
+                                [queryParams]="item.query_params"
+                            >
+                                <li>
+                                    <div class="text">{{ item.name }}</div>
+                                    <div class="menu-icon">
+                                        <img [src]="item.icon.src" />
+                                    </div>
+                                </li>
+                            </a>
+                            <ng-container *ngIf="item.children && item.children.length">
+                                <a
+                                    *ngFor="let sub_item of item.children"
+                                    class="sub-link"
+                                    [routerLink]="[sub_item.route]"
+                                    routerLinkActive="active"
+                                    [queryParams]="sub_item.query_params"
+                                >
+                                    <li>
+                                        <div class="text">{{ sub_item.name }}</div>
+                                        <app-icon
+                                            [icon]="{
+                                                type: 'icon',
+                                                class: 'material-icons',
+                                                content: 'keyboard_arrow_right'
+                                            }"
+                                        ></app-icon>
+                                    </li>
+                                </a>
+                            </ng-container>
+                        </ng-container>
+                        <ng-template #external_link>
+                            <a [href]="item.link | safe: 'url'">
+                                <li>
+                                    <div class="text">{{ item.name }}</div>
+                                    <app-icon
+                                        [icon]="{
+                                            type: 'icon',
+                                            class: 'material-icons',
+                                            content: 'exit_to_app'
+                                        }"
+                                    ></app-icon>
+                                </li>
+                            </a>
+                        </ng-template>
+                    </ng-container>
+                    <ng-container>
+                        <a (click)="logout()">
+                            <li>
+                                <div class="text">Logout</div>
+                            </li>
+                        </a>
+                    </ng-container>
+                </ng-container>
+            </ul>
+        </div>
+        <!-- <div class="footer">
+            <div *ngIf="version">Version: {{ version }}</div>
+        </div> -->
+    </div>
+</div>

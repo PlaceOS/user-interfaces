@@ -1,0 +1,44 @@
+<div class="desk-questions" *ngIf="!show_error; else failure">
+    <div class="header">COVID-19 Compulsory Questionnaire</div>
+    <form class="body" [formGroup]="form">
+        <div class="question" *ngFor="let item of questions">
+            <div class="label">{{ item.label }}<span>*</span></div>
+            <div class="field">
+                <mat-checkbox
+                    color="primary"
+                    [checked]="form.controls[item.field].value === true"
+                    (change)="setValue(item.field, true)"
+                    >Yes</mat-checkbox
+                >
+            </div>
+            <div class="field">
+                <mat-checkbox
+                    color="primary"
+                    [checked]="form.controls[item.field].value === false"
+                    (change)="setValue(item.field, false)"
+                    >No</mat-checkbox
+                >
+            </div>
+            <mat-error *ngIf="touched && form.controls[item.field].invalid">
+                Field is required.
+            </mat-error>
+        </div>
+        <div class="action">
+            <button mat-flat-button color="primary" (click)="next()">Next</button>
+        </div>
+    </form>
+</div>
+<ng-template #failure>
+    <div class="error">
+        <div class="icon">
+            <app-icon
+                [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"
+            ></app-icon>
+        </div>
+        <div class="text">
+            Your request to work from the office has been rejected based on your response to the
+            compulsory Covid-19 questions. Please feel free to submit a new request when
+            circumstances change in a way that changes your answer to the questions.
+        </div>
+    </div>
+</ng-template>

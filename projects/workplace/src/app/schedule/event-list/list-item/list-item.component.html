@@ -1,0 +1,38 @@
+<div *ngIf="event" class="item" [ngSwitch]="event.type">
+    <div *ngSwitchCase="'date'" class="date">
+        <app-icon
+            *ngIf="!!event.is_today"
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'radio_button_checked' }"
+        ></app-icon>
+        {{ event.title }}
+    </div>
+    <div *ngSwitchCase="'empty'" class="empty">
+        {{ event.title }}
+    </div>
+    <div *ngSwitchDefault class="event" (click)="view(event)">
+        <div [ngClass]="'time ' + status" [class.done]="is_done">
+            <div class="icon" [ngSwitch]="event.status">
+                <app-icon
+                    *ngSwitchCase="'cancelled'"
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'cancel' }"
+                ></app-icon>
+                <app-icon
+                    *ngSwitchDefault
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'forum' }"
+                ></app-icon>
+            </div>
+            <div>{{ time }}</div>
+            <label *ngIf="event.status === 'cancelled'">(Cancelled)</label>
+        </div>
+        <div class="details">
+            <div class="title">{{ event.title }}</div>
+            <div class="location">
+                <app-icon
+                    *ngIf="!!location"
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"
+                ></app-icon>
+                <div class="text">{{ location || 'No location' }}</div>
+            </div>
+        </div>
+    </div>
+</div>

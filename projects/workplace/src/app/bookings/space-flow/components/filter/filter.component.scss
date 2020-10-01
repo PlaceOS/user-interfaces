@@ -1,0 +1,29 @@
+@import 'variables';
+@import 'mixins';
+
+.filters {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 0.1em;
+    @include respond-to(mobile) {
+        flex-wrap: wrap;
+    }
+
+    app-icon {
+        margin-right: 0.5em;
+        font-size: 1.5em;
+    }
+
+    mat-spinner {
+        margin-right: 1em;
+    }
+
+    mat-form-field {
+        height: 3.5em;
+        margin-right: 0.2em;
+        @include respond-to(mobile) {
+            width: 100%;
+        }
+    }
+}

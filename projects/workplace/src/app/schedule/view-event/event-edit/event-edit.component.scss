@@ -1,0 +1,32 @@
+
+
+form {
+    display: grid;
+    grid-template-columns: max-content;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+        'edit'
+        'actions';
+    margin: auto;
+    margin-top: 2em;
+    max-width: 600px;
+}
+
+booking-edit, schedule-event-view {
+    grid-area: edit;
+}
+
+.footer {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: .5em;
+}
+
+button {
+    width: 6em;
+    margin: 0.25em;
+    padding: 0.33em;
+}

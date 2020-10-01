@@ -1,0 +1,50 @@
+@import 'variables';
+@import 'mixins';
+
+.searchbar {
+    display: flex;
+    align-items: center;
+    max-width: calc(100% - 2em);
+    background-color: #fff;
+    padding: 0 0.75em;
+
+    @include respond-to(mobile) {
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        padding: 0 0.5em;
+        border-bottom: 1px solid #ccc;
+    }
+}
+
+.prefix,
+.suffix {
+    font-size: 1.5em;
+    min-width: 32px;
+    min-height: 100%;
+}
+
+.input {
+    flex: 1;
+    min-width: 50%;
+}
+
+input {
+    width: 100%;
+    font-size: 1em;
+    border: none;
+    outline: none;
+    padding: 1em 0.5em;
+    background: none;
+}
+
+.name {
+    height: 1em;
+}
+
+.email {
+    font-size: 0.6em;
+    color: rgba(#000, 0.65);
+}

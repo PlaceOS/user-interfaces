@@ -1,0 +1,19 @@
+@import 'variables';
+@import 'mixins';
+
+.map-controls {
+    display: flex;
+    flex-direction: row;
+    padding: 0 0.5em;
+}
+
+mat-form-field {
+    &:nth-child(2) {
+        @include respond-to(mobile) {
+            margin-left: 0.5em;
+        }
+    }
+    @include respond-to(mobile) {
+        width: calc(50vw - 0.75em);
+    }
+}

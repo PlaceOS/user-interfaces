@@ -1,0 +1,44 @@
+@import 'variables';
+@import 'mixins';
+
+.searchbar {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 0 0.75em;
+    background: #f9f9f9 0% 0% no-repeat padding-box;
+    border: 1px solid #eaeaea;
+
+    @include respond-to(mobile) {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        padding: 0 0.5em;
+    }
+
+    &.flat {
+        box-shadow: none;
+        border-radius: unset;
+        margin: 0;
+    }
+}
+
+.prefix,
+.suffix {
+    font-size: 1.5em;
+}
+
+.input {
+    flex: 1;
+    min-width: 50%;
+}
+
+input {
+    width: 100%;
+    font-size: 1em;
+    border: none;
+    outline: none;
+    padding: 0.5em;
+    background: none;
+}

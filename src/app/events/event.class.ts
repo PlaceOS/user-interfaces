@@ -37,8 +37,6 @@ export interface ExtDataDetails extends HashMap {
     breakdown?: number;
     /** Whether event is cleaned */
     cleaned?: boolean;
-    /** Meeting URL */
-    meeting_link?: string;
     /** Catering */
     catering?: CateringOrder[];
     /** Parking */
@@ -62,7 +60,9 @@ export interface RecurrenceDetails {
     interval: number;
 }
 
-export class CalendarEvent extends BaseDataClass {
+export class CalendarEvent {
+    /** ID of the calendar event */
+    public readonly id: string;
     /** Status of the event */
     public readonly status: 'confirmed' | 'tentative' | 'cancelled' | 'none';
     /** Email address of the host */
@@ -93,6 +93,8 @@ export class CalendarEvent extends BaseDataClass {
     public readonly location: string;
     /** Whether this event is recurring */
     public readonly recurring: boolean;
+    /** URL to a conference call application instance */
+    public readonly meeting_link: string;
     /** Details about the event's recurrence */
     public readonly recurrence: RecurrenceDetails;
     /** ID of the parent recurring event */
@@ -107,6 +109,8 @@ export class CalendarEvent extends BaseDataClass {
     public readonly system: Space;
     /** Old System id */
     public readonly old_system: Space;
+    /** Host user details of the meeting */
+    public readonly organiser: User;
     /** Whether the time of the booking has been changed */
     public time_changed: boolean;
 
@@ -130,21 +134,12 @@ export class CalendarEvent extends BaseDataClass {
         return this.extension_data.catering && !!this.extension_data.catering.length;
     }
 
-    /** Link associated with the event meeting */
-    public get meeting_link(): string {
-        return this.extension_data.meeting_link;
-    }
-
-    public get organiser() {
-        return this.attendees.find((user) => user.email === this.host);
-    }
-
     public get has_visitors(): boolean {
         return !!this.attendees.find((user) => user.visit_expected || user.is_external);
     }
 
     constructor(data: Partial<CalendarEvent> = {}) {
-        super(data);
+        this.id = data.id || '';
         this.status = data.status || 'none';
         this.host = (data.host || '').toLowerCase();
         this.calendar = data.calendar || '';
@@ -172,6 +167,8 @@ export class CalendarEvent extends BaseDataClass {
         this.location = data.location || '';
         this.recurring = data.recurring;
         this.recurring_master_id = data.recurring_master_id;
+        this.meeting_link = data.meeting_link || '';
+        this.organiser = this.attendees.find((user) => user.email === this.host);;
         this.master = data.master ? new CalendarEvent(data.master) : null;
         if (data.recurring) {
             this.recurrence = {
@@ -199,7 +196,6 @@ export class CalendarEvent extends BaseDataClass {
             (i) => new CateringOrder({ ...i, event: this })
         );
         this.extension_data.configuration = data.configuration || '';
-        this.extension_data.meeting_link = data.meeting_link || '';
         this.extension_data.needs_parking = !!data.needs_parking;
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
@@ -236,13 +232,7 @@ export class CalendarEvent extends BaseDataClass {
 
     /** Cleaning status */
     public get cleaning_status(): 'pending' | 'done' | '' {
-        if (this.cancelled) {
-            return '';
-        }
-        if (this.extension_data.cleaned) {
-            return 'done';
-        }
-        return '';
+        return this.extension_data.cleaned ? 'done' : ''
     }
 
     /** Display cleaning time */
@@ -302,7 +292,7 @@ export class CalendarEvent extends BaseDataClass {
      * Convert class data to simple JSON object
      */
     public toJSON(): HashMap {
-        const obj: HashMap = super.toJSON();
+        const obj: HashMap = { ...this };
         const end = Math.floor(
             add(new Date(this.date), { minutes: this.duration }).valueOf() / 1000
         );

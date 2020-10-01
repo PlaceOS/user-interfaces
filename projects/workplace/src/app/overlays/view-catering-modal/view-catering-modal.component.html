@@ -1,0 +1,30 @@
+<header>
+    <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'room_service'}"></app-icon>
+    <h1>Catering</h1>
+</header>
+<mat-dialog-content>
+    <div class="body">
+        <strong>Item</strong>
+        <strong class="qty">Quantity</strong>
+        <ng-container *ngFor="let item of catering">
+            <label>
+                {{ item.item }}
+            </label>
+            <label class="qty">
+                {{ item.qty }}
+            </label>
+        </ng-container>
+        <strong class="total">Total Items</strong>
+        <strong class="qty">{{catering_items_total}}</strong>
+        <strong class="note-label">
+            Note:
+        </strong>
+        <div class="note-box">
+            {{ catering_note }}
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-dialog-close>Close</button>
+    <button class="black" (click)="edit()">Edit</button>
+</mat-dialog-actions>

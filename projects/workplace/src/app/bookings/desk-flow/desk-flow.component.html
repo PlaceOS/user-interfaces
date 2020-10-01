@@ -1,0 +1,26 @@
+<div class="desk page">
+    <header class="header">
+        <a-topbar-header (menuChange)="menu.emit($event)"></a-topbar-header>
+    </header>
+    <main class="body">
+        <div class="desk-flow" *ngIf="form">
+            <ng-container [ngSwitch]="flow_step">
+                <booking-desk-questions (event)="next($event)" *ngSwitchCase="'questions'">
+                </booking-desk-questions>
+                <booking-desk-confirm
+                    [form]="form"
+                    [loading]="loading"
+                    [finished]="finished"
+                    (event)="next($event)"
+                    *ngSwitchCase="'confirm'"
+                >
+                </booking-desk-confirm>
+                <booking-desk-form [form]="form" [loading]="loading" (event)="next($event)" *ngSwitchDefault>
+                </booking-desk-form>
+            </ng-container>
+        </div>
+    </main>
+    <footer class="footer">
+        <a-footer-menu></a-footer-menu>
+    </footer>
+</div>

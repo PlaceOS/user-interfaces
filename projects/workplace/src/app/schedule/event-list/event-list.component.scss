@@ -1,0 +1,58 @@
+@import 'variables';
+@import 'mixins';
+@import '../../shell-layout.scss';
+
+.actions {
+    justify-content: flex-end;
+    .date {
+        position: relative;
+    }
+    .legend {
+        height: 100%;
+        button {
+            height: 100%;
+        }
+    }
+}
+
+.calendars {
+    margin-left: 0.5em;
+    flex: 1;
+    height: 4em;
+    mat-form-field {
+        width: 15em;
+    }
+}
+
+.event-list {
+    height: 100%;
+    width: 100%;
+    position: relative;
+
+    .body {
+        padding: 0 1em;
+        a-infinite-scroll {
+            div:last-child {
+                height: 2px;
+            }
+        }
+    }
+}
+
+.tooltip {
+    position: absolute;
+    top: 100%;
+    right: -0.25em;
+    background-color: #fff;
+    padding: 0.5em;
+    border-radius: 4px;
+    @include box-shadow;
+    z-index: 999;
+    color: $font-dark;
+}
+
+.date-picker {
+    @include respond-to(mobile) {
+        font-size: 0.8em;
+    }
+}

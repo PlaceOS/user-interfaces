@@ -1,0 +1,60 @@
+<div class="desk-confirm" *ngIf="!finished; else result">
+    <div class="row">
+        <div *ngIf="!loading; else loader" class="title">
+            <div class="text">
+                You have requested
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="details">
+            <app-icon
+                [icon]="{ type: 'icon', class: 'material-icons', content: 'event' }"
+            ></app-icon>
+            <div class="text">{{ date }}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="details">
+            <app-icon
+                [icon]="{ type: 'icon', class: 'material-icons', content: 'watch_later' }"
+            ></app-icon>
+            <div class="text">{{ time }}</div>
+        </div>
+    </div>
+    <div class="row" *ngIf="description">
+        <div class="details">
+            <app-icon
+                [icon]="{ type: 'icon', class: 'material-icons', content: 'description' }"
+            ></app-icon>
+            <div class="text">{{ description }}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="desk">
+            Your desk will be <span>{{ desk?.name }}</span> on level <span>{{ zone }}</span>
+        </div>
+    </div>
+    <div class="row" *ngIf="!loading">
+        <button mat-stroked-button (click)="edit()">Edit</button>
+        <button mat-flat-button color="primary" (click)="confirm()">Confirm</button>
+    </div>
+</div>
+<ng-template #result>
+    <div class="result">
+        <div class="icon">
+            <app-icon [icon]="{ type: 'img', src: 'assets/img/completed.svg' }"></app-icon>
+        </div>
+        <div class="text">
+            Thank you, your desk request has been placed. Someone will be in touch with you shortly.
+        </div>
+    </div>
+</ng-template>
+<ng-template #loader>
+    <div class="title">
+        <div class="text">
+            Placing Desk request...
+        </div>
+        <mat-spinner diameter="32"></mat-spinner>
+    </div>
+</ng-template>

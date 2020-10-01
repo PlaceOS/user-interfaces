@@ -1,0 +1,19 @@
+@import 'variables';
+
+:host,
+.control-list {
+    height: 100%;
+    width: 100%;
+}
+
+.filter {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.control-list {
+    position: relative;
+    overflow: auto;
+    background-color: $bg-light;
+}

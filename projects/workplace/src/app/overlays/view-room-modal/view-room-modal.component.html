@@ -1,0 +1,17 @@
+<header>
+    <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
+    <h1>{{ space.name }}</h1>
+</header>
+<mat-dialog-content>
+    <div class="body" *ngIf="level">
+        <a-map [src]="level.map_id" [cssStyles]="style_map" [features]="features">
+            <mat-spinner diameter="64"></mat-spinner>
+        </a-map>
+        <div class="level">{{ level?.name }}</div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <footer>
+        <button mat-button class="inverse" mat-dialog-close>Close</button>
+    </footer>
+</mat-dialog-actions>

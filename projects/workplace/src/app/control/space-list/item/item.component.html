@@ -1,0 +1,34 @@
+<div class="space-details" *ngIf="space" [class.with-image]="show_image">
+    <div class="details">
+        <div
+            class="image"
+            *ngIf="show_image && space.image"
+            [style.background-image]="'url(' + space.image + ')'"
+        ></div>
+        <div class="overlay"></div>
+        <div class="name">{{ space.name }}</div>
+        <div class="info">
+            <div class="location">{{ location }}</div>
+            <div class="capacity">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'account_circle' }"
+                ></app-icon>
+                {{ space.capacity || '0' }}
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <a
+            mat-button
+            color="primary"
+            button
+            [routerLink]="['/explore']"
+            [queryParams]="{ space: space.id }"
+        >
+            Find
+        </a>
+        <a mat-button color="primary" button [href]="space.support_url | safe: 'url'">
+            Control
+        </a>
+    </div>
+</div>

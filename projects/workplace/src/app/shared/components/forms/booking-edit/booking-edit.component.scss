@@ -1,0 +1,108 @@
+@import 'variables';
+@import 'mixins';
+
+:host {
+    display: grid;
+    grid-template-columns: minmax(auto, 500px);
+    grid-template-rows: 1fr;
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        @include box-shadow;
+
+        label {
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+
+        a {
+            cursor: pointer;
+            color: blue;
+            text-align: right;
+        }
+
+        & > div {
+            padding: 1em;
+            position: relative;
+            display: grid;
+            grid-template-columns: 3em 1fr 3em;
+            grid-template-rows: auto;
+            grid-template-areas: 'icon item link';
+            align-items: center;
+            z-index: 0;
+
+            &:after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                right: 0;
+                bottom: -2px;
+                left: 0;
+                height: 2px;
+                z-index: 1;
+                border-radius: inherit;
+                background: linear-gradient(to left, $bg-light calc(100% - 4em), transparent 3em);
+            }
+
+            &:last-of-type {
+                &:after {
+                    content: unset;
+                }
+            }
+            app-icon {
+                grid-area: icon;
+                font-size: 2em;
+            }
+            label {
+                grid-column: 2;
+            }
+            button,
+            a {
+                grid-column: 3;
+            }
+
+            &.when {
+                z-index: 2;
+                & > div {
+                    display: grid;
+                    grid-template-columns: 2em 1fr;
+                    grid-template-rows: repeat(3, 1fr);
+                    gap: 0 1em;
+                    align-items: center;
+
+                    label {
+                        grid-column: 1;
+                        text-align: left;
+
+                        &:last-of-type {
+                            margin-bottom: 1.5em;
+                        }
+                    }
+
+                    a-date-field,
+                    a-time-field,
+                    a-duration-field {
+                        grid-column: 2;
+                        margin: 0;
+                    }
+                }
+            }
+
+            .space-list {
+                grid-column: 2/-1;
+                display: grid;
+                grid-template-columns: 1fr 3em;
+                align-items: center;
+                label {
+                    grid-column: 1;
+                }
+                button,
+                a {
+                    grid-column: 2;
+                }
+            }
+        }
+    }
+}

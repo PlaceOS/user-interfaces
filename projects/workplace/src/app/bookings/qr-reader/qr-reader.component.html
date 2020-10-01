@@ -1,0 +1,38 @@
+<div class="qr-reader page">
+    <header class="header">
+        <a-topbar-header (menuChange)="menu.emit($event)"></a-topbar-header>
+    </header>
+    <div class="video-wrapper">
+        <video class="camera-view" id="video" ></video>
+         <div class="qr-overlay">
+           
+            <div class="prompt" *ngIf="is_scanning">
+                <h2>Scan QR Code</h2>
+                <span>Scan the QR code outisde an ASHRAE room or space.</span>
+            </div>
+            <div class="prompt"  *ngIf="!is_scanning">
+                <h2>Enter Room ID</h2>
+                <span>Enter the room ID number outisde an ASHRAE room or space.</span>
+            </div>
+            <div class="scanbox-wrapper">
+                <div class="scanbox" [class.input]="!is_scanning">
+                    <div class="input-details">
+                        <span>Booking ID</span>
+                        <input matInput [(ngModel)]="room_code" name="booking-id" placeholder="e.g. 12102910" />
+                    </div>
+                </div>
+            </div>
+            <div class="toggle-wrapper">
+                <div class="toggle-body" >
+                    <div class="toggle-tab" [class.selected]="is_scanning" (click)="is_scanning = true">
+                    Scan Code
+                    </div>
+                    <div class="toggle-tab" [class.selected]="!is_scanning" (click)="is_scanning = false">
+                    Enter Code
+                    </div>
+                </div>
+            </div>
+         </div>
+    </div>
+   
+</div>

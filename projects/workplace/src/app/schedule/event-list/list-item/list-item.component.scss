@@ -1,0 +1,68 @@
+@import 'variables';
+@import 'mixins';
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 1px;
+}
+
+.empty {
+    height: 3em;
+    font-size: 1.6em;
+    color: rgba(#000, 0.35);
+    padding-left: 1em;
+    display: flex;
+    align-items: center;
+}
+
+.date {
+    display: flex;
+    font-size: 1.2em;
+    margin: 1em 0 0.5em;
+}
+
+.event {
+    display: flex;
+    align-items: center;
+    height: 5em;
+    width: 100%;
+    background: #fff;
+    cursor: pointer;
+
+    .time {
+        height: 100%;
+        width: 5em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        &.done {
+            background: rgba(#000, 0.35);
+        }
+        &.cancelled {
+            background: $color-secondary;
+            color: #fff;
+        }
+        &.confirmed {
+            background: $success;
+        }
+        &.tentative {
+            background: $pending;
+        }
+    }
+
+    .details {
+        flex: 1;
+        padding-left: 0.5em;
+
+        .location {
+            display: flex;
+            flex-direction: row;
+            margin-top: 0.5em;
+        }
+    }
+}

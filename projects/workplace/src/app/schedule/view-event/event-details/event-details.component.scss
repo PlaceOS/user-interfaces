@@ -1,0 +1,30 @@
+@import 'variables';
+@import 'mixins';
+
+.header {
+    padding: 1em 0;
+    width: 100%;
+    .title {
+        width: 100%;
+        text-align: center;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 0.5em;
+    }
+    .icons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        button {
+            margin-right: 0.5em;
+        }
+        app-icon {
+            font-size: 1.5em;
+        }
+    }
+}
+
+.event {
+    display: flex;
+    justify-content: center;
+}

@@ -1,0 +1,39 @@
+<div class="timeline" (window:mouseup)="resetMove()" (window:touchend)="resetMove()">
+    <div class="content" (mousemove)="move($event)" (touchmove)="move($event)">
+        <div class="timeblocks">
+            <div class="blk" *ngFor="let item of blocks">
+                <div class="text" *ngIf="item.hour">{{ item.display }}</div>
+            </div>
+        </div>
+        <div class="eventblocks" #block>
+            <div
+                class="blk"
+                *ngFor="let item of blocks"
+                [class.shown-block]="item.show"
+                [class.hour]="item.hour"
+                [class.disabled]="item.disabled"
+                [class.unavailable]="item.unavailable"
+            ></div>
+            <div
+                class="selected-time"
+                #time
+                [style.top]="active_start * 100 + '%'"
+                [style.height]="active_length * 100 + '%'"
+            >
+                <div class="inner" (mousedown)="setMove('top')" (touchstart)="setMove('top')">
+                    {{ display }}
+                </div>
+                <div
+                    class="handle top"
+                    (mousedown)="setMove('top')"
+                    (touchstart)="setMove('top')"
+                ></div>
+                <div
+                    class="handle bottom"
+                    (mousedown)="setMove('bottom')"
+                    (touchstart)="setMove('bottom')"
+                ></div>
+            </div>
+        </div>
+    </div>
+</div>

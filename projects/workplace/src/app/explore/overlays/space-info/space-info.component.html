@@ -1,0 +1,27 @@
+<div *ngIf="space" [id]="space.id" [class]="'space-info ' + quadrant">
+    <div class="arrow"></div>
+    <div class="details">
+        <div class="name">{{ space.display_name || space.name }}</div>
+        <div class="capacity" *ngIf="space.capacity >= 0">
+                <span>Capacity: </span>{{ space.capacity }} {{ space.capacity === 1 ? 'person' : 'people' }}
+        </div>
+        <div class="availability">
+            <div name="status" [class]="status_class">{{ status }}</div>
+            <div name="available-until" *ngIf="status_class !== 'not-bookable'">{{ available_until }}</div>
+        </div>
+        <div class="features" *ngIf="!!features && features.length > 0">
+            <h3>Room Features</h3>
+            <label *ngFor="let feature of features">{{feature}}</label>
+        </div>
+        <div class="configurations" *ngIf="!!configurations && configurations.length > 0">
+            <h3>Room configurations</h3>
+            <div *ngFor="let config of configurations">
+                <span>{{config.name}}</span>
+                {{config.capacity}}
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'account_circle' }"
+                ></app-icon>
+            </div>
+        </div>
+    </div>
+</div>

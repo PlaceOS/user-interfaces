@@ -1,0 +1,204 @@
+<div class="booking-form" #container>
+    <form [formGroup]="form">
+        <div class="heading">
+            <div class="text">{{ form.value.id ? 'Edit' : 'New' }} Booking</div>
+            <button mat-button class="inverse" type="button" (click)="resetForm()">
+                Clear
+            </button>
+        </div>
+        <div class="building-time">
+            <div class="title">Time</div>
+            <div class="fields">
+                <div class="group mb">
+                    <div class="field" *ngIf="form.controls.date">
+                        <label for="date" [class.error]="form.controls.date.invalid">Date:</label>
+                        <a-date-field name="date" formControlName="date"></a-date-field>
+                    </div>
+                </div>
+                <div class="group end" *ngIf="form.controls.all_day">
+                    <mat-checkbox formControlName="all_day" color="primary">All day</mat-checkbox>
+                </div>
+                <div class="group wrap" [class.disabled]="form.controls.all_day.value">
+                    <div class="field" *ngIf="form.controls.date">
+                        <label
+                            for="start_time"
+                            [class.error]="form.controls.date.invalid"
+                            class="no-mb"
+                            >Start Time:</label
+                        >
+                        <a-time-field
+                            name="start_time"
+                            [ngModel]="form.controls.date.value"
+                            (ngModelChange)="form.controls.date.setValue($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        ></a-time-field>
+                    </div>
+                    <div class="spacer">
+                        for
+                    </div>
+                    <div class="field" *ngIf="form.controls.duration">
+                        <label class="no-mb" for="duration">Duration: </label>
+                        <a-duration-field
+                            name="duration"
+                            formControlName="duration"
+                        ></a-duration-field>
+                    </div>
+                </div>
+                <div class="date-error mat-error" *ngIf="form.controls.date.invalid">
+                    Date and Time needs to be in the future
+                </div>
+                <div class="group">
+                    <div class="field" *ngIf="form.controls.recurrence">
+                        <label for="recurrence">Recurrence: </label>
+                        <an-action-field
+                            name="recurrence"
+                            [placeholder]="recurrence"
+                            (onAction)="openRecurrenceModal()"
+                        ></an-action-field>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="host-attendees">
+            <div class="title">
+                Host & Attendees
+            </div>
+            <div class="fields">
+                <div class="group">
+                    <div class="field" *ngIf="form.controls.host">
+                        <label for="host">Host: </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select formControlName="host">
+                                <mat-option *ngFor="let cal of calendars" [value]="cal.id">
+                                    {{ cal.summary }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="group">
+                    <div class="field" *ngIf="form.controls.attendees">
+                        <label
+                            for="attendees"
+                            [class.mat-error]="
+                                form.controls.attendees.touched && form.controls.attendees.invalid
+                            "
+                            >Attendees:
+                        </label>
+                        <a-user-list-field
+                            name="attendees"
+                            formControlName="attendees"
+                            (new_user)="openNewUserModal($event)"
+                        ></a-user-list-field>
+                        <mat-error
+                            *ngIf="
+                                form.controls.attendees.touched && form.controls.attendees.invalid
+                            "
+                            [class.unbounded]="true"
+                            >At least 1 attendee is required</mat-error
+                        >
+                    </div>
+                </div>
+                <div class="group mb">
+                    <div class="field">
+                        <button
+                            type="button"
+                            mat-button
+                            (click)="openAvailabilityModal()"
+                            class="inverse"
+                        >
+                            Check Attendees Availability
+                        </button>
+                    </div>
+                </div>
+                <div class="group" *ngIf="has_external">
+                    <div class="field">
+                        <label [class.error]="form.errors?.visitor_type" for="visitor_type"
+                            >Visitor Type<span>*</span>:</label
+                        >
+                        <mat-form-field appearance="outline">
+                            <mat-select formControlName="visitor_type" placeholder="Visitor Type">
+                                <!-- <mat-option value="">General</mat-option> -->
+                                <mat-option value="client">Client</mat-option>
+                                <mat-option value="academy">Academy</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="mat-error" *ngIf="form.errors?.visitor_type">
+                            Visitor type is required
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="details">
+            <div class="title">
+                Details
+            </div>
+            <div class="fields">
+                <div class="group">
+                    <div class="field" *ngIf="form.controls.title">
+                        <label
+                            for="title"
+                            [class.error]="
+                                form.controls.title.invalid && form.controls.title.touched
+                            "
+                        >
+                            Title<span>*</span>:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="title"
+                                placeholder="Meeting Title"
+                                formControlName="title"
+                            />
+                            <mat-error *ngIf="form.controls.title.invalid"
+                                >Title is required</mat-error
+                            >
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="group" *ngIf="catering_allowed && form.controls.catering">
+                    <div class="field">
+                        <label for="spaces">Catering: </label>
+                        <an-action-field
+                            name="resources"
+                            [placeholder]="catering"
+                            (onAction)="openCateringModal()"
+                        ></an-action-field>
+                    </div>
+                </div>
+                <div class="group mb" *ngIf="form.value.id">
+                    <div class="field">
+                        <label for="location">
+                            Location:
+                        </label>
+                        <an-action-field
+                            name="location"
+                            [placeholder]="space_list"
+                            (onAction)="openSpaceSelectModal()"
+                        ></an-action-field>
+                    </div>
+                </div>
+                <div class="group" *ngIf="!form.value.id && form.controls.needs_space">
+                    <div class="field">
+                        <mat-checkbox color="primary" formControlName="needs_space">
+                            Need a Meeting Space?
+                        </mat-checkbox>
+                    </div>
+                </div>
+                <!-- <div class="group">
+                        <div class="field">
+                            <label>Need car parking?</label>
+                            <div class="dual-checkboxes">
+                                <a-yes-no-radio [control]="form.controls.needs_parking"></a-yes-no-radio>
+                            </div>
+                        </div>
+                    </div> -->
+            </div>
+        </div>
+        <div class="next">
+            <button mat-flat-button color="primary" (click)="next()">Next</button>
+        </div>
+    </form>
+</div>

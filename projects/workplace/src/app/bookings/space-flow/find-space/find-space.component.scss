@@ -1,0 +1,47 @@
+@import 'variables';
+@import 'mixins';
+
+.find-space {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto;
+    row-gap: 1em;
+    align-items: center;
+    justify-content: center;
+    padding: 1em;
+}
+
+.header {
+    position: relative;
+    z-index: 999;
+    width: 768px;
+    max-width: 100vw;
+}
+
+.body {
+    position: relative;
+    grid-area: item;
+    // width: 100%;
+    flex: 1;
+    // min-height: 50%;
+}
+
+.box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 768px;
+    max-width: 100vw;
+    background-color: #fff;
+    padding: 0.5em;
+    margin: auto;
+}
+
+.footer {
+    width: 100%;
+
+    button {
+        min-width: 8em;
+        margin: 0 0.5em;
+    }
+}

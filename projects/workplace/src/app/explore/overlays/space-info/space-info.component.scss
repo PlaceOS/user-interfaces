@@ -1,0 +1,156 @@
+@import 'variables';
+@import 'mixins';
+
+:host {
+    pointer-events: none;
+}
+
+.space-info {
+    position: absolute;
+    min-width: 16em;
+    border-radius: 4px;
+    background-color: #fff;
+    @include box-shadow;
+
+    &.top {
+        top: 0;
+        &.left {
+            left: 0;
+            border-top-left-radius: 0;
+        }
+        &.right {
+            right: 0;
+            border-top-right-radius: 0;
+        }
+    }
+
+    &.bottom {
+        bottom: 0;
+        &.left {
+            left: 0;
+            border-bottom-left-radius: 0;
+        }
+        &.right {
+            right: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+}
+
+.top {
+    .arrow {
+        top: 2px;
+    }
+    &.left {
+        .arrow {
+            left: 2px;
+            border-width: 8px 8px 0 0;
+            border-color: $color-primary transparent transparent transparent;
+        }
+    }
+    &.right {
+        .arrow {
+            right: 2px;
+            border-width: 0 8px 8px 0;
+            border-color: transparent $color-primary transparent transparent;
+        }
+    }
+}
+
+.bottom {
+    .arrow {
+        bottom: 2px;
+    }
+    &.left {
+        .arrow {
+            left: 2px;
+            border-width: 8px 0 0 8px;
+            border-color: transparent transparent transparent $color-primary;
+        }
+    }
+    &.right {
+        .arrow {
+            right: 2px;
+            border-width: 0 0 8px 8px;
+            border-color: transparent transparent $color-primary transparent;
+        }
+    }
+}
+
+.arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.details {
+    padding: 1em;
+}
+
+.name {
+    font-size: 1.25em;
+    padding: 0.2em 0.4em;
+}
+
+.availability {
+    > * {
+        padding: 0.25rem 0.5rem;
+        display: inline-block;
+    }
+}
+
+.features {
+    label {
+        display: block;
+    }
+}
+.configurations {
+    & > div {
+        display: flex;
+        justify-content: flex-end;
+
+        span {
+            margin-right: auto;
+        }
+    }
+}
+
+.features,
+.configurations {
+    h3 {
+        font-weight: normal;
+        margin-bottom: 0.25em;
+    }
+}
+
+.capacity {
+    margin-bottom: 0.25em;
+    span {
+        font-weight: normal;
+    }
+}
+
+[name='status'] {
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.8em;
+    margin-right: auto;
+
+    &.not-bookable,
+    &.unknown {
+        background-color: #ccc;
+    }
+
+    &.free {
+        background-color: $success;
+    }
+
+    &.pending {
+        background-color: $pending;
+    }
+
+    &.busy {
+        background-color: $error;
+    }
+}

@@ -1,0 +1,57 @@
+@import 'variables';
+
+.header {
+    padding: 1em;
+    color: #fff;
+    background-color: $grey;
+}
+
+.question {
+    padding: 1em;
+    margin: 1em;
+    background-color: #fff;
+}
+
+.label {
+    margin-bottom: 0.5em;
+    span {
+        color: $error;
+    }
+}
+
+.action {
+    display: flex;
+    justify-content: center;
+    button {
+        width: 10em;
+    }
+}
+
+.error {
+    height: 100%;
+    width: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .icon {
+        background-color: $error;
+        border-radius: 50%;
+        color: #fff;
+        height: 100px;
+        width: 100px;
+
+        app-icon {
+            font-size: 3.5em;
+        }
+    }
+
+    .text {
+        width: 12em;
+        font-size: 1.5em;
+        text-align: center;
+        margin-top: 1em;
+    }
+}

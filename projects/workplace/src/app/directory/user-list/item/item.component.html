@@ -1,0 +1,37 @@
+<div class="space-details" *ngIf="user" [class.with-image]="show_image">
+    <div class="group">
+        <div class="avatar" *ngIf="show_image">
+            <a-user-avatar [user]="user"></a-user-avatar>
+        </div>
+        <div class="details">
+            <div class="name">{{ user.name }}</div>
+            <div class="info">
+                <a name="email" [href]="'mailto:' + user.email | safe: 'url'">{{ user.email }}</a>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <a
+            mat-flat-button
+            color="primary"
+            button
+            name="locate"
+            [routerLink]="['/explore']"
+            [queryParams]="{ user: user.email }"
+            (click)="sendLocateEvent()"
+        >
+            Locate
+        </a>
+        <a
+            mat-flat-button
+            color="primary"
+            button
+            name="call"
+            *ngIf="user.phone"
+            [href]="'tel:' + user.phone | safe: 'url'"
+            (click)="sendCallEvent()"
+        >
+            Call
+        </a>
+    </div>
+</div>

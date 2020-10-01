@@ -1,0 +1,16 @@
+<div class="searchbar" tabindex="0" (focus)="focusField()" (click)="focusField()" [class.flat]="flat">
+    <div class="prefix">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'search' }"></app-icon>
+    </div>
+    <div class="input">
+        <input #input
+            type="text"
+            [(ngModel)]="value"
+            (ngModelChange)="valueChange.emit($event)"
+            [placeholder]="placeholder || 'Search...'"
+        />
+    </div>
+    <div class="suffix" *ngIf="loading">
+        <mat-spinner diameter="32"></mat-spinner>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+@import 'variables';
+@import '../../shell-layout.scss';
+
+.page.directory {
+    .actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+
+        .back {
+            display: none;
+            width: 0;
+        }
+
+        .search {
+            width: 100%;
+            a-searchbar {
+                .searchbar {
+                    border-radius: unset;
+                    box-shadow: none;
+                }
+            }
+        }
+    }
+
+    main {
+        display: flex;
+        flex-direction: column;
+
+        a-directory-user-list-item {
+            width: 100%;
+            margin-bottom: 0.5em;
+        }
+
+        .letter {
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 0.25em 1em;
+        }
+    }
+}

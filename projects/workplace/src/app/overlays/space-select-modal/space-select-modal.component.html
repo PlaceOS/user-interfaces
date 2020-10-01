@@ -1,0 +1,80 @@
+<header>
+    <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
+    <div class="title">Select space{{ multiple ? 's' : '' }}</div>
+</header>
+<mat-dialog-content>
+    <div class="heading">
+        <mat-form-field appearance="outline" *ngIf="buildings && buildings.length > 1">
+            <mat-select
+                name="booking-type"
+                [(value)]="building"
+                (selectionChange)="loadAvailableSpaces()"
+                placeholder="Select building"
+            >
+                <mat-option *ngFor="let bld of buildings" [value]="bld">
+                    {{ bld.display_name || bld.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="space_types && space_types.length > 1">
+            <mat-select
+                name="booking-type"
+                [(ngModel)]="type"
+                (ngModelChange)="loadAvailableSpaces()"
+                placeholder="Any space type"
+            >
+                <mat-option *ngFor="let type of space_types" [value]="type.id">
+                    {{ type.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="body">
+        <ng-container *ngIf="!loading; else load_state">
+            <ng-container *ngIf="filtered_spaces?.length; else empty_state">
+                <ng-container *ngFor="let space of filtered_spaces">
+                    <a-space-select-item
+                        *ngIf="!space_map[space.id]"
+                        [space]="space"
+                        [multiple]="multiple"
+                        type="available"
+                        (click)="spaceSelected(space)"
+                    ></a-space-select-item>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+        <div class="space-list" *ngIf="multiple" [class.show]="show_selected">
+            <ng-container *ngIf="spaces && spaces.length; else empty_state">
+                <a-space-select-item
+                    *ngFor="let space of spaces"
+                    [space]="space"
+                    [multiple]="multiple"
+                    type="selected"
+                ></a-space-select-item>
+            </ng-container>
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="multiple">
+    <footer>
+        <button mat-button color="primary" (click)="save()">
+            Save selected spaces({{ spaces.length || '0' }})
+        </button>
+    </footer>
+</mat-dialog-actions>
+<ng-template #empty_state>
+    <div class="info-block">
+        <div class="icon">
+            <app-icon [icon]="{ class: 'material-icons', content: 'close' }"></app-icon>
+        </div>
+        <div class="text">No spaces</div>
+    </div>
+</ng-template>
+<ng-template #load_state>
+    <div class="info-block">
+        <div class="icon">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
+        <div class="text">Finding available spaces...</div>
+    </div>
+</ng-template>

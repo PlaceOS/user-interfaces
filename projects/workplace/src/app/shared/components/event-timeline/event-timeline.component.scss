@@ -1,0 +1,253 @@
+@import 'variables';
+@import 'mixins';
+
+$default-color: $color-primary;
+
+:host {
+    height: 100%;
+    width: 100%;
+}
+
+.event-timeline {
+}
+
+.times {
+    position: sticky;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    border: 1px solid #ccc;
+}
+
+.content {
+    position: relative;
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-top: none;
+    .row {
+        border-top: 1px solid #ccc;
+        &:first-child {
+            border-top: none;
+        }
+    }
+    .ovrelay .line {
+        overflow: auto;
+    }
+}
+
+.row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 100%;
+    min-height: 2.5em;
+    z-index: 0;
+
+    &.divider {
+        background-color: #f0f0f0;
+        z-index: 2;
+    }
+}
+
+.overlay {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    background: none;
+    border: none;
+    z-index: 1;
+
+    .line {
+        pointer-events: auto;
+    }
+
+    .mini-block {
+        pointer-events: auto;
+        &.unavailable {
+            background-color: rgba(#000, 0.05);
+        }
+        &:first-child {
+            opacity: 0;
+        }
+    }
+
+    .bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+
+        &.hour {
+            border-left-style: solid;
+        }
+
+        &.divider {
+            border-left: 1px dashed rgba(#000, 0.05);
+        }
+    }
+}
+
+.line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 10em;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.time {
+    position: absolute;
+    left: 0;
+    bottom: 0.5em;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.header {
+    position: sticky;
+    display: flex;
+    align-items: center;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 10em;
+    border-right: 1px solid #ccc;
+    min-height: 2.5em;
+    .text {
+        padding: 0.5em;
+    }
+}
+
+.vertical {
+    .row {
+        flex-direction: column;
+        min-width: 0;
+        min-height: 100%;
+    }
+
+    .mini-block {
+        min-height: 4px;
+        min-width: 2.5em;
+    }
+
+    .selected-time {
+        top: auto;
+        bottom: auto;
+        left: 0;
+        right: 0;
+        border: none;
+        border-top: 2px solid $color-primary;
+        border-bottom: 2px solid $color-primary;
+        pointer-events: auto;
+
+        .knob {
+            position: absolute;
+            top: 0;
+            left: 1em;
+            transform: translateY(calc(-50% - 1px));
+            cursor: ns-resize;
+            &.end {
+                top: auto;
+                bottom: 0;
+                left: auto;
+                right: 1em;
+                transform: translateY(calc(50% + 1px));
+            }
+        }
+    }
+
+    .curent-time {
+        top: auto;
+        bottom: auto;
+        left: 0;
+        right: 0;
+        width: auto;
+        height: 2px;
+        background-color: $default-color;
+    }
+}
+
+.mini-block {
+    position: relative;
+    min-width: 4px;
+    min-height: 2.5em;
+    height: 100%;
+    flex: 1;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background-color: rgba($default-color, 0.54);
+    border: 1px solid rgba(#fff, 0.87);
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.2em;
+    width: 1.2em;
+    img {
+        max-height: 1em;
+        max-width: 1em;
+    }
+}
+
+.selected-time {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: rgba($color-primary, 0.2);
+    border-left: 2px solid $color-primary;
+    border-right: 2px solid $color-primary;
+    pointer-events: auto;
+
+    .inner {
+        height: 100%;
+        width: 100%;
+        cursor: grab;
+    }
+
+    .knob {
+        position: absolute;
+        top: 1em;
+        left: 0;
+        height: 12px;
+        width: 12px;
+        border-radius: 100%;
+        background-color: $color-primary;
+        transform: translateX(calc(-50% - 1px));
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+            0 2px 1px -1px rgba(0, 0, 0, 0.12);
+        cursor: ew-resize;
+        &.end {
+            top: auto;
+            left: auto;
+            right: 0;
+            bottom: 1em;
+            transform: translateX(calc(50% + 1px));
+        }
+    }
+}
+
+.current-time {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: darken($default-color, 10);
+}

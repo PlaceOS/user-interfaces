@@ -1,0 +1,43 @@
+<div class="booking-details" *ngIf="item">
+    <div class="header">
+        <div class="title">{{ item.title || 'No Title' }}</div>
+        <div class="icons">
+            <button mat-fab color="primary" (click)="cancel()">
+                <app-icon
+                    name="cancel"
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'delete_forever' }"
+                >
+                </app-icon>
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="booking">
+            <div class="field">
+                <div class="icon">
+                    <app-icon
+                        [icon]="{ type: 'icon', class: 'material-icons', content: 'perm_identity' }"
+                    ></app-icon>
+                </div>
+                <div class="value">{{ item.user_name }}</div>
+            </div>
+            <div class="field">
+                <div class="icon">
+                    <app-icon
+                        [icon]="{ type: 'icon', class: 'material-icons', content: 'schedule' }"
+                    ></app-icon>
+                </div>
+                <div class="value">{{ when }}</div>
+            </div>
+            <div class="field">
+                <div class="icon">
+                    <app-icon
+                        [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"
+                    ></app-icon>
+                </div>
+                <div class="value">{{ item.description }}</div>
+                <button *ngIf="item.asset_id" (click)="showSpace()" mat-button>View</button>
+            </div>
+        </div>
+    </div>
+</div>

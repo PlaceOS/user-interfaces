@@ -1,0 +1,123 @@
+<header>
+    <div class="header">
+        <div class="row">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'add_circle' }"
+                ></app-icon>
+            </div>
+        </div>
+        <div class="title">Confirm Booking {{ booking && booking.id ? 'Changes' : '' }}</div>
+    </div>
+</header>
+<mat-dialog-content>
+    <div class="body" *ngIf="booking && !loading; else load_state">
+        <div class="field">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'perm_identity' }"
+                ></app-icon>
+            </div>
+            <div class="value">{{ booking.creator }}</div>
+        </div>
+        <div class="field">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'schedule' }"
+                ></app-icon>
+            </div>
+            <div class="value">{{ when }}</div>
+        </div>
+        <div class="field">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'title' }"
+                ></app-icon>
+            </div>
+            <div class="value">{{ title || 'No title' }}</div>
+        </div>
+
+        <div class="field" *ngIf="!!booking.resources[0]">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"
+                ></app-icon>
+            </div>
+            <div class="value">{{ booking.resources[0].name }}</div>
+        </div>
+        <div class="field" name="attendees">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'people_outline' }"
+                ></app-icon>
+            </div>
+            <div class="value">
+                {{ booking.attendees.length || '0' }} Attendee{{
+                    booking.attendees.length !== 1 ? 's' : ''
+                }}
+            </div>
+            <div class="actions" (click)="showAttendees()">View</div>
+        </div>
+        <div class="field" *ngIf="!!booking.body">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'subject' }"
+                ></app-icon>
+            </div>
+            <div class="value">
+                <span [innerHTML]="booking.body"></span>
+            </div>
+        </div>
+        <div class="field" *ngIf="booking && booking.has_catering" name="booking.catering">
+            <div class="icon">
+                <app-icon
+                    [icon]="{ type: 'icon', class: 'material-icons', content: 'room_service' }"
+                ></app-icon>
+            </div>
+            <div class="value">
+                <ng-container *ngIf="catering_items_total < 1; else cateringItems">
+                    No catering added
+                </ng-container>
+                <ng-template #cateringItems>
+                    <ng-container *ngIf="catering_items.length === 1; else multipleCatering">
+                        {{ catering_items[0].item }} X {{ catering_items[0].qty }}
+                    </ng-container>
+                </ng-template>
+                <ng-template #multipleCatering>
+                    {{ catering_items_total }} catering items
+                </ng-template>
+            </div>
+            <div
+                class="actions"
+                *ngIf="catering_items_total > 0 && catering_items.length > 1"
+                (click)="showCatering()"
+            >
+                View
+            </div>
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="!loading">
+    <footer>
+        <button mat-button class="inverse" mat-dialog-close>Cancel</button>
+        <button mat-button (click)="saveChanges()">Save</button>
+    </footer>
+</mat-dialog-actions>
+<ng-template #load_state>
+    <div class="body">
+        <div class="info-block">
+            <div class="icon">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+            <div class="text">
+                {{
+                    checking_available
+                        ? 'Checking space availability...'
+                        : booking.id
+                        ? 'Updating booking...'
+                        : 'Creating booking...'
+                }}
+            </div>
+        </div>
+    </div>
+</ng-template>

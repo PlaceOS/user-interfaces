@@ -1,0 +1,20 @@
+<div class="space-details" *ngIf="space" [class.with-image]="show_image">
+    <div class="details">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
+        <div class="body">
+            <div class="location">{{ location }}, {{ space.display_name || space.name }}</div>
+            <div class="desc">
+                <div class="capacity">
+                    Capacity: {{ space.capacity }} {{ space.capacity === 1 ? 'person' : 'people' }}
+                </div>
+                <div class="room-type" *ngIf="room_type">{{ room_type }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <button mat-button class="select" (click)="select.emit()">
+            {{ multi ? (selected ? 'Remove' : 'Select') : 'Book' }}
+        </button>
+        <button mat-button class="inverse map" (click)="locate()">Map</button>
+    </div>
+</div>

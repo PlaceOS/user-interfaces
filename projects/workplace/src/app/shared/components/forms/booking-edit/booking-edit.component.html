@@ -1,0 +1,105 @@
+<!-- <div class="grid" [formGroup]="form">
+    <div class="row" *ngIf="form">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'schedule' }"></app-icon>
+        <label for="start-time">Start Time: </label>
+        <a-time-field name="start-time" formControlName="date"></a-time-field>
+        <label for="duration">Duration: </label>
+        <a-duration-field name="duration" formControlName="duration"></a-duration-field>
+    </div>
+    <div class="row" *ngIf="form.controls.id && form.controls.id.value && form.controls.space_list">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
+        <label for="spaces">Spaces: </label>
+        <an-action-field
+            name="spaces"
+            [placeholder]="spaces_dropdown"
+            (onAction)="openSpacesModal()"></an-action-field>
+    </div>
+    <div class="field" *ngIf="form.controls.body">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'description' }"></app-icon>
+        <label for="body">Notes: </label>
+        <mat-form-field name="body" appearance="outline" *ngIf="!use_html; else html_editor">
+            <textarea
+                matInput
+                name="description"
+                placeholder="Meeting Description"
+                formControlName="body"
+            ></textarea>
+        </mat-form-field>
+        <ng-template #html_editor>
+            <editor formControlName="body"></editor>
+        </ng-template>
+    </div>
+</div> -->
+<div class="wrapper" *ngIf="!!form && !!event" [formGroup]="form">
+    <div>
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'title' }"></app-icon>
+        <label>{{ event.title }}</label>
+    </div>
+    <div>
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'perm_identity' }"
+        ></app-icon>
+        <label>{{ event.organizer.name }}</label>
+    </div>
+
+    <div class="when">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'schedule' }"
+        ></app-icon>
+        <div>
+            <label>on</label>
+            <a-date-field name="date" formControlName="date"></a-date-field>
+            <label>at</label>
+            <a-time-field name="start-time" formControlName="date"></a-time-field>
+            <label for="duration">for </label>
+            <a-duration-field name="duration" formControlName="duration"></a-duration-field>
+        </div>
+    </div>
+
+    <div>
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
+        <an-action-field
+            name="spaces"
+            [placeholder]="selectedSpace"
+            (onAction)="openSpacesModal()"
+        ></an-action-field>
+    </div>
+    <div>
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'people_outline' }"
+        ></app-icon>
+        <label>{{ event.attendees.length }} Attendees</label>
+        <a class="link-a" *ngIf="event.attendees.length > 0" (click)="showAttendees()">
+            View
+        </a>
+    </div>
+    <div *ngIf="!!link">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'screen_share' }"></app-icon>
+        <label>
+            <a href="{{ link }}" target="blank">{{ link }}</a>
+        </label>
+    </div>
+    <div *ngIf="event.catering_items_total > 0">
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'room_service' }"
+        ></app-icon>
+        <label>Catering</label>
+        <a class="link-a" (click)="showCatering()">
+            View
+        </a>
+    </div>
+    <div *ngIf="form.controls.body">
+        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'subject' }"></app-icon>
+        <mat-form-field appearance="outline" *ngIf="!use_html; else html_editor">
+            <textarea
+                matInput
+                name="description"
+                placeholder="Meeting Description"
+                formControlName="body"
+            ></textarea>
+        </mat-form-field>
+        <ng-template #html_editor>
+            <editor name="description" formControlName="body"></editor>
+        </ng-template>
+    </div>
+</div>

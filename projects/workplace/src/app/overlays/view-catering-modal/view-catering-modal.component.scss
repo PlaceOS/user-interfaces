@@ -1,0 +1,19 @@
+.body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 0.5em;
+
+    .note-box,
+    .note-label {
+        grid-column: 1/-1;
+    }
+
+    .note-label {
+        margin-top: 0.5em;
+    }
+
+    .qty, .total {
+        text-align: right;
+    }
+
+}

@@ -1,0 +1,16 @@
+@import 'variables';
+@import 'mixins';
+@import '../../shell-layout.scss';
+
+.event.page {
+    .actions {
+        .search {
+            position: relative;
+        }
+    }
+}
+
+.icon {
+    display: flex;
+    justify-content: center;
+}

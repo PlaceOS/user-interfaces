@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  position: relative;
+
+  & > div:last-child {
+    height: 2px;
+    width: 100%;
+    background: transparent;
+  }
+}
