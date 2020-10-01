@@ -36,7 +36,6 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     public async ngOnInit() {
         this.loading = true;
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
-        console.log('Initialised');
         this.system_list = this._spaces.space_list || [];
         this.filter('');
         this.loading = false;

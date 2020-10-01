@@ -37,7 +37,7 @@ export class DayviewSpaceComponent {
 
     ngOnInit() {
         this._state.filtered.subscribe((events) => {
-            console.log('Events:', events);
+
         });
     }
 }

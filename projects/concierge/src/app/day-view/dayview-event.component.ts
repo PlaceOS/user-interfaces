@@ -155,7 +155,6 @@ export class DayviewEventComponent implements OnChanges {
             this.overflow_top = (diff - this.event.setup) / (24 * 60);
             this.overflow_height =
                 (this.event.duration + this.event.setup + this.event.breakdown) / (24 * 60);
-                console.log('Overflow:', this.overflow_top, this.overflow_height);
         }
     }
 }

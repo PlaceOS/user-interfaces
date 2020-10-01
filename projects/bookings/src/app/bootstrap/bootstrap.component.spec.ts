@@ -45,7 +45,6 @@ describe('BootstrapComponent', () => {
         expect(spectator.query('.info-block')).toBeFalsy();
         expect(spectator.query('mat-spinner')).toBeFalsy();
         expect(spectator.query('p.description')).toBeTruthy();
-        console.log('System ID:', spectator.component.system_id);
         const button: HTMLButtonElement = spectator.query('button');
         expect(button).toBeTruthy();
         // expect(button.disabled).toBeTruthy();
