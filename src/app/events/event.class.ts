@@ -12,7 +12,6 @@ import {
 import { HashMap } from '../common/types';
 import { EventNote } from './event.interfaces';
 import { User, GuestUser } from '../users/user.class';
-import { BaseDataClass } from '../common/base-api.class';
 import { Space } from '../spaces/space.class';
 import { unique } from '../common/general';
 import { CateringOrder } from '../catering/catering-order.class';
@@ -188,7 +187,7 @@ export class CalendarEvent {
             this.recurrence = {} as any;
         }
         this.system = data.system;
-        if (this.system.email) {
+        if (this.system?.email) {
             this.resources.push(new Space(this.system));
         }
         this.old_system = data.old_system || data.system;
