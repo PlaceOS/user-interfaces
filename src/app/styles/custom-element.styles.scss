@@ -26,7 +26,7 @@ a[button],
     background-color: $color-primary;
     border: 1px solid $color-primary;
     color: $font-light;
-    min-height: 3em;
+    height: 3em;
 
     &.inverse {
         background-color: #fff;
@@ -304,8 +304,9 @@ mat-select {
 
 .mat-chip.mat-standard-chip {
     &.mat-primary {
-        background-color: $success;
-        color: #fff;
+        background-color: #fff;
+        color: $color-primary;
+        border-radius: 0;
     }
     &.mat-accent {
         background-color: $pending;

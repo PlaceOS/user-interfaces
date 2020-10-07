@@ -1,6 +1,16 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { addDays, addHours, addMinutes, roundToNearestMinutes } from 'date-fns';
+import { SettingsService } from 'src/app/common/settings.service';
 import { SpaceFlowService } from './space-flow.service';
+
+export const CAPACITY_OPTIONS = [
+    { id: 0, name: 'Any Capacity' },
+    { id: 4, name: 'Small(1 - 4)' },
+    { id: 12, name: 'Medium(5 - 12)' },
+    { id: 32, name: 'Large(13 - 32)' },
+    { id: 999, name: 'Huge(32+)' },
+];
 
 @Component({
     selector: 'space-flow-form',
@@ -30,7 +40,11 @@ import { SpaceFlowService } from './space-flow.service';
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-button style="margin-left: .5rem" class="h-12">Go -></button>
+                <a button mat-button style="margin-left: .5rem" [routerLink]="['/book', 'spaces', 'find']">
+                    <div class="flex items-center justify-center ml-2">
+                        Go <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'arrow_forward' }"></app-icon>
+                    </div>
+                </a>
             </form>
         </div>
         <div name="divider" class="p-4 w-full bg-gray-200">
@@ -112,9 +126,22 @@ import { SpaceFlowService } from './space-flow.service';
                     </div>
                 </div>
             </section>
-            <div class="m-auto width-tablet mb-2">
-                <button mat-button class="inverse" type="button">Add Filter</button>
-                <button mat-button style="margin-left: .5rem">Search</button>
+            <div class="m-auto width-tablet mb-2 flex items-center">
+                <button mat-button class="inverse" type="button" (click)="clearForm()">
+                    <div class="flex items-center justify-center mr-2">
+                        <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'delete' }"></app-icon> Clear Form
+                    </div>
+                </button>
+                <button mat-button class="inverse" style="margin-left: .5rem" type="button">
+                    <div class="flex items-center justify-center mr-2">
+                        <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'filter_list' }"></app-icon> Add Filter
+                    </div>
+                </button>
+                <a button mat-button style="margin-left: .5rem" [routerLink]="['/book', 'spaces', 'find']">
+                    <div class="flex items-center justify-center mr-2">
+                        <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'search' }"></app-icon> Search
+                    </div>
+                </a>
             </div>
         </form>
     `,
@@ -141,7 +168,7 @@ import { SpaceFlowService } from './space-flow.service';
                 border-bottom: 1px solid #ccc;
             }
 
-            button {
+            button, a[button] {
                 min-width: 10em;
             }
 
@@ -157,7 +184,9 @@ export class SpaceFlowFormComponent {
     /** Form filters for event */
     public readonly filters = this._service.filters;
     public readonly updateCapacity = (c: number) => this._service.updateFilters({ capacity: c });
-
+    public readonly use_html = this._settings.get('app.booking.use_html');
+    public readonly clearForm = () => this._service.clearForm();
+    public readonly capacity_options = CAPACITY_OPTIONS;
     public readonly time_options = [
         { id: roundToNearestMinutes(addMinutes(new Date(), 2)).valueOf(), name: 'Now' },
         {
@@ -170,13 +199,6 @@ export class SpaceFlowFormComponent {
         },
     ];
 
-    public readonly capacity_options = [
-        { id: 0, name: 'Any Capacity' },
-        { id: 4, name: 'Small(1 - 4)' },
-        { id: 12, name: 'Medium(5 - 12)' },
-        { id: 32, name: 'Large(13 - 32)' },
-        { id: 999, name: 'Huge(32+)' },
-    ];
 
-    constructor(private _service: SpaceFlowService) {}
+    constructor(private _service: SpaceFlowService, private _settings: SettingsService) {}
 }

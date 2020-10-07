@@ -13,6 +13,8 @@ import { SpaceFlowService } from './space-flow.service';
         <main class="flex flex-1 relative">
             <ng-container [ngSwitch]="page">
                 <space-flow-form *ngSwitchDefault></space-flow-form>
+                <space-flow-listing *ngSwitchCase="'find'"></space-flow-listing>
+                <space-flow-confirm *ngSwitchCase="'confirm'"></space-flow-confirm>
             </ng-container>
         </main>
         <footer class="flex">
@@ -41,7 +43,7 @@ export class SpaceFlowComponent extends BaseClass {
     /** Currently active page in the flow */
     public page: string;
 
-    constructor(private _route: ActivatedRoute) {
+    constructor(private _route: ActivatedRoute, private _service: SpaceFlowService) {
         super();
     }
 
@@ -49,8 +51,9 @@ export class SpaceFlowComponent extends BaseClass {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) =>
-                params.has('page') ? (this.page = params.get('page')) : ''
+                params.has('step') ? (this.page = params.get('step')) : ''
             )
         );
+        this._service.loadState();
     }
 }

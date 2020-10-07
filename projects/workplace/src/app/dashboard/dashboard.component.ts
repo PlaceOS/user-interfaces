@@ -14,9 +14,9 @@ import { SettingsService } from 'src/app/common/settings.service';
             </div>
         </header>
         <main class="flex px-8 flex-wrap">
-            <dashboard-availability class="flex-1 mw-64"></dashboard-availability>
-            <dashboard-upcoming class="flex-1 mw-64"></dashboard-upcoming>
-            <dashboard-contacts class="flex-1 mw-64"></dashboard-contacts>
+            <dashboard-availability class="flex-1 min-w-64"></dashboard-availability>
+            <dashboard-upcoming class="flex-1 min-w-64"></dashboard-upcoming>
+            <dashboard-contacts class="flex-1 min-w-64"></dashboard-contacts>
         </main>
         <footer class="flex">
             <a button mat-button class="tile text-2xl" *ngFor="let tile of tiles" [routerLink]="tile.route">

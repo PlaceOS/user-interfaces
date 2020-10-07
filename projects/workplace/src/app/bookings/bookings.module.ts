@@ -22,6 +22,8 @@ import { QrReaderComponent } from './qr-reader/qr-reader.component';
 
 import { SpaceFlowComponent } from './space-flow-new/space-flow.component';
 import { SpaceFlowFormComponent } from './space-flow-new/space-flow-form.component';
+import { SpaceFlowListingComponent } from './space-flow-new/space-flow-listing.component';
+import { SpaceFlowConfirmComponent } from './space-flow-new/space-flow-confirm.component';
 
 const ROUTES: Route[] = [
     { path: ':flow', component: BookingsComponent },
@@ -47,6 +49,8 @@ const ROUTES: Route[] = [
 
         SpaceFlowComponent,
         SpaceFlowFormComponent,
+        SpaceFlowListingComponent,
+        SpaceFlowConfirmComponent,
 
         QrReaderComponent,
     ],

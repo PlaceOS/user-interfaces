@@ -32,6 +32,10 @@
     background-color: var(--secondary);
 }
 
+.bg-gray-100 {
+    background-color: #f0f0f0;
+}
+
 .bg-gray-200 {
     background-color: #ccc;
 }
@@ -186,6 +190,10 @@
     margin-top: 1rem;
 }
 
+.h-auto {
+    height: auto;
+}
+
 .h-0 {
     height: 0;
 }
@@ -206,15 +214,27 @@
     height: 6em;
 }
 
-.mw-24 {
+.h-half {
+    height: 50%;
+}
+
+.min-h-0 {
+    min-height: 0;
+}
+
+.min-w-24 {
     min-width: 6em;
 }
 
-.mw-48 {
+.min-w-32 {
+    min-width: 8em !important;
+}
+
+.min-w-48 {
     min-width: 12em;
 }
 
-.mw-64 {
+.min-w-64 {
     min-width: 16em;
 }
 
@@ -268,6 +288,10 @@
 
 .mr-2 {
     margin-right: 0.5rem;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
 }
 
 .mx-1 {
