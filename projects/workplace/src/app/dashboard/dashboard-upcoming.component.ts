@@ -52,7 +52,7 @@ import { DashboardStateService } from './dashboard-state.service';
                     ></a-user-avatar>
                 </div>
             </div>
-            <a button mat-button *ngIf="event.meeting_link" class="up-case h-12" [href]="event.meeting_link">Join Call</a>
+            <a button mat-button *ngIf="event.meeting_link" class="uppercase h-12" [href]="event.meeting_link">Join Call</a>
         </div>
         <p *ngIf="!(upcoming_events | async).length" class="text-dark-fade text-center w-full">
             No upcoming events for today

@@ -20,6 +20,9 @@ import { BookingDeskConfirmComponent } from './desk-flow/desk-confirm/desk-confi
 
 import { QrReaderComponent } from './qr-reader/qr-reader.component';
 
+import { SpaceFlowComponent } from './space-flow-new/space-flow.component';
+import { SpaceFlowFormComponent } from './space-flow-new/space-flow-form.component';
+
 const ROUTES: Route[] = [
     { path: ':flow', component: BookingsComponent },
     { path: ':flow/:step', component: BookingsComponent },
@@ -41,6 +44,9 @@ const ROUTES: Route[] = [
         BookingDeskFormComponent,
         BookingDeskQuestionsComponent,
         BookingDeskConfirmComponent,
+
+        SpaceFlowComponent,
+        SpaceFlowFormComponent,
 
         QrReaderComponent,
     ],

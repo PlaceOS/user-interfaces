@@ -1,11 +1,11 @@
 <ng-container [ngSwitch]="flow">
     <booking-desk-flow (menu)="show_menu = $event" *ngSwitchCase="'desks'"></booking-desk-flow>
-    <booking-space-flow
+    <space-flow
         (menu)="show_menu = $event"
         *ngSwitchDefault
         [flow]="flow"
-    ></booking-space-flow>
-    <qr-reader 
+    ></space-flow>
+    <qr-reader
         *ngSwitchCase="'qr'"
         (menu)="show_menu = $event"
         [flow]="flow"

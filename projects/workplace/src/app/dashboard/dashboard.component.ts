@@ -10,7 +10,7 @@ import { SettingsService } from 'src/app/common/settings.service';
             <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
             <div class="top relative flex flex-col justify-center text-white px-12 py-4">
                 <div class="row location">Sydney</div>
-                <div class="row text-2xl text-bold up-case">{{ datetime }}</div>
+                <div class="row text-2xl text-bold uppercase">{{ datetime }}</div>
             </div>
         </header>
         <main class="flex px-8 flex-wrap">
