@@ -142,9 +142,9 @@ export class CalendarEvent {
     constructor(data: Partial<CalendarEvent> = {}) {
         this.id = data.id || '';
         this.status = data.status || 'none';
-        this.host = (data.host || '').toLowerCase();
         this.calendar = data.calendar || '';
         this.creator = (data.creator || _default_user.email).toLowerCase();
+        this.host = (data.host || this.creator || '').toLowerCase();
         const attendees = data.attendees || [];
         this.attendees = attendees.filter((user: any) => !user.resource).map((u) => new User(u));
         this.resources =

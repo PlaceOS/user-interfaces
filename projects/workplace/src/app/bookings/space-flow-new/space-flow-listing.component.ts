@@ -211,6 +211,7 @@ export class SpaceFlowListingComponent {
         const form = this._service.event_form;
         form.controls.resources.setValue([space]);
         form.controls.system.setValue(space);
+        this._service.storeState();
     }
 
     public locateSpace(space: Space) {

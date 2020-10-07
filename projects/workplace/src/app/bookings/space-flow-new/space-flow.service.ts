@@ -35,6 +35,7 @@ export class SpaceFlowService extends BaseClass {
     public get event_form() { return this._form.getValue() };
     public readonly filters = this._filters.asObservable();
     public readonly loading_spaces = this._loading_spaces.asObservable();
+    public readonly loading_event = this._loading_event.asObservable();
     public get event_filters() { return this._filters.getValue() };
     public readonly spaces = this._filters.pipe(
         switchMap((filters) => {
@@ -117,15 +118,23 @@ export class SpaceFlowService extends BaseClass {
         localStorage.removeItem('PLACEOS.event_filters');
     }
 
-    /** Confirm changes to event */
-    public confirmChanges() {}
-
     /** Save changes to event to the server */
-    public save() {
+    public save(): Promise<void> {
         const form = this._form.getValue();
         form.markAllAsTouched();
-        if (!form.valid) return notifyError('');
+        if (!form.valid) {
+            const list = [];
+            for (const key in form.controls) {
+                if (form.controls[key].invalid) {
+                    list.push(key);
+                }
+            }
+            console.log('Form:', form);
+            return Promise.reject(notifyError(`Some form fields are not valid: [${list.join(', ')}]`));
+        }
+        this._loading_event.next(true)
         const values = { ...this._event.getValue().toJSON(), ...this._form.getValue().value };
-        return values.id ? this._events.update(values.id, values) : this._events.add(values);
+        return (values.id ? this._events.update(values.id, values) : this._events.add(values))
+            .then(() => this._loading_event.next(false), () => this._loading_event.next(false))  ;
     }
 }
