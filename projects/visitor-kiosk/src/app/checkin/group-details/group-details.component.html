@@ -9,7 +9,7 @@
               <mat-checkbox [checked]="model.checkInAll" label="All Members" (change)="toggleAll()"></mat-checkbox>
           </div>
           <div class="field" *ngFor="let visitor of model.visitors">
-              <mat-checkbox [checked]="visitor.checkin" [label]="visitor.name"></mat-checkbox>
+              <mat-checkbox [checked]="visitor.checkin">{{visitor.name}}</mat-checkbox>
               <div class="details">
                 <div>Please confirm your email</div>
                 <div class="email">{{ visitor.email }}</div>

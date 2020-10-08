@@ -15,8 +15,10 @@ import { CheckinErrorComponent } from './error/error.component';
 import { VisitorPreferencesComponent } from './visitor-preferences/visitor-preferences.component';
 import { VisitorPhotoComponent } from './visitor-photo/visitor-photo.component';
 import { VisitorPassComponent } from './visitor-pass/visitor-pass.component';
+import { BaseCheckinComponent } from './base-checkin';
 
 export const COMPONENTS: any[] = [
+    BaseCheckinComponent,
     AppCheckinComponent,
     CheckinQrScanComponent,
     CheckinGroupDetailsComponent,

@@ -1,8 +1,8 @@
 import * as faker from 'faker';
 import * as dayjs from 'dayjs';
-import { randomInt, unique } from '../utilities/general.utilities';
+
+import { randomInt, unique } from '../common/general';
 import { DOMAIN } from './api/common.mock';
-import { Events } from '@tinymce/tinymce-angular/editor/Events';
 
 /** Start of new mocks */
 

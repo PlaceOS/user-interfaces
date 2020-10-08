@@ -1,6 +1,6 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 
-import { HashMap } from '../../utilities/types.utilities';
+import { HashMap } from 'src/app/common/types';
 import { ACTIVE_USER, MOCK_STAFF, MOCK_GUESTS, MOCK_LEVELS, MOCK_SPACES } from '../mock-data';
 
 import * as dayjs from 'dayjs';
