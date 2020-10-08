@@ -1,0 +1,77 @@
+# This is a basic workflow to help you get started with Actions
+
+name: MAP-KIOSK-UAT
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+    push:
+        branches: [release/**]
+        paths:
+          - projects/map-kiosk/**
+          - src/app/**
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    # This workflow contains a single job called "build"
+    build:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-latest
+
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v2
+
+            - name: Get short hash
+              id: vars
+              run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v1.4.1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+
+            - name: Install node modules
+              run: npm install && npm i -g @angular/cli
+
+            # - name: Test the application
+            #   run: npm run test:ci
+
+            - name: Builds the application
+              run: ng build map-kiosk --aot
+
+            - name: Deploy the application
+              uses:  MrYuion/gha-publish-to-git@v1.1
+              with:
+                branch: build/map-kiosk/uat
+                source_folder: dist/map-kiosk
+                commit_message: >
+                    build(map-kiosk): CI build from ${{ steps.vars.outputs.sha_short }}
+                github_pat: ${{ secrets.API_GITHUB_TOKEN }}
+
+            - name: Google Chat Notification
+              uses: Co-qn/google-chat-notification@releases/v1
+              with:
+                  name: Build
+                  url: ${{ secrets.CHAT_SUCCESS_MAP_KIOSK }}
+                  status: ${{ job.status }}
+              if: success()
+
+            - name: Google Chat Notification
+              uses: Co-qn/google-chat-notification@releases/v1
+              with:
+                  name: Build
+                  url: ${{ secrets.CHAT_ERROR_MAP_KIOSK }}
+                  status: ${{ job.status }}
+              if: failure()
