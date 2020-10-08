@@ -193,18 +193,4 @@ export class Building extends BaseDataClass {
     public featuresForLevel(level_id: string): LevelFeature[] {
         return (this.searchables || []).filter((i) => i.level_id === level_id);
     }
-
-    /**
-     * Building objects are readonly and cannot be changed
-     */
-    public async save(): Promise<Building> {
-        throw new Error('Building objects are readonly and cannot be changed');
-    }
-
-    /**
-     * Building objects are readonly and cannot be deleted
-     */
-    public async delete(): Promise<void> {
-        throw new Error('Building objects are readonly and cannot be deleted');
-    }
 }

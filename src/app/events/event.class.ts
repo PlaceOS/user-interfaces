@@ -3,10 +3,9 @@ import {
     differenceInMinutes,
     isSameDay,
     add,
-    format,
-    formatDuration,
     isBefore,
     roundToNearestMinutes,
+    addMinutes,
 } from 'date-fns';
 
 import { HashMap } from '../common/types';
@@ -15,6 +14,7 @@ import { User, GuestUser } from '../users/user.class';
 import { Space } from '../spaces/space.class';
 import { unique } from '../common/general';
 import { CateringOrder } from '../catering/catering-order.class';
+import { eventStatus } from './helpers';
 
 let _default_user = new User();
 
@@ -59,6 +59,7 @@ export interface RecurrenceDetails {
     interval: number;
 }
 
+/** User's calendar event/booking */
 export class CalendarEvent {
     /** ID of the calendar event */
     public readonly id: string;
@@ -98,8 +99,6 @@ export class CalendarEvent {
     public readonly recurrence: RecurrenceDetails;
     /** ID of the parent recurring event */
     public readonly recurring_master_id: string;
-    /** Master event */
-    public master: CalendarEvent;
     /** File attachements for the event */
     public readonly attachments: FileDetails[];
     /** Extra data associated with the event */
@@ -108,40 +107,41 @@ export class CalendarEvent {
     public readonly system: Space;
     /** Old System id */
     public readonly old_system: Space;
-    /** Host user details of the meeting */
+    /** Host user details of the event */
     public readonly organiser: User;
     /** Whether user is allowed to access the lift */
     public readonly can_access_lift: boolean;
+    /** Whether the host has requested catering for this event */
+    public readonly has_catering: boolean;
+    /** Whether the event has external attendees */
+    public readonly has_visitors: boolean;
+    /** List of catering orders for the event */
+    public readonly catering: CateringOrder[];
+    /** Whether a parking spot is needed for attendees */
+    public readonly needs_parking: boolean;
+    /** Name of the type of external attendees */
+    public readonly visitor_type: string;
+    /** Setup time before event start in minutes */
+    public readonly setup: number;
+    /** Breakdown/Cleanup time after event start in minutes */
+    public readonly breakdown: number;
+    /** List of email addresses associated with the event attendees */
+    public readonly attendee_emails: readonly string[];
+    /** List of external attendees associated with the event */
+    public readonly guests: readonly GuestUser[];
+    /** Type of event */
+    public readonly type: 'cancelled' | 'external' | 'internal';
+    /** List of notes associated with the event */
+    public readonly notes: readonly EventNote[];
+    /** First space in the resources list */
+    public readonly space: Space;
     /** Whether the time of the booking has been changed */
     public time_changed: boolean;
-
-    /** List of catering orders for event */
-    public get catering(): CateringOrder[] {
-        return this.extension_data.catering || [];
-    }
-
-    /** List of catering orders for event */
-    public get configuration(): string {
-        return this.extension_data.configuration;
-    }
-
-    /** Whether a parking spot is needed for attendees */
-    public get needs_parking(): boolean {
-        return this.extension_data.needs_parking;
-    }
-
-    /** Whether booking has catering */
-    public get has_catering(): boolean {
-        return this.extension_data.catering && !!this.extension_data.catering.length;
-    }
-
-    public get has_visitors(): boolean {
-        return !!this.attendees.find((user) => user.visit_expected || user.is_external);
-    }
+    /** Master event */
+    public master?: CalendarEvent;
 
     constructor(data: Partial<CalendarEvent> = {}) {
         this.id = data.id || '';
-        this.status = data.status || 'none';
         this.calendar = data.calendar || '';
         this.creator = (data.creator || _default_user.email).toLowerCase();
         this.host = (data.host || this.creator || '').toLowerCase();
@@ -149,7 +149,7 @@ export class CalendarEvent {
         this.attendees = attendees.filter((user: any) => !user.resource).map((u) => new User(u));
         this.resources =
             data.resources ||
-            attendees.filter((user: any) => user.resource).map((s) => new Space(s));
+            attendees.filter((user: any) => user.resource).map((s: any) => new Space(s));
         this.title = data.title || '';
         this.body = data.body || '';
         this.private = !!data.private;
@@ -169,7 +169,7 @@ export class CalendarEvent {
         this.recurring = data.recurring;
         this.recurring_master_id = data.recurring_master_id;
         this.meeting_link = data.meeting_link || '';
-        this.organiser = this.attendees.find((user) => user.email === this.host);;
+        this.organiser = this.attendees.find((user) => user.email === this.host);
         this.master = data.master ? new CalendarEvent(data.master) : null;
         if (data.recurring) {
             this.recurrence = {
@@ -196,98 +196,37 @@ export class CalendarEvent {
         this.extension_data.catering = (data.catering || this.extension_data.catering || []).map(
             (i) => new CateringOrder({ ...i, event: this })
         );
-        this.extension_data.configuration = data.configuration || '';
         this.extension_data.needs_parking = !!data.needs_parking;
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
         this.can_access_lift = data.can_access_lift || this.extension_data.can_access_lift || false;
         this.resources = unique(this.resources, 'email');
-    }
-
-    public get visitor_type(): string {
-        return this.extension_data.visitor_type;
+        this.status = eventStatus(this) || 'none';
+        /** Simplified extension properties */
+        this.has_visitors = !!this.attendees.find(
+            (user) => user.visit_expected || user.is_external
+        );
+        this.has_catering = this.extension_data.catering && !!this.extension_data.catering.length;
+        this.catering = this.extension_data.catering || [];
+        this.needs_parking = !!this.extension_data.needs_parking;
+        this.setup = this.extension_data.setup || 0;
+        this.breakdown = this.extension_data.breakdown || 0;
+        this.visitor_type = this.extension_data.visitor_type || '';
+        this.type =
+            this.status === 'cancelled' ? 'cancelled' : this.has_visitors ? 'external' : 'internal';
+        this.attendee_emails = this.attendees.map((u) => u.email);
+        this.guests = this.attendees.filter((f) => !!f.visit_expected) as any;
+        this.notes = this.extension_data.notes || [];
+        this.space = this.resources[0] || null;
     }
 
     public get is_today(): boolean {
         return isSameDay(new Date(this.date), new Date());
     }
 
-    public get type(): string {
-        return this.cancelled ? 'cancelled' : this.has_visitors ? 'external' : 'internal';
-    }
-
-    /** Map of display strings */
-    public get display(): { [id: string]: any } {
-        const start = new Date(this.date);
-        const end = add(new Date(this.date), { minutes: this.duration });
-
-        return {
-            date: format(start, 'do MMM yyyy'),
-            time: `${format(start, 'h:mma')} - ${format(end, 'h:mma')}`,
-            start: format(start, 'h:mma'),
-            start_long: format(start, 'do MMM yyyy, h:mm B'),
-            end: format(end, 'h:mma'),
-            end_long: format(end, 'do MMM yyyy, h:mm B'),
-            duration: formatDuration({ minutes: this.duration }),
-        };
-    }
-
     /** Cleaning status */
     public get cleaning_status(): 'pending' | 'done' | '' {
-        return this.extension_data.cleaned ? 'done' : ''
-    }
-
-    /** Display cleaning time */
-    public get cleaning_time(): string {
-        if (this.all_day) {
-            return '';
-        }
-        if (!this.breakdown) {
-            return this.display.end;
-        }
-        const end = add(new Date(this.date), { minutes: this.duration });
-        const breakdown_end = format(add(end, { minutes: this.breakdown }), 'h:mm');
-        return `${format(end, 'h:mm')}-${breakdown_end}`;
-    }
-
-    public get notes(): any[] {
-        return this.extension_data.notes || [];
-    }
-
-    /** Room status - Based on the reponse_status of the resources */
-    public get room_status(): 'confirmed' | 'tentative' | 'cancelled' {
-        if (this.resources?.length) {
-            if (this.resources.every((i) => i.response_status === 'accepted')) {
-                return 'confirmed';
-            } else if (
-                this.resources.some(
-                    (i) => i.response_status === 'tentative' || i.response_status === 'needsAction'
-                )
-            ) {
-                return 'tentative';
-            } else {
-                return 'cancelled';
-            }
-        } else {
-            return 'confirmed';
-        }
-    }
-
-    /** Return the first space in the resource array */
-    public get space(): Space {
-        return this.resources[0];
-    }
-
-    public get cancelled(): boolean {
-        return this.room_status === 'cancelled';
-    }
-
-    public get confirmed(): boolean {
-        return this.room_status === 'confirmed';
-    }
-
-    public get tentative(): boolean {
-        return this.room_status === 'tentative';
+        return this.extension_data.cleaned ? 'done' : '';
     }
 
     /**
@@ -303,11 +242,9 @@ export class CalendarEvent {
         const attendees = this.attendees;
         if (this.recurring) {
             obj.recurrence = {
+                ...this.recurrence,
                 range_start: obj.event_start,
                 range_end: Math.floor(new Date(this.recurrence.end).valueOf() / 1000),
-                days_of_week: this.recurrence.days_of_week,
-                interval: this.recurrence.interval,
-                pattern: this.recurrence.pattern,
             };
         } else {
             obj.recurrence = null;
@@ -341,95 +278,15 @@ export class CalendarEvent {
         return 'done';
     }
 
-    /** Setup  */
-    public get setup(): number {
-        return this.extension_data.setup || 0;
-    }
-
-    /** Breakdown */
-    public get breakdown(): number {
-        return this.extension_data.breakdown || 0;
-    }
-
     public get event_start(): number {
         return Math.floor(new Date(this.date).valueOf() / 1000);
     }
 
     public get event_end(): number {
-        return Math.floor(add(new Date(this.date), { minutes: this.duration }).valueOf() / 1000);
-    }
-
-    /** Display value for the date */
-    public get date_string(): string {
-        return this.display.date;
-    }
-    /** Display valuie for the start and end times of the event */
-    public get time_period(): string {
-        return this.display.time;
-    }
-    /** Display value for the start time of the event */
-    public get start_time(): string {
-        return this.display.start;
-    }
-    /** Display value for the end time of the event */
-    public get end_time(): string {
-        return this.display.end;
-    }
-    /** Display value for the duration of the event */
-    public get length_string(): string {
-        return this.display.duration;
-    }
-
-    /** Display value for the level of the first space in the event */
-    public get level(): string {
-        return this.display.level;
-    }
-
-    public get attendee_emails(): string[] {
-        return (this.attendees || []).map((m) => m.email);
-    }
-
-    public get guests(): GuestUser[] {
-        return this.attendees.filter((f) => !!f.visit_expected) as any;
+        return Math.floor(addMinutes(new Date(this.date), this.duration).valueOf() / 1000);
     }
 
     public get can_check_in(): boolean {
         return isSameDay(new Date(), new Date(this.date));
-    }
-
-    /** Show recurrence details */
-    public get recurrence_details(): string {
-        let details = '';
-        if (this.recurrence) {
-            const { interval, pattern, start, end } = this.recurrence;
-            if (interval && interval > 1) {
-                details = details.concat(`Every ${interval}`);
-            }
-            switch (pattern) {
-                case 'daily':
-                    if (interval && interval > 1) {
-                        details = details.concat(' days');
-                    } else {
-                        details = details.concat('Daily');
-                    }
-                    break;
-                case 'weekly':
-                    if (interval && interval > 1) {
-                        details = details.concat(' weeks');
-                    } else {
-                        details = details.concat('Weekly');
-                    }
-                    break;
-                case 'monthly':
-                    if (interval && interval > 1) {
-                        details = details.concat(' months');
-                    } else {
-                        details = details.concat('Monthly');
-                    }
-                    break;
-            }
-            details = details.concat(`, until ${format(end, 'MMM do, yyyy')}`);
-        }
-        return details;
     }
 }

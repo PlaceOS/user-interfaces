@@ -1,7 +1,9 @@
 import { HashMap } from '../common/types';
 import { BaseDataClass } from '../common/base-api.class';
 
-export type EventResponseStatus = 'needsAction' | 'declined' | 'tentative' | 'accepted';
+export const USER_DOMAIN = 'pwc.com';
+
+export type EventResponseStatus = 'needsAction' | 'declined' | 'tentative' | 'accepted' | '';
 
 export type UserGroup =
     | 'tax'
@@ -41,6 +43,10 @@ export class User extends BaseDataClass {
     public readonly groups: UserGroup[];
     /** Extra metadata associated with the user */
     public readonly extension_data: HashMap;
+    /** Whether user is external from the organisation */
+    public readonly is_external: boolean;
+    /** Whether user needs assistance when attending an event */
+    public readonly assistance_required: boolean;
 
     constructor(data: Partial<User> = {}) {
         super(data);
@@ -53,32 +59,13 @@ export class User extends BaseDataClass {
         this.organizer = !!data.organizer;
         this.visit_expected = data.visit_expected;
         this.checked_in = data.checked_in;
-        this.response_status = data.response_status;
+        this.response_status = data.response_status || '';
         this.groups = (data.groups || []).map((i) => (i || '').toLowerCase()) as any;
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;
-    }
-
-    public get assistance_required(): boolean {
-        return this.extension_data?.assistance_required;
-    }
-
-    public get is_external(): boolean {
-        return !this.email.endsWith('pwc.com');
-    }
-
-    public get response(): string {
-        switch (this.response_status) {
-            case 'accepted':
-                return 'accepted';
-            case 'declined':
-                return 'declined';
-            case 'tentative':
-                return 'tentative';
-            default:
-                return '';
-        }
+        this.is_external = !this.email.endsWith(USER_DOMAIN);
+        this.assistance_required = !!this.extension_data?.assistance_required;
     }
 }
 

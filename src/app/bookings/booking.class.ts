@@ -3,6 +3,7 @@ import { HashMap } from 'src/app/common/types';
 
 import * as dayjs from 'dayjs';
 
+/** General purpose booking class */
 export class Booking extends BaseDataClass {
     /** User Id */
     public readonly user_id: string;
@@ -44,6 +45,8 @@ export class Booking extends BaseDataClass {
     public readonly extension_data: HashMap<any>;
     /** Default type */
     public readonly type: string;
+    /** Status of the booking */
+    public readonly status: 'declined' | 'approved' | 'tentative';
 
     constructor(data: Partial<Booking> = {}) {
         super(data);
@@ -67,13 +70,14 @@ export class Booking extends BaseDataClass {
         this.title = data.title || 'Desk booking';
         this.description = data.description;
         this.checked_in = data.checked_in;
-        this.rejected = data.rejected;
-        this.approved = data.approved;
+        this.rejected = !!data.rejected;
+        this.approved = !!data.approved;
         this.approver_id = data.approver_id;
         this.approver_email = data.approver_email;
         this.approver_name = data.approver_name;
         this.extension_data = data.extension_data;
         this.all_day = data.all_day || true;
+        this.status = this.rejected ? 'declined' : this.approved ? 'approved' : 'tentative';
     }
 
     public toJSON(this: Booking): HashMap<any> {
@@ -103,28 +107,6 @@ export class Booking extends BaseDataClass {
 
     public get is_today(): boolean {
         return dayjs(this.date).isSame(dayjs(), 'd');
-    }
-
-    /** Status mapping similar to event */
-    public get booking_status(): string {
-        if (this.rejected) {
-            return 'cancelled';
-        } else if (this.approved) {
-            return 'confirmed';
-        } else {
-            return 'tentative';
-        }
-    }
-
-    /** rejected | approved | pending */
-    public get status(): string {
-        if (this.rejected) {
-            return 'rejected';
-        } else if (this.approved) {
-            return 'approved';
-        } else {
-            return 'pending';
-        }
     }
 
     /** Whether booking is done */

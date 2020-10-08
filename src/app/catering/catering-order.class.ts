@@ -1,5 +1,4 @@
 import { CateringItem } from './catering-item.class';
-import { HashMap } from 'src/app/common/types';
 import { CateringOrderStatus } from './catering.interfaces';
 import { CalendarEvent } from '../events/event.class';
 import { randomInt } from 'src/app/common/general';
