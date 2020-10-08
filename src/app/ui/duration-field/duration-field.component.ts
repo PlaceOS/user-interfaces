@@ -8,8 +8,33 @@ import * as dayjs from 'dayjs';
 
 @Component({
     selector: 'a-duration-field',
-    templateUrl: './duration-field.component.html',
-    styleUrls: ['./duration-field.component.scss'],
+    template: `
+        <div class="duration-field" [attr.disabled]="disabled">
+            <mat-form-field appearance="outline">
+                <mat-select
+                    #select
+                    [value]="duration"
+                    [disabled]="disabled"
+                    (valueChange)="setValue($event)"
+                >
+                    <mat-option *ngFor="let option of duration_options" [value]="option.id">
+                        {{ option.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                width: 100%;
+            }
+
+            mat-form-field {
+                width: 100%;
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

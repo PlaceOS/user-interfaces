@@ -2,17 +2,56 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'a-counter',
-  templateUrl: './counter.component.html',
-  styleUrls: ['./counter.component.scss'],
-  providers: [
-      {
-          provide: NG_VALUE_ACCESSOR,
-          /* istanbul ignore next */
-          useExisting: forwardRef(() => CounterComponent),
-          multi: true
-      }
-  ]
+    selector: 'a-counter',
+    template: `
+        <div
+            class="counter"
+            (window:keydown.shift)="shift_key = true"
+            (window:keydown.control)="ctrl_key = true"
+            (window:keydown.meta)="ctrl_key = true"
+            (window:keyup.shift)="shift_key = false"
+            (window:keyup.control)="ctrl_key = false"
+            (window:keyup.meta)="ctrl_key = false"
+        >
+            <button
+                mat-icon-button
+                name="remove"
+                [disabled]="!value || value === min"
+                (click)="remove()"
+            >
+                <app-icon [icon]="{ class: 'material-icons', content: 'remove' }"></app-icon>
+            </button>
+            <div class="value">
+                {{ value || '0' }}
+            </div>
+            <button mat-icon-button name="add" [disabled]="value === max" (click)="add()">
+                <app-icon [icon]="{ class: 'material-icons', content: 'add' }"></app-icon>
+            </button>
+        </div>
+    `,
+    styles: [
+        `
+            .counter {
+                display: flex;
+                align-items: center;
+                font-size: 1rem;
+            }
+
+            .value {
+                padding: 0.25em;
+                min-width: 3em;
+                text-align: center;
+            }
+        `,
+    ],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            /* istanbul ignore next */
+            useExisting: forwardRef(() => CounterComponent),
+            multi: true,
+        },
+    ],
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */
@@ -37,7 +76,9 @@ export class CounterComponent implements ControlValueAccessor {
      * Add the `step` to the current value
      */
     public add() {
-        if (!this.value) { this.value = this.min || 0 }
+        if (!this.value) {
+            this.value = this.min || 0;
+        }
         const step = this.ctrl_key ? 100 : this.shift_key ? 10 : this.step || 1;
         this.value += step;
         if (this.value > this.max) {
@@ -48,7 +89,9 @@ export class CounterComponent implements ControlValueAccessor {
 
     /** Remove the `step` from the current value */
     public remove() {
-        if (!this.value) { this.value = this.min || 0 }
+        if (!this.value) {
+            this.value = this.min || 0;
+        }
         const step = this.ctrl_key ? 100 : this.shift_key ? 10 : this.step || 1;
         this.value -= step;
         if (this.value < this.min) {

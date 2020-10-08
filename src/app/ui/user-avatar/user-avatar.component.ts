@@ -3,8 +3,37 @@ import { User } from '../../users/user.class';
 
 @Component({
     selector: 'a-user-avatar',
-    templateUrl: './user-avatar.component.html',
-    styleUrls: ['./user-avatar.component.scss']
+    template: `
+        <div class="user-avatar" *ngIf="user" [attr.user-id]="user.id">
+            <div class="initials" *ngIf="!user.photo; else image_state">{{ initials }}</div>
+        </div>
+        <ng-template #image_state>
+            <img [src]="user.photo | safe: 'resource'" />
+        </ng-template>
+    `,
+    styles: [`
+        .user-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 2em;
+            width: 2em;
+            border-radius: 100%;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .initials {
+            font-size: 1em;
+            color: rgba(#000, .35);
+            text-transform: uppercase;
+        }
+
+        img {
+            height: 100%;
+            width: 100%;
+        }
+    `]
 })
 export class UserAvatarComponent {
     /** User to display avatar for */

@@ -1,9 +1,29 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'an-action-field',
-  templateUrl: './action-field.component.html',
-  styleUrls: ['./action-field.component.scss']
+    selector: 'an-action-field',
+    template: `
+        <div
+            class="action-field"
+            role="button"
+            [attr.disabled]="disabled"
+            form-field
+            tabindex="0"
+            (keydown.enter)="performAction()"
+        >
+            <div class="display" (click)="performAction()" [innerHTML]="placeholder | safe"></div>
+            <div class="icon" (click)="performAction()">
+                <app-icon
+                    [icon]="{
+                        type: 'icon',
+                        class: 'material-icons',
+                        content: show_tooltip ? 'arrow_drop_up' : 'arrow_drop_down'
+                    }"
+                ></app-icon>
+            </div>
+        </div>
+    `,
+    styleUrls: ['./action-field.component.scss'],
 })
 export class ActionFieldComponent {
     /** Name of the field */

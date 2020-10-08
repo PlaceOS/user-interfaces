@@ -1,9 +1,0 @@
-<div class="action-icon" [class.fade]="state || loading">
-    <app-icon [icon]="icon"></app-icon>
-    <div class="'state center ' + state" *ngIf="!loading && state">
-        <app-icon [icon]="{ class: 'material-icons', content: state === 'success' ? 'done' : 'close' }"></app-icon>
-    </div>
-    <div class="loader center" *ngIf="loading">
-        <mat-spinner [diameter]="16"></mat-spinner>
-    </div>
-</div>
