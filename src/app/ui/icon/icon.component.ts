@@ -5,9 +5,12 @@ import { ApplicationIcon } from '../../common/types';
 @Component({
     selector: 'app-icon',
     template: `
-        <div class="app-icon" *ngIf="icon">
-            <i *ngIf="icon.type !== 'img'" [class]="icon.class">{{ icon.content }}</i>
-            <img *ngIf="icon.type === 'img'" [src]="icon.src | safe: 'resource'" />
+        <div class="app-icon">
+            <i *ngIf="!icon || icon.type !== 'img'" [class]="icon?.class || className">
+                {{ icon?.content }}
+                <ng-content></ng-content>
+            </i>
+            <img *ngIf="icon && icon.type === 'img'" [src]="icon.src | safe: 'resource'" />
         </div>
     `,
     styles: [
@@ -32,5 +35,7 @@ import { ApplicationIcon } from '../../common/types';
     ],
 })
 export class IconComponent {
+    @Input() public className: string;
+    /** Icon details */
     @Input() public icon: ApplicationIcon;
 }

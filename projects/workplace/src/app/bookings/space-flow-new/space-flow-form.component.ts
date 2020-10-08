@@ -42,7 +42,7 @@ export const CAPACITY_OPTIONS = [
                 </mat-form-field>
                 <a button mat-button style="margin-left: .5rem" [routerLink]="['/book', 'spaces', 'find']">
                     <div class="flex items-center justify-center ml-2">
-                        Go <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'arrow_forward' }"></app-icon>
+                        Go <app-icon class="text-lg" className="material-icons">arrow_forward</app-icon>
                     </div>
                 </a>
             </form>
