@@ -69,7 +69,7 @@ export class BookingConfirmComponent extends BaseClass {
             return null;
         }
         const configs = this._org.available_room_configs;
-        const config = this.booking.configuration;
+        const config = '';
         return !!config ? configs.find((f) => f.id === config) : null;
     }
 

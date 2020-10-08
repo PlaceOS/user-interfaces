@@ -147,7 +147,7 @@ export class BookingDeskFlowComponent extends BaseClass implements OnInit {
             user: 'current',
         });
         const valid_bookings = current_bookings.filter(
-            (i) => i.status !== 'cancelled'
+            (i) => i.status !== 'declined'
         );
         if (valid_bookings?.length > 0) {
             throw new Error(ERROR_MSG.ONE_DESK);
@@ -169,7 +169,7 @@ export class BookingDeskFlowComponent extends BaseClass implements OnInit {
             type: 'desk',
             zone: building_id,
         });
-        const active_bookings = bookings.filter((i) => i.status !== 'cancelled');
+        const active_bookings = bookings.filter((i) => i.status !== 'declined');
 
         // Select first free desk
         const list = bookable_desks.filter(

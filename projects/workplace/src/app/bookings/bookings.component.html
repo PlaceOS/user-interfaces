@@ -3,12 +3,10 @@
     <space-flow
         (menu)="show_menu = $event"
         *ngSwitchDefault
-        [flow]="flow"
     ></space-flow>
     <qr-reader
         *ngSwitchCase="'qr'"
         (menu)="show_menu = $event"
-        [flow]="flow"
     >
     </qr-reader>
 

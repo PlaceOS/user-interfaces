@@ -144,7 +144,7 @@ export class ScheduleViewEventComponent extends BaseClass implements OnInit {
     public onChange(event: { type: string }): void {
         if (event.type === 'edit') {
             if (localStorage) {
-                const booking = new CalendarEvent({ ...this.event });
+                const booking = new CalendarEvent({ ...this.event as any });
                 localStorage.setItem('STAFF.booking_form', JSON.stringify(booking));
             }
             this._router.navigate(['/book', 'spaces']);

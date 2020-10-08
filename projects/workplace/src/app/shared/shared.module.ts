@@ -2,7 +2,7 @@ import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { EditorModule } from '@tinymce/tinymce-angular';
+import { EditorComponent, EditorModule } from '@tinymce/tinymce-angular';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
@@ -23,6 +23,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 import { AInteractiveMapModule } from '@acaprojects/ngx-interactive-map';
@@ -76,7 +77,7 @@ const COMPONENTS: Type<any>[] = [
     EventTimelineComponent,
     VerticalTimelineComponent,
     BindingDirective,
-    CounterComponent,
+    CounterComponent
 ];
 
 const ENTRY_COMPONENT: Type<any>[] = [
@@ -105,7 +106,8 @@ const MATERIAL_MODULES: any[] = [
     MatExpansionModule,
     MatTabsModule,
     MatBadgeModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatRadioModule
 ];
 
 const CDK_MODULES: any[] = [ScrollingModule];
@@ -128,6 +130,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         APipesModule,
         AInteractiveMapModule,
         ADatePickerModule,
+        EditorModule,
         ...COMPONENTS,
         ...ENTRY_COMPONENT,
         ...MATERIAL_MODULES,

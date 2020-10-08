@@ -114,7 +114,7 @@ export class EventDetailsComponent extends BaseClass {
      */
     public duplicate(): void {
         if (localStorage) {
-            const booking = new Booking({ ...this.item, id: '' });
+            const booking = new Booking({ ...this.item as any, id: '' });
             localStorage.setItem('STAFF.booking_form', JSON.stringify(booking));
         }
         this._router.navigate(['/book']);
