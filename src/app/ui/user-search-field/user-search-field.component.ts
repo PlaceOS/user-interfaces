@@ -9,8 +9,64 @@ import { StaffService } from 'src/app/users/staff.service';
 
 @Component({
     selector: 'a-user-search-field',
-    templateUrl: './user-search-field.component.html',
-    styleUrls: ['./user-search-field.component.scss'],
+    template: `
+        <div class="user-search-field" form-field>
+            <mat-form-field appearance="outline">
+                <input
+                    matInput
+                    name="user-search"
+                    [(ngModel)]="search_str"
+                    (ngModelChange)="search$.next($event)"
+                    [disabled]="disabled"
+                    placeholder="Search for user..."
+                    i18n-placeholder
+                    [matAutocomplete]="auto"
+                    (blur)="resetSearchString()"
+                />
+                <div class="prefix" matPrefix>
+                    <app-icon
+                        [icon]="{ type: 'icon', class: 'material-icons', content: 'search' }"
+                    ></app-icon>
+                </div>
+                <div class="suffix" matSuffix *ngIf="loading">
+                    <mat-spinner diameter="16"></mat-spinner>
+                </div>
+            </mat-form-field>
+            <mat-autocomplete
+                #auto="matAutocomplete"
+                (optionSelected)="setValue($event.option.value)"
+            >
+                <mat-option *ngFor="let option of user_list" [value]="option">
+                    <div class="name">{{ option.name }}</div>
+                    <div class="email">{{ option.email }}</div>
+                </mat-option>
+            </mat-autocomplete>
+        </div>
+    `,
+    styles: [
+        `
+            :host,
+            mat-form-field {
+                width: 100%;
+            }
+
+            app-icon {
+                font-size: 1.5em;
+                position: relative;
+                top: 0.15em;
+                left: -0.15em;
+            }
+
+            .name {
+                height: 1em;
+            }
+
+            .email {
+                font-size: 0.6em;
+                color: rgba(#000, 0.65);
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
