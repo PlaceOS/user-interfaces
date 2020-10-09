@@ -3,8 +3,8 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { ExploreMapLegendComponent } from './map-legend.component';
-import { ApplicationService } from '../../../services/app.service';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { ApplicationService } from '../../services/app.service';
+import { IconComponent } from '../../ui/icon/icon.component';
 import { generateMockAppService } from '../../../shared/utilities/spec-helpers';
 
 describe('MapLegendComponent', () => {
