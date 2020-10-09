@@ -5,7 +5,7 @@ import { MockModule } from 'ng-mocks';
 
 import { HelpOptionListComponent } from './option-list.component';
 import { ApplicationService } from '../../../services/app.service';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../../ui/icon/icon.component';
 import { ApplicationLink } from '../../../shared/utilities/settings.interfaces';
 import { generateMockAppService } from '../../../shared/utilities/spec-helpers';
 

@@ -34,29 +34,29 @@ import { TimeFieldComponent } from 'src/app/ui/time-field/time-field.component';
 import { DurationFieldComponent } from 'src/app/ui/duration-field/duration-field.component';
 import { LoginComponent } from 'src/app/ui/login/login.component';
 import { IconComponent } from 'src/app/ui/icon/icon.component';
-import { TopbarHeaderComponent } from './components/topbar-header/topbar-header.component';
-import { OverlayMenuComponent } from './components/overlay-menu/overlay-menu.component';
-import { FooterMenuComponent } from './components/footer-menu/footer-menu.component';
 import { DateFieldComponent } from 'src/app/ui/date-field/date-field.component';
 import { ActionFieldComponent } from 'src/app/ui/action-field/action-field.component';
 import { UserListFieldComponent } from 'src/app/ui/user-list-field/user-list-field.component';
-import { SearchbarComponent } from './components/searchbar/searchbar.component';
 import { UserAvatarComponent } from 'src/app/ui/user-avatar/user-avatar.component';
-import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
-import { VerticalTimelineComponent } from './components/vertical-timeline/vertical-timeline.component';
 import { CounterComponent } from 'src/app/ui/counter/counter.component';
+import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
+import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
+import { FooterMenuComponent } from './footer-menu/footer-menu.component';
+import { SearchbarComponent } from './searchbar/searchbar.component';
+import { EventTimelineComponent } from './event-timeline/event-timeline.component';
+import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 
 import { UserFormComponent } from 'src/app/ui/user-form/user-form.component';
-import { BookingFormComponent } from './components/forms/booking-form/booking-form.component';
+import { BookingFormComponent } from './forms/booking-form/booking-form.component';
 
-import { MapControlsComponent } from './components/map-controls/map-controls.component';
-import { PopoutMenuComponent } from 'src/app/ui/popout-menu/popout-menu.component';
-import { BookingFormModalComponent } from './components/forms/booking-form-modal/booking-form-modal-component';
+import { MapControlsComponent } from './map-controls/map-controls.component';
+import { BookingFormModalComponent } from './forms/booking-form-modal/booking-form-modal-component';
 import { EventViewComponent } from '../schedule/view-event/event-view/event-view.component';
-import { BookingEditComponent } from './components/forms/booking-edit/booking-edit.component';
+import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
+import { PopoutMenuComponent } from 'src/app/ui/popout-menu/popout-menu.component';
 import { BindingDirective } from 'src/app/ui/binding/binding.directive';
 
-import { InfiniteScrollComponent } from './components/infinite-scroll/infinite-scroll.component';
+import { InfiniteScrollComponent } from './infinite-scroll.component';
 
 const COMPONENTS: Type<any>[] = [
     LoginComponent,
@@ -138,3 +138,5 @@ const CDK_MODULES: any[] = [ScrollingModule];
     ],
 })
 export class SharedContentModule {}
+
+

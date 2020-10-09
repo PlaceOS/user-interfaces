@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockComponent } from 'ng-mocks';
 
 import { ItemComponent } from './item.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../../ui/icon/icon.component';
 
 describe('ItemComponent', () => {
     let component: ItemComponent;

@@ -7,9 +7,9 @@ import { generateMockAppService } from '../../shared/utilities/spec-helpers';
 import { MockModule, MockComponent } from 'ng-mocks';
 import { BookingSpaceFlowComponent } from './space-flow/space-flow.component';
 import { BookingDeskFlowComponent } from './desk-flow/desk-flow.component';
-import { TopbarHeaderComponent } from '../../shared/components/topbar-header/topbar-header.component';
-import { FooterMenuComponent } from '../../shared/components/footer-menu/footer-menu.component';
-import { OverlayMenuComponent } from '../../shared/components/overlay-menu/overlay-menu.component';
+import { TopbarHeaderComponent } from '../../ui/topbar-header/topbar-header.component';
+import { FooterMenuComponent } from '../../ui/footer-menu/footer-menu.component';
+import { OverlayMenuComponent } from '../../ui/overlay-menu/overlay-menu.component';
 import { of } from 'rxjs';
 
 describe('BookingsComponent', () => {

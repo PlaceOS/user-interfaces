@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 import { ExploreSearchComponent } from './search.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../../ui/icon/icon.component';
 import { SpacesService } from 'src/app/spaces/spaces.service';
 import { User } from 'src/app/users/user.class';
 import { Space } from 'src/app/spaces/space.class';

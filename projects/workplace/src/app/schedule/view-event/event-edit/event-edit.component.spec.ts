@@ -10,8 +10,8 @@ import { ApplicationService } from '../../../../services/app.service';
 import { generateMockBooking } from 'src/app/bookings/booking.utilities';
 import { generateMockAppService } from '../../../../shared/utilities/spec-helpers';
 import { CalendarEvent } from 'src/app/events/event.class';
-import { BookingFormComponent } from '../../../../shared/components/forms/booking-form/booking-form.component';
-import { BookingEditComponent } from '../../../../shared/components/forms/booking-edit/booking-edit.component';
+import { BookingFormComponent } from '../../../../ui/forms/booking-form/booking-form.component';
+import { BookingEditComponent } from '../../../../ui/forms/booking-edit/booking-edit.component';
 
 @Component({
     selector: 'a-booking-form',

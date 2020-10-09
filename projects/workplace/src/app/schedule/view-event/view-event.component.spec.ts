@@ -11,10 +11,10 @@ import { ApplicationService } from '../../../services/app.service';
 import { generateMockAppService } from '../../../shared/utilities/spec-helpers';
 import { EventEditComponent } from './event-edit/event-edit.component';
 import { EventDetailsComponent } from './event-details/event-details.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
-import { TopbarHeaderComponent } from '../../../shared/components/topbar-header/topbar-header.component';
+import { IconComponent } from '../../../ui/icon/icon.component';
+import { TopbarHeaderComponent } from '../../../ui/topbar-header/topbar-header.component';
 import { BookingDetailsComponent } from './booking-details/booking-details.component';
-import { FooterMenuComponent } from '../../../shared/components/footer-menu/footer-menu.component';
+import { FooterMenuComponent } from '../../../ui/footer-menu/footer-menu.component';
 
 @Component({
     selector: 'schedule-event-edit',

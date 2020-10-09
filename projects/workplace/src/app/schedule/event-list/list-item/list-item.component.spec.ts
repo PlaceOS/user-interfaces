@@ -4,7 +4,7 @@ import { MockModule, MockComponent } from 'ng-mocks';
 
 import { ScheduleEventListItemComponent } from './list-item.component';
 import { ApplicationService } from '../../../../services/app.service';
-import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../../../ui/icon/icon.component';
 
 describe('ListItemComponent', () => {
     let component: ScheduleEventListItemComponent;

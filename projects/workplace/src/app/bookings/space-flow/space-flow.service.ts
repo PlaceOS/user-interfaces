@@ -9,7 +9,7 @@ import { notifyError, notifySuccess } from 'src/app/common/notifications';
 import { CalendarService } from 'src/app/calendar/calendar.service';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { OrganisationService } from 'src/app/organisation/organisation.service';
-import { addMinutes } from 'date-fns';
+import { addMinutes, roundToNearestMinutes } from 'date-fns';
 import { BaseClass } from 'src/app/common/base.class';
 
 export interface EventFormFilters {
@@ -63,7 +63,7 @@ export class SpaceFlowService extends BaseClass {
         private _org: OrganisationService
     ) {
         super();
-        this.setEvent(new CalendarEvent());
+        this.setEvent(new CalendarEvent({ date: roundToNearestMinutes(addMinutes(new Date(), 2), { nearestTo: 5 }).valueOf() }));
     }
 
     /** Set the event being worked on */

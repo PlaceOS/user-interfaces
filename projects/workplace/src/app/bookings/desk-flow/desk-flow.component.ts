@@ -8,8 +8,6 @@ import { BookingsService } from 'src/app/bookings/bookings.service';
 import { Desk } from 'src/app/bookings/desk.class';
 import { OrganisationService } from 'src/app/organisation/organisation.service';
 import { StaffService } from 'src/app/users/staff.service';
-import { ERROR_MSG } from '../../shared/utilities/message.utilities';
-import { validateStartTime } from '../../shared/utilities/validation.utilities';
 
 import {
     retrieveDeskBookingFormData,
@@ -18,6 +16,7 @@ import {
 } from 'src/app/bookings/booking.utilities';
 import { Booking } from 'src/app/bookings/booking.class';
 import { EventsService } from 'src/app/events/events.service';
+import { isFuture } from 'src/app/events/event.utilities';
 
 import * as dayjs from 'dayjs';
 
@@ -70,7 +69,7 @@ export class BookingDeskFlowComponent extends BaseClass implements OnInit {
             building: new FormControl(data.building, [Validators.required]),
             date: new FormControl(data.date || init_time, [
                 Validators.required,
-                (control) => validateStartTime(control, dayjs().add(1, 'd').startOf('d').valueOf()),
+                isFuture,
             ]),
             duration: new FormControl(data.duration || 60, Validators.required),
             all_day: new FormControl(data.all_day || true),
@@ -150,7 +149,7 @@ export class BookingDeskFlowComponent extends BaseClass implements OnInit {
             (i) => i.status !== 'declined'
         );
         if (valid_bookings?.length > 0) {
-            throw new Error(ERROR_MSG.ONE_DESK);
+            throw new Error('You already have a desk booking for the selected date.');
         }
 
         // Get desks for the building
@@ -160,7 +159,7 @@ export class BookingDeskFlowComponent extends BaseClass implements OnInit {
             i.bookable && user_groups.includes((i.group || '').toLowerCase())
         );
         if (!bookable_desks?.length) {
-            throw new Error(ERROR_MSG.NO_DESKS);
+            throw new Error('There are no available desks. Please choose a different time.');
         }
         // Get Bookings, check availability
         const bookings = await this._bookings.query({

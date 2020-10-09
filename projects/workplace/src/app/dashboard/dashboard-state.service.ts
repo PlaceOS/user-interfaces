@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
+import {
+    getModule,
+    listen,
+    PlaceVariableBinding,
+    showMetadata,
+    updateMetadata,
+} from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
 import { BaseClass } from 'src/app/common/base.class';
@@ -10,16 +18,8 @@ import { OrganisationService } from 'src/app/organisation/organisation.service';
 import { StaffService } from 'src/app/users/staff.service';
 import { CalendarEvent } from 'src/app/events/event.class';
 import { User } from 'src/app/users/user.class';
-import {
-    getModule,
-    listen,
-    PlaceVariableBinding,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
-import { unique } from '../shared/utilities/general.utilities';
-import { filter } from 'rxjs/operators';
-import { HashMap } from '../shared/utilities/types.utilities';
+import { unique } from 'src/app/common/general';
+import { HashMap } from 'src/app/common/types';
 import { BuildingLevel } from 'src/app/organisation/level.class';
 
 @Injectable({

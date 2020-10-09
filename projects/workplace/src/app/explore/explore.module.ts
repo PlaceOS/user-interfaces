@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AInteractiveMapModule } from '@acaprojects/ngx-interactive-map';
 
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 import { MapViewComponent } from './map-view/map-view.component';
 import { ExploreSpaceStatusComponent } from './status-managers/space-status.component';
 import { ExploreDeskStatusComponent } from './status-managers/desk-status.component';

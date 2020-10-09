@@ -12,7 +12,7 @@ import {
 import { BaseClass } from 'src/app/common/base.class';
 import * as dayjs from 'dayjs';
 import { ITimelineEventGroup } from '../event-timeline/event-timeline.component';
-import { humaniseDuration } from '../../utilities/general.utilities';
+import { formatDuration } from 'date-fns';
 
 @Component({
     selector: 'vertical-timeline',
@@ -88,7 +88,7 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
     public get display(): string {
         const date = dayjs(this.date);
         const end = dayjs(this.date).add(this.duration, 'm');
-        const duration = humaniseDuration(this.duration, true);
+        const duration = formatDuration({ minutes: this.duration });
         return `${date.format('hh:mm A')} - ${end.format('hh:mm A')} (${duration})`;
     }
 

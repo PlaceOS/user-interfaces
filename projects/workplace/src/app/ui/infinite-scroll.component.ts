@@ -6,18 +6,33 @@ import {
     EventEmitter,
     ViewChild,
     ElementRef,
-    OnDestroy
+    OnDestroy,
 } from '@angular/core';
 
 @Component({
     selector: 'a-infinite-scroll',
-    template: '<ng-content></ng-content><div #iscrollend></div>',
-    styleUrls: ['./infinite-scroll.component.scss'],
+    template: `
+        <ng-content></ng-content>
+        <div #iscrollend></div>
+    `,
+    styles: [
+        `
+            :host {
+                display: block;
+                position: relative;
+            }
+            :host > div:last-child {
+                height: 2px;
+                width: 100%;
+                background: transparent;
+            }
+        `,
+    ],
 })
 export class InfiniteScrollComponent implements OnInit, OnDestroy {
     @Input() public options = {};
     @Output() public scrolled = new EventEmitter();
-    @ViewChild('iscrollend', {static: false}) public anchor: ElementRef;
+    @ViewChild('iscrollend', { static: false }) public anchor: ElementRef;
 
     private observer: IntersectionObserver;
 
@@ -30,7 +45,7 @@ export class InfiniteScrollComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         const options = {
             root: this.isHostScrollable() ? this.host.nativeElement : null,
-            ...this.options
+            ...this.options,
         };
 
         this.observer = new IntersectionObserver(([entry]) => {
@@ -50,6 +65,6 @@ export class InfiniteScrollComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-      this.observer.disconnect();
+        this.observer.disconnect();
     }
 }

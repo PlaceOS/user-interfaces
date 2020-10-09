@@ -9,8 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MockModule, MockComponent } from 'ng-mocks';
 
 import { RecurrenceModalComponent } from './recurrence-modal.component';
-import { IconComponent } from '../../shared/components/icon/icon.component';
-import { DateFieldComponent } from '../../shared/components/custom-fields/date-field/date-field.component';
+import { IconComponent } from '../../ui/icon/icon.component';
+import { DateFieldComponent } from '../../ui/custom-fields/date-field/date-field.component';
 
 import * as dayjs from 'dayjs';
 

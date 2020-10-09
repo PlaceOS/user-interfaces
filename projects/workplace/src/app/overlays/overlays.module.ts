@@ -2,7 +2,7 @@ import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 import { ConfirmModalComponent } from 'src/app/ui/confirm-modal/confirm-modal.component';
 import { ViewRoomModalComponent } from './view-room-modal/view-room-modal.component';
 

@@ -6,9 +6,9 @@ import { BaseClass } from 'src/app/common/base.class';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
-} from '../../../../overlays/space-select-modal/space-select-modal.component';
-import { ViewCateringModalComponent } from '../../../../overlays/view-catering-modal/view-catering-modal.component';
-import { ViewAttendeesModalComponent } from '../../../../overlays/view-attendees-modal/view-attendees-modal.component';
+} from '../../../overlays/space-select-modal/space-select-modal.component';
+import { ViewCateringModalComponent } from '../../../overlays/view-catering-modal/view-catering-modal.component';
+import { ViewAttendeesModalComponent } from '../../../overlays/view-attendees-modal/view-attendees-modal.component';
 import { CalendarEvent } from 'src/app/events/event.class';
 import { SettingsService } from 'src/app/common/settings.service';
 

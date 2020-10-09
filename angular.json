@@ -168,7 +168,7 @@
             "fileReplacements": [
               {
                 "replace": "src/app/common/settings.ts",
-                "with": "projects/workplace/src/app/shared/settings.ts"
+                "with": "projects/workplace/src/app/settings.ts"
               }
             ],
             "assets": [
@@ -195,7 +195,7 @@
                 },
                 {
                   "replace": "src/app/common/settings.ts",
-                  "with": "projects/workplace/src/app/shared/settings.ts"
+                  "with": "projects/workplace/src/app/settings.ts"
                 }
               ],
               "optimization": true,

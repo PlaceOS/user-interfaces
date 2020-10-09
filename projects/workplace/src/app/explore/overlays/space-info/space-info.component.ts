@@ -4,11 +4,11 @@ import { AMapFeature } from '@acaprojects/ngx-interactive-map';
 import { BaseClass } from 'src/app/common/base.class';
 import { Space } from 'src/app/spaces/space.class';
 import { getFreeBookingSlots } from 'src/app/bookings/booking.utilities';
-import { timeFormatString, humaniseDuration } from '../../../shared/utilities/general.utilities';
 import { RoomConfiguration } from 'src/app/common/room-configuration.interface';
 import { CalendarEvent } from 'src/app/events/event.class';
 
 import * as dayjs from 'dayjs';
+import { formatDuration } from 'date-fns';
 
 @Component({
     selector: 'a-space-info',
@@ -97,19 +97,18 @@ export class ExploreSpaceInfoComponent extends BaseClass implements OnInit {
         const start = dayjs(next_free_slot.start);
         const end = dayjs(next_free_slot.end);
         const currently_free = now.isAfter(start, 's') && now.isBefore(end, 'm');
-        const time_until_next_block = humaniseDuration(
+        const time_until_next_block = formatDuration({ minutes:
             currently_free ? end.diff(now, 'm') : start.diff(now, 'm'),
-            true
-        );
+        });
         const free_tomorrow = !currently_free && !start.isSame(now, 'd');
         const free_today = currently_free && !end.isSame(now, 'd');
         this.status = !this.space.bookable ? 'Not Bookable' : this.context.data.status || 'unknown';
         this.available_until = free_today
             ? 'No meetings today'
             : currently_free
-            ? `Free until ${end.format(timeFormatString())}(${time_until_next_block})`
+            ? `Free until ${end.format('h:mma')}(${time_until_next_block})`
             : free_tomorrow
             ? 'Unavailable today'
-            : `Free at ${start.format(timeFormatString())}(${time_until_next_block})`;
+            : `Free at ${start.format('h:mma')}(${time_until_next_block})`;
     }
 }

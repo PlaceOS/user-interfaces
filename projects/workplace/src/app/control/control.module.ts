@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Route } from '@angular/router';
 
 import { ControlComponent } from './control.component';
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 import { ControlSpaceListComponent } from './space-list/space-list.component';
 import { ControlSpaceListItemComponent } from './space-list/item/item.component';
 

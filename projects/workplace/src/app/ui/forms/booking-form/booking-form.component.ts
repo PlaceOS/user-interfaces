@@ -3,16 +3,16 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { BaseClass } from 'src/app/common/base.class';
-import { OptionBlock } from '../../../utilities/types.utilities';
 import { NewUserModalComponent } from 'src/app/users/new-user-modal/new-user-modal.component';
 import { unique } from 'src/app/common/general';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
-} from '../../../../overlays/space-select-modal/space-select-modal.component';
+} from '../../../overlays/space-select-modal/space-select-modal.component';
 import { RoomConfiguration } from 'src/app/common/room-configuration.interface';
 import { OrganisationService } from 'src/app/organisation/organisation.service';
 import { SettingsService } from 'src/app/common/settings.service';
+import { Identity } from 'src/app/common/types';
 
 @Component({
     selector: 'a-booking-form',
@@ -79,7 +79,7 @@ export class BookingFormComponent extends BaseClass implements OnInit {
     }
 
     /** List of available types for bookings */
-    public get booking_types(): OptionBlock[] {
+    public get booking_types(): Identity[] {
         return this._settings.get('app.booking.booking_types') || [];
     }
 

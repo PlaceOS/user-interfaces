@@ -7,14 +7,14 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_LABEL_GLOBAL_OPTIONS, MatNativeDateModule } from '@angular/material/core';
 
-import './shared/mocks';
+import 'src/app/mocks';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from 'src/app/app.component';
 import { environment } from 'src/environments/environment';
 
 import { SharedOverlaysModule } from './overlays/overlays.module';
-import { SharedContentModule } from './shared/shared.module';
+import { SharedContentModule } from './ui/shared.module';
 import { UnauthorisedComponent } from 'src/app/ui/unauthorised/unauthorised.component';
 
 @NgModule({

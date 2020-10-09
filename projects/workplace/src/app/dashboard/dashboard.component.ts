@@ -20,7 +20,7 @@ import { SettingsService } from 'src/app/common/settings.service';
         </main>
         <footer class="flex">
             <a button mat-button class="tile text-2xl" *ngFor="let tile of tiles" [routerLink]="tile.route">
-                <div class=" flex flex-col">
+                <div class="flex flex-col items-center">
                     <app-icon [icon]="tile.icon"></app-icon>
                     <span class="text-lg">{{ tile.name }}</span>
                 </div>

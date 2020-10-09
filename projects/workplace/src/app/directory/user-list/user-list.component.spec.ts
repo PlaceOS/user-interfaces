@@ -4,15 +4,15 @@ import { of } from 'rxjs';
 import { MockComponent } from 'ng-mocks';
 
 import { DirectoryUserListComponent } from './user-list.component';
-import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../../ui/icon/icon.component';
 import { ApplicationService } from '../../../services/app.service';
 import { User } from 'src/app/users/user.class';
 import { generateMockAppService } from '../../../shared/utilities/spec-helpers';
 import { StaffService } from 'src/app/users/staff.service';
-import { OverlayMenuComponent } from '../../../shared/components/overlay-menu/overlay-menu.component';
-import { FooterMenuComponent } from '../../../shared/components/footer-menu/footer-menu.component';
-import { SearchbarComponent } from '../../../shared/components/searchbar/searchbar.component';
-import { TopbarHeaderComponent } from '../../../shared/components/topbar-header/topbar-header.component';
+import { OverlayMenuComponent } from '../../../ui/overlay-menu/overlay-menu.component';
+import { FooterMenuComponent } from '../../../ui/footer-menu/footer-menu.component';
+import { SearchbarComponent } from '../../../ui/searchbar/searchbar.component';
+import { TopbarHeaderComponent } from '../../../ui/topbar-header/topbar-header.component';
 import { DirectoryUserListItemComponent } from './item/item.component';
 
 describe('DirectoryUserListComponent', () => {

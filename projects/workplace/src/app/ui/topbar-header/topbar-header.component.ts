@@ -1,14 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { BaseClass } from 'src/app/common/base.class';
 import { ApplicationIcon } from 'src/app/common/types';
 import { Router } from '@angular/router';
 import { SettingsService } from 'src/app/common/settings.service';
-import { DashboardStateService } from '../../../dashboard/dashboard-state.service';
+import { DashboardStateService } from '../../dashboard/dashboard-state.service';
 import { SpacesService } from 'src/app/spaces/spaces.service';
-import { Space } from 'src/app/spaces/space.class';
-import { User } from 'src/app/users/user.class';
 
 @Component({
     selector: 'a-topbar-header',

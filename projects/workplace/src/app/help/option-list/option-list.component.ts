@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { first } from 'rxjs/operators';
 
 import { BaseClass } from 'src/app/common/base.class';
-import { HelpPageSettings, ApplicationLink } from '../../shared/utilities/settings.interfaces';
 import { SettingsService } from 'src/app/common/settings.service';
+import { ApplicationLink, HashMap } from 'src/app/common/types';
 
 @Component({
     selector: 'a-help-option-list',
@@ -12,7 +11,7 @@ import { SettingsService } from 'src/app/common/settings.service';
 })
 export class HelpOptionListComponent extends BaseClass implements OnInit {
     /** Settings for the help page */
-    public settings: HelpPageSettings;
+    public settings: HashMap;
     /** Whether to show the overlay menu */
     public show_menu: boolean;
     /** Tiles to display on the help page */

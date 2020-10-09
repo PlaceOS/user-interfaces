@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Route } from '@angular/router';
 
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 
 import { DashboardComponent } from './dashboard.component';
 import { DashboardAvailabilityComponent } from './dashboard-availability.component';

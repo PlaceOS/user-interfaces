@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { BaseClass } from 'src/app/common/base.class';
-import { ApplicationLink } from '../../utilities/settings.interfaces';
 import { SettingsService } from 'src/app/common/settings.service';
+import { ApplicationLink } from 'src/app/common/types';
 
 @Component({
     selector: 'a-footer-menu',

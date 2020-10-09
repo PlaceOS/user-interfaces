@@ -4,7 +4,7 @@ import { RouterModule, Route } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { BookingsComponent } from './bookings.component';
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 
 import { BookingDeskFlowComponent } from './desk-flow/desk-flow.component';
 import { BookingDeskFormComponent } from './desk-flow/desk-form/desk-form.component';

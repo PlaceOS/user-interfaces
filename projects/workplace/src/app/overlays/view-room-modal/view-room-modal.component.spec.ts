@@ -9,7 +9,7 @@ import { ACA_INTERACTIVE_MAP_MODULE } from '@acaprojects/ngx-interactive-map';
 
 import { ViewRoomModalComponent } from './view-room-modal.component';
 import { generateMockSpace } from 'src/app/spaces/space.utilities';
-import { IconComponent } from '../../shared/components/icon/icon.component';
+import { IconComponent } from '../../ui/icon/icon.component';
 
 describe('ViewRoomModalComponent', () => {
     let fixture: ComponentFixture<ViewRoomModalComponent>;

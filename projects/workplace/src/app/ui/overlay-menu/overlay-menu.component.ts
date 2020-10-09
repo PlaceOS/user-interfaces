@@ -1,12 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { logout } from '@placeos/ts-client';
 
 import { BaseClass } from 'src/app/common/base.class';
 import { StaffService } from 'src/app/users/staff.service';
-import { ApplicationLink } from '../../utilities/settings.interfaces';
 import { SettingsService } from 'src/app/common/settings.service';
 import { VERSION } from 'src/environments/version';
-
+import { ApplicationLink } from 'src/app/common/types';
 
 import * as dayjs from 'dayjs';
 

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Route } from '@angular/router';
 
 import { HelpComponent } from './help.component';
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 import { HelpOptionListComponent } from './option-list/option-list.component';
 
 const ROUTES: Route[] = [

@@ -5,7 +5,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { RouterModule } from '@angular/router';
 
 import { ROUTES } from './schedule.routes';
-import { SharedContentModule } from '../shared/shared.module';
+import { SharedContentModule } from '../ui/shared.module';
 
 import { ScheduleComponent } from './schedule.component';
 import { ScheduleEventListComponent } from './event-list/event-list.component';

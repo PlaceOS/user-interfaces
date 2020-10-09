@@ -5,7 +5,7 @@ import { BaseClass } from 'src/app/common/base.class';
 import { DialogEvent, HashMap } from 'src/app/common/types';
 import { StaffUser } from 'src/app/users/user.class';
 import { EventsService } from 'src/app/events/events.service';
-import { ITimelineEventGroup } from '../../shared/components/event-timeline/event-timeline.component';
+import { ITimelineEventGroup } from '../../ui/event-timeline/event-timeline.component';
 import * as dayjs from 'dayjs';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
