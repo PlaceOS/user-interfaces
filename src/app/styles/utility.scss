@@ -8,8 +8,13 @@ body {
     --success: $success;
 }
 
+.bg-success {
+    background-color: $success;
+    // background-color: var(--success);
+}
+
 .bg-white {
-    background-color: #fff;
+    background-color: #fff !important;
 }
 
 .bg-none {
@@ -39,16 +44,39 @@ body {
 }
 
 .bg-gray-200 {
-    background-color: #ccc;
+    background-color: #e2e8f0;
 }
 
-.bg-success {
-    background-color: $success;
-    background-color: var(--success);
+.bg-gray-300 {
+    background-color: #ccc;
 }
 
 .bg-none {
     background: none;
+}
+
+.text-light {
+    color: rgba(#fff, .85);
+}
+
+.text-light-fade {
+    color: rgba(#fff, .6);
+}
+
+.text-light-disabled {
+    color: rgba(#fff, .35);
+}
+
+.text-dark {
+    color: rgba(#000, .85);
+}
+
+.text-dark-fade {
+    color: rgba(#000, .6);
+}
+
+.text-dark-disabled {
+    color: rgba(#000, .35);
 }
 
 .text-white {
@@ -159,30 +187,6 @@ body {
     font-size: 2.5rem;
 }
 
-.text-light {
-    color: rgba(#fff, .85);
-}
-
-.text-light-fade {
-    color: rgba(#fff, .6);
-}
-
-.text-light-disabled {
-    color: rgba(#fff, .35);
-}
-
-.text-dark {
-    color: rgba(#000, .85);
-}
-
-.text-dark-fade {
-    color: rgba(#000, .6);
-}
-
-.text-dark-disabled {
-    color: rgba(#000, .35);
-}
-
 .leading-none {
     line-height: 1;
 }
@@ -217,6 +221,18 @@ body {
 
 .h-0 {
     height: 0;
+}
+
+.h-2 {
+    height: .5rem;
+}
+
+.h-4 {
+    height: 1rem;
+}
+
+.h-10 {
+    height: 2.5rem;
 }
 
 .h-12 {
@@ -386,12 +402,37 @@ body {
     margin-right: 1rem;
 }
 
+.border-none {
+    border: none;
+    border-width: 0;
+}
+
 .border {
-    border-width: 1px;
+    border-width: 1px !important;
+}
+
+.border-gray-100 {
+    border-color: #f0f0f0;
+}
+
+.border-gray-200 {
+    border-color: #e2e8f0;
+}
+
+.border-gray-300 {
+    border-color: #ccc !important;
+}
+
+.border-b {
+    border-bottom-width: 1px !important;
+}
+
+.border-dashed {
+    border-style: dashed !important;
 }
 
 .border-solid {
-    border-style: solid;
+    border-style: solid !important;
 }
 
 .shadow {
@@ -557,8 +598,40 @@ body {
     width: auto;
 }
 
+.w-2 {
+    width: .5rem;
+}
+
+.w-4 {
+    width: 1rem;
+}
+
 .w-12 {
     width: 3rem;
+}
+
+.w-20 {
+    width: 5rem;
+}
+
+.w-24 {
+    width: 6rem;
+}
+
+.w-28 {
+    width: 7rem;
+}
+
+.w-32 {
+    width: 8rem;
+}
+
+.w-36 {
+    width: 9rem;
+}
+
+.w-56 {
+    width: 14rem;
 }
 
 .w-full {
@@ -581,11 +654,19 @@ body {
     text-align: right;
 }
 
-.text-normal {
+.font-normal {
     font-weight: normal;
 }
 
-.text-bold {
+.font-medium {
+    font-weight: medium;
+}
+
+.font-semi-bold {
+    font-weight: 500;
+}
+
+.font-bold {
     font-weight: bold;
 }
 

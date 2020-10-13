@@ -16,6 +16,8 @@ export class CateringOrder {
     public readonly item_count: number;
     /** Total cost of order */
     public readonly total_cost: number;
+    /** Invoice number associated with the order */
+    public readonly invoice_number: string;
     /** Charge code for the order */
     public readonly charge_code: string;
     /** Unix epoch in seconds of order delivery time */
@@ -37,6 +39,7 @@ export class CateringOrder {
         );
         this.charge_code = data.charge_code || '';
         this.status = data.status || 'accepted';
+        this.invoice_number = data.invoice_number || '';
         this.event = data.event || null;
         this.deliver_at = data.deliver_at || (data as any).date || this.event?.date || new Date().getTime();
     }
