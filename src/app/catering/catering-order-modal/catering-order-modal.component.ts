@@ -5,18 +5,21 @@ import { isAfter, setHours, isBefore } from 'date-fns';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CateringStateService } from '../catering-state.service';
 import { unique } from '../../common/general';
 import { CateringItem } from '../catering-item.class';
 import { CateringOrder } from '../catering-order.class';
 import { DialogEvent, HashMap } from '../../common/types';
-import { CateringRuleset } from '../catering.interfaces';
+import { CateringOption, CateringRuleset } from '../catering.interfaces';
 import { CalendarEvent } from '../../events/event.class';
 import { stringToMinutes } from '../../events/event.utilities';
 import { BaseClass } from 'src/app/common/base.class';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
+    menu: Observable<CateringItem[]>;
+    loading: Observable<boolean>;
+    getCateringConfig: (_: string) => Promise<CateringRuleset[]>;
+    selectOptions: (_: CateringOption[]) => Promise<CateringOption[]>;
 }
 
 export function cateringItemAvailable(
@@ -85,16 +88,15 @@ export class CateringOrderModalComponent extends BaseClass {
     public readonly menu_items$: Observable<HashMap<CateringItem[]>>;
     /** List of categories for the active menu */
     public get categories(): Observable<string[]> {
-        return this._catering.menu.pipe(map((list) => unique(list.map((item) => item.category))));
+        return this._data.menu.pipe(map((list) => unique(list.map((item) => item.category))));
     }
 
     constructor(
-        private _catering: CateringStateService,
         @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData
     ) {
         super();
         this.loading = 'Loading menu...';
-        this.menu_items$ = this._catering.menu.pipe(
+        this.menu_items$ = this._data.menu.pipe(
             map((list) => {
                 const categories = unique(list.map((item) => item.category));
                 const map = {};
@@ -120,7 +122,7 @@ export class CateringOrderModalComponent extends BaseClass {
         );
         this.subscription(
             'loading',
-            this._catering.loading.subscribe(
+            this._data.loading.subscribe(
                 (state) => (this.loading = state ? 'Loading menu...' : '')
             )
         );
@@ -129,7 +131,7 @@ export class CateringOrderModalComponent extends BaseClass {
     }
 
     public async ngOnInit() {
-        this.rules = await this._catering.getCateringConfig(
+        this.rules = await this._data.getCateringConfig(
             this.order.event.space?.level?.parent_id
         );
     }
@@ -145,7 +147,7 @@ export class CateringOrderModalComponent extends BaseClass {
                     )
         );
         if (choose_options && item.options?.length) {
-            this._catering.selectOptions(item.options).then((options) => {
+            this._data.selectOptions(item.options).then((options) => {
                 const new_item = new CateringItem({ ...item, options });
                 this.addItem(new_item, false);
             });

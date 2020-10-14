@@ -67,7 +67,11 @@ export class CateringStateService extends BaseClass {
                 CateringOrderModalComponent,
                 {
                     data: {
-                        order
+                        order,
+                        menu: this.menu,
+                        loading: this.loading,
+                        getCateringConfig: (_) => this.getCateringConfig(_),
+                        selectOptions: (_) => this.selectOptions(_)
                     },
                 }
             );
