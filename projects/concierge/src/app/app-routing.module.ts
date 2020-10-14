@@ -24,6 +24,12 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'catering',
+        loadChildren: () => import('./catering/catering.module').then((m) => m.CateringModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: 'day-view' },
 ];
 

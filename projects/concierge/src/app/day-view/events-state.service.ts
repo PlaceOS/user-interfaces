@@ -311,7 +311,7 @@ export class EventsStateService extends BaseClass {
                 !!bkn.resources.find((space) =>
                     space.zones.find((zone) => filters.zone_ids.includes(zone))
                 );
-            const type = bkn.has_visitors ? 'external' : bkn.cancelled ? 'cancelled' : 'internal';
+            const type = bkn.has_visitors ? 'external' : bkn.status === 'cancelled' ? 'cancelled' : 'internal';
             const show = !filters.hide_type?.length || !filters.hide_type.includes(type as any);
             return intersects && has_space && in_zone && in_zones && show;
         });

@@ -139,7 +139,7 @@ export class DayviewEventComponent implements OnChanges {
     public get type() {
         return this.event.has_visitors
             ? 'external'
-            : this.event.cancelled
+            : this.event.status === 'cancelled'
             ? 'cancelled'
             : 'internal';
     }
