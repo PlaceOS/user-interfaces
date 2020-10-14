@@ -1,4 +1,4 @@
-
+import { Identity } from '../common/types';
 
 // Event catering order interfaces
 export type CateringOrderStatus = 'accepted' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
@@ -29,3 +29,14 @@ export interface CateringRuleset {
     /** List of rules for the id */
     rules: CateringRule[];
 }
+
+export const RULE_TYPES: Identity[] = [
+    { id: 'after_hour', name: 'After Hour' },
+    { id: 'before_hour', name: 'Before Hour' },
+    { id: 'min_length', name: 'Min. Meeting Length' },
+    { id: 'max_length', name: 'Max. Meeting Length' },
+    { id: 'is_before', name: 'Is Before Time' },
+    { id: 'is_after', name: 'Is After Time' },
+    { id: 'visitor_type', name: 'Visitor Type' },
+    { id: 'groups', name: 'User in Groups' },
+]

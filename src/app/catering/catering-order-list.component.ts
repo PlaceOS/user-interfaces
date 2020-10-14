@@ -28,7 +28,7 @@ import { CateringOrdersService } from './catering-orders.service';
                 <div class="text">No Catering Orders</div>
             </div>
         </ul>
-        <mat-progress-bar *ngIf="loading | async" class="w-full"></mat-progress-bar>
+        <mat-progress-bar *ngIf="loading | async" class="w-full" mode="indeterminate"></mat-progress-bar>
     `,
     styles: [
         `
