@@ -13,7 +13,7 @@ import { SettingsService } from 'src/app/common/settings.service';
                 <div class="row text-2xl text-bold uppercase">{{ datetime }}</div>
             </div>
         </header>
-        <main class="flex px-8 flex-wrap">
+        <main class="flex flex-1 px-8 flex-wrap overflow-auto">
             <dashboard-availability class="flex-1 min-w-64"></dashboard-availability>
             <dashboard-upcoming class="flex-1 min-w-64"></dashboard-upcoming>
             <dashboard-contacts class="flex-1 min-w-64"></dashboard-contacts>
@@ -41,9 +41,7 @@ import { SettingsService } from 'src/app/common/settings.service';
         }
 
         main {
-            flex: 1;
             min-height: 50%;
-            overflow: auto;
         }
 
         .top {

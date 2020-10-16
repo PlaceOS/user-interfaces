@@ -1,18 +1,6 @@
 @import 'variables';
 @import 'mixins';
 
-.dropdown[widget] {
-    border-radius: 4px;
-
-    &.fill {
-        width: 100%;
-    }
-}
-
-.dropdown-list[widget] {
-    border-radius: 4px;
-}
-
 .spinner {
     svg {
         width: 100%;
@@ -292,6 +280,14 @@ mat-select {
         .mat-form-field-label {
             top: 2em;
             margin-top: -0.1em;
+        }
+    }
+
+    &[overlay],
+    &[overlay]:hover  {
+        .mat-form-field-outline {
+            background-color: #fff;
+            border-radius: 4px;
         }
     }
 

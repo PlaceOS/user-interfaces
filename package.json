@@ -58,6 +58,7 @@
     "@tinymce/tinymce-angular": "^4.2.0",
     "@types/jest": "^26.0.10",
     "@types/node": "^12.11.1",
+    "@yuion/svg-viewer": "0.0.1-development",
     "@zxing/library": "^0.17.1",
     "codelyzer": "^6.0.0-next.1",
     "date-fns": "^2.16.0",

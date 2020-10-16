@@ -155,6 +155,10 @@ body {
     position: relative;
 }
 
+.text-2xs {
+    font-size: 0.625rem;
+}
+
 .text-xs {
     font-size: 0.75rem;
 }
@@ -690,6 +694,14 @@ body {
 
 .left-0 {
     left: 0;
+}
+
+.right-0 {
+    right: 0;
+}
+
+.bottom-0 {
+    bottom: 0;
 }
 
 .-translate-y-full {

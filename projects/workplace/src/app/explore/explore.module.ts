@@ -6,34 +6,34 @@ import { FormsModule } from '@angular/forms';
 import { AInteractiveMapModule } from '@acaprojects/ngx-interactive-map';
 
 import { SharedContentModule } from '../ui/shared.module';
-import { MapViewComponent } from './map-view/map-view.component';
-import { ExploreSpaceStatusComponent } from './status-managers/space-status.component';
-import { ExploreDeskStatusComponent } from './status-managers/desk-status.component';
-import { ExploreZoneStatusComponent } from './status-managers/zone-status.component';
-import { ZoomControlsComponent } from './zoom-controls/zoom-controls.component';
-import { ExploreSpaceInfoComponent } from './overlays/space-info/space-info.component';
-import { ExploreSearchComponent } from './search/search.component';
-import { ExploreMapLegendComponent } from './map-legend/map-legend.component';
+import { ExploreComponent } from './explore.component';
+
 import { BookingModalComponent } from './overlays/booking-modal/booking-modal.component';
-import { MapZonesComponent } from './map-zones/map-zones.component';
+
+import { ExploreMapViewComponent } from 'src/app/explore/explore-map-view.component';
+import { ExploreZoomControlComponent } from 'src/app/explore/explore-zoom-control.component';
+import { ExploreMapControlComponent } from 'src/app/explore/explore-map-control.component';
+import { ExploreSearchComponent } from 'src/app/explore/explore-search.component';
+import { ExploreSpaceInfoComponent } from 'src/app/explore/explore-space-info.component';
+import { InteractiveMapComponent, MAP_FEATURE_DATA } from 'src/app/ui/interactive-map.component';
+
 
 const ROUTES: Route[] = [
-    { path: '', component: MapViewComponent },
-    { path: ':search_type', component: MapViewComponent }
+    { path: '', component: ExploreComponent },
+    { path: ':search_type', component: ExploreComponent }
 ];
 
 @NgModule({
     declarations: [
-        MapViewComponent,
-        ExploreSpaceStatusComponent,
-        ExploreDeskStatusComponent,
-        ExploreZoneStatusComponent,
-        ZoomControlsComponent,
-        ExploreSpaceInfoComponent,
+        ExploreComponent,
+        ExploreMapViewComponent,
+        ExploreZoomControlComponent,
+        ExploreMapControlComponent,
         ExploreSearchComponent,
-        ExploreMapLegendComponent,
+        ExploreSpaceInfoComponent,
+        InteractiveMapComponent,
+
         BookingModalComponent,
-        MapZonesComponent
     ],
     imports: [
         CommonModule,
@@ -41,6 +41,7 @@ const ROUTES: Route[] = [
         SharedContentModule,
         AInteractiveMapModule,
         FormsModule
-    ]
+    ],
+    providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }]
 })
 export class ExploreModule {}
