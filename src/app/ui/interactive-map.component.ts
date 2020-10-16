@@ -22,7 +22,6 @@ import {
     ViewerStyles,
 } from '@yuion/svg-viewer';
 import { BaseClass } from '../common/base.class';
-import { HashMap } from '../common/types';
 
 export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
 
@@ -30,6 +29,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     selector: `i-map,interactive-map`,
     template: `
         <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
+        <mat-spinner *ngIf="!viewer" class="center"></mat-spinner>
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
                 <div #feature [attr.el-id]="element.location">
@@ -69,7 +69,7 @@ export class InteractiveMapComponent extends BaseClass {
     public injectors: Injector[] = [];
 
     /** ID of the active SVG Viewer */
-    private _viewer: string;
+    public viewer: string;
 
     @ViewChild('outlet') private _outlet_el: ElementRef<HTMLDivElement>;
     @ViewChildren('feature') private _feature_list: QueryList<ElementRef<HTMLDivElement>>;
@@ -83,8 +83,8 @@ export class InteractiveMapComponent extends BaseClass {
     }
 
     public ngOnDestroy(): void {
-        if (this._viewer) {
-            removeViewer(this._viewer);
+        if (this.viewer) {
+            removeViewer(this.viewer);
         }
     }
 
@@ -92,7 +92,7 @@ export class InteractiveMapComponent extends BaseClass {
         if (changes.src && this.src) {
             this.createView();
         }
-        if (this._viewer) {
+        if (this.viewer) {
             if (changes.zoom || changes.center) {
                 this.updateDisplay();
             }
@@ -114,7 +114,7 @@ export class InteractiveMapComponent extends BaseClass {
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
-        updateViewer(this._viewer, {
+        updateViewer(this.viewer, {
             styles: this.styles,
             features: (this.features || []).map((f, idx) => ({
                 ...f,
@@ -127,7 +127,7 @@ export class InteractiveMapComponent extends BaseClass {
 
     /** Update zoom and center position of viewer */
     private updateDisplay() {
-        updateViewer(this._viewer, {
+        updateViewer(this.viewer, {
             zoom: this.zoom,
             desired_zoom: this.zoom,
             center: this.center,
@@ -137,10 +137,10 @@ export class InteractiveMapComponent extends BaseClass {
 
     private async createView() {
         if (this.src && this._outlet_el?.nativeElement) {
-            if (this._viewer) {
-                removeViewer(this._viewer);
+            if (this.viewer) {
+                removeViewer(this.viewer);
             }
-            this._viewer = await createViewer({
+            this.viewer = await createViewer({
                 element: this._outlet_el?.nativeElement,
                 url: this.src,
                 styles: this.styles,
