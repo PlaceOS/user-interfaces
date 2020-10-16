@@ -51,6 +51,10 @@ body {
     background-color: #ccc;
 }
 
+.bg-red-900 {
+    background-color: #b71c1c;
+}
+
 .bg-none {
     background: none;
 }
@@ -347,6 +351,11 @@ body {
     margin-left: 0.5rem;
 }
 
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .mx-1 {
     margin-left: .25rem;
     margin-right: .25rem;
@@ -400,6 +409,11 @@ body {
 .my-4 {
     margin-top: 1rem;
     margin-bottom: 1rem;
+}
+
+.my-16 {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
 }
 
 .mr-4 {
@@ -668,11 +682,11 @@ body {
 }
 
 .font-normal {
-    font-weight: normal;
+    font-weight: 300;
 }
 
 .font-medium {
-    font-weight: medium;
+    font-weight: 400;
 }
 
 .font-semi-bold {
@@ -680,7 +694,7 @@ body {
 }
 
 .font-bold {
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .width-tablet {
