@@ -127,7 +127,6 @@ export class DashboardStateService extends BaseClass {
             details: users,
         }).toPromise();
         const list = metadata.details instanceof Array ? metadata.details : [];
-        console.log('List:', list, metadata.details)
         this._contacts.next(list.map((i) => new User(i)));
     }
 

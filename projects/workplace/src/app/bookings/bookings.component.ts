@@ -47,7 +47,6 @@ export class BookingsComponent extends BaseClass implements OnInit {
                 } else {
                     this.flow = '';
                 }
-                console.log('flow::', this.flow);
             })
         );
         this.subscription(
@@ -70,9 +69,5 @@ export class BookingsComponent extends BaseClass implements OnInit {
 
     public spaces() {
         this._router.navigate(['spaces'], { relativeTo: this._route });
-    }
-
-    public test(e) {
-        console.log(e);
     }
 }

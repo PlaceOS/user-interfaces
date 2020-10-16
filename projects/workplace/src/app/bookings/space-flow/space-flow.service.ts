@@ -129,7 +129,6 @@ export class SpaceFlowService extends BaseClass {
                     list.push(key);
                 }
             }
-            console.log('Form:', form);
             return Promise.reject(notifyError(`Some form fields are not valid: [${list.join(', ')}]`));
         }
         this._loading_event.next(true)
