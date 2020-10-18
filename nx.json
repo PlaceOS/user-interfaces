@@ -62,6 +62,13 @@
         },
         "components": {
             "tags": []
+        },
+        "booking-panel": {
+            "tags": []
+        },
+        "booking-panel-e2e": {
+            "tags": [],
+            "implicitDependencies": ["booking-panel"]
         }
     }
 }
