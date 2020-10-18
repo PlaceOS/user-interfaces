@@ -1,28 +1,25 @@
-const merge = require('webpack-merge');
+'use strict';
 
-module.exports = (config) => {
-  const isProd = config.mode === "production";
-  const tailwindConfig = require("./tailwind.config.js")(isProd);
+const helpers = require('./helpers');
 
-  return merge(config, {
+module.exports = {
     module: {
-      rules: [
-        {
-          test: /\.scss$/,
-          loader: 'postcss-loader',
-          options: {
-            postcssOptions: {
-              ident: 'postcss',
-              syntax: 'postcss-scss',
-              plugins: [
-                require('postcss-import'),
-                require('tailwindcss')(tailwindConfig),
-                require('autoprefixer'),
-              ]
-            }
-          }
-        }
-      ]
-    }
-  });
+        rules: [
+            {
+                test: /\.scss$/,
+                loader: 'postcss-loader',
+                options: {
+                    postcssOptions: {
+                        syntax: 'postcss-scss',
+                        plugins: [
+                            require('tailwindcss')(
+                                helpers.root('tailwind.config.js')
+                            ), // We use the helper to ensure that the path is always relative to the workspace root
+                            require('autoprefixer'),
+                        ],
+                    }
+                },
+            },
+        ],
+    },
 };

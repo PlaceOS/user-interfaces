@@ -1,61 +1,98 @@
-# PlaceOS Template User Interfaces
+# UserInterfaces
 
-![Bookings PROD](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-PROD/badge.svg)
-![Bookings DEV](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-DEVELOP/badge.svg)
-![Bookings UAT](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-UAT/badge.svg)  
-![Catering PROD](https://github.com/placeos/user-interfaces/workflows/CATERING-PROD/badge.svg)
-![Catering DEV](https://github.com/placeos/user-interfaces/workflows/CATERING-DEVELOP/badge.svg)
-![Catering UAT](https://github.com/placeos/user-interfaces/workflows/CATERING-UAT/badge.svg)  
-![Concierge PROD](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-PROD/badge.svg)
-![Concierge DEV](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-DEVELOP/badge.svg)
-![Concierge UAT](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-UAT/badge.svg)  
-![Control PROD](https://github.com/placeos/user-interfaces/workflows/CONTROL-PROD/badge.svg)
-![Control DEV](https://github.com/placeos/user-interfaces/workflows/CONTROL-DEVELOP/badge.svg)
-![Control UAT](https://github.com/placeos/user-interfaces/workflows/CONTROL-UAT/badge.svg)  
-![Visitor Kiosk PROD](https://github.com/placeos/user-interfaces/workflows/VISITOR-KIOSK-PROD/badge.svg)
-![Visitor Kiosk DEV](https://github.com/placeos/user-interfaces/workflows/VISITOR-KIOSK-DEVELOP/badge.svg)
-![Visitor Kiok UAT](https://github.com/placeos/user-interfaces/workflows/VISITOR-KIOSK-UAT/badge.svg)  
-![Map Kiosk PROD](https://github.com/placeos/user-interfaces/workflows/MAP-KIOSK-PROD/badge.svg)
-![Map Kiosk DEV](https://github.com/placeos/user-interfaces/workflows/MAP-KIOSK-DEVELOP/badge.svg)
-![Map Kiosk UAT](https://github.com/placeos/user-interfaces/workflows/MAP-KIOSK-UAT/badge.svg)  
-![Workplace PROD](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-PROD/badge.svg)
-![Workplace DEV](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-DEVELOP/badge.svg)
-![Workplace UAT](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-UAT/badge.svg)
+This project was generated using [Nx](https://nx.dev).
 
-## Setup
+<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
 
-1. Install [NodeJS](https://nodejs.org/en/download/current/)
-1. Run `npm install` in the root folder
-1. Run `npm install --global @angular/cli` to Install [Angular CLI](https://github.com/angular/angular-cli)
+🔎 **Nx is a set of Extensible Dev Tools for Monorepos.**
 
-## Development
+## Quick Start & Documentation
 
-To run the dev server use the command `ng serve <project>` e.g. `ng serve control`
+[Nx Documentation](https://nx.dev/angular)
 
-By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems add `?mock=true` when loading up the application URL. e.g. `http://localhost:4200/#/?mock=true`
+[10-minute video showing all Nx features](https://nx.dev/angular/getting-started/what-is-nx)
 
-## Compilation
+[Interactive Tutorial](https://nx.dev/angular/tutorial/01-create-application)
 
-Compile the application into static files using `ng build <project>` e.g. `ng build bookings`
+## Adding capabilities to your workspace
 
-The command takes the arguments `--prod` to minify the resulting build and `--aot` to compile the angular code using the angular Ahead of Time compiler.
+Nx supports many plugins which add capabilities for developing different types of applications and different tools.
 
-Default application/runtime settings can be found in `projects/<project>/app/settings.ts`
+These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
 
-## Tests
+Below are our core plugins:
 
-Unit tests can be run using `ng test <project>` e.g. `ng test kiosk`
+- [Angular](https://angular.io)
+  - `ng add @nrwl/angular`
+- [React](https://reactjs.org)
+  - `ng add @nrwl/react`
+- Web (no framework frontends)
+  - `ng add @nrwl/web`
+- [Nest](https://nestjs.com)
+  - `ng add @nrwl/nest`
+- [Express](https://expressjs.com)
+  - `ng add @nrwl/express`
+- [Node](https://nodejs.org)
+  - `ng add @nrwl/node`
 
-Integration tests can be run first starting up the webpack dev server with `ng serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `npx cypress run`
+There are also many [community plugins](https://nx.dev/nx-community) you could add.
 
-## Available Frontends
+## Generate an application
 
-There are 7 available frontends for this client
+Run `ng g @nrwl/angular:app my-app` to generate an application.
 
--   [`bookings`](./projects/bookings/README.md) | Booking Panel user interface
--   [`catering`](./projects/catering/README.md) | Interface for external caterers
--   [`concierge`](./projects/concierge/README.md) | Concierge / Front of House application
--   [`control`](./projects/control/README.md) | AV/Room Control application
--   [`enrolment`](./projects/enrolment/README.md) | Visitor enrolment UI
--   [`kiosk`](./projects/map-kiosk/README.md) | Internal building location kiosk UI
--   [`workplace`](./projects/workplace/README.md) | Staff Application
+> You can use any of the plugins above to generate applications as well.
+
+When using Nx, you can create multiple applications and libraries in the same workspace.
+
+## Generate a library
+
+Run `ng g @nrwl/angular:lib my-lib` to generate a library.
+
+> You can also use any of the plugins above to generate libraries as well.
+
+Libraries are sharable across libraries and applications. They can be imported from `@user-interfaces/mylib`.
+
+## Development server
+
+Run `ng serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+
+## Code scaffolding
+
+Run `ng g component my-component --project=my-app` to generate a new component.
+
+## Build
+
+Run `ng build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Running unit tests
+
+Run `ng test my-app` to execute the unit tests via [Jest](https://jestjs.io).
+
+Run `nx affected:test` to execute the unit tests affected by a change.
+
+## Running end-to-end tests
+
+Run `ng e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+
+Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+
+## Understand your workspace
+
+Run `nx dep-graph` to see a diagram of the dependencies of your projects.
+
+## Further help
+
+Visit the [Nx Documentation](https://nx.dev/angular) to learn more.
+
+## ☁ Nx Cloud
+
+### Computation Memoization in the Cloud
+
+<p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
+
+Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
+
+Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
+
+Visit [Nx Cloud](https://nx.app/) to learn more.
