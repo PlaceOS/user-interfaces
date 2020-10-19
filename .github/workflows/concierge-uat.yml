@@ -8,8 +8,8 @@ on:
     push:
         branches: [release/**]
         paths:
-          - projects/concierge/**
-          - src/app/**
+          - apps/concierge/**
+          - libs/**
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:

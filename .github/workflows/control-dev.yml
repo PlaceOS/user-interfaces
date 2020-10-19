@@ -8,8 +8,8 @@ on:
     push:
         branches: [develop]
         paths:
-          - projects/control/**
-          - src/app/**
+          - apps/control/**
+          - libs/**
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
