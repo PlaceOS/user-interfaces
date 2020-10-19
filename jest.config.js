@@ -17,5 +17,6 @@ module.exports = {
         '<rootDir>/apps/visitor-kiosk',
         '<rootDir>/apps/control',
         '<rootDir>/apps/caterer-ui',
+        '<rootDir>/apps/map-kiosk',
     ],
 };

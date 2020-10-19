@@ -1170,6 +1170,153 @@
                     }
                 }
             }
+        },
+        "map-kiosk": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/map-kiosk",
+            "sourceRoot": "apps/map-kiosk/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "outputPath": "dist/apps/map-kiosk",
+                        "index": "apps/map-kiosk/src/index.html",
+                        "main": "apps/map-kiosk/src/main.ts",
+                        "polyfills": "apps/map-kiosk/src/polyfills.ts",
+                        "tsConfig": "apps/map-kiosk/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/map-kiosk/src/favicon.ico",
+                            "apps/map-kiosk/src/assets",
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/map-kiosk/src/styles.scss"],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/map-kiosk/src/environments/environment.ts",
+                                    "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "baseHref": "/kiosk/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "map-kiosk:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "map-kiosk:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "map-kiosk:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/map-kiosk/tsconfig.app.json",
+                            "apps/map-kiosk/tsconfig.spec.json",
+                            "apps/map-kiosk/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/map-kiosk/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/map-kiosk/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "map-kiosk-e2e": {
+            "root": "apps/map-kiosk-e2e",
+            "sourceRoot": "apps/map-kiosk-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/map-kiosk-e2e/cypress.json",
+                        "tsConfig": "apps/map-kiosk-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "map-kiosk:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "map-kiosk:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/map-kiosk-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/map-kiosk-e2e/**/*"
+                        ]
+                    }
+                }
+            }
         }
     },
     "cli": {

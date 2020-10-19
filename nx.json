@@ -97,6 +97,13 @@
         "caterer-ui-e2e": {
             "tags": [],
             "implicitDependencies": ["caterer-ui"]
+        },
+        "map-kiosk": {
+            "tags": []
+        },
+        "map-kiosk-e2e": {
+            "tags": [],
+            "implicitDependencies": ["map-kiosk"]
         }
     }
 }
