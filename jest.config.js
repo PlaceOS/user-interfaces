@@ -14,5 +14,6 @@ module.exports = {
         '<rootDir>/libs/users',
         '<rootDir>/apps/booking-panel',
         '<rootDir>/apps/concierge',
+        '<rootDir>/apps/visitor-kiosk',
     ],
 };

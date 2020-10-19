@@ -76,6 +76,13 @@
         "concierge-e2e": {
             "tags": [],
             "implicitDependencies": ["concierge"]
+        },
+        "visitor-kiosk": {
+            "tags": []
+        },
+        "visitor-kiosk-e2e": {
+            "tags": [],
+            "implicitDependencies": ["visitor-kiosk"]
         }
     }
 }
