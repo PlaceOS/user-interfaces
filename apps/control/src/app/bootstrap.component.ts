@@ -2,19 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from 'src/app/common/base.class';
-import { Space } from 'src/app/spaces/space.class';
-import { SpacesService } from 'src/app/spaces/spaces.service';
+import { BaseClass } from '@user-interfaces/common';
+import { Space, SpacesService } from '@user-interfaces/spaces';
 
 @Component({
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="rounded shadow w-64 m-4 bg-white overflow-hidden mx-auto text-center flex flex-col items-center"
+            class="rounded shadow w-80 m-4 bg-white overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-red-900 text-white py-2 px-4 m-0 w-full">Control Interface Setup</h2>
+            <h2 class="bg-red-700 text-white py-2 px-4 m-0 w-full text-2xl">Control Interface Setup</h2>
             <ng-container *ngIf="!loading; else load_state">
-                <p class="description">Input the PlaceOS <em>System ID</em> to bootstrap</p>
+                <p class="description my-3">Input the PlaceOS <em>System ID</em> to bootstrap</p>
                 <mat-form-field appearance="outline">
                     <mat-label>System ID</mat-label>
                     <input

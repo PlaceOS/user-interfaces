@@ -1,4 +1,6 @@
 
+@import '~material-design-icons/iconfont/material-icons.css';
+
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @import '~@angular/material/theming';
@@ -32,23 +34,3 @@ $template-uis-theme: mat-light-theme((
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($template-uis-theme);
-
-/* You can add global styles to this file, and also import other style files */
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-@keyframes crossfade {
-    0% {
-        background-color: #1565c0;
-    }
-    35% {
-        background-color: #2e7d32;
-    }
-    70% {
-        background-color: #c62828;
-    }
-    100% {
-        background-color: #1565c0;
-    }
-}

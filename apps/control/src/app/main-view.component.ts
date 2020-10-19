@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
 
-import { BaseClass } from 'src/app/common/base.class';
+import { BaseClass } from '@user-interfaces/common';
 
 @Component({
     selector: 'app-control-main-view',

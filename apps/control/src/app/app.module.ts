@@ -8,7 +8,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from 'src/app/app.component';
+import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 import { BootstrapComponent } from './bootstrap.component';

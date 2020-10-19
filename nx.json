@@ -83,6 +83,13 @@
         "visitor-kiosk-e2e": {
             "tags": [],
             "implicitDependencies": ["visitor-kiosk"]
+        },
+        "control": {
+            "tags": []
+        },
+        "control-e2e": {
+            "tags": [],
+            "implicitDependencies": ["control"]
         }
     }
 }
