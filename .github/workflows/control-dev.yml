@@ -49,7 +49,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: ng build control --aot
+              run: nx build control --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

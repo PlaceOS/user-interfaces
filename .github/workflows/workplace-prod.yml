@@ -52,7 +52,7 @@ jobs:
               run: npm run postversion
 
             - name: Builds the application
-              run: ng build workplace --prod --aot
+              run: nx build workplace --prod --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

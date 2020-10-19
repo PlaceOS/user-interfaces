@@ -49,7 +49,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: ng build map-kiosk --aot
+              run: nx build map-kiosk --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
