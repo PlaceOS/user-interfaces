@@ -1,0 +1,15 @@
+{
+    "extends": "../../tslint.json",
+    "rules": {
+        "directive-selector": [
+            true,
+            "attribute",
+            "userInterfaces",
+            "camelCase"
+        ],
+        "component-selector": [true, "element", "user-interfaces", "kebab-case"]
+    },
+    "linterOptions": {
+        "exclude": ["!**/*"]
+    }
+}

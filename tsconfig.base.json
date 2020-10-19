@@ -1,25 +1,33 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
-    "declaration": false,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "es2020",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
-    "paths": {
-      "shared": [
-        "dist/shared/shared",
-        "dist/shared"
-      ]
-    }
-  }
+    "compileOnSave": false,
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "target": "es2015",
+        "module": "esnext",
+        "typeRoots": ["node_modules/@types"],
+        "lib": ["es2017", "dom"],
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@user-interfaces/common": ["libs/common/src/index.ts"],
+            "@user-interfaces/bookings": ["libs/bookings/src/index.ts"],
+            "@user-interfaces/calendar": ["libs/calendar/src/index.ts"],
+            "@user-interfaces/catering": ["libs/catering/src/index.ts"],
+            "@user-interfaces/events": ["libs/events/src/index.ts"],
+            "@user-interfaces/explore": ["libs/explore/src/index.ts"],
+            "@user-interfaces/mocks": ["libs/mocks/src/index.ts"],
+            "@user-interfaces/organisation": ["libs/organisation/src/index.ts"],
+            "@user-interfaces/spaces": ["libs/spaces/src/index.ts"],
+            "@user-interfaces/users": ["libs/users/src/index.ts"],
+            "@user-interfaces/components": ["libs/components/src/index.ts"]
+        }
+    },
+    "exclude": ["node_modules", "tmp"]
 }

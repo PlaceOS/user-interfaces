@@ -20,7 +20,7 @@ gitInfo.core_version = core_version;
 gitInfo.time = dayjs().valueOf();
 
 
-const file = resolve(__dirname, '..', 'src', 'environments', 'version.ts');
+const file = resolve(__dirname, '..', 'libs', 'common', 'src', 'lib', 'version.ts');
 writeFileSync(file,
 `// IMPORTANT: THIS FILE IS AUTO GENERATED! DO NOT MANUALLY EDIT OR CHECKIN!
 /* tslint:disable */

@@ -8,8 +8,8 @@ on:
     push:
         branches: [release/**]
         paths:
-          - projects/concierge/**
-          - src/app/**
+          - apps/concierge/**
+          - libs/**
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -49,7 +49,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: ng build concierge --aot
+              run: nx build concierge --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

@@ -8,8 +8,8 @@ on:
     push:
         branches: [develop]
         paths:
-          - projects/bookings/**
-          - src/app/**
+          - apps/booking-panel/**
+          - libs/**
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -49,7 +49,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: ng build bookings --aot
+              run: nx build bookings --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

@@ -30,13 +30,13 @@
 
 ## Development
 
-To run the dev server use the command `ng serve <project>` e.g. `ng serve control`
+To run the dev server use the command `nx serve <project>` e.g. `nx serve control`
 
 By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems add `?mock=true` when loading up the application URL. e.g. `http://localhost:4200/#/?mock=true`
 
 ## Compilation
 
-Compile the application into static files using `ng build <project>` e.g. `ng build bookings`
+Compile the application into static files using `nx build <project>` e.g. `nx build bookings`
 
 The command takes the arguments `--prod` to minify the resulting build and `--aot` to compile the angular code using the angular Ahead of Time compiler.
 
@@ -44,18 +44,18 @@ Default application/runtime settings can be found in `projects/<project>/app/set
 
 ## Tests
 
-Unit tests can be run using `ng test <project>` e.g. `ng test kiosk`
+Unit tests can be run using `nx test <project>` e.g. `nx test kiosk`
 
-Integration tests can be run first starting up the webpack dev server with `ng serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `npx cypress run`
+Integration tests can be run first starting up the webpack dev server with `nx serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `nx e2e <project>-e2e`
 
 ## Available Frontends
 
 There are 7 available frontends for this client
 
--   [`bookings`](./projects/bookings/README.md) | Booking Panel user interface
--   [`catering`](./projects/catering/README.md) | Interface for external caterers
+-   [`bookings`](./apps/booking-panel/README.md) | Booking Panel user interface
+-   [`catering`](./projects/caterers-ui/README.md) | Interface for external caterers
 -   [`concierge`](./projects/concierge/README.md) | Concierge / Front of House application
 -   [`control`](./projects/control/README.md) | AV/Room Control application
--   [`enrolment`](./projects/enrolment/README.md) | Visitor enrolment UI
 -   [`kiosk`](./projects/map-kiosk/README.md) | Internal building location kiosk UI
+-   [`visitors`](./projects/visitor-kiosk/README.md) | Internal building location kiosk UI
 -   [`workplace`](./projects/workplace/README.md) | Staff Application
