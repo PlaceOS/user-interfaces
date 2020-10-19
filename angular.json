@@ -18,6 +18,12 @@
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/workplace/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/workplace",
                         "index": "apps/workplace/src/index.html",
                         "main": "apps/workplace/src/main.ts",
@@ -45,6 +51,10 @@
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
                                     "with": "apps/workplace/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/workplace/src/environments/settings.ts"
                                 }
                             ],
                             "baseHref": "/workplace/",
@@ -453,6 +463,12 @@
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/booking-panel/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/booking-panel",
                         "index": "apps/booking-panel/src/index.html",
                         "main": "apps/booking-panel/src/main.ts",
@@ -480,6 +496,10 @@
                                 {
                                     "replace": "apps/booking-panel/src/environments/environment.ts",
                                     "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/booking-panel/src/environments/settings.ts"
                                 }
                             ],
                             "baseHref": "/bookings/",
@@ -605,6 +625,12 @@
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/caterer-ui/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/concierge",
                         "index": "apps/concierge/src/index.html",
                         "main": "apps/concierge/src/main.ts",
@@ -629,6 +655,10 @@
                                 {
                                     "replace": "apps/concierge/src/environments/environment.ts",
                                     "with": "apps/concierge/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/concierge/src/environments/settings.ts"
                                 }
                             ],
                             "baseHref": "/concierge/",
@@ -752,6 +782,12 @@
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/visitor-kiosk/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/visitor-kiosk",
                         "index": "apps/visitor-kiosk/src/index.html",
                         "main": "apps/visitor-kiosk/src/main.ts",
@@ -776,6 +812,10 @@
                                 {
                                     "replace": "apps/visitor-kiosk/src/environments/environment.ts",
                                     "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -900,6 +940,12 @@
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/control/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/control",
                         "index": "apps/control/src/index.html",
                         "main": "apps/control/src/main.ts",
@@ -924,6 +970,10 @@
                                 {
                                     "replace": "apps/control/src/environments/environment.ts",
                                     "with": "apps/control/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/control/src/environments/settings.ts"
                                 }
                             ],
                             "baseHref": "/control/",
@@ -1044,6 +1094,12 @@
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/caterer-ui/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/caterer-ui",
                         "index": "apps/caterer-ui/src/index.html",
                         "main": "apps/caterer-ui/src/main.ts",
@@ -1068,6 +1124,10 @@
                                 {
                                     "replace": "apps/caterer-ui/src/environments/environment.ts",
                                     "with": "apps/caterer-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/caterer-ui/src/environments/settings.ts"
                                 }
                             ],
                             "baseHref": "/catering/",
@@ -1191,6 +1251,12 @@
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/map-kiosk/src/environments/settings.ts"
+                            }
+                        ],
                         "outputPath": "dist/apps/map-kiosk",
                         "index": "apps/map-kiosk/src/index.html",
                         "main": "apps/map-kiosk/src/main.ts",
@@ -1215,6 +1281,10 @@
                                 {
                                     "replace": "apps/map-kiosk/src/environments/environment.ts",
                                     "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/map-kiosk/src/environments/settings.ts"
                                 }
                             ],
                             "baseHref": "/kiosk/",
