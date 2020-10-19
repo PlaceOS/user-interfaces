@@ -69,6 +69,13 @@
         "booking-panel-e2e": {
             "tags": [],
             "implicitDependencies": ["booking-panel"]
+        },
+        "concierge": {
+            "tags": []
+        },
+        "concierge-e2e": {
+            "tags": [],
+            "implicitDependencies": ["concierge"]
         }
     }
 }

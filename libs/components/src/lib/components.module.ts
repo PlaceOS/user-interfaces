@@ -25,6 +25,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ConfirmModalComponent } from './confirm-modal.component';
 import { CounterComponent } from './counter/counter.component';
 import { CommonModule } from '@angular/common';
+import { InteractiveMapComponent } from './interactive-map.component';
 
 export * from './action-field/action-field.component';
 export * from './action-icon/action-icon.component';
@@ -70,7 +71,8 @@ const COMPONENTS: Type<any>[] = [
     TimeFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
-    ConfirmModalComponent
+    ConfirmModalComponent,
+    InteractiveMapComponent
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

@@ -11,7 +11,7 @@ import { Space, SpacesService } from '@user-interfaces/spaces';
         <div
             class="rounded shadow w-64 m-4 bg-white overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-red-800 text-white py-2 px-4 m-0 w-full text-2xl">Booking Panel Setup</h2>
+            <h2 class="bg-red-700 text-white py-2 px-4 m-0 w-full text-2xl">Booking Panel Setup</h2>
             <ng-container *ngIf="!loading; else load_state">
                 <p class="description py-4">Input the PlaceOS <em>System ID</em> to bootstrap</p>
                 <mat-form-field appearance="outline">
