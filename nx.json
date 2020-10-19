@@ -90,6 +90,13 @@
         "control-e2e": {
             "tags": [],
             "implicitDependencies": ["control"]
+        },
+        "caterer-ui": {
+            "tags": []
+        },
+        "caterer-ui-e2e": {
+            "tags": [],
+            "implicitDependencies": ["caterer-ui"]
         }
     }
 }
