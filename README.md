@@ -32,7 +32,7 @@
 
 To run the dev server use the command `nx serve <project>` e.g. `nx serve control`
 
-By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems add `?mock=true` when loading up the application URL. e.g. `http://localhost:4200/#/?mock=true`
+By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems press `Ctrl + Alt/Option + Shift + M` to reload the page in mock mode. To leave mock mode you can repeat the keypresses.
 
 ## Compilation
 

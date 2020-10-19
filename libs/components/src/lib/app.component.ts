@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { invalidateToken } from '@placeos/ts-client';
 
-import { BaseClass, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
+import { BaseClass, HotkeysService, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 
 import { SpacesService } from '../../../spaces/src/lib/spaces.service';
@@ -43,12 +43,17 @@ export class AppComponent extends BaseClass implements OnInit {
         private _spaces: SpacesService, // For init
         private _users: StaffService,
         private _cache: SwUpdate,
-        private _snackbar: MatSnackBar
+        private _snackbar: MatSnackBar,
+        private _hotkey: HotkeysService
     ) {
         super();
     }
 
     public async ngOnInit() {
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
+            localStorage.setItem('mock', `${localStorage.getItem('mock') !== 'true'}`);
+            location.reload();
+        });
         setNotifyOutlet(this._snackbar);
         this._loading.next(true);
         /** Wait for settings to initialise */
