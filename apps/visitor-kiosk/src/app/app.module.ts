@@ -14,7 +14,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 import { SharedContentModule } from './ui/shared.module';
 import { BootstrapComponent } from './bootstrap/bootstrap.component';
-import { WelcomeComponent } from './welcome/welcome.component';
+import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
 
 @NgModule({

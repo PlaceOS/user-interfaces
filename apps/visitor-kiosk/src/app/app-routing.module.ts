@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { BootstrapComponent } from './bootstrap/bootstrap.component';
-import { WelcomeComponent } from './welcome/welcome.component';
+import { WelcomeComponent } from './welcome.component';
 
 const routes: Routes = [
     { path: 'bootstrap', component: BootstrapComponent },

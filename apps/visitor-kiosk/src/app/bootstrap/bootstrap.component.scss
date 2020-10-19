@@ -2,7 +2,7 @@
 @import 'variables';
 @import 'mixins';
 
-.bootstrap {
+:host {
     position: fixed;
     top: 0;
     left: 0;

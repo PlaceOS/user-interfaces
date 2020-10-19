@@ -5,7 +5,7 @@ import { BaseClass, Identity } from '@user-interfaces/common';
 import { Building, BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
 
 @Component({
-    selector: 'bootstrap-page',
+    selector: '[bootstrap]',
     templateUrl: './bootstrap.component.html',
     styleUrls: ['./bootstrap.component.scss'],
 })
