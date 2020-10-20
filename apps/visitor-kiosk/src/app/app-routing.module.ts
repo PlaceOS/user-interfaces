@@ -13,7 +13,7 @@ const routes: Routes = [
     },
     {
         path: 'checkin',
-        loadChildren: () => import('./checkin-new/checkin.module').then((m) => m.VisitorCheckinModule),
+        loadChildren: () => import('./checkin/checkin.module').then((m) => m.VisitorCheckinModule),
     },
     { path: '**', redirectTo: 'bootstrap' },
 ];

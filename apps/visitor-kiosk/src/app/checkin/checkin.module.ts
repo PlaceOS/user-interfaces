@@ -1,47 +1,50 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule, Route } from '@angular/router';
 import { SharedContentModule } from '../ui/shared.module';
 
-import { ROUTES } from './checkin.routes';
-import { AppCheckinComponent } from './checkin.component';
-import { CheckinQrScanComponent } from './qr-scan/qr-scan.component';
-import { CheckinGroupDetailsComponent } from './group-details/group-details.component';
-import { CheckinDetailsComponent } from './details/details.component';
-import { CheckinResultComponent } from './result/result.component';
-import { CheckinErrorComponent } from './error/error.component';
-import { VisitorPreferencesComponent } from './visitor-preferences/visitor-preferences.component';
-import { VisitorPhotoComponent } from './visitor-photo/visitor-photo.component';
-import { VisitorPassComponent } from './visitor-pass/visitor-pass.component';
-import { BaseCheckinComponent } from './base-checkin';
+import { CheckinDetailsComponent } from './checkin-details.component';
+import { CheckinGroupComponent } from './checkin-group.component';
+import { CheckinPhotoComponent } from './checkin-photo.component';
+import { CheckinPreferencesComponent } from './checkin-preferences.component';
+import { CheckinQRScanComponent } from './checkin-qr-scan.component';
+import { CheckinResultsComponent } from './checkin-result.component';
+import { CheckinErrorComponent } from './checkin-error.component';
+import { CheckinComponent } from './checkin.component';
 
-export const COMPONENTS: any[] = [
-    BaseCheckinComponent,
-    AppCheckinComponent,
-    CheckinQrScanComponent,
-    CheckinGroupDetailsComponent,
-    CheckinDetailsComponent,
-    CheckinResultComponent,
-    CheckinErrorComponent,
-    VisitorPreferencesComponent,
-    VisitorPhotoComponent,
-    VisitorPassComponent,
-];
+const ROUTES: Route[] = [
+    { path: '', component: CheckinComponent, children: [
+        { path: 'scan', component: CheckinQRScanComponent },
+        { path: 'details', component: CheckinDetailsComponent },
+        { path: 'group', component: CheckinGroupComponent },
+        { path: 'preferences', component: CheckinPreferencesComponent },
+        { path: 'photo', component: CheckinPhotoComponent },
+        { path: 'results', component: CheckinResultsComponent },
+        { path: 'error', component: CheckinErrorComponent },
+        { path: '**', redirectTo: 'scan' }
+    ] },
+    { path: '**', redirectTo: '' }
+]
 
 @NgModule({
     declarations: [
-        ...COMPONENTS,
+        CheckinComponent,
+        CheckinResultsComponent,
+        CheckinQRScanComponent,
+        CheckinPreferencesComponent,
+        CheckinPhotoComponent,
+        CheckinGroupComponent,
+        CheckinDetailsComponent,
+        CheckinErrorComponent
     ],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        RouterModule.forChild(ROUTES),
-        SharedContentModule
-    ],
-    exports: [],
-    providers: [],
+        SharedContentModule,
+        RouterModule.forChild(ROUTES)
+    ]
 })
-export class AppCheckinModule { }
+export class VisitorCheckinModule { }
