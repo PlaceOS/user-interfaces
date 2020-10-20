@@ -48,6 +48,17 @@ Unit tests can be run using `nx test <project>` e.g. `nx test kiosk`
 
 Integration tests can be run first starting up the webpack dev server with `nx serve`, setting `mock` to `true` in `projects/<project>/app/settings.ts` and running cypress with `nx e2e <project>-e2e`
 
+## Deployment
+
+Github actions have been setup for creating build artifacts and deploying them to a standalone branch on this repository.
+
+Each application has a seperate branch dedicated to each of it's build types.
+
+Commits to the branch `develop` will produce development builds that are committed to the branches `build/<project>/dev`  
+Commits to the branch `release/**` will produce development builds that are committed to the branches `build/<project>/uat`.
+You should have only one `release` branch at a time and it should be kept inline with develop rather than worked on directly.  
+Commits to the branch `master` will produce a production build that is commited to the branch `build/<project>/prod`  
+
 ## Available Frontends
 
 There are 7 available frontends for this client
