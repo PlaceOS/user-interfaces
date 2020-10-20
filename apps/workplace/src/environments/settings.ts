@@ -319,15 +319,13 @@ const app: any = {
     title: 'mySmartOffice',
     description: 'PWC mySmartOffice UI written with Angular Framework',
     short_name: 'STAFF',
-    logo_dark: {
-        type: 'img',
-        src: 'assets/img/logo.png',
-        background: '',
-    },
     logo_light: {
         type: 'img',
-        src: 'assets/img/logo.png',
-        background: '',
+        src: 'assets/logo-light.svg'
+    },
+    logo_dark: {
+        type: 'img',
+        src: 'assets/logo-dark.svg'
     },
     general,
     home,

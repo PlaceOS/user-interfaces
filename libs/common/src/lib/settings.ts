@@ -44,12 +44,17 @@ export interface ApplicationSettings {
 
 export interface GeneralAppSettings { }
 
-const app: ApplicationSettings = {
-    title: 'PwC Middle East',
-    description: 'Catering UI',
+const app: any = {
+    title: 'PlaceOS',
+    description: 'PlaceOS UI',
     short_name: 'PwC ME',
+    logo_light: {
+        type: 'img',
+        src: 'assets/logo-light.svg'
+    },
     logo_dark: {
-
+        type: 'img',
+        src: 'assets/logo-dark.svg'
     },
     general: {}
 }
@@ -61,7 +66,7 @@ export const DEFAULT_SETTINGS: SettingsOptions = {
     debug: true,
     composer: {
         domain: '',
-        route: '/catering',
+        route: '/placeos',
         protocol: '',
         port: '',
         use_domain: false,

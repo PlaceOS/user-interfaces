@@ -13,8 +13,13 @@ const app = {
     title: 'PlaceOS',
     description: 'Concierge UI',
     short_name: 'PlaceOS',
+    logo: {
+        type: 'img',
+        src: 'assets/logo-light.svg'
+    },
     logo_dark: {
-
+        type: 'img',
+        src: 'assets/logo-dark.svg'
     },
     general
 }

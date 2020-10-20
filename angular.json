@@ -34,6 +34,11 @@
                             "apps/workplace/src/favicon.ico",
                             "apps/workplace/src/assets",
                             {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
                                 "glob": "oauth-resp.html",
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
@@ -479,6 +484,11 @@
                             "apps/booking-panel/src/favicon.ico",
                             "apps/booking-panel/src/assets",
                             {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
                                 "glob": "oauth-resp.html",
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
@@ -641,6 +651,11 @@
                             "apps/concierge/src/favicon.ico",
                             "apps/concierge/src/assets",
                             {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
                                 "glob": "oauth-resp.html",
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
@@ -797,6 +812,11 @@
                         "assets": [
                             "apps/visitor-kiosk/src/favicon.ico",
                             "apps/visitor-kiosk/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
                             {
                                 "glob": "oauth-resp.html",
                                 "input": "node_modules/@placeos/ts-client/dist/",
@@ -1266,6 +1286,11 @@
                         "assets": [
                             "apps/map-kiosk/src/favicon.ico",
                             "apps/map-kiosk/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
                             {
                                 "glob": "oauth-resp.html",
                                 "input": "node_modules/@placeos/ts-client/dist/",

@@ -303,15 +303,13 @@ const app = {
     title: 'PwC Australia',
     description: 'Kiosk UI written with Angular Framework',
     short_name: 'KIOSK',
-    logo_dark: {
-        type: 'img',
-        src: 'assets/img/logo.svg',
-        background: '',
-    },
     logo_light: {
         type: 'img',
-        src: 'assets/img/logo-inverse.svg',
-        background: '',
+        src: 'assets/logo-light.svg'
+    },
+    logo_dark: {
+        type: 'img',
+        src: 'assets/logo-dark.svg'
     },
     general,
     home,
