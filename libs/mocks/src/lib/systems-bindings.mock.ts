@@ -2,9 +2,13 @@ import { mockSystem, registerSystem } from '@placeos/ts-client';
 
 import { generateMockSpace } from '@user-interfaces/spaces';
 import { setMockBookingStartDatetime } from '@user-interfaces/events';
-import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_SPACES, MOCK_EVENTS } from './mock-data';
+
+import { MOCK_SPACES } from './api/spaces.data';
+import { MOCK_EVENTS } from './api/events.data';
+import { MOCK_BUILDINGS, MOCK_LEVELS } from './api/zone.data';
 
 import * as dayjs from 'dayjs';
+import { predictableRandomInt } from '@user-interfaces/common';
 
 export interface IBookingPanelBindings {
     /** Whether user input is enabled */
@@ -87,7 +91,7 @@ export function createSystem(id?: string) {
         cancel_timeout: 600,
         has_catering: true,
         control_url: 'https://aca.im/demo/aca/control/',
-        icon: `/assets/img/${IMAGES[Math.floor(Math.random() * IMAGES.length)]}.png`,
+        icon: `/assets/img/${IMAGES[predictableRandomInt(IMAGES.length)]}.png`,
     };
 
     const today = dayjs();
@@ -159,7 +163,7 @@ function randomUsageForBuilding(building) {
         const id = chunks.pop();
         usage[id] = {};
         zones.forEach(
-            (zone) => (usage[id][`zone-${id}.${zone}`] = Math.floor(Math.random() * 100))
+            (zone) => (usage[id][`zone-${id}.${zone}`] = predictableRandomInt(100))
         );
     });
     return usage;

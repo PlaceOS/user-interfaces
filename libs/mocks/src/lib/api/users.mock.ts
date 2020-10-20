@@ -1,9 +1,12 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 
-import { HashMap } from '@user-interfaces/common';
-import { ACTIVE_USER, MOCK_STAFF, MOCK_GUESTS, MOCK_LEVELS, MOCK_SPACES } from '../mock-data';
+import { HashMap, predictableRandomInt } from '@user-interfaces/common';
+import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
+import { MOCK_LEVELS } from './zone.data';
+import { MOCK_SPACES } from './spaces.data';
 
 import * as dayjs from 'dayjs';
+import { MOCK_EVENTS } from './events.data';
 
 registerMockEndpoint({
     path: '/api/engine/v2/users/:id',
@@ -12,6 +15,10 @@ registerMockEndpoint({
     callback: (request) => {
         if (request.route_params.id === 'current') {
             return ACTIVE_USER;
+        }
+        const person = MOCK_STAFF.find(user => user.email === request.route_params.id);
+        if (person) {
+            return person;
         }
         throw { status: 404, message: 'User not found' };
     },
@@ -70,15 +77,47 @@ registerMockEndpoint({
     },
 });
 
+registerMockEndpoint({
+    path: '/api/staff/v1/guests/:email',
+    metadata: {},
+    method: 'GET',
+    callback: (request) => {
+        const person = MOCK_GUESTS.find(user => user.email === request.route_params.email);
+        if (person) {
+            return person;
+        }
+        throw { status: 404, message: 'Guest not found' };
+    },
+});
+
+registerMockEndpoint({
+    path: '/api/staff/v1/guests/:email/meetings',
+    metadata: {},
+    method: 'GET',
+    callback: (request) => {
+        if (request.route_params.email) {
+            console.log('Events:', MOCK_EVENTS);
+            const email = request.route_params.email.toLowerCase();
+            console.log('Email:', request.route_params.email);
+            const events = MOCK_EVENTS.filter(
+                (event) => event.attendees.find(user => user.email.toLowerCase() === email)
+            );
+            console.log('Matched Events:', events);
+            return events;
+        }
+        throw { status: 404, message: `Unable to find meetings with guest with email ${request.route_params.email}` };
+    },
+});
+
 
 
 const LOCATION_TYPES = ['meeting', 'desk_id', 'laptop', 'mobile', 'geo', 'none'];
 
 function generateLocation() {
-    const type = LOCATION_TYPES[Math.floor(Math.random() * LOCATION_TYPES.length)];
-    const level = MOCK_LEVELS[Math.floor(Math.random() * MOCK_LEVELS.length)];
+    const type = LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
+    const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
     const level_spaces = MOCK_SPACES.filter(s => s.zones.includes(level.id));
-    const space = level_spaces[Math.floor(Math.random() * level_spaces.length)] || {};
+    const space = level_spaces[predictableRandomInt(level_spaces.length)] || {};
     const location: HashMap = {};
     switch (type) {
         case 'meeting':
@@ -103,16 +142,16 @@ function generateLocation() {
             location[type] = {
                 building: level.parent_id,
                 level: level.id,
-                x: +(Math.random().toFixed(4)) * 10000,
-                y: +(Math.random().toFixed(4)) * 5000,
-                last_seen: dayjs().subtract(Math.floor(Math.random() * 60), 'm').unix()
+                x: +predictableRandomInt(10000),
+                y: +predictableRandomInt(5000),
+                last_seen: dayjs().subtract(predictableRandomInt(60), 'm').unix()
             };
             break;
         case 'geo':
             location.geo = {
-                lat: Math.floor(Math.random() * 180) - 90,
-                lon: Math.floor(Math.random() * 360) - 180,
-                last_seen: dayjs().subtract(Math.floor(Math.random() * 60), 'm').unix()
+                lat: predictableRandomInt(180) - 90,
+                lon: predictableRandomInt(360) - 180,
+                last_seen: dayjs().subtract(predictableRandomInt(60), 'm').unix()
             };
             break;
     }

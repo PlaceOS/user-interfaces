@@ -1,6 +1,4 @@
 
-import './lib/mock-data';
-
 import { registerSystem } from '@placeos/ts-client';
 import { createSystem } from './lib/systems-bindings.mock';
 

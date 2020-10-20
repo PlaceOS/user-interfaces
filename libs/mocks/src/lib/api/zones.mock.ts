@@ -1,6 +1,6 @@
 
 import { registerMockEndpoint } from '@placeos/ts-client';
-import { MOCK_ORGS, MOCK_LEVELS, MOCK_BUILDINGS } from '../mock-data';
+import { MOCK_ORGS, MOCK_LEVELS, MOCK_BUILDINGS } from './zone.data';
 
 registerMockEndpoint({
     path: '/api/engine/v2/zones',

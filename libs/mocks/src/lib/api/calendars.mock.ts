@@ -1,7 +1,9 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 
+import { MOCK_EVENTS } from './events.data';
+import { MOCK_SPACES } from './spaces.data';
+
 import * as dayjs from 'dayjs';
-import { MOCK_EVENTS, MOCK_SPACES } from '../mock-data';
 
 registerMockEndpoint({
     path: '/api/staff/v1/calendars/availability',
