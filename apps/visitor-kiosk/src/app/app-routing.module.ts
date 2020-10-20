@@ -6,14 +6,14 @@ import { WelcomeComponent } from './welcome.component';
 
 const routes: Routes = [
     { path: 'bootstrap', component: BootstrapComponent },
+    { path: 'welcome', component: WelcomeComponent },
     {
         path: 'explore',
         loadChildren: () => import('./explore/explore.module').then((m) => m.ExploreModule),
     },
-    { path: 'welcome', component: WelcomeComponent },
     {
         path: 'checkin',
-        loadChildren: () => import('./checkin/checkin.module').then((m) => m.AppCheckinModule),
+        loadChildren: () => import('./checkin-new/checkin.module').then((m) => m.VisitorCheckinModule),
     },
     { path: '**', redirectTo: 'bootstrap' },
 ];

@@ -9,8 +9,58 @@ import {
 
 @Component({
     selector: 'a-take-photo',
-    templateUrl: './take-photo.component.html',
-    styleUrls: ['./take-photo.component.scss'],
+    template: `
+        <div name="camera" class="flex flex-col items-center justify-center rounded overflow-hidden relative">
+            <mat-spinner diameter="32"></mat-spinner>
+            <div class="text">Please wait...</div>
+            <video
+                id="video"
+                #video
+                autoplay
+                width="360"
+                height="400"
+                class="absolute inset-0"
+            ></video>
+            <canvas
+                id="canvas"
+                #canvas
+                class="absolute inset-0"
+                width="360"
+                height="400"
+            ></canvas>
+        </div>
+        <div class="flex items-center justify-center mt-4 space-x-2">
+            <button class="take-photo" *ngIf="!hasPhoto; else accept_state" mat-button (click)="takePhoto()">
+                Take Photo
+            </button>
+        </div>
+        <ng-template #accept_state>
+            <button class="inverse" mat-button (click)="cancelPhoto()">
+                Cancel
+            </button>
+            <button mat-button (click)="acceptPhoto()">
+                Accept
+            </button>
+        </ng-template>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            [name="camera"] {
+                width: 22.5rem;
+                height: 25rem;
+            }
+
+            button {
+                width: 8rem;
+            }
+        `,
+    ],
 })
 export class TakePhotoComponent implements OnInit, OnDestroy {
     @Output() public photoAccepted = new EventEmitter();
@@ -22,8 +72,8 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
     private constraints = {
         audio: false,
         video: {
-            width: { min: 200, max: 200 },
-            height: { min: 355, max: 355 },
+            width: { min: 360, max: 360 },
+            height: { min: 400, max: 400 },
         },
     };
 

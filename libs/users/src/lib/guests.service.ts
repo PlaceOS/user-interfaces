@@ -32,7 +32,7 @@ export class GuestsService extends BaseAPIService<GuestUser> {
      * Get upcoming meetings for a guest
      * @param id Email Address of the guest
      */
-    public meetings(id: string): Promise<CalendarEvent[]> {
-        return this.task(id, 'meetings', {}, 'get');
+    public async meetings(id: string): Promise<CalendarEvent[]> {
+        return (await this.task(id, 'meetings', {}, 'get')).map(i => new CalendarEvent(i));
     }
 }

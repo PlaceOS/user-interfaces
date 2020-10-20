@@ -2,7 +2,7 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HashMap, predictableRandomInt, unique } from '@user-interfaces/common';
 
-import { User } from './user.class';
+import { GuestUser, User } from './user.class';
 
 let USER_COUNT = 0;
 
@@ -73,7 +73,20 @@ export function generateUserForm(user: User): FormGroup {
         assistance_required: new FormControl(user.assistance_required || false),
     };
 
-    // Generate form group for booking item
+    // Generate form group for the user
+    const form = new FormGroup(fields);
+    return form;
+}
+
+export function generateGuestForm(user: GuestUser, host: string = ''): FormGroup {
+    const fields: HashMap<FormControl> = {
+        name: new FormControl(user.name || ''),
+        email: new FormControl(user.email || '', [Validators.email, Validators.required]),
+        organisation: new FormControl(user.organisation || '', Validators.required),
+        phone: new FormControl(user.phone || ''),
+        host: new FormControl(host || '', [Validators.required]),
+    };
+    // Generate form group for the guest
     const form = new FormGroup(fields);
     return form;
 }
