@@ -3,7 +3,7 @@
         <a [routerLink]="['/home']" *ngIf="logo">
             <div class="logo">
                 <i *ngIf="logo.type === 'icon'" [class]="logo.class">{{ logo.content }}</i>
-                <img *ngIf="logo.type === 'img'" [src]="logo.src | safe: 'resource'" />
+                <img *ngIf="logo.type === 'img'" class="h-10" [src]="logo.src | safe: 'resource'" />
             </div>
         </a>
     </div>
@@ -25,7 +25,7 @@
                 class="flex-1 text-base m-0 p-0 bg-none"
                 style="border: none; outline: none"
                 placeholder="Search for people or spaces..."
-            />
+            >
         </div>
         <mat-autocomplete #auto="matAutocomplete">
             <mat-option

@@ -5,11 +5,11 @@ import { DashboardStateService } from './dashboard-state.service';
 @Component({
     selector: 'dashboard-availability',
     template: `
-        <h3 class="m-0">Available Now</h3>
+        <h3 class="m-0 font-medium text-xl">Available Now</h3>
         <div class="flex items-center p-2 bg-white my-4 rounded-lg">
             <div class="flex items-center flex-1">
                 <app-icon
-                    class="bg-darken rounded-lg mr-4 text-lg"
+                    class="bg-darken rounded-lg mr-2 text-2xl"
                     [icon]="{ class: 'material-icons', content: 'crop_free' }"
                 ></app-icon>
                 <div>Most free space:</div>
@@ -29,7 +29,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <div class="flex items-center flex-col rounded-lg bg-white my-4 p-2">
             <div class="flex items-center w-full mb-2">
                 <app-icon
-                    class="bg-darken rounded-lg mr-4 text-lg"
+                    class="bg-darken rounded-lg mr-2 text-2xl"
                     [icon]="{ class: 'material-icons', content: 'av_timer' }"
                 ></app-icon>
                 <div>Free rooms now:</div>
@@ -52,6 +52,7 @@ import { DashboardStateService } from './dashboard-state.service';
         `
             :host {
                 padding: 1em;
+                min-width: 16rem;
             }
         `,
     ],

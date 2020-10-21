@@ -26,6 +26,7 @@ import { setDefaultCreator } from '../../../events/src/lib/event.class';
         </div>
     `,
     styleUrls: [
+        '../../../../shared-styles/utility.scss',
         '../../../../shared-styles/app.component.scss',
         '../../../../shared-styles/custom-element.styles.scss',
         '../../../../shared-styles/native-element.styles.scss',

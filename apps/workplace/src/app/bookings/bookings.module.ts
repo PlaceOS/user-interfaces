@@ -45,7 +45,7 @@ const ROUTES: Route[] = [
         RouterModule.forChild(ROUTES),
         FormsModule,
         ReactiveFormsModule,
-        SharedContentModule,
+        SharedContentModule
     ],
 })
 export class BookingsModule {}

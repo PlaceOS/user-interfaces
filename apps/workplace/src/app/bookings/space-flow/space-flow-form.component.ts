@@ -16,19 +16,19 @@ export const CAPACITY_OPTIONS = [
     selector: 'space-flow-form',
     template: `
         <div name="heading" class="p-4 w-full">
-            <h3 class="m-auto text-white uppercase width-tablet">How would you like to search?</h3>
+            <h3 class="m-auto text-white uppercase width-tablet font-semibold text-xl">How would you like to search?</h3>
         </div>
         <div name="quick" class="p-4 w-full">
-            <h3 class="m-auto text-white uppercase width-tablet mb-2">Quick Search</h3>
+            <h3 class="m-auto text-white uppercase width-tablet mb-2 font-semibold text-xl">Quick Search</h3>
             <form class="flex width-tablet m-auto space-x-2 items-center flex-wrap sm:space-x-0" [formGroup]="form | async">
-                <mat-form-field class="flex-1 h-13" appearance="outline" bg="white">
+                <mat-form-field class="flex-1 h-13" appearance="outline" overlay>
                     <mat-select placeholder="Now" formControlName="date">
                         <mat-option *ngFor="let option of time_options" [value]="option.id">
                             {{ option.name }}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field class="flex-1 h-13" appearance="outline" bg="white">
+                <mat-form-field class="flex-1 h-13" appearance="outline" overlay>
                     <mat-select
                         placeholder="Any Capacity"
                         [ngModel]="(filters | async)?.capacity"
@@ -48,7 +48,7 @@ export const CAPACITY_OPTIONS = [
             </form>
         </div>
         <div name="divider" class="p-4 w-full bg-gray-200">
-            <h3 class="m-auto uppercase width-tablet">Or</h3>
+            <h3 class="m-auto uppercase width-tablet font-semibold text-xl">Or</h3>
         </div>
         <form
             *ngIf="form | async"
@@ -57,10 +57,10 @@ export const CAPACITY_OPTIONS = [
             (ngSubmit)="$event.preventDefault()"
             [formGroup]="form | async"
         >
-            <h3 class="m-auto uppercase width-tablet pt-4">Detailed Booking</h3>
+            <h3 class="m-auto uppercase width-tablet pt-4 font-semibold text-xl mb-4">Detailed Booking</h3>
             <section class="mb-4">
                 <div class="m-auto width-tablet flex flex-wrap space-x-2 sm:space-x-0">
-                    <h4 class="w-full">Date &amp; Time</h4>
+                    <h4 class="mb-2 w-full font-semibold">Date &amp; Time</h4>
                     <div class="field flex flex-1 flex-wrap m-0">
                         <label for="date" class="w-full">Date</label>
                         <a-date-field formControlName="date" class="flex-1 mb-4"></a-date-field>
@@ -80,7 +80,7 @@ export const CAPACITY_OPTIONS = [
             </section>
             <section class="mb-4">
                 <div class="m-auto width-tablet">
-                    <h4>People</h4>
+                    <h4 class="mb-2 font-semibold">People</h4>
                     <div class="field flex flex-1 flex-wrap m-0">
                         <label for="date" class="w-full">Attendees</label>
                         <a-user-list-field
@@ -92,7 +92,7 @@ export const CAPACITY_OPTIONS = [
             </section>
             <section class="mb-4">
                 <div class="m-auto width-tablet">
-                    <h4>Details</h4>
+                    <h4 class="mb-2 font-semibold">Details</h4>
                     <div class="field flex flex-1 flex-wrap m-0">
                         <label for="date" class="w-full">Meeting Subject</label>
                         <mat-form-field class="flex-1" appearance="outline">
@@ -164,6 +164,19 @@ export const CAPACITY_OPTIONS = [
                 background-color: #007ac8;
             }
 
+            [name='quick'] form > * + * {
+                margin-left: .5rem;
+            }
+
+            [name="quick"] mat-form-field {
+                max-height: 3.25rem;
+            }
+
+            mat-form-field {
+                width: 16rem;
+                min-width: 30%;
+            }
+
             section {
                 border-bottom: 1px solid #ccc;
             }
@@ -175,6 +188,7 @@ export const CAPACITY_OPTIONS = [
             .field {
                 min-width: 12rem;
             }
+
         `,
     ],
 })
