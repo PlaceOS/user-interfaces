@@ -106,3 +106,23 @@ body {
     width: 768px;
     max-width: calc(100vw - 2em);
 }
+
+.top {
+    top: 0 !important;
+    bottom: auto !important;
+}
+
+.bottom {
+    top: auto !important;
+    bottom: 0 !important;
+}
+
+.left {
+    left: 0 !important;
+    right: auto !important;
+}
+
+.right {
+    left: auto !important;
+    right: 0 !important;
+}

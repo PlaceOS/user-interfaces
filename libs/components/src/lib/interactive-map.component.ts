@@ -14,6 +14,7 @@ import { BaseClass } from '@user-interfaces/common';
 import {
     applyGlobalStyles,
     createViewer,
+    getViewer,
     Point,
     removeViewer,
     updateViewer,
@@ -33,7 +34,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
                 <div *ngIf="element">
-                    <div #feature [attr.el-id]="element.location">
+                    <div #feature [attr.el-id]="element.location" [attr.view-id]="viewer">
                         <ng-container
                             *ngComponentOutlet="
                                 element.content;
@@ -81,6 +82,15 @@ export class InteractiveMapComponent extends BaseClass {
         ElementRef<HTMLDivElement>
     >;
 
+    public get feature_list() {
+        return (this.features || [])
+            .map((f, idx) => ({
+                ...f,
+                content: this._feature_list.toArray()[idx]?.nativeElement,
+            }))
+            .filter((f) => f.content);
+    }
+
     constructor(private _injector: Injector) {
         super();
     }
@@ -114,7 +124,7 @@ export class InteractiveMapComponent extends BaseClass {
                         providers: [
                             {
                                 provide: MAP_FEATURE_DATA,
-                                useValue: { ...f.data, viewer_id: this.viewer },
+                                useValue: { ...f.data },
                             },
                         ],
                         parent: this._injector,
@@ -131,14 +141,10 @@ export class InteractiveMapComponent extends BaseClass {
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
+        if (!getViewer(this.viewer)) return;
         updateViewer(this.viewer, {
             styles: this.styles,
-            features: (this.features || [])
-                .map((f, idx) => ({
-                    ...f,
-                    content: this._feature_list.toArray()[idx]?.nativeElement,
-                }))
-                .filter((f) => f.content),
+            features: this.feature_list,
             labels: this.labels,
             actions: this.actions,
         });
@@ -166,7 +172,7 @@ export class InteractiveMapComponent extends BaseClass {
                 zoom: this.zoom,
                 desired_zoom: this.zoom,
                 center: this.center,
-                features: this.features,
+                features: this.feature_list,
                 labels: this.labels,
                 actions: this.actions,
             });

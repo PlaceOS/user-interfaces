@@ -106,6 +106,10 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
             } else if (params.has('user')) {
                 const user = await this._users.show(params.get('user'));
                 if (!user) return;
+            } else {
+                this.timeout('update_location', () => {
+                    this._state.setFeatures('_located', []);
+                })
             }
         }));
     }

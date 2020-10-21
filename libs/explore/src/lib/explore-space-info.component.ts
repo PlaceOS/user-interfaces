@@ -1,8 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@user-interfaces/components';
 import { CalendarEvent } from '@user-interfaces/events';
 import { Space } from '@user-interfaces/spaces';
-
+import { getViewer, coordinatesForElement } from '@yuion/svg-viewer';
 
 export interface SpaceInfoData {
     space: Space;
@@ -17,7 +17,12 @@ export interface SpaceInfoData {
             *ngIf="space"
             name="space-info"
             [id]="space.id"
-            class="absolute rounded bg-white p-4 top-0 left-0 shadow"
+            [class]="
+                'absolute rounded bg-white p-4 top-0 left-0 shadow ' +
+                x_pos +
+                ' ' +
+                y_pos
+            "
         >
             <div class="arrow"></div>
             <div class="details">
@@ -27,15 +32,28 @@ export interface SpaceInfoData {
                     {{ space.capacity === 1 ? 'person' : 'people' }}
                 </div>
                 <div class="flex flex-wrap my-2 text-sm">
-                    <div name="status" [class]="'capitalize rounded p-1 px-2 text-light ' + status">{{ status }}</div>
-                    <div name="available-until" *ngIf="status !== 'not-bookable'">
+                    <div
+                        name="status"
+                        [class]="
+                            'capitalize rounded p-1 px-2 text-light ' + status
+                        "
+                    >
+                        {{ status }}
+                    </div>
+                    <div
+                        name="available-until"
+                        *ngIf="status !== 'not-bookable'"
+                    >
                         {{ available_until }}
                     </div>
                 </div>
                 <div class="features" *ngIf="space.features?.length > 0">
                     <h4 class="m-0 mb-2">Room Features</h4>
                     <ul class="pl-2">
-                        <li class="text-sm" *ngFor="let feature of space.features">
+                        <li
+                            class="text-sm"
+                            *ngFor="let feature of space.features"
+                        >
                             {{ feature }}
                         </li>
                     </ul>
@@ -82,7 +100,29 @@ export class ExploreSpaceInfoComponent {
     /** Current status of the space */
     public readonly status = this._details.status;
 
-    constructor(@Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData) { }
+    public y_pos: 'top' | 'bottom';
+
+    public x_pos: 'left' | 'right';
+
+    constructor(
+        @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
+        private _element: ElementRef<HTMLElement>
+    ) {}
+
+    public ngOnInit(tries: number = 0) {
+        if (tries > 10) return;
+        setTimeout(() => {
+            const parent = this._element.nativeElement.parentElement
+                ?.parentElement;
+            if (!parent) return this.ngOnInit(++tries);
+            const position = {
+                y: parseInt(parent.style.top, 10) / 100,
+                x: parseInt(parent.style.left, 10) / 100,
+            };
+            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
+            this.x_pos = position.x >= 0.5 ? 'right' : 'left';
+        }, 200);
+    }
 
     public get available_until() {
         return '';
