@@ -300,7 +300,8 @@ const explore = {
  * ROOT APPLICATION SETTINGS
  */
 const app = {
-    title: 'PwC Australia',
+    name: 'VisitorKiosk',
+    title: 'Visitor Kiosk',
     description: 'Kiosk UI written with Angular Framework',
     short_name: 'KIOSK',
     logo_light: {

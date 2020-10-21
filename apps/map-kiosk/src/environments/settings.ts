@@ -4,6 +4,7 @@ const general = {
 
 
 const app = {
+    name: 'MapKiosk',
     title: 'PlaceOS',
     description: 'Map Kiosk UI',
     short_name: 'PlaceOS',

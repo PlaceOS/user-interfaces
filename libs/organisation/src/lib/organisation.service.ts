@@ -145,7 +145,8 @@ export class OrganisationService {
             .pipe(map((i) => i.data))
             .toPromise();
         if (org_list.length) {
-            this._organisation = new Organisation(org_list[0] as any);
+            const bindings = await showMetadata(org_list[0].id, { name: 'bindings' });
+            this._organisation = new Organisation({ ...org_list[0], bindings } as any);
         }
     }
 
@@ -242,13 +243,14 @@ export class OrganisationService {
     }
 
     public async loadSettings() {
+        const app_name = `${(this._service.get('app.name') || 'workplace').toLowerCase()}_app`;
         this._settings = await showMetadata(this._organisation.id, {
-            name: 'workplace_app',
+            name: app_name
         }).toPromise();
         const buildings = this.buildings;
         for (const bld of buildings) {
             this._building_settings[bld.id] = await showMetadata(bld.id, {
-                name: 'workplace_app',
+                name: app_name,
             }).toPromise();
         }
         this._service.overrides = [

@@ -10,6 +10,7 @@ const general = {
 
 
 const app = {
+    name: 'Concierge',
     title: 'PlaceOS',
     description: 'Concierge UI',
     short_name: 'PlaceOS',

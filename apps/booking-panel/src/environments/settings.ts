@@ -4,6 +4,7 @@ const general = {
 
 
 const app = {
+    name: 'Bookings',
     title: 'PlaceOS',
     description: 'Bookings UI',
     short_name: 'PlaceOS',

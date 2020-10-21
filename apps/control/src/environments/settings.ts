@@ -4,6 +4,7 @@ const general = {
 
 
 const app = {
+    name: 'Control',
     title: 'PlaceOS',
     description: 'Room Control UI',
     short_name: 'PlaceOS',

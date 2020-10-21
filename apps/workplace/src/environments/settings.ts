@@ -316,8 +316,9 @@ const explore: any = {
  * ROOT APPLICATION SETTINGS
  */
 const app: any = {
-    title: 'mySmartOffice',
-    description: 'PWC mySmartOffice UI written with Angular Framework',
+    name: 'Workplace',
+    title: 'Workplace Application',
+    description: 'PlaceOS Workplace UI written with Angular Framework',
     short_name: 'STAFF',
     logo_light: {
         type: 'img',
