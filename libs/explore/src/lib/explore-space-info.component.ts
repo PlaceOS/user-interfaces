@@ -17,7 +17,7 @@ export interface SpaceInfoData {
             *ngIf="space"
             name="space-info"
             [id]="space.id"
-            class="absolute rounded bg-white p-4 top-0 left-0"
+            class="absolute rounded bg-white p-4 top-0 left-0 shadow"
         >
             <div class="arrow"></div>
             <div class="details">
@@ -46,7 +46,9 @@ export interface SpaceInfoData {
     styles: [
         `
             :host {
+                position: relative;
                 pointer-events: none;
+                z-index: 1;
             }
 
             [name='space-info'] {

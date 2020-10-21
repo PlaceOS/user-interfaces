@@ -1,9 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
+import { BaseClass } from '@user-interfaces/common';
+import { ActivatedRoute } from '@angular/router';
+import { SpacesService } from '@user-interfaces/spaces';
+import { StaffService } from '@user-interfaces/users';
+import { first } from 'rxjs/operators';
+import { MapPinComponent } from '@user-interfaces/components';
+import { OrganisationService } from '@user-interfaces/organisation';
 
 @Component({
     selector: 'explore-map-view',
@@ -49,7 +56,7 @@ import { ExploreDesksService } from './explore-desks.service';
     ],
     providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
 })
-export class ExploreMapViewComponent {
+export class ExploreMapViewComponent extends BaseClass implements OnInit {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
@@ -67,8 +74,39 @@ export class ExploreMapViewComponent {
 
     constructor(
         private _state: ExploreStateService,
-        private _spaces: ExploreSpacesService,
+        private _s: ExploreSpacesService,
         private _desks: ExploreDesksService,
-        private _zones: ExploreZonesService
-    ) {}
+        private _zones: ExploreZonesService,
+        private _route: ActivatedRoute,
+        private _spaces: SpacesService,
+        private _users: StaffService,
+        private _org: OrganisationService
+    ) {
+        super();
+    }
+
+    public async ngOnInit() {
+        await this._spaces.initialised.pipe(first(_ => _)).toPromise();
+        this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
+            if (params.has('space')) {
+                const space = this._spaces.find(params.get('space'));
+                if (!space) return;
+                this._state.setLevel(this._org.levelWithID(space.zones).id);
+                console.log('Space:', space);
+                const feature: any = {
+                    location: space.map_id,
+                    content: MapPinComponent,
+                    data: {
+                        message: `${space.display_name || space.name} is here`
+                    }
+                };
+                this.timeout('update_location', () => {
+                    this._state.setFeatures('_located', [feature]);
+                })
+            } else if (params.has('user')) {
+                const user = await this._users.show(params.get('user'));
+                if (!user) return;
+            }
+        }));
+    }
 }

@@ -43,7 +43,10 @@ export class ExploreStateService extends BaseClass {
     /** Currently center and zoom positions for map */
     public readonly map_positions = this._positions.asObservable();
     /** Currently center and zoom positions for map */
-    public readonly map_features = this._features.pipe(map(i => Object.values(i).reduce((list, f) => list.concat(f), [])));
+    public readonly map_features = this._features.pipe(map(i => {
+        const keys = Object.keys(i).sort((a, b) => a.localeCompare(b));
+        return keys.reduce((list, k) => list.concat(i[k]), []);
+    }));
     /** Currently center and zoom positions for map */
     public readonly map_actions = this._actions.pipe(map(i => Object.values(i).reduce((list, a) => list.concat(a), [])));
     /** Current map styles */

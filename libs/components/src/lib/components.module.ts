@@ -27,6 +27,7 @@ import { ConfirmModalComponent } from './confirm-modal.component';
 import { CounterComponent } from './counter/counter.component';
 import { CommonModule } from '@angular/common';
 import { InteractiveMapComponent } from './interactive-map.component';
+import { MapPinComponent } from './map-pin.component';
 
 export * from './action-field/action-field.component';
 export * from './action-icon/action-icon.component';
@@ -46,6 +47,7 @@ export * from './user-form/user-form.component';
 export * from './user-list-field/user-list-field.component';
 export * from './user-search-field/user-search-field.component';
 export * from './interactive-map.component';
+export * from './map-pin.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -74,7 +76,8 @@ const COMPONENTS: Type<any>[] = [
     UserListFieldComponent,
     UserSearchFieldComponent,
     ConfirmModalComponent,
-    InteractiveMapComponent
+    InteractiveMapComponent,
+    MapPinComponent
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

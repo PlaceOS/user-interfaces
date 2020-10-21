@@ -32,10 +32,15 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
         <mat-spinner *ngIf="!viewer" class="center"></mat-spinner>
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
-                <div #feature [attr.el-id]="element.location">
-                    <ng-container
-                        *ngComponentOutlet="element.content; injector: injectors[i]"
-                    ></ng-container>
+                <div *ngIf="element">
+                    <div #feature [attr.el-id]="element.location">
+                        <ng-container
+                            *ngComponentOutlet="
+                                element.content;
+                                injector: injectors[i]
+                            "
+                        ></ng-container>
+                    </div>
                 </div>
             </ng-container>
         </div>
@@ -72,7 +77,9 @@ export class InteractiveMapComponent extends BaseClass {
     public viewer: string;
 
     @ViewChild('outlet') private _outlet_el: ElementRef<HTMLDivElement>;
-    @ViewChildren('feature') private _feature_list: QueryList<ElementRef<HTMLDivElement>>;
+    @ViewChildren('feature') private _feature_list: QueryList<
+        ElementRef<HTMLDivElement>
+    >;
 
     constructor(private _injector: Injector) {
         super();
@@ -96,10 +103,20 @@ export class InteractiveMapComponent extends BaseClass {
             if (changes.zoom || changes.center) {
                 this.updateDisplay();
             }
-            if (changes.styles || changes.features || changes.labels || changes.actions) {
+            if (
+                changes.styles ||
+                changes.features ||
+                changes.labels ||
+                changes.actions
+            ) {
                 this.injectors = (this.features || []).map((f: any) =>
                     Injector.create({
-                        providers: [{ provide: MAP_FEATURE_DATA, useValue: f.data }],
+                        providers: [
+                            {
+                                provide: MAP_FEATURE_DATA,
+                                useValue: { ...f.data, viewer_id: this.viewer },
+                            },
+                        ],
                         parent: this._injector,
                     })
                 );
@@ -116,10 +133,12 @@ export class InteractiveMapComponent extends BaseClass {
     private updateView() {
         updateViewer(this.viewer, {
             styles: this.styles,
-            features: (this.features || []).map((f, idx) => ({
-                ...f,
-                content: this._feature_list.toArray()[idx]?.nativeElement,
-            })),
+            features: (this.features || [])
+                .map((f, idx) => ({
+                    ...f,
+                    content: this._feature_list.toArray()[idx]?.nativeElement,
+                }))
+                .filter((f) => f.content),
             labels: this.labels,
             actions: this.actions,
         });
