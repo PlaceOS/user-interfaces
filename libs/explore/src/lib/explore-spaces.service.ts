@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { listen } from '@placeos/ts-client';
+import { getModule, listen } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@yuion/svg-viewer';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
@@ -22,6 +22,7 @@ export const DEFAULT_COLOURS = {
 export class ExploreSpacesService extends BaseClass {
     private _spaces: Space[] = [];
     private _bookings: HashMap<CalendarEvent[]> = {};
+    private _bindings: any[] = [];
     private _statuses: HashMap<string> = {};
 
     constructor(private _state: ExploreStateService, private _settings: SettingsService) {
@@ -36,41 +37,41 @@ export class ExploreSpacesService extends BaseClass {
         );
     }
 
+    public ngOnDestroy() {
+        this.clearBindings();
+    }
+
     public clearBindings() {
         if (!this._spaces) return;
         for (const space of this._spaces) {
             this.unsub(`bookings-${space.id}`);
             this.unsub(`status-${space.id}`);
         }
+        this._bindings.forEach(b => b.unbind());
+        this._bindings = [];
         this._statuses = {};
     }
 
     public bindToSpaces() {
         if (!this._spaces) return;
         for (const space of this._spaces) {
+            let binding = getModule(space.id, 'Bookings').binding('bookings');
             this.subscription(
                 `bookings-${space.id}`,
-                listen({
-                    sys: space.id,
-                    mod: 'Bookings',
-                    index: 1,
-                    name: 'bookings',
-                }).subscribe((d) => this.handleBookingsChange(space, d))
+                binding.listen().subscribe((d) => this.handleBookingsChange(space, d))
             );
+            binding.bind();
+            this._bindings.push(binding);
+            binding = getModule(space.id, 'Bookings').binding('status');
             this.subscription(
                 `status-${space.id}`,
-                listen({
-                    sys: space.id,
-                    mod: 'Bookings',
-                    index: 1,
-                    name: 'status',
-                }).subscribe((d) => this.handleStatusChange(space, d))
+                binding.listen().subscribe((d) => this.handleStatusChange(space, d))
             );
+            binding.bind();
+            this._bindings.push(binding);
         }
-        this.timeout('update_hover_els', () => {
-            this.updateActions();
-            this.updateHoverElements();
-        }, 100);
+        this.updateActions();
+        this.updateHoverElements();
     }
 
     public bookSpace(space: Space) {

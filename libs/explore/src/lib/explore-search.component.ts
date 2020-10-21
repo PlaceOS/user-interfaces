@@ -19,11 +19,11 @@ export interface SearchResult {
             role="search"
             tabindex="0"
             matRipple
-            class="bg-white m-2 flex items-center z-10 relative"
+            class="bg-white m-2 flex items-center z-10 relative overflow-hidden"
             [class.show]="show || search_str"
         >
             <app-icon
-                class="text-2xl m-2"
+                class="text-2xl"
                 tabindex="0"
                 (click)="show ? closeSearch($event) : showSearch()"
                 className="material-icons"
@@ -51,11 +51,11 @@ export interface SearchResult {
         <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let option of results | async" [value]="option">
                 <div class="flex items-center leading-tight">
-                    <div class="flex-1">
-                        <div>{{ option.name }}</div>
+                    <div class="flex-1 overflow-hidden">
+                        <div class="truncate w-full">{{ option.name }}</div>
                         <div class="text-xs">{{ option.description }}</div>
                     </div>
-                    <div class="text-2xs font-bold p-2 capitalize text-white bg-gray-300 rounded">
+                    <div class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded">
                         {{ option.type }}
                     </div>
                 </div>
@@ -79,6 +79,7 @@ export interface SearchResult {
 
             app-icon {
                 outline: none;
+                margin: .55rem;
             }
 
             [role='search'].show {

@@ -16,15 +16,34 @@ import { ExploreDesksService } from './explore-desks.service';
             [features]="features | async"
             [actions]="actions | async"
         ></i-map>
-        <explore-zoom-controls class="absolute bottom-0 right-0"></explore-zoom-controls>
-        <explore-map-controls class="absolute top-0 left-0"></explore-map-controls>
+        <explore-zoom-controls
+            class="absolute bottom-0 right-0"
+        ></explore-zoom-controls>
+        <explore-map-controls
+            class="absolute top-0 left-0"
+        ></explore-map-controls>
         <explore-search class="absolute top-0 right-0"></explore-search>
+        <div
+            name="zones"
+            class="p-2 bg-white border border-gray-400 absolute left-0 m-2 rounded flex items-center"
+        >
+            Zones
+            <mat-slide-toggle
+                class="ml-2"
+                [ngModel]="(options | async)?.show_zones"
+                (ngModelChange)="setOptions({ show_zones: $event })"
+            ></mat-slide-toggle>
+        </div>
     `,
     styles: [
         `
             :host {
                 height: 100%;
                 width: 100%;
+            }
+
+            [name='zones'] {
+                top: 3.5rem;
             }
         `,
     ],
@@ -41,6 +60,10 @@ export class ExploreMapViewComponent {
     public readonly features = this._state.map_features;
     /** Observable for the active map */
     public readonly actions = this._state.map_actions;
+    /** Observable for the active map */
+    public readonly options = this._state.options;
+
+    public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
         private _state: ExploreStateService,

@@ -63,6 +63,8 @@ export class ExploreStateService extends BaseClass {
         })
     );
 
+    public readonly options = this._options.asObservable();
+
     public get positions() {
         return this._positions.getValue();
     }
@@ -82,6 +84,10 @@ export class ExploreStateService extends BaseClass {
                 })
             );
         });
+    }
+
+    public setOptions(options: MapOptions) {
+        this._options.next({ ...this._options.getValue(), ...options });
     }
 
     public setLevel(zone_id: string) {

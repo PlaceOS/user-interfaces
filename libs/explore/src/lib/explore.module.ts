@@ -1,6 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ComponentsModule, InteractiveMapComponent } from '@user-interfaces/components';
+import { ComponentsModule } from '@user-interfaces/components';
+
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { ExploreMapControlComponent } from './explore-map-control.component';
 import { ExploreMapViewComponent } from './explore-map-view.component';
@@ -18,7 +21,7 @@ const COMPONENTS: Type<any>[] = [
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [ComponentsModule, FormsModule],
+    imports: [CommonModule, ComponentsModule, FormsModule, MatSlideToggleModule],
     exports: [...COMPONENTS]
 })
 export class SharedExploreModule {}

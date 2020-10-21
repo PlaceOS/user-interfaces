@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { listen } from '@placeos/ts-client';
+import { getModule, listen } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
@@ -21,6 +21,7 @@ export class ExploreDesksService extends BaseClass {
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
+    private _bindings: any[] = [];
     private _stats = new BehaviorSubject<DesksStats>({ free: 0, occupied: 0, total: 0 });
 
     constructor(private _state: ExploreStateService, private _org: OrganisationService, private _settings: SettingsService) {
@@ -45,10 +46,15 @@ export class ExploreDesksService extends BaseClass {
         }));
     }
 
+    public ngOnDestroy() {
+        this.clearBindings();
+    }
+
     public clearBindings() {
-        if (!this._level) return;
-        const bindings = ['desks_in_use', 'desk_list', 'desks_reserved'];
+        const bindings = ['desks_in_use', 'desk_list', 'desks_reserved', 'desks_occupied', 'desks_free'];
         for (const id of bindings) { this.unsub(id); }
+        this._bindings.forEach(b => b.unbind());
+        this._bindings = [];
         this._statuses = {};
     }
 
@@ -56,45 +62,43 @@ export class ExploreDesksService extends BaseClass {
         if (!this._level) return;
         const building = this._org.buildings.find(bld => bld.id === this._level.parent_id);
         if (!building) { return; }
-        const desk_management = building.systems.desk_management;
-        if (!desk_management) { return; }
-        desk_management;
-        const binding = { sys: desk_management, mod: 'DeskManagement', index: 1 };
+        const system_id = this._org.organisation.bindings.desk_management;
+        if (!system_id) { return; }
+        let binding = getModule(system_id, 'DeskManagement').binding(this._level.id);
         this.subscription(
             `desks_in_use`,
-            listen({
-                ...binding,
-                name: `${this._level.id}`,
-            }).subscribe((d) => this._in_use.next(d))
+            binding.listen().subscribe((d) => this._in_use.next(d))
         );
+        binding.bind();
+        this._bindings.push(binding);
+        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:desk_ids`);
         this.subscription(
             `desks_list`,
-            listen({
-                ...binding,
-                name: `${this._level.id}:desk_ids`,
-            }).subscribe((d) => this._desks.next(d))
+            binding.listen().subscribe((d) => this._desks.next(d))
         );
+        binding.bind();
+        this._bindings.push(binding);
+        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:reserved`);
         this.subscription(
             `desks_reserved`,
-            listen({
-                ...binding,
-                name: `${this._level.id}:reserved`,
-            }).subscribe((d) => this._reserved.next(d))
+            binding.listen().subscribe((d) => this._reserved.next(d))
         );
+        binding.bind();
+        this._bindings.push(binding);
+        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:occupied_count`);
         this.subscription(
             `desks_occupied`,
-            listen({
-                ...binding,
-                name: `${this._level.id}:occupied_count`,
-            }).subscribe((d) => this._stats.next({ ...this._stats.getValue(), occupied: d }))
+            binding.listen().subscribe((d) => this._stats.next({ ...this._stats.getValue(), occupied: d }))
         );
+        binding.bind();
+        this._bindings.push(binding);
+        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:free_count`);
         this.subscription(
             `desks_free`,
-            listen({
-                ...binding,
-                name: `${this._level.id}:free_count`,
-            }).subscribe((d) => this._stats.next({ ...this._stats.getValue(), free: d }))
+            binding.listen().subscribe((d) => this._stats.next({ ...this._stats.getValue(), free: d }))
         );
+        binding.bind();
+        this._bindings.push(binding);
     }
 
     private updateStatus() {

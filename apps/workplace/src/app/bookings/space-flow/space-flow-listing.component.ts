@@ -72,7 +72,7 @@ import { CAPACITY_OPTIONS } from './space-flow-form.component';
                 >
                     <div class="flex-1 min-w-0 space-y-2 p-2">
                         <div class="flex items-center">
-                            <div class="rounded-full bg-gray-100 text-2xl mr-4">
+                            <div class="rounded-full bg-gray-300 text-2xl mr-4">
                                 <app-icon
                                     [icon]="{ class: 'material-icons', content: 'place' }"
                                 ></app-icon>
@@ -81,7 +81,7 @@ import { CAPACITY_OPTIONS } from './space-flow-form.component';
                             {{ space.display_name || space.name }}
                         </div>
                         <div class="flex items-center">
-                            <div class="rounded-full bg-gray-100 text-2xl mr-4">
+                            <div class="rounded-full bg-gray-300 text-2xl mr-4">
                                 <app-icon
                                     [icon]="{ class: 'material-icons', content: 'group' }"
                                 ></app-icon>

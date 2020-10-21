@@ -7,18 +7,11 @@ import { SharedContentModule } from '../ui/shared.module';
 import { ExploreComponent } from './explore.component';
 
 import { BookingModalComponent } from './overlays/booking-modal/booking-modal.component';
+import { SharedExploreModule } from '@user-interfaces/explore';
 
 import {
-    InteractiveMapComponent,
     MAP_FEATURE_DATA,
 } from '@user-interfaces/components';
-import {
-    ExploreMapControlComponent,
-    ExploreMapViewComponent,
-    ExploreSearchComponent,
-    ExploreSpaceInfoComponent,
-    ExploreZoomControlComponent,
-} from '@user-interfaces/explore';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -28,12 +21,6 @@ const ROUTES: Route[] = [
 @NgModule({
     declarations: [
         ExploreComponent,
-        ExploreMapViewComponent,
-        ExploreZoomControlComponent,
-        ExploreMapControlComponent,
-        ExploreSearchComponent,
-        ExploreSpaceInfoComponent,
-        InteractiveMapComponent,
 
         BookingModalComponent,
     ],
@@ -41,6 +28,7 @@ const ROUTES: Route[] = [
         CommonModule,
         RouterModule.forChild(ROUTES),
         SharedContentModule,
+        SharedExploreModule,
         FormsModule,
     ],
     providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
