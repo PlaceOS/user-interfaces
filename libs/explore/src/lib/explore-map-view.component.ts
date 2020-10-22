@@ -88,6 +88,9 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     public async ngOnInit() {
         await this._spaces.initialised.pipe(first(_ => _)).toPromise();
         this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
+            if (params.has('level')) {
+                this._state.setLevel(params.get('level'));
+            }
             if (params.has('space')) {
                 const space = this._spaces.find(params.get('space'));
                 if (!space) return;

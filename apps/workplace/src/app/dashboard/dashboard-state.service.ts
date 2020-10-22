@@ -7,7 +7,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, first } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
 import { BaseClass, HashMap, unique } from '@user-interfaces/common';
@@ -51,12 +51,20 @@ export class DashboardStateService extends BaseClass {
         private _users: StaffService
     ) {
         super();
+        this.init();
+    }
+
+    public async init() {
+        await this._org.initialised.pipe(first(_ => _)).toPromise();
         this.subscription(
             'building',
             this._org.active_building
                 .pipe(filter((bld) => !!bld))
                 .subscribe(() => this.updateBuildingMetadata())
         );
+        const binding = getModule(this._org.organisation.bindings.area_management, 'AreaManagement').binding('overview');
+        binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
+        binding.bind();
     }
 
     public pollFreeSpaces(delay: number = 10 * 1000) {
@@ -123,6 +131,12 @@ export class DashboardStateService extends BaseClass {
         }).toPromise();
         const list = metadata.details instanceof Array ? metadata.details : [];
         this._contacts.next(list.map((i) => new User(i)));
+    }
+
+    private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
+        const levels = [...this._org.levels];
+        levels.sort((a, b) => map[a.id].recommendation - map[b.id].recommendation);
+        this._level_occupancy.next(levels);
     }
 
     private async updateFreeSpaces() {
