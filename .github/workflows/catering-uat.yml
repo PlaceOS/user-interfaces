@@ -55,7 +55,7 @@ jobs:
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/catering/uat
-                source_folder: dist/catering
+                source_folder: dist/apps/catering
                 commit_message: >
                     build(catering): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}

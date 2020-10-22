@@ -55,7 +55,7 @@ jobs:
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/control/uat
-                source_folder: dist/control
+                source_folder: dist/apps/control
                 commit_message: >
                     build(control): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}

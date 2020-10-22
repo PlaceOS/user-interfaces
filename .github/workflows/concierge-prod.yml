@@ -58,7 +58,7 @@ jobs:
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/concierge/prod
-                source_folder: dist/concierge
+                source_folder: dist/apps/concierge
                 commit_message: >
                     build(concierge): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}

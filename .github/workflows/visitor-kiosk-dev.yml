@@ -55,7 +55,7 @@ jobs:
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/visitor-kiosk/dev
-                source_folder: dist/visitor-kiosk
+                source_folder: dist/apps/visitor-kiosk
                 commit_message: >
                     build(visitor-kiosk): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}
