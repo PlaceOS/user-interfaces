@@ -135,7 +135,7 @@ export class DashboardStateService extends BaseClass {
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
         const levels = [...this._org.levels];
-        levels.sort((a, b) => map[a.id].recommendation - map[b.id].recommendation);
+        levels.sort((a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation);
         this._level_occupancy.next(levels);
     }
 
