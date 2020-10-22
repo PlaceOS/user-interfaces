@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Browser not supported :O</title>
+        <base href="." />
+        <style>
+            html,
+            body {
+                font-size: 14px;
+                color: #000;
+                background-color: #f0f0f0;
+            }
+
+            * {
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+            }
+
+            .content {
+                width: 40em;
+                max-width: 95vw;
+                margin: auto;
+                padding: 1em;
+            }
+
+            img {
+                height: 48px;
+                margin: auto;
+            }
+
+            .image,
+            h1,
+            h2,
+            p {
+                text-align: center;
+            }
+
+            .image img {
+                height: auto;
+                width: 10em;
+            }
+
+            .options {
+                border-radius: 4px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+                    0 2px 1px -1px rgba(0, 0, 0, 0.12);
+                margin: 1em 2em;
+                border: 1px solid #ccc;
+                color: #000;
+                background-color: #fff;
+            }
+
+            .item {
+                display: flex;
+                align-items: center;
+                padding: 1em;
+                border-bottom: 1px solid #ccc;
+            }
+
+            .icon {
+                width: 52px;
+            }
+
+            .item:last-child {
+                border: none;
+            }
+
+            .text {
+                flex: 1;
+                min-width: 30%;
+                padding: 1em;
+                font-size: 1.2em;
+                font-weight: 400;
+            }
+
+            a {
+                white-space: nowrap;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <div class="image">
+                <img src="img/logo.png" />
+            </div>
+            <h1>Oh snap! We don't support this version of your browser, and neither should you!</h1>
+            <p>
+                You are visiting this page because we detected an unsupported browser. Your browser
+                does not support security features that we require. We highly recommend that you
+                update your browser.
+            </p>
+            <h2>Recommended browsers:</h2>
+            <div class="options">
+                <div class="item">
+                    <div class="icon">
+                        <img src="img/support/chrome-logo.svg" />
+                    </div>
+                    <div class="text">Chrome</div>
+                    <div class="link">
+                        <a href="https://www.google.com/chrome/">Download Latest</a>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="icon">
+                        <img src="img/support/firefox-logo.svg" />
+                    </div>
+                    <div class="text">Firefox</div>
+                    <div class="link">
+                        <a href="https://www.mozilla.org/en-US/firefox/new/">Download Latest</a>
+                    </div>
+                </div>
+                <!-- <div class="item">
+                    <div class="icon">
+                        <img src="img/support/opera-logo.svg" />
+                    </div>
+                    <div class="text">Opera</div>
+                    <div class="link">
+                        <a href="https://www.opera.com/">Download Latest</a>
+                    </div>
+                </div> -->
+                <div class="item">
+                    <div class="icon">
+                        <img src="img/support/safari-logo.svg" />
+                    </div>
+                    <div class="text">Safari</div>
+                    <div class="link">
+                        <a href="https://www.apple.com/au/macos/"
+                            >Only available on Apple devices</a
+                        >
+                    </div>
+                </div>
+                <!-- <div class="item">
+                    <div class="icon">
+                        <img src="img/support/edge-logo.svg" />
+                    </div>
+                    <div class="text">Microsoft Edge</div>
+                    <div class="link">
+                        <a href="https://www.microsoft.com/en-au/windows/microsoft-edge">Download Latest</a>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </body>
+</html>
