@@ -15,6 +15,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
@@ -465,6 +466,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
@@ -629,6 +631,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
@@ -791,6 +794,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
@@ -954,6 +958,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
@@ -1108,6 +1113,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
@@ -1265,6 +1271,7 @@
                 "build": {
                     "builder": "@angular-builders/custom-webpack:browser",
                     "options": {
+                        "baseHref": ".",
                         "customWebpackConfig": {
                             "path": "./webpack.config.js"
                         },
