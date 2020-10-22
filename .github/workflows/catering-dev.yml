@@ -49,7 +49,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: nx build catering --aot
+              run: nx build catering --aot --baseHref=.
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
