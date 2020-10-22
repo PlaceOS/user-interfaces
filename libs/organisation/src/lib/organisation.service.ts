@@ -145,7 +145,7 @@ export class OrganisationService {
             .pipe(map((i) => i.data))
             .toPromise();
         if (org_list.length) {
-            const bindings = await showMetadata(org_list[0].id, { name: 'bindings' });
+            const bindings = (await showMetadata(org_list[0].id, { name: 'bindings' }).toPromise())?.details;
             this._organisation = new Organisation({ ...org_list[0], bindings } as any);
         }
     }

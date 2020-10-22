@@ -9,6 +9,7 @@ import {
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { first } from 'rxjs/operators';
 
 @Injectable()
 export class ExploreZonesService extends BaseClass {
@@ -22,6 +23,11 @@ export class ExploreZonesService extends BaseClass {
         private _settings: SettingsService
     ) {
         super();
+        this.init();
+    }
+
+    public async init() {
+        await this._org.initialised.pipe(first(_ => _)).toPromise();
         this.subscription(
             'spaces',
             this._state.level.subscribe((level) => {
@@ -48,7 +54,7 @@ export class ExploreZonesService extends BaseClass {
         if (!building) return;
         const system_id = this._org.organisation.bindings.area_management;
         if (!system_id) return;
-        const binding = getModule(system_id, 'AreaManagement').binding(`${this._level}:areas`);
+        const binding = getModule(system_id, 'AreaManagement').binding(`${this._level.id}:areas`);
         this.subscription(
             `zones`,
             binding.listen().subscribe((d) => this.parseData(d))
@@ -58,7 +64,7 @@ export class ExploreZonesService extends BaseClass {
     }
 
     public parseData(d) {
-        const value = d.value;
+        const value = d?.value || [];
         for (const zone of value) {
             this._statuses[zone.area_id] =
                 zone.count < 40 ? 'free' : zone.count < 75 ? 'pending' : 'busy';
