@@ -56,7 +56,7 @@
         "@nrwl/cypress": "10.3.1",
         "@nrwl/jest": "10.3.1",
         "@nrwl/workspace": "10.3.1",
-        "@placeos/ts-client": "^3.3.16",
+        "@placeos/ts-client": "^3.3.17",
         "@tinymce/tinymce-angular": "^4.2.0",
         "@types/jest": "26.0.8",
         "@types/node": "~8.9.4",
