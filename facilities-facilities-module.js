@@ -462,13 +462,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ "0Wlh");
 /* harmony import */ var _user_interfaces_components__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @user-interfaces/components */ "Rc+I");
 /* harmony import */ var _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @user-interfaces/organisation */ "dJst");
-/* harmony import */ var _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../../components/src/lib/interactive-map.component */ "lYMz");
-/* harmony import */ var _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./explore-zoom-control.component */ "gGs/");
-/* harmony import */ var _explore_map_control_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./explore-map-control.component */ "zPhw");
-/* harmony import */ var _explore_search_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./explore-search.component */ "+vRD");
-/* harmony import */ var _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/material/slide-toggle */ "k8N0");
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/forms */ "nIj0");
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/common */ "2kYt");
+/* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @placeos/ts-client */ "/It1");
+/* harmony import */ var _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../../components/src/lib/interactive-map.component */ "lYMz");
+/* harmony import */ var _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./explore-zoom-control.component */ "gGs/");
+/* harmony import */ var _explore_map_control_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./explore-map-control.component */ "zPhw");
+/* harmony import */ var _explore_search_component__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./explore-search.component */ "+vRD");
+/* harmony import */ var _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/material/slide-toggle */ "k8N0");
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/forms */ "nIj0");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! @angular/common */ "2kYt");
+
 
 
 
@@ -525,7 +527,7 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
     }
     ngOnInit() {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            yield this._spaces.initialised.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_10__["first"])(_ => _)).toPromise();
+            yield this._spaces.initialised.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_10__["first"])((_) => _)).toPromise();
             this.subscription('route.query', this._route.queryParamMap.subscribe((params) => Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
                 if (params.has('level')) {
                     this._state.setLevel(params.get('level'));
@@ -534,23 +536,13 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
                     const space = this._spaces.find(params.get('space'));
                     if (!space)
                         return;
-                    this._state.setLevel(this._org.levelWithID(space.zones).id);
-                    console.log('Space:', space);
-                    const feature = {
-                        location: space.map_id,
-                        content: _user_interfaces_components__WEBPACK_IMPORTED_MODULE_11__["MapPinComponent"],
-                        data: {
-                            message: `${space.display_name || space.name} is here`
-                        }
-                    };
-                    this.timeout('update_location', () => {
-                        this._state.setFeatures('_located', [feature]);
-                    });
+                    this.locateSpace(space);
                 }
                 else if (params.has('user')) {
                     const user = yield this._users.show(params.get('user'));
                     if (!user)
                         return;
+                    this.locateUser(user);
                 }
                 else {
                     this.timeout('update_location', () => {
@@ -558,6 +550,45 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
                     });
                 }
             })));
+        });
+    }
+    locateSpace(space) {
+        this._state.setLevel(this._org.levelWithID(space.zones).id);
+        console.log('Space:', space);
+        const feature = {
+            location: space.map_id,
+            content: _user_interfaces_components__WEBPACK_IMPORTED_MODULE_11__["MapPinComponent"],
+            data: {
+                message: `${space.display_name || space.name} is here`
+            },
+        };
+        this.timeout('update_location', () => {
+            this._state.setFeatures('_located', [feature]);
+        });
+    }
+    locateUser(user) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            console.log('Locate User:', user);
+            const locate_details = this._org.organisation.bindings
+                .location_services;
+            if (!locate_details)
+                return;
+            const mod = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_13__["getModule"])(locate_details.system_id, locate_details.module);
+            const locations = (yield mod.execute('locate_user', [user.email, user.id])).map((i) => new _user_interfaces_users__WEBPACK_IMPORTED_MODULE_9__["MapLocation"](i));
+            locations.sort((a, b) => locate_details.priority.indexOf(a.type) -
+                locate_details.priority.indexOf(b.type));
+            this._state.setLevel(this._org.levelWithID([locations[0].level]).id);
+            const feature = {
+                location: locations[0].position,
+                content: locations[0].type === 'wireless' ? _user_interfaces_components__WEBPACK_IMPORTED_MODULE_11__["MapRadiusComponent"] : _user_interfaces_components__WEBPACK_IMPORTED_MODULE_11__["MapPinComponent"],
+                data: {
+                    message: `${user.name} is here`,
+                    radius: locations[0].variance
+                },
+            };
+            this.timeout('update_location', () => {
+                this._state.setFeatures('_located', [feature]);
+            });
         });
     }
 }
@@ -585,7 +616,7 @@ ExploreMapViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵ
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("src", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](1, 7, ctx.url))("zoom", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](2, 9, ctx.positions).zoom)("center", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](3, 11, ctx.positions).center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](4, 13, ctx.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](5, 15, ctx.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](6, 17, ctx.actions));
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](12);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", (tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](13, 19, ctx.options)) == null ? null : tmp_6_0.show_zones);
-    } }, directives: [_components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_13__["InteractiveMapComponent"], _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_14__["ExploreZoomControlComponent"], _explore_map_control_component__WEBPACK_IMPORTED_MODULE_15__["ExploreMapControlComponent"], _explore_search_component__WEBPACK_IMPORTED_MODULE_16__["ExploreSearchComponent"], _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_17__["MatSlideToggle"], _angular_forms__WEBPACK_IMPORTED_MODULE_18__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_18__["NgModel"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_19__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                height: 100%;\n                width: 100%;\n            }\n\n            [name='zones'][_ngcontent-%COMP%] {\n                top: 3.5rem;\n            }"] });
+    } }, directives: [_components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_14__["InteractiveMapComponent"], _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_15__["ExploreZoomControlComponent"], _explore_map_control_component__WEBPACK_IMPORTED_MODULE_16__["ExploreMapControlComponent"], _explore_search_component__WEBPACK_IMPORTED_MODULE_17__["ExploreSearchComponent"], _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_18__["MatSlideToggle"], _angular_forms__WEBPACK_IMPORTED_MODULE_19__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_19__["NgModel"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_20__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                height: 100%;\n                width: 100%;\n            }\n\n            [name='zones'][_ngcontent-%COMP%] {\n                top: 3.5rem;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](ExploreMapViewComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"],
         args: [{
@@ -876,7 +907,7 @@ ExploreSpaceInfoComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵ
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](0, ExploreSpaceInfoComponent_div_0_Template, 11, 10, "div", 0);
     } if (rf & 2) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx.space);
-    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgForOf"]], styles: ["[_nghost-%COMP%] {\n                position: relative;\n                pointer-events: none;\n                z-index: 1;\n            }\n\n            [name='space-info'][_ngcontent-%COMP%] {\n                width: 16rem;\n            }\n\n            [name='status'][_ngcontent-%COMP%] {\n                background-color: #43a047;\n                font-weight: 500;\n            }\n\n            [name='status'].busy[_ngcontent-%COMP%] {\n                background-color: #e53935;\n            }\n\n            [name='status'].pending[_ngcontent-%COMP%] {\n                background-color: #ffb300;\n            }\n\n            [name='status'].not-bookable[_ngcontent-%COMP%] {\n                background-color: #757575;\n            }"] });
+    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgForOf"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                top: 50%;\n                left: 50%;\n                transform: translate(-50%, -50%);\n                pointer-events: none;\n                z-index: 1;\n            }\n\n            [name='space-info'][_ngcontent-%COMP%] {\n                width: 16rem;\n            }\n\n            [name='status'][_ngcontent-%COMP%] {\n                background-color: #43a047;\n                font-weight: 500;\n            }\n\n            [name='status'].busy[_ngcontent-%COMP%] {\n                background-color: #e53935;\n            }\n\n            [name='status'].pending[_ngcontent-%COMP%] {\n                background-color: #ffb300;\n            }\n\n            [name='status'].not-bookable[_ngcontent-%COMP%] {\n                background-color: #757575;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](ExploreSpaceInfoComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
@@ -933,7 +964,10 @@ ExploreSpaceInfoComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵ
                 styles: [
                     `
             :host {
-                position: relative;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 pointer-events: none;
                 z-index: 1;
             }
@@ -2360,18 +2394,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_src_lib_confirm_modal_component__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../../components/src/lib/confirm-modal.component */ "mU/8");
 /* harmony import */ var _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../../components/src/lib/interactive-map.component */ "lYMz");
 /* harmony import */ var _components_src_lib_map_pin_component__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../../components/src/lib/map-pin.component */ "Pw6A");
-/* harmony import */ var _components_src_lib_binding_binding_directive__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../../components/src/lib/binding/binding.directive */ "gV1Q");
-/* harmony import */ var _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! @angular/material/autocomplete */ "ulve");
-/* harmony import */ var _angular_cdk_scrolling__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @angular/cdk/scrolling */ "qvOF");
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @angular/material/core */ "mFH5");
-/* harmony import */ var _angular_material_menu__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @angular/material/menu */ "Jb3d");
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/material/form-field */ "29Wa");
-/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/select */ "R7+U");
-/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/material/button */ "PBFl");
-/* harmony import */ var _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/datepicker */ "gcUQ");
-/* harmony import */ var _angular_cdk_text_field__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/cdk/text-field */ "H0K4");
-/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/input */ "Cd2c");
-/* harmony import */ var _acaprojects_ngx_pipes__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @acaprojects/ngx-pipes */ "81Qw");
+/* harmony import */ var _components_src_lib_map_radius_component__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../../components/src/lib/map-radius.component */ "kOXA");
+/* harmony import */ var _components_src_lib_binding_binding_directive__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../../components/src/lib/binding/binding.directive */ "gV1Q");
+/* harmony import */ var _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @angular/material/autocomplete */ "ulve");
+/* harmony import */ var _angular_cdk_scrolling__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @angular/cdk/scrolling */ "qvOF");
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @angular/material/core */ "mFH5");
+/* harmony import */ var _angular_material_menu__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/material/menu */ "Jb3d");
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/form-field */ "29Wa");
+/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/material/select */ "R7+U");
+/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/button */ "PBFl");
+/* harmony import */ var _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/datepicker */ "gcUQ");
+/* harmony import */ var _angular_cdk_text_field__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/cdk/text-field */ "H0K4");
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/material/input */ "Cd2c");
+/* harmony import */ var _acaprojects_ngx_pipes__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @acaprojects/ngx-pipes */ "81Qw");
+
 
 
 
@@ -2422,7 +2458,7 @@ SharedUsersModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefine
                 exports: [_new_user_modal_new_user_modal_component__WEBPACK_IMPORTED_MODULE_5__["NewUserModalComponent"]]
             }]
     }], null, null); })();
-_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵsetComponentScope"](_new_user_modal_new_user_modal_component__WEBPACK_IMPORTED_MODULE_5__["NewUserModalComponent"], [_angular_common__WEBPACK_IMPORTED_MODULE_0__["NgClass"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgComponentOutlet"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgForOf"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgIf"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgTemplateOutlet"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgStyle"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgSwitch"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgSwitchCase"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgSwitchDefault"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgPlural"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgPluralCase"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["ɵangular_packages_forms_forms_y"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgSelectOption"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["ɵangular_packages_forms_forms_x"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["DefaultValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NumberValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["RangeValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["CheckboxControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["SelectControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["SelectMultipleControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["RadioControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgControlStatusGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["RequiredValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["MinLengthValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["MaxLengthValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["PatternValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["CheckboxRequiredValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["EmailValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgModel"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgModelGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgForm"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormControlDirective"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormGroupDirective"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormControlName"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormGroupName"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormArrayName"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogContainer"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogClose"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogTitle"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogContent"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogActions"], _angular_cdk_bidi__WEBPACK_IMPORTED_MODULE_6__["Dir"], _components_src_lib_action_icon_action_icon_component__WEBPACK_IMPORTED_MODULE_7__["ActionIconComponent"], _components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_8__["IconComponent"], _components_src_lib_popout_menu_popout_menu_component__WEBPACK_IMPORTED_MODULE_9__["PopoutMenuComponent"], _components_src_lib_user_avatar_user_avatar_component__WEBPACK_IMPORTED_MODULE_10__["UserAvatarComponent"], _components_src_lib_action_field_action_field_component__WEBPACK_IMPORTED_MODULE_11__["ActionFieldComponent"], _components_src_lib_date_field_date_field_component__WEBPACK_IMPORTED_MODULE_12__["DateFieldComponent"], _components_src_lib_duration_field_duration_field_component__WEBPACK_IMPORTED_MODULE_13__["DurationFieldComponent"], _components_src_lib_counter_counter_component__WEBPACK_IMPORTED_MODULE_14__["CounterComponent"], _components_src_lib_time_field_time_field_component__WEBPACK_IMPORTED_MODULE_15__["TimeFieldComponent"], _components_src_lib_user_list_field_user_list_field_component__WEBPACK_IMPORTED_MODULE_16__["UserListFieldComponent"], _components_src_lib_user_search_field_user_search_field_component__WEBPACK_IMPORTED_MODULE_17__["UserSearchFieldComponent"], _components_src_lib_confirm_modal_component__WEBPACK_IMPORTED_MODULE_18__["ConfirmModalComponent"], _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_19__["InteractiveMapComponent"], _components_src_lib_map_pin_component__WEBPACK_IMPORTED_MODULE_20__["MapPinComponent"], _components_src_lib_binding_binding_directive__WEBPACK_IMPORTED_MODULE_21__["BindingDirective"], _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_22__["MatAutocomplete"], _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_22__["MatAutocompleteTrigger"], _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_22__["MatAutocompleteOrigin"], _angular_cdk_scrolling__WEBPACK_IMPORTED_MODULE_23__["CdkScrollable"], _angular_material_core__WEBPACK_IMPORTED_MODULE_24__["MatOption"], _angular_material_core__WEBPACK_IMPORTED_MODULE_24__["MatOptgroup"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_25__["_MatMenu"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_25__["MatMenuItem"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_25__["MatMenuTrigger"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_25__["MatMenuContent"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatError"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatFormField"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatHint"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatLabel"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatPlaceholder"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatPrefix"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_26__["MatSuffix"], _angular_material_select__WEBPACK_IMPORTED_MODULE_27__["MatSelect"], _angular_material_select__WEBPACK_IMPORTED_MODULE_27__["MatSelectTrigger"], _angular_material_button__WEBPACK_IMPORTED_MODULE_28__["MatButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_28__["MatAnchor"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatCalendar"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatCalendarBody"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDatepicker"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDatepickerContent"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDatepickerInput"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDatepickerToggle"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDatepickerToggleIcon"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatMonthView"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatYearView"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatMultiYearView"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatCalendarHeader"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDateRangeInput"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatStartDate"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatEndDate"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__["MatDateRangePicker"], _angular_cdk_text_field__WEBPACK_IMPORTED_MODULE_30__["CdkAutofill"], _angular_cdk_text_field__WEBPACK_IMPORTED_MODULE_30__["CdkTextareaAutosize"], _angular_material_input__WEBPACK_IMPORTED_MODULE_31__["MatInput"], _angular_material_input__WEBPACK_IMPORTED_MODULE_31__["MatTextareaAutosize"], _new_user_modal_new_user_modal_component__WEBPACK_IMPORTED_MODULE_5__["NewUserModalComponent"]], [_angular_common__WEBPACK_IMPORTED_MODULE_0__["AsyncPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["UpperCasePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["LowerCasePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["JsonPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["SlicePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["DecimalPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["PercentPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["TitleCasePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["CurrencyPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["DatePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["I18nPluralPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["I18nSelectPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["KeyValuePipe"], _acaprojects_ngx_pipes__WEBPACK_IMPORTED_MODULE_32__["ɵa"], _acaprojects_ngx_pipes__WEBPACK_IMPORTED_MODULE_32__["ɵb"]]);
+_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵsetComponentScope"](_new_user_modal_new_user_modal_component__WEBPACK_IMPORTED_MODULE_5__["NewUserModalComponent"], [_angular_common__WEBPACK_IMPORTED_MODULE_0__["NgClass"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgComponentOutlet"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgForOf"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgIf"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgTemplateOutlet"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgStyle"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgSwitch"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgSwitchCase"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgSwitchDefault"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgPlural"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["NgPluralCase"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["ɵangular_packages_forms_forms_y"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgSelectOption"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["ɵangular_packages_forms_forms_x"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["DefaultValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NumberValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["RangeValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["CheckboxControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["SelectControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["SelectMultipleControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["RadioControlValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgControlStatusGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["RequiredValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["MinLengthValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["MaxLengthValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["PatternValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["CheckboxRequiredValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["EmailValidator"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgModel"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgModelGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["NgForm"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormControlDirective"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormGroupDirective"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormControlName"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormGroupName"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormArrayName"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogContainer"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogClose"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogTitle"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogContent"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialogActions"], _angular_cdk_bidi__WEBPACK_IMPORTED_MODULE_6__["Dir"], _components_src_lib_action_icon_action_icon_component__WEBPACK_IMPORTED_MODULE_7__["ActionIconComponent"], _components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_8__["IconComponent"], _components_src_lib_popout_menu_popout_menu_component__WEBPACK_IMPORTED_MODULE_9__["PopoutMenuComponent"], _components_src_lib_user_avatar_user_avatar_component__WEBPACK_IMPORTED_MODULE_10__["UserAvatarComponent"], _components_src_lib_action_field_action_field_component__WEBPACK_IMPORTED_MODULE_11__["ActionFieldComponent"], _components_src_lib_date_field_date_field_component__WEBPACK_IMPORTED_MODULE_12__["DateFieldComponent"], _components_src_lib_duration_field_duration_field_component__WEBPACK_IMPORTED_MODULE_13__["DurationFieldComponent"], _components_src_lib_counter_counter_component__WEBPACK_IMPORTED_MODULE_14__["CounterComponent"], _components_src_lib_time_field_time_field_component__WEBPACK_IMPORTED_MODULE_15__["TimeFieldComponent"], _components_src_lib_user_list_field_user_list_field_component__WEBPACK_IMPORTED_MODULE_16__["UserListFieldComponent"], _components_src_lib_user_search_field_user_search_field_component__WEBPACK_IMPORTED_MODULE_17__["UserSearchFieldComponent"], _components_src_lib_confirm_modal_component__WEBPACK_IMPORTED_MODULE_18__["ConfirmModalComponent"], _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_19__["InteractiveMapComponent"], _components_src_lib_map_pin_component__WEBPACK_IMPORTED_MODULE_20__["MapPinComponent"], _components_src_lib_map_radius_component__WEBPACK_IMPORTED_MODULE_21__["MapRadiusComponent"], _components_src_lib_binding_binding_directive__WEBPACK_IMPORTED_MODULE_22__["BindingDirective"], _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_23__["MatAutocomplete"], _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_23__["MatAutocompleteTrigger"], _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_23__["MatAutocompleteOrigin"], _angular_cdk_scrolling__WEBPACK_IMPORTED_MODULE_24__["CdkScrollable"], _angular_material_core__WEBPACK_IMPORTED_MODULE_25__["MatOption"], _angular_material_core__WEBPACK_IMPORTED_MODULE_25__["MatOptgroup"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_26__["_MatMenu"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_26__["MatMenuItem"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_26__["MatMenuTrigger"], _angular_material_menu__WEBPACK_IMPORTED_MODULE_26__["MatMenuContent"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatError"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatFormField"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatHint"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatLabel"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatPlaceholder"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatPrefix"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__["MatSuffix"], _angular_material_select__WEBPACK_IMPORTED_MODULE_28__["MatSelect"], _angular_material_select__WEBPACK_IMPORTED_MODULE_28__["MatSelectTrigger"], _angular_material_button__WEBPACK_IMPORTED_MODULE_29__["MatButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_29__["MatAnchor"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatCalendar"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatCalendarBody"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDatepicker"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDatepickerContent"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDatepickerInput"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDatepickerToggle"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDatepickerToggleIcon"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatMonthView"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatYearView"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatMultiYearView"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatCalendarHeader"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDateRangeInput"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatStartDate"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatEndDate"], _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__["MatDateRangePicker"], _angular_cdk_text_field__WEBPACK_IMPORTED_MODULE_31__["CdkAutofill"], _angular_cdk_text_field__WEBPACK_IMPORTED_MODULE_31__["CdkTextareaAutosize"], _angular_material_input__WEBPACK_IMPORTED_MODULE_32__["MatInput"], _angular_material_input__WEBPACK_IMPORTED_MODULE_32__["MatTextareaAutosize"], _new_user_modal_new_user_modal_component__WEBPACK_IMPORTED_MODULE_5__["NewUserModalComponent"]], [_angular_common__WEBPACK_IMPORTED_MODULE_0__["AsyncPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["UpperCasePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["LowerCasePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["JsonPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["SlicePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["DecimalPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["PercentPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["TitleCasePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["CurrencyPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["DatePipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["I18nPluralPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["I18nSelectPipe"], _angular_common__WEBPACK_IMPORTED_MODULE_0__["KeyValuePipe"], _acaprojects_ngx_pipes__WEBPACK_IMPORTED_MODULE_33__["ɵa"], _acaprojects_ngx_pipes__WEBPACK_IMPORTED_MODULE_33__["ɵb"]]);
 
 
 /***/ }),
@@ -2437,31 +2473,20 @@ _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵsetComponentScope"](_new_user_mo
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MapLocation", function() { return MapLocation; });
-/* harmony import */ var _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @user-interfaces/organisation */ "dJst");
-
 class MapLocation {
-    constructor(raw_data) {
-        this.id = raw_data.id || raw_data.map_id || raw_data.desk_id;
-        this.name = raw_data.name || '';
-        this.x = raw_data.x
-            ? Math.floor(this.normalise(raw_data.x, raw_data.x_max || 10000) * 10000)
-            : null;
-        this.y = raw_data.y
-            ? Math.floor(this.normalise(raw_data.y, raw_data.x_max || 10000) * 10000)
-            : null;
-        this.level = this.level || new _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_0__["BuildingLevel"]();
-        this.fixed = this.x === null && this.y === null;
-        this.confidence = Math.max(5, Math.min(15, raw_data.confidence || 0));
-        this.at_desk = this.id && this.id.indexOf('area-') === 0;
-    }
-    /** Display string for the building and level of the location */
-    get display() {
-        const bld = this.building;
-        return bld ? `${bld.name}, ${this.level.name}` : this.level.name;
-    }
-    /** Normalise the given value within the max */
-    normalise(value, max) {
-        return value / (max * 1.0);
+    constructor(_data) {
+        this.type = _data.type || _data.location || 'other';
+        this.position = _data.position ||
+            _data.map_id || {
+            x: _data.x / _data.map_width,
+            y: _data.y / _data.map_height,
+        };
+        this.variance = _data.variance || 0;
+        this.last_seen =
+            _data.last_seen || Math.floor(new Date().valueOf() / 1000);
+        this.level = _data.level;
+        this.building = _data.building;
+        this.at_location = !!_data.at_location;
     }
 }
 
