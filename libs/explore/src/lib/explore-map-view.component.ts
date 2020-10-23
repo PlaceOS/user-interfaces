@@ -6,11 +6,12 @@ import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { BaseClass } from '@user-interfaces/common';
 import { ActivatedRoute } from '@angular/router';
-import { SpacesService } from '@user-interfaces/spaces';
-import { StaffService } from '@user-interfaces/users';
+import { Space, SpacesService } from '@user-interfaces/spaces';
+import { MapLocation, StaffService, User } from '@user-interfaces/users';
 import { first } from 'rxjs/operators';
-import { MapPinComponent } from '@user-interfaces/components';
+import { MapPinComponent, MapRadiusComponent } from '@user-interfaces/components';
 import { OrganisationService } from '@user-interfaces/organisation';
+import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'explore-map-view',
@@ -86,34 +87,70 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._spaces.initialised.pipe(first(_ => _)).toPromise();
-        this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
-            if (params.has('level')) {
-                this._state.setLevel(params.get('level'));
-            }
-            if (params.has('space')) {
-                const space = this._spaces.find(params.get('space'));
-                if (!space) return;
-                this._state.setLevel(this._org.levelWithID(space.zones).id);
-                console.log('Space:', space);
-                const feature: any = {
-                    location: space.map_id,
-                    content: MapPinComponent,
-                    data: {
-                        message: `${space.display_name || space.name} is here`
-                    }
-                };
-                this.timeout('update_location', () => {
-                    this._state.setFeatures('_located', [feature]);
-                })
-            } else if (params.has('user')) {
-                const user = await this._users.show(params.get('user'));
-                if (!user) return;
-            } else {
-                this.timeout('update_location', () => {
-                    this._state.setFeatures('_located', []);
-                })
-            }
-        }));
+        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('level')) {
+                    this._state.setLevel(params.get('level'));
+                }
+                if (params.has('space')) {
+                    const space = this._spaces.find(params.get('space'));
+                    if (!space) return;
+                    this.locateSpace(space);
+                } else if (params.has('user')) {
+                    const user = await this._users.show(params.get('user'));
+                    if (!user) return;
+                    this.locateUser(user);
+                } else {
+                    this.timeout('update_location', () => {
+                        this._state.setFeatures('_located', []);
+                    });
+                }
+            })
+        );
+    }
+
+    private locateSpace(space: Space) {
+        this._state.setLevel(this._org.levelWithID(space.zones).id);
+        console.log('Space:', space);
+        const feature: any = {
+            location: space.map_id,
+            content: MapPinComponent,
+            data: {
+                message: `${space.display_name || space.name} is here`
+            },
+        };
+        this.timeout('update_location', () => {
+            this._state.setFeatures('_located', [feature]);
+        });
+    }
+
+    private async locateUser(user: User) {
+        console.log('Locate User:', user);
+        const locate_details: any = this._org.organisation.bindings
+            .location_services;
+        if (!locate_details) return;
+        const mod = getModule(locate_details.system_id, locate_details.module);
+        const locations: MapLocation[] = (
+            await mod.execute('locate_user', [user.email, user.id])
+        ).map((i) => new MapLocation(i));
+        locations.sort(
+            (a, b) =>
+                locate_details.priority.indexOf(a.type) -
+                locate_details.priority.indexOf(b.type)
+        );
+        this._state.setLevel(this._org.levelWithID([locations[0].level]).id);
+        const feature: any = {
+            location: locations[0].position,
+            content: locations[0].type === 'wireless' ? MapRadiusComponent : MapPinComponent,
+            data: {
+                message: `${user.name} is here`,
+                radius: locations[0].variance
+            },
+        };
+        this.timeout('update_location', () => {
+            this._state.setFeatures('_located', [feature]);
+        });
     }
 }

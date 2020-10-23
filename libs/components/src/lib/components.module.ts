@@ -28,6 +28,7 @@ import { CounterComponent } from './counter/counter.component';
 import { CommonModule } from '@angular/common';
 import { InteractiveMapComponent } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
+import { MapRadiusComponent } from './map-radius.component';
 
 export * from './action-field/action-field.component';
 export * from './action-icon/action-icon.component';
@@ -48,6 +49,7 @@ export * from './user-list-field/user-list-field.component';
 export * from './user-search-field/user-search-field.component';
 export * from './interactive-map.component';
 export * from './map-pin.component';
+export * from './map-radius.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -77,7 +79,8 @@ const COMPONENTS: Type<any>[] = [
     UserSearchFieldComponent,
     ConfirmModalComponent,
     InteractiveMapComponent,
-    MapPinComponent
+    MapPinComponent,
+    MapRadiusComponent
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
