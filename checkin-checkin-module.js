@@ -8063,6 +8063,250 @@ exports.default = DataMask;
 
 /***/ }),
 
+/***/ "GriS":
+/*!****************************************************!*\
+  !*** ./src/app/checkin/checkin-covid.component.ts ***!
+  \****************************************************/
+/*! exports provided: CheckinCovidComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CheckinCovidComponent", function() { return CheckinCovidComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "EM62");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/router */ "sEIs");
+/* harmony import */ var _user_interfaces_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @user-interfaces/common */ "20lr");
+/* harmony import */ var _checkin_state_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./checkin-state.service */ "cvcL");
+/* harmony import */ var _angular_material_radio__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/material/radio */ "F1o0");
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/forms */ "nIj0");
+/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/material/button */ "PBFl");
+/* harmony import */ var _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/icon/icon.component */ "ukpX");
+
+
+
+
+
+
+
+
+
+
+
+const _c0 = ["checkin-covid", ""];
+const _c1 = function () { return ["/welcome"]; };
+class CheckinCovidComponent {
+    constructor(_router, _checkin) {
+        this._router = _router;
+        this._checkin = _checkin;
+    }
+    confirm() {
+        if (!this.symptoms || !this.contact)
+            return Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_2__["notifyError"])('Please select yes or no for each question');
+        this._checkin.updateGuest({
+            covid: this.contact === 'true',
+            symptoms: this.symptoms === 'true',
+        });
+        if (this.symptoms === 'false' && this.contact === 'false') {
+            this._router.navigate(['/checkin', 'results']);
+        }
+        else {
+            this._checkin.setError('Please get tested for COVID-19 and self-isolate at home for 14 days');
+            this._router.navigate(['/checkin', 'error']);
+        }
+    }
+}
+CheckinCovidComponent.ɵfac = function CheckinCovidComponent_Factory(t) { return new (t || CheckinCovidComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_1__["Router"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_checkin_state_service__WEBPACK_IMPORTED_MODULE_3__["CheckinStateService"])); };
+CheckinCovidComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], attrs: _c0, decls: 55, vars: 5, consts: [[1, "bg-white", "rounded", "p-4", "relative"], [1, "text-xl", "font-medium", "mb-4"], [1, "list-decimal", "list-inside"], [1, "list-disc", "list-inside", "px-4", "mb-4"], ["aria-label", "Has Symptoms", 3, "ngModel", "ngModelChange"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModel", "ngModelChange"], ["mat-button", "", 3, "click"], ["mat-icon-button", "", 1, "absolute", "top-0", "right-0", 3, "disabled", "routerLink"], ["className", "material-icons"]], template: function CheckinCovidComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "h3", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2, "COVID Disclaimer");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](3, "ol", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](4, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](5, " Do you have any of the following symptoms?");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](6, "br");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](7, "br");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](8, "ul", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](9, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](10, "Fever");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](11, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](12, "Cough");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](13, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](14, "Shortness of breath");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](15, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](16, "Chills");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](17, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](18, "Body aches");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](19, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](20, "Sore or scratchy throat");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](21, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](22, "Headache");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](23, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](24, "Runny nose");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](25, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](26, "Muscle pain");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](27, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](28, "Vomitting");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](29, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](30, "Nausea");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](31, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](32, "Diarrhoa");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](33, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](34, "Loss of taste or smell");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](35, "mat-radio-group", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("ngModelChange", function CheckinCovidComponent_Template_mat_radio_group_ngModelChange_35_listener($event) { return ctx.symptoms = $event; });
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](36, "mat-radio-button", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](37, "Yes");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](38, "mat-radio-button", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](39, "No");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](40, "hr", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](41, "li");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](42, " Have you been in contact with a COVID-19 case in the last 14 days or been asked to self-isolate by a health offical?");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](43, "br");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](44, "br");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](45, "mat-radio-group", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("ngModelChange", function CheckinCovidComponent_Template_mat_radio_group_ngModelChange_45_listener($event) { return ctx.contact = $event; });
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](46, "mat-radio-button", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](47, "Yes");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](48, "mat-radio-button", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](49, "No");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](50, "button", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function CheckinCovidComponent_Template_button_click_50_listener() { return ctx.confirm(); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](51, "Confirm");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](52, "a", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](53, "app-icon", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](54, "close");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+    } if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](35);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngModel", ctx.symptoms);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngModel", ctx.contact);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("disabled", !ctx.symptoms && !ctx.contact)("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpureFunction0"](4, _c1));
+    } }, directives: [_angular_material_radio__WEBPACK_IMPORTED_MODULE_4__["MatRadioGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_5__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_5__["NgModel"], _angular_material_radio__WEBPACK_IMPORTED_MODULE_4__["MatRadioButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatAnchor"], _angular_router__WEBPACK_IMPORTED_MODULE_1__["RouterLinkWithHref"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_7__["IconComponent"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                display: flex;\n                align-items: center;\n                justify-content: center;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: rgba(0, 0, 0, 0.5);\n            }\n\n            [_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n\n            .absolute[_ngcontent-%COMP%] {\n                position: absolute;\n            }\n\n            button[_ngcontent-%COMP%] {\n                margin: 1rem 11rem 0;\n                width: 8rem;\n            }"] });
+/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](CheckinCovidComponent, [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
+        args: [{
+                selector: '[checkin-covid]',
+                template: `
+        <div class="bg-white rounded p-4 relative">
+            <h3 class="text-xl font-medium mb-4">COVID Disclaimer</h3>
+            <ol class="list-decimal list-inside">
+                <li>
+                    Do you have any of the following symptoms?<br /><br />
+                    <ul class="list-disc list-inside px-4 mb-4">
+                        <li>Fever</li>
+                        <li>Cough</li>
+                        <li>Shortness of breath</li>
+                        <li>Chills</li>
+                        <li>Body aches</li>
+                        <li>Sore or scratchy throat</li>
+                        <li>Headache</li>
+                        <li>Runny nose</li>
+                        <li>Muscle pain</li>
+                        <li>Vomitting</li>
+                        <li>Nausea</li>
+                        <li>Diarrhoa</li>
+                        <li>Loss of taste or smell</li>
+                    </ul>
+                    <mat-radio-group
+                        aria-label="Has Symptoms"
+                        [(ngModel)]="symptoms"
+                    >
+                        <mat-radio-button value="true">Yes</mat-radio-button>
+                        <mat-radio-button value="false" class="ml-4"
+                            >No</mat-radio-button
+                        >
+                    </mat-radio-group>
+                </li>
+                <hr class="my-4" />
+                <li>
+                    Have you been in contact with a COVID-19 case in the last 14
+                    days or been asked to self-isolate by a health offical?<br /><br />
+                    <mat-radio-group
+                        aria-label="COVID contact or self-isolated"
+                        [(ngModel)]="contact"
+                    >
+                        <mat-radio-button value="true">Yes</mat-radio-button>
+                        <mat-radio-button value="false" class="ml-4"
+                            >No</mat-radio-button
+                        >
+                    </mat-radio-group>
+                </li>
+            </ol>
+            <button mat-button (click)="confirm()">Confirm</button>
+            <a
+                mat-icon-button
+                [disabled]="!symptoms && !contact"
+                class="absolute top-0 right-0"
+                [routerLink]="['/welcome']"
+            >
+                <app-icon className="material-icons">close</app-icon>
+            </a>
+        </div>
+    `,
+                styles: [
+                    `
+            :host {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            :host > div {
+                width: 32rem;
+                max-width: calc(100vw - 2rem);
+            }
+
+            .absolute {
+                position: absolute;
+            }
+
+            button {
+                margin: 1rem 11rem 0;
+                width: 8rem;
+            }
+        `,
+                ],
+            }]
+    }], function () { return [{ type: _angular_router__WEBPACK_IMPORTED_MODULE_1__["Router"] }, { type: _checkin_state_service__WEBPACK_IMPORTED_MODULE_3__["CheckinStateService"] }]; }, null); })();
+
+
+/***/ }),
+
 /***/ "H88Z":
 /*!***********************************************************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/node_modules/@zxing/library/esm5/core/qrcode/detector/AlignmentPattern.js ***!
@@ -19592,13 +19836,13 @@ class CheckinStateService {
             return { guest, event: todays_events[0] };
         });
     }
-    updateGuest() {
+    updateGuest(data) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const guest = this._guest.getValue();
             const form = this._form.getValue();
             if (!guest || !form)
                 return;
-            yield this._guests.updateMetadata(guest.email, Object.assign(Object.assign({}, guest), form.value));
+            yield this._guests.updateMetadata(guest.email, Object.assign(Object.assign(Object.assign({}, guest), form.value), (data || {})));
         });
     }
     checkinGuest() {
@@ -20211,7 +20455,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _checkin_qr_scan_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./checkin-qr-scan.component */ "ZciF");
 /* harmony import */ var _checkin_result_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./checkin-result.component */ "E3cA");
 /* harmony import */ var _checkin_error_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./checkin-error.component */ "SR+8");
-/* harmony import */ var _checkin_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./checkin.component */ "zw/1");
+/* harmony import */ var _checkin_covid_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./checkin-covid.component */ "GriS");
+/* harmony import */ var _checkin_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./checkin.component */ "zw/1");
+
 
 
 
@@ -20228,7 +20474,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const ROUTES = [
-    { path: '', component: _checkin_component__WEBPACK_IMPORTED_MODULE_12__["CheckinComponent"], children: [
+    { path: '', component: _checkin_component__WEBPACK_IMPORTED_MODULE_13__["CheckinComponent"], children: [
             { path: 'scan', component: _checkin_qr_scan_component__WEBPACK_IMPORTED_MODULE_9__["CheckinQRScanComponent"] },
             { path: 'details', component: _checkin_details_component__WEBPACK_IMPORTED_MODULE_5__["CheckinDetailsComponent"] },
             { path: 'group', component: _checkin_group_component__WEBPACK_IMPORTED_MODULE_6__["CheckinGroupComponent"] },
@@ -20236,6 +20482,7 @@ const ROUTES = [
             { path: 'photo', component: _checkin_photo_component__WEBPACK_IMPORTED_MODULE_7__["CheckinPhotoComponent"] },
             { path: 'results', component: _checkin_result_component__WEBPACK_IMPORTED_MODULE_10__["CheckinResultsComponent"] },
             { path: 'error', component: _checkin_error_component__WEBPACK_IMPORTED_MODULE_11__["CheckinErrorComponent"] },
+            { path: 'covid', component: _checkin_covid_component__WEBPACK_IMPORTED_MODULE_12__["CheckinCovidComponent"] },
             { path: '**', redirectTo: 'scan' }
         ] },
     { path: '**', redirectTo: '' }
@@ -20250,14 +20497,15 @@ VisitorCheckinModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdef
             _ui_shared_module__WEBPACK_IMPORTED_MODULE_4__["SharedContentModule"],
             _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)
         ]] });
-(function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵsetNgModuleScope"](VisitorCheckinModule, { declarations: [_checkin_component__WEBPACK_IMPORTED_MODULE_12__["CheckinComponent"],
+(function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵsetNgModuleScope"](VisitorCheckinModule, { declarations: [_checkin_component__WEBPACK_IMPORTED_MODULE_13__["CheckinComponent"],
         _checkin_result_component__WEBPACK_IMPORTED_MODULE_10__["CheckinResultsComponent"],
         _checkin_qr_scan_component__WEBPACK_IMPORTED_MODULE_9__["CheckinQRScanComponent"],
         _checkin_preferences_component__WEBPACK_IMPORTED_MODULE_8__["CheckinPreferencesComponent"],
         _checkin_photo_component__WEBPACK_IMPORTED_MODULE_7__["CheckinPhotoComponent"],
         _checkin_group_component__WEBPACK_IMPORTED_MODULE_6__["CheckinGroupComponent"],
         _checkin_details_component__WEBPACK_IMPORTED_MODULE_5__["CheckinDetailsComponent"],
-        _checkin_error_component__WEBPACK_IMPORTED_MODULE_11__["CheckinErrorComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_0__["CommonModule"],
+        _checkin_error_component__WEBPACK_IMPORTED_MODULE_11__["CheckinErrorComponent"],
+        _checkin_covid_component__WEBPACK_IMPORTED_MODULE_12__["CheckinCovidComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_0__["CommonModule"],
         _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"],
         _angular_forms__WEBPACK_IMPORTED_MODULE_2__["ReactiveFormsModule"],
         _ui_shared_module__WEBPACK_IMPORTED_MODULE_4__["SharedContentModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"]] }); })();
@@ -20265,14 +20513,15 @@ VisitorCheckinModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdef
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["NgModule"],
         args: [{
                 declarations: [
-                    _checkin_component__WEBPACK_IMPORTED_MODULE_12__["CheckinComponent"],
+                    _checkin_component__WEBPACK_IMPORTED_MODULE_13__["CheckinComponent"],
                     _checkin_result_component__WEBPACK_IMPORTED_MODULE_10__["CheckinResultsComponent"],
                     _checkin_qr_scan_component__WEBPACK_IMPORTED_MODULE_9__["CheckinQRScanComponent"],
                     _checkin_preferences_component__WEBPACK_IMPORTED_MODULE_8__["CheckinPreferencesComponent"],
                     _checkin_photo_component__WEBPACK_IMPORTED_MODULE_7__["CheckinPhotoComponent"],
                     _checkin_group_component__WEBPACK_IMPORTED_MODULE_6__["CheckinGroupComponent"],
                     _checkin_details_component__WEBPACK_IMPORTED_MODULE_5__["CheckinDetailsComponent"],
-                    _checkin_error_component__WEBPACK_IMPORTED_MODULE_11__["CheckinErrorComponent"]
+                    _checkin_error_component__WEBPACK_IMPORTED_MODULE_11__["CheckinErrorComponent"],
+                    _checkin_covid_component__WEBPACK_IMPORTED_MODULE_12__["CheckinCovidComponent"]
                 ],
                 imports: [
                     _angular_common__WEBPACK_IMPORTED_MODULE_0__["CommonModule"],
@@ -28422,7 +28671,7 @@ class CheckinDetailsComponent {
             yield this._checkin.updateGuest();
             yield this._checkin.checkinGuest();
             this.loading = false;
-            this._router.navigate(['/checkin', 'photo']);
+            this._router.navigate(['/checkin', 'covid']);
         });
     }
     previous() {
@@ -29679,7 +29928,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CheckinComponent", function() { return CheckinComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "EM62");
 /* harmony import */ var _user_interfaces_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @user-interfaces/common */ "20lr");
-/* harmony import */ var _ui_topbar_header_topbar_header_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ui/topbar-header/topbar-header.component */ "e81E");
+/* harmony import */ var _ui_topbar_header_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ui/topbar-header.component */ "/dba");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/router */ "sEIs");
 
 
@@ -29705,7 +29954,7 @@ CheckinComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineC
     } if (rf & 2) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵstyleProp"]("background-image", "url(" + ctx.background + ")");
-    } }, directives: [_ui_topbar_header_topbar_header_component__WEBPACK_IMPORTED_MODULE_2__["TopbarHeaderComponent"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterOutlet"]], styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }"] });
+    } }, directives: [_ui_topbar_header_component__WEBPACK_IMPORTED_MODULE_2__["TopbarHeaderComponent"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterOutlet"]], styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](CheckinComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
