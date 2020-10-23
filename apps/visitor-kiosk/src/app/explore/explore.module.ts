@@ -6,17 +6,10 @@ import { FormsModule } from '@angular/forms';
 
 import { ExploreComponent } from './explore.component';
 import { SharedContentModule } from '../ui/shared.module';
-import { MapViewComponent } from './map-view/map-view.component';
-import { ExploreSpaceStatusComponent } from './status-managers/space-status.component';
-import { ExploreDeskStatusComponent } from './status-managers/desk-status.component';
-import { ExploreZoneStatusDirective } from './status-managers/zone-status.directive';
-import { ZoomControlsComponent } from './zoom-controls/zoom-controls.component';
-import { ExploreSpaceInfoComponent } from './overlays/space-info/space-info.component';
-import { ExploreSearchComponent } from './search/search.component';
-import { ExploreMapLegendComponent } from './map-legend/map-legend.component';
 import { FooterLegendComponent } from './footer-legend/footer-legend.component';
 import { FiltersComponent } from './filters/filters.component';
 import { ComponentsModule } from '@user-interfaces/components';
+import { SharedExploreModule } from '@user-interfaces/explore';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -26,14 +19,6 @@ const ROUTES: Route[] = [
 @NgModule({
     declarations: [
         ExploreComponent,
-        MapViewComponent,
-        ExploreSpaceStatusComponent,
-        ExploreDeskStatusComponent,
-        ExploreZoneStatusDirective,
-        ZoomControlsComponent,
-        ExploreSpaceInfoComponent,
-        ExploreSearchComponent,
-        ExploreMapLegendComponent,
         FooterLegendComponent,
         FiltersComponent
     ],
@@ -42,11 +27,11 @@ const ROUTES: Route[] = [
         RouterModule.forChild(ROUTES),
         SharedContentModule,
         ComponentsModule,
-        FormsModule
+        FormsModule,
+        SharedExploreModule
     ],
     entryComponents: [
-        ExploreSpaceInfoComponent,
         FiltersComponent
     ]
 })
-export class ExploreModule {}
+export class AppExploreModule {}

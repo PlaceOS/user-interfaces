@@ -9,7 +9,7 @@ const routes: Routes = [
     { path: 'welcome', component: WelcomeComponent },
     {
         path: 'explore',
-        loadChildren: () => import('./explore/explore.module').then((m) => m.ExploreModule),
+        loadChildren: () => import('./explore/explore.module').then((m) => m.AppExploreModule),
     },
     {
         path: 'checkin',

@@ -1,14 +1,38 @@
+
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 import { BaseClass, log, SettingsService } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 
 @Component({
     selector: 'app-explore',
-    templateUrl: './explore.component.html',
-    styleUrls: ['./explore.component.scss']
+    template: `
+        <header>
+            <a-topbar-header></a-topbar-header>
+        </header>
+        <main class="flex flex-1 w-full relative">
+            <explore-map-view></explore-map-view>
+        </main>
+        <footer class="flex w-full">
+            <a-footer-legend></a-footer-legend>
+        </footer>
+    `,
+    styles: [
+        `
+            :host {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+        `,
+    ],
 })
 export class ExploreComponent extends BaseClass implements OnInit {
     /** Whether to show the overlay menu */
