@@ -25,7 +25,7 @@ import { MatRadioModule } from '@angular/material/radio';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
-import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
+import { TopbarHeaderComponent } from './topbar-header.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 import { SearchbarComponent } from './searchbar/searchbar.component';
 

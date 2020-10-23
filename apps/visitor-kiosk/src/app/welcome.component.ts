@@ -14,11 +14,11 @@ import { BaseClass, SettingsService } from '@user-interfaces/common';
             <div
                 class="flex flex-col flex-1 w-full items-center justify-center text-white bg-black bg-opacity-50 space-y-4"
             >
-                <h3 class="text-2xl">Welcome to PwC Self Service Kiosk</h3>
+                <h3 class="text-2xl">Welcome to PlaceOS Self Service Kiosk</h3>
                 <a
                     matRipple
                     [routerLink]="['/checkin']"
-                    class="text-xl bg-white bg-opacity-25 py-2 px-8 mt-4 border-2 border-white text-white w-40 whitespace-nowrap flex items-center justify-center h-14"
+                    class="text-xl py-2 px-8 mt-4 border-2 border-white text-white w-40 whitespace-nowrap flex items-center justify-center"
                 >
                     Check In
                 </a>
@@ -26,14 +26,19 @@ import { BaseClass, SettingsService } from '@user-interfaces/common';
                     *ngIf="level"
                     matRipple
                     [routerLink]="['/explore', level]"
-                    class="text-xl bg-white bg-opacity-25 py-2 px-8 mt-4 border-2 border-white text-white w-40 whitespace-nowrap flex items-center justify-center h-14"
+                    class="text-xl py-2 px-8 mt-4 border-2 border-white text-white w-40 whitespace-nowrap flex items-center justify-center"
                 >
                     Explore
                 </a>
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [`
+        a {
+            height: 3.5rem;
+            background-color: rgba(255,255,255, .25);
+        }
+    `],
 })
 export class WelcomeComponent extends BaseClass implements OnInit, OnDestroy {
     /** Level to initially load on explore */
