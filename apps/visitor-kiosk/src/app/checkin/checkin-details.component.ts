@@ -137,7 +137,7 @@ export class CheckinDetailsComponent {
         await this._checkin.updateGuest();
         await this._checkin.checkinGuest();
         this.loading = false;
-        this._router.navigate(['/checkin', 'photo']);
+        this._router.navigate(['/checkin', 'covid']);
     }
 
     public previous() {

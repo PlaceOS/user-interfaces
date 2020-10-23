@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { FormGroup } from '@angular/forms';
-import { notifyError } from '@user-interfaces/common';
+import { HashMap, notifyError } from '@user-interfaces/common';
 import { CalendarEvent, EventsService } from '@user-interfaces/events';
 import { GuestsService, GuestUser, generateGuestForm } from '@user-interfaces/users';
 import { isSameDay } from 'date-fns';
@@ -65,11 +65,11 @@ export class CheckinStateService {
         return { guest, event: todays_events[0] };
     }
 
-    public async updateGuest() {
+    public async updateGuest(data?: HashMap) {
         const guest = this._guest.getValue();
         const form = this._form.getValue();
         if (!guest || !form) return;
-        await this._guests.updateMetadata(guest.email, { ...guest, ...form.value });
+        await this._guests.updateMetadata(guest.email, { ...guest, ...form.value, ...(data || {}) });
     }
 
     public async checkinGuest() {
