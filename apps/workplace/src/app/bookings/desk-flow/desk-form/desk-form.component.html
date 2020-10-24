@@ -5,7 +5,7 @@
             <div class="row">
                 <div class="field">
                     <label for="building">Building:</label>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" overlay>
                         <mat-select formControlName="building">
                             <mat-option *ngFor="let item of buildings_list" [value]="item.id">
                                 {{ item.display_name || item.name }}
@@ -38,7 +38,7 @@
             <div class="row">
                 <div class="field">
                     <label for="title">Reason for booking:</label>
-                    <mat-form-field class="desk" appearance="outline">
+                    <mat-form-field class="desk" appearance="outline" overlay>
                         <input
                             matInput
                             formControlName="title"
