@@ -10927,12 +10927,12 @@ function SpaceFlowFormComponent_mat_option_14_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"](" ", option_r4.name, " ");
 } }
 function SpaceFlowFormComponent_form_23_mat_form_field_43_Template(rf, ctx) { if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "mat-form-field", 39);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](1, "textarea", 40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "mat-form-field", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](1, "textarea", 42);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
 } }
 function SpaceFlowFormComponent_form_23_ng_template_44_Template(rf, ctx) { if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "editor", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "editor", 43);
 } }
 const _c0 = function () { return { class: "material-icons", content: "delete" }; };
 const _c1 = function () { return { class: "material-icons", content: "filter_list" }; };
@@ -10944,7 +10944,7 @@ function SpaceFlowFormComponent_form_23_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("ngSubmit", function SpaceFlowFormComponent_form_23_Template_form_ngSubmit_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r9); return $event.preventDefault(); });
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](1, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](2, "h3", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](3, "Detailed Booking");
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](3, " Detailed Booking ");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](4, "section", 18);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](5, "div", 19);
@@ -10963,70 +10963,70 @@ function SpaceFlowFormComponent_form_23_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](15, "a-time-field", 25);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](16, "div", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](16, "div", 26);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](17, "label", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](18, "End Time");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](19, "a-duration-field", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](19, "a-duration-field", 27);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](20, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](21, "section", 18);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](22, "div", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](23, "h4", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](22, "div", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](23, "h4", 29);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](24, "People");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](25, "div", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](25, "div", 30);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](26, "label", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](27, "Attendees");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](28, "a-user-list-field", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](28, "a-user-list-field", 31);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](29, "section", 18);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](30, "div", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](31, "h4", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](30, "div", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](31, "h4", 29);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](32, "Details");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](33, "div", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](33, "div", 30);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](34, "label", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](35, "Meeting Subject");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](36, "mat-form-field", 30);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](37, "input", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](36, "mat-form-field", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](37, "input", 33);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](38, "mat-error");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](39, "Title is required");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](40, "div", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](40, "div", 30);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](41, "label", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](42, "Notes");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](43, SpaceFlowFormComponent_form_23_mat_form_field_43_Template, 2, 0, "mat-form-field", 32);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](44, SpaceFlowFormComponent_form_23_ng_template_44_Template, 1, 0, "ng-template", null, 33, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplateRefExtractor"]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](43, SpaceFlowFormComponent_form_23_mat_form_field_43_Template, 2, 0, "mat-form-field", 34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](44, SpaceFlowFormComponent_form_23_ng_template_44_Template, 1, 0, "ng-template", null, 35, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplateRefExtractor"]);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](46, "div", 34);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](47, "button", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](46, "div", 36);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](47, "button", 37);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function SpaceFlowFormComponent_form_23_Template_button_click_47_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r9); const ctx_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](); return ctx_r10.clearForm(); });
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](48, "div", 36);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](49, "app-icon", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](48, "div", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](49, "app-icon", 39);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](50, " Clear Form ");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](51, "button", 38);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](52, "div", 36);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](53, "app-icon", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](51, "button", 40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](52, "div", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](53, "app-icon", 39);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](54, " Add Filter ");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](55, "a", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](56, "div", 36);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](57, "app-icon", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](56, "div", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](57, "app-icon", 39);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](58, " Search ");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
@@ -11071,7 +11071,10 @@ class SpaceFlowFormComponent {
         this.clearForm = () => this._service.clearForm();
         this.capacity_options = CAPACITY_OPTIONS;
         this.time_options = [
-            { id: Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["roundToNearestMinutes"])(Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["addMinutes"])(new Date(), 2)).valueOf(), name: 'Now' },
+            {
+                id: Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["roundToNearestMinutes"])(Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["addMinutes"])(new Date(), 2)).valueOf(),
+                name: 'Now',
+            },
             {
                 id: Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["addHours"])(Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["roundToNearestMinutes"])(Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["addMinutes"])(new Date(), 2)).valueOf(), 1),
                 name: 'Later Today',
@@ -11084,15 +11087,15 @@ class SpaceFlowFormComponent {
     }
 }
 SpaceFlowFormComponent.ɵfac = function SpaceFlowFormComponent_Factory(t) { return new (t || SpaceFlowFormComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_space_flow_service__WEBPACK_IMPORTED_MODULE_3__["SpaceFlowService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_user_interfaces_common__WEBPACK_IMPORTED_MODULE_1__["SettingsService"])); };
-SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: SpaceFlowFormComponent, selectors: [["space-flow-form"]], decls: 25, vars: 15, consts: [["name", "heading", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "quick", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "mb-2", "font-semibold", "text-xl"], [1, "flex", "width-tablet", "m-auto", "space-x-2", "items-center", "flex-wrap", "sm:space-x-0", 3, "formGroup"], ["appearance", "outline", "overlay", "", 1, "flex-1", "h-13"], ["placeholder", "Now", "formControlName", "date"], [3, "value", 4, "ngFor", "ngForOf"], ["placeholder", "Any Capacity", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["button", "", "mat-button", "", 2, "margin-left", ".5rem", 3, "routerLink"], [1, "flex", "items-center", "justify-center", "ml-2"], ["className", "material-icons", 1, "text-lg"], ["name", "divider", 1, "p-4", "w-full", "bg-gray-200"], [1, "m-auto", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "divider", "class", "w-full bg-white pb-2", 3, "formGroup", "ngSubmit", 4, "ngIf"], [3, "value"], ["name", "divider", 1, "w-full", "bg-white", "pb-2", 3, "formGroup", "ngSubmit"], [1, "m-auto", "uppercase", "width-tablet", "pt-4", "font-semibold", "text-xl", "mb-4"], [1, "mb-4"], [1, "m-auto", "width-tablet", "flex", "flex-wrap", "space-x-2", "sm:space-x-0"], [1, "mb-2", "w-full", "font-semibold"], [1, "field", "flex", "flex-1", "flex-wrap", "m-0"], ["for", "date", 1, "w-full"], ["formControlName", "date", 1, "flex-1", "mb-4"], [1, "field", "flex", "flex-1", "flex-wrap"], ["formControlName", "date"], ["formControlName", "duration", 3, "time"], [1, "m-auto", "width-tablet"], [1, "mb-2", "font-semibold"], ["formControlName", "attendees", 1, "flex-1"], ["appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "title", "placeholder", "Meeting Title", "formControlName", "title"], ["name", "body", "class", "flex-1", "appearance", "outline", 4, "ngIf", "ngIfElse"], ["html_editor", ""], [1, "m-auto", "width-tablet", "mb-2", "flex", "items-center"], ["mat-button", "", "type", "button", 1, "inverse", 3, "click"], [1, "flex", "items-center", "justify-center", "mr-2"], [1, "text-lg", 3, "icon"], ["mat-button", "", "type", "button", 1, "inverse", 2, "margin-left", ".5rem"], ["name", "body", "appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "description", "placeholder", "Add Meeting Notes here...", "formControlName", "body"], ["formControlName", "body", 1, "flex-1"]], template: function SpaceFlowFormComponent_Template(rf, ctx) { if (rf & 1) {
+SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: SpaceFlowFormComponent, selectors: [["space-flow-form"]], decls: 25, vars: 15, consts: [["name", "heading", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "quick", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "mb-2", "font-semibold", "text-xl"], [1, "flex", "width-tablet", "m-auto", "space-x-2", "items-center", "flex-wrap", "sm:space-x-0", 3, "formGroup"], ["appearance", "outline", "overlay", "", 1, "flex-1", "h-13"], ["placeholder", "Now", "formControlName", "date"], [3, "value", 4, "ngFor", "ngForOf"], ["placeholder", "Any Capacity", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["button", "", "mat-button", "", 2, "margin-left", ".5rem", 3, "routerLink"], [1, "flex", "items-center", "justify-center", "ml-2"], ["className", "material-icons", 1, "text-lg"], ["name", "divider", 1, "p-4", "w-full", "bg-gray-200"], [1, "m-auto", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "divider", "class", "w-full bg-white pb-2", 3, "formGroup", "ngSubmit", 4, "ngIf"], [3, "value"], ["name", "divider", 1, "w-full", "bg-white", "pb-2", 3, "formGroup", "ngSubmit"], [1, "m-auto", "uppercase", "width-tablet", "pt-4", "font-semibold", "text-xl", "mb-4"], [1, "mb-4"], ["name", "details", 1, "m-auto", "width-tablet", "flex", "flex-wrap", "space-x-2", "sm:space-x-0"], [1, "mb-2", "w-full", "font-semibold"], [1, "flex", "flex-1", "flex-col", "m-0"], ["for", "date", 1, "w-full"], ["formControlName", "date", 1, "flex-1", "mb-4"], [1, "flex", "flex-1", "flex-col"], ["formControlName", "date", 1, "mb-8", "pt-1"], [1, "flex", "flex-1", "flex-col", "ml-1"], ["formControlName", "duration", 3, "time"], [1, "m-auto", "width-tablet"], [1, "mb-2", "font-semibold"], [1, "field", "flex", "flex-1", "flex-wrap", "m-0"], ["formControlName", "attendees", 1, "flex-1"], ["appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "title", "placeholder", "Meeting Title", "formControlName", "title"], ["name", "body", "class", "flex-1", "appearance", "outline", 4, "ngIf", "ngIfElse"], ["html_editor", ""], [1, "m-auto", "width-tablet", "mb-2", "flex", "items-center"], ["mat-button", "", "type", "button", 1, "inverse", 3, "click"], [1, "flex", "items-center", "justify-center", "mr-2"], [1, "text-lg", 3, "icon"], ["mat-button", "", "type", "button", 1, "inverse", 2, "margin-left", ".5rem"], ["name", "body", "appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "description", "placeholder", "Add Meeting Notes here...", "formControlName", "body"], ["formControlName", "body", 1, "flex-1"]], template: function SpaceFlowFormComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "h3", 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2, "How would you like to search?");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2, " How would you like to search? ");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](3, "div", 2);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](4, "h3", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](5, "Quick Search");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](5, " Quick Search ");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](6, "form", 4);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](7, "async");
@@ -11120,7 +11123,7 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](20, "div", 12);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](21, "h3", 13);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](22, "Or");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](22, " Or ");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](23, SpaceFlowFormComponent_form_23_Template, 59, 16, "form", 14);
@@ -11139,46 +11142,81 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpureFunction0"](14, _c2));
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](8);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](24, 11, ctx.form));
-    } }, directives: [_angular_forms__WEBPACK_IMPORTED_MODULE_4__["ɵangular_packages_forms_forms_y"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgControlStatusGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["FormGroupDirective"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__["MatFormField"], _angular_material_select__WEBPACK_IMPORTED_MODULE_6__["MatSelect"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["FormControlName"], _angular_common__WEBPACK_IMPORTED_MODULE_7__["NgForOf"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgModel"], _angular_material_button__WEBPACK_IMPORTED_MODULE_8__["MatAnchor"], _angular_router__WEBPACK_IMPORTED_MODULE_9__["RouterLinkWithHref"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_10__["IconComponent"], _angular_common__WEBPACK_IMPORTED_MODULE_7__["NgIf"], _angular_material_core__WEBPACK_IMPORTED_MODULE_11__["MatOption"], _libs_components_src_lib_date_field_date_field_component__WEBPACK_IMPORTED_MODULE_12__["DateFieldComponent"], _libs_components_src_lib_time_field_time_field_component__WEBPACK_IMPORTED_MODULE_13__["TimeFieldComponent"], _libs_components_src_lib_duration_field_duration_field_component__WEBPACK_IMPORTED_MODULE_14__["DurationFieldComponent"], _libs_components_src_lib_user_list_field_user_list_field_component__WEBPACK_IMPORTED_MODULE_15__["UserListFieldComponent"], _angular_material_input__WEBPACK_IMPORTED_MODULE_16__["MatInput"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["DefaultValueAccessor"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__["MatError"], _angular_material_button__WEBPACK_IMPORTED_MODULE_8__["MatButton"], _tinymce_tinymce_angular__WEBPACK_IMPORTED_MODULE_17__["EditorComponent"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_7__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                overflow: auto;\n            }\n\n            [name='heading'][_ngcontent-%COMP%] {\n                background-color: #00539f;\n            }\n\n            [name='quick'][_ngcontent-%COMP%] {\n                background-color: #007ac8;\n            }\n\n            [name='quick'][_ngcontent-%COMP%]   form[_ngcontent-%COMP%]    > *[_ngcontent-%COMP%]    + *[_ngcontent-%COMP%] {\n                margin-left: .5rem;\n            }\n\n            [name=\"quick\"][_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n                max-height: 3.25rem;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                width: 16rem;\n                min-width: 30%;\n            }\n\n            section[_ngcontent-%COMP%] {\n                border-bottom: 1px solid #ccc;\n            }\n\n            button[_ngcontent-%COMP%], a[button][_ngcontent-%COMP%] {\n                min-width: 10em;\n            }\n\n            .field[_ngcontent-%COMP%] {\n                min-width: 12rem;\n            }"] });
+    } }, directives: [_angular_forms__WEBPACK_IMPORTED_MODULE_4__["ɵangular_packages_forms_forms_y"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgControlStatusGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["FormGroupDirective"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__["MatFormField"], _angular_material_select__WEBPACK_IMPORTED_MODULE_6__["MatSelect"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["FormControlName"], _angular_common__WEBPACK_IMPORTED_MODULE_7__["NgForOf"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["NgModel"], _angular_material_button__WEBPACK_IMPORTED_MODULE_8__["MatAnchor"], _angular_router__WEBPACK_IMPORTED_MODULE_9__["RouterLinkWithHref"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_10__["IconComponent"], _angular_common__WEBPACK_IMPORTED_MODULE_7__["NgIf"], _angular_material_core__WEBPACK_IMPORTED_MODULE_11__["MatOption"], _libs_components_src_lib_date_field_date_field_component__WEBPACK_IMPORTED_MODULE_12__["DateFieldComponent"], _libs_components_src_lib_time_field_time_field_component__WEBPACK_IMPORTED_MODULE_13__["TimeFieldComponent"], _libs_components_src_lib_duration_field_duration_field_component__WEBPACK_IMPORTED_MODULE_14__["DurationFieldComponent"], _libs_components_src_lib_user_list_field_user_list_field_component__WEBPACK_IMPORTED_MODULE_15__["UserListFieldComponent"], _angular_material_input__WEBPACK_IMPORTED_MODULE_16__["MatInput"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["DefaultValueAccessor"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__["MatError"], _angular_material_button__WEBPACK_IMPORTED_MODULE_8__["MatButton"], _tinymce_tinymce_angular__WEBPACK_IMPORTED_MODULE_17__["EditorComponent"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_7__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                overflow: auto;\n            }\n\n            [name='heading'][_ngcontent-%COMP%] {\n                background-color: #00539f;\n            }\n\n            [name='quick'][_ngcontent-%COMP%] {\n                background-color: #007ac8;\n            }\n\n            [name='quick'][_ngcontent-%COMP%]   form[_ngcontent-%COMP%]    > *[_ngcontent-%COMP%]    + *[_ngcontent-%COMP%], [name='details'][_ngcontent-%COMP%]    > *[_ngcontent-%COMP%]    + *[_ngcontent-%COMP%]  {\n                margin-left: 0.5rem;\n            }\n\n            [name='quick'][_ngcontent-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n                max-height: 3.25rem;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                width: 16rem;\n                min-width: 30%;\n            }\n\n            section[_ngcontent-%COMP%] {\n                border-bottom: 1px solid #ccc;\n            }\n\n            button[_ngcontent-%COMP%], a[button][_ngcontent-%COMP%] {\n                min-width: 10em;\n            }\n\n            .field[_ngcontent-%COMP%] {\n                min-width: 12rem;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](SpaceFlowFormComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
                 selector: 'space-flow-form',
                 template: `
         <div name="heading" class="p-4 w-full">
-            <h3 class="m-auto text-white uppercase width-tablet font-semibold text-xl">How would you like to search?</h3>
+            <h3
+                class="m-auto text-white uppercase width-tablet font-semibold text-xl"
+            >
+                How would you like to search?
+            </h3>
         </div>
         <div name="quick" class="p-4 w-full">
-            <h3 class="m-auto text-white uppercase width-tablet mb-2 font-semibold text-xl">Quick Search</h3>
-            <form class="flex width-tablet m-auto space-x-2 items-center flex-wrap sm:space-x-0" [formGroup]="form | async">
-                <mat-form-field class="flex-1 h-13" appearance="outline" overlay>
+            <h3
+                class="m-auto text-white uppercase width-tablet mb-2 font-semibold text-xl"
+            >
+                Quick Search
+            </h3>
+            <form
+                class="flex width-tablet m-auto space-x-2 items-center flex-wrap sm:space-x-0"
+                [formGroup]="form | async"
+            >
+                <mat-form-field
+                    class="flex-1 h-13"
+                    appearance="outline"
+                    overlay
+                >
                     <mat-select placeholder="Now" formControlName="date">
-                        <mat-option *ngFor="let option of time_options" [value]="option.id">
+                        <mat-option
+                            *ngFor="let option of time_options"
+                            [value]="option.id"
+                        >
                             {{ option.name }}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field class="flex-1 h-13" appearance="outline" overlay>
+                <mat-form-field
+                    class="flex-1 h-13"
+                    appearance="outline"
+                    overlay
+                >
                     <mat-select
                         placeholder="Any Capacity"
                         [ngModel]="(filters | async)?.capacity"
                         (ngModelChange)="updateCapacity($event)"
                         [ngModelOptions]="{ standalone: true }"
                     >
-                        <mat-option *ngFor="let option of capacity_options" [value]="option.id">
+                        <mat-option
+                            *ngFor="let option of capacity_options"
+                            [value]="option.id"
+                        >
                             {{ option.name }}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <a button mat-button style="margin-left: .5rem" [routerLink]="['/book', 'spaces', 'find']">
+                <a
+                    button
+                    mat-button
+                    style="margin-left: .5rem"
+                    [routerLink]="['/book', 'spaces', 'find']"
+                >
                     <div class="flex items-center justify-center ml-2">
-                        Go <app-icon class="text-lg" className="material-icons">arrow_forward</app-icon>
+                        Go
+                        <app-icon class="text-lg" className="material-icons"
+                            >arrow_forward</app-icon
+                        >
                     </div>
                 </a>
             </form>
         </div>
         <div name="divider" class="p-4 w-full bg-gray-200">
-            <h3 class="m-auto uppercase width-tablet font-semibold text-xl">Or</h3>
+            <h3 class="m-auto uppercase width-tablet font-semibold text-xl">
+                Or
+            </h3>
         </div>
         <form
             *ngIf="form | async"
@@ -11187,19 +11225,32 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
             (ngSubmit)="$event.preventDefault()"
             [formGroup]="form | async"
         >
-            <h3 class="m-auto uppercase width-tablet pt-4 font-semibold text-xl mb-4">Detailed Booking</h3>
+            <h3
+                class="m-auto uppercase width-tablet pt-4 font-semibold text-xl mb-4"
+            >
+                Detailed Booking
+            </h3>
             <section class="mb-4">
-                <div class="m-auto width-tablet flex flex-wrap space-x-2 sm:space-x-0">
+                <div
+                    name="details"
+                    class="m-auto width-tablet flex flex-wrap space-x-2 sm:space-x-0"
+                >
                     <h4 class="mb-2 w-full font-semibold">Date &amp; Time</h4>
-                    <div class="field flex flex-1 flex-wrap m-0">
+                    <div class="flex flex-1 flex-col m-0">
                         <label for="date" class="w-full">Date</label>
-                        <a-date-field formControlName="date" class="flex-1 mb-4"></a-date-field>
+                        <a-date-field
+                            formControlName="date"
+                            class="flex-1 mb-4"
+                        ></a-date-field>
                     </div>
-                    <div class="field flex flex-1 flex-wrap">
+                    <div class="flex flex-1 flex-col">
                         <label for="date" class="w-full">Start Time</label>
-                        <a-time-field formControlName="date"></a-time-field>
+                        <a-time-field
+                            formControlName="date"
+                            class="mb-8 pt-1"
+                        ></a-time-field>
                     </div>
-                    <div class="field flex flex-1 flex-wrap">
+                    <div class="flex flex-1 flex-col ml-1">
                         <label for="date" class="w-full">End Time</label>
                         <a-duration-field
                             [time]="(form | async)?.controls.date?.value"
@@ -11251,25 +11302,64 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
                             ></textarea>
                         </mat-form-field>
                         <ng-template #html_editor>
-                            <editor class="flex-1" formControlName="body"></editor>
+                            <editor
+                                class="flex-1"
+                                formControlName="body"
+                            ></editor>
                         </ng-template>
                     </div>
                 </div>
             </section>
             <div class="m-auto width-tablet mb-2 flex items-center">
-                <button mat-button class="inverse" type="button" (click)="clearForm()">
+                <button
+                    mat-button
+                    class="inverse"
+                    type="button"
+                    (click)="clearForm()"
+                >
                     <div class="flex items-center justify-center mr-2">
-                        <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'delete' }"></app-icon> Clear Form
+                        <app-icon
+                            class="text-lg"
+                            [icon]="{
+                                class: 'material-icons',
+                                content: 'delete'
+                            }"
+                        ></app-icon>
+                        Clear Form
                     </div>
                 </button>
-                <button mat-button class="inverse" style="margin-left: .5rem" type="button">
+                <button
+                    mat-button
+                    class="inverse"
+                    style="margin-left: .5rem"
+                    type="button"
+                >
                     <div class="flex items-center justify-center mr-2">
-                        <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'filter_list' }"></app-icon> Add Filter
+                        <app-icon
+                            class="text-lg"
+                            [icon]="{
+                                class: 'material-icons',
+                                content: 'filter_list'
+                            }"
+                        ></app-icon>
+                        Add Filter
                     </div>
                 </button>
-                <a button mat-button style="margin-left: .5rem" [routerLink]="['/book', 'spaces', 'find']">
+                <a
+                    button
+                    mat-button
+                    style="margin-left: .5rem"
+                    [routerLink]="['/book', 'spaces', 'find']"
+                >
                     <div class="flex items-center justify-center mr-2">
-                        <app-icon class="text-lg" [icon]="{ class: 'material-icons', content: 'search' }"></app-icon> Search
+                        <app-icon
+                            class="text-lg"
+                            [icon]="{
+                                class: 'material-icons',
+                                content: 'search'
+                            }"
+                        ></app-icon>
+                        Search
                     </div>
                 </a>
             </div>
@@ -11294,11 +11384,12 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
                 background-color: #007ac8;
             }
 
-            [name='quick'] form > * + * {
-                margin-left: .5rem;
+            [name='quick'] form > * + *,
+            [name='details'] > * + *  {
+                margin-left: 0.5rem;
             }
 
-            [name="quick"] mat-form-field {
+            [name='quick'] mat-form-field {
                 max-height: 3.25rem;
             }
 
@@ -11311,14 +11402,14 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
                 border-bottom: 1px solid #ccc;
             }
 
-            button, a[button] {
+            button,
+            a[button] {
                 min-width: 10em;
             }
 
             .field {
                 min-width: 12rem;
             }
-
         `,
                 ],
             }]
@@ -15307,7 +15398,7 @@ class BookingDeskFormComponent extends _user_interfaces_common__WEBPACK_IMPORTED
     }
 }
 BookingDeskFormComponent.ɵfac = function BookingDeskFormComponent_Factory(t) { return new (t || BookingDeskFormComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_4__["OrganisationService"])); };
-BookingDeskFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: BookingDeskFormComponent, selectors: [["booking-desk-form"]], inputs: { form: "form", loading: "loading" }, outputs: { event: "event" }, features: [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵInheritDefinitionFeature"]], decls: 4, vars: 2, consts: [[1, "desk-form"], [1, "basic"], [3, "formGroup", 4, "ngIf"], ["class", "loader", 4, "ngIf"], [3, "formGroup"], [1, "title"], [1, "row"], [1, "field"], ["for", "building"], ["appearance", "outline"], ["formControlName", "building"], [3, "value", 4, "ngFor", "ngForOf"], [1, "field", "mb"], ["for", "date", 1, "mb"], ["formControlName", "date", "name", "date", 3, "from"], [4, "ngIf"], ["for", "title"], ["appearance", "outline", 1, "desk"], ["matInput", "", "formControlName", "title", "name", "title", "placeholder", "Add reason here..."], [1, "actions"], ["mat-button", "", 1, "inverse", 3, "click"], ["mat-flat-button", "", "color", "primary", 3, "disabled", "click"], [3, "value"], [1, "loader"], ["diameter", "64"]], template: function BookingDeskFormComponent_Template(rf, ctx) { if (rf & 1) {
+BookingDeskFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: BookingDeskFormComponent, selectors: [["booking-desk-form"]], inputs: { form: "form", loading: "loading" }, outputs: { event: "event" }, features: [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵInheritDefinitionFeature"]], decls: 4, vars: 2, consts: [[1, "desk-form"], [1, "basic"], [3, "formGroup", 4, "ngIf"], ["class", "loader", 4, "ngIf"], [3, "formGroup"], [1, "title"], [1, "row"], [1, "field"], ["for", "building"], ["appearance", "outline", "overlay", ""], ["formControlName", "building"], [3, "value", 4, "ngFor", "ngForOf"], [1, "field", "mb"], ["for", "date", 1, "mb"], ["formControlName", "date", "name", "date", 3, "from"], [4, "ngIf"], ["for", "title"], ["appearance", "outline", "overlay", "", 1, "desk"], ["matInput", "", "formControlName", "title", "name", "title", "placeholder", "Add reason here..."], [1, "actions"], ["mat-button", "", 1, "inverse", 3, "click"], ["mat-flat-button", "", "color", "primary", 3, "disabled", "click"], [3, "value"], [1, "loader"], ["diameter", "64"]], template: function BookingDeskFormComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "div", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](2, BookingDeskFormComponent_form_2_Template, 27, 5, "form", 2);
