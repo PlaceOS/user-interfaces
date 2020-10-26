@@ -1,0 +1,58 @@
+<div class="topbar-header" [class.reverse]="reverse" [class.no-bg]="noBackgroundColor">
+    <div class="block">
+        <a [routerLink]="['/home']" *ngIf="logo">
+            <div class="logo">
+                <i *ngIf="logo.type === 'icon'" [class]="logo.class">{{ logo.content }}</i>
+                <img *ngIf="logo.type === 'img'" class="h-10" [src]="logo.src | safe: 'resource'" />
+            </div>
+        </a>
+    </div>
+    <div class="block middle">
+        <div
+            class="search w-full flex items-center rounded p-1"
+            matAutocompleteOrigin
+            #origin="matAutocompleteOrigin"
+        >
+            <app-icon
+                class="text-xl mr-1"
+                [icon]="{ class: 'material-icons', content: 'search' }"
+            ></app-icon>
+            <input
+                [(ngModel)]="search_str"
+                (ngModelChange)="updateSearch($event)"
+                [matAutocomplete]="auto"
+                [matAutocompleteConnectedTo]="origin"
+                class="flex-1 text-base m-0 p-0 bg-none"
+                style="border: none; outline: none"
+                placeholder="Search for people or spaces..."
+            >
+        </div>
+        <mat-autocomplete #auto="matAutocomplete">
+            <mat-option
+                class="p-0"
+                *ngFor="let option of search_results | async"
+                [value]="option.name"
+            >
+                <a
+                    button
+                    mat-button
+                    class="clear w-full text-left h-full rounded-none text-normal text-base"
+                    [routerLink]="['/explore']"
+                    [queryParams]="option.map_id ? { space: option.id } : { user: option.email }"
+                >
+                    <div class="flex items-center">
+                        <div class="text-xs w-12 text-primary">{{
+                            option.map_id ? 'Space' : 'Staff'
+                        }}</div>
+                        {{ option.name }}
+                    </div>
+                </a>
+            </mat-option>
+        </mat-autocomplete>
+    </div>
+    <div class="block">
+        <button mat-icon-button (click)="showMenu()">
+            <img [src]="'assets/img/menu.svg'" />
+        </button>
+    </div>
+</div>

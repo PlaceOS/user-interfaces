@@ -1,0 +1,25 @@
+
+@import 'variables';
+
+input,
+textarea {
+    user-select: text;
+    background: none;
+}
+
+label {
+    width: 100%;
+    font-size: .875rem;
+    margin-bottom: .5rem;
+    min-width: 100%;
+    font-weight: bold;
+    margin-bottom: .5rem;
+
+    > span:first-child {
+        color: $pending;
+    }
+
+    &.error {
+        color: $error;
+    }
+}

@@ -1,0 +1,79 @@
+/*==================*\
+|| Branding Colours ||
+\*==================*/
+
+$pwc-orange: #D04A02;
+$pwc-rose: #D93954;
+$pwc-red: #E0301E;
+$pwc-yellow: #FFB600;
+$pwc-tangerine: #EB8C00;
+
+$light-grey: #dddddd;
+
+$boxShadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
+    0 2px 1px -1px rgba(#000, 0.12);
+
+/*=======================*\
+||  Application Colours  ||
+\*=======================*/
+
+$font-dark: #000;
+$font-light: #fff;
+
+$success: #21a453;
+$success-light: lighten($success, 10);
+$success-dark: darken($success, 10);
+
+$pending: #ffbf1f;
+$pending-light: lighten($pending, 10);
+$pending-dark: darken($pending, 10);
+
+$error: #f44336;
+$error-light: lighten($error, 10);
+$error-dark: darken($error, 10);
+
+$color-primary: #d04a02;
+$color-primary-light: lighten($color-primary, 10);
+$color-primary-dark: darken($color-primary, 10);
+
+$color-secondary: #e0301e;
+$color-secondary-light: lighten($color-secondary, 10);
+$color-secondary-dark: darken($color-secondary, 10);
+
+$bg-light: #f0f0f0;
+$bg-dark: #263238;
+$footer-back: #263238;
+$grey: #969696;
+
+$color-ternary: #0a0d2e;
+$color-external: #151c6a;
+
+// Type colors for booking status
+$internal: $color-primary;
+$external: $color-external;
+$cancelled: $grey;
+
+/*===========*\
+||   Fonts   ||
+\*===========*/
+
+$font-stack: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+$heading-font: Georgia, 'Times New Roman', Times, serif;
+$font: $font-stack;
+
+$base-size: 16px;
+$tablet-size: 16px;
+$mobile-size: 16px;
+
+/*===================*\
+||   Media Queries   ||
+\*===================*/
+
+$break-mobile: 450px;
+$break-tablet: 800px;
+$break-laptop: 1024px;
+
+$break-landscape-mobile: 800px;
+$break-landscape-tablet: 1048px;
+$break-landscape-laptop: 1280px;

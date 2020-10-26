@@ -1,0 +1,135 @@
+@import 'variables';
+@import 'mixins';
+
+:root,
+body {
+    --primary: $color-primary;
+    --secondary: $color-secondary;
+    --success: $success;
+}
+
+.bg-success {
+    background-color: $success;
+    // background-color: var(--success);
+}
+
+.bg-white {
+    background-color: #fff !important;
+}
+
+.bg-none {
+    background: none;
+}
+
+.bg-black {
+    background-color: #000;
+}
+
+.bg-darken {
+    background-color: rgba(#000, .1);
+}
+
+.bg-primary {
+    background-color: $color-primary;
+    background-color: var(--primary);
+}
+
+.bg-secondary {
+    background-color: $color-secondary;
+    background-color: var(--secondary);
+}
+
+.text-light {
+    color: rgba(#fff, .85);
+}
+
+.text-light-fade {
+    color: rgba(#fff, .6);
+}
+
+.text-light-disabled {
+    color: rgba(#fff, .35);
+}
+
+.text-dark {
+    color: rgba(#000, .85);
+}
+
+.text-dark-fade {
+    color: rgba(#000, .6);
+}
+
+.text-dark-disabled {
+    color: rgba(#000, .35);
+}
+
+.text-primary {
+    color: $color-primary;
+    color: var(--primary);
+}
+
+.text-secondary {
+    color: $color-secondary;
+    color: var(--secondary);
+}
+
+.text-success {
+    color: $success;
+    color: var(--success);
+}
+
+.h-half {
+    height: 50%;
+}
+
+.min-h-0 {
+    min-height: 0;
+}
+
+.min-w-24 {
+    min-width: 6em;
+}
+
+.min-w-32 {
+    min-width: 8em !important;
+}
+
+.min-w-48 {
+    min-width: 12em;
+}
+
+.min-w-64 {
+    min-width: 16em;
+}
+
+.width-tablet {
+    width: 768px;
+    max-width: calc(100vw - 2em);
+}
+
+.top {
+    top: 0 !important;
+    bottom: auto !important;
+}
+
+.bottom {
+    top: auto !important;
+    bottom: 0 !important;
+}
+
+.left {
+    left: 0 !important;
+    right: auto !important;
+}
+
+.right {
+    left: auto !important;
+    right: 0 !important;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

@@ -8,8 +8,8 @@ on:
     push:
         branches: [develop]
         paths:
-          - projects/control/**
-          - src/app/**
+          - apps/control/**
+          - libs/**
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -43,19 +43,19 @@ jobs:
                       ${{ runner.os }}-
 
             - name: Install node modules
-              run: npm install && npm i -g @angular/cli
+              run: npm install && npm install -g @angular/cli && npm install -g nx
 
             # - name: Test the application
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: ng build control --aot
+              run: nx build control --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/control/dev
-                source_folder: dist/control
+                source_folder: dist/apps/control
                 commit_message: >
                     build(control): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}

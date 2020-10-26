@@ -1,0 +1,180 @@
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import 'variables';
+@import 'mixins';
+
+html,
+body {
+    background-color: #f0f0f0;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    @include respond-to(desktop) {
+        font-size: $base-size;
+    }
+    @include respond-to(tablet) {
+        font-size: $tablet-size;
+    }
+    @include respond-to(mobile) {
+        font-size: $mobile-size;
+    }
+}
+
+* {
+    user-select: none;
+    font-family: $font;
+    box-sizing: border-box;
+}
+
+.material-icons {
+    font-size: 1em;
+}
+
+span.highlight {
+    color: $color-primary;
+}
+
+/*==============*\
+|| Media Styles ||
+\*==============*/
+
+@include respond-to(not-mobile) {
+    .mobile-only,
+    .mobile {
+        display: none !important;
+    }
+}
+
+@include respond-to(desktop) {
+    .not-desktop,
+    .tablet-only,
+    .tablet,
+    .mobile,
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+@include respond-to(tablet) {
+    .desktop,
+    .desktop-only,
+    .not-tablet,
+    .mobile,
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+@include respond-to(mobile) {
+    .desktop-only,
+    .desktop,
+    .mobile-hide,
+    .not-mobile {
+        display: none !important;
+    }
+}
+
+/*=======================*\
+||    Font size styles   ||
+\*=======================*/
+
+.fs {
+    &-small {
+        font-size: 0.8rem;
+    }
+    &-normal {
+        font-size: 1rem;
+    }
+    &-big {
+        font-size: 1.2rem;
+    }
+    &-large {
+        font-size: 1.5rem;
+    }
+}
+
+/*========================*\
+||   Application styles   ||
+\*========================*/
+
+.info-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0.5em auto;
+    width: 100%;
+    min-height: 6em;
+
+    .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 1.2em;
+        width: 1.2em;
+        font-size: 2em;
+
+        a-spinner {
+            font-size: 0.25em;
+        }
+    }
+
+    .text {
+        margin: 0.5em;
+        text-align: center;
+    }
+}
+
+.loading-block {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    background-color: #fff;
+
+    .icon {
+        height: 4em;
+        width: 4em;
+    }
+}
+
+.center,
+[center] {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/*=====================*\
+||  TinyMCE overrides  ||
+\*=====================*/
+
+div.tox-silver-sink {
+    z-index: 9999;
+
+    .tox-notification {
+        display: none;
+    }
+}
+
+div.tox-editor-container {
+    .tox-menubar {
+        button:first-child {
+            display: none;
+        }
+    }
+}
+
+div.tox-tinymce {
+    @include respond-to(mobile) {
+        min-height: 20em;
+    }
+}

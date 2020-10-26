@@ -1,1127 +1,1471 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "template-uis": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "",
-      "sourceRoot": "src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
-          "options": {
-            "customWebpackConfig": {
-              "path": "webpack.config.js"
-            },
-            "outputPath": "dist/template-uis",
-            "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/demo/",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+    "version": 1,
+    "projects": {
+        "workplace": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
                 }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+            },
+            "root": "apps/workplace",
+            "sourceRoot": "apps/workplace/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/workplace/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/workplace",
+                        "index": "apps/workplace/src/index.html",
+                        "main": "apps/workplace/src/main.ts",
+                        "polyfills": "apps/workplace/src/polyfills.ts",
+                        "tsConfig": "apps/workplace/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/workplace/src/favicon.ico",
+                            "apps/workplace/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/workplace/src/styles.scss"],
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/workplace/src/environments/environment.ts",
+                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/workplace/src/environments/settings.ts"
+                                }
+                            ],
+                            "baseHref": "/workplace/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                        }
+                    }
                 },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "workplace:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "workplace:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "workplace:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/workplace/tsconfig.app.json",
+                            "apps/workplace/tsconfig.spec.json",
+                            "apps/workplace/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/workplace/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/workplace/jest.config.js",
+                        "passWithNoTests": true
+                    }
                 }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "ngsw-config.json"
             }
-          }
         },
-        "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "template-uis:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "template-uis:build:production"
+        "workplace-e2e": {
+            "root": "apps/workplace-e2e",
+            "sourceRoot": "apps/workplace-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/workplace-e2e/cypress.json",
+                        "tsConfig": "apps/workplace-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "workplace:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "workplace:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/workplace-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/workplace-e2e/**/*"
+                        ]
+                    }
+                }
             }
-          }
         },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "template-uis:build"
-          }
+        "common": {
+            "root": "libs/common",
+            "sourceRoot": "libs/common/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/common/tsconfig.lib.json",
+                            "libs/common/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/common/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/common/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
         },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
+        "bookings": {
+            "root": "libs/bookings",
+            "sourceRoot": "libs/bookings/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/bookings/tsconfig.lib.json",
+                            "libs/bookings/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/bookings/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/bookings/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "calendar": {
+            "root": "libs/calendar",
+            "sourceRoot": "libs/calendar/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/calendar/tsconfig.lib.json",
+                            "libs/calendar/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/calendar/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/calendar/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "catering": {
+            "root": "libs/catering",
+            "sourceRoot": "libs/catering/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/catering/tsconfig.lib.json",
+                            "libs/catering/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/catering/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/catering/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "events": {
+            "root": "libs/events",
+            "sourceRoot": "libs/events/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/events/tsconfig.lib.json",
+                            "libs/events/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/events/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/events/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "explore": {
+            "root": "libs/explore",
+            "sourceRoot": "libs/explore/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/explore/tsconfig.lib.json",
+                            "libs/explore/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/explore/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/explore/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "mocks": {
+            "root": "libs/mocks",
+            "sourceRoot": "libs/mocks/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/mocks/tsconfig.lib.json",
+                            "libs/mocks/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/mocks/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/mocks/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "organisation": {
+            "root": "libs/organisation",
+            "sourceRoot": "libs/organisation/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/organisation/tsconfig.lib.json",
+                            "libs/organisation/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!libs/organisation/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/organisation/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "spaces": {
+            "root": "libs/spaces",
+            "sourceRoot": "libs/spaces/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/spaces/tsconfig.lib.json",
+                            "libs/spaces/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/spaces/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/spaces/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "users": {
+            "root": "libs/users",
+            "sourceRoot": "libs/users/src",
+            "projectType": "library",
+            "schematics": {},
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/users/tsconfig.lib.json",
+                            "libs/users/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/users/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/users/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "components": {
+            "projectType": "library",
+            "root": "libs/components",
+            "sourceRoot": "libs/components/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/components/tsconfig.lib.json",
+                            "libs/components/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!libs/components/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "jestConfig": "libs/components/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
             },
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
-          }
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "tsconfig.app.json",
-              "tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
+        "booking-panel": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/booking-panel",
+            "sourceRoot": "apps/booking-panel/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/booking-panel/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/booking-panel",
+                        "index": "apps/booking-panel/src/index.html",
+                        "main": "apps/booking-panel/src/main.ts",
+                        "polyfills": "apps/booking-panel/src/polyfills.ts",
+                        "tsConfig": "apps/booking-panel/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/booking-panel/src/favicon.ico",
+                            "apps/booking-panel/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/booking-panel/src/styles.scss"],
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/booking-panel/src/environments/environment.ts",
+                                    "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/booking-panel/src/environments/settings.ts"
+                                }
+                            ],
+                            "baseHref": "/bookings/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "booking-panel:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "booking-panel:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "booking-panel:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/booking-panel/tsconfig.app.json",
+                            "apps/booking-panel/tsconfig.spec.json",
+                            "apps/booking-panel/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/booking-panel/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/booking-panel/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "booking-panel-e2e": {
+            "root": "apps/booking-panel-e2e",
+            "sourceRoot": "apps/booking-panel-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/booking-panel-e2e/cypress.json",
+                        "tsConfig": "apps/booking-panel-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "booking-panel:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "booking-panel:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/booking-panel-e2e/tsconfig.e2e.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/booking-panel-e2e/**/*"
+                        ]
+                    }
+                }
+            }
+        },
+        "concierge": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/concierge",
+            "sourceRoot": "apps/concierge/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/caterer-ui/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/concierge",
+                        "index": "apps/concierge/src/index.html",
+                        "main": "apps/concierge/src/main.ts",
+                        "polyfills": "apps/concierge/src/polyfills.ts",
+                        "tsConfig": "apps/concierge/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/concierge/src/favicon.ico",
+                            "apps/concierge/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/concierge/src/styles.scss"],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/concierge/src/environments/environment.ts",
+                                    "with": "apps/concierge/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/concierge/src/environments/settings.ts"
+                                }
+                            ],
+                            "baseHref": "/concierge/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "concierge:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "concierge:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "concierge:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/concierge/tsconfig.app.json",
+                            "apps/concierge/tsconfig.spec.json",
+                            "apps/concierge/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/concierge/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/concierge/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "concierge-e2e": {
+            "root": "apps/concierge-e2e",
+            "sourceRoot": "apps/concierge-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/concierge-e2e/cypress.json",
+                        "tsConfig": "apps/concierge-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "concierge:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "concierge:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/concierge-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/concierge-e2e/**/*"
+                        ]
+                    }
+                }
+            }
+        },
+        "visitor-kiosk": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/visitor-kiosk",
+            "sourceRoot": "apps/visitor-kiosk/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/visitor-kiosk/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/visitor-kiosk",
+                        "index": "apps/visitor-kiosk/src/index.html",
+                        "main": "apps/visitor-kiosk/src/main.ts",
+                        "polyfills": "apps/visitor-kiosk/src/polyfills.ts",
+                        "tsConfig": "apps/visitor-kiosk/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/visitor-kiosk/src/favicon.ico",
+                            "apps/visitor-kiosk/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/visitor-kiosk/src/styles.scss"],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/visitor-kiosk/src/environments/environment.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "visitor-kiosk:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "visitor-kiosk:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "visitor-kiosk:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/visitor-kiosk/tsconfig.app.json",
+                            "apps/visitor-kiosk/tsconfig.spec.json",
+                            "apps/visitor-kiosk/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/visitor-kiosk/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/visitor-kiosk/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "visitor-kiosk-e2e": {
+            "root": "apps/visitor-kiosk-e2e",
+            "sourceRoot": "apps/visitor-kiosk-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/visitor-kiosk-e2e/cypress.json",
+                        "tsConfig": "apps/visitor-kiosk-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "visitor-kiosk:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "visitor-kiosk:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/visitor-kiosk-e2e/tsconfig.e2e.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/visitor-kiosk-e2e/**/*"
+                        ]
+                    }
+                }
+            }
+        },
+        "control": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/control",
+            "sourceRoot": "apps/control/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/control/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/control",
+                        "index": "apps/control/src/index.html",
+                        "main": "apps/control/src/main.ts",
+                        "polyfills": "apps/control/src/polyfills.ts",
+                        "tsConfig": "apps/control/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/control/src/favicon.ico",
+                            "apps/control/src/assets",
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/control/src/styles.scss"],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/control/src/environments/environment.ts",
+                                    "with": "apps/control/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/control/src/environments/settings.ts"
+                                }
+                            ],
+                            "baseHref": "/control/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "control:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "control:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "control:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/control/tsconfig.app.json",
+                            "apps/control/tsconfig.spec.json",
+                            "apps/control/tsconfig.editor.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!apps/control/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/control/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "control-e2e": {
+            "root": "apps/control-e2e",
+            "sourceRoot": "apps/control-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/control-e2e/cypress.json",
+                        "tsConfig": "apps/control-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "control:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "control:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/control-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/control-e2e/**/*"
+                        ]
+                    }
+                }
+            }
+        },
+        "caterer-ui": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/caterer-ui",
+            "sourceRoot": "apps/caterer-ui/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/caterer-ui/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/caterer-ui",
+                        "index": "apps/caterer-ui/src/index.html",
+                        "main": "apps/caterer-ui/src/main.ts",
+                        "polyfills": "apps/caterer-ui/src/polyfills.ts",
+                        "tsConfig": "apps/caterer-ui/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/caterer-ui/src/favicon.ico",
+                            "apps/caterer-ui/src/assets",
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/caterer-ui/src/styles.scss"],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/caterer-ui/src/environments/environment.ts",
+                                    "with": "apps/caterer-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/caterer-ui/src/environments/settings.ts"
+                                }
+                            ],
+                            "baseHref": "/catering/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "caterer-ui:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "caterer-ui:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "caterer-ui:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/caterer-ui/tsconfig.app.json",
+                            "apps/caterer-ui/tsconfig.spec.json",
+                            "apps/caterer-ui/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/caterer-ui/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/caterer-ui/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "caterer-ui-e2e": {
+            "root": "apps/caterer-ui-e2e",
+            "sourceRoot": "apps/caterer-ui-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/caterer-ui-e2e/cypress.json",
+                        "tsConfig": "apps/caterer-ui-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "caterer-ui:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "caterer-ui:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/caterer-ui-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/caterer-ui-e2e/**/*"
+                        ]
+                    }
+                }
+            }
+        },
+        "map-kiosk": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/map-kiosk",
+            "sourceRoot": "apps/map-kiosk/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/map-kiosk/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/map-kiosk",
+                        "index": "apps/map-kiosk/src/index.html",
+                        "main": "apps/map-kiosk/src/main.ts",
+                        "polyfills": "apps/map-kiosk/src/polyfills.ts",
+                        "tsConfig": "apps/map-kiosk/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/map-kiosk/src/favicon.ico",
+                            "apps/map-kiosk/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/map-kiosk/src/styles.scss"],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/map-kiosk/src/environments/environment.ts",
+                                    "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/map-kiosk/src/environments/settings.ts"
+                                }
+                            ],
+                            "baseHref": "/kiosk/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "map-kiosk:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "map-kiosk:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "map-kiosk:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/map-kiosk/tsconfig.app.json",
+                            "apps/map-kiosk/tsconfig.spec.json",
+                            "apps/map-kiosk/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/map-kiosk/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/map-kiosk/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "map-kiosk-e2e": {
+            "root": "apps/map-kiosk-e2e",
+            "sourceRoot": "apps/map-kiosk-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/map-kiosk-e2e/cypress.json",
+                        "tsConfig": "apps/map-kiosk-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "map-kiosk:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "map-kiosk:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/map-kiosk-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/map-kiosk-e2e/**/*"
+                        ]
+                    }
+                }
+            }
         }
-      }
     },
-    "workplace": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/workplace",
-      "sourceRoot": "projects/workplace/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/workplace",
-            "index": "projects/workplace/src/index.html",
-            "main": "projects/workplace/src/main.ts",
-            "polyfills": "projects/workplace/src/polyfills.ts",
-            "tsConfig": "projects/workplace/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/workplace/",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "fileReplacements": [
-              {
-                "replace": "src/app/common/settings.ts",
-                "with": "projects/workplace/src/app/settings.ts"
-              }
-            ],
-            "assets": [
-              "projects/workplace/src/favicon.ico",
-              "projects/workplace/src/assets",
-              "projects/workplace/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/workplace/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/workplace/src/environments/environment.ts",
-                  "with": "projects/workplace/src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "src/app/common/settings.ts",
-                  "with": "projects/workplace/src/app/settings.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "projects/workplace/ngsw-config.json"
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "workplace:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "workplace:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "workplace:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/workplace/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/workplace/src/favicon.ico",
-              "projects/workplace/src/assets",
-              "projects/workplace/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/workplace/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/workplace/tsconfig.app.json",
-              "projects/workplace/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
+    "cli": {
+        "defaultCollection": "@nrwl/angular"
     },
-    "bookings": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/bookings",
-      "sourceRoot": "projects/bookings/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/bookings",
-            "index": "projects/bookings/src/index.html",
-            "main": "projects/bookings/src/main.ts",
-            "polyfills": "projects/bookings/src/polyfills.ts",
-            "tsConfig": "projects/bookings/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/bookings/",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/bookings/src/favicon.ico",
-              "projects/bookings/src/assets",
-              "projects/bookings/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/bookings/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/bookings/src/environments/environment.ts",
-                  "with": "projects/bookings/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "projects/bookings/ngsw-config.json"
+    "schematics": {
+        "@nrwl/workspace": {
+            "library": {
+                "linter": "tslint"
             }
-          }
         },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "bookings:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "bookings:build:production"
+        "@nrwl/cypress": {
+            "cypress-project": {
+                "linter": "tslint"
             }
-          }
         },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "bookings:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/bookings/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
+        "@nrwl/node": {
+            "application": {
+                "linter": "tslint"
             },
-            "assets": [
-              "projects/bookings/src/favicon.ico",
-              "projects/bookings/src/assets",
-              "projects/bookings/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/bookings/src/styles.scss"
-            ],
-            "scripts": []
-          }
+            "library": {
+                "linter": "tslint"
+            }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/bookings/tsconfig.app.json",
-              "projects/bookings/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
+        "@nrwl/nest": {
+            "application": {
+                "linter": "tslint"
+            },
+            "library": {
+                "linter": "tslint"
+            }
+        },
+        "@nrwl/express": {
+            "application": {
+                "linter": "tslint"
+            },
+            "library": {
+                "linter": "tslint"
+            }
+        },
+        "@nrwl/angular:application": {
+            "unitTestRunner": "jest",
+            "e2eTestRunner": "cypress"
+        },
+        "@nrwl/angular:library": {
+            "unitTestRunner": "jest"
         }
-      }
     },
-    "control": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/control",
-      "sourceRoot": "projects/control/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/control",
-            "index": "projects/control/src/index.html",
-            "main": "projects/control/src/main.ts",
-            "polyfills": "projects/control/src/polyfills.ts",
-            "tsConfig": "projects/control/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/control/",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/control/src/favicon.ico",
-              "projects/control/src/assets",
-              "projects/control/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/control/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/control/src/environments/environment.ts",
-                  "with": "projects/control/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "projects/control/ngsw-config.json"
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "control:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "control:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "control:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/control/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/control/src/favicon.ico",
-              "projects/control/src/assets",
-              "projects/control/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/control/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/control/tsconfig.app.json",
-              "projects/control/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
-    "concierge": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/concierge",
-      "sourceRoot": "projects/concierge/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/concierge",
-            "index": "projects/concierge/src/index.html",
-            "main": "projects/concierge/src/main.ts",
-            "polyfills": "projects/concierge/src/polyfills.ts",
-            "tsConfig": "projects/concierge/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/concierge/",
-            "fileReplacements": [
-              {
-                "replace": "src/app/common/settings.ts",
-                "with": "projects/concierge/src/environments/settings.ts"
-              }
-            ],
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/concierge/src/favicon.ico",
-              "projects/concierge/src/assets",
-              "projects/concierge/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/concierge/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/concierge/src/environments/environment.ts",
-                  "with": "projects/concierge/src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "src/app/common/settings.ts",
-                  "with": "projects/concierge/src/environments/settings.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "projects/concierge/ngsw-config.json"
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "concierge:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "concierge:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "concierge:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/concierge/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/concierge/src/favicon.ico",
-              "projects/concierge/src/assets",
-              "projects/concierge/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/concierge/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/concierge/tsconfig.app.json",
-              "projects/concierge/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
-    "catering": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/catering",
-      "sourceRoot": "projects/catering/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/catering",
-            "index": "projects/catering/src/index.html",
-            "main": "projects/catering/src/main.ts",
-            "polyfills": "projects/catering/src/polyfills.ts",
-            "tsConfig": "projects/catering/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/catering/",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/catering/src/favicon.ico",
-              "projects/catering/src/assets",
-              "projects/catering/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/catering/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/catering/src/environments/environment.ts",
-                  "with": "projects/catering/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "projects/catering/ngsw-config.json"
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "catering:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "catering:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "catering:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/catering/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/catering/src/favicon.ico",
-              "projects/catering/src/assets",
-              "projects/catering/src/manifest.webmanifest",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/catering/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/catering/tsconfig.app.json",
-              "projects/catering/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
-    "visitor-kiosk": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/visitor-kiosk",
-      "sourceRoot": "projects/visitor-kiosk/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/visitor-kiosk",
-            "index": "projects/visitor-kiosk/src/index.html",
-            "main": "projects/visitor-kiosk/src/main.ts",
-            "polyfills": "projects/visitor-kiosk/src/polyfills.ts",
-            "tsConfig": "projects/visitor-kiosk/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/visitor-kiosk/",
-            "fileReplacements": [
-              {
-                "replace": "src/app/common/settings.ts",
-                "with": "projects/visitor-kiosk/src/app/settings.ts"
-              }
-            ],
-            "assets": [
-              "projects/visitor-kiosk/src/favicon.ico",
-              "projects/visitor-kiosk/src/assets",
-              {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
-              },
-              "projects/visitor-kiosk/src/manifest.webmanifest"
-            ],
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "styles": [
-              "projects/visitor-kiosk/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                    "replace": "src/environments/environment.ts",
-                    "with": "src/environments/environment.prod.ts"
-                },
-                {
-                  "replace": "src/app/common/settings.ts",
-                  "with": "projects/visitor-kiosk/src/app/settings.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "projects/visitor-kiosk/ngsw-config.json"
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "visitor-kiosk:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "visitor-kiosk:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "visitor-kiosk:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/visitor-kiosk/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              "projects/visitor-kiosk/src/favicon.ico",
-              "projects/visitor-kiosk/src/assets",
-              {
-                  "glob": "oauth-resp.html",
-                  "input": "node_modules/@placeos/ts-client/dist/",
-                  "output": "/"
-              },
-              "projects/visitor-kiosk/src/manifest.webmanifest"
-            ],
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "styles": [
-              "projects/visitor-kiosk/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/visitor-kiosk/tsconfig.app.json",
-              "projects/visitor-kiosk/tsconfig.spec.json",
-              "projects/visitor-kiosk/e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "projects/visitor-kiosk/e2e/protractor.conf.js",
-            "devServerTarget": "visitor-kiosk:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "visitor-kiosk:serve:production"
-            }
-          }
-        }
-      }
-    },
-    "kiosk": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "projects/kiosk",
-      "sourceRoot": "projects/kiosk/src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/kiosk",
-            "index": "projects/kiosk/src/index.html",
-            "main": "projects/kiosk/src/main.ts",
-            "polyfills": "projects/kiosk/src/polyfills.ts",
-            "tsConfig": "projects/kiosk/tsconfig.app.json",
-            "aot": true,
-            "baseHref": "/kiosk/",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/kiosk/src/favicon.ico",
-              "projects/kiosk/src/assets",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/kiosk/src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/kiosk/src/environments/environment.ts",
-                  "with": "projects/kiosk/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
-                }
-              ]
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "baseHref": "/",
-            "browserTarget": "kiosk:build",
-            "proxyConfig": "config/proxy.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "kiosk:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "kiosk:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-builders/jest:run",
-          "options": {
-            "polyfills": "projects/catering/src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/app/styles"
-              ]
-            },
-            "assets": [
-              "projects/kiosk/src/favicon.ico",
-              "projects/kiosk/src/assets",
-              {
-                "glob": "oauth-resp.html",
-                "input": "node_modules/@placeos/ts-client/dist/",
-                "output": "/"
-              }
-            ],
-            "styles": [
-              "projects/kiosk/src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/kiosk/tsconfig.app.json",
-              "projects/kiosk/tsconfig.spec.json",
-              "projects/kiosk/e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "projects/kiosk/e2e/protractor.conf.js",
-            "devServerTarget": "kiosk:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "kiosk:serve:production"
-            }
-          }
-        }
-      }
-    }
-  },
-  "defaultProject": "template-uis"
+    "defaultProject": "workplace"
 }

@@ -8,8 +8,8 @@ on:
     push:
         branches: [master]
         paths:
-          - projects/visitor-kiosk/**
-          - src/app/**
+          - apps/visitor-kiosk/**
+          - libs/**
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -43,7 +43,7 @@ jobs:
                       ${{ runner.os }}-
 
             - name: Install node modules
-              run: npm install && npm i -g @angular/cli
+              run: npm install && npm install -g @angular/cli && npm install -g nx
 
             # - name: Test the application
             #   run: npm run test:ci
@@ -52,13 +52,13 @@ jobs:
               run: npm run postversion
 
             - name: Builds the application
-              run: ng build visitor-kiosk --prod --aot
+              run: nx build visitor-kiosk --prod --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/visitor-kiosk/prod
-                source_folder: dist/visitor-kiosk
+                source_folder: dist/apps/visitor-kiosk
                 commit_message: >
                     build(visitor-kiosk): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}

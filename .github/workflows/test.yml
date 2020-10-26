@@ -40,7 +40,7 @@ jobs:
                       ${{ runner.os }}-
 
             - name: Install node modules
-              run: npm install && npm i -g @angular/cli
+              run: npm install && npm install -g @angular/cli && npm install -g nx
 
             - name: Test the application
               run: npm run test:ci

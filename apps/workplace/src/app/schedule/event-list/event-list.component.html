@@ -1,0 +1,84 @@
+<div class="schedule page">
+    <header class="header">
+        <a-topbar-header (menuChange)="menu.emit($event)"></a-topbar-header>
+    </header>
+    <div class="actions">
+        <div class="calendars">
+            <mat-form-field appearance="outline">
+                <mat-select
+                    name="calendars"
+                    [(ngModel)]="calendar"
+                    (ngModelChange)="onCalendarChange()"
+                >
+                    <mat-option
+                        *ngFor="let cal of calendar_list"
+                        [value]="cal.id"
+                    >
+                        {{ cal.summary }}
+                    </mat-option>
+                    <mat-option value="desks">Desks</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="legend">
+            <button mat-button class="clear" [matMenuTriggerFor]="legend">
+                Legend
+            </button>
+            <mat-menu #legend="matMenu">
+                <div class="legend" *ngFor="let item of legend_list">
+                    <div
+                        class="color"
+                        [style.background-color]="item.color"
+                    ></div>
+                    {{ item.name }}
+                </div>
+            </mat-menu>
+        </div>
+        <div class="date">
+            <button mat-icon-button class="relative" #dateMenu>
+                <app-icon
+                    [icon]="{ class: 'material-icons', content: 'event' }"
+                ></app-icon>
+                <input
+                    matInput
+                    class="opacity-0 absolute inset-0"
+                    [ngModel]="date"
+                    (ngModelChange)="updateDate($event)"
+                    [matDatepicker]="picker"
+                />
+
+                <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker"
+                ></mat-datepicker-toggle>
+            </button>
+            <mat-datepicker #picker></mat-datepicker>
+        </div>
+    </div>
+    <main class="body">
+        <div class="event-list">
+            <div class="progress">
+                <mat-progress-bar
+                    mode="indeterminate"
+                    *ngIf="loading"
+                ></mat-progress-bar>
+            </div>
+            <div class="body">
+                <a-infinite-scroll (scrolled)="onScroll()">
+                    <schedule-event-item
+                        id="{{ i }}"
+                        *ngFor="let item of events; let i = index"
+                        [event]="item"
+                    ></schedule-event-item>
+                    <mat-progress-bar
+                        mode="indeterminate"
+                        *ngIf="loading && events.length > 0"
+                    ></mat-progress-bar>
+                </a-infinite-scroll>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <a-footer-menu></a-footer-menu>
+    </footer>
+</div>

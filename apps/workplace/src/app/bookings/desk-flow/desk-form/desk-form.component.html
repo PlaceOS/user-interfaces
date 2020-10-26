@@ -1,0 +1,60 @@
+<div class="desk-form">
+    <div class="basic">
+        <form *ngIf="form" [formGroup]="form">
+            <div class="title">Request a desk</div>
+            <div class="row">
+                <div class="field">
+                    <label for="building">Building:</label>
+                    <mat-form-field appearance="outline" overlay>
+                        <mat-select formControlName="building">
+                            <mat-option *ngFor="let item of buildings_list" [value]="item.id">
+                                {{ item.display_name || item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="field mb">
+                    <label class="mb" for="date">Date:</label>
+                    <a-date-field formControlName="date" [from]="from" name="date"></a-date-field>
+                    <mat-error *ngIf="form.controls.date.invalid">
+                        Date needs to be in the future
+                    </mat-error>
+                </div>
+            </div>
+            <!-- <div class="row" *ngIf="form.controls.date">
+                <div class="field">
+                    <label for="start-time">Time:</label>
+                    <a-time-field
+                        name="start-time"
+                        [ngModel]="form.controls.date.value"
+                        (ngModelChange)="form.controls.date.setValue($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                    >
+                    </a-time-field>
+                </div>
+            </div> -->
+            <div class="row">
+                <div class="field">
+                    <label for="title">Reason for booking:</label>
+                    <mat-form-field class="desk" appearance="outline" overlay>
+                        <input
+                            matInput
+                            formControlName="title"
+                            name="title"
+                            placeholder="Add reason here..."
+                        />
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="actions">
+                <button mat-button class="inverse" (click)="clear()">Clear</button>
+                <button mat-flat-button [disabled]="loading" color="primary" (click)="next()">Next</button>
+            </div>
+        </form>
+    </div>
+    <div class="loader" *ngIf="loading">
+        <mat-spinner diameter="64"></mat-spinner>
+    </div>
+</div>

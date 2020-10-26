@@ -1,0 +1,76 @@
+
+    <div class="details">
+        <header>
+            Visitor Kiosk Setup
+        </header>
+        <main *ngIf="!loading; else load_state">
+            <div class="field" *ngIf="buildings && buildings.length">
+                <label>Please select a building from the dropdown below</label>
+                <mat-form-field appearance="outline">
+                    <mat-select
+                        #select
+                        [(value)]="active_building"
+                        (valueChange)="updateRotations()"
+                        placeholder="Select building"
+                    >
+                        <mat-option *ngFor="let option of buildings" [value]="option">
+                            {{ option.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="field" *ngIf="levels && levels.length">
+                <label>Please select a level from the dropdown below</label>
+                <mat-form-field appearance="outline">
+                    <mat-select #select [(value)]="active_level" placeholder="Select level">
+                        <mat-option *ngFor="let option of levels" [value]="option">
+                            {{ option.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="field" *ngIf="rotations && rotations.length">
+                <label>Please select an orientation from the dropdown below</label>
+                <mat-form-field appearance="outline">
+                    <mat-select
+                        #select
+                        [(value)]="active_rotation"
+                        placeholder="Select orientation"
+                    >
+                        <mat-option *ngFor="let option of rotations" [value]="option">
+                            {{ option.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="field" *ngIf="locations && locations.length">
+                <label>Please select an fixed location from the dropdown below</label>
+                <mat-form-field appearance="outline">
+                    <mat-select #select [(value)]="active_location" placeholder="Select location">
+                        <mat-option *ngFor="let option of locations" [value]="option">
+                            {{ option.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </main>
+        <footer *ngIf="!loading">
+            <button
+                mat-button
+                [disabled]="!active_building && !active_level"
+                (click)="bootstrapKiosk()"
+            >
+                Finish Setup
+            </button>
+        </footer>
+    </div>
+<ng-template #load_state>
+    <main>
+        <div class="info-block">
+            <div class="icon">
+                <mat-spinner diameter="64"></mat-spinner>
+            </div>
+            <div class="text">{{ loading }}</div>
+        </div>
+    </main>
+</ng-template>

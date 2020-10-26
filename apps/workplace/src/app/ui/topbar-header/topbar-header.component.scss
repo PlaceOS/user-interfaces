@@ -1,0 +1,86 @@
+@import 'variables';
+
+.topbar-header {
+    display: flex;
+    align-items: center;
+    height: 3.5em;
+    background-color: #fff;
+    color: $font-dark;
+    box-shadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
+        0 2px 1px -1px rgba(#000, 0.12);
+    border-bottom: 1px solid #ccc;
+
+    &.reverse {
+        flex-direction: row-reverse;
+
+        .block {
+            &:last-child {
+                justify-content: flex-start;
+            }
+            &:first-child {
+                justify-content: flex-end;
+            }
+        }
+    }
+}
+
+.active {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.logo {
+    padding: 0 .5rem;
+}
+
+img {
+    max-height: 2.5em;
+    max-width: 50vw;
+}
+
+.block {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    &:first-child {
+        a {
+            // background-color: $color-primary;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    &:last-child {
+        justify-content: flex-end;
+    }
+}
+
+.middle {
+    justify-content: center;
+    flex: 1;
+    min-width: 50%;
+}
+
+a-searchbar {
+    width: 100%;
+}
+
+[mat-icon-button] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    height: 2em;
+    width: 2em;
+}
+
+.search {
+    border: 1px solid #ccc;
+    background-color: rgba(#000, 0.05);
+
+    &.focus {
+        border-color: $color-primary;
+    }
+}

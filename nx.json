@@ -1,0 +1,109 @@
+{
+    "npmScope": "user-interfaces",
+    "affected": {
+        "defaultBase": "master"
+    },
+    "implicitDependencies": {
+        "angular.json": "*",
+        "package.json": {
+            "dependencies": "*",
+            "devDependencies": "*"
+        },
+        "tsconfig.base.json": "*",
+        "tslint.json": "*",
+        ".eslintrc.json": "*",
+        "nx.json": "*"
+    },
+    "tasksRunnerOptions": {
+        "default": {
+            "runner": "@nrwl/workspace/tasks-runners/default",
+            "options": {
+                "cacheableOperations": ["build", "lint", "test", "e2e"]
+            }
+        }
+    },
+    "projects": {
+        "workplace": {
+            "tags": []
+        },
+        "workplace-e2e": {
+            "tags": [],
+            "implicitDependencies": ["workplace"]
+        },
+        "common": {
+            "tags": []
+        },
+        "bookings": {
+            "tags": []
+        },
+        "calendar": {
+            "tags": []
+        },
+        "catering": {
+            "tags": []
+        },
+        "events": {
+            "tags": []
+        },
+        "explore": {
+            "tags": []
+        },
+        "mocks": {
+            "tags": []
+        },
+        "organisation": {
+            "tags": []
+        },
+        "spaces": {
+            "tags": []
+        },
+        "users": {
+            "tags": []
+        },
+        "components": {
+            "tags": []
+        },
+        "booking-panel": {
+            "tags": []
+        },
+        "booking-panel-e2e": {
+            "tags": [],
+            "implicitDependencies": ["booking-panel"]
+        },
+        "concierge": {
+            "tags": []
+        },
+        "concierge-e2e": {
+            "tags": [],
+            "implicitDependencies": ["concierge"]
+        },
+        "visitor-kiosk": {
+            "tags": []
+        },
+        "visitor-kiosk-e2e": {
+            "tags": [],
+            "implicitDependencies": ["visitor-kiosk"]
+        },
+        "control": {
+            "tags": []
+        },
+        "control-e2e": {
+            "tags": [],
+            "implicitDependencies": ["control"]
+        },
+        "caterer-ui": {
+            "tags": []
+        },
+        "caterer-ui-e2e": {
+            "tags": [],
+            "implicitDependencies": ["caterer-ui"]
+        },
+        "map-kiosk": {
+            "tags": []
+        },
+        "map-kiosk-e2e": {
+            "tags": [],
+            "implicitDependencies": ["map-kiosk"]
+        }
+    }
+}
