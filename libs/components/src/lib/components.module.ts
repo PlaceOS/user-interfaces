@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import {ClipboardModule} from '@angular/cdk/clipboard';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
@@ -61,7 +62,8 @@ const MAT_MODULES: any[] = [
     MatSelectModule,
     MatDialogModule,
     MatDatepickerModule,
-    MatInputModule
+    MatInputModule,
+    ClipboardModule
 ];
 
 const COMPONENTS: Type<any>[] = [

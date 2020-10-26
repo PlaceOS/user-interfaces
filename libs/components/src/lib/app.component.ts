@@ -3,7 +3,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { invalidateToken } from '@placeos/ts-client';
+import { clientId, invalidateToken, token } from '@placeos/ts-client';
 
 import { BaseClass, HotkeysService, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
@@ -11,6 +11,8 @@ import { OrganisationService } from '@user-interfaces/organisation';
 import { SpacesService } from '../../../spaces/src/lib/spaces.service';
 import { StaffService } from '../../../users/src/lib/staff.service';
 import { setDefaultCreator } from '../../../events/src/lib/event.class';
+import { addHours } from 'date-fns';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 
 @Component({
@@ -45,7 +47,8 @@ export class AppComponent extends BaseClass implements OnInit {
         private _users: StaffService,
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
-        private _hotkey: HotkeysService
+        private _hotkey: HotkeysService,
+        private _clipboard: Clipboard
     ) {
         super();
     }
@@ -54,6 +57,16 @@ export class AppComponent extends BaseClass implements OnInit {
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
             localStorage.setItem('mock', `${localStorage.getItem('mock') !== 'true'}`);
             location.reload();
+        });
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
+            this._clipboard.copy(token());
+        });
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
+            navigator.clipboard?.readText().then(tkn => {
+                localStorage.setItem(`${clientId()}_access_token`, `${tkn}`);
+                localStorage.setItem(`${clientId()}_expires_at`, `${addHours(new Date(), 6).valueOf()}`);
+                location.reload();
+            });
         });
         setNotifyOutlet(this._snackbar);
         this._loading.next(true);
