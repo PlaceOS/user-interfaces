@@ -60,7 +60,7 @@
         "@tinymce/tinymce-angular": "^4.2.0",
         "@types/jest": "26.0.8",
         "@types/node": "~8.9.4",
-        "@yuion/svg-viewer": "0.0.5-development",
+        "@yuion/svg-viewer": "0.0.7-development",
         "@zxing/library": "^0.17.1",
         "codelyzer": "~5.0.1",
         "cypress": "^4.1.0",

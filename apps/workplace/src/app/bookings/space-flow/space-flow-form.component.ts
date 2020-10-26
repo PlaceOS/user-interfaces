@@ -252,7 +252,7 @@ export const CAPACITY_OPTIONS = [
             }
 
             [name='quick'] form > * + *,
-            [name='details'] > * + *  {
+            [name='details'] > * + * {
                 margin-left: 0.5rem;
             }
 
@@ -285,10 +285,7 @@ export class SpaceFlowFormComponent {
     public readonly form = this._service.form;
     /** Form filters for event */
     public readonly filters = this._service.filters;
-    public readonly updateCapacity = (c: number) =>
-        this._service.updateFilters({ capacity: c });
     public readonly use_html = this._settings.get('app.booking.use_html');
-    public readonly clearForm = () => this._service.clearForm();
     public readonly capacity_options = CAPACITY_OPTIONS;
     public readonly time_options = [
         {
@@ -310,6 +307,9 @@ export class SpaceFlowFormComponent {
             name: 'Tomorrow',
         },
     ];
+    public readonly updateCapacity = (c: number) =>
+        this._service.updateFilters({ capacity: c });
+    public readonly clearForm = () => this._service.clearForm();
 
     constructor(
         private _service: SpaceFlowService,
