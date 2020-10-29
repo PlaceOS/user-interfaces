@@ -13,11 +13,17 @@ import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';
+import { TopbarHeaderComponent } from './topbar-header.component';
 
 import '@user-interfaces/mocks';
 
 @NgModule({
-    declarations: [AppComponent, BootstrapComponent, ControlMainViewComponent],
+    declarations: [
+        AppComponent,
+        BootstrapComponent,
+        ControlMainViewComponent,
+        TopbarHeaderComponent,
+    ],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
@@ -26,7 +32,9 @@ import '@user-interfaces/mocks';
         MatDialogModule,
         MatProgressSpinnerModule,
         UIModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
     ],
     providers: [],
     bootstrap: [AppComponent],
