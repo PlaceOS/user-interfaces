@@ -22,31 +22,27 @@ export class MockBookingModule {
     last_booking_started = 0;
     /** Current status of the space */
     status: 'pending' | 'busy' | 'free' | 'not-bookable' = 'free';
-    /** Start the meeting at the given time */
-    $start_meeting(t: number) {
-        this.last_booking_started = t;
-    }
-    /** End the meeting at the given time */
-    $end_meeting(t: number) {}
-    /** Book meeting for the current time */
-    $book_now(len: number, t?: string, o?: string) {}
 }
 
-export function createBookingsModule(
-    space: HashMap,
-    overrides: HashMap = {}
-): MockBookingModule {
-    const mod = new MockBookingModule();
-    for (const key in mod) {
-        if (!mod.hasOwnProperty(key)) continue;
-        mod[key] = overrides[key] || mod[key];
-    }
+export function createBookingsModule(space: HashMap, overrides: Partial<MockBookingModule> = {}) {
+    const mod = {
+        ...new MockBookingModule(),
+        ...overrides,
+        /** Start the meeting at the given time */
+        $start_meeting: function (t: number) {
+            this.last_booking_started = t;
+        },
+        /** End the meeting at the given time */
+        $end_meeting: function (t: number) {},
+        /** Book meeting for the current time */
+        $book_now: function (len: number, t?: string, o?: string) {},
+    };
     updateBookings(space, mod);
     setInterval(() => updateBookings(space, mod), 1000);
     return mod;
 }
 
-function updateBookings(space: HashMap, mod: MockBookingModule) {
+function updateBookings(space: HashMap, mod: HashMap) {
     const bookings = MOCK_EVENTS.filter((event) =>
         event.attendees.find((u) => u.email === space.email)
     );
