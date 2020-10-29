@@ -14,6 +14,8 @@ import { UIModule } from './ui/ui.module';
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';
 
+import '@user-interfaces/mocks';
+
 @NgModule({
     declarations: [AppComponent, BootstrapComponent, ControlMainViewComponent],
     imports: [

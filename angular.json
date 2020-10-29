@@ -981,6 +981,11 @@
                             "apps/control/src/favicon.ico",
                             "apps/control/src/assets",
                             {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
                                 "glob": "oauth-resp.html",
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
