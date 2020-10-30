@@ -10,12 +10,12 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 
 export const DEFAULT_COLOURS = {
-    'free': '#43a047',
-    'pending': '#ffb300',
-    'reserved': '#3949ab',
-    'busy': '#e53935',
+    free: '#43a047',
+    pending: '#ffb300',
+    reserved: '#3949ab',
+    busy: '#e53935',
     'not-bookable': '#757575',
-    'unknown': '#757575',
+    unknown: '#757575',
 };
 
 @Injectable()

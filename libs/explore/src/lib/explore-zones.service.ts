@@ -75,12 +75,14 @@ export class ExploreZonesService extends BaseClass {
     private updateStatus() {
         const style_map = {};
         const colours =
-            this._settings.get('app.explore.colors') || DEFAULT_COLOURS;
+            this._settings.get('app.explore.colors') || {};
         for (const zone_id in this._statuses) {
+            if (!this._statuses.hasOwnProperty(zone_id)) continue;
             style_map[`#${zone_id}`] = {
                 fill:
                     colours[`zone-${this._statuses[zone_id]}`] ||
-                    colours[`${this._statuses[zone_id]}`],
+                    colours[`${this._statuses[zone_id]}`] ||
+                    DEFAULT_COLOURS[`${this._statuses[zone_id]}`],
                 opacity: 0.6,
             };
         }
