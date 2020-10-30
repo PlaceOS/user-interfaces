@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, listen } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
@@ -6,7 +6,10 @@ import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
-import { BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
+import {
+    BuildingLevel,
+    OrganisationService,
+} from '@user-interfaces/organisation';
 
 export interface DesksStats {
     free: number;
@@ -15,16 +18,24 @@ export interface DesksStats {
 }
 
 @Injectable()
-export class ExploreDesksService extends BaseClass {
+export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _level: BuildingLevel = null;
     private _in_use = new BehaviorSubject<string[]>([]);
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
     private _bindings: any[] = [];
-    private _stats = new BehaviorSubject<DesksStats>({ free: 0, occupied: 0, total: 0 });
+    private _stats = new BehaviorSubject<DesksStats>({
+        free: 0,
+        occupied: 0,
+        total: 0,
+    });
 
-    constructor(private _state: ExploreStateService, private _org: OrganisationService, private _settings: SettingsService) {
+    constructor(
+        private _state: ExploreStateService,
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         super();
         this.subscription(
             'spaces',
@@ -34,68 +45,82 @@ export class ExploreDesksService extends BaseClass {
                 this.bindToDesks();
             })
         );
-        this.subscription('changes', combineLatest([this._desks, this._in_use, this._reserved]).subscribe((details) => {
-            const [desks, in_use, reserved] = details;
-            this._statuses = {};
-            for (const id of desks) {
-                const is_used = in_use.some(i => id === i);
-                const is_reserved = reserved.some(i => id === i);
-                this._statuses[id] = is_used ? 'free' : is_reserved ? 'reserved' : 'busy';
-            }
-            this.timeout('update', () => this.updateStatus(), 100);
-        }));
+        this.subscription(
+            'changes',
+            combineLatest([
+                this._desks,
+                this._in_use,
+                this._reserved,
+            ]).subscribe((details) => {
+                const [desks, in_use, reserved] = details;
+                this._statuses = {};
+                for (const id of desks) {
+                    const is_used = in_use.some((i) => id === i);
+                    const is_reserved = reserved.some((i) => id === i);
+                    this._statuses[id] = is_used
+                        ? 'free'
+                        : is_reserved
+                        ? 'reserved'
+                        : 'busy';
+                }
+                this.timeout('update', () => this.updateStatus(), 100);
+            })
+        );
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
         this.clearBindings();
     }
 
     public clearBindings() {
-        const bindings = ['desks_in_use', 'desk_list', 'desks_reserved', 'desks_occupied', 'desks_free'];
-        for (const id of bindings) { this.unsub(id); }
-        this._bindings.forEach(b => b.unbind());
+        const bindings = [
+            'desks_in_use',
+            'desk_list'
+        ];
+        for (const id of bindings) {
+            this.unsub(id);
+        }
+        this._bindings.forEach((b) => b.unbind());
         this._bindings = [];
         this._statuses = {};
     }
 
     public bindToDesks() {
         if (!this._level) return;
-        const building = this._org.buildings.find(bld => bld.id === this._level.parent_id);
-        if (!building) { return; }
-        const system_id = this._org.organisation.bindings.desk_management;
-        if (!system_id) { return; }
-        let binding = getModule(system_id, 'DeskManagement').binding(this._level.id);
+        const building = this._org.buildings.find(
+            (bld) => bld.id === this._level.parent_id
+        );
+        if (!building) {
+            return;
+        }
+        const system_id = this._org.organisation.bindings.area_management;
+        if (!system_id) {
+            return;
+        }
+        let binding = getModule(system_id, 'AreaManagement').binding(
+            this._level.id
+        );
         this.subscription(
             `desks_in_use`,
-            binding.listen().subscribe((d) => this._in_use.next(d))
+            binding.listen().subscribe((d) => {
+                const values = (d?.values || []).filter(
+                    (v) => v.location === 'desk'
+                );
+                this._in_use.next(values.map((v) => v.map_id));
+                this._reserved.next(
+                    values.filter((v) => !v.at_location).map((v) => v.map_id)
+                );
+            })
         );
         binding.bind();
         this._bindings.push(binding);
-        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:desk_ids`);
+        binding = getModule(system_id, 'AreaManagement').binding(
+            `${this._level.id}:desk_ids`
+        );
         this.subscription(
             `desks_list`,
-            binding.listen().subscribe((d) => this._desks.next(d))
-        );
-        binding.bind();
-        this._bindings.push(binding);
-        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:reserved`);
-        this.subscription(
-            `desks_reserved`,
-            binding.listen().subscribe((d) => this._reserved.next(d))
-        );
-        binding.bind();
-        this._bindings.push(binding);
-        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:occupied_count`);
-        this.subscription(
-            `desks_occupied`,
-            binding.listen().subscribe((d) => this._stats.next({ ...this._stats.getValue(), occupied: d }))
-        );
-        binding.bind();
-        this._bindings.push(binding);
-        binding = getModule(system_id, 'DeskManagement').binding(`${this._level.id}:free_count`);
-        this.subscription(
-            `desks_free`,
-            binding.listen().subscribe((d) => this._stats.next({ ...this._stats.getValue(), free: d }))
+            binding.listen().subscribe((d) => this._desks.next(d || []))
         );
         binding.bind();
         this._bindings.push(binding);
@@ -103,10 +128,15 @@ export class ExploreDesksService extends BaseClass {
 
     private updateStatus() {
         const style_map = {};
-        const colours = this._settings.get('app.explore.colors') || DEFAULT_COLOURS;
+        const colours =
+            this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
+            if (!this._statuses.hasOwnProperty(desk_id)) continue;
             style_map[`#${desk_id}`] = {
-                fill: colours[`desk-${this._statuses[desk_id]}`] || colours[`${this._statuses[desk_id]}`],
+                fill:
+                    colours[`desk-${this._statuses[desk_id]}`] ||
+                    colours[`${this._statuses[desk_id]}`] ||
+                    DEFAULT_COLOURS[`${this._statuses[desk_id]}`],
                 opacity: 0.6,
             };
         }
