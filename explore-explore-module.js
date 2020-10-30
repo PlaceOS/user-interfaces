@@ -1361,12 +1361,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const DEFAULT_COLOURS = {
-    'free': '#43a047',
-    'pending': '#ffb300',
-    'reserved': '#3949ab',
-    'busy': '#e53935',
+    free: '#43a047',
+    pending: '#ffb300',
+    reserved: '#3949ab',
+    busy: '#e53935',
     'not-bookable': '#757575',
-    'unknown': '#757575',
+    unknown: '#757575',
 };
 class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_2__["BaseClass"] {
     constructor(_state, _settings) {
@@ -1655,11 +1655,14 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
     }
     updateStatus() {
         const style_map = {};
-        const colours = this._settings.get('app.explore.colors') || _explore_spaces_service__WEBPACK_IMPORTED_MODULE_6__["DEFAULT_COLOURS"];
+        const colours = this._settings.get('app.explore.colors') || {};
         for (const zone_id in this._statuses) {
+            if (!this._statuses.hasOwnProperty(zone_id))
+                continue;
             style_map[`#${zone_id}`] = {
                 fill: colours[`zone-${this._statuses[zone_id]}`] ||
-                    colours[`${this._statuses[zone_id]}`],
+                    colours[`${this._statuses[zone_id]}`] ||
+                    _explore_spaces_service__WEBPACK_IMPORTED_MODULE_6__["DEFAULT_COLOURS"][`${this._statuses[zone_id]}`],
                 opacity: 0.6,
             };
         }
@@ -2334,73 +2337,85 @@ class ExploreDesksService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         this._reserved = new rxjs__WEBPACK_IMPORTED_MODULE_2__["BehaviorSubject"]([]);
         this._statuses = {};
         this._bindings = [];
-        this._stats = new rxjs__WEBPACK_IMPORTED_MODULE_2__["BehaviorSubject"]({ free: 0, occupied: 0, total: 0 });
+        this._stats = new rxjs__WEBPACK_IMPORTED_MODULE_2__["BehaviorSubject"]({
+            free: 0,
+            occupied: 0,
+            total: 0,
+        });
         this.subscription('spaces', this._state.level.subscribe((level) => {
             this.clearBindings();
             this._level = level;
             this.bindToDesks();
         }));
-        this.subscription('changes', Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["combineLatest"])([this._desks, this._in_use, this._reserved]).subscribe((details) => {
+        this.subscription('changes', Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["combineLatest"])([
+            this._desks,
+            this._in_use,
+            this._reserved,
+        ]).subscribe((details) => {
             const [desks, in_use, reserved] = details;
             this._statuses = {};
             for (const id of desks) {
-                const is_used = in_use.some(i => id === i);
-                const is_reserved = reserved.some(i => id === i);
-                this._statuses[id] = is_used ? 'free' : is_reserved ? 'reserved' : 'busy';
+                const is_used = in_use.some((i) => id === i);
+                const is_reserved = reserved.some((i) => id === i);
+                this._statuses[id] = is_used
+                    ? 'free'
+                    : is_reserved
+                        ? 'reserved'
+                        : 'busy';
             }
             this.timeout('update', () => this.updateStatus(), 100);
         }));
     }
     ngOnDestroy() {
+        super.ngOnDestroy();
         this.clearBindings();
     }
     clearBindings() {
-        const bindings = ['desks_in_use', 'desk_list', 'desks_reserved', 'desks_occupied', 'desks_free'];
+        const bindings = [
+            'desks_in_use',
+            'desk_list'
+        ];
         for (const id of bindings) {
             this.unsub(id);
         }
-        this._bindings.forEach(b => b.unbind());
+        this._bindings.forEach((b) => b.unbind());
         this._bindings = [];
         this._statuses = {};
     }
     bindToDesks() {
         if (!this._level)
             return;
-        const building = this._org.buildings.find(bld => bld.id === this._level.parent_id);
+        const building = this._org.buildings.find((bld) => bld.id === this._level.parent_id);
         if (!building) {
             return;
         }
-        const system_id = this._org.organisation.bindings.desk_management;
+        const system_id = this._org.organisation.bindings.area_management;
         if (!system_id) {
             return;
         }
-        let binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'DeskManagement').binding(this._level.id);
-        this.subscription(`desks_in_use`, binding.listen().subscribe((d) => this._in_use.next(d)));
+        let binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'AreaManagement').binding(this._level.id);
+        this.subscription(`desks_in_use`, binding.listen().subscribe((d) => {
+            const values = ((d === null || d === void 0 ? void 0 : d.values) || []).filter((v) => v.location === 'desk');
+            this._in_use.next(values.map((v) => v.map_id));
+            this._reserved.next(values.filter((v) => !v.at_location).map((v) => v.map_id));
+        }));
         binding.bind();
         this._bindings.push(binding);
-        binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'DeskManagement').binding(`${this._level.id}:desk_ids`);
-        this.subscription(`desks_list`, binding.listen().subscribe((d) => this._desks.next(d)));
-        binding.bind();
-        this._bindings.push(binding);
-        binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'DeskManagement').binding(`${this._level.id}:reserved`);
-        this.subscription(`desks_reserved`, binding.listen().subscribe((d) => this._reserved.next(d)));
-        binding.bind();
-        this._bindings.push(binding);
-        binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'DeskManagement').binding(`${this._level.id}:occupied_count`);
-        this.subscription(`desks_occupied`, binding.listen().subscribe((d) => this._stats.next(Object.assign(Object.assign({}, this._stats.getValue()), { occupied: d }))));
-        binding.bind();
-        this._bindings.push(binding);
-        binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'DeskManagement').binding(`${this._level.id}:free_count`);
-        this.subscription(`desks_free`, binding.listen().subscribe((d) => this._stats.next(Object.assign(Object.assign({}, this._stats.getValue()), { free: d }))));
+        binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'AreaManagement').binding(`${this._level.id}:desk_ids`);
+        this.subscription(`desks_list`, binding.listen().subscribe((d) => this._desks.next(d || [])));
         binding.bind();
         this._bindings.push(binding);
     }
     updateStatus() {
         const style_map = {};
-        const colours = this._settings.get('app.explore.colors') || _explore_spaces_service__WEBPACK_IMPORTED_MODULE_5__["DEFAULT_COLOURS"];
+        const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
+            if (!this._statuses.hasOwnProperty(desk_id))
+                continue;
             style_map[`#${desk_id}`] = {
-                fill: colours[`desk-${this._statuses[desk_id]}`] || colours[`${this._statuses[desk_id]}`],
+                fill: colours[`desk-${this._statuses[desk_id]}`] ||
+                    colours[`${this._statuses[desk_id]}`] ||
+                    _explore_spaces_service__WEBPACK_IMPORTED_MODULE_5__["DEFAULT_COLOURS"][`${this._statuses[desk_id]}`],
                 opacity: 0.6,
             };
         }
