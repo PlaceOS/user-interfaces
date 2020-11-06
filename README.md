@@ -26,6 +26,7 @@
 
 1. Install [NodeJS](https://nodejs.org/en/download/current/)
 1. Run `npm install` in the root folder
+1. Run `npm install --global nx` to Install [Nx CLI](https://www.npmjs.com/package/nx)
 1. Run `npm install --global @angular/cli` to Install [Angular CLI](https://github.com/angular/angular-cli)
 
 ## Development
