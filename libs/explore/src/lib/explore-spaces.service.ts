@@ -25,7 +25,10 @@ export class ExploreSpacesService extends BaseClass {
     private _bindings: any[] = [];
     private _statuses: HashMap<string> = {};
 
-    constructor(private _state: ExploreStateService, private _settings: SettingsService) {
+    constructor(
+        private _state: ExploreStateService,
+        private _settings: SettingsService
+    ) {
         super();
         this.subscription(
             'spaces',
@@ -47,7 +50,7 @@ export class ExploreSpacesService extends BaseClass {
             this.unsub(`bookings-${space.id}`);
             this.unsub(`status-${space.id}`);
         }
-        this._bindings.forEach(b => b.unbind());
+        this._bindings.forEach((b) => b.unbind());
         this._bindings = [];
         this._statuses = {};
     }
@@ -58,14 +61,18 @@ export class ExploreSpacesService extends BaseClass {
             let binding = getModule(space.id, 'Bookings').binding('bookings');
             this.subscription(
                 `bookings-${space.id}`,
-                binding.listen().subscribe((d) => this.handleBookingsChange(space, d))
+                binding
+                    .listen()
+                    .subscribe((d) => this.handleBookingsChange(space, d))
             );
             binding.bind();
             this._bindings.push(binding);
             binding = getModule(space.id, 'Bookings').binding('status');
             this.subscription(
                 `status-${space.id}`,
-                binding.listen().subscribe((d) => this.handleStatusChange(space, d))
+                binding
+                    .listen()
+                    .subscribe((d) => this.handleStatusChange(space, d))
             );
             binding.bind();
             this._bindings.push(binding);
@@ -82,24 +89,33 @@ export class ExploreSpacesService extends BaseClass {
         if (!bookings) return;
         this._bookings[space.id] = bookings.map((i) => new CalendarEvent(i));
         this.timeout('update_hover_els', () => this.updateHoverElements(), 100);
-
     }
 
     private handleStatusChange(space: Space, status: string) {
-        this._statuses[space.id] = space.bookable ? status || 'free' : 'not-bookable';
-        this.timeout('update_statuses', () => {
-            this.clearTimeout('update_hover_els');
-            this.updateStatus();
-            this.updateHoverElements();
-        }, 100);
+        this._statuses[space.id] = space.bookable
+            ? status || 'free'
+            : 'not-bookable';
+        this.timeout(
+            'update_statuses',
+            () => {
+                this.clearTimeout('update_hover_els');
+                this.updateStatus();
+                this.updateHoverElements();
+            },
+            100
+        );
     }
 
     private updateStatus() {
         const style_map = {};
-        const colours = this._settings.get('app.explore.colors') || DEFAULT_COLOURS;
+        const colours =
+            this._settings.get('app.explore.colors') || {};
         for (const space of this._spaces) {
             style_map[`#${space.map_id}`] = {
-                fill: colours[`space-${this._statuses[space.id]}`] || colours[`${this._statuses[space.id]}`],
+                fill:
+                    colours[`space-${this._statuses[space.id]}`] ||
+                    colours[`${this._statuses[space.id]}`] ||
+                    DEFAULT_COLOURS[`${this._statuses[space.id]}`],
                 opacity: 0.6,
             };
         }
@@ -116,8 +132,8 @@ export class ExploreSpacesService extends BaseClass {
                 data: {
                     space,
                     events: this._bookings[space.id],
-                    status: this._statuses[space.id]
-                }
+                    status: this._statuses[space.id],
+                },
             } as any);
         }
         this._state.setFeatures('spaces', features);
@@ -129,7 +145,7 @@ export class ExploreSpacesService extends BaseClass {
             actions.push({
                 id: space.map_id,
                 action: 'click',
-                callback: () => this.bookSpace(space)
+                callback: () => this.bookSpace(space),
             });
         }
         this._state.setActions('spaces', actions);

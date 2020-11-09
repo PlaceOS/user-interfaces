@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { clientId, invalidateToken, token } from '@placeos/ts-client';
 
-import { BaseClass, HotkeysService, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
+import { BaseClass, HotkeysService, notifySuccess, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 
 import { SpacesService } from '../../../spaces/src/lib/spaces.service';
@@ -60,12 +60,14 @@ export class AppComponent extends BaseClass implements OnInit {
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
             this._clipboard.copy(token());
+            notifySuccess('Successfully copied token.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
             navigator.clipboard?.readText().then(tkn => {
                 localStorage.setItem(`${clientId()}_access_token`, `${tkn}`);
                 localStorage.setItem(`${clientId()}_expires_at`, `${addHours(new Date(), 6).valueOf()}`);
-                location.reload();
+                notifySuccess('Successfully pasted token.');
+                setTimeout(() => location.reload(), 2000);
             });
         });
         setNotifyOutlet(this._snackbar);

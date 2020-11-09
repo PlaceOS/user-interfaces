@@ -1,4 +1,5 @@
 import { PlaceAuthOptions, setup } from '@placeos/ts-client';
+import { notifyInfo } from './notifications';
 
 export interface PlaceSettings {
     /** Protocol used by the application server */
@@ -45,6 +46,9 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
     console.log('Config:', config);
     if (localStorage) {
         localStorage.setItem('mock', `${!!mock && !location.href.includes('mock=false')}`);
+    }
+    if (mock) {
+        notifyInfo('Application in mock mode.');
     }
     return setup(config);
 }
