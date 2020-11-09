@@ -1392,7 +1392,7 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             this.unsub(`bookings-${space.id}`);
             this.unsub(`status-${space.id}`);
         }
-        this._bindings.forEach(b => b.unbind());
+        this._bindings.forEach((b) => b.unbind());
         this._bindings = [];
         this._statuses = {};
     }
@@ -1401,11 +1401,15 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             return;
         for (const space of this._spaces) {
             let binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(space.id, 'Bookings').binding('bookings');
-            this.subscription(`bookings-${space.id}`, binding.listen().subscribe((d) => this.handleBookingsChange(space, d)));
+            this.subscription(`bookings-${space.id}`, binding
+                .listen()
+                .subscribe((d) => this.handleBookingsChange(space, d)));
             binding.bind();
             this._bindings.push(binding);
             binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(space.id, 'Bookings').binding('status');
-            this.subscription(`status-${space.id}`, binding.listen().subscribe((d) => this.handleStatusChange(space, d)));
+            this.subscription(`status-${space.id}`, binding
+                .listen()
+                .subscribe((d) => this.handleStatusChange(space, d)));
             binding.bind();
             this._bindings.push(binding);
         }
@@ -1422,7 +1426,9 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         this.timeout('update_hover_els', () => this.updateHoverElements(), 100);
     }
     handleStatusChange(space, status) {
-        this._statuses[space.id] = space.bookable ? status || 'free' : 'not-bookable';
+        this._statuses[space.id] = space.bookable
+            ? status || 'free'
+            : 'not-bookable';
         this.timeout('update_statuses', () => {
             this.clearTimeout('update_hover_els');
             this.updateStatus();
@@ -1431,10 +1437,12 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
     }
     updateStatus() {
         const style_map = {};
-        const colours = this._settings.get('app.explore.colors') || DEFAULT_COLOURS;
+        const colours = this._settings.get('app.explore.colors') || {};
         for (const space of this._spaces) {
             style_map[`#${space.map_id}`] = {
-                fill: colours[`space-${this._statuses[space.id]}`] || colours[`${this._statuses[space.id]}`],
+                fill: colours[`space-${this._statuses[space.id]}`] ||
+                    colours[`${this._statuses[space.id]}`] ||
+                    DEFAULT_COLOURS[`${this._statuses[space.id]}`],
                 opacity: 0.6,
             };
         }
@@ -1450,8 +1458,8 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
                 data: {
                     space,
                     events: this._bookings[space.id],
-                    status: this._statuses[space.id]
-                }
+                    status: this._statuses[space.id],
+                },
             });
         }
         this._state.setFeatures('spaces', features);
@@ -1462,7 +1470,7 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             actions.push({
                 id: space.map_id,
                 action: 'click',
-                callback: () => this.bookSpace(space)
+                callback: () => this.bookSpace(space),
             });
         }
         this._state.setActions('spaces', actions);
