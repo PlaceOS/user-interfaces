@@ -243,6 +243,155 @@ ExploreSearchComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
 
 /***/ }),
 
+/***/ "6j8/":
+/*!***************************************************************************************************************!*\
+  !*** /home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-device-info.component.ts ***!
+  \***************************************************************************************************************/
+/*! exports provided: ExploreDeviceInfoComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ExploreDeviceInfoComponent", function() { return ExploreDeviceInfoComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "EM62");
+/* harmony import */ var _user_interfaces_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @user-interfaces/components */ "Rc+I");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ "w8Fe");
+
+
+
+
+class ExploreDeviceInfoComponent {
+    constructor(_details, _element) {
+        this._details = _details;
+        this._element = _element;
+        /** Mac Address of the device */
+        this.mac = this._details.mac;
+        /** Accuracy of the location data */
+        this.variance = this._details.variance.toFixed(2);
+        this.diameter = this._details.variance * 100;
+    }
+    /** Time of the last update */
+    get last_seen() {
+        return Object(date_fns__WEBPACK_IMPORTED_MODULE_2__["formatDistanceToNow"])(new Date(this._details.last_seen * 1000), {
+            addSuffix: true,
+        });
+    }
+    ngOnInit(tries = 0) {
+        if (tries > 10)
+            return;
+        setTimeout(() => {
+            var _a;
+            const parent = (_a = this._element.nativeElement.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement;
+            if (!parent)
+                return this.ngOnInit(++tries);
+            const position = {
+                y: parseInt(parent.style.top, 10) / 100,
+                x: parseInt(parent.style.left, 10) / 100,
+            };
+            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
+            this.x_pos = position.x >= 0.5 ? 'right' : 'left';
+        }, 200);
+    }
+}
+ExploreDeviceInfoComponent.ɵfac = function ExploreDeviceInfoComponent_Factory(t) { return new (t || ExploreDeviceInfoComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_user_interfaces_components__WEBPACK_IMPORTED_MODULE_1__["MAP_FEATURE_DATA"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"])); };
+ExploreDeviceInfoComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: ExploreDeviceInfoComponent, selectors: [["explore-device-info"]], decls: 11, vars: 7, consts: [["name", "radius", 1, "radius", "absolute", "center", "bg-blue-600", "bg-opacity-25", "border-4", "border-dashed", "border-blue-600", "rounded-full"], ["name", "dot", 1, "h-2", "w-2", "absolute", "center", "rounded-full", "bg-blue-800", "pointer-events-auto"], ["name", "device-info"], [1, "arrow"], [1, "details"]], template: function ExploreDeviceInfoComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](1, "div", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](2, "div", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](3, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](4, "div", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](5, "p");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](7, "p");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](9, "p");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+    } if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵstyleMap"]("height: " + ctx.diameter + "%; width: " + ctx.diameter + "%;");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵclassMap"]("absolute rounded bg-white p-4 top-0 left-0 shadow pointer-events-none " + ctx.x_pos + " " + ctx.y_pos);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"]("MAC: ", ctx.mac, "");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"]("Variance: ", ctx.variance, "");
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"]("Last Seen: ", ctx.last_seen, "");
+    } }, styles: ["[_nghost-%COMP%] {\n                pointer-events: auto;\n            }\n\n            [_nghost-%COMP%]    > [name='dot'][_ngcontent-%COMP%] {\n                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);\n            }\n\n            [_nghost-%COMP%]:hover    > [name='device-info'][_ngcontent-%COMP%], [_nghost-%COMP%]:hover    > [name='radius'][_ngcontent-%COMP%] {\n                opacity: 1;\n            }\n\n            [name='radius'][_ngcontent-%COMP%] {\n                opacity: 0;\n                transition: opacity 200ms;\n                pointer-events: none;\n            }\n\n            [name='device-info'][_ngcontent-%COMP%] {\n                opacity: 0;\n                transition: opacity 200ms;\n                width: 16rem;\n                z-index: 999;\n                pointer-events: none;\n            }"] });
+/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](ExploreDeviceInfoComponent, [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
+        args: [{
+                selector: 'explore-device-info',
+                template: `
+        <div
+            name="radius"
+            class="radius absolute center bg-blue-600 bg-opacity-25 border-4 border-dashed border-blue-600 rounded-full"
+            [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
+        ></div>
+        <div
+            name="dot"
+            class="h-2 w-2 absolute center rounded-full bg-blue-800 pointer-events-auto"
+        ></div>
+        <div
+            name="device-info"
+            [class]="
+                'absolute rounded bg-white p-4 top-0 left-0 shadow pointer-events-none ' +
+                x_pos +
+                ' ' +
+                y_pos
+            "
+        >
+            <div class="arrow"></div>
+            <div class="details">
+                <p>MAC: {{ mac }}</p>
+                <p>Variance: {{ variance }}</p>
+                <p>Last Seen: {{ last_seen }}</p>
+            </div>
+        </div>
+    `,
+                styles: [
+                    `
+            :host {
+                pointer-events: auto;
+            }
+
+            :host > [name='dot'] {
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+            }
+
+            :host:hover > [name='device-info'],
+            :host:hover > [name='radius'] {
+                opacity: 1;
+            }
+
+            [name='radius'] {
+                opacity: 0;
+                transition: opacity 200ms;
+                pointer-events: none;
+            }
+
+            [name='device-info'] {
+                opacity: 0;
+                transition: opacity 200ms;
+                width: 16rem;
+                z-index: 999;
+                pointer-events: none;
+            }
+        `,
+                ],
+            }]
+    }], function () { return [{ type: undefined, decorators: [{
+                type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"],
+                args: [_user_interfaces_components__WEBPACK_IMPORTED_MODULE_1__["MAP_FEATURE_DATA"]]
+            }] }, { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] }]; }, null); })();
+
+
+/***/ }),
+
 /***/ "AJYC":
 /*!*****************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore.ts ***!
@@ -384,6 +533,8 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
         this.features = this._state.map_features;
         /** Observable for the active map */
         this.actions = this._state.map_actions;
+        /** Observable for the labels map */
+        this.labels = this._state.map_labels;
         /** Observable for the active map */
         this.options = this._state.options;
         this.setOptions = (o) => this._state.setOptions(o);
@@ -456,7 +607,7 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
     }
 }
 ExploreMapViewComponent.ɵfac = function ExploreMapViewComponent_Factory(t) { return new (t || ExploreMapViewComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_2__["ExploreStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_explore_spaces_service__WEBPACK_IMPORTED_MODULE_3__["ExploreSpacesService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_explore_desks_service__WEBPACK_IMPORTED_MODULE_5__["ExploreDesksService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_explore_zones_service__WEBPACK_IMPORTED_MODULE_4__["ExploreZonesService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_7__["ActivatedRoute"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_8__["SpacesService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_users__WEBPACK_IMPORTED_MODULE_9__["StaffService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_12__["OrganisationService"])); };
-ExploreMapViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: ExploreMapViewComponent, selectors: [["explore-map-view"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵProvidersFeature"]([_explore_spaces_service__WEBPACK_IMPORTED_MODULE_3__["ExploreSpacesService"], _explore_desks_service__WEBPACK_IMPORTED_MODULE_5__["ExploreDesksService"], _explore_zones_service__WEBPACK_IMPORTED_MODULE_4__["ExploreZonesService"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 14, vars: 21, consts: [[3, "src", "zoom", "center", "styles", "features", "actions"], [1, "absolute", "bottom-0", "right-0"], [1, "absolute", "top-0", "left-0"], [1, "absolute", "top-0", "right-0"], ["name", "zones", 1, "p-2", "bg-white", "border", "border-gray-400", "absolute", "left-0", "m-2", "rounded", "flex", "items-center"], [1, "ml-2", 3, "ngModel", "ngModelChange"]], template: function ExploreMapViewComponent_Template(rf, ctx) { if (rf & 1) {
+ExploreMapViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: ExploreMapViewComponent, selectors: [["explore-map-view"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵProvidersFeature"]([_explore_spaces_service__WEBPACK_IMPORTED_MODULE_3__["ExploreSpacesService"], _explore_desks_service__WEBPACK_IMPORTED_MODULE_5__["ExploreDesksService"], _explore_zones_service__WEBPACK_IMPORTED_MODULE_4__["ExploreZonesService"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 15, vars: 24, consts: [[3, "src", "zoom", "center", "styles", "features", "actions", "labels"], [1, "absolute", "bottom-0", "right-0"], [1, "absolute", "top-0", "left-0"], [1, "absolute", "top-0", "right-0"], ["name", "zones", 1, "p-2", "bg-white", "border", "border-gray-400", "absolute", "left-0", "m-2", "rounded", "flex", "items-center"], [1, "ml-2", 3, "ngModel", "ngModelChange"]], template: function ExploreMapViewComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](0, "i-map", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](1, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](2, "async");
@@ -464,21 +615,22 @@ ExploreMapViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵ
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](4, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](5, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](6, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](7, "explore-zoom-controls", 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](8, "explore-map-controls", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](9, "explore-search", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](10, "div", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](11, " Zones ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](12, "mat-slide-toggle", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("ngModelChange", function ExploreMapViewComponent_Template_mat_slide_toggle_ngModelChange_12_listener($event) { return ctx.setOptions({ show_zones: $event }); });
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](13, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](7, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](8, "explore-zoom-controls", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](9, "explore-map-controls", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](10, "explore-search", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](11, "div", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](12, " Zones ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](13, "mat-slide-toggle", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("ngModelChange", function ExploreMapViewComponent_Template_mat_slide_toggle_ngModelChange_13_listener($event) { return ctx.setOptions({ show_zones: $event }); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](14, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
     } if (rf & 2) {
-        var tmp_6_0 = null;
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("src", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](1, 7, ctx.url))("zoom", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](2, 9, ctx.positions).zoom)("center", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](3, 11, ctx.positions).center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](4, 13, ctx.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](5, 15, ctx.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](6, 17, ctx.actions));
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", (tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](13, 19, ctx.options)) == null ? null : tmp_6_0.show_zones);
+        var tmp_7_0 = null;
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("src", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](1, 8, ctx.url))("zoom", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](2, 10, ctx.positions).zoom)("center", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](3, 12, ctx.positions).center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](4, 14, ctx.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](5, 16, ctx.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](6, 18, ctx.actions))("labels", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](7, 20, ctx.labels));
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](13);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", (tmp_7_0 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](14, 22, ctx.options)) == null ? null : tmp_7_0.show_zones);
     } }, directives: [_components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_14__["InteractiveMapComponent"], _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_15__["ExploreZoomControlComponent"], _explore_map_control_component__WEBPACK_IMPORTED_MODULE_16__["ExploreMapControlComponent"], _explore_search_component__WEBPACK_IMPORTED_MODULE_17__["ExploreSearchComponent"], _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_18__["MatSlideToggle"], _angular_forms__WEBPACK_IMPORTED_MODULE_19__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_19__["NgModel"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_20__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                height: 100%;\n                width: 100%;\n            }\n\n            [name='zones'][_ngcontent-%COMP%] {\n                top: 3.5rem;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](ExploreMapViewComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"],
@@ -492,6 +644,7 @@ ExploreMapViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵ
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
+            [labels]="labels | async"
         ></i-map>
         <explore-zoom-controls
             class="absolute bottom-0 right-0"
@@ -678,6 +831,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _explore_search_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./explore-search.component */ "+vRD");
 /* harmony import */ var _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./explore-space-info.component */ "QNjw");
 /* harmony import */ var _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./explore-zoom-control.component */ "gGs/");
+/* harmony import */ var _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./explore-device-info.component */ "6j8/");
+
 
 
 
@@ -694,6 +849,7 @@ const COMPONENTS = [
     _explore_map_view_component__WEBPACK_IMPORTED_MODULE_6__["ExploreMapViewComponent"],
     _explore_search_component__WEBPACK_IMPORTED_MODULE_7__["ExploreSearchComponent"],
     _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreSpaceInfoComponent"],
+    _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeviceInfoComponent"],
     _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__["ExploreZoomControlComponent"]
 ];
 class SharedExploreModule {
@@ -704,10 +860,12 @@ SharedExploreModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefi
         _explore_map_view_component__WEBPACK_IMPORTED_MODULE_6__["ExploreMapViewComponent"],
         _explore_search_component__WEBPACK_IMPORTED_MODULE_7__["ExploreSearchComponent"],
         _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreSpaceInfoComponent"],
+        _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeviceInfoComponent"],
         _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__["ExploreZoomControlComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_0__["CommonModule"], _user_interfaces_components__WEBPACK_IMPORTED_MODULE_3__["ComponentsModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_4__["MatSlideToggleModule"]], exports: [_explore_map_control_component__WEBPACK_IMPORTED_MODULE_5__["ExploreMapControlComponent"],
         _explore_map_view_component__WEBPACK_IMPORTED_MODULE_6__["ExploreMapViewComponent"],
         _explore_search_component__WEBPACK_IMPORTED_MODULE_7__["ExploreSearchComponent"],
         _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreSpaceInfoComponent"],
+        _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeviceInfoComponent"],
         _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__["ExploreZoomControlComponent"]] }); })();
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](SharedExploreModule, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["NgModule"],
@@ -1195,11 +1353,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 class ExploreStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_3__["BaseClass"] {
-    constructor(_org, _spaces) {
+    constructor(_org, _spaces, _settings) {
         super();
         this._org = _org;
         this._spaces = _spaces;
+        this._settings = _settings;
         /** Currently active level */
         this._level = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"](null);
         /** Currently active level */
@@ -1213,6 +1373,8 @@ class ExploreStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         this._features = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
         /** Mapping of groups to their actions */
         this._actions = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
+        /** Mapping of groups to their actions */
+        this._labels = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
         this._options = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
         /** Currently active level */
         this.level = this._level.asObservable();
@@ -1223,12 +1385,29 @@ class ExploreStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         /** Currently center and zoom positions for map */
         this.map_positions = this._positions.asObservable();
         /** Currently center and zoom positions for map */
-        this.map_features = this._features.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(i => {
-            const keys = Object.keys(i).sort((a, b) => a.localeCompare(b));
-            return keys.reduce((list, k) => list.concat(i[k]), []);
+        this.map_features = Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["combineLatest"])([this._features, this._options]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(details => {
+            const [features, options] = details;
+            let list = [];
+            for (const key in features) {
+                if (key !== 'devices' || (options.show_zones && this._settings.get('app.explore.display_devices') !== false)) {
+                    list = list.concat(features[key]);
+                }
+            }
+            return list;
         }));
         /** Currently center and zoom positions for map */
         this.map_actions = this._actions.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(i => Object.values(i).reduce((list, a) => list.concat(a), [])));
+        /** Currently center and zoom positions for map */
+        this.map_labels = Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["combineLatest"])([this._labels, this._options]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(details => {
+            const [labels, options] = details;
+            let list = [];
+            for (const key in labels) {
+                if (key !== 'zones' || options.show_zones) {
+                    list = list.concat(labels[key]);
+                }
+            }
+            return list;
+        }));
         /** Current map styles */
         this.map_styles = Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["combineLatest"])([this._styles, this._options]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])((details) => {
             const [styles, options] = details;
@@ -1238,6 +1417,7 @@ class ExploreStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
                 style_mappings['#Zones'] = { display: 'none' };
             }
             style_mappings['text'] = { display: 'none' };
+            console.log('Map Styles:', style_mappings);
             return style_mappings;
         }));
         this.options = this._options.asObservable();
@@ -1279,18 +1459,23 @@ class ExploreStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         actions_map[name] = actions;
         this._actions.next(actions_map);
     }
+    setLabels(name, labels) {
+        const labels_map = this._labels.getValue();
+        labels_map[name] = labels;
+        this._labels.next(labels_map);
+    }
     setPositions(zoom, center) {
         this._positions.next({ zoom, center });
     }
 }
-ExploreStateService.ɵfac = function ExploreStateService_Factory(t) { return new (t || ExploreStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_4__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_5__["SpacesService"])); };
+ExploreStateService.ɵfac = function ExploreStateService_Factory(t) { return new (t || ExploreStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_4__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_5__["SpacesService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_common__WEBPACK_IMPORTED_MODULE_3__["SettingsService"])); };
 ExploreStateService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: ExploreStateService, factory: ExploreStateService.ɵfac, providedIn: 'root' });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](ExploreStateService, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"],
         args: [{
                 providedIn: 'root',
             }]
-    }], function () { return [{ type: _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_4__["OrganisationService"] }, { type: _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_5__["SpacesService"] }]; }, null); })();
+    }], function () { return [{ type: _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_4__["OrganisationService"] }, { type: _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_5__["SpacesService"] }, { type: _user_interfaces_common__WEBPACK_IMPORTED_MODULE_3__["SettingsService"] }]; }, null); })();
 
 
 /***/ }),
@@ -1610,6 +1795,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_3__["BaseClass"] {
     constructor(_state, _org, _settings) {
         super();
@@ -1619,11 +1805,25 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         this._level = null;
         this._bindings = [];
         this._statuses = {};
+        this._labels = {};
+        this._location = {};
+        this._capacity = {};
         this.init();
     }
     init() {
+        var _a, _b, _c;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             yield this._org.initialised.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_7__["first"])(_ => _)).toPromise();
+            const zone_metadata = yield Promise.all(this._org.levels.map(bld => Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__["showMetadata"])(bld.id, { name: 'map_regions' }).toPromise()));
+            for (const zone of zone_metadata) {
+                const areas = (_a = zone === null || zone === void 0 ? void 0 : zone.details) === null || _a === void 0 ? void 0 : _a.areas;
+                if (areas) {
+                    for (const area of areas) {
+                        this._capacity[area.id] = ((_b = area.properties) === null || _b === void 0 ? void 0 : _b.capacity) || 100;
+                        this._location[area.id] = ((_c = area.properties) === null || _c === void 0 ? void 0 : _c.label_location) || { x: .5, y: .5 };
+                    }
+                }
+            }
             this.subscription('spaces', this._state.level.subscribe((level) => {
                 this.clearBindings();
                 this._level = level;
@@ -1655,10 +1855,19 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
     }
     parseData(d) {
         const value = (d === null || d === void 0 ? void 0 : d.value) || [];
+        const labels = [];
+        console.log('Parse Data:', d);
         for (const zone of value) {
+            const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
-                zone.count < 40 ? 'free' : zone.count < 75 ? 'pending' : 'busy';
+                filled < .4 ? 'free' : filled < .75 ? 'pending' : 'busy';
+            this._labels[zone.area_id] = {
+                location: this._location[zone.area_id],
+                content: `${zone.count} ${zone.count === 1 ? 'Person' : 'People'}`
+            };
+            labels.push(this._labels[zone.area_id]);
         }
+        this._state.setLabels('zones', labels);
         this.timeout('update', () => this.updateStatus(), 100);
     }
     updateStatus() {
@@ -1674,6 +1883,7 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
                 opacity: 0.6,
             };
         }
+        console.log('Styles:', style_map);
         this._state.setStyles('zones', style_map);
     }
 }
@@ -2322,6 +2532,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _explore_state_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./explore-state.service */ "T50y");
 /* harmony import */ var _explore_spaces_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./explore-spaces.service */ "fljt");
 /* harmony import */ var _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @user-interfaces/organisation */ "dJst");
+/* harmony import */ var _explore_device_info_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./explore-device-info.component */ "6j8/");
+
 
 
 
@@ -2365,7 +2577,7 @@ class ExploreDesksService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
             for (const id of desks) {
                 const is_used = in_use.some((i) => id === i);
                 const is_reserved = reserved.some((i) => id === i);
-                this._statuses[id] = is_used
+                this._statuses[id] = !is_used
                     ? 'free'
                     : is_reserved
                         ? 'reserved'
@@ -2403,9 +2615,30 @@ class ExploreDesksService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         }
         let binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'AreaManagement').binding(this._level.id);
         this.subscription(`desks_in_use`, binding.listen().subscribe((d) => {
-            const values = ((d === null || d === void 0 ? void 0 : d.values) || []).filter((v) => v.location === 'desk');
-            this._in_use.next(values.map((v) => v.map_id));
-            this._reserved.next(values.filter((v) => !v.at_location).map((v) => v.map_id));
+            var _a, _b;
+            const devices = ((d === null || d === void 0 ? void 0 : d.value) || []).filter((v) => v.location !== 'desk');
+            const desks = ((d === null || d === void 0 ? void 0 : d.value) || []).filter((v) => v.location === 'desk');
+            this._in_use.next(desks.map((v) => v.map_id));
+            this._reserved.next(desks.filter((v) => !v.at_location).map((v) => v.map_id));
+            const list = [];
+            for (const device of devices) {
+                const x = device.x / device.map_width;
+                const y = device.y / device.map_height;
+                list.push({
+                    location: {
+                        x: ((_a = device.coordinates_from) === null || _a === void 0 ? void 0 : _a.includes('right')) ? 1 - x : x,
+                        y: ((_b = device.coordinates_from) === null || _b === void 0 ? void 0 : _b.includes('bottom')) ? 1 - y : y,
+                    },
+                    content: _explore_device_info_component__WEBPACK_IMPORTED_MODULE_7__["ExploreDeviceInfoComponent"],
+                    data: Object.assign({}, device)
+                });
+            }
+            list.sort((a, b) => {
+                const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
+                const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
+                return dist_a - dist_b;
+            });
+            this._state.setFeatures('devices', list);
         }));
         binding.bind();
         this._bindings.push(binding);
