@@ -23,6 +23,7 @@ import { getModule } from '@placeos/ts-client';
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
+            [labels]="labels | async"
         ></i-map>
         <explore-zoom-controls
             class="absolute bottom-0 right-0"
@@ -68,6 +69,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     public readonly features = this._state.map_features;
     /** Observable for the active map */
     public readonly actions = this._state.map_actions;
+    /** Observable for the labels map */
+    public readonly labels = this._state.map_labels;
     /** Observable for the active map */
     public readonly options = this._state.options;
 

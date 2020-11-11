@@ -10,6 +10,7 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@user-interfaces/organisation';
+import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 
 export interface DesksStats {
     free: number;
@@ -57,7 +58,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 for (const id of desks) {
                     const is_used = in_use.some((i) => id === i);
                     const is_reserved = reserved.some((i) => id === i);
-                    this._statuses[id] = is_used
+                    this._statuses[id] = !is_used
                         ? 'free'
                         : is_reserved
                         ? 'reserved'
@@ -104,13 +105,35 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.subscription(
             `desks_in_use`,
             binding.listen().subscribe((d) => {
-                const values = (d?.values || []).filter(
+                const devices = (d?.value || []).filter(
+                    (v) => v.location !== 'desk'
+                );
+                const desks = (d?.value || []).filter(
                     (v) => v.location === 'desk'
                 );
-                this._in_use.next(values.map((v) => v.map_id));
+                this._in_use.next(desks.map((v) => v.map_id));
                 this._reserved.next(
-                    values.filter((v) => !v.at_location).map((v) => v.map_id)
+                    desks.filter((v) => !v.at_location).map((v) => v.map_id)
                 );
+                const list = [];
+                for (const device of devices) {
+                    const x = device.x / device.map_width;
+                    const y = device.y / device.map_height;
+                    list.push({
+                        location: {
+                            x: device.coordinates_from?.includes('right') ? 1 - x : x,
+                            y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
+                        },
+                        content: ExploreDeviceInfoComponent,
+                        data: { ...device }
+                    });
+                }
+                list.sort((a, b) => {
+                    const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
+                    const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
+                    return dist_a - dist_b;
+                });
+                this._state.setFeatures('devices', list);
             })
         );
         binding.bind();

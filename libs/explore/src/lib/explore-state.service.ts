@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Point, ViewAction, ViewerFeature, ViewerStyles } from '@yuion/svg-viewer';
+import { Point, ViewAction, ViewerFeature, ViewerLabel, ViewerStyles } from '@yuion/svg-viewer';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 
-import { BaseClass, HashMap } from '@user-interfaces/common';
+import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
 import { BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
 import { SpacesService } from '@user-interfaces/spaces';
 
 
 export interface MapOptions {
     show_zones?: boolean;
+    show_devices?: boolean;
 }
 
 @Injectable({
@@ -29,6 +30,8 @@ export class ExploreStateService extends BaseClass {
     private _features = new BehaviorSubject<HashMap<ViewerFeature[]>>({});
     /** Mapping of groups to their actions */
     private _actions = new BehaviorSubject<HashMap<ViewAction[]>>({});
+    /** Mapping of groups to their actions */
+    private _labels = new BehaviorSubject<HashMap<ViewerLabel[]>>({});
 
     private _options = new BehaviorSubject<MapOptions>({});
 
@@ -43,12 +46,29 @@ export class ExploreStateService extends BaseClass {
     /** Currently center and zoom positions for map */
     public readonly map_positions = this._positions.asObservable();
     /** Currently center and zoom positions for map */
-    public readonly map_features = this._features.pipe(map(i => {
-        const keys = Object.keys(i).sort((a, b) => a.localeCompare(b));
-        return keys.reduce((list, k) => list.concat(i[k]), []);
+    public readonly map_features = combineLatest([this._features, this._options]).pipe(map(details => {
+        const [features, options] = details;
+        let list = [];
+        for (const key in features) {
+            if (key !== 'devices' || (options.show_zones && this._settings.get('app.explore.display_devices') !== false)) {
+                list = list.concat(features[key]);
+            }
+        }
+        return list;
     }));
     /** Currently center and zoom positions for map */
     public readonly map_actions = this._actions.pipe(map(i => Object.values(i).reduce((list, a) => list.concat(a), [])));
+    /** Currently center and zoom positions for map */
+    public readonly map_labels = combineLatest([this._labels, this._options]).pipe(map(details => {
+        const [labels, options] = details;
+        let list = [];
+        for (const key in labels) {
+            if (key !== 'zones' || options.show_zones) {
+                list = list.concat(labels[key]);
+            }
+        }
+        return list;
+    }));
     /** Current map styles */
     public readonly map_styles = combineLatest([this._styles, this._options]).pipe(
         map((details) => {
@@ -62,6 +82,7 @@ export class ExploreStateService extends BaseClass {
                 style_mappings['#Zones'] = { display: 'none' };
             }
             style_mappings['text'] = { display: 'none' };
+            console.log('Map Styles:', style_mappings);
             return style_mappings;
         })
     );
@@ -72,7 +93,7 @@ export class ExploreStateService extends BaseClass {
         return this._positions.getValue();
     }
 
-    constructor(private _org: OrganisationService, private _spaces: SpacesService) {
+    constructor(private _org: OrganisationService, private _spaces: SpacesService, private _settings: SettingsService) {
         super();
         this._org.initialised.pipe(first((_) => _)).subscribe(() => {
             this.subscription(
@@ -116,6 +137,12 @@ export class ExploreStateService extends BaseClass {
         const actions_map = this._actions.getValue();
         actions_map[name] = actions;
         this._actions.next(actions_map);
+    }
+
+    public setLabels(name: string, labels: ViewerLabel[]) {
+        const labels_map = this._labels.getValue();
+        labels_map[name] = labels;
+        this._labels.next(labels_map);
     }
 
     public setPositions(zoom: number, center: Point) {

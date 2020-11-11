@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { getModule, listen } from '@placeos/ts-client';
+import { getModule, showMetadata } from '@placeos/ts-client';
+import { ViewerLabel, Point } from '@yuion/svg-viewer';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
 import {
@@ -11,11 +12,16 @@ import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { first } from 'rxjs/operators';
 
+const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
+
 @Injectable()
 export class ExploreZonesService extends BaseClass {
     private _level: BuildingLevel = null;
     private _bindings: any[] = [];
     private _statuses: HashMap<string> = {};
+    private _labels: HashMap<ViewerLabel> = {};
+    private _location: HashMap<Point> = {};
+    private _capacity: HashMap<number> = {};
 
     constructor(
         private _state: ExploreStateService,
@@ -28,6 +34,16 @@ export class ExploreZonesService extends BaseClass {
 
     public async init() {
         await this._org.initialised.pipe(first(_ => _)).toPromise();
+        const zone_metadata = await Promise.all(this._org.levels.map(bld => showMetadata(bld.id, { name: 'map_regions' }).toPromise()));
+        for (const zone of zone_metadata) {
+            const areas = (zone?.details as any)?.areas;
+            if (areas) {
+                for (const area of areas) {
+                    this._capacity[area.id] = area.properties?.capacity || 100;
+                    this._location[area.id] = area.properties?.label_location || { x: .5, y: .5 };
+                }
+            }
+        }
         this.subscription(
             'spaces',
             this._state.level.subscribe((level) => {
@@ -65,10 +81,19 @@ export class ExploreZonesService extends BaseClass {
 
     public parseData(d) {
         const value = d?.value || [];
+        const labels = [];
+        console.log('Parse Data:', d);
         for (const zone of value) {
+            const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
-                zone.count < 40 ? 'free' : zone.count < 75 ? 'pending' : 'busy';
+                filled < .4 ? 'free' : filled < .75 ? 'pending' : 'busy';
+            this._labels[zone.area_id] = {
+                location: this._location[zone.area_id],
+                content: `${zone.count} ${zone.count === 1 ? 'Person' : 'People'}`
+            };
+            labels.push(this._labels[zone.area_id]);
         }
+        this._state.setLabels('zones', labels);
         this.timeout('update', () => this.updateStatus(), 100);
     }
 
@@ -86,6 +111,7 @@ export class ExploreZonesService extends BaseClass {
                 opacity: 0.6,
             };
         }
+        console.log('Styles:', style_map);
         this._state.setStyles('zones', style_map);
     }
 }

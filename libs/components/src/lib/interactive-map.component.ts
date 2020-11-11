@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     InjectionToken,
@@ -56,7 +57,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     `,
     ],
 })
-export class InteractiveMapComponent extends BaseClass {
+export class InteractiveMapComponent extends BaseClass implements AfterViewInit {
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -141,7 +142,7 @@ export class InteractiveMapComponent extends BaseClass {
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
-        if (!getViewer(this.viewer)) return;
+        if (!getViewer(this.viewer)) return this.timeout('update_view', () => this.updateView());
         updateViewer(this.viewer, {
             styles: this.styles,
             features: this.feature_list,
