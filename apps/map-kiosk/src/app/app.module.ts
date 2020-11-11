@@ -13,6 +13,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 
+import '@user-interfaces/mocks';
+
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent],
     imports: [

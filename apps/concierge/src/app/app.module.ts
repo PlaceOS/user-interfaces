@@ -15,6 +15,8 @@ import { AppComponent } from '../../../../libs/components/src/lib/app.component'
 import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 
+import '@user-interfaces/mocks';
+
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent],
     imports: [
