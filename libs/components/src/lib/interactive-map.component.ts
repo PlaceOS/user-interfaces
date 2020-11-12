@@ -31,7 +31,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     selector: `i-map,interactive-map`,
     template: `
         <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
-        <mat-spinner *ngIf="!viewer" class="center"></mat-spinner>
+        <mat-spinner *ngIf="!viewer" class="center" [diameter]="48"></mat-spinner>
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
                 <div *ngIf="element">
@@ -50,7 +50,6 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     styles: [
         `
         :host {
-            position: relative
             height: 100%;
             width: 100%;
         }
