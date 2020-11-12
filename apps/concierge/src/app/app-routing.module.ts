@@ -24,6 +24,12 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'desks',
+        loadChildren: () => import('./desks/desks.module').then((m) => m.DesksModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'catering',
         loadChildren: () => import('./catering/catering.module').then((m) => m.CateringModule),
         canActivate: [AuthorisedUserGuard],
