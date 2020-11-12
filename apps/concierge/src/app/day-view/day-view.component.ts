@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'app-dayview',
     template: `
         <sidebar></sidebar>
-        <main class="relative">
+        <main class="relative overflow-hidden">
             <dayview-topbar></dayview-topbar>
             <dayview-timeline></dayview-timeline>
         </main>

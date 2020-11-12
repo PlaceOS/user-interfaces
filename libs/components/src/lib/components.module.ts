@@ -7,7 +7,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
-import {ClipboardModule} from '@angular/cdk/clipboard';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
@@ -63,7 +64,8 @@ const MAT_MODULES: any[] = [
     MatDialogModule,
     MatDatepickerModule,
     MatInputModule,
-    ClipboardModule
+    ClipboardModule,
+    MatProgressSpinnerModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -82,14 +84,20 @@ const COMPONENTS: Type<any>[] = [
     ConfirmModalComponent,
     InteractiveMapComponent,
     MapPinComponent,
-    MapRadiusComponent
+    MapRadiusComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, APipesModule, ...MAT_MODULES],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        APipesModule,
+        ...MAT_MODULES,
+    ],
     providers: [],
     exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
 })

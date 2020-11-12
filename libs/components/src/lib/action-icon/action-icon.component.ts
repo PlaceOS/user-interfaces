@@ -4,9 +4,9 @@ import { ApplicationIcon } from '@user-interfaces/common';
 @Component({
     selector: 'action-icon',
     template: `
-        <div class="action-icon" [class.fade]="state || loading">
-            <app-icon [icon]="icon"></app-icon>
-            <div class="'state center ' + state" *ngIf="!loading && state">
+        <button mat-icon-button class="relative flex items-center justify-center h-8 w-8" [class.success]="state === 'success'" [disabled]="loading">
+            <app-icon root [className]="className" [icon]="icon">{{content}}</app-icon>
+            <div [class]="'state center ' + state" *ngIf="!loading && state">
                 <app-icon
                     [icon]="{
                         class: 'material-icons',
@@ -17,18 +17,10 @@ import { ApplicationIcon } from '@user-interfaces/common';
             <div class="loader center" *ngIf="loading">
                 <mat-spinner [diameter]="16"></mat-spinner>
             </div>
-        </div>
+        </button>
     `,
     styles: [
         `
-            .action-icon {
-                position: relative;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 2em;
-                width: 2em;
-            }
 
             .action-icon.fade > app-icon {
                 opacity: 0.35;
@@ -40,12 +32,33 @@ import { ApplicationIcon } from '@user-interfaces/common';
                 left: 50%;
                 transform: translate(-50%, -50%);
             }
+
+            .success {
+                pointer-events: none;
+            }
+
+            .success app-icon[root] {
+                opacity: .2;
+            }
+
+            .state.success {
+                color: #388e3c;
+            }
+
+            .state.error {
+                color: #e53935;
+            }
+
         `,
     ],
 })
 export class ActionIconComponent {
     /** Icon to display */
     @Input() public icon: ApplicationIcon;
+    /** Icon to display */
+    @Input() public className: string;
+    /** Icon to display */
+    @Input() public content: string;
     /** Whether action is being processed */
     @Input() public loading: boolean;
     /** State of the action */
