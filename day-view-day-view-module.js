@@ -22,7 +22,7 @@ __webpack_require__.r(__webpack_exports__);
 class DayViewComponent {
 }
 DayViewComponent.ɵfac = function DayViewComponent_Factory(t) { return new (t || DayViewComponent)(); };
-DayViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DayViewComponent, selectors: [["app-dayview"]], decls: 4, vars: 0, consts: [[1, "relative"]], template: function DayViewComponent_Template(rf, ctx) { if (rf & 1) {
+DayViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DayViewComponent, selectors: [["app-dayview"]], decls: 4, vars: 0, consts: [[1, "relative", "overflow-hidden"]], template: function DayViewComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "sidebar");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "main", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](2, "dayview-topbar");
@@ -35,7 +35,7 @@ DayViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineC
                 selector: 'app-dayview',
                 template: `
         <sidebar></sidebar>
-        <main class="relative">
+        <main class="relative overflow-hidden">
             <dayview-topbar></dayview-topbar>
             <dayview-timeline></dayview-timeline>
         </main>
