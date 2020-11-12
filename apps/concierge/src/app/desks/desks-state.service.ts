@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -14,9 +14,10 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { Booking, BookingsService } from '@user-interfaces/bookings';
 import { BaseClass, notifyError, notifyInfo, notifySuccess } from '@user-interfaces/common';
 import { showMetadata } from '@placeos/ts-client';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { Desk, OrganisationService } from '@user-interfaces/organisation';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmModalComponent } from '@user-interfaces/components';
+import { DeskListModalComponent } from './desk-list-modal.component';
 
 export interface DeskFilters {
     date?: number;
@@ -29,8 +30,9 @@ export interface DeskFilters {
 export class DesksStateService extends BaseClass {
     private _filters = new BehaviorSubject<DeskFilters>({});
     private _desk_bookings: Booking[] = [];
+    private _desks: Desk[] = []
 
-    public readonly desks = combineLatest([this._filters]).pipe(
+    public readonly desks: Observable<Desk[]> = combineLatest([this._filters]).pipe(
         debounceTime(500),
         distinctUntilChanged(),
         switchMap((details) => {
@@ -39,6 +41,11 @@ export class DesksStateService extends BaseClass {
             return showMetadata(filters.zones[0] || this._org.building.id, {
                 name: 'desks',
             }).pipe(map((m) => m.details));
+        }),
+        map(list => {
+            list.sort((a, b) => a.name.localeCompare(b.name));
+            this._desks = list.map(i => new Desk(i));
+            return list;
         }),
         share()
     );
@@ -145,5 +152,17 @@ export class DesksStateService extends BaseClass {
         } else {
             notifyInfo('No desks to reject for the selected date');
         }
+    }
+
+    public async updateDesks() {
+        const ref = this._dialog.open(DeskListModalComponent, {
+            data: {
+                level: this._org.levelWithID(this._filters.getValue().zones) || this._org.level_list[0],
+                building: this._org.building,
+                desks: this._desks
+            },
+        });
+        await ref.afterClosed().toPromise();
+        this._desks = ref.componentInstance.desks$.getValue();
     }
 }

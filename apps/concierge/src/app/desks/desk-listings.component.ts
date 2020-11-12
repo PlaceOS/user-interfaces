@@ -56,7 +56,7 @@ import { DesksStateService } from './desks-state.service';
             </div>
         </ng-template>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item>
+            <button mat-menu-item (click)="updateDesks()">
                 <div class="flex items-center">
                     <app-icon className="material-icons">edit</app-icon>
                     <span class="pl-2">Edit Desks</span>
@@ -96,6 +96,7 @@ export class DeskListingsComponent {
     public readonly bookings = this._state.bookings;
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
+    public readonly updateDesks = () => this._state.updateDesks();
 
     constructor(private _state: DesksStateService) {}
 }

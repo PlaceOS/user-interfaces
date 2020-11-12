@@ -88,7 +88,10 @@ export function csvToJson(csv: string) {
                 let part = null;
                 part = parts[i];
                 if (part !== undefined) {
-                    item[(fields[i] || '').split(' ').join('_').toLowerCase()] = part;
+                    let value = part;
+                    try { value = JSON.parse(part); }
+                    catch(e) { }
+                    item[(fields[i] || '').split(' ').join('_').toLowerCase()] = value;
                 }
             }
             list.push(item);

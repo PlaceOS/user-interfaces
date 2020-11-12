@@ -9,6 +9,7 @@ import { DesksComponent } from './desks.component';
 import { DeskListingsComponent } from './desk-listings.component';
 import { DeskDetailsComponent } from './desk-details.component';
 import { DesksTopbarComponent } from './desks-topbar.component';
+import { DeskListModalComponent } from './desk-list-modal.component';
 
 const ROUTES: Route[] = [{ path: '', component: DesksComponent }];
 
@@ -17,7 +18,8 @@ const ROUTES: Route[] = [{ path: '', component: DesksComponent }];
         DesksComponent,
         DeskListingsComponent,
         DeskDetailsComponent,
-        DesksTopbarComponent
+        DesksTopbarComponent,
+        DeskListModalComponent
     ],
     imports: [
         CommonModule,
