@@ -9,13 +9,13 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-topbar',
     template: `
-        <button mat-button>
+        <button mat-button class="w-12 xl:w-auto">
             <div class="flex items-center">
                 <app-icon
                     class="mr-2"
                     [icon]="{ class: 'material-icons', content: 'add' }"
                 ></app-icon>
-                <div class="text">New Booking</div>
+                <div class="hidden xl:block">New Booking</div>
             </div>
         </button>
         <mat-form-field appearance="outline">
@@ -67,6 +67,11 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 background-color: #fff;
                 height: 5em;
                 padding: 0 2em;
+            }
+
+            button {
+                min-width: 0;
+                padding: 0 .85rem;
             }
 
             mat-form-field {
