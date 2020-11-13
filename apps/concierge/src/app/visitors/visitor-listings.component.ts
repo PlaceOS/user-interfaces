@@ -39,7 +39,7 @@ import { VisitorsStateService } from './visitors-state.service';
     styles: [``],
 })
 export class VisitorListingsComponent {
-    public readonly bookings = this._state.events;
+    public readonly bookings = this._state.filtered_events;
 
     constructor(private _state: VisitorsStateService) { }
 

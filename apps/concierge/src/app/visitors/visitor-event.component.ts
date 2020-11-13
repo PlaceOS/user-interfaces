@@ -1,4 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
+import { BaseClass } from '@user-interfaces/common';
 import { CalendarEvent } from '@user-interfaces/events';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -46,7 +48,9 @@ import { VisitorsStateService } from './visitors-state.service';
                     (click)="show_attendees = !show_attendees"
                     [disabled]="!event?.attendees?.length"
                     [matTooltip]="
-                        show_attendees ? 'Hide Attendees' : 'Show Attendees'
+                        show_attendees || has_search
+                            ? 'Hide Attendees'
+                            : 'Show Attendees'
                     "
                 >
                     <app-icon className="material-icons">{{
@@ -61,7 +65,9 @@ import { VisitorsStateService } from './visitors-state.service';
             attendees
             class="w-full overflow-hidden relative border-b border-gray-300"
             [style.height]="
-                !show_attendees ? '0rem' : event.attendees.length * 3.5 + 'rem'
+                !show_attendees && !has_search
+                    ? '0rem'
+                    : event.attendees.length * 3.5 + 'rem'
             "
         >
             <div
@@ -79,7 +85,11 @@ import { VisitorsStateService } from './visitors-state.service';
                 *ngFor="let user of event.attendees"
             >
                 <div l-bar class="absolute bg-gray-400"></div>
-                <visitor-details [visitor]="user" [(event)]="event"></visitor-details>
+                <visitor-details
+                    [attr.disabled]="!matches[user.email]"
+                    [visitor]="user"
+                    [(event)]="event"
+                ></visitor-details>
             </div>
         </div>
     `,
@@ -87,6 +97,10 @@ import { VisitorsStateService } from './visitors-state.service';
         `
             :host {
                 width: 100%;
+            }
+
+            visitor-details {
+                transition: opacity 200ms;
             }
 
             [attendees] {
@@ -108,25 +122,55 @@ import { VisitorsStateService } from './visitors-state.service';
                 top: calc(50% - 1px);
                 width: 1rem;
             }
+
+            [disabled="true"] {
+                opacity: 0.35;
+            }
         `,
     ],
 })
-export class VisitorEventComponent {
+export class VisitorEventComponent extends BaseClass implements OnInit {
     @Input() public event: CalendarEvent;
 
     public show_attendees: boolean;
     public loading: string;
+    public matches: HashMap<boolean> = {};
 
     public readonly checkinGuests = async () => {
         this.loading = 'checkin';
-        this.event = await this._state.checkAllGuestsIn(this.event).catch(e => this.event);
+        this.event = await this._state
+            .checkAllGuestsIn(this.event)
+            .catch((e) => this.event);
         this.loading = '';
     };
     public readonly checkoutGuests = async () => {
         this.loading = 'checkout';
-        this.event = await this._state.checkAllGuestsOut(this.event).catch(e => this.event);
+        this.event = await this._state
+            .checkAllGuestsOut(this.event)
+            .catch((e) => this.event);
         this.loading = '';
     };
 
-    constructor(private _state: VisitorsStateService) {}
+    public get has_search() {
+        return this._state.search;
+    }
+
+    constructor(private _state: VisitorsStateService) {
+        super();
+    }
+
+    public ngOnInit(): void {
+        this.subscription('events', this._state.filtered_events.subscribe(() => this.updateMatches()));
+    }
+
+    public updateMatches() {
+        this.matches = {};
+        const filter = (this._state.search || '').toLowerCase();
+        for (const user of this.event.attendees) {
+            this.matches[user.email] =
+                !filter ||
+                user.email.toLowerCase().includes(filter) ||
+                user.name.toLowerCase().includes(filter);
+        }
+    }
 }

@@ -22,6 +22,8 @@ export interface VisitorFilters {
 export class VisitorsStateService extends BaseClass {
     private _filters = new BehaviorSubject<VisitorFilters>({});
 
+    private _search = new BehaviorSubject<string>('');
+
     private _loading = new BehaviorSubject<boolean>(false);
 
     public readonly loading = this._loading.asObservable();
@@ -47,12 +49,37 @@ export class VisitorsStateService extends BaseClass {
         shareReplay()
     );
 
+    public readonly filtered_events = combineLatest([
+        this._search,
+        this.events,
+    ]).pipe(
+        map((details) => {
+            const [search, events] = details;
+            const filter = search.toLowerCase();
+            return events.filter((event) =>
+                event.attendees.find(
+                    (user) =>
+                        user.name.toLowerCase().includes(filter) ||
+                        user.email.toLowerCase().includes(filter)
+                )
+            );
+        })
+    );
+
+    public get search() {
+        return this._search.getValue();
+    }
+
     constructor(private _events: EventsService) {
         super();
     }
 
     public setFilters(filters: VisitorFilters) {
         this._filters.next({ ...this._filters.getValue(), ...filters });
+    }
+
+    public setSearchString(search: string) {
+        this._search.next(search);
     }
 
     public startPolling(delay: number = 30 * 1000) {

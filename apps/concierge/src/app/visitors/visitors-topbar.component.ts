@@ -25,7 +25,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </mat-select>
         </mat-form-field>
         <div class="flex-1 w-2"></div>
-        <searchbar class="mr-2"></searchbar>
+        <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
     styles: [
@@ -57,6 +57,8 @@ export class VisitorsTopbarComponent extends BaseClass implements OnInit {
     public readonly levels = this._org.active_levels;
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
+    /** Set filter string */
+    public readonly setSearch = (str) => this._state.setSearchString(str);
     /** Update active zones for desks */
     public readonly updateZones = (zones) => {
         this._router.navigate([], {
@@ -107,5 +109,6 @@ export class VisitorsTopbarComponent extends BaseClass implements OnInit {
                 this.updateZones(this.zones);
             })
         );
+        this.setSearch('');
     }
 }
