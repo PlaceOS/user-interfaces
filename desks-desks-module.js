@@ -102,6 +102,8 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
         this._filters = new rxjs__WEBPACK_IMPORTED_MODULE_2__["BehaviorSubject"]({});
         this._desk_bookings = [];
         this._desks = [];
+        this._loading = new rxjs__WEBPACK_IMPORTED_MODULE_2__["BehaviorSubject"](false);
+        this.loading = this._loading.asObservable();
         this.desks = Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["combineLatest"])([this._filters]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["debounceTime"])(500), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["distinctUntilChanged"])(), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["switchMap"])((details) => {
             var _a;
             const [filters] = details;
@@ -116,6 +118,7 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
             return list;
         }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["share"])());
         this.bookings = Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["combineLatest"])([this._filters]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["debounceTime"])(500), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["switchMap"])((details) => {
+            this._loading.next(true);
             const [filters] = details;
             const date = filters.date ? new Date(filters.date) : new Date();
             return this._bookings.query({
@@ -127,6 +130,7 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
         }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])(list => {
             list.sort((a, b) => a.date - b.date);
             this._desk_bookings = list;
+            this._loading.next(false);
             return list;
         }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["shareReplay"])());
     }
@@ -352,19 +356,26 @@ function DesksTopbarComponent_mat_option_2_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtextInterpolate1"](" ", level_r1.display_name || level_r1.name, " ");
 } }
 class DesksTopbarComponent extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_4__["BaseClass"] {
-    constructor(_desks, _org, _route) {
+    constructor(_desks, _org, _route, _router) {
         super();
         this._desks = _desks;
         this._org = _org;
         this._route = _route;
+        this._router = _router;
         /** List of selected levels */
         this.zones = [];
-        /** Set filtered date */
-        this.setDate = (date) => this._desks.setFilters({ date });
         /** List of levels for the active building */
         this.levels = this._org.active_levels;
+        /** Set filtered date */
+        this.setDate = (date) => this._desks.setFilters({ date });
         /** Update active zones for desks */
-        this.updateZones = (zones) => this._desks.setFilters({ zones });
+        this.updateZones = (zones) => {
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { zone_ids: zones.join(',') },
+            });
+            this._desks.setFilters({ zones });
+        };
     }
     ngOnInit() {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
@@ -392,7 +403,7 @@ class DesksTopbarComponent extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         });
     }
 }
-DesksTopbarComponent.ɵfac = function DesksTopbarComponent_Factory(t) { return new (t || DesksTopbarComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_desks_state_service__WEBPACK_IMPORTED_MODULE_6__["DesksStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_5__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"])); };
+DesksTopbarComponent.ɵfac = function DesksTopbarComponent_Factory(t) { return new (t || DesksTopbarComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_desks_state_service__WEBPACK_IMPORTED_MODULE_6__["DesksStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_5__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"])); };
 DesksTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: DesksTopbarComponent, selectors: [["desks-topbar"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 6, vars: 4, consts: [["appearance", "outline"], ["multiple", "", "placeholder", "All Levels", 3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "flex-1", "w-2"], [3, "dateChange"], [3, "value"]], template: function DesksTopbarComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-form-field", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](1, "mat-select", 1);
@@ -457,7 +468,7 @@ DesksTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdef
         `,
                 ],
             }]
-    }], function () { return [{ type: _desks_state_service__WEBPACK_IMPORTED_MODULE_6__["DesksStateService"] }, { type: _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_5__["OrganisationService"] }, { type: _angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"] }]; }, null); })();
+    }], function () { return [{ type: _desks_state_service__WEBPACK_IMPORTED_MODULE_6__["DesksStateService"] }, { type: _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_5__["OrganisationService"] }, { type: _angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"] }, { type: _angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"] }]; }, null); })();
 
 
 /***/ }),
@@ -685,6 +696,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ui_sidebar_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ui/sidebar.component */ "UfDH");
 /* harmony import */ var _desks_topbar_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./desks-topbar.component */ "D2au");
 /* harmony import */ var _desk_listings_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./desk-listings.component */ "zeno");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/common */ "2kYt");
+/* harmony import */ var _angular_material_progress_bar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/material/progress-bar */ "66mq");
 
 
 
@@ -692,9 +705,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+function DesksComponent_mat_progress_bar_4_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "mat-progress-bar", 4);
+} }
 class DesksComponent {
     constructor(_state) {
         this._state = _state;
+        this.loading = this._state.loading;
     }
     ngOnInit() {
         this._state.startPolling();
@@ -704,22 +723,28 @@ class DesksComponent {
     }
 }
 DesksComponent.ɵfac = function DesksComponent_Factory(t) { return new (t || DesksComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_desks_state_service__WEBPACK_IMPORTED_MODULE_1__["DesksStateService"])); };
-DesksComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DesksComponent, selectors: [["app-desks"]], decls: 4, vars: 0, consts: [[1, "relative", "overflow-hidden", "flex-1"], [1, "w-full"]], template: function DesksComponent_Template(rf, ctx) { if (rf & 1) {
+DesksComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DesksComponent, selectors: [["app-desks"]], decls: 6, vars: 3, consts: [[1, "relative", "overflow-hidden", "flex-1", "flex", "flex-col"], [1, "w-full"], [1, "w-full", "flex-1", "h-0"], ["class", "w-full", "mode", "indeterminate", 4, "ngIf"], ["mode", "indeterminate", 1, "w-full"]], template: function DesksComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "sidebar");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "main", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](2, "desks-topbar", 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](3, "desk-listings", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](3, "desk-listings", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](4, DesksComponent_mat_progress_bar_4_Template, 1, 0, "mat-progress-bar", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](5, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    } }, directives: [_ui_sidebar_component__WEBPACK_IMPORTED_MODULE_2__["SidebarComponent"], _desks_topbar_component__WEBPACK_IMPORTED_MODULE_3__["DesksTopbarComponent"], _desk_listings_component__WEBPACK_IMPORTED_MODULE_4__["DeskListingsComponent"]], styles: ["[_nghost-%COMP%] {\n                display: flex;\n                height: 100%;\n                width: 100%;\n            }"] });
+    } if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](5, 1, ctx.loading));
+    } }, directives: [_ui_sidebar_component__WEBPACK_IMPORTED_MODULE_2__["SidebarComponent"], _desks_topbar_component__WEBPACK_IMPORTED_MODULE_3__["DesksTopbarComponent"], _desk_listings_component__WEBPACK_IMPORTED_MODULE_4__["DeskListingsComponent"], _angular_common__WEBPACK_IMPORTED_MODULE_5__["NgIf"], _angular_material_progress_bar__WEBPACK_IMPORTED_MODULE_6__["MatProgressBar"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_5__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                display: flex;\n                height: 100%;\n                width: 100%;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](DesksComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
                 selector: 'app-desks',
                 template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden flex-1">
+        <main class="relative overflow-hidden flex-1 flex flex-col">
             <desks-topbar class="w-full"></desks-topbar>
-            <desk-listings class="w-full"></desk-listings>
+            <desk-listings class="w-full flex-1 h-0"></desk-listings>
+            <mat-progress-bar class="w-full" *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
         </main>
     `,
                 styles: [
