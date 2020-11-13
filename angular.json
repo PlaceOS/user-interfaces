@@ -641,7 +641,7 @@
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
-                                "with": "apps/caterer-ui/src/environments/settings.ts"
+                                "with": "apps/concierge/src/environments/settings.ts"
                             }
                         ],
                         "outputPath": "dist/apps/concierge",
