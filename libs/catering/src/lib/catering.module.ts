@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -33,6 +34,7 @@ const COMPONENTS: Type<any>[] = [
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
+        CommonModule,
         MatMenuModule,
         MatTabsModule,
         MatAutocompleteModule,

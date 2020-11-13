@@ -55,8 +55,8 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             (ngModelChange)="updateUIOptions({ show_cleaning: $event })"
             ><div class="text-xs">Cleaners View</div></mat-slide-toggle
         >
-        <div class="flex-full"></div>
-        <searchbar class="mr-2"></searchbar>
+        <div class="flex-1 w-0"></div>
+        <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
     styles: [
@@ -67,11 +67,6 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 background-color: #fff;
                 height: 5em;
                 padding: 0 2em;
-            }
-
-            .flex-full {
-                flex: 1;
-                width: 0.5em;
             }
 
             mat-form-field {

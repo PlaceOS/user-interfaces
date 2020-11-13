@@ -46,6 +46,7 @@ export class DesksStateService extends BaseClass {
             }).pipe(map((m) => m.details));
         }),
         map(list => {
+            if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name.localeCompare(b.name));
             this._desks = list.map(i => new Desk(i));
             return list;
