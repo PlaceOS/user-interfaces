@@ -256,11 +256,11 @@ class DayviewTimelineComponent extends _user_interfaces_common__WEBPACK_IMPORTED
     ngAfterViewInit() {
         this.box = this._ref_el.nativeElement.getBoundingClientRect();
     }
-    onScroll() {
+    onScroll(e) {
         if (this._ref_el) {
-            requestAnimationFrame(() => {
-                const box = this._ref_el.nativeElement.getBoundingClientRect();
-                this.scroll = { x: this.box.left - box.left, y: this.box.top - box.top };
+            requestAnimationFrame(() => this.scroll = {
+                x: e.srcElement.scrollLeft,
+                y: e.srcElement.scrollTop
             });
         }
     }
@@ -285,7 +285,7 @@ DayviewTimelineComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵ�
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](8, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](9, "div", 8, 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("scroll", function DayviewTimelineComponent_Template_div_scroll_9_listener() { return ctx.onScroll(); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("scroll", function DayviewTimelineComponent_Template_div_scroll_9_listener($event) { return ctx.onScroll($event); });
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](11, "div", 10, 11);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](13, DayviewTimelineComponent_dayview_space_13_Template, 1, 1, "dayview-space", 12);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](14, "async");
@@ -340,7 +340,7 @@ DayviewTimelineComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵ�
             <div
                 #scroll_el
                 class="content relative flex flex-1 overflow-auto"
-                (scroll)="onScroll()"
+                (scroll)="onScroll($event)"
             >
                 <div #ref class="ref absolute"></div>
                 <dayview-space
@@ -816,10 +816,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/forms */ "nIj0");
 /* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/common */ "2kYt");
 /* harmony import */ var _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/slide-toggle */ "k8N0");
-/* harmony import */ var _ui_searchbar_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../ui/searchbar.component */ "wobF");
-/* harmony import */ var _ui_date_options_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../ui/date-options.component */ "wrRZ");
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/core */ "mFH5");
-
+/* harmony import */ var _ui_date_options_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../ui/date-options.component */ "wrRZ");
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/core */ "mFH5");
 
 
 
@@ -841,7 +839,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function DayviewTopbarComponent_mat_option_7_Template(rf, ctx) { if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-option", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-option", 12);
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
 } if (rf & 2) {
@@ -851,7 +849,7 @@ function DayviewTopbarComponent_mat_option_7_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtextInterpolate1"](" ", level_r2.display_name || level_r2.name, " ");
 } }
 function DayviewTopbarComponent_mat_option_13_Template(rf, ctx) { if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-option", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-option", 12);
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
 } if (rf & 2) {
@@ -930,7 +928,7 @@ class DayviewTopbarComponent extends _user_interfaces_common__WEBPACK_IMPORTED_M
     }
 }
 DayviewTopbarComponent.ɵfac = function DayviewTopbarComponent_Factory(t) { return new (t || DayviewTopbarComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_6__["EventsStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_5__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"])); };
-DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: DayviewTopbarComponent, selectors: [["dayview-topbar"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 25, vars: 14, consts: [["mat-button", ""], [1, "flex", "items-center"], [1, "mr-2", 3, "icon"], [1, "text"], ["appearance", "outline"], ["multiple", "", "placeholder", "All Levels", 3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["multiple", "", "placeholder", "No Events", 3, "ngModel", "ngModelChange"], [1, "m-2", 3, "ngModel", "ngModelChange"], [1, "text-xs"], [1, "flex-full"], [1, "mr-2"], [3, "dateChange"], [3, "value"]], template: function DayviewTopbarComponent_Template(rf, ctx) { if (rf & 1) {
+DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: DayviewTopbarComponent, selectors: [["dayview-topbar"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 24, vars: 14, consts: [["mat-button", "", 1, "w-12", "xl:w-auto"], [1, "flex", "items-center"], [1, "mr-2", 3, "icon"], [1, "hidden", "xl:block"], ["appearance", "outline"], ["multiple", "", "placeholder", "All Levels", 3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["multiple", "", "placeholder", "No Events", 3, "ngModel", "ngModelChange"], [1, "m-2", 3, "ngModel", "ngModelChange"], [1, "text-xs"], [1, "flex-1", "w-0"], [3, "dateChange"], [3, "value"]], template: function DayviewTopbarComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "button", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](1, "div", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](2, "app-icon", 2);
@@ -970,9 +968,8 @@ DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵd
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](22, "div", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](23, "searchbar", 11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](24, "date-options", 12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("dateChange", function DayviewTopbarComponent_Template_date_options_dateChange_24_listener($event) { return ctx.setDate($event); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](23, "date-options", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("dateChange", function DayviewTopbarComponent_Template_date_options_dateChange_23_listener($event) { return ctx.setDate($event); });
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
     } if (rf & 2) {
         var tmp_5_0 = null;
@@ -991,19 +988,19 @@ DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵd
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", (tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](15, 9, ctx.ui_options)) == null ? null : tmp_5_0.show_overflow);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](4);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", (tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind1"](19, 11, ctx.ui_options)) == null ? null : tmp_6_0.show_cleaning);
-    } }, directives: [_angular_material_button__WEBPACK_IMPORTED_MODULE_7__["MatButton"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_8__["IconComponent"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_9__["MatFormField"], _angular_material_select__WEBPACK_IMPORTED_MODULE_10__["MatSelect"], _angular_forms__WEBPACK_IMPORTED_MODULE_11__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_11__["NgModel"], _angular_common__WEBPACK_IMPORTED_MODULE_12__["NgForOf"], _angular_material_select__WEBPACK_IMPORTED_MODULE_10__["MatSelectTrigger"], _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_13__["MatSlideToggle"], _ui_searchbar_component__WEBPACK_IMPORTED_MODULE_14__["SearchbarComponent"], _ui_date_options_component__WEBPACK_IMPORTED_MODULE_15__["DateOptionsComponent"], _angular_material_core__WEBPACK_IMPORTED_MODULE_16__["MatOption"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_12__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                display: flex;\n                align-items: center;\n                background-color: #fff;\n                height: 5em;\n                padding: 0 2em;\n            }\n\n            .flex-full[_ngcontent-%COMP%] {\n                flex: 1;\n                width: 0.5em;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                height: 3.25em;\n                width: 8em;\n                margin-left: 1em;\n            }\n\n            mat-slide-toggle[_ngcontent-%COMP%]   div[_ngcontent-%COMP%] {\n                width: 5.5em;\n                white-space: initial;\n                line-height: 1.2em\n            }"] });
+    } }, directives: [_angular_material_button__WEBPACK_IMPORTED_MODULE_7__["MatButton"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_8__["IconComponent"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_9__["MatFormField"], _angular_material_select__WEBPACK_IMPORTED_MODULE_10__["MatSelect"], _angular_forms__WEBPACK_IMPORTED_MODULE_11__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_11__["NgModel"], _angular_common__WEBPACK_IMPORTED_MODULE_12__["NgForOf"], _angular_material_select__WEBPACK_IMPORTED_MODULE_10__["MatSelectTrigger"], _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_13__["MatSlideToggle"], _ui_date_options_component__WEBPACK_IMPORTED_MODULE_14__["DateOptionsComponent"], _angular_material_core__WEBPACK_IMPORTED_MODULE_15__["MatOption"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_12__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                display: flex;\n                align-items: center;\n                background-color: #fff;\n                height: 5em;\n                padding: 0 2em;\n            }\n\n            button[_ngcontent-%COMP%] {\n                min-width: 0;\n                padding: 0 .85rem;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                height: 3.25em;\n                width: 8em;\n                margin-left: 1em;\n            }\n\n            mat-slide-toggle[_ngcontent-%COMP%]   div[_ngcontent-%COMP%] {\n                width: 5.5em;\n                white-space: initial;\n                line-height: 1.2em\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](DayviewTopbarComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"],
         args: [{
                 selector: 'dayview-topbar',
                 template: `
-        <button mat-button>
+        <button mat-button class="w-12 xl:w-auto">
             <div class="flex items-center">
                 <app-icon
                     class="mr-2"
                     [icon]="{ class: 'material-icons', content: 'add' }"
                 ></app-icon>
-                <div class="text">New Booking</div>
+                <div class="hidden xl:block">New Booking</div>
             </div>
         </button>
         <mat-form-field appearance="outline">
@@ -1043,8 +1040,8 @@ DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵd
             (ngModelChange)="updateUIOptions({ show_cleaning: $event })"
             ><div class="text-xs">Cleaners View</div></mat-slide-toggle
         >
-        <div class="flex-full"></div>
-        <searchbar class="mr-2"></searchbar>
+        <div class="flex-1 w-0"></div>
+        <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
                 styles: [
@@ -1057,9 +1054,9 @@ DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵd
                 padding: 0 2em;
             }
 
-            .flex-full {
-                flex: 1;
-                width: 0.5em;
+            button {
+                min-width: 0;
+                padding: 0 .85rem;
             }
 
             mat-form-field {

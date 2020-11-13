@@ -113,6 +113,8 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
                 name: 'desks',
             }).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])((m) => m.details));
         }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])(list => {
+            if (!(list instanceof Array))
+                list = [];
             list.sort((a, b) => a.name.localeCompare(b.name));
             this._desks = list.map(i => new _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_8__["Desk"](i));
             return list;
