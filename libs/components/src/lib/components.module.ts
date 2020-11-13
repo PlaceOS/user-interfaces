@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
@@ -46,7 +47,6 @@ export * from './popout-menu/popout-menu.component';
 export * from './time-field/time-field.component';
 export * from './unauthorised/unauthorised.component';
 export * from './user-avatar/user-avatar.component';
-export * from './user-form/user-form.component';
 export * from './user-list-field/user-list-field.component';
 export * from './user-search-field/user-search-field.component';
 export * from './interactive-map.component';
@@ -66,6 +66,7 @@ const MAT_MODULES: any[] = [
     MatInputModule,
     ClipboardModule,
     MatProgressSpinnerModule,
+    MatChipsModule
 ];
 
 const COMPONENTS: Type<any>[] = [

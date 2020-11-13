@@ -17,6 +17,7 @@ import { SpaceFlowComponent } from './space-flow/space-flow.component';
 import { SpaceFlowFormComponent } from './space-flow/space-flow-form.component';
 import { SpaceFlowListingComponent } from './space-flow/space-flow-listing.component';
 import { SpaceFlowConfirmComponent } from './space-flow/space-flow-confirm.component';
+import { SharedUsersModule } from '@user-interfaces/users';
 
 const ROUTES: Route[] = [
     { path: ':flow', component: BookingsComponent },
@@ -45,7 +46,8 @@ const ROUTES: Route[] = [
         RouterModule.forChild(ROUTES),
         FormsModule,
         ReactiveFormsModule,
-        SharedContentModule
+        SharedContentModule,
+        SharedUsersModule
     ],
 })
 export class BookingsModule {}

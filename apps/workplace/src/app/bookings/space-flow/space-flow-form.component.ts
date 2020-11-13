@@ -134,6 +134,7 @@ export const CAPACITY_OPTIONS = [
                         <a-user-list-field
                             formControlName="attendees"
                             class="flex-1"
+                            (new_user)="newAttendee()"
                         ></a-user-list-field>
                     </div>
                 </div>
@@ -309,6 +310,7 @@ export class SpaceFlowFormComponent {
     ];
     public readonly updateCapacity = (c: number) =>
         this._service.updateFilters({ capacity: c });
+    public readonly newAttendee = () => this._service.newAttendee();
     public readonly clearForm = () => this._service.clearForm();
 
     constructor(
