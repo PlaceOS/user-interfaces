@@ -8287,6 +8287,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @user-interfaces/events */ "eZII");
 /* harmony import */ var _user_interfaces_calendar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @user-interfaces/calendar */ "7JBE");
 /* harmony import */ var _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @user-interfaces/organisation */ "dJst");
+/* harmony import */ var _user_interfaces_users__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @user-interfaces/users */ "mjT4");
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/material/dialog */ "OZ4H");
+
+
+
 
 
 
@@ -8300,11 +8305,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class SpaceFlowService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_4__["BaseClass"] {
-    constructor(_events, _calendar, _org) {
+    constructor(_events, _calendar, _org, _dialog) {
         super();
         this._events = _events;
         this._calendar = _calendar;
         this._org = _org;
+        this._dialog = _dialog;
         /** Active event being worked on */
         this._event = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"](null);
         /** Form fields for the current flow */
@@ -8350,6 +8356,20 @@ class SpaceFlowService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_
         const form = Object(_user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["generateEventForm"])(event);
         this._form.next(form);
         this.subscription('form_change', () => this.storeState());
+    }
+    newAttendee() {
+        const ref = this._dialog.open(_user_interfaces_users__WEBPACK_IMPORTED_MODULE_8__["NewUserModalComponent"], {
+            width: 'auto',
+            height: 'auto',
+            data: {}
+        });
+        const form = this._form.getValue();
+        ref.componentInstance.event.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["first"])(_ => _.reason === 'done')).subscribe(event => {
+            const attendees = form.controls.attendees.value || [];
+            attendees.push(event.metadata);
+            form.controls.attendees.setValue(Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_4__["unique"])(attendees, 'email'));
+            ref.close();
+        });
     }
     /** Reset the form fields for the active event */
     clearForm() {
@@ -8408,11 +8428,11 @@ class SpaceFlowService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_
             .then(() => this._loading_event.next(false), () => this._loading_event.next(false));
     }
 }
-SpaceFlowService.ɵfac = function SpaceFlowService_Factory(t) { return new (t || SpaceFlowService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["EventsService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_calendar__WEBPACK_IMPORTED_MODULE_6__["CalendarService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["OrganisationService"])); };
+SpaceFlowService.ɵfac = function SpaceFlowService_Factory(t) { return new (t || SpaceFlowService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["EventsService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_calendar__WEBPACK_IMPORTED_MODULE_6__["CalendarService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__["MatDialog"])); };
 SpaceFlowService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: SpaceFlowService, factory: SpaceFlowService.ɵfac });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](SpaceFlowService, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"]
-    }], function () { return [{ type: _user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["EventsService"] }, { type: _user_interfaces_calendar__WEBPACK_IMPORTED_MODULE_6__["CalendarService"] }, { type: _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["OrganisationService"] }]; }, null); })();
+    }], function () { return [{ type: _user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["EventsService"] }, { type: _user_interfaces_calendar__WEBPACK_IMPORTED_MODULE_6__["CalendarService"] }, { type: _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["OrganisationService"] }, { type: _angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__["MatDialog"] }]; }, null); })();
 
 
 /***/ }),
@@ -10981,7 +11001,9 @@ function SpaceFlowFormComponent_form_23_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](26, "label", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](27, "Attendees");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](28, "a-user-list-field", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](28, "a-user-list-field", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("new_user", function SpaceFlowFormComponent_form_23_Template_a_user_list_field_new_user_28_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r9); const ctx_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](); return ctx_r10.newAttendee(); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
@@ -11012,7 +11034,7 @@ function SpaceFlowFormComponent_form_23_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](46, "div", 36);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](47, "button", 37);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function SpaceFlowFormComponent_form_23_Template_button_click_47_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r9); const ctx_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](); return ctx_r10.clearForm(); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function SpaceFlowFormComponent_form_23_Template_button_click_47_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r9); const ctx_r11 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](); return ctx_r11.clearForm(); });
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](48, "div", 38);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](49, "app-icon", 39);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](50, " Clear Form ");
@@ -11083,11 +11105,12 @@ class SpaceFlowFormComponent {
             },
         ];
         this.updateCapacity = (c) => this._service.updateFilters({ capacity: c });
+        this.newAttendee = () => this._service.newAttendee();
         this.clearForm = () => this._service.clearForm();
     }
 }
 SpaceFlowFormComponent.ɵfac = function SpaceFlowFormComponent_Factory(t) { return new (t || SpaceFlowFormComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_space_flow_service__WEBPACK_IMPORTED_MODULE_3__["SpaceFlowService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_user_interfaces_common__WEBPACK_IMPORTED_MODULE_1__["SettingsService"])); };
-SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: SpaceFlowFormComponent, selectors: [["space-flow-form"]], decls: 25, vars: 15, consts: [["name", "heading", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "quick", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "mb-2", "font-semibold", "text-xl"], [1, "flex", "width-tablet", "m-auto", "space-x-2", "items-center", "flex-wrap", "sm:space-x-0", 3, "formGroup"], ["appearance", "outline", "overlay", "", 1, "flex-1", "h-13"], ["placeholder", "Now", "formControlName", "date"], [3, "value", 4, "ngFor", "ngForOf"], ["placeholder", "Any Capacity", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["button", "", "mat-button", "", 2, "margin-left", ".5rem", 3, "routerLink"], [1, "flex", "items-center", "justify-center", "ml-2"], ["className", "material-icons", 1, "text-lg"], ["name", "divider", 1, "p-4", "w-full", "bg-gray-200"], [1, "m-auto", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "divider", "class", "w-full bg-white pb-2", 3, "formGroup", "ngSubmit", 4, "ngIf"], [3, "value"], ["name", "divider", 1, "w-full", "bg-white", "pb-2", 3, "formGroup", "ngSubmit"], [1, "m-auto", "uppercase", "width-tablet", "pt-4", "font-semibold", "text-xl", "mb-4"], [1, "mb-4"], ["name", "details", 1, "m-auto", "width-tablet", "flex", "flex-wrap", "space-x-2", "sm:space-x-0"], [1, "mb-2", "w-full", "font-semibold"], [1, "flex", "flex-1", "flex-col", "m-0"], ["for", "date", 1, "w-full"], ["formControlName", "date", 1, "flex-1", "mb-4"], [1, "flex", "flex-1", "flex-col"], ["formControlName", "date", 1, "mb-8", "pt-1"], [1, "flex", "flex-1", "flex-col", "ml-1"], ["formControlName", "duration", 3, "time"], [1, "m-auto", "width-tablet"], [1, "mb-2", "font-semibold"], [1, "field", "flex", "flex-1", "flex-wrap", "m-0"], ["formControlName", "attendees", 1, "flex-1"], ["appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "title", "placeholder", "Meeting Title", "formControlName", "title"], ["name", "body", "class", "flex-1", "appearance", "outline", 4, "ngIf", "ngIfElse"], ["html_editor", ""], [1, "m-auto", "width-tablet", "mb-2", "flex", "items-center"], ["mat-button", "", "type", "button", 1, "inverse", 3, "click"], [1, "flex", "items-center", "justify-center", "mr-2"], [1, "text-lg", 3, "icon"], ["mat-button", "", "type", "button", 1, "inverse", 2, "margin-left", ".5rem"], ["name", "body", "appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "description", "placeholder", "Add Meeting Notes here...", "formControlName", "body"], ["formControlName", "body", 1, "flex-1"]], template: function SpaceFlowFormComponent_Template(rf, ctx) { if (rf & 1) {
+SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: SpaceFlowFormComponent, selectors: [["space-flow-form"]], decls: 25, vars: 15, consts: [["name", "heading", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "quick", 1, "p-4", "w-full"], [1, "m-auto", "text-white", "uppercase", "width-tablet", "mb-2", "font-semibold", "text-xl"], [1, "flex", "width-tablet", "m-auto", "space-x-2", "items-center", "flex-wrap", "sm:space-x-0", 3, "formGroup"], ["appearance", "outline", "overlay", "", 1, "flex-1", "h-13"], ["placeholder", "Now", "formControlName", "date"], [3, "value", 4, "ngFor", "ngForOf"], ["placeholder", "Any Capacity", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["button", "", "mat-button", "", 2, "margin-left", ".5rem", 3, "routerLink"], [1, "flex", "items-center", "justify-center", "ml-2"], ["className", "material-icons", 1, "text-lg"], ["name", "divider", 1, "p-4", "w-full", "bg-gray-200"], [1, "m-auto", "uppercase", "width-tablet", "font-semibold", "text-xl"], ["name", "divider", "class", "w-full bg-white pb-2", 3, "formGroup", "ngSubmit", 4, "ngIf"], [3, "value"], ["name", "divider", 1, "w-full", "bg-white", "pb-2", 3, "formGroup", "ngSubmit"], [1, "m-auto", "uppercase", "width-tablet", "pt-4", "font-semibold", "text-xl", "mb-4"], [1, "mb-4"], ["name", "details", 1, "m-auto", "width-tablet", "flex", "flex-wrap", "space-x-2", "sm:space-x-0"], [1, "mb-2", "w-full", "font-semibold"], [1, "flex", "flex-1", "flex-col", "m-0"], ["for", "date", 1, "w-full"], ["formControlName", "date", 1, "flex-1", "mb-4"], [1, "flex", "flex-1", "flex-col"], ["formControlName", "date", 1, "mb-8", "pt-1"], [1, "flex", "flex-1", "flex-col", "ml-1"], ["formControlName", "duration", 3, "time"], [1, "m-auto", "width-tablet"], [1, "mb-2", "font-semibold"], [1, "field", "flex", "flex-1", "flex-wrap", "m-0"], ["formControlName", "attendees", 1, "flex-1", 3, "new_user"], ["appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "title", "placeholder", "Meeting Title", "formControlName", "title"], ["name", "body", "class", "flex-1", "appearance", "outline", 4, "ngIf", "ngIfElse"], ["html_editor", ""], [1, "m-auto", "width-tablet", "mb-2", "flex", "items-center"], ["mat-button", "", "type", "button", 1, "inverse", 3, "click"], [1, "flex", "items-center", "justify-center", "mr-2"], [1, "text-lg", 3, "icon"], ["mat-button", "", "type", "button", 1, "inverse", 2, "margin-left", ".5rem"], ["name", "body", "appearance", "outline", 1, "flex-1"], ["matInput", "", "name", "description", "placeholder", "Add Meeting Notes here...", "formControlName", "body"], ["formControlName", "body", 1, "flex-1"]], template: function SpaceFlowFormComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "h3", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2, " How would you like to search? ");
@@ -11267,6 +11290,7 @@ SpaceFlowFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
                         <a-user-list-field
                             formControlName="attendees"
                             class="flex-1"
+                            (new_user)="newAttendee()"
                         ></a-user-list-field>
                     </div>
                 </div>
@@ -29201,6 +29225,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _space_flow_space_flow_form_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./space-flow/space-flow-form.component */ "KQnu");
 /* harmony import */ var _space_flow_space_flow_listing_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./space-flow/space-flow-listing.component */ "0n2B");
 /* harmony import */ var _space_flow_space_flow_confirm_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./space-flow/space-flow-confirm.component */ "kDDI");
+/* harmony import */ var _user_interfaces_users__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @user-interfaces/users */ "mjT4");
+
 
 
 
@@ -29231,7 +29257,8 @@ BookingsModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInj
             _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterModule"].forChild(ROUTES),
             _angular_forms__WEBPACK_IMPORTED_MODULE_3__["FormsModule"],
             _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ReactiveFormsModule"],
-            _ui_shared_module__WEBPACK_IMPORTED_MODULE_5__["SharedContentModule"]
+            _ui_shared_module__WEBPACK_IMPORTED_MODULE_5__["SharedContentModule"],
+            _user_interfaces_users__WEBPACK_IMPORTED_MODULE_15__["SharedUsersModule"]
         ]] });
 (function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵsetNgModuleScope"](BookingsModule, { declarations: [_bookings_component__WEBPACK_IMPORTED_MODULE_4__["BookingsComponent"],
         _desk_flow_desk_flow_component__WEBPACK_IMPORTED_MODULE_6__["BookingDeskFlowComponent"],
@@ -29244,7 +29271,8 @@ BookingsModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInj
         _space_flow_space_flow_confirm_component__WEBPACK_IMPORTED_MODULE_14__["SpaceFlowConfirmComponent"],
         _qr_reader_qr_reader_component__WEBPACK_IMPORTED_MODULE_10__["QrReaderComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_3__["FormsModule"],
         _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ReactiveFormsModule"],
-        _ui_shared_module__WEBPACK_IMPORTED_MODULE_5__["SharedContentModule"]] }); })();
+        _ui_shared_module__WEBPACK_IMPORTED_MODULE_5__["SharedContentModule"],
+        _user_interfaces_users__WEBPACK_IMPORTED_MODULE_15__["SharedUsersModule"]] }); })();
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](BookingsModule, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"],
         args: [{
@@ -29265,7 +29293,8 @@ BookingsModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInj
                     _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterModule"].forChild(ROUTES),
                     _angular_forms__WEBPACK_IMPORTED_MODULE_3__["FormsModule"],
                     _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ReactiveFormsModule"],
-                    _ui_shared_module__WEBPACK_IMPORTED_MODULE_5__["SharedContentModule"]
+                    _ui_shared_module__WEBPACK_IMPORTED_MODULE_5__["SharedContentModule"],
+                    _user_interfaces_users__WEBPACK_IMPORTED_MODULE_15__["SharedUsersModule"]
                 ],
             }]
     }], null, null); })();
