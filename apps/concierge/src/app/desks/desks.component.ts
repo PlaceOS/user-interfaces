@@ -5,9 +5,10 @@ import { DesksStateService } from './desks-state.service';
     selector: 'app-desks',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden flex-1">
+        <main class="relative overflow-hidden flex-1 flex flex-col">
             <desks-topbar class="w-full"></desks-topbar>
-            <desk-listings class="w-full"></desk-listings>
+            <desk-listings class="w-full flex-1 h-0"></desk-listings>
+            <mat-progress-bar class="w-full" *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
         </main>
     `,
     styles: [
@@ -21,6 +22,8 @@ import { DesksStateService } from './desks-state.service';
     ],
 })
 export class DesksComponent {
+    public readonly loading = this._state.loading;
+
     constructor(private _state: DesksStateService) {}
 
     public ngOnInit() {

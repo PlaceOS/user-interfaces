@@ -31,6 +31,9 @@ export class DesksStateService extends BaseClass {
     private _filters = new BehaviorSubject<DeskFilters>({});
     private _desk_bookings: Booking[] = [];
     private _desks: Desk[] = []
+    private _loading = new BehaviorSubject<boolean>(false);
+
+    public readonly loading = this._loading.asObservable();
 
     public readonly desks: Observable<Desk[]> = combineLatest([this._filters]).pipe(
         debounceTime(500),
@@ -53,6 +56,7 @@ export class DesksStateService extends BaseClass {
     public readonly bookings = combineLatest([this._filters]).pipe(
         debounceTime(500),
         switchMap((details) => {
+            this._loading.next(true);
             const [filters] = details;
             const date = filters.date ? new Date(filters.date) : new Date();
             return this._bookings.query({
@@ -65,6 +69,7 @@ export class DesksStateService extends BaseClass {
         map(list => {
             list.sort((a, b) => a.date - b.date);
             this._desk_bookings = list;
+            this._loading.next(false);
             return list;
         }),
         shareReplay()

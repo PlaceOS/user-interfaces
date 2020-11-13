@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { BaseClass } from '@user-interfaces/common';
@@ -50,20 +50,27 @@ import { DesksStateService } from './desks-state.service';
         `,
     ],
 })
-export class DesksTopbarComponent extends BaseClass {
+export class DesksTopbarComponent extends BaseClass implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
-    /** Set filtered date */
-    public readonly setDate = (date) => this._desks.setFilters({ date });
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
+    /** Set filtered date */
+    public readonly setDate = (date) => this._desks.setFilters({ date });
     /** Update active zones for desks */
-    public readonly updateZones = (zones) => this._desks.setFilters({ zones });
+    public readonly updateZones = (zones) => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { zone_ids: zones.join(',') },
+        });
+        this._desks.setFilters({ zones })
+    };
 
     constructor(
         private _desks: DesksStateService,
         private _org: OrganisationService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         super();
     }
