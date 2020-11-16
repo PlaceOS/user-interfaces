@@ -35,7 +35,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
                 <div *ngIf="element">
-                    <div #feature [attr.el-id]="element.location" [attr.view-id]="viewer">
+                    <div #feature class="pointer-events-none" [attr.el-id]="element.location" [attr.view-id]="viewer">
                         <ng-container
                             *ngComponentOutlet="
                                 element.content;

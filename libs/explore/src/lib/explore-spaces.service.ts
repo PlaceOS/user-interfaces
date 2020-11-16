@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
-import { getModule, listen } from '@placeos/ts-client';
+import { Injectable, OnDestroy } from '@angular/core';
+import { getModule } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@yuion/svg-viewer';
 
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
+import { BaseClass, HashMap, notifyError, SettingsService } from '@user-interfaces/common';
 import { Space } from '@user-interfaces/spaces';
 import { CalendarEvent } from '@user-interfaces/events';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -19,7 +21,7 @@ export const DEFAULT_COLOURS = {
 };
 
 @Injectable()
-export class ExploreSpacesService extends BaseClass {
+export class ExploreSpacesService extends BaseClass implements OnDestroy {
     private _spaces: Space[] = [];
     private _bookings: HashMap<CalendarEvent[]> = {};
     private _bindings: any[] = [];
@@ -27,12 +29,14 @@ export class ExploreSpacesService extends BaseClass {
 
     constructor(
         private _state: ExploreStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {
         super();
         this.subscription(
             'spaces',
             this._state.spaces.subscribe((list) => {
+                console.log('Spaces:', list);
                 this.clearBindings();
                 this._spaces = list;
                 this.bindToSpaces();
@@ -41,6 +45,7 @@ export class ExploreSpacesService extends BaseClass {
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
         this.clearBindings();
     }
 
@@ -82,7 +87,13 @@ export class ExploreSpacesService extends BaseClass {
     }
 
     public bookSpace(space: Space) {
+        if (this._statuses[space.id] === 'busy') {
+            return notifyError(`${space.display_name || space.name} is unavailable at the current time`);
+        }
         console.log('Book Space:', space);
+        this._dialog.open(ExploreBookingModalComponent, {
+            data: { space }
+        });
     }
 
     private handleBookingsChange(space: Space, bookings: HashMap[]) {

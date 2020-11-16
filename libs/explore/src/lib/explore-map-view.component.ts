@@ -112,6 +112,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 }
             })
         );
+        this.actions.subscribe((actions) => console.log('Actions:', actions));
     }
 
     private locateSpace(space: Space) {
