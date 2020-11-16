@@ -534,7 +534,9 @@
                                     "maximumWarning": "6kb",
                                     "maximumError": "10kb"
                                 }
-                            ]
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/booking-panel/ngsw-config.json"
                         }
                     }
                 },
@@ -699,7 +701,9 @@
                                     "maximumWarning": "6kb",
                                     "maximumError": "10kb"
                                 }
-                            ]
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/concierge/ngsw-config.json"
                         }
                     }
                 },
@@ -861,7 +865,9 @@
                                     "maximumWarning": "6kb",
                                     "maximumError": "10kb"
                                 }
-                            ]
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/visitor-kiosk/ngsw-config.json"
                         }
                     }
                 },
@@ -1026,7 +1032,9 @@
                                     "maximumWarning": "6kb",
                                     "maximumError": "10kb"
                                 }
-                            ]
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/control/ngsw-config.json"
                         }
                     }
                 },
@@ -1181,7 +1189,9 @@
                                     "maximumWarning": "6kb",
                                     "maximumError": "10kb"
                                 }
-                            ]
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/caterer-ui/ngsw-config.json"
                         }
                     }
                 },
@@ -1344,7 +1354,9 @@
                                     "maximumWarning": "6kb",
                                     "maximumError": "10kb"
                                 }
-                            ]
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/map-kiosk/ngsw-config.json"
                         }
                     }
                 },
