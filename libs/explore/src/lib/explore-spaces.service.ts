@@ -158,6 +158,11 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 action: 'click',
                 callback: () => this.bookSpace(space),
             });
+            actions.push({
+                id: space.map_id,
+                action: 'touchend',
+                callback: () => this.bookSpace(space),
+            });
         }
         this._state.setActions('spaces', actions);
     }

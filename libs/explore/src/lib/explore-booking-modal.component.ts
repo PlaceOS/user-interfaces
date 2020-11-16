@@ -31,12 +31,12 @@ export interface ExploreBookingModalData {
                 </div>
                 <div class="flex flex-col">
                     <label>Space:</label>
-                    <div class="my-4">{{ form.controls.resources?.value[0].display_name || form.controls.resources?.value[0].name }}</div>
+                    <div class="sm:mt-4 mb-4">{{ form.controls.resources?.value[0].display_name || form.controls.resources?.value[0].name }}</div>
                 </div>
-                <div class="flex space-x-4">
+                <div class="flex sm:space-x-4 flex-wrap">
                     <div class="flex flex-col">
                         <label>Date:</label>
-                        <div class="my-4">{{ form.controls.date?.value | date:'medium' }}</div>
+                        <div class="sm:mt-4 mb-4">{{ form.controls.date?.value | date:'medium' }}</div>
                     </div>
                     <div class="flex flex-col">
                         <label>Duration:</label>
@@ -57,7 +57,7 @@ export interface ExploreBookingModalData {
     `,
     styles: [`
         header {
-            min-width: 24rem !important;
+            max-width: calc(100vw + 100%);
         }
     `],
 })

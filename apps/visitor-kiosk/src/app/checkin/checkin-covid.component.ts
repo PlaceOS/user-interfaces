@@ -6,7 +6,7 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: '[checkin-covid]',
     template: `
-        <div class="bg-white rounded p-4 relative">
+        <div class="bg-white rounded p-4 relative overflow-y-auto overflow-x-hidden">
             <h3 class="text-xl font-medium mb-4">COVID Disclaimer</h3>
             <ol class="list-decimal list-inside">
                 <li>
@@ -79,6 +79,7 @@ import { CheckinStateService } from './checkin-state.service';
             :host > div {
                 width: 32rem;
                 max-width: calc(100vw - 2rem);
+                max-height: calc(100% - 2rem);
             }
 
             .absolute {
