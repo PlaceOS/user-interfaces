@@ -8116,7 +8116,7 @@ class CheckinCovidComponent {
     }
 }
 CheckinCovidComponent.ɵfac = function CheckinCovidComponent_Factory(t) { return new (t || CheckinCovidComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_1__["Router"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_checkin_state_service__WEBPACK_IMPORTED_MODULE_3__["CheckinStateService"])); };
-CheckinCovidComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], attrs: _c0, decls: 55, vars: 5, consts: [[1, "bg-white", "rounded", "p-4", "relative"], [1, "text-xl", "font-medium", "mb-4"], [1, "list-decimal", "list-inside"], [1, "list-disc", "list-inside", "px-4", "mb-4"], ["aria-label", "Has Symptoms", 3, "ngModel", "ngModelChange"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModel", "ngModelChange"], ["mat-button", "", 3, "click"], ["mat-icon-button", "", 1, "absolute", "top-0", "right-0", 3, "disabled", "routerLink"], ["className", "material-icons"]], template: function CheckinCovidComponent_Template(rf, ctx) { if (rf & 1) {
+CheckinCovidComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], attrs: _c0, decls: 55, vars: 5, consts: [[1, "bg-white", "rounded", "p-4", "relative", "overflow-y-auto", "overflow-x-hidden"], [1, "text-xl", "font-medium", "mb-4"], [1, "list-decimal", "list-inside"], [1, "list-disc", "list-inside", "px-4", "mb-4"], ["aria-label", "Has Symptoms", 3, "ngModel", "ngModelChange"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModel", "ngModelChange"], ["mat-button", "", 3, "click"], ["mat-icon-button", "", 1, "absolute", "top-0", "right-0", 3, "disabled", "routerLink"], ["className", "material-icons"]], template: function CheckinCovidComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "h3", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2, "COVID Disclaimer");
@@ -8210,13 +8210,13 @@ CheckinCovidComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵde
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngModel", ctx.contact);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](7);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("disabled", !ctx.symptoms && !ctx.contact)("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpureFunction0"](4, _c1));
-    } }, directives: [_angular_material_radio__WEBPACK_IMPORTED_MODULE_4__["MatRadioGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_5__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_5__["NgModel"], _angular_material_radio__WEBPACK_IMPORTED_MODULE_4__["MatRadioButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatAnchor"], _angular_router__WEBPACK_IMPORTED_MODULE_1__["RouterLinkWithHref"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_7__["IconComponent"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                display: flex;\n                align-items: center;\n                justify-content: center;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: rgba(0, 0, 0, 0.5);\n            }\n\n            [_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n\n            .absolute[_ngcontent-%COMP%] {\n                position: absolute;\n            }\n\n            button[_ngcontent-%COMP%] {\n                margin: 1rem 11rem 0;\n                width: 8rem;\n            }"] });
+    } }, directives: [_angular_material_radio__WEBPACK_IMPORTED_MODULE_4__["MatRadioGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_5__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_5__["NgModel"], _angular_material_radio__WEBPACK_IMPORTED_MODULE_4__["MatRadioButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatButton"], _angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatAnchor"], _angular_router__WEBPACK_IMPORTED_MODULE_1__["RouterLinkWithHref"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_7__["IconComponent"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                display: flex;\n                align-items: center;\n                justify-content: center;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: rgba(0, 0, 0, 0.5);\n            }\n\n            [_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n                max-height: calc(100% - 2rem);\n            }\n\n            .absolute[_ngcontent-%COMP%] {\n                position: absolute;\n            }\n\n            button[_ngcontent-%COMP%] {\n                margin: 1rem 11rem 0;\n                width: 8rem;\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](CheckinCovidComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
                 selector: '[checkin-covid]',
                 template: `
-        <div class="bg-white rounded p-4 relative">
+        <div class="bg-white rounded p-4 relative overflow-y-auto overflow-x-hidden">
             <h3 class="text-xl font-medium mb-4">COVID Disclaimer</h3>
             <ol class="list-decimal list-inside">
                 <li>
@@ -8289,6 +8289,7 @@ CheckinCovidComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵde
             :host > div {
                 width: 32rem;
                 max-width: calc(100vw - 2rem);
+                max-height: calc(100% - 2rem);
             }
 
             .absolute {
@@ -19851,7 +19852,7 @@ class CheckinStateService {
             const event = this._event.getValue();
             if (!guest || !event)
                 return;
-            yield this._events.checkinAttendee(event.id, guest.email);
+            yield this._events.checkInGuest(event.id, guest.email);
         });
     }
     printPass() {
