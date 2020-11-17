@@ -14,6 +14,7 @@ import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 export interface VisitorFilters {
     date?: number;
     zones?: string[];
+    all_bookings?: boolean;
 }
 
 @Injectable({
@@ -27,6 +28,8 @@ export class VisitorsStateService extends BaseClass {
     private _loading = new BehaviorSubject<boolean>(false);
 
     public readonly loading = this._loading.asObservable();
+
+    public readonly filters = this._filters.asObservable();
 
     public readonly events = combineLatest([this._filters]).pipe(
         debounceTime(500),
@@ -42,7 +45,7 @@ export class VisitorsStateService extends BaseClass {
         }),
         map((list) => {
             this._loading.next(false);
-            return list.filter(
+            return this._filters.getValue().all_bookings ? list : list.filter(
                 (event) => event.has_visitors && event.attendees.length > 1
             );
         }),

@@ -7,9 +7,11 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-event',
     template: `
-        <div class="flex items-center px-2 bg-gray-100 ">
+        <div class="flex items-center px-2 bg-gray-100">
             <div class="w-12 text-lg flex justify-center">
-                <i class="p-2 rounded-full material-icons bg-gray-400">event</i>
+                <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.status !== 'cancelled' && event?.state !== 'done'">event</i>
+                <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.status === 'cancelled'">close</i>
+                <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.state === 'done' && event?.status !== 'cancelled'">done</i>
             </div>
             <div class="w-24 p-2">{{ event?.date | date: 'shortTime' }}</div>
             <div class="w-48 p-2">

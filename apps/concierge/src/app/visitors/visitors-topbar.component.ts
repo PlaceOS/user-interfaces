@@ -24,6 +24,12 @@ import { VisitorsStateService } from './visitors-state.service';
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-slide-toggle
+            class="m-2"
+            [ngModel]="(filters | async)?.all_bookings"
+            (ngModelChange)="setFilters({ all_bookings: $event })"
+            ><div class="text-xs">All Bookings</div></mat-slide-toggle
+        >
         <div class="flex-1 w-2"></div>
         <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
         <date-options (dateChange)="setDate($event)"></date-options>
@@ -55,8 +61,12 @@ export class VisitorsTopbarComponent extends BaseClass implements OnInit {
     public zones: string[] = [];
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
+
+    public readonly filters = this._state.filters;
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
+    /** Set filtered date */
+    public readonly setFilters = (filters) => this._state.setFilters(filters);
     /** Set filter string */
     public readonly setSearch = (str) => this._state.setSearchString(str);
     /** Update active zones for desks */
