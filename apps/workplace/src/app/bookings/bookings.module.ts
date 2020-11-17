@@ -8,11 +8,6 @@ import { SharedContentModule } from '../ui/shared.module';
 import { SharedExploreModule } from '@user-interfaces/explore';
 import { SharedUsersModule } from '@user-interfaces/users';
 
-import { BookingDeskFlowComponent } from './desk-flow/desk-flow.component';
-import { BookingDeskFormComponent } from './desk-flow/desk-form/desk-form.component';
-import { BookingDeskQuestionsComponent } from './desk-flow/desk-questions/desk-questions.component';
-import { BookingDeskConfirmComponent } from './desk-flow/desk-confirm/desk-confirm.component';
-
 import { QrReaderComponent } from './qr-reader/qr-reader.component';
 
 import { SpaceFlowComponent } from './space-flow/space-flow.component';
@@ -20,10 +15,10 @@ import { SpaceFlowFormComponent } from './space-flow/space-flow-form.component';
 import { SpaceFlowListingComponent } from './space-flow/space-flow-listing.component';
 import { SpaceFlowConfirmComponent } from './space-flow/space-flow-confirm.component';
 
-import { DeskFlowComponent } from './desk-flow-new/desk-flow.component';
-import { DeskFlowListingComponent } from './desk-flow-new/desk-flow-listing.component';
-import { DeskFlowConfirmModalComponent } from './desk-flow-new/desk-flow-confirm-modal.component';
-import { DeskFlowQuestionsModalComponent } from './desk-flow-new/desk-flow-questions-modal.component';
+import { DeskFlowComponent } from './desk-flow/desk-flow.component';
+import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
+import { DeskFlowConfirmModalComponent } from './desk-flow/desk-flow-confirm-modal.component';
+import { DeskFlowQuestionsModalComponent } from './desk-flow/desk-flow-questions-modal.component';
 
 const ROUTES: Route[] = [
     { path: ':flow', component: BookingsComponent },
@@ -34,11 +29,6 @@ const ROUTES: Route[] = [
 @NgModule({
     declarations: [
         BookingsComponent,
-
-        BookingDeskFlowComponent,
-        BookingDeskFormComponent,
-        BookingDeskQuestionsComponent,
-        BookingDeskConfirmComponent,
 
         DeskFlowComponent,
         DeskFlowListingComponent,
