@@ -101,7 +101,7 @@ export class SettingsService extends BaseClass {
      * Get a setting
      * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names
      */
-    public get(key: string): any {
+    public get<T = any>(key: string): T {
         const keys = key.split('.');
         if (keys[0] !== 'app') {
             return getItemWithKeys(keys, DEFAULT_SETTINGS);

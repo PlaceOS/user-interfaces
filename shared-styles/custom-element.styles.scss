@@ -67,6 +67,10 @@ a[button],
     app-icon {
         font-size: 1.5em;
     }
+
+    &[disabled] {
+        opacity: .35;
+    }
 }
 
 .panel {

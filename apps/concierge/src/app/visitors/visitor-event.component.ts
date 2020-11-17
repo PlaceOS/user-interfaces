@@ -23,6 +23,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 <action-icon
                     matTooltip="Checkin All Guests"
                     [loading]="loading === 'checkin'"
+                    [disabled]="guestCount <= 0"
                     className="material-icons"
                     content="event_available"
                     (click)="checkinGuests()"
@@ -31,6 +32,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 <action-icon
                     matTooltip="Checkout All Guests"
                     [loading]="loading === 'checkout'"
+                    [disabled]="guestCount <= 0"
                     className="material-icons"
                     content="event_busy"
                     (click)="checkoutGuests()"
@@ -152,6 +154,10 @@ export class VisitorEventComponent extends BaseClass implements OnInit {
             .catch((e) => this.event);
         this.loading = '';
     };
+
+    public get guestCount() {
+        return this.event?.attendees.reduce((c, u) => c + (u.is_external && !u.organizer ? 1 : 0), 0) || 0;
+    }
 
     public get has_search() {
         return this._state.search;

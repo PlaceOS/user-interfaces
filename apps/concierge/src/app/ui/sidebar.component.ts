@@ -6,7 +6,7 @@ import { OrganisationService } from '@user-interfaces/organisation';
 @Component({
     selector: 'sidebar',
     template: `
-        <div class="logo w-full">
+        <div class="logo h-20 w-24 flex items-center justify-center">
             <img class="object-center object-contain" [src]="logo.src" />
         </div>
         <ng-container *ngFor="let tile of links">
@@ -47,10 +47,8 @@ import { OrganisationService } from '@user-interfaces/organisation';
                 width: 6em;
                 height: 100%;
                 background-color: #004b86;
-            }
-
-            .logo {
-                height: 6em;
+                border-right: 1px solid #ccc;
+                z-index: 10;
             }
 
             a {
@@ -84,7 +82,7 @@ export class SidebarComponent {
         return this._settings.get('app.general.menu') || [];
     }
     public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo-light') || {};
+        return this._settings.get('app.logo_dark') || {};
     }
 
     public readonly buildings = this._org.building_list;

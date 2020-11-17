@@ -4,7 +4,7 @@ import { ApplicationIcon } from '@user-interfaces/common';
 @Component({
     selector: 'action-icon',
     template: `
-        <button mat-icon-button class="relative flex items-center justify-center h-8 w-8" [class.success]="state === 'success'" [disabled]="loading">
+        <button mat-icon-button class="relative flex items-center justify-center h-8 w-8" [class.success]="state === 'success'" [disabled]="loading || disabled">
             <app-icon root [className]="className" [icon]="icon">{{content}}</app-icon>
             <div [class]="'state center ' + state" *ngIf="!loading && state">
                 <app-icon
@@ -61,6 +61,8 @@ export class ActionIconComponent {
     @Input() public content: string;
     /** Whether action is being processed */
     @Input() public loading: boolean;
+    /** Whether action is being processed */
+    @Input() public disabled: boolean;
     /** State of the action */
     @Input() public state: 'success' | 'error' | '' = '';
 }
