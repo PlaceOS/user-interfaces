@@ -176,6 +176,11 @@ export class InteractiveMapComponent extends BaseClass implements AfterViewInit 
                 labels: this.labels,
                 actions: this.actions,
             });
+
+            this.timeout('update_view', () => {
+                this.updateView();
+                this.updateDisplay();
+            }, 100);
         }
     }
 }
