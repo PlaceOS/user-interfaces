@@ -50,7 +50,7 @@ export const MOCK_BUILDINGS = [
 const levels = ['lvl-00', 'lvl-01', 'lvl-02', 'lvl-03', 'lvl-04', 'lvl-05', 'lvl-06'];
 const mockLevel = (id: string, idx: number, building: any): any => {
     let map_id = id.substr(4);
-    map_id = `/assets/maps/dubai/level_${map_id.endsWith('0') ? 'G' : map_id}.svg`;
+    map_id = `https://s3-ap-southeast-2.amazonaws.com/os.place.tech/16012682998688307492.svg`;
     return {
         id: `${building.id}_${id}`,
         name: `Level ${id.endsWith('0') ? 'G' : idx}`,
