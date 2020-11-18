@@ -258,6 +258,9 @@ export class UserListFieldComponent extends BaseClass
         );
         ref.componentInstance.event
             .pipe(first((_) => _.reason === 'done'))
-            .subscribe((event) => this.addUser(event.metadata));
+            .subscribe((event) => {
+                this.addUser(event.metadata);
+                ref.close();
+            });
     }
 }
