@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { StaffStateService } from './staff-state.service';
 
@@ -26,8 +26,16 @@ import { StaffStateService } from './staff-state.service';
         `,
     ],
 })
-export class StaffComponent {
+export class StaffComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
 
     constructor(private _state: StaffStateService) {}
+
+    public ngOnInit() {
+        this._state.startPolling();
+    }
+
+    public ngOnDestroy() {
+        this._state.stopPolling();
+    }
 }

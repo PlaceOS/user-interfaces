@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { notifyError } from '@user-interfaces/common';
 import { StaffUser } from '@user-interfaces/users';
 
 import { StaffStateService } from './staff-state.service';
@@ -12,11 +13,20 @@ import { StaffStateService } from './staff-state.service';
                 <div class="px-2">{{ user?.name }}</div>
                 <div class="px-2 text-xs text-opacity-50">{{ user?.email }}</div>
             </div>
+            <div *ngIf="onsite" class="text-xs opacity-50 px-4">Onsite</div>
             <div class="flex items-center">
-                <a mat-icon-button [disabled]="!user?.email" [href]="'mailto:' + user?.email">
+                <action-icon
+                    [matTooltip]="onsite ? 'Checkout Staff' : 'Checkin Staff'"
+                    [loading]="loading"
+                    className="material-icons"
+                    [content]="onsite ? 'event_busy' : 'event_available'"
+                    (click)="onsite ? checkout() : checkin()"
+                >
+                </action-icon>
+                <a mat-icon-button matTooltip="Email Staff" [disabled]="!user?.email" [href]="'mailto:' + user?.email">
                     <app-icon className="material-icons">email</app-icon>
                 </a>
-                <a mat-icon-button [disabled]="!user?.phone" [href]="'tel:' + user?.phone">
+                <a mat-icon-button matTooltip="Phone Staff" [disabled]="!user?.phone" [href]="'tel:' + user?.phone">
                     <app-icon className="material-icons">call</app-icon>
                 </a>
             </div>
@@ -31,8 +41,20 @@ import { StaffStateService } from './staff-state.service';
 export class StaffDetailsComponent {
 
     @Input() public user: StaffUser;
+    @Input() public onsite: boolean;
 
-    constructor(private _state: StaffStateService) {
+    public loading: boolean;
 
-    }
+    public readonly checkin = async () => {
+        this.loading = true;
+        await this._state.checkin(this.user).catch(e => notifyError('Error checking in Staff member'));
+        this.loading = false;
+    };
+    public readonly checkout = async () => {
+        this.loading = true;
+        await this._state.checkout(this.user).catch(e => notifyError('Error checking out Staff member'));
+        this.loading = false;
+    };
+
+    constructor(private _state: StaffStateService) {}
 }

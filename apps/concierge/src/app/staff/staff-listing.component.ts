@@ -27,26 +27,35 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             #container
             (scroll)="onScroll($event)"
         >
-            <ng-container *ngFor="let group of groups">
-                <ng-container *ngIf="(user_list | async)[group].length">
-                    <div
-                        group
-                        [id]="'letter-' + (group === '#' ? '0' : group)"
-                        class="capitalize bg-gray-300 border-b text-sm font-medium sticky top-0 z-10"
-                    >
-                        {{ group }}
-                    </div>
-                    <staff-details
-                        *ngFor="
-                            let user of (user_list | async)[group];
-                            let i = index
-                        "
-                        [id]="'letter-' + group + '-' + i"
-                        [user]="user"
-                    ></staff-details>
+            <ng-container *ngIf="user_count | async; else empty_state">
+                <ng-container *ngFor="let group of groups">
+                    <ng-container *ngIf="(user_list | async)[group].length">
+                        <div
+                            group
+                            [id]="'letter-' + (group === '#' ? '0' : group)"
+                            class="capitalize bg-gray-300 border-b text-sm font-medium sticky top-0 z-10"
+                        >
+                            {{ group }}
+                        </div>
+                        <staff-details
+                            *ngFor="
+                                let user of (user_list | async)[group];
+                                let i = index
+                            "
+                            [id]="'letter-' + group + '-' + i"
+                            [user]="user"
+                            [onsite]="(events | async)[user.email]"
+                        ></staff-details>
+                    </ng-container>
                 </ng-container>
             </ng-container>
         </div>
+        <mat-progress-bar *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
+        <ng-template #empty_state>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <p>No matching staff members</p>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -83,6 +92,8 @@ export class StaffListingComponent extends BaseClass {
     public active_group = '#';
 
     public readonly groups = CHARS;
+    public readonly events = this._state.user_events;
+    public readonly loading = this._state.loading;
 
     public readonly user_count = this._state.filtered_users.pipe(
         map((list) => list.length)
