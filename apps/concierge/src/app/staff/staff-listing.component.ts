@@ -44,7 +44,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                             "
                             [id]="'letter-' + group + '-' + i"
                             [user]="user"
-                            [onsite]="(events | async)[user.email]"
+                            [onsite]="(events | async) ? (events | async)[user.email]: false"
                         ></staff-details>
                     </ng-container>
                 </ng-container>

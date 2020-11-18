@@ -12,6 +12,10 @@ import { DayviewSpaceComponent } from './dayview-space.component';
 import { DayviewEventComponent } from './dayview-event.component';
 import { DayviewEventDetailsComponent } from './dayview-event-details.component';
 
+import { BookingModalComponent } from './booking-modal.component';
+import { EventFormComponent } from './event-form.component';
+import { SharedSpacesModule } from '@user-interfaces/spaces';
+
 const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
 @NgModule({
@@ -21,8 +25,11 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
         DayviewTimelineComponent,
         DayviewSpaceComponent,
         DayviewEventComponent,
-        DayviewEventDetailsComponent
+        DayviewEventDetailsComponent,
+
+        BookingModalComponent,
+        EventFormComponent
     ],
-    imports: [CommonModule, FormsModule, UIModule, RouterModule.forChild(ROUTES)],
+    imports: [CommonModule, FormsModule, UIModule, SharedSpacesModule, RouterModule.forChild(ROUTES)],
 })
 export class DayViewModule {}

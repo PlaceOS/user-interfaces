@@ -43,6 +43,7 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
     const form = new FormGroup({
         id: new FormControl(event.id),
         host: new FormControl(event.host, [Validators.required]),
+        organiser: new FormControl(event.organiser, [Validators.required]),
         creator: new FormControl(event.creator, [Validators.required]),
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
@@ -65,6 +66,9 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         needs_space: new FormControl(true),
         needs_parking: new FormControl(event.needs_parking || false),
         system: new FormControl(event.system),
+    });
+    form.controls.organiser.valueChanges.subscribe((o) => {
+        form.controls.host.setValue(o?.email);
     });
     return form;
 }

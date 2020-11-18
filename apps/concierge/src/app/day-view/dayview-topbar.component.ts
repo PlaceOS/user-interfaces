@@ -9,7 +9,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-topbar',
     template: `
-        <button mat-button class="w-12 xl:w-auto">
+        <button mat-button class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
                 <app-icon
                     class="mr-2"
@@ -101,6 +101,8 @@ export class DayviewTopbarComponent extends BaseClass {
     public type_list: string[] = this.types.map((i) => `${i.id}`);
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setDate(d);
+    /**  */
+    public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */

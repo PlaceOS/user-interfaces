@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { BehaviorSubject, of, combineLatest } from 'rxjs';
 import { map, switchMap, debounceTime, catchError, filter } from 'rxjs/operators';
@@ -6,6 +7,7 @@ import { map, switchMap, debounceTime, catchError, filter } from 'rxjs/operators
 import { BaseClass, flatten, timePeriodsIntersect, unique } from '@user-interfaces/common';
 import { CalendarEvent, EventsService, replaceBookings } from '@user-interfaces/events';
 import { SpacesService } from '@user-interfaces/spaces';
+import { BookingModalComponent } from './booking-modal.component';
 
 export type BookingType =
     | 'internal'
@@ -97,7 +99,7 @@ export class EventsStateService extends BaseClass {
         return this._filters.getValue();
     }
 
-    constructor(private _events: EventsService, private _spaces: SpacesService) {
+    constructor(private _events: EventsService, private _spaces: SpacesService, private _dialog: MatDialog) {
         super();
         /** Generate observable for updating bookings */
         const search = combineLatest([this._poll, this._zones, this._date]).pipe(
@@ -227,6 +229,14 @@ export class EventsStateService extends BaseClass {
         this.clearInterval('polling');
         this._long_poll.next('');
         this.clearInterval('polling_long');
+    }
+
+    public newBooking(event?: CalendarEvent) {
+        this._dialog.open(BookingModalComponent, {
+            data: {
+                event
+            }
+        });
     }
 
     /**
