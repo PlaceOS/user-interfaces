@@ -1,6 +1,18 @@
-import { Component, OnInit, forwardRef, Output, EventEmitter, Input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    forwardRef,
+    Output,
+    EventEmitter,
+    Input,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { BaseClass, csvToJson, downloadFile, notifyError } from '@user-interfaces/common';
+import {
+    BaseClass,
+    csvToJson,
+    downloadFile,
+    notifyError,
+} from '@user-interfaces/common';
 import { Subject, Observable } from 'rxjs';
 import {
     switchMap,
@@ -8,12 +20,14 @@ import {
     distinctUntilChanged,
     map,
     filter,
+    first,
 } from 'rxjs/operators';
 
 import { User } from '../../../../users/src/lib/user.class';
 import { StaffService } from '../../../../users/src/lib/staff.service';
 import { GuestsService } from '../../../../users/src/lib/guests.service';
-
+import { NewUserModalComponent } from '../../../../users/src/lib/new-user-modal/new-user-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'a-user-list-field',
@@ -27,7 +41,8 @@ import { GuestsService } from '../../../../users/src/lib/guests.service';
         },
     ],
 })
-export class UserListFieldComponent extends BaseClass implements OnInit, ControlValueAccessor {
+export class UserListFieldComponent extends BaseClass
+    implements OnInit, ControlValueAccessor {
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Number of characters needed before a search will start */
@@ -53,7 +68,7 @@ export class UserListFieldComponent extends BaseClass implements OnInit, Control
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
-    constructor(private _users: StaffService, private _guests: GuestsService) {
+    constructor(private _users: StaffService, private _guests: GuestsService, private _dialog: MatDialog) {
         super();
     }
 
@@ -107,7 +122,9 @@ export class UserListFieldComponent extends BaseClass implements OnInit, Control
         if (!this.active_list) {
             this.active_list = [];
         }
-        const index = this.active_list.findIndex((a_user) => a_user.email === user.email);
+        const index = this.active_list.findIndex(
+            (a_user) => a_user.email === user.email
+        );
         /* istanbul ignore else */
         if (index < 0) {
             this.active_list = [...this.active_list, user];
@@ -121,7 +138,9 @@ export class UserListFieldComponent extends BaseClass implements OnInit, Control
      * @param user
      */
     public removeUser(user: User) {
-        this.active_list = this.active_list.filter((a_user) => a_user.email !== user.email);
+        this.active_list = this.active_list.filter(
+            (a_user) => a_user.email !== user.email
+        );
         this.setValue(this.active_list);
     }
 
@@ -141,7 +160,9 @@ export class UserListFieldComponent extends BaseClass implements OnInit, Control
                     this.processCsvData((evt.srcElement as any).result);
                     event.target.value = '';
                 });
-                reader.addEventListener('error', (_) => notifyError('Error reading file.'));
+                reader.addEventListener('error', (_) =>
+                    notifyError('Error reading file.')
+                );
             }
         }
     }
@@ -155,7 +176,9 @@ export class UserListFieldComponent extends BaseClass implements OnInit, Control
         const id = this._users.current.staff_id;
         list.forEach((el) => {
             el.name = el.name || `${el.first_name} ${el.last_name}`;
-            const display = (el.name || `${Math.floor(Math.random() * 9999_9999)}`)
+            const display = (
+                el.name || `${Math.floor(Math.random() * 9999_9999)}`
+            )
                 .split(' ')
                 .join('_')
                 .toLowerCase();
@@ -219,5 +242,22 @@ export class UserListFieldComponent extends BaseClass implements OnInit, Control
 
     public displayFn(item): string {
         return item?.name || '';
+    }
+
+    /**
+     * Open modal to change the recurrence details for the booking
+     */
+    public openNewUserModal() {
+        const ref = this._dialog.open<NewUserModalComponent>(
+            NewUserModalComponent,
+            {
+                width: 'auto',
+                height: 'auto',
+                data: {}
+            }
+        );
+        ref.componentInstance.event
+            .pipe(first((_) => _.reason === 'done'))
+            .subscribe((event) => this.addUser(event.metadata));
     }
 }
