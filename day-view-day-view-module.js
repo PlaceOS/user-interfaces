@@ -91,6 +91,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _booking_modal_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./booking-modal.component */ "+tfs");
 /* harmony import */ var _event_form_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./event-form.component */ "jRLG");
 /* harmony import */ var _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @user-interfaces/spaces */ "6CBO");
+/* harmony import */ var _user_interfaces_users__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @user-interfaces/users */ "mjT4");
+
 
 
 
@@ -111,7 +113,7 @@ const ROUTES = [{ path: '', component: _day_view_component__WEBPACK_IMPORTED_MOD
 class DayViewModule {
 }
 DayViewModule.ɵmod = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineNgModule"]({ type: DayViewModule });
-DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjector"]({ factory: function DayViewModule_Factory(t) { return new (t || DayViewModule)(); }, imports: [[_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)]] });
+DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjector"]({ factory: function DayViewModule_Factory(t) { return new (t || DayViewModule)(); }, imports: [[_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _user_interfaces_users__WEBPACK_IMPORTED_MODULE_14__["SharedUsersModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)]] });
 (function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵsetNgModuleScope"](DayViewModule, { declarations: [_day_view_component__WEBPACK_IMPORTED_MODULE_5__["DayViewComponent"],
         _dayview_topbar_component__WEBPACK_IMPORTED_MODULE_6__["DayviewTopbarComponent"],
         _dayview_timeline_component__WEBPACK_IMPORTED_MODULE_7__["DayviewTimelineComponent"],
@@ -119,7 +121,7 @@ DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInje
         _dayview_event_component__WEBPACK_IMPORTED_MODULE_9__["DayviewEventComponent"],
         _dayview_event_details_component__WEBPACK_IMPORTED_MODULE_10__["DayviewEventDetailsComponent"],
         _booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["BookingModalComponent"],
-        _event_form_component__WEBPACK_IMPORTED_MODULE_12__["EventFormComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"]] }); })();
+        _event_form_component__WEBPACK_IMPORTED_MODULE_12__["EventFormComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _user_interfaces_users__WEBPACK_IMPORTED_MODULE_14__["SharedUsersModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"]] }); })();
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](DayViewModule, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"],
         args: [{
@@ -133,7 +135,7 @@ DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInje
                     _booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["BookingModalComponent"],
                     _event_form_component__WEBPACK_IMPORTED_MODULE_12__["EventFormComponent"]
                 ],
-                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)],
+                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _user_interfaces_users__WEBPACK_IMPORTED_MODULE_14__["SharedUsersModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)],
             }]
     }], null, null); })();
 
