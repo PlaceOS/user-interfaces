@@ -64,7 +64,7 @@
 /******/
 /******/ 	// script path function
 /******/ 	function jsonpScriptSrc(chunkId) {
-/******/ 		return __webpack_require__.p + "" + ({"bookings-bookings-module":"bookings-bookings-module","control-control-module":"control-control-module","dashboard-dashboard-module":"dashboard-dashboard-module","directory-directory-module":"directory-directory-module","explore-explore-module":"explore-explore-module","help-help-module":"help-help-module","schedule-schedule-module":"schedule-schedule-module"}[chunkId]||chunkId) + ".js"
+/******/ 		return __webpack_require__.p + "" + ({"control-control-module":"control-control-module","dashboard-dashboard-module":"dashboard-dashboard-module","default~bookings-bookings-module~explore-explore-module":"default~bookings-bookings-module~explore-explore-module","bookings-bookings-module":"bookings-bookings-module","explore-explore-module":"explore-explore-module","directory-directory-module":"directory-directory-module","help-help-module":"help-help-module","schedule-schedule-module":"schedule-schedule-module"}[chunkId]||chunkId) + ".js"
 /******/ 	}
 /******/
 /******/ 	// The require function
