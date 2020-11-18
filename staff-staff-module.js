@@ -670,19 +670,20 @@ function StaffListingComponent_div_1_Template(rf, ctx) { if (rf & 1) {
 function StaffListingComponent_ng_container_4_ng_container_1_ng_container_1_staff_details_3_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](0, "staff-details", 12);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](1, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](2, "async");
 } if (rf & 2) {
     const user_r13 = ctx.$implicit;
     const i_r14 = ctx.index;
     const group_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](2).$implicit;
     const ctx_r12 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("id", "letter-" + group_r10 + "-" + i_r14)("user", user_r13)("onsite", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](1, 3, ctx_r12.events)[user_r13.email]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("id", "letter-" + group_r10 + "-" + i_r14)("user", user_r13)("onsite", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](1, 3, ctx_r12.events) ? _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](2, 5, ctx_r12.events)[user_r13.email] : false);
 } }
 function StaffListingComponent_ng_container_4_ng_container_1_ng_container_1_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementContainerStart"](0);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "div", 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](3, StaffListingComponent_ng_container_4_ng_container_1_ng_container_1_staff_details_3_Template, 2, 5, "staff-details", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](3, StaffListingComponent_ng_container_4_ng_container_1_ng_container_1_staff_details_3_Template, 3, 7, "staff-details", 11);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](4, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementContainerEnd"]();
 } if (rf & 2) {
@@ -833,7 +834,7 @@ StaffListingComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵde
                             "
                             [id]="'letter-' + group + '-' + i"
                             [user]="user"
-                            [onsite]="(events | async)[user.email]"
+                            [onsite]="(events | async) ? (events | async)[user.email]: false"
                         ></staff-details>
                     </ng-container>
                 </ng-container>

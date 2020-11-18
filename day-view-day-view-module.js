@@ -88,6 +88,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _dayview_space_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./dayview-space.component */ "JO76");
 /* harmony import */ var _dayview_event_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./dayview-event.component */ "X71C");
 /* harmony import */ var _dayview_event_details_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./dayview-event-details.component */ "Utgy");
+/* harmony import */ var _booking_modal_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./booking-modal.component */ "+tfs");
+/* harmony import */ var _event_form_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./event-form.component */ "jRLG");
+/* harmony import */ var _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @user-interfaces/spaces */ "6CBO");
+
+
+
 
 
 
@@ -105,13 +111,15 @@ const ROUTES = [{ path: '', component: _day_view_component__WEBPACK_IMPORTED_MOD
 class DayViewModule {
 }
 DayViewModule.ɵmod = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineNgModule"]({ type: DayViewModule });
-DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjector"]({ factory: function DayViewModule_Factory(t) { return new (t || DayViewModule)(); }, imports: [[_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)]] });
+DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjector"]({ factory: function DayViewModule_Factory(t) { return new (t || DayViewModule)(); }, imports: [[_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)]] });
 (function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵsetNgModuleScope"](DayViewModule, { declarations: [_day_view_component__WEBPACK_IMPORTED_MODULE_5__["DayViewComponent"],
         _dayview_topbar_component__WEBPACK_IMPORTED_MODULE_6__["DayviewTopbarComponent"],
         _dayview_timeline_component__WEBPACK_IMPORTED_MODULE_7__["DayviewTimelineComponent"],
         _dayview_space_component__WEBPACK_IMPORTED_MODULE_8__["DayviewSpaceComponent"],
         _dayview_event_component__WEBPACK_IMPORTED_MODULE_9__["DayviewEventComponent"],
-        _dayview_event_details_component__WEBPACK_IMPORTED_MODULE_10__["DayviewEventDetailsComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"]] }); })();
+        _dayview_event_details_component__WEBPACK_IMPORTED_MODULE_10__["DayviewEventDetailsComponent"],
+        _booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["BookingModalComponent"],
+        _event_form_component__WEBPACK_IMPORTED_MODULE_12__["EventFormComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"]] }); })();
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](DayViewModule, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"],
         args: [{
@@ -121,9 +129,11 @@ DayViewModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInje
                     _dayview_timeline_component__WEBPACK_IMPORTED_MODULE_7__["DayviewTimelineComponent"],
                     _dayview_space_component__WEBPACK_IMPORTED_MODULE_8__["DayviewSpaceComponent"],
                     _dayview_event_component__WEBPACK_IMPORTED_MODULE_9__["DayviewEventComponent"],
-                    _dayview_event_details_component__WEBPACK_IMPORTED_MODULE_10__["DayviewEventDetailsComponent"]
+                    _dayview_event_details_component__WEBPACK_IMPORTED_MODULE_10__["DayviewEventDetailsComponent"],
+                    _booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["BookingModalComponent"],
+                    _event_form_component__WEBPACK_IMPORTED_MODULE_12__["EventFormComponent"]
                 ],
-                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)],
+                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"], _ui_ui_module__WEBPACK_IMPORTED_MODULE_4__["UIModule"], _user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_13__["SharedSpacesModule"], _angular_router__WEBPACK_IMPORTED_MODULE_3__["RouterModule"].forChild(ROUTES)],
             }]
     }], null, null); })();
 
@@ -877,6 +887,8 @@ class DayviewTopbarComponent extends _user_interfaces_common__WEBPACK_IMPORTED_M
         this.type_list = this.types.map((i) => `${i.id}`);
         /** Set filtered date */
         this.setDate = (d) => this._state.setDate(d);
+        /**  */
+        this.newBooking = (d) => this._state.newBooking(d);
         /** List of levels for the active building */
         this.levels = this._org.active_levels;
         /** List of levels for the active building */
@@ -928,8 +940,9 @@ class DayviewTopbarComponent extends _user_interfaces_common__WEBPACK_IMPORTED_M
     }
 }
 DayviewTopbarComponent.ɵfac = function DayviewTopbarComponent_Factory(t) { return new (t || DayviewTopbarComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_6__["EventsStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_5__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"])); };
-DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: DayviewTopbarComponent, selectors: [["dayview-topbar"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 24, vars: 14, consts: [["mat-button", "", 1, "w-12", "xl:w-auto"], [1, "flex", "items-center"], [1, "mr-2", 3, "icon"], [1, "hidden", "xl:block"], ["appearance", "outline"], ["multiple", "", "placeholder", "All Levels", 3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["multiple", "", "placeholder", "No Events", 3, "ngModel", "ngModelChange"], [1, "m-2", 3, "ngModel", "ngModelChange"], [1, "text-xs"], [1, "flex-1", "w-0"], [3, "dateChange"], [3, "value"]], template: function DayviewTopbarComponent_Template(rf, ctx) { if (rf & 1) {
+DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: DayviewTopbarComponent, selectors: [["dayview-topbar"]], features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"]], decls: 24, vars: 14, consts: [["mat-button", "", 1, "w-12", "xl:w-auto", 3, "click"], [1, "flex", "items-center"], [1, "mr-2", 3, "icon"], [1, "hidden", "xl:block"], ["appearance", "outline"], ["multiple", "", "placeholder", "All Levels", 3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["multiple", "", "placeholder", "No Events", 3, "ngModel", "ngModelChange"], [1, "m-2", 3, "ngModel", "ngModelChange"], [1, "text-xs"], [1, "flex-1", "w-0"], [3, "dateChange"], [3, "value"]], template: function DayviewTopbarComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "button", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("click", function DayviewTopbarComponent_Template_button_click_0_listener() { return ctx.newBooking(); });
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](1, "div", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](2, "app-icon", 2);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](3, "div", 3);
@@ -994,7 +1007,7 @@ DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵd
         args: [{
                 selector: 'dayview-topbar',
                 template: `
-        <button mat-button class="w-12 xl:w-auto">
+        <button mat-button class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
                 <app-icon
                     class="mr-2"
