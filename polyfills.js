@@ -20,7 +20,7 @@ module.exports = __webpack_require__(/*! /home/runner/work/user-interfaces/user-
 /***/ (function(module, exports) {
 
 /**
- * @license Angular v10.1.6
+ * @license Angular v11.0.1
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
