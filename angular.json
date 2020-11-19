@@ -81,7 +81,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,
@@ -532,7 +532,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,
@@ -699,7 +699,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,
@@ -863,7 +863,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,
@@ -1030,7 +1030,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,
@@ -1187,7 +1187,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,
@@ -1352,7 +1352,7 @@
                                 {
                                     "type": "anyComponentStyle",
                                     "maximumWarning": "6kb",
-                                    "maximumError": "10kb"
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "serviceWorker": true,

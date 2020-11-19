@@ -35,7 +35,7 @@ import { DesksStateService } from './desks-state.service';
                 align-items: center;
                 background-color: #fff;
                 height: 5em;
-                padding: 0 2em;
+                padding: 0 1em;
                 border-bottom: 1px solid #ccc;
             }
 

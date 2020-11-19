@@ -1,12 +1,12 @@
-module.exports = {
-  future: {
-    // removeDeprecatedGapUtilities: true,
-    // purgeLayersByDefault: true,
-  },
-  purge: [],
-  theme: {
-    extend: {},
-  },
-  variants: {},
-  plugins: [],
-}
+module.exports = (isProd) => ({
+    prefix: '',
+    future: {
+      removeDeprecatedGapUtilities: true,
+      purgeLayersByDefault: true
+    },
+    purge: {
+      enabled: isProd,
+      content: ['**/*.html', '**/*.ts']
+    },
+    theme: {}
+});
