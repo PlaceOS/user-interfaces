@@ -38,7 +38,7 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         host: `${host}${port ? ':' + port : ''}`,
         auth_uri: `${url}/auth/oauth/authorize`,
         token_uri: `${url}/auth/oauth/token`,
-        redirect_uri: `${location.origin}${route}/oauth-resp.html`,
+        redirect_uri: `${location.origin}${route}oauth-resp.html`,
         handle_login: !settings.local_login,
         use_iframe: true,
         mock,
