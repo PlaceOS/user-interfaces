@@ -3,7 +3,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { clientId, invalidateToken, isMock, token } from '@placeos/ts-client';
+import { clientId, invalidateToken, isMock, refreshToken, token } from '@placeos/ts-client';
 
 import { BaseClass, HotkeysService, notifySuccess, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
@@ -59,12 +59,14 @@ export class AppComponent extends BaseClass implements OnInit {
             location.reload();
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
-            this._clipboard.copy(token());
+            this._clipboard.copy(`${token()}|${refreshToken()}`);
             notifySuccess('Successfully copied token.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
             navigator.clipboard?.readText().then(tkn => {
-                localStorage.setItem(`${clientId()}_access_token`, `${tkn}`);
+                const parts = tkn.split('|');
+                localStorage.setItem(`${clientId()}_access_token`, `${tkn[0]}`);
+                localStorage.setItem(`${clientId()}_refresh_token`, `${tkn[1]}`);
                 localStorage.setItem(`${clientId()}_expires_at`, `${addHours(new Date(), 6).valueOf()}`);
                 notifySuccess('Successfully pasted token.');
                 setTimeout(() => location.reload(), 2000);
