@@ -21393,7 +21393,6 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             this._loading.next(true);
             const [options, desks] = details;
             const date = Object(date_fns__WEBPACK_IMPORTED_MODULE_9__["startOfDay"])(options.date ? new Date(options.date) : new Date());
-            console.log('Desks:', desks);
             return [
                 desks,
                 yield this._bookings
@@ -21407,12 +21406,10 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             ];
         })), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["map"])((details) => {
             const [desks, bookings] = details;
-            console.log('Details:', details);
             const active_bookings = bookings.filter((bkn) => bkn.status !== 'declined');
             const user_groups = this._staff.current.groups;
             const bookable_desks = desks.filter((i) => i.bookable
                 && user_groups.includes((i.group || '').toLowerCase()));
-            console.log('Done', bookable_desks.filter((desk) => !active_bookings.find((bkn) => bkn.asset_id === desk.id)));
             this._loading.next(false);
             return bookable_desks.filter((desk) => !active_bookings.find((bkn) => bkn.asset_id === desk.id));
         }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["shareReplay"])());
@@ -21422,14 +21419,12 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             .subscribe((details) => this.handleDeskAvailability(details)));
     }
     setOptions(state) {
-        console.warn('Set options:', state);
         this._options.next(Object.assign(Object.assign({}, this._options.getValue()), state));
     }
     bookDesk(desk, reason = '') {
         var _a;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const level = this._org.levelWithID(desk.zone instanceof Array ? desk.zone : [(_a = desk.zone) === null || _a === void 0 ? void 0 : _a.id]);
-            console.log('Book Desk:', desk, level);
             let ref = this._dialog.open(_desk_flow_questions_modal_component__WEBPACK_IMPORTED_MODULE_13__["DeskFlowQuestionsModalComponent"]);
             let success = yield Promise.race([
                 ref.componentInstance.event
@@ -21471,7 +21466,6 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
     makeDeskBooking(desk, date, reason) {
         var _a, _b, _c, _d;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            console.log('Make Desk Booking:', desk, date, reason);
             const location = `${(_a = desk.zone) === null || _a === void 0 ? void 0 : _a.name}-${desk.id}`;
             const options = this._options.getValue();
             const level = this._org.levelWithID(desk.zone instanceof Array ? desk.zone : [(_b = desk.zone) === null || _b === void 0 ? void 0 : _b.id]);

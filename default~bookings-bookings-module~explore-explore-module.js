@@ -823,12 +823,10 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
                     });
                 }
             })));
-            this.actions.subscribe((actions) => console.log('Actions:', actions));
         });
     }
     locateSpace(space) {
         this._state.setLevel(this._org.levelWithID(space.zones).id);
-        console.log('Space:', space);
         const feature = {
             location: space.map_id,
             content: _user_interfaces_components__WEBPACK_IMPORTED_MODULE_11__["MapPinComponent"],
@@ -842,7 +840,6 @@ class ExploreMapViewComponent extends _user_interfaces_common__WEBPACK_IMPORTED_
     }
     locateUser(user) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            console.log('Locate User:', user);
             const locate_details = this._org.organisation.bindings
                 .location_services;
             if (!locate_details)
@@ -1436,7 +1433,6 @@ class ExploreStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
                 style_mappings['#Zones'] = { display: 'none' };
             }
             style_mappings['text'] = { display: 'none' };
-            console.log('Map Styles:', style_mappings);
             return style_mappings;
         }));
         this.options = this._options.asObservable();
@@ -1588,7 +1584,6 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         this._bindings = [];
         this._statuses = {};
         this.subscription('spaces', this._state.spaces.subscribe((list) => {
-            console.log('Spaces:', list);
             this.clearBindings();
             this._spaces = list;
             this.bindToSpaces();
@@ -1633,7 +1628,6 @@ class ExploreSpacesService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         if (this._statuses[space.id] === 'busy') {
             return Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_2__["notifyError"])(`${space.display_name || space.name} is unavailable at the current time`);
         }
-        console.log('Book Space:', space);
         this._dialog.open(_explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_7__["ExploreBookingModalComponent"], {
             data: { space }
         });
@@ -1894,7 +1888,6 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
     parseData(d) {
         const value = (d === null || d === void 0 ? void 0 : d.value) || [];
         const labels = [];
-        console.log('Parse Data:', d);
         for (const zone of value) {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
@@ -1921,7 +1914,6 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
                 opacity: 0.6,
             };
         }
-        console.log('Styles:', style_map);
         this._state.setStyles('zones', style_map);
     }
 }
