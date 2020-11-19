@@ -92,7 +92,6 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
     }
     checkinDesk(desk) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            console.log('Checkin:', desk);
             const success = yield this._bookings.checkIn(desk, true).catch(_ => 'failed');
             success === 'failed'
                 ? Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_6__["notifyError"])('Error checking in desk booking')
@@ -101,7 +100,6 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
     }
     approveDesk(desk) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            console.log('Approve:', desk);
             const success = yield this._bookings.approve(desk.id).catch(_ => 'failed');
             success === 'failed'
                 ? Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_6__["notifyError"])('Error approving in desk booking')
@@ -110,7 +108,6 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
     }
     rejectDesk(desk) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            console.log('Reject:', desk);
             const success = yield this._bookings.reject(desk.id).catch(_ => 'failed');
             success === 'failed'
                 ? Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_6__["notifyError"])('Error rejecting in desk booking')
@@ -119,9 +116,7 @@ class DesksStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
     }
     rejectAllDesks() {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            console.log('Reject All Desks');
             const list = this._desk_bookings || [];
-            console.log('Reject All:', list);
             if (list.length > 0) {
                 const ref = this._dialog.open(_user_interfaces_components__WEBPACK_IMPORTED_MODULE_10__["ConfirmModalComponent"], {
                     data: {

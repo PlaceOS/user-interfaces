@@ -460,6 +460,7 @@ class EventsStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODUL
         });
     }
     removeBooking(event) {
+        var _a;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const ref = this._dialog.open(_user_interfaces_components__WEBPACK_IMPORTED_MODULE_10__["ConfirmModalComponent"], {
                 data: {
@@ -476,7 +477,7 @@ class EventsStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODUL
             ]);
             if (done) {
                 ref.componentInstance.loading = 'Deleting booking...';
-                yield this._events.delete(event.id);
+                yield this._events.delete(event.id, { system_id: (_a = event.system) === null || _a === void 0 ? void 0 : _a.id });
                 this.remove(event);
                 ref.close();
             }
