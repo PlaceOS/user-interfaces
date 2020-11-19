@@ -142,12 +142,14 @@ export class InteractiveMapComponent extends BaseClass implements AfterViewInit 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
         if (!getViewer(this.viewer)) return this.timeout('update_view', () => this.updateView());
-        updateViewer(this.viewer, {
-            styles: this.styles,
-            features: this.feature_list,
-            labels: this.labels,
-            actions: this.actions,
-        });
+        try {
+            updateViewer(this.viewer, {
+                styles: this.styles,
+                features: this.feature_list,
+                labels: this.labels,
+                actions: this.actions,
+            });
+        } catch (e) {}
     }
 
     /** Update zoom and center position of viewer */
