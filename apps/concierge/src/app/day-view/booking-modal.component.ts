@@ -1,9 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CalendarService } from '@user-interfaces/calendar';
-import { notifyError, notifySuccess } from '@user-interfaces/common';
+import { DialogEvent, notifyError, notifySuccess } from '@user-interfaces/common';
 import {
     CalendarEvent,
     EventsService,
@@ -49,6 +49,7 @@ export interface BookingModalData {
     `],
 })
 export class BookingModalComponent implements OnInit {
+    @Output() public event = new EventEmitter<DialogEvent>();
     public form: FormGroup;
     public loading: string;
 
@@ -89,13 +90,15 @@ export class BookingModalComponent implements OnInit {
             );
         }
         this.loading = 'Creating calendar event...';
+        value.system = value.resources[0];
         const booking = await this._event
-            .save(new CalendarEvent(value))
+            .save(new CalendarEvent(value).toJSON())
             .catch((_) => null);
         this.loading = '';
         if (!booking) {
             return notifyError('Error creating booking.');
         }
+        this.event.emit({ reason: 'done', metadata: booking });
         notifySuccess('Successfully created booking.');
         this._dialog_ref.close();
     }
