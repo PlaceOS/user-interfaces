@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CalendarEvent } from '@user-interfaces/events';
+import { notifyError } from '@user-interfaces/common';
+import { CalendarEvent, EventsService } from '@user-interfaces/events';
 import { User } from '@user-interfaces/users';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -28,7 +29,16 @@ import { VisitorsStateService } from './visitors-state.service';
             </ng-template>
         </div>
         <div flex class="p-2 flex-1">{{ visitor?.name || visitor?.email }}</div>
-        <div class="w-32 p-2 flex items-center justify-end">
+        <div class="w-40 p-2 flex items-center justify-end">
+            <action-icon
+                [matTooltip]="remote ? 'Set as In-Person Visitor' : 'Set as Remote Visitior'"
+                [loading]="loading === 'remote'"
+                className="material-icons"
+                [content]="remote ? 'tap_and_play' : 'business'"
+                (click)="toggleRemote()"
+                [class.invisible]="!visitor?.is_external || visitor?.organizer"
+            >
+            </action-icon>
             <action-icon
                 matTooltip="Checkin Guest"
                 [loading]="loading === 'checkin'"
@@ -102,6 +112,24 @@ export class VisitorDetailsComponent {
         this.eventChange.emit(this.event);
         this.loading = '';
     };
+
+    public readonly toggleRemote = async () => {
+        this.loading = 'remote';
+        const remote_list = this.event.remote.filter(e => e !== this.visitor.email);
+        if (!this.remote) {
+            remote_list.push(this.visitor.email);
+        }
+        const new_item = new CalendarEvent({ ...(this.event.toJSON()), remote: remote_list }).toJSON();
+        console.log('Remote:', remote_list, new_item)
+        this.event = await this._events
+            .update(this.event.id, new_item, { system_id: this.event.system?.id }, 'patch')
+            .catch((e) => {
+                notifyError(`Error setting visitor status. Error: ${e.statusText || e.message || e}`);
+                return this.event;
+            });
+        this.eventChange.emit(this.event);
+        this.loading = '';
+    };
     public readonly checkout = async () => {
         this.loading = 'checkout';
         this.event = await this._state
@@ -111,5 +139,9 @@ export class VisitorDetailsComponent {
         this.loading = '';
     };
 
-    constructor(private _state: VisitorsStateService) {}
+    public get remote(): boolean {
+        return !!this.event?.remote.find(e => e === this.visitor?.email);
+    }
+
+    constructor(private _state: VisitorsStateService, private _events: EventsService) {}
 }

@@ -286,14 +286,14 @@ export class BaseAPIService<T extends {} = BaseDataClass> extends BaseClass {
      * @param form_data New values for the item
      * @param query_params Map of query paramaters to add to the request URL
      */
-    public update(id: string, form_data: HashMap, query_params: HashMap = {}): Promise<T> {
+    public update(id: string, form_data: HashMap, query_params: HashMap = {}, method: 'put' | 'patch' = 'put'): Promise<T> {
         const key = `update|${id}`;
         if (!this._promises[key]) {
             this._promises[key] = new Promise<T>((resolve, reject) => {
                 const query = toQueryString(query_params);
                 const url = `${this.route()}/${id}${query ? '?' + query : ''}`;
                 let result: T = null;
-                put(url, form_data).subscribe(
+                (method === 'patch' ? patch : put)(url, form_data).subscribe(
                     (d) => (result = this.process(d)),
                     (e) => {
                         reject(e);
