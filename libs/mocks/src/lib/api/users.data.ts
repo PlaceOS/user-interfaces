@@ -37,6 +37,3 @@ export const MOCK_GUESTS = PREDEF_USERS.map((name, i) => ({
     name,
     email: `${name.split(' ').join('.').toLowerCase()}@not-${DOMAIN}`
 }));
-
-console.log('STAFF:', MOCK_STAFF);
-console.log('GUESTS:', MOCK_GUESTS);

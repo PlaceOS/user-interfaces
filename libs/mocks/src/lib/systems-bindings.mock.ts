@@ -6,7 +6,6 @@ import { createBookingsModule } from './realtime/events';
 import { createLocationServicesModule } from './realtime/desks';
 
 export function createSystem(space: HashMap) {
-    console.log('Create Bindings for ', space, space.id);
     registerSystem(space.id, {
         System: [createSystemModule(space)],
         Bookings: [createBookingsModule(space)],

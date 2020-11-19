@@ -82,7 +82,6 @@ export class ExploreStateService extends BaseClass {
                 style_mappings['#Zones'] = { display: 'none' };
             }
             style_mappings['text'] = { display: 'none' };
-            console.log('Map Styles:', style_mappings);
             return style_mappings;
         })
     );

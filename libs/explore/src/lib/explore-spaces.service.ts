@@ -36,7 +36,6 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
         this.subscription(
             'spaces',
             this._state.spaces.subscribe((list) => {
-                console.log('Spaces:', list);
                 this.clearBindings();
                 this._spaces = list;
                 this.bindToSpaces();
@@ -90,7 +89,6 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
         if (this._statuses[space.id] === 'busy') {
             return notifyError(`${space.display_name || space.name} is unavailable at the current time`);
         }
-        console.log('Book Space:', space);
         this._dialog.open(ExploreBookingModalComponent, {
             data: { space }
         });

@@ -9,7 +9,6 @@ registerMockEndpoint({
     metadata: {},
     method: 'GET',
     callback: (_) => {
-        console.log('Event count:', MOCK_EVENTS.length);
         const events = MOCK_EVENTS.filter(
             (event) => !!event.attendees.find((user) => user.email === ACTIVE_USER.email)
         );

@@ -7,7 +7,6 @@ export function createSystemModule(space: HashMap, overrides: HashMap = {}) {
         power: false,
 
         $power_on: function () {
-            console.log('Power On');
             this.power = true;
         },
         $power_off: function () {

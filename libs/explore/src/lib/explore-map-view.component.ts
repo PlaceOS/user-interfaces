@@ -112,12 +112,10 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 }
             })
         );
-        this.actions.subscribe((actions) => console.log('Actions:', actions));
     }
 
     private locateSpace(space: Space) {
         this._state.setLevel(this._org.levelWithID(space.zones).id);
-        console.log('Space:', space);
         const feature: any = {
             location: space.map_id,
             content: MapPinComponent,
@@ -131,7 +129,6 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private async locateUser(user: User) {
-        console.log('Locate User:', user);
         const locate_details: any = this._org.organisation.bindings
             .location_services;
         if (!locate_details) return;

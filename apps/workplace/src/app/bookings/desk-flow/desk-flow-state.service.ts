@@ -96,7 +96,6 @@ export class DeskFlowStateService extends BaseClass {
             const date = startOfDay(
                 options.date ? new Date(options.date) : new Date()
             );
-            console.log('Desks:', desks);
             return [
                 desks,
                 await this._bookings
@@ -111,7 +110,6 @@ export class DeskFlowStateService extends BaseClass {
         }),
         map((details) => {
             const [desks, bookings] = details;
-            console.log('Details:', details);
             const active_bookings = bookings.filter(
                 (bkn) => bkn.status !== 'declined'
             );
@@ -119,13 +117,6 @@ export class DeskFlowStateService extends BaseClass {
             const bookable_desks = desks.filter(
                 (i) => i.bookable
                 && user_groups.includes((i.group || '').toLowerCase())
-            );
-            console.log(
-                'Done',
-                bookable_desks.filter(
-                    (desk) =>
-                        !active_bookings.find((bkn) => bkn.asset_id === desk.id)
-                )
             );
             this._loading.next(false);
             return bookable_desks.filter(
@@ -160,7 +151,6 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     public setOptions(state: DeskFlowState) {
-        console.warn('Set options:', state);
         this._options.next({ ...this._options.getValue(), ...state });
     }
 
@@ -168,7 +158,6 @@ export class DeskFlowStateService extends BaseClass {
         const level = this._org.levelWithID(
             desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
         );
-        console.log('Book Desk:', desk, level);
         let ref: MatDialogRef<any> = this._dialog.open(
             DeskFlowQuestionsModalComponent
         );
@@ -212,7 +201,6 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     private async makeDeskBooking(desk: Desk, date: number, reason: string) {
-        console.log('Make Desk Booking:', desk, date, reason);
         const location = `${desk.zone?.name}-${desk.id}`;
         const options = this._options.getValue();
         const level = this._org.levelWithID(

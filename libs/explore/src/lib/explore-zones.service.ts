@@ -82,7 +82,6 @@ export class ExploreZonesService extends BaseClass {
     public parseData(d) {
         const value = d?.value || [];
         const labels = [];
-        console.log('Parse Data:', d);
         for (const zone of value) {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
@@ -111,7 +110,6 @@ export class ExploreZonesService extends BaseClass {
                 opacity: 0.6,
             };
         }
-        console.log('Styles:', style_map);
         this._state.setStyles('zones', style_map);
     }
 }

@@ -3,7 +3,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { clientId, invalidateToken, token } from '@placeos/ts-client';
+import { clientId, invalidateToken, isMock, token } from '@placeos/ts-client';
 
 import { BaseClass, HotkeysService, notifySuccess, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
@@ -82,15 +82,13 @@ export class AppComponent extends BaseClass implements OnInit {
         this._loading.next(false);
         setupCache(this._cache);
         this.timeout('wait_for_user', () => this.onInitError(), 5 * 1000);
-        console.log('Waiting on user...')
         await this._users.initialised.pipe(first((_) => _)).toPromise();
-        console.log('User loaded...')
         this.clearTimeout('wait_for_user');
         setDefaultCreator(this._users.current);
     }
 
     private onInitError() {
-        console.log('User Invalid...');
+        if (isMock()) { return; }
         invalidateToken();
         location.reload();
     }

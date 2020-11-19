@@ -101,7 +101,6 @@ export class DesksStateService extends BaseClass {
     }
 
     public async checkinDesk(desk: Booking) {
-        console.log('Checkin:', desk);
         const success = await this._bookings.checkIn(desk, true).catch(_ => 'failed');
         success === 'failed'
             ? notifyError('Error checking in desk booking')
@@ -109,7 +108,6 @@ export class DesksStateService extends BaseClass {
     }
 
     public async approveDesk(desk: Booking) {
-        console.log('Approve:', desk);
         const success = await this._bookings.approve(desk.id).catch(_ => 'failed');
         success === 'failed'
             ? notifyError('Error approving in desk booking')
@@ -117,7 +115,6 @@ export class DesksStateService extends BaseClass {
     }
 
     public async rejectDesk(desk: Booking) {
-        console.log('Reject:', desk);
         const success = await this._bookings.reject(desk.id).catch(_ => 'failed');
         success === 'failed'
             ? notifyError('Error rejecting in desk booking')
@@ -125,9 +122,7 @@ export class DesksStateService extends BaseClass {
     }
 
     public async rejectAllDesks() {
-        console.log('Reject All Desks')
         const list = this._desk_bookings || [];
-        console.log('Reject All:', list);
         if (list.length > 0) {
             const ref = this._dialog.open(ConfirmModalComponent, {
                 data: {

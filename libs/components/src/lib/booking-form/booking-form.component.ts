@@ -41,7 +41,6 @@ export class BookingFormComponent extends BaseClass implements OnInit {
 
     private setBuildingOptions() {
         this.available_configs = this._org.available_room_configs;
-        console.log('available_configs', this.available_configs);
     }
 
     /** Display string for the recurrence value of the booking */
