@@ -26,7 +26,7 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
     const host = settings.domain || location.hostname;
     const port = settings.port || location.port;
     const url = settings.use_domain ? `${protocol}//${host}:${port}` : location.origin;
-    const route = host.includes('localhost') && port === '4200' ? '' : settings.route || '';
+    const route = (location.pathname + '/').replace('//', '/').slice(1);
     const mock =
         settings.mock ||
         location.href.includes('mock=true') ||
