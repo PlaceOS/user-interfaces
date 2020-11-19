@@ -30,6 +30,12 @@ import { VisitorsStateService } from './visitors-state.service';
             (ngModelChange)="setFilters({ all_bookings: $event })"
             ><div class="text-xs">All Bookings</div></mat-slide-toggle
         >
+        <mat-slide-toggle
+            class="m-2"
+            [ngModel]="(filters | async)?.show_week"
+            (ngModelChange)="setFilters({ show_week: $event })"
+            ><div class="text-xs">Show Week</div></mat-slide-toggle
+        >
         <div class="flex-1 w-2"></div>
         <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
         <date-options (dateChange)="setDate($event)"></date-options>

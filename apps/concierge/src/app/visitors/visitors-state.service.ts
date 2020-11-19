@@ -7,7 +7,7 @@ import {
 } from '@user-interfaces/common';
 import { CalendarEvent, EventsService } from '@user-interfaces/events';
 import { User } from '@user-interfaces/users';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, endOfWeek, startOfDay, startOfWeek } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -15,6 +15,7 @@ export interface VisitorFilters {
     date?: number;
     zones?: string[];
     all_bookings?: boolean;
+    show_week?: boolean;
 }
 
 @Injectable({
@@ -37,9 +38,11 @@ export class VisitorsStateService extends BaseClass {
             this._loading.next(true);
             const [filters] = details;
             const date = filters.date ? new Date(filters.date) : new Date();
+            const start = (filters.show_week ? startOfWeek(date) : startOfDay(date)).valueOf();
+            const end = (filters.show_week ? endOfWeek(date) : endOfDay(date)).valueOf();
             return this._events.query({
-                period_start: Math.floor(startOfDay(date).valueOf() / 1000),
-                period_end: Math.floor(endOfDay(date).valueOf() / 1000),
+                period_start: Math.floor(start / 1000),
+                period_end: Math.floor(end / 1000),
                 zone_ids: (filters.zones || []).join(','),
             });
         }),

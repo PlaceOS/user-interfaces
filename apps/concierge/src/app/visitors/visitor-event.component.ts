@@ -13,7 +13,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.status === 'cancelled'">close</i>
                 <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.state === 'done' && event?.status !== 'cancelled'">done</i>
             </div>
-            <div class="w-24 p-2">{{ event?.date | date: 'shortTime' }}</div>
+            <div class="w-24 p-2">{{ event?.date | date:(filters | async)?.show_week ? 'MMM d, h:mm a' : 'shortTime' }}</div>
             <div class="w-48 p-2">
                 {{ event?.organiser?.name || event?.organiser?.email }}
             </div>
@@ -139,6 +139,7 @@ export class VisitorEventComponent extends BaseClass implements OnInit {
     public show_attendees: boolean;
     public loading: string;
     public matches: HashMap<boolean> = {};
+    public readonly filters = this._state.filters;
 
     public readonly checkinGuests = async () => {
         this.loading = 'checkin';
