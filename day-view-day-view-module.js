@@ -614,6 +614,8 @@ class DayviewEventDetailsComponent {
         this._spaces = _spaces;
         /** Close displayed event */
         this.close = () => this._state.setEvent(null);
+        this.edit = () => this._state.newBooking(this.event);
+        this.remove = () => this._state.removeBooking(this.event);
     }
     get location() {
         const space = this._spaces.find(this.event.resources[0].id);
@@ -625,7 +627,7 @@ class DayviewEventDetailsComponent {
     }
 }
 DayviewEventDetailsComponent.ɵfac = function DayviewEventDetailsComponent_Factory(t) { return new (t || DayviewEventDetailsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_4__["EventsStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_user_interfaces_spaces__WEBPACK_IMPORTED_MODULE_3__["SpacesService"])); };
-DayviewEventDetailsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DayviewEventDetailsComponent, selectors: [["dayview-event-details"]], inputs: { event: "event" }, decls: 40, vars: 26, consts: [[1, "fixed", "inset-0", 3, "click"], ["name", "panel", 1, "absolute", "rounded", "shadow", "flex", "flex-col", 3, "click"], [1, "p-4", "overflow-auto", "flex-1"], [1, "mb-0", "pl-6", "mb-1"], [1, "text-bold", "mb-4", "pl-6", "text-dark-fade"], [1, "flex", "items-center", "mb-2"], [1, "mr-1", 3, "icon"], [1, "text-dark-fade"], [1, "flex", "items-center"], [1, "flex", "flex-col", "mb-2"], ["class", "flex items-center pl-6 mb-1", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "pl-6", "mb-2"], [1, "text-dark-fade", 3, "innerHTML"], ["name", "actions", 1, "flex", "items-center", "justify-content", "p-4", "space-x-4"], ["mat-button", "", 1, "flex-1", "inverse"], ["mat-button", "", 1, "flex-1"], ["name", "close", "mat-icon-button", "", 3, "click"], [3, "icon"], [1, "flex", "items-center", "pl-6", "mb-1"], [1, "text-sm", "pr-2", 3, "user"]], template: function DayviewEventDetailsComponent_Template(rf, ctx) { if (rf & 1) {
+DayviewEventDetailsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DayviewEventDetailsComponent, selectors: [["dayview-event-details"]], inputs: { event: "event" }, decls: 40, vars: 26, consts: [[1, "fixed", "inset-0", 3, "click"], ["name", "panel", 1, "absolute", "rounded", "shadow", "flex", "flex-col", 3, "click"], [1, "p-4", "overflow-auto", "flex-1"], [1, "mb-0", "pl-6", "mb-1"], [1, "text-bold", "mb-4", "pl-6", "text-dark-fade"], [1, "flex", "items-center", "mb-2"], [1, "mr-1", 3, "icon"], [1, "text-dark-fade"], [1, "flex", "items-center"], [1, "flex", "flex-col", "mb-2"], ["class", "flex items-center pl-6 mb-1", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "pl-6", "mb-2"], [1, "text-dark-fade", 3, "innerHTML"], ["name", "actions", 1, "flex", "items-center", "justify-content", "p-4", "space-x-4"], ["mat-button", "", 1, "flex-1", "inverse", 3, "click"], ["mat-button", "", 1, "flex-1", 3, "click"], ["name", "close", "mat-icon-button", "", 3, "click"], [3, "icon"], [1, "flex", "items-center", "pl-6", "mb-1"], [1, "text-sm", "pr-2", 3, "user"]], template: function DayviewEventDetailsComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function DayviewEventDetailsComponent_Template_div_click_0_listener() { return ctx.close(); });
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
@@ -679,9 +681,11 @@ DayviewEventDetailsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__[
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](33, "div", 13);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](34, "button", 14);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function DayviewEventDetailsComponent_Template_button_click_34_listener() { return ctx.remove(); });
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](35, "Remove Booking");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](36, "button", 15);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function DayviewEventDetailsComponent_Template_button_click_36_listener() { return ctx.edit(); });
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](37, "Edit Booking");
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
@@ -761,8 +765,8 @@ DayviewEventDetailsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__[
                 </div>
             </div>
             <div name="actions" class="flex items-center justify-content p-4 space-x-4">
-                <button class="flex-1 inverse" mat-button>Remove Booking</button>
-                <button class="flex-1" mat-button>Edit Booking</button>
+                <button class="flex-1 inverse" mat-button (click)="remove()">Remove Booking</button>
+                <button class="flex-1" mat-button (click)="edit()">Edit Booking</button>
             </div>
             <button name="close" mat-icon-button (click)="close()">
                 <app-icon [icon]="{ class: 'material-icons', content: 'close' }"></app-icon>
