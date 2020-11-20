@@ -41,7 +41,7 @@
         "@angular/router": "^11.0.1",
         "@angular/service-worker": "^11.0.1",
         "@nrwl/angular": "10.3.1",
-        "rxjs": "~6.5.5",
+        "rxjs": "^6.5.5",
         "zone.js": "^0.10.2"
     },
     "devDependencies": {
@@ -60,7 +60,7 @@
         "@tinymce/tinymce-angular": "^4.2.0",
         "@types/jest": "26.0.8",
         "@types/node": "~8.9.4",
-        "@yuion/svg-viewer": "0.0.11-development",
+        "@yuion/svg-viewer": "^0.0.11-development",
         "@zxing/library": "^0.17.1",
         "codelyzer": "~5.0.1",
         "cypress": "^4.1.0",

@@ -22,6 +22,7 @@ import { DeskListModalComponent } from './desk-list-modal.component';
 export interface DeskFilters {
     date?: number;
     zones?: string[];
+    show_map?: boolean;
 }
 
 @Injectable({
@@ -34,6 +35,8 @@ export class DesksStateService extends BaseClass {
     private _loading = new BehaviorSubject<boolean>(false);
 
     public readonly loading = this._loading.asObservable();
+
+    public readonly filters = this._filters.asObservable();
 
     public readonly desks: Observable<Desk[]> = combineLatest([this._filters]).pipe(
         debounceTime(500),

@@ -1,7 +1,13 @@
 import { Component, OnInit, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Subject, Observable, of } from 'rxjs';
-import { switchMap, debounceTime, distinctUntilChanged, map, catchError } from 'rxjs/operators';
+import {
+    switchMap,
+    debounceTime,
+    distinctUntilChanged,
+    map,
+    catchError,
+} from 'rxjs/operators';
 
 import { BaseClass } from '@user-interfaces/common';
 import { User } from '../../../../users/src/lib/user.class';
@@ -11,21 +17,24 @@ import { StaffService } from '../../../../users/src/lib/staff.service';
     selector: 'a-user-search-field',
     template: `
         <div class="user-search-field" form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field overlay appearance="outline">
                 <input
                     matInput
                     name="user-search"
                     [(ngModel)]="search_str"
                     (ngModelChange)="search$.next($event)"
                     [disabled]="disabled"
-                    placeholder="Search for user..."
-                    i18n-placeholder
+                    [placeholder]="placeholder || 'Search for user...'"
                     [matAutocomplete]="auto"
                     (blur)="resetSearchString()"
                 />
                 <div class="prefix" matPrefix>
                     <app-icon
-                        [icon]="{ type: 'icon', class: 'material-icons', content: 'search' }"
+                        [icon]="{
+                            type: 'icon',
+                            class: 'material-icons',
+                            content: 'search'
+                        }"
                     ></app-icon>
                 </div>
                 <div class="suffix" matSuffix *ngIf="loading">
@@ -75,9 +84,12 @@ import { StaffService } from '../../../../users/src/lib/staff.service';
         },
     ],
 })
-export class UserSearchFieldComponent extends BaseClass implements OnInit, ControlValueAccessor {
+export class UserSearchFieldComponent extends BaseClass
+    implements OnInit, ControlValueAccessor {
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
+    /** Placeholder text to display */
+    @Input() public placeholder: string;
     /** Limit available options to these */
     @Input() public options: User[];
     /** Currently selected user */
@@ -112,9 +124,10 @@ export class UserSearchFieldComponent extends BaseClass implements OnInit, Contr
                 return this.options && this.options.length > 0
                     ? Promise.resolve(this.options)
                     : query.length >= 3
-                    ? (this._users.query({ q: query.slice(0, 3), cache: 60 * 1000 }) as Promise<
-                          User[]
-                      >)
+                    ? (this._users.query({
+                          q: query.slice(0, 3),
+                          cache: 60 * 1000,
+                      }) as Promise<User[]>)
                     : Promise.resolve([]);
             }),
             catchError((err) => of([])),

@@ -33,3 +33,11 @@ $template-uis-theme: mat-light-theme((
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($template-uis-theme);
+
+svg {
+    display: initial !important;
+
+    *:not([id^="table"]):not([id^="area"]):not([id^="book"]) {
+        display: none;
+    }
+}

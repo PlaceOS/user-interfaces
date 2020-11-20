@@ -11,9 +11,8 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <mat-form-field appearance="outline">
             <mat-select
-                multiple
-                [(ngModel)]="zones"
-                (ngModelChange)="updateZones($event)"
+                [ngModel]="zones[0]"
+                (ngModelChange)="updateZones([$event]); zones = [$event]"
                 placeholder="All Levels"
             >
                 <mat-option
@@ -24,6 +23,18 @@ import { DesksStateService } from './desks-state.service';
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <a
+            button
+            mat-button
+            [routerLink]="['/desks']"
+            [queryParams]="{ show_map: !(filters | async)?.show_map }"
+            queryParamsHandling="merge"
+            (click)="toggleMapShow()"
+        >
+            {{
+                (filters | async)?.show_map ? 'Show List View' : 'Show Map View'
+            }}
+        </a>
         <div class="flex-1 w-2"></div>
         <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
@@ -55,6 +66,13 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
     public zones: string[] = [];
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
+    /** List of levels for the active building */
+    public readonly filters = this._desks.filters;
+    /** Set filtered date */
+    public readonly toggleMapShow = () => {
+        this._desks.setFilters({ show_map: !this.show_map });
+        this.show_map = !this.show_map;
+    };
     /** Set filtered date */
     public readonly setDate = (date) => this._desks.setFilters({ date });
     /** Update active zones for desks */
@@ -62,9 +80,12 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge'
         });
-        this._desks.setFilters({ zones })
+        this._desks.setFilters({ zones });
     };
+
+    public show_map: boolean;
 
     constructor(
         private _desks: DesksStateService,
@@ -93,6 +114,9 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                         this.zones = zones;
                     }
                 }
+                this.show_map =
+                    params.has('show_map') && params.get('show_map') === 'true';
+                this._desks.setFilters({ show_map: this.show_map });
             })
         );
         this.subscription(

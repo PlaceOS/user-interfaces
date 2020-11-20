@@ -187,7 +187,7 @@ export class DayviewTimelineComponent extends BaseClass {
                 spaces.filter(
                     (space) =>
                         space.zones.includes(bld.id) &&
-                        (!zones || !zones.length || space.zones.find((z) => zones.includes(z)))
+                        (!zones?.length || space.zones.find((z) => zones.includes(z)))
                 ) || []
             );
         })

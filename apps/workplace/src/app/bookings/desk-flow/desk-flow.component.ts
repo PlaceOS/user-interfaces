@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ExploreStateService } from '@user-interfaces/explore';
+import { StaffService } from '@user-interfaces/users';
 
 import { DeskFlowStateService } from './desk-flow-state.service';
 
@@ -78,7 +79,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
     ],
     providers: [],
 })
-export class DeskFlowComponent {
+export class DeskFlowComponent implements OnInit {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
@@ -98,6 +99,11 @@ export class DeskFlowComponent {
 
     constructor(
         private _state: ExploreStateService,
-        private _desks: DeskFlowStateService
+        private _desks: DeskFlowStateService,
+        private _staff: StaffService
     ) {}
+
+    public ngOnInit() {
+        this._desks.setHost(this._staff.current);
+    }
 }

@@ -5,12 +5,13 @@ import { BookingsService } from '@user-interfaces/bookings';
 import {
     BaseClass,
     DialogEvent,
+    notifyError,
     notifySuccess,
     SettingsService,
 } from '@user-interfaces/common';
 import { DEFAULT_COLOURS, ExploreStateService } from '@user-interfaces/explore';
 import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { StaffService } from '@user-interfaces/users';
+import { StaffService, User } from '@user-interfaces/users';
 import { endOfDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
@@ -39,6 +40,8 @@ export class DeskFlowStateService extends BaseClass {
     });
 
     private _loading = new BehaviorSubject<boolean>(false);
+
+    private _host: User;
 
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
@@ -154,7 +157,14 @@ export class DeskFlowStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...state });
     }
 
+    public setHost(host: User) {
+        this._host = host;
+    }
+
     public async bookDesk(desk: Desk, reason: string = '') {
+        if (!this._host) {
+            return  notifyError('A host needs to be set before booking a desk.');
+        }
         const level = this._org.levelWithID(
             desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
         );
@@ -213,6 +223,9 @@ export class DeskFlowStateService extends BaseClass {
             booking_start: Math.floor(
                 startOfDay(options.date).valueOf() / 1000
             ),
+            user_id: this._host.id,
+            user_name: this._host.name,
+            user_email: this._host.email,
             booking_end: Math.floor(endOfDay(options.date).valueOf() / 1000),
             asset_id: desk.id,
             title: reason,
@@ -223,7 +236,7 @@ export class DeskFlowStateService extends BaseClass {
                 group: desk.group,
             },
         };
-        return this._bookings.add(booking_data);
+        return this._bookings.save(booking_data);
     }
 
     private handleDeskAvailability(details: [Desk[], Desk[]]) {
@@ -259,5 +272,6 @@ export class DeskFlowStateService extends BaseClass {
         }
         this._state.setStyles('desks', style_map);
         this._state.setActions('desks', actions);
+        console.log('Actions:', actions);
     }
 }
