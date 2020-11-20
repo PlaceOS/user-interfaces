@@ -112,9 +112,8 @@ export class StaffStateService extends BaseClass {
 
     public async checkin(user: StaffUser) {
         const result = await this._bookings.save({
-            ...(this._events[user.email] || {}),
             booking_start: Math.floor(
-                startOfDay(new Date).valueOf() / 1000
+                new Date().valueOf() / 1000
             ),
             booking_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
             asset_id: user.email,
