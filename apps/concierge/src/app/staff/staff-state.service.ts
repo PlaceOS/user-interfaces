@@ -90,7 +90,6 @@ export class StaffStateService extends BaseClass {
         private _org: OrganisationService
     ) {
         super();
-
         this.loadUsers();
     }
 
