@@ -69,7 +69,7 @@ class StaffStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
             const now = new Date().valueOf();
             for (const bkn of bookings) {
                 if (Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_7__["timePeriodsIntersect"])(now, now, bkn.date, bkn.date + bkn.duration * 60 * 1000)) {
-                    checkin_map[bkn.asset_id] = true;
+                    checkin_map[bkn.asset_id] = bkn.checked_in;
                     this._events[bkn.asset_id] = bkn;
                 }
             }
@@ -94,8 +94,8 @@ class StaffStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
     }
     checkin(user) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            const result = yield this._bookings.add({
-                booking_start: Math.floor(Object(date_fns__WEBPACK_IMPORTED_MODULE_6__["startOfDay"])(new Date).valueOf() / 1000),
+            const result = yield this._bookings.save({
+                booking_start: Math.floor(new Date().valueOf() / 1000),
                 booking_end: Math.floor(Object(date_fns__WEBPACK_IMPORTED_MODULE_6__["endOfDay"])(new Date()).valueOf() / 1000),
                 asset_id: user.email,
                 title: 'Checked-in Onsite',
@@ -103,6 +103,7 @@ class StaffStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
                 zones: [this._org.building.id],
                 booking_type: 'staff',
             });
+            yield this._bookings.checkIn(result, true);
             this._events[user.email] = result;
             this._onsite[user.email] = true;
         });
@@ -112,6 +113,7 @@ class StaffStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE
             const event = this._events[user.email];
             if (event) {
                 const result = yield this._bookings.update(event.id, Object.assign(Object.assign({}, event.toJSON()), { booking_end: Math.floor(new Date().valueOf() / 1000) }));
+                yield this._bookings.checkIn(result, false);
                 this._events[user.email] = result;
                 this._onsite[user.email] = false;
             }
@@ -408,7 +410,7 @@ StaffTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdef
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("modelChange", function StaffTopbarComponent_Template_searchbar_modelChange_9_listener($event) { return ctx.setSearch($event); });
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
     } if (rf & 2) {
-        var tmp_2_0 = null;
+        let tmp_2_0 = null;
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](1);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", ctx.zones);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](1);
@@ -771,7 +773,7 @@ StaffListingComponent.ɵfac = function StaffListingComponent_Factory(t) { return
 StaffListingComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: StaffListingComponent, selectors: [["staff-listings"]], viewQuery: function StaffListingComponent_Query(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵviewQuery"](_c0, true);
     } if (rf & 2) {
-        var _t;
+        let _t;
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵloadQuery"]()) && (ctx._el = _t.first);
     } }, features: [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵInheritDefinitionFeature"]], decls: 10, vars: 8, consts: [[1, "w-full", "p-2", "flex", "items-center", "justify-center"], ["letter", "", "class", "capitalize h-6 w-6 flex items-center justify-center text-xs cursor-pointer", 3, "disabled", "active", "click", 4, "ngFor", "ngForOf"], [1, "flex-1", "overflow-auto", "w-full", "relative", "bg-gray-100", 2, "height", "50%", 3, "scroll"], ["container", ""], [4, "ngIf", "ngIfElse"], ["mode", "indeterminate", 4, "ngIf"], ["empty_state", ""], ["letter", "", 1, "capitalize", "h-6", "w-6", "flex", "items-center", "justify-center", "text-xs", "cursor-pointer", 3, "click"], [4, "ngFor", "ngForOf"], [4, "ngIf"], ["group", "", 1, "capitalize", "bg-gray-300", "border-b", "text-sm", "font-medium", "sticky", "top-0", "z-10", 3, "id"], [3, "id", "user", "onsite", 4, "ngFor", "ngForOf"], [3, "id", "user", "onsite"], ["mode", "indeterminate"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"]], template: function StaffListingComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);

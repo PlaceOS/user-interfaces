@@ -67,6 +67,48 @@ DayViewComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineC
 
 /***/ }),
 
+/***/ "7JBE":
+/*!************************************************************************************!*\
+  !*** /home/runner/work/user-interfaces/user-interfaces/libs/calendar/src/index.ts ***!
+  \************************************************************************************/
+/*! exports provided: Calendar, CalendarService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_calendar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./lib/calendar */ "8zVH");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Calendar", function() { return _lib_calendar__WEBPACK_IMPORTED_MODULE_0__["Calendar"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CalendarService", function() { return _lib_calendar__WEBPACK_IMPORTED_MODULE_0__["CalendarService"]; });
+
+
+
+
+/***/ }),
+
+/***/ "8zVH":
+/*!*******************************************************************************************!*\
+  !*** /home/runner/work/user-interfaces/user-interfaces/libs/calendar/src/lib/calendar.ts ***!
+  \*******************************************************************************************/
+/*! exports provided: Calendar, CalendarService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _calendar_class__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./calendar.class */ "pu6a");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Calendar", function() { return _calendar_class__WEBPACK_IMPORTED_MODULE_0__["Calendar"]; });
+
+/* harmony import */ var _calendar_interfaces__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./calendar.interfaces */ "nLJi");
+/* empty/unused harmony star reexport *//* harmony import */ var _calendar_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./calendar.service */ "9Yl1");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CalendarService", function() { return _calendar_service__WEBPACK_IMPORTED_MODULE_2__["CalendarService"]; });
+
+
+
+
+
+
+/***/ }),
+
 /***/ "Bhho":
 /*!*********************************************!*\
   !*** ./src/app/day-view/day-view.module.ts ***!
@@ -256,7 +298,7 @@ class DayviewTimelineComponent extends _user_interfaces_common__WEBPACK_IMPORTED
         ]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])((details) => {
             const [bld, spaces, zones] = details;
             return (spaces.filter((space) => space.zones.includes(bld.id) &&
-                (!zones || !zones.length || space.zones.find((z) => zones.includes(z)))) || []);
+                (!(zones === null || zones === void 0 ? void 0 : zones.length) || space.zones.find((z) => zones.includes(z)))) || []);
         }));
     }
     ngOnInit() {
@@ -281,7 +323,7 @@ DayviewTimelineComponent.ɵfac = function DayviewTimelineComponent_Factory(t) { 
 DayviewTimelineComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: DayviewTimelineComponent, selectors: [["dayview-timeline"]], viewQuery: function DayviewTimelineComponent_Query(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵviewQuery"](_c0, true);
     } if (rf & 2) {
-        var _t;
+        let _t;
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵloadQuery"]()) && (ctx._ref_el = _t.first);
     } }, features: [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵInheritDefinitionFeature"]], decls: 20, vars: 14, consts: [[1, "time", "h-full", "overflow-hidden"], [1, "headers", "relative"], [1, "white-space", "absolute", "inset-0", 2, "bottom", "1em"], ["name", "change-transform", "class", "relative", 3, "transform", 4, "ngFor", "ngForOf"], [1, "h-full", "flex-1", "flex", "flex-col"], [1, "headers", "flex", "relative", "overflow-hidden"], [1, "bar", "absolute"], ["name", "change-transform", "class", "relative w", 3, "transform", 4, "ngFor", "ngForOf"], [1, "content", "relative", "flex", "flex-1", "overflow-auto", 3, "scroll"], ["scroll_el", ""], [1, "ref", "absolute"], ["ref", ""], [3, "space", 4, "ngFor", "ngForOf"], ["class", "block absolute w-full", 3, "width", "top", 4, "ngFor", "ngForOf"], ["mode", "indeterminate", 4, "ngIf"], [3, "event", 4, "ngIf"], ["name", "change-transform", 1, "relative"], [1, "text", "absolute", "w-full", "text-xs"], ["name", "change-transform", 1, "relative", "w"], [1, "name", "m-2", "text-center"], [3, "space"], [1, "block", "absolute", "w-full"], ["mode", "indeterminate"], [3, "event"]], template: function DayviewTimelineComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
@@ -991,8 +1033,8 @@ DayviewTopbarComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵd
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("dateChange", function DayviewTopbarComponent_Template_date_options_dateChange_23_listener($event) { return ctx.setDate($event); });
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
     } if (rf & 2) {
-        var tmp_5_0 = null;
-        var tmp_6_0 = null;
+        let tmp_5_0 = null;
+        let tmp_6_0 = null;
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("icon", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpureFunction0"](13, _c0));
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](4);
@@ -1256,8 +1298,8 @@ DayviewEventComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵde
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](3, DayviewEventComponent_div_3_Template, 5, 11, "div", 2);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](4, "async");
     } if (rf & 2) {
-        var tmp_0_0 = null;
-        var tmp_2_0 = null;
+        let tmp_0_0 = null;
+        let tmp_2_0 = null;
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", (tmp_0_0 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](1, 3, ctx.ui_options)) == null ? null : tmp_0_0.show_overflow);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx.event);
@@ -1378,6 +1420,20 @@ DayviewEventComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵde
     }], function () { return [{ type: _events_state_service__WEBPACK_IMPORTED_MODULE_3__["EventsStateService"] }]; }, { event: [{
             type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"]
         }] }); })();
+
+
+/***/ }),
+
+/***/ "nLJi":
+/*!******************************************************************************************************!*\
+  !*** /home/runner/work/user-interfaces/user-interfaces/libs/calendar/src/lib/calendar.interfaces.ts ***!
+  \******************************************************************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
 
 
 /***/ })

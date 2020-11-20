@@ -185,48 +185,6 @@ BookingModalComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵde
 
 /***/ }),
 
-/***/ "7JBE":
-/*!************************************************************************************!*\
-  !*** /home/runner/work/user-interfaces/user-interfaces/libs/calendar/src/index.ts ***!
-  \************************************************************************************/
-/*! exports provided: Calendar, CalendarService */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _lib_calendar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./lib/calendar */ "8zVH");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Calendar", function() { return _lib_calendar__WEBPACK_IMPORTED_MODULE_0__["Calendar"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CalendarService", function() { return _lib_calendar__WEBPACK_IMPORTED_MODULE_0__["CalendarService"]; });
-
-
-
-
-/***/ }),
-
-/***/ "8zVH":
-/*!*******************************************************************************************!*\
-  !*** /home/runner/work/user-interfaces/user-interfaces/libs/calendar/src/lib/calendar.ts ***!
-  \*******************************************************************************************/
-/*! exports provided: Calendar, CalendarService */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _calendar_class__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./calendar.class */ "pu6a");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Calendar", function() { return _calendar_class__WEBPACK_IMPORTED_MODULE_0__["Calendar"]; });
-
-/* harmony import */ var _calendar_interfaces__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./calendar.interfaces */ "nLJi");
-/* empty/unused harmony star reexport *//* harmony import */ var _calendar_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./calendar.service */ "9Yl1");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CalendarService", function() { return _calendar_service__WEBPACK_IMPORTED_MODULE_2__["CalendarService"]; });
-
-
-
-
-
-
-/***/ }),
-
 /***/ "HWRp":
 /*!**************************************************!*\
   !*** ./src/app/day-view/events-state.service.ts ***!
@@ -815,20 +773,6 @@ EventFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefin
     }], function () { return [{ type: _angular_material_dialog__WEBPACK_IMPORTED_MODULE_3__["MatDialog"] }]; }, { form: [{
             type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Input"]
         }] }); })();
-
-
-/***/ }),
-
-/***/ "nLJi":
-/*!******************************************************************************************************!*\
-  !*** /home/runner/work/user-interfaces/user-interfaces/libs/calendar/src/lib/calendar.interfaces.ts ***!
-  \******************************************************************************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-
 
 
 /***/ })
