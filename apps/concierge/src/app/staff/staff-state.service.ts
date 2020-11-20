@@ -73,7 +73,7 @@ export class StaffStateService extends BaseClass {
                         bkn.date + bkn.duration * 60 * 1000
                     )
                 ) {
-                    checkin_map[bkn.asset_id] = true;
+                    checkin_map[bkn.asset_id] = bkn.checked_in;
                     this._events[bkn.asset_id] = bkn;
                 }
             }
@@ -122,6 +122,7 @@ export class StaffStateService extends BaseClass {
             zones: [this._org.building.id],
             booking_type: 'staff',
         });
+        await this._bookings.checkIn(result, true);
         this._events[user.email] = result;
         this._onsite[user.email] = true;
     }
@@ -133,6 +134,7 @@ export class StaffStateService extends BaseClass {
                 ...event.toJSON(),
                 booking_end: Math.floor(new Date().valueOf() / 1000),
             });
+            await this._bookings.checkIn(result, false);
             this._events[user.email] = result;
             this._onsite[user.email] = false;
         }
