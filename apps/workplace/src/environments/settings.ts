@@ -12,10 +12,10 @@ const general: any = {
                     src: 'assets/img/home-burgermenu.svg',
                 },
             },
-            // {
-            //     name: 'Book',
-            //     route: '/book',
-            // },
+            {
+                name: 'Book',
+                route: '/book/spaces',
+            },
             {
                 name: 'QR Scanner',
                 route: '/book/qr',
@@ -24,18 +24,22 @@ const general: any = {
                     src: 'assets/img/qr-scan.svg',
                 },
             },
-            // {
-            //     name: 'Desk',
-            //     route: '/book/desks',
-            // },
-            // {
-            //     name: 'Spaces',
-            //     route: '/explore',
-            // },
-            // {
-            //     name: 'Help',
-            //     route: '/help',
-            // },
+            {
+                name: 'Desk',
+                route: '/book/desks',
+            },
+            {
+                name: 'Spaces',
+                route: '/explore',
+            },
+            {
+                name: 'User Directory',
+                route: '/directory',
+            },
+            {
+                name: 'Help',
+                route: '/help',
+            },
             {
                 name: 'My Day',
                 route: '/schedule',

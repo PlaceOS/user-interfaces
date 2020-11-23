@@ -1,4 +1,3 @@
-
 export const MOCK_ORGS = [
     {
         created_at: 1587057070,
@@ -47,7 +46,15 @@ export const MOCK_BUILDINGS = [
     },
 ];
 
-const levels = ['lvl-00', 'lvl-01', 'lvl-02', 'lvl-03', 'lvl-04', 'lvl-05', 'lvl-06'];
+const levels = [
+    'lvl-00',
+    'lvl-01',
+    'lvl-02',
+    'lvl-03',
+    'lvl-04',
+    'lvl-05',
+    'lvl-06',
+];
 const mockLevel = (id: string, idx: number, building: any): any => {
     let map_id = id.substr(4);
     map_id = `https://s3-ap-southeast-2.amazonaws.com/os.place.tech/16012682998688307492.svg`;
@@ -63,10 +70,10 @@ const mockLevel = (id: string, idx: number, building: any): any => {
         count: 5,
         capacity: 30,
         location: 'optional lat,long',
-        display_name: 'Overrides name for staff app',
+        display_name: '',
     };
 };
 
 export const MOCK_LEVELS = MOCK_BUILDINGS.map((bld) =>
-    levels.map((level, idx, arr) => mockLevel(level, idx, bld))
+    levels.map((level, idx) => mockLevel(level, idx, bld))
 ).reduce((p, c) => p.concat(c), []);
