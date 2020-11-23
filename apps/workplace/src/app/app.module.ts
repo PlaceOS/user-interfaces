@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MAT_LABEL_GLOBAL_OPTIONS, MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import '@user-interfaces/mocks';
 
@@ -34,9 +34,7 @@ import { SharedContentModule } from './ui/shared.module';
         MatNativeDateModule,
         MatSnackBarModule,
     ],
-    providers: [
-        { provide: MAT_LABEL_GLOBAL_OPTIONS, useValue: {float: 'nevet'} }
-    ],
+    providers: [],
     bootstrap: [AppComponent]
 })
 export class AppModule { }
