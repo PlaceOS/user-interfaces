@@ -1,10 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { MAT_LABEL_GLOBAL_OPTIONS } from '@angular/material/core';
+import { Router } from '@angular/router';
 
 import '@user-interfaces/mocks';
 
@@ -17,6 +17,7 @@ import { BootstrapComponent } from './bootstrap/bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
 
+import * as Sentry from "@sentry/angular";
 @NgModule({
     declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
     imports: [
@@ -29,7 +30,18 @@ import { environment } from '../environments/environment';
         SharedOverlaysModule,
         SharedContentModule,
     ],
-    providers: [{ provide: MAT_LABEL_GLOBAL_OPTIONS, useValue: { float: 'always' } }],
+    providers: [
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
+        },
+    ],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

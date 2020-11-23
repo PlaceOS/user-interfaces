@@ -2,7 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
@@ -16,6 +17,8 @@ import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 
 import '@user-interfaces/mocks';
+
+import * as Sentry from "@sentry/angular";
 
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent],
@@ -34,6 +37,16 @@ import '@user-interfaces/mocks';
             useValue: {
                 separatorKeyCodes: [ENTER, COMMA],
             },
+        },
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
         },
     ],
     bootstrap: [AppComponent],

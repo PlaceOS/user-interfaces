@@ -7,6 +7,8 @@ import { BaseAPIService, HashMap } from '@user-interfaces/common';
 
 import { StaffUser } from './user.class';
 
+import * as Sentry from '@sentry/browser';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -37,6 +39,7 @@ export class StaffService extends BaseAPIService<StaffUser> {
         const user = await currentUser().toPromise();
         if (user) {
             this._active_user.next(new StaffUser({ ...user, is_logged_in: true } as any));
+            Sentry.configureScope(scope => scope.setUser({ email: user.email }));
         }
     }
 

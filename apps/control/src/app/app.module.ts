@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
+import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -16,6 +17,8 @@ import { ControlMainViewComponent } from './main-view.component';
 import { TopbarHeaderComponent } from './topbar-header.component';
 
 import '@user-interfaces/mocks';
+
+import * as Sentry from "@sentry/angular";
 
 @NgModule({
     declarations: [
@@ -36,7 +39,18 @@ import '@user-interfaces/mocks';
             enabled: environment.production,
         }),
     ],
-    providers: [],
+    providers: [
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
+        },
+    ],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

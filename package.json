@@ -57,6 +57,8 @@
         "@nrwl/jest": "10.3.1",
         "@nrwl/workspace": "10.3.1",
         "@placeos/ts-client": "^3.3.17",
+        "@sentry/angular": "^5.27.4",
+        "@sentry/tracing": "^5.27.4",
         "@tinymce/tinymce-angular": "^4.2.0",
         "@types/jest": "26.0.8",
         "@types/node": "~8.9.4",

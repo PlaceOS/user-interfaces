@@ -1,19 +1,50 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { clientId, invalidateToken, isMock, refreshToken, token } from '@placeos/ts-client';
+import {
+    clientId,
+    invalidateToken,
+    isMock,
+    refreshToken,
+    token,
+} from '@placeos/ts-client';
 
-import { BaseClass, HotkeysService, notifySuccess, setAppName, setNotifyOutlet, SettingsService, setupCache, setupPlace } from '@user-interfaces/common';
+import {
+    BaseClass,
+    HotkeysService,
+    notifySuccess,
+    setAppName,
+    setNotifyOutlet,
+    SettingsService,
+    setupCache,
+    setupPlace,
+} from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 
 import { SpacesService } from '../../../spaces/src/lib/spaces.service';
 import { StaffService } from '../../../users/src/lib/staff.service';
 import { setDefaultCreator } from '../../../events/src/lib/event.class';
 import { addHours } from 'date-fns';
-import { Clipboard } from '@angular/cdk/clipboard';
 
+import * as Sentry from '@sentry/angular';
+import { Integrations } from '@sentry/tracing';
+
+export function initSentry(dsn: string, sample_rate: number = .2) {
+    if (!dsn) return;
+    Sentry.init({
+        dsn,
+        integrations: [
+            new Integrations.BrowserTracing({
+                tracingOrigins: ['localhost', location.origin],
+                routingInstrumentation: Sentry.routingInstrumentation,
+            }),
+        ],
+        tracesSampleRate: sample_rate,
+    });
+}
 
 @Component({
     selector: 'app-root',
@@ -41,6 +72,7 @@ export class AppComponent extends BaseClass implements OnInit {
     public readonly loading = this._loading.asObservable();
 
     constructor(
+        private _tracing: Sentry.TraceService,
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _spaces: SpacesService, // For init
@@ -55,7 +87,10 @@ export class AppComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
-            localStorage.setItem('mock', `${localStorage.getItem('mock') !== 'true'}`);
+            localStorage.setItem(
+                'mock',
+                `${localStorage.getItem('mock') !== 'true'}`
+            );
             location.reload();
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
@@ -63,11 +98,17 @@ export class AppComponent extends BaseClass implements OnInit {
             notifySuccess('Successfully copied token.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
-            navigator.clipboard?.readText().then(tkn => {
+            navigator.clipboard?.readText().then((tkn) => {
                 const parts = tkn.split('|');
                 localStorage.setItem(`${clientId()}_access_token`, `${tkn[0]}`);
-                localStorage.setItem(`${clientId()}_refresh_token`, `${tkn[1]}`);
-                localStorage.setItem(`${clientId()}_expires_at`, `${addHours(new Date(), 6).valueOf()}`);
+                localStorage.setItem(
+                    `${clientId()}_refresh_token`,
+                    `${tkn[1]}`
+                );
+                localStorage.setItem(
+                    `${clientId()}_expires_at`,
+                    `${addHours(new Date(), 6).valueOf()}`
+                );
                 notifySuccess('Successfully pasted token.');
                 setTimeout(() => location.reload(), 2000);
             });
@@ -87,10 +128,13 @@ export class AppComponent extends BaseClass implements OnInit {
         await this._users.initialised.pipe(first((_) => _)).toPromise();
         this.clearTimeout('wait_for_user');
         setDefaultCreator(this._users.current);
+        initSentry(this._settings.get('app.sentry_dsn'));
     }
 
     private onInitError() {
-        if (isMock()) { return; }
+        if (isMock()) {
+            return;
+        }
         invalidateToken();
         location.reload();
     }
