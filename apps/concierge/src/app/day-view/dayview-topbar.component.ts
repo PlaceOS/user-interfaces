@@ -9,13 +9,13 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-topbar',
     template: `
-        <button mat-button>
+        <button mat-button class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
                 <app-icon
                     class="mr-2"
                     [icon]="{ class: 'material-icons', content: 'add' }"
                 ></app-icon>
-                <div class="text">New Booking</div>
+                <div class="hidden xl:block">New Booking</div>
             </div>
         </button>
         <mat-form-field appearance="outline">
@@ -55,8 +55,8 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             (ngModelChange)="updateUIOptions({ show_cleaning: $event })"
             ><div class="text-xs">Cleaners View</div></mat-slide-toggle
         >
-        <div class="flex-full"></div>
-        <searchbar class="mr-2"></searchbar>
+        <div class="flex-1 w-0"></div>
+        <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
     styles: [
@@ -66,12 +66,12 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 align-items: center;
                 background-color: #fff;
                 height: 5em;
-                padding: 0 2em;
+                padding: 0 1em;
             }
 
-            .flex-full {
-                flex: 1;
-                width: 0.5em;
+            button {
+                min-width: 0;
+                padding: 0 .85rem;
             }
 
             mat-form-field {
@@ -101,6 +101,8 @@ export class DayviewTopbarComponent extends BaseClass {
     public type_list: string[] = this.types.map((i) => `${i.id}`);
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setDate(d);
+    /**  */
+    public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */

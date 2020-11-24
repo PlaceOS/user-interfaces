@@ -1,11 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MAT_LABEL_GLOBAL_OPTIONS, MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import '@user-interfaces/mocks';
 
@@ -16,6 +17,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 import { SharedContentModule } from './ui/shared.module';
+
+import * as Sentry from "@sentry/angular";
 
 @NgModule({
     declarations: [
@@ -35,7 +38,16 @@ import { SharedContentModule } from './ui/shared.module';
         MatSnackBarModule,
     ],
     providers: [
-        { provide: MAT_LABEL_GLOBAL_OPTIONS, useValue: {float: 'nevet'} }
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
+        },
     ],
     bootstrap: [AppComponent]
 })

@@ -5,14 +5,14 @@
     <div class="video-wrapper">
         <video class="camera-view" id="video" ></video>
          <div class="qr-overlay">
-           
+
             <div class="prompt" *ngIf="is_scanning">
                 <h2>Scan QR Code</h2>
-                <span>Scan the QR code outisde an ASHRAE room or space.</span>
+                <span>Scan the QR code outisde a PlaceOS room or space.</span>
             </div>
             <div class="prompt"  *ngIf="!is_scanning">
                 <h2>Enter Room ID</h2>
-                <span>Enter the room ID number outisde an ASHRAE room or space.</span>
+                <span>Enter the room ID number outisde a PlaceOS room or space.</span>
             </div>
             <div class="scanbox-wrapper">
                 <div class="scanbox" [class.input]="!is_scanning">
@@ -34,5 +34,5 @@
             </div>
          </div>
     </div>
-   
+
 </div>

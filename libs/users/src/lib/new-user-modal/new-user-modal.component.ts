@@ -36,7 +36,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
             const new_user = new User({
                 ...this.form.value,
                 type: 'external',
-                visit_expected: !this.form.value.email.endsWith('pwc.com'),
+                visit_expected: !this.form.value.email.endsWith('place.tech'),
             });
             this.event.emit({ reason: 'done', metadata: new_user });
         }

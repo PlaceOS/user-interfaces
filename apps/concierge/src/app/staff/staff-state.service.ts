@@ -1,0 +1,148 @@
+import { Injectable } from '@angular/core';
+import { StaffUser } from '@user-interfaces/users';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+
+import { StaffService } from '@user-interfaces/users';
+import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { endOfDay, startOfDay } from 'date-fns';
+import { BaseClass, timePeriodsIntersect } from '@user-interfaces/common';
+import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
+import { OrganisationService } from '@user-interfaces/organisation';
+
+export interface StaffFilters {
+    date?: number;
+    zones?: string[];
+    only_onsite?: boolean;
+}
+
+@Injectable({
+    providedIn: 'root',
+})
+export class StaffStateService extends BaseClass {
+    private _onsite: HashMap<boolean> = {};
+    private _events: HashMap<Booking> = {};
+
+    private _filters = new BehaviorSubject<StaffFilters>({});
+
+    private _search = new BehaviorSubject<string>('');
+
+    private _loading = new BehaviorSubject<boolean>(false);
+
+    private _users = new BehaviorSubject<StaffUser[]>([]);
+
+    public readonly loading = this._loading.asObservable();
+
+    public readonly filters = this._filters.asObservable();
+
+    public readonly users = this._filters.asObservable();
+
+    public readonly filtered_users = combineLatest([
+        this._search,
+        this._users,
+        this._filters,
+    ]).pipe(
+        map((details) => {
+            const [filter, users, options] = details;
+            return users.filter(
+                (i) =>
+                    (!filter ||
+                        i.name.toLowerCase().includes(filter) ||
+                        i.email.toLowerCase().includes(filter)) &&
+                    (!options.only_onsite || this._onsite[i.email])
+            );
+        })
+    );
+
+    public readonly user_events = combineLatest([this._filters]).pipe(
+        switchMap(async (_) => {
+            this._loading.next(true);
+            const bookings = await this._bookings.query({
+                period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
+                period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
+                type: 'staff',
+            });
+            const checkin_map = {};
+            const now = new Date().valueOf();
+            for (const bkn of bookings) {
+                if (
+                    timePeriodsIntersect(
+                        now,
+                        now,
+                        bkn.date,
+                        bkn.date + bkn.duration * 60 * 1000
+                    )
+                ) {
+                    checkin_map[bkn.asset_id] = bkn.checked_in;
+                    this._events[bkn.asset_id] = bkn;
+                }
+            }
+            this._onsite = checkin_map;
+            this._loading.next(false);
+            return checkin_map;
+        }),
+        shareReplay()
+    );
+
+    constructor(
+        private _staff: StaffService,
+        private _bookings: BookingsService,
+        private _org: OrganisationService
+    ) {
+        super();
+        this.loadUsers();
+    }
+
+    public setFilters(filters: StaffFilters) {
+        this._filters.next({ ...this._filters.getValue(), ...filters });
+    }
+
+    public setSearchString(search: string) {
+        this._search.next(search);
+    }
+
+    public startPolling(delay: number = 30 * 1000) {
+        this.setFilters(this._filters.getValue());
+        this.interval('poll', () => this.setFilters(this._filters.getValue()), delay);
+    }
+
+    public stopPolling() {
+        this.clearInterval('poll');
+    }
+
+    public async checkin(user: StaffUser) {
+        const result = await this._bookings.save({
+            booking_start: Math.floor(
+                new Date().valueOf() / 1000
+            ),
+            booking_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
+            asset_id: user.email,
+            title: 'Checked-in Onsite',
+            description: this._org.building.display_name || this._org.building.name,
+            zones: [this._org.building.id],
+            booking_type: 'staff',
+        });
+        await this._bookings.checkIn(result, true);
+        this._events[user.email] = result;
+        this._onsite[user.email] = true;
+    }
+
+    public async checkout(user: StaffUser) {
+        const event = this._events[user.email];
+        if (event) {
+            const result = await this._bookings.update(event.id, {
+                ...event.toJSON(),
+                booking_end: Math.floor(new Date().valueOf() / 1000),
+            });
+            await this._bookings.checkIn(result, false);
+            this._events[user.email] = result;
+            this._onsite[user.email] = false;
+        }
+    }
+
+    private async loadUsers() {
+        const user_list = await this._staff.query();
+        user_list.sort((a, b) => a.name.localeCompare(b.name));
+        this._users.next(user_list);
+    }
+}

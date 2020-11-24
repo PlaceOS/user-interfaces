@@ -6,9 +6,11 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: 'explore-map-controls',
     template: `
-        <div class="space-x-2">
+        <div class="flex space-x-2">
             <mat-form-field
                 overlay
+                class="flex-1"
+                has-bld="true"
                 *ngIf="(buildings | async)?.length > 1"
                 appearance="outline"
             >
@@ -21,12 +23,14 @@ import { ExploreStateService } from './explore-state.service';
                         *ngFor="let bld of buildings | async"
                         [value]="bld"
                     >
-                        {{ bld.name }}
+                        {{ bld.display_name || bld.name }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field
                 overlay
+                class="flex-1"
+                [attr.has-bld]="(buildings | async)?.length > 1"
                 *ngIf="(levels | async)?.length"
                 appearance="outline"
             >
@@ -39,7 +43,7 @@ import { ExploreStateService } from './explore-state.service';
                         *ngFor="let lvl of levels | async"
                         [value]="lvl"
                     >
-                        {{ lvl.name }}
+                        {{ lvl.display_name || lvl.name }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
@@ -49,6 +53,14 @@ import { ExploreStateService } from './explore-state.service';
         `
             :host {
                 padding: 0.5rem;
+            }
+
+            mat-form-field[has-bld="true"] {
+                max-width: calc(50vw - 2.5rem);
+            }
+
+            :host[full] mat-form-field {
+                max-width: calc(50% - 2.5rem);
             }
         `,
     ],

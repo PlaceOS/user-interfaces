@@ -29,11 +29,11 @@ export const CAPACITY_OPTIONS = [
                 Quick Search
             </h3>
             <form
-                class="flex width-tablet m-auto space-x-2 items-center flex-wrap sm:space-x-0"
+                class="flex flex-col sm:flex-row width-tablet m-auto space-x-0 items-center flex-wrap sm:space-x-2"
                 [formGroup]="form | async"
             >
                 <mat-form-field
-                    class="flex-1 h-13"
+                    class="flex-grow w-full sm:w-48 h-13"
                     appearance="outline"
                     overlay
                 >
@@ -47,7 +47,7 @@ export const CAPACITY_OPTIONS = [
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field
-                    class="flex-1 h-13"
+                    class="flex-grow w-full sm:w-48 h-13"
                     appearance="outline"
                     overlay
                 >
@@ -68,10 +68,9 @@ export const CAPACITY_OPTIONS = [
                 <a
                     button
                     mat-button
-                    style="margin-left: .5rem"
                     [routerLink]="['/book', 'spaces', 'find']"
                 >
-                    <div class="flex items-center justify-center ml-2">
+                    <div class="flex items-center justify-center w-full sm:w-48">
                         Go
                         <app-icon class="text-lg" className="material-icons"
                             >arrow_forward</app-icon
@@ -100,24 +99,24 @@ export const CAPACITY_OPTIONS = [
             <section class="mb-4">
                 <div
                     name="details"
-                    class="m-auto width-tablet flex flex-wrap space-x-2 sm:space-x-0"
+                    class="m-auto width-tablet flex flex-wrap space-x-0 sm:space-x-2"
                 >
                     <h4 class="mb-2 w-full font-semibold">Date &amp; Time</h4>
-                    <div class="flex flex-1 flex-col m-0">
+                    <div class="flex flex-grow flex-col w-48 m-0">
                         <label for="date" class="w-full">Date</label>
                         <a-date-field
                             formControlName="date"
                             class="flex-1 mb-4"
                         ></a-date-field>
                     </div>
-                    <div class="flex flex-1 flex-col">
+                    <div class="flex flex-grow flex-col w-48">
                         <label for="date" class="w-full">Start Time</label>
                         <a-time-field
                             formControlName="date"
                             class="mb-8 pt-1"
                         ></a-time-field>
                     </div>
-                    <div class="flex flex-1 flex-col ml-1">
+                    <div class="flex flex-grow flex-col w-48">
                         <label for="date" class="w-full">End Time</label>
                         <a-duration-field
                             [time]="(form | async)?.controls.date?.value"
@@ -134,6 +133,7 @@ export const CAPACITY_OPTIONS = [
                         <a-user-list-field
                             formControlName="attendees"
                             class="flex-1"
+                            (new_user)="newAttendee()"
                         ></a-user-list-field>
                     </div>
                 </div>
@@ -309,6 +309,7 @@ export class SpaceFlowFormComponent {
     ];
     public readonly updateCapacity = (c: number) =>
         this._service.updateFilters({ capacity: c });
+    public readonly newAttendee = () => this._service.newAttendee();
     public readonly clearForm = () => this._service.clearForm();
 
     constructor(

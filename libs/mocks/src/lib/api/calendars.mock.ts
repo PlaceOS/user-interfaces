@@ -4,6 +4,12 @@ import { MOCK_EVENTS } from './events.data';
 import { MOCK_SPACES } from './spaces.data';
 
 import * as dayjs from 'dayjs';
+registerMockEndpoint({
+    path: '/api/staff/v1/calendars',
+    metadata: {},
+    method: 'GET',
+    callback: (request) => []
+});
 
 registerMockEndpoint({
     path: '/api/staff/v1/calendars/availability',

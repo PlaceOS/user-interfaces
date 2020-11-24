@@ -3,11 +3,12 @@
     display: flex;
     align-items: center;
     padding: .5em;
-
+    width: 100%;
 }
 
 .details {
     flex: 1;
+    width: 50%;
 }
 
 .name {

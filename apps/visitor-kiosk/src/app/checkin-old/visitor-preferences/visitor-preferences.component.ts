@@ -102,7 +102,6 @@ export class VisitorPreferencesComponent extends BaseCheckinComponent implements
     }
 
     public multiselectChange(event: any, key: string, ctrl: AbstractControl) {
-        console.log(`multiselectChange key:${key} event:`, event);
         let formVal = this.options[key].value;
         const eventVal = event.source.value;
         if (!!event.checked) {

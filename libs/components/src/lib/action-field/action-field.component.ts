@@ -4,15 +4,15 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     selector: 'an-action-field',
     template: `
         <div
-            class="action-field"
+            class="flex items-center rounded p-2 border border-gray-300 hover:border-black"
             role="button"
             [attr.disabled]="disabled"
             form-field
             tabindex="0"
             (keydown.enter)="performAction()"
         >
-            <div class="display" (click)="performAction()" [innerHTML]="placeholder | safe"></div>
-            <div class="icon" (click)="performAction()">
+            <div class="flex-1 w-0 truncate" (click)="performAction()" [innerHTML]="placeholder | safe"></div>
+            <div class="text-xl" (click)="performAction()">
                 <app-icon
                     [icon]="{
                         type: 'icon',
@@ -23,7 +23,11 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
             </div>
         </div>
     `,
-    styleUrls: ['./action-field.component.scss'],
+    styles: [`
+        :host > div:hover {
+            box-shadow: inset 0 0 0 1px #000;
+        }
+    `],
 })
 export class ActionFieldComponent {
     /** Name of the field */

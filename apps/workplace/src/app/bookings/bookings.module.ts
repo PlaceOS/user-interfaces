@@ -5,11 +5,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { BookingsComponent } from './bookings.component';
 import { SharedContentModule } from '../ui/shared.module';
-
-import { BookingDeskFlowComponent } from './desk-flow/desk-flow.component';
-import { BookingDeskFormComponent } from './desk-flow/desk-form/desk-form.component';
-import { BookingDeskQuestionsComponent } from './desk-flow/desk-questions/desk-questions.component';
-import { BookingDeskConfirmComponent } from './desk-flow/desk-confirm/desk-confirm.component';
+import { SharedExploreModule } from '@user-interfaces/explore';
+import { SharedUsersModule } from '@user-interfaces/users';
 
 import { QrReaderComponent } from './qr-reader/qr-reader.component';
 
@@ -17,6 +14,11 @@ import { SpaceFlowComponent } from './space-flow/space-flow.component';
 import { SpaceFlowFormComponent } from './space-flow/space-flow-form.component';
 import { SpaceFlowListingComponent } from './space-flow/space-flow-listing.component';
 import { SpaceFlowConfirmComponent } from './space-flow/space-flow-confirm.component';
+
+import { DeskFlowComponent } from './desk-flow/desk-flow.component';
+import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
+import { DeskFlowConfirmModalComponent } from './desk-flow/desk-flow-confirm-modal.component';
+import { DeskFlowQuestionsModalComponent } from './desk-flow/desk-flow-questions-modal.component';
 
 const ROUTES: Route[] = [
     { path: ':flow', component: BookingsComponent },
@@ -28,10 +30,10 @@ const ROUTES: Route[] = [
     declarations: [
         BookingsComponent,
 
-        BookingDeskFlowComponent,
-        BookingDeskFormComponent,
-        BookingDeskQuestionsComponent,
-        BookingDeskConfirmComponent,
+        DeskFlowComponent,
+        DeskFlowListingComponent,
+        DeskFlowConfirmModalComponent,
+        DeskFlowQuestionsModalComponent,
 
         SpaceFlowComponent,
         SpaceFlowFormComponent,
@@ -45,7 +47,11 @@ const ROUTES: Route[] = [
         RouterModule.forChild(ROUTES),
         FormsModule,
         ReactiveFormsModule,
-        SharedContentModule
+        SharedContentModule,
+        SharedUsersModule,
+        SharedExploreModule
     ],
 })
-export class BookingsModule {}
+export class BookingsModule {
+
+}

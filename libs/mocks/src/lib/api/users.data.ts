@@ -22,7 +22,8 @@ const PREDEF_USERS = [
 export const ACTIVE_USER = {
     id: 'current',
     name: 'PlaceOS - Mock User',
-    email: 'dev@place.tech'
+    email: 'dev@place.tech',
+    groups: ['deals', '']
 }
 
 export const MOCK_STAFF = PREDEF_USERS.map((name, i) => ({
@@ -36,6 +37,3 @@ export const MOCK_GUESTS = PREDEF_USERS.map((name, i) => ({
     name,
     email: `${name.split(' ').join('.').toLowerCase()}@not-${DOMAIN}`
 }));
-
-console.log('STAFF:', MOCK_STAFF);
-console.log('GUESTS:', MOCK_GUESTS);

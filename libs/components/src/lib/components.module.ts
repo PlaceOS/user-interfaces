@@ -7,7 +7,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
-import {ClipboardModule} from '@angular/cdk/clipboard';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
@@ -45,7 +47,6 @@ export * from './popout-menu/popout-menu.component';
 export * from './time-field/time-field.component';
 export * from './unauthorised/unauthorised.component';
 export * from './user-avatar/user-avatar.component';
-export * from './user-form/user-form.component';
 export * from './user-list-field/user-list-field.component';
 export * from './user-search-field/user-search-field.component';
 export * from './interactive-map.component';
@@ -63,7 +64,9 @@ const MAT_MODULES: any[] = [
     MatDialogModule,
     MatDatepickerModule,
     MatInputModule,
-    ClipboardModule
+    ClipboardModule,
+    MatProgressSpinnerModule,
+    MatChipsModule
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -82,14 +85,20 @@ const COMPONENTS: Type<any>[] = [
     ConfirmModalComponent,
     InteractiveMapComponent,
     MapPinComponent,
-    MapRadiusComponent
+    MapRadiusComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, APipesModule, ...MAT_MODULES],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        APipesModule,
+        ...MAT_MODULES,
+    ],
     providers: [],
     exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
 })

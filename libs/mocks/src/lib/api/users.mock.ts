@@ -96,13 +96,10 @@ registerMockEndpoint({
     method: 'GET',
     callback: (request) => {
         if (request.route_params.email) {
-            console.log('Events:', MOCK_EVENTS);
             const email = request.route_params.email.toLowerCase();
-            console.log('Email:', request.route_params.email);
             const events = MOCK_EVENTS.filter(
                 (event) => event.attendees.find(user => user.email.toLowerCase() === email)
             );
-            console.log('Matched Events:', events);
             return events;
         }
         throw { status: 404, message: `Unable to find meetings with guest with email ${request.route_params.email}` };

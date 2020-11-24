@@ -44,8 +44,8 @@ import { EventsStateService } from './events-state.service';
                 </div>
             </div>
             <div name="actions" class="flex items-center justify-content p-4 space-x-4">
-                <button class="flex-1 inverse" mat-button>Remove Booking</button>
-                <button class="flex-1" mat-button>Edit Booking</button>
+                <button class="flex-1 inverse" mat-button (click)="remove()">Remove Booking</button>
+                <button class="flex-1" mat-button (click)="edit()">Edit Booking</button>
             </div>
             <button name="close" mat-icon-button (click)="close()">
                 <app-icon [icon]="{ class: 'material-icons', content: 'close' }"></app-icon>
@@ -85,6 +85,10 @@ export class DayviewEventDetailsComponent {
     @Input() public event: CalendarEvent;
     /** Close displayed event */
     public readonly close = () => this._state.setEvent(null);
+
+    public readonly edit = () => this._state.newBooking(this.event);
+
+    public readonly remove = () => this._state.removeBooking(this.event);
 
     public get location() {
         const space = this._spaces.find(this.event.resources[0].id);

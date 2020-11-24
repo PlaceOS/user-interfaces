@@ -37,7 +37,7 @@ import { SearchbarComponent } from './searchbar/searchbar.component';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 
-import { ComponentsModule, UserFormComponent } from '@user-interfaces/components';
+import { ComponentsModule } from '@user-interfaces/components';
 import { BookingFormComponent } from './forms/booking-form/booking-form.component';
 
 import { MapControlsComponent } from './map-controls/map-controls.component';
@@ -52,7 +52,6 @@ const COMPONENTS: Type<any>[] = [
     OverlayMenuComponent,
     FooterMenuComponent,
     SearchbarComponent,
-    UserFormComponent,
     BookingFormComponent,
     BookingFormModalComponent,
     EventViewComponent,

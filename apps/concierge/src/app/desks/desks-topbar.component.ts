@@ -1,0 +1,135 @@
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { first } from 'rxjs/operators';
+
+import { BaseClass } from '@user-interfaces/common';
+import { OrganisationService } from '@user-interfaces/organisation';
+import { DesksStateService } from './desks-state.service';
+
+@Component({
+    selector: 'desks-topbar',
+    template: `
+        <mat-form-field appearance="outline">
+            <mat-select
+                [ngModel]="zones[0]"
+                (ngModelChange)="updateZones([$event]); zones = [$event]"
+                placeholder="All Levels"
+            >
+                <mat-option
+                    *ngFor="let level of levels | async"
+                    [value]="level.id"
+                >
+                    {{ level.display_name || level.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <a
+            button
+            mat-button
+            [routerLink]="['/desks']"
+            [queryParams]="{ show_map: !(filters | async)?.show_map }"
+            queryParamsHandling="merge"
+            (click)="toggleMapShow()"
+        >
+            {{
+                (filters | async)?.show_map ? 'Show List View' : 'Show Map View'
+            }}
+        </a>
+        <div class="flex-1 w-2"></div>
+        <!-- <searchbar class="mr-2"></searchbar> -->
+        <date-options (dateChange)="setDate($event)"></date-options>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                align-items: center;
+                background-color: #fff;
+                height: 5em;
+                padding: 0 1em;
+                border-bottom: 1px solid #ccc;
+            }
+
+            :host > * + * {
+                margin-left: 0.5rem;
+            }
+
+            mat-form-field {
+                height: 3.25em;
+                width: 8em;
+            }
+        `,
+    ],
+})
+export class DesksTopbarComponent extends BaseClass implements OnInit {
+    /** List of selected levels */
+    public zones: string[] = [];
+    /** List of levels for the active building */
+    public readonly levels = this._org.active_levels;
+    /** List of levels for the active building */
+    public readonly filters = this._desks.filters;
+    /** Set filtered date */
+    public readonly toggleMapShow = () => {
+        this._desks.setFilters({ show_map: !this.show_map });
+        this.show_map = !this.show_map;
+    };
+    /** Set filtered date */
+    public readonly setDate = (date) => this._desks.setFilters({ date });
+    /** Update active zones for desks */
+    public readonly updateZones = (zones) => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge'
+        });
+        this._desks.setFilters({ zones });
+    };
+
+    public show_map: boolean;
+
+    constructor(
+        private _desks: DesksStateService,
+        private _org: OrganisationService,
+        private _route: ActivatedRoute,
+        private _router: Router
+    ) {
+        super();
+    }
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('zone_ids')) {
+                    const zones = params.get('zone_ids').split(',');
+                    if (zones.length) {
+                        const level = this._org.levelWithID(zones);
+                        if (!level) {
+                            return;
+                        }
+                        this._org.building = this._org.buildings.find(
+                            (bld) => bld.id === level.parent_id
+                        );
+                        this.zones = zones;
+                    }
+                }
+                this.show_map =
+                    params.has('show_map') && params.get('show_map') === 'true';
+                this._desks.setFilters({ show_map: this.show_map });
+            })
+        );
+        this.subscription(
+            'levels',
+            this._org.active_levels.subscribe((levels) => {
+                this.zones = this.zones.filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone)
+                );
+                if (!this.zones.length && levels.length) {
+                    this.zones.push(levels[0].id);
+                }
+                this.updateZones(this.zones);
+            })
+        );
+    }
+}

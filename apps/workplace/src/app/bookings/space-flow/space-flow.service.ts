@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { first, switchMap } from 'rxjs/operators';
 import { addMinutes, roundToNearestMinutes } from 'date-fns';
 
-import { BaseClass, notifyError } from '@user-interfaces/common';
+import { BaseClass, notifyError, unique } from '@user-interfaces/common';
 import { CalendarEvent, EventsService, generateEventForm } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
 import { OrganisationService } from '@user-interfaces/organisation';
+import { NewUserModalComponent } from '@user-interfaces/users';
+import { MatDialog } from '@angular/material/dialog';
 
 export interface EventFormFilters {
     capacity?: number;
@@ -57,7 +59,8 @@ export class SpaceFlowService extends BaseClass {
     constructor(
         private _events: EventsService,
         private _calendar: CalendarService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {
         super();
         this.setEvent(new CalendarEvent({ date: roundToNearestMinutes(addMinutes(new Date(), 2), { nearestTo: 5 }).valueOf() }));
@@ -69,7 +72,21 @@ export class SpaceFlowService extends BaseClass {
         const form = generateEventForm(event);
         this._form.next(form);
         this.subscription('form_change', () => this.storeState());
+    }
 
+    public newAttendee() {
+        const ref = this._dialog.open<NewUserModalComponent>(NewUserModalComponent, {
+            width: 'auto',
+            height: 'auto',
+            data: {}
+        });
+        const form = this._form.getValue();
+        ref.componentInstance.event.pipe(first(_ => _.reason === 'done')).subscribe(event => {
+            const attendees = form.controls.attendees.value || [];
+            attendees.push(event.metadata);
+            form.controls.attendees.setValue(unique(attendees, 'email'));
+            ref.close();
+        });
     }
 
     /** Reset the form fields for the active event */

@@ -1,8 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -29,6 +30,8 @@ import { PanelCustomActionsComponent } from './panel/custom-actions/custom-actio
 import { BookingPanelArrayComponent } from './panel-array/panel-array.component';
 import { BookingPanelSelectComponent } from './panel-select/panel-select.component';
 
+import * as Sentry from "@sentry/angular";
+
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
     MatInputModule,
@@ -46,7 +49,7 @@ const MAT_MODULES: any[] = [
         PanelBookingActionsComponent,
         PanelCustomActionsComponent,
         BookingPanelArrayComponent,
-        BookingPanelSelectComponent
+        BookingPanelSelectComponent,
     ],
     imports: [
         BrowserModule,
@@ -58,10 +61,23 @@ const MAT_MODULES: any[] = [
         SharedOverlaysModule,
         ComponentsModule,
         ...MAT_MODULES,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
     ],
-    providers: [],
-    bootstrap: [AppComponent]
+    providers: [
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
+        },
+    ],
+    bootstrap: [AppComponent],
 })
 export class AppModule {
     constructor() {

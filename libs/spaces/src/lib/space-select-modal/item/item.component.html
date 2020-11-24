@@ -1,7 +1,7 @@
 <div class="item" *ngIf="space">
     <div class="details">
-        <div class="name">{{ space.name }}</div>
-        <div class="info">{{ space.level?.name }}</div>
+        <div class="name truncate">{{ space.name }}</div>
+        <div class="info">{{ space.level?.display_name || space.level?.name }}</div>
     </div>
     <div class="capacity" *ngIf="space.capacity !== -1">
         <app-icon [icon]="{ class: 'material-icons', content: 'account_circle' }"></app-icon>
@@ -19,7 +19,7 @@
     </div>
 </div>
 <ng-template #single_button>
-    <button mat-button color="primary" [class.request]="space.by_request">
+    <button mat-button [class.request]="space.by_request">
         {{ space.by_request ? 'Request' : 'Book' }}
     </button>
 </ng-template>

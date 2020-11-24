@@ -32,7 +32,6 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
             .pipe(first((_) => !!_))
             .toPromise();
         const can_activate = !!(user && user.groups);
-        console.log('Activate:', can_activate);
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }

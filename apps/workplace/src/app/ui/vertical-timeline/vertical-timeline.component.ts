@@ -159,7 +159,6 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
     // }
 
     public setMove(move: string) {
-        console.log(move);
         this.active_move = move;
     }
 

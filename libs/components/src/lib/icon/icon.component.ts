@@ -34,7 +34,7 @@ import { ApplicationIcon } from '@user-interfaces/common';
     ],
 })
 export class IconComponent {
-    @Input() public className: string;
+    @Input() public className: string = 'material-icons';
     /** Icon details */
     @Input() public icon: ApplicationIcon;
 }

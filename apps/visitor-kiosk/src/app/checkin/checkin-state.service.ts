@@ -76,7 +76,7 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const event = this._event.getValue();
         if (!guest || !event) return;
-        await this._events.checkinAttendee(event.id, guest.email);
+        await this._events.checkInGuest(event.id, guest.email);
     }
 
     public printPass() {

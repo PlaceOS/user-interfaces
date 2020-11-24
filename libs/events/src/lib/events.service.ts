@@ -16,14 +16,6 @@ export class EventsService extends BaseAPIService<CalendarEvent> {
         this._api_route = 'events';
     }
 
-    /** Check in guest
-     * @param query_params Need `system_id` and `state`
-     */
-    public checkinAttendee(id: string, guest_id: string, query_params: HashMap = {}) {
-        const query = toQueryString(query_params);
-        return this.task(id, `guests/${guest_id}/checkin${query}`, {}, 'post');
-    }
-
     /** Retrieve events for selected date for the given calendar
      * @param calendar_ids Array of user calendars
      * @param date Date in unix ms

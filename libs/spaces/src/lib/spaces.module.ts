@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 
@@ -14,6 +15,7 @@ const COMPONENTS: Type<any>[] = [
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
+        CommonModule,
         MatDialogModule,
         ComponentsModule
     ],

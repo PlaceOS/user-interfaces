@@ -39,7 +39,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             <div
                 #scroll_el
                 class="content relative flex flex-1 overflow-auto"
-                (scroll)="onScroll()"
+                (scroll)="onScroll($event)"
             >
                 <div #ref class="ref absolute"></div>
                 <dayview-space
@@ -187,7 +187,7 @@ export class DayviewTimelineComponent extends BaseClass {
                 spaces.filter(
                     (space) =>
                         space.zones.includes(bld.id) &&
-                        (!zones || !zones.length || space.zones.find((z) => zones.includes(z)))
+                        (!zones?.length || space.zones.find((z) => zones.includes(z)))
                 ) || []
             );
         })
@@ -215,12 +215,14 @@ export class DayviewTimelineComponent extends BaseClass {
         this.box = this._ref_el.nativeElement.getBoundingClientRect();
     }
 
-    public onScroll() {
+    public onScroll(e) {
         if (this._ref_el) {
-            requestAnimationFrame(() => {
-                const box = this._ref_el.nativeElement.getBoundingClientRect();
-                this.scroll = { x: this.box.left - box.left, y: this.box.top - box.top };
-            });
+            requestAnimationFrame(() =>
+                this.scroll = {
+                    x: e.srcElement.scrollLeft,
+                    y: e.srcElement.scrollTop
+                }
+            );
         }
     }
 }

@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
+import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -13,9 +14,19 @@ import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';
+import { TopbarHeaderComponent } from './topbar-header.component';
+
+import '@user-interfaces/mocks';
+
+import * as Sentry from "@sentry/angular";
 
 @NgModule({
-    declarations: [AppComponent, BootstrapComponent, ControlMainViewComponent],
+    declarations: [
+        AppComponent,
+        BootstrapComponent,
+        ControlMainViewComponent,
+        TopbarHeaderComponent,
+    ],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
@@ -24,9 +35,22 @@ import { ControlMainViewComponent } from './main-view.component';
         MatDialogModule,
         MatProgressSpinnerModule,
         UIModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
     ],
-    providers: [],
+    providers: [
+        {
+            provide: ErrorHandler,
+            useValue: Sentry.createErrorHandler({
+                showDialog: false,
+            }),
+        },
+        {
+            provide: Sentry.TraceService,
+            deps: [Router],
+        },
+    ],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

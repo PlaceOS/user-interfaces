@@ -2,12 +2,6 @@
 || Branding Colours ||
 \*==================*/
 
-$pwc-orange: #D04A02;
-$pwc-rose: #D93954;
-$pwc-red: #E0301E;
-$pwc-yellow: #FFB600;
-$pwc-tangerine: #EB8C00;
-
 $light-grey: #dddddd;
 
 $boxShadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
@@ -57,7 +51,7 @@ $cancelled: $grey;
 ||   Fonts   ||
 \*===========*/
 
-$font-stack: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+$font-stack: 'Helvetica Neue', Roboto, Helvetica, sans-serif;
 
 $heading-font: Georgia, 'Times New Roman', Times, serif;
 $font: $font-stack;

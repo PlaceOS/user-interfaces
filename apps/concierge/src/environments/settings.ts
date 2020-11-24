@@ -4,7 +4,9 @@ const general = {
         { route: 'day-view', name: 'Calendar', icon: { class: 'material-icons', content: 'event' } },
         { route: 'facilities', name: 'Facilities', icon: { class: 'material-icons', content: 'plot' } },
         { route: 'catering', name: 'Catering', icon: { class: 'material-icons', content: 'room_service' } },
-        { route: 'visitors', name: 'Visitors', icon: { class: 'material-icons', content: 'group' } }
+        { route: 'visitors', name: 'Visitors', icon: { class: 'material-icons', content: 'group' } },
+        { route: 'desks', name: 'Desks', icon: { class: 'material-icons', content: 'article' } },
+        { route: 'staff', name: 'Staff', icon: { class: 'material-icons', content: 'account_box' } }
     ]
 }
 
@@ -14,7 +16,7 @@ const app = {
     title: 'PlaceOS',
     description: 'Concierge UI',
     short_name: 'PlaceOS',
-    logo: {
+    logo_light: {
         type: 'img',
         src: 'assets/logo-light.svg'
     },

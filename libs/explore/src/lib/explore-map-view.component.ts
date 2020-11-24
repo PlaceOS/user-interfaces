@@ -23,6 +23,7 @@ import { getModule } from '@placeos/ts-client';
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
+            [labels]="labels | async"
         ></i-map>
         <explore-zoom-controls
             class="absolute bottom-0 right-0"
@@ -68,6 +69,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     public readonly features = this._state.map_features;
     /** Observable for the active map */
     public readonly actions = this._state.map_actions;
+    /** Observable for the labels map */
+    public readonly labels = this._state.map_labels;
     /** Observable for the active map */
     public readonly options = this._state.options;
 
@@ -113,7 +116,6 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     private locateSpace(space: Space) {
         this._state.setLevel(this._org.levelWithID(space.zones).id);
-        console.log('Space:', space);
         const feature: any = {
             location: space.map_id,
             content: MapPinComponent,
@@ -127,7 +129,6 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private async locateUser(user: User) {
-        console.log('Locate User:', user);
         const locate_details: any = this._org.organisation.bindings
             .location_services;
         if (!locate_details) return;

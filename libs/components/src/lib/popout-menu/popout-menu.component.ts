@@ -25,7 +25,10 @@ export interface PopoutAction extends ApplicationIcon {
             (window:click)="show ? close() : ''"
         >
             <app-icon
-                [icon]="{ class: 'material-icons', content: show ? 'add' : 'more_vert' }"
+                [icon]="{
+                    class: 'material-icons',
+                    content: show ? 'add' : 'more_vert'
+                }"
             ></app-icon>
         </button>
     `,

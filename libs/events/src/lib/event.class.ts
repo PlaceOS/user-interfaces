@@ -126,6 +126,8 @@ export class CalendarEvent {
     public readonly setup: number;
     /** Breakdown/Cleanup time after event start in minutes */
     public readonly breakdown: number;
+    /** List of attendees that are attending remotely */
+    public readonly remote: readonly string[];
     /** List of email addresses associated with the event attendees */
     public readonly attendee_emails: readonly string[];
     /** List of external attendees associated with the event */
@@ -198,6 +200,7 @@ export class CalendarEvent {
             (i) => new CateringOrder({ ...i, event: this })
         );
         this.extension_data.needs_parking = !!data.needs_parking;
+        this.extension_data.remote = data.remote || this.extension_data.remote || [];
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
         this.can_access_lift = data.can_access_lift || this.extension_data.can_access_lift || false;
@@ -209,6 +212,7 @@ export class CalendarEvent {
         );
         this.has_catering = this.extension_data.catering && !!this.extension_data.catering.length;
         this.catering = this.extension_data.catering || [];
+        this.remote = this.extension_data.remote || [];
         this.needs_parking = !!this.extension_data.needs_parking;
         this.setup = this.extension_data.setup || 0;
         this.breakdown = this.extension_data.breakdown || 0;
@@ -258,6 +262,7 @@ export class CalendarEvent {
             (i) => new CateringOrder({ ...i, event: null })
         );
         obj.system_id = this.system?.id;
+        delete obj.catering;
         delete obj.date;
         delete obj.duration;
         return obj;

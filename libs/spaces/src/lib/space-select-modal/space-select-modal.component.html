@@ -1,6 +1,10 @@
 <header>
     <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'place' }"></app-icon>
     <div class="title">Select space{{ multiple ? 's' : '' }}</div>
+    <div class="flex-1 w-0"></div>
+    <button mat-icon-button mat-dialog-close>
+        <app-icon>close</app-icon>
+    </button>
 </header>
 <mat-dialog-content>
     <div class="heading">
@@ -29,7 +33,7 @@
             </mat-select>
         </mat-form-field>
     </div>
-    <div class="body">
+    <div class="body" style="width: 32rem">
         <ng-container *ngIf="!loading; else load_state">
             <ng-container *ngIf="filtered_spaces?.length; else empty_state">
                 <ng-container *ngFor="let space of filtered_spaces">

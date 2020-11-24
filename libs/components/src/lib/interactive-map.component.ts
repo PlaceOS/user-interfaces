@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     InjectionToken,
@@ -30,11 +31,11 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     selector: `i-map,interactive-map`,
     template: `
         <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
-        <mat-spinner *ngIf="!viewer" class="center"></mat-spinner>
+        <mat-spinner *ngIf="!viewer" class="center" [diameter]="48"></mat-spinner>
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
                 <div *ngIf="element">
-                    <div #feature [attr.el-id]="element.location" [attr.view-id]="viewer">
+                    <div #feature class="pointer-events-none" [attr.el-id]="element.location" [attr.view-id]="viewer">
                         <ng-container
                             *ngComponentOutlet="
                                 element.content;
@@ -49,14 +50,13 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     styles: [
         `
         :host {
-            position: relative
             height: 100%;
             width: 100%;
         }
     `,
     ],
 })
-export class InteractiveMapComponent extends BaseClass {
+export class InteractiveMapComponent extends BaseClass implements AfterViewInit {
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -141,13 +141,15 @@ export class InteractiveMapComponent extends BaseClass {
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
-        if (!getViewer(this.viewer)) return;
-        updateViewer(this.viewer, {
-            styles: this.styles,
-            features: this.feature_list,
-            labels: this.labels,
-            actions: this.actions,
-        });
+        if (!getViewer(this.viewer)) return this.timeout('update_view', () => this.updateView());
+        try {
+            updateViewer(this.viewer, {
+                styles: this.styles,
+                features: this.feature_list,
+                labels: this.labels,
+                actions: this.actions,
+            });
+        } catch (e) {}
     }
 
     /** Update zoom and center position of viewer */
@@ -176,6 +178,11 @@ export class InteractiveMapComponent extends BaseClass {
                 labels: this.labels,
                 actions: this.actions,
             });
+
+            this.timeout('update_view', () => {
+                this.updateView();
+                this.updateDisplay();
+            }, 100);
         }
     }
 }

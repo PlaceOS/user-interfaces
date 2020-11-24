@@ -139,7 +139,6 @@ export class BookingConfirmComponent extends BaseClass {
             this._data.old_booking.duration === this.booking.duration ||
             (spaces && spaces.length <= 0)
         ) {
-            console.log('No check needed');
             return true;
         }
         const start = Math.floor(this.booking.date / 1000);
