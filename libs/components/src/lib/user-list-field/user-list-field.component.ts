@@ -186,7 +186,7 @@ export class UserListFieldComponent extends BaseClass
             if (!el.email) {
                 el.email = `${display}+${id}@guest.com`;
             }
-            el.visit_expected = !el.email.endsWith('pwc.com');
+            el.visit_expected = !el.email.endsWith('place.tech');
             this.addUser(new User(el));
         });
     }

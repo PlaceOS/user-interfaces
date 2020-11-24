@@ -47,7 +47,7 @@ export interface GeneralAppSettings { }
 const app: any = {
     title: 'PlaceOS',
     description: 'PlaceOS UI',
-    short_name: 'PwC ME',
+    short_name: 'PlaceOS',
     logo_light: {
         type: 'img',
         src: 'assets/logo-light.svg'
