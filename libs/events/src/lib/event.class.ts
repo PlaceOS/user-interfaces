@@ -252,7 +252,7 @@ export class CalendarEvent {
                 range_end: Math.floor(new Date(this.recurrence.end).valueOf() / 1000),
             };
         } else {
-            obj.recurrence = null;
+            obj.recurrence = {};
         }
         obj.attendees = unique(attendees, 'email');
         if (!this.all_day) {
