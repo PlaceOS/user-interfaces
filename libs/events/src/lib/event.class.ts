@@ -149,10 +149,14 @@ export class CalendarEvent {
         this.creator = (data.creator || _default_user.email).toLowerCase();
         this.host = (data.host || this.creator || '').toLowerCase();
         const attendees = data.attendees || [];
-        this.attendees = attendees.filter((user: any) => !user.resource).map(u => new User(u));
+        this.attendees = attendees
+            .filter((user: any) => !user.resource)
+            .map((u) => new User(u));
         this.resources =
             data.resources ||
-            attendees.filter((user: any) => user.resource).map(s => new Space(s as any));
+            attendees
+                .filter((user: any) => user.resource)
+                .map((s) => new Space(s as any));
         this.title = data.title || '';
         this.body = data.body || '';
         this.private = !!data.private;
@@ -160,28 +164,41 @@ export class CalendarEvent {
         const time = data.event_start * 1000 || data.date;
         const start = time
             ? new Date(time)
-            : roundToNearestMinutes(new Date().setMinutes(new Date().getMinutes() + 3), {
-                  nearestTo: 5,
-              });
-        this.date = this.all_day ? startOfDay(start).valueOf() : start.valueOf();
+            : roundToNearestMinutes(
+                  new Date().setMinutes(new Date().getMinutes() + 3),
+                  {
+                      nearestTo: 5,
+                  }
+              );
+        this.date = this.all_day
+            ? startOfDay(start).valueOf()
+            : start.valueOf();
         this.duration = this.all_day
             ? 24 * 60
-            : data.duration || differenceInMinutes(new Date(data.event_end * 1000), start) || 30;
+            : data.duration ||
+              differenceInMinutes(new Date(data.event_end * 1000), start) ||
+              30;
         this.timezone = data.timezone;
         this.location = data.location || '';
         this.recurring = data.recurring;
         this.recurring_master_id = data.recurring_master_id;
         this.meeting_link = data.meeting_link || '';
-        this.organiser = this.attendees.find((user) => user.email === this.host);
+        this.organiser = this.attendees.find(
+            (user) => user.email === this.host
+        );
         this.master = data.master ? new CalendarEvent(data.master) : null;
         if (data.recurring) {
             this.recurrence = {
                 start:
                     start.valueOf() ||
-                    new Date((data.recurrence as any).range_start * 1000).valueOf(),
+                    new Date(
+                        (data.recurrence as any).range_start * 1000
+                    ).valueOf(),
                 end:
                     data.recurrence.end ||
-                    new Date((data.recurrence as any).range_end * 1000).valueOf(),
+                    new Date(
+                        (data.recurrence as any).range_end * 1000
+                    ).valueOf(),
                 interval: data.recurrence.interval,
                 pattern: data.recurrence.pattern,
                 days_of_week: data.recurrence.days_of_week,
@@ -196,21 +213,29 @@ export class CalendarEvent {
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
-        this.extension_data.catering = (data.catering || this.extension_data.catering || []).map(
-            (i) => new CateringOrder({ ...i, event: this })
-        );
+        this.extension_data.catering = (
+            data.catering ||
+            this.extension_data.catering ||
+            []
+        ).map((i) => new CateringOrder({ ...i, event: this }));
         this.extension_data.needs_parking = !!data.needs_parking;
-        this.extension_data.remote = data.remote || this.extension_data.remote || [];
+        this.extension_data.remote =
+            data.remote || this.extension_data.remote || [];
         this.extension_data.visitor_type =
             data.visitor_type || this.extension_data.visitor_type || '';
-        this.can_access_lift = data.can_access_lift || this.extension_data.can_access_lift || false;
+        this.can_access_lift =
+            data.can_access_lift ||
+            this.extension_data.can_access_lift ||
+            false;
         this.resources = unique(this.resources, 'email');
         this.status = eventStatus(this) || 'none';
         /** Simplified extension properties */
         this.has_visitors = !!this.attendees.find(
             (user) => user.visit_expected || user.is_external
         );
-        this.has_catering = this.extension_data.catering && !!this.extension_data.catering.length;
+        this.has_catering =
+            this.extension_data.catering &&
+            !!this.extension_data.catering.length;
         this.catering = this.extension_data.catering || [];
         this.remote = this.extension_data.remote || [];
         this.needs_parking = !!this.extension_data.needs_parking;
@@ -218,7 +243,11 @@ export class CalendarEvent {
         this.breakdown = this.extension_data.breakdown || 0;
         this.visitor_type = this.extension_data.visitor_type || '';
         this.type =
-            this.status === 'cancelled' ? 'cancelled' : this.has_visitors ? 'external' : 'internal';
+            this.status === 'cancelled'
+                ? 'cancelled'
+                : this.has_visitors
+                ? 'external'
+                : 'internal';
         this.attendee_emails = this.attendees.map((u) => u.email);
         this.guests = this.attendees.filter((f) => !!f.visit_expected) as any;
         this.notes = this.extension_data.notes || [];
@@ -240,7 +269,8 @@ export class CalendarEvent {
     public toJSON(): HashMap {
         const obj: HashMap = { ...this };
         const end = Math.floor(
-            add(new Date(this.date), { minutes: this.duration }).valueOf() / 1000
+            add(new Date(this.date), { minutes: this.duration }).valueOf() /
+                1000
         );
         obj.event_start = Math.floor(this.date / 1000);
         obj.event_end = end;
@@ -249,11 +279,16 @@ export class CalendarEvent {
             obj.recurrence = {
                 ...this.recurrence,
                 range_start: obj.event_start,
-                range_end: Math.floor(new Date(this.recurrence.end).valueOf() / 1000),
+                range_end: Math.floor(
+                    new Date(this.recurrence.end).valueOf() / 1000
+                ),
             };
-        } else {
-            obj.recurrence = {};
         }
+        obj.recurrence = obj.recurrence
+            ? Object.keys(obj.recurrence).length
+                ? obj.recurrence
+                : null
+            : null;
         obj.attendees = unique(attendees, 'email');
         if (!this.all_day) {
             obj.extension_data.breakdown = 15;
@@ -269,7 +304,12 @@ export class CalendarEvent {
     }
 
     /** Status of the booking */
-    public get state(): 'future' | 'upcoming' | 'done' | 'started' | 'in_progress' {
+    public get state():
+        | 'future'
+        | 'upcoming'
+        | 'done'
+        | 'started'
+        | 'in_progress' {
         const now = new Date();
         const date = new Date(this.date);
         if (isBefore(now, add(date, { minutes: -15 }))) {
@@ -289,7 +329,9 @@ export class CalendarEvent {
     }
 
     public get event_end(): number {
-        return Math.floor(addMinutes(new Date(this.date), this.duration).valueOf() / 1000);
+        return Math.floor(
+            addMinutes(new Date(this.date), this.duration).valueOf() / 1000
+        );
     }
 
     public get can_check_in(): boolean {
