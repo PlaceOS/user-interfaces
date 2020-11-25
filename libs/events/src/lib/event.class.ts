@@ -166,7 +166,7 @@ export class CalendarEvent {
         this.date = this.all_day ? startOfDay(start).valueOf() : start.valueOf();
         this.duration = this.all_day
             ? 24 * 60
-            : data.duration || differenceInMinutes(new Date(data.event_end * 1000), start) || 60;
+            : data.duration || differenceInMinutes(new Date(data.event_end * 1000), start) || 30;
         this.timezone = data.timezone;
         this.location = data.location || '';
         this.recurring = data.recurring;
