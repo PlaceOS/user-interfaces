@@ -6,7 +6,7 @@ module.exports = (isProd) => ({
         purgeLayersByDefault: true,
     },
     purge: {
-        enabled: isProd,
+        enabled: isProd && false,
         content: ['**/*.html', '**/*.ts'],
     },
     theme: {
