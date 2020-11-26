@@ -1,8 +1,6 @@
-@import 'variables';
-@import 'mixins';
 
 header {
-    background-color: $color-primary !important;
+    background-color: var(--primary) !important;
 }
 
 .body {
@@ -16,18 +14,18 @@ label {
     margin-right: 1em;
     font-weight: bold;
     font-size: 0.8em;
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
     width: 100%;
     margin-top: 0;
     margin-bottom: 0.5em;
     // }
 
     span {
-        color: $pending;
+        color: var(--pending);
     }
 
     &.error {
-        color: $error;
+        color: var(--error);
     }
 }
 
@@ -61,10 +59,6 @@ mat-dialog-content {
 
         &:last-child {
             margin-right: 0;
-        }
-
-        @include respond-to(mobile) {
-            margin: 0;
         }
     }
 }

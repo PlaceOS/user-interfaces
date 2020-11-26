@@ -1,7 +1,7 @@
 .field {
     display: flex;
 
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
     flex-wrap: wrap;
     // }
 }

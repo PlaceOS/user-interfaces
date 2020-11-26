@@ -52,7 +52,7 @@
                         "scripts": []
                     },
                     "configurations": {
-                        "production": {
+                        "staging": {
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -63,7 +63,30 @@
                                     "with": "apps/workplace/src/environments/settings.ts"
                                 }
                             ],
-                            "baseHref": "/workplace/",
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                        },
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/workplace/src/environments/environment.ts",
+                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/workplace/src/environments/settings.ts"
+                                }
+                            ],
                             "optimization": true,
                             "outputHashing": "all",
                             "sourceMap": false,
@@ -76,7 +99,7 @@
                                 {
                                     "type": "initial",
                                     "maximumWarning": "2mb",
-                                    "maximumError": "5mb"
+                                    "maximumError": "9mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
@@ -510,6 +533,10 @@
                                     "with": "apps/booking-panel/src/environments/environment.prod.ts"
                                 },
                                 {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
+                                {
                                     "replace": "libs/common/src/lib/settings.ts",
                                     "with": "apps/booking-panel/src/environments/settings.ts"
                                 }
@@ -677,6 +704,10 @@
                                     "with": "apps/concierge/src/environments/environment.prod.ts"
                                 },
                                 {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
+                                {
                                     "replace": "libs/common/src/lib/settings.ts",
                                     "with": "apps/concierge/src/environments/settings.ts"
                                 }
@@ -840,6 +871,10 @@
                                 {
                                     "replace": "apps/visitor-kiosk/src/environments/environment.ts",
                                     "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
                                 },
                                 {
                                     "replace": "libs/common/src/lib/settings.ts",
@@ -1008,6 +1043,10 @@
                                     "with": "apps/control/src/environments/environment.prod.ts"
                                 },
                                 {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
+                                {
                                     "replace": "libs/common/src/lib/settings.ts",
                                     "with": "apps/control/src/environments/settings.ts"
                                 }
@@ -1163,6 +1202,10 @@
                                 {
                                     "replace": "apps/caterer-ui/src/environments/environment.ts",
                                     "with": "apps/caterer-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
                                 },
                                 {
                                     "replace": "libs/common/src/lib/settings.ts",
@@ -1328,6 +1371,10 @@
                                 {
                                     "replace": "apps/map-kiosk/src/environments/environment.ts",
                                     "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
                                 },
                                 {
                                     "replace": "libs/common/src/lib/settings.ts",

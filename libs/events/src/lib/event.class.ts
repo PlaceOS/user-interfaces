@@ -26,6 +26,7 @@ export function setDefaultCreator(user: Identity) {
 export interface FileDetails {
     /** Name of the file */
     name: string;
+
     /** Blob contents of the file */
     blob: Blob;
 }

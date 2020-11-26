@@ -1,6 +1,4 @@
 
-@import 'variables';
-
 .login {
     position: fixed;
     top: 0;
@@ -72,7 +70,7 @@ label {
         color: rgba(#000, .85);
     }
     &.in-focus {
-        color: rgba($color-primary, .85) !important;
+        color: rgba(var(--primary), .85) !important;
     }
 }
 
@@ -86,11 +84,11 @@ label {
 .error {
 
     label {
-        color: $error;
+        color: var(--error);
     }
 
     input {
-        border-color: $error;
+        border-color: var(--error);
     }
 
     .error-message {
@@ -103,7 +101,7 @@ label {
     display: none;
     width: 100%;
     text-align: center;
-    color: $error;
+    color: var(--error);
     font-size: .7em;
     margin-top: -1em;
     margin-bottom: 1em;

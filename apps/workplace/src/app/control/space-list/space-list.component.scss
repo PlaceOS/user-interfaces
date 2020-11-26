@@ -1,4 +1,3 @@
-@import 'variables';
 
 :host,
 .control-list {
@@ -15,5 +14,5 @@
 .control-list {
     position: relative;
     overflow: auto;
-    background-color: $bg-light;
+    background-color: var(--bg);
 }

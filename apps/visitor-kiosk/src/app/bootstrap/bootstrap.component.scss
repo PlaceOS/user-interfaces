@@ -1,7 +1,4 @@
 
-@import 'variables';
-@import 'mixins';
-
 :host {
     position: fixed;
     top: 0;
@@ -15,7 +12,7 @@
 
 .details {
     background-color: #fff;
-    @include box-shadow;
+    @apply shadow;
     border-radius: 4px;
     width: 32em;
     max-width: calc(100vw - 2em);
@@ -48,25 +45,25 @@ label {
     font-weight: bold;
     font-size: .8em;
     text-align: center;
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
         width: 100%;
         margin-top: 0;
         margin-bottom: .5em;
     // }
 
     span {
-        color: $pending;
+        color: var(--pending);
     }
 
     &.error {
-        color: $error;
+        color: var(--error);
     }
 }
 
 .field {
     display: flex;
 
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
         flex-wrap: wrap;
     // }
 }
@@ -78,7 +75,7 @@ editor {
     flex: 1;
     min-width: 50%;
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         min-width: 16em;
     }
 }

@@ -1,7 +1,4 @@
 
-@import 'variables';
-@import 'mixins';
-
 .custom-actions {
     position: absolute;
     bottom: 0;
@@ -10,7 +7,7 @@
     align-items: center;
     padding: 2em 1em;
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         padding: 2em .25em;
     }
 }

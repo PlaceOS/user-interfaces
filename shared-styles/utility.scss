@@ -1,43 +1,8 @@
-@import 'variables';
-@import 'mixins';
-
-:root,
-body {
-    --primary: $color-primary;
-    --secondary: $color-secondary;
-    --success: $success;
-}
-
-.bg-success {
-    background-color: $success;
-    // background-color: var(--success);
-}
-
-.bg-white {
-    background-color: #fff !important;
-}
-
-.bg-none {
-    background: none;
-}
-
-.bg-black {
-    background-color: #000;
-}
 
 .bg-darken {
     background-color: rgba(#000, .1);
 }
 
-.bg-primary {
-    background-color: $color-primary;
-    background-color: var(--primary);
-}
-
-.bg-secondary {
-    background-color: $color-secondary;
-    background-color: var(--secondary);
-}
 
 .text-light {
     color: rgba(#fff, .85);
@@ -59,31 +24,8 @@ body {
     color: rgba(#000, .6);
 }
 
-.text-dark-disabled {
-    color: rgba(#000, .35);
-}
-
-.text-primary {
-    color: $color-primary;
-    color: var(--primary);
-}
-
-.text-secondary {
-    color: $color-secondary;
-    color: var(--secondary);
-}
-
-.text-success {
-    color: $success;
-    color: var(--success);
-}
-
 .h-half {
     height: 50%;
-}
-
-.min-h-0 {
-    min-height: 0;
 }
 
 .min-w-24 {
@@ -133,14 +75,3 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
-@include respond-to(desktop) {
-    .xl\:w-auto {
-        width: auto !important;
-    }
-
-    .xl\:block {
-        display: block !important;
-    }
-}
-

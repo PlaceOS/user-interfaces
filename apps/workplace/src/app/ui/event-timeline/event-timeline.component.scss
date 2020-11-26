@@ -1,14 +1,7 @@
-@import 'variables';
-@import 'mixins';
-
-$default-color: $color-primary;
 
 :host {
     height: 100%;
     width: 100%;
-}
-
-.event-timeline {
 }
 
 .times {
@@ -143,8 +136,8 @@ $default-color: $color-primary;
         left: 0;
         right: 0;
         border: none;
-        border-top: 2px solid $color-primary;
-        border-bottom: 2px solid $color-primary;
+        border-top: 2px solid var(--primary);
+        border-bottom: 2px solid var(--primary);
         pointer-events: auto;
 
         .knob {
@@ -170,7 +163,7 @@ $default-color: $color-primary;
         right: 0;
         width: auto;
         height: 2px;
-        background-color: $default-color;
+        background-color: var(--primary);
     }
 }
 
@@ -191,7 +184,7 @@ $default-color: $color-primary;
     top: 0;
     left: 0;
     bottom: 0;
-    background-color: rgba($default-color, 0.54);
+    background-color: rgba(var(--primary), 0.54);
     border: 1px solid rgba(#fff, 0.87);
 }
 
@@ -211,9 +204,9 @@ $default-color: $color-primary;
     position: absolute;
     top: 0;
     bottom: 0;
-    background-color: rgba($color-primary, 0.2);
-    border-left: 2px solid $color-primary;
-    border-right: 2px solid $color-primary;
+    background-color: rgba(var(--primary), 0.2);
+    border-left: 2px solid var(--primary);
+    border-right: 2px solid var(--primary);
     pointer-events: auto;
 
     .inner {
@@ -229,7 +222,7 @@ $default-color: $color-primary;
         height: 12px;
         width: 12px;
         border-radius: 100%;
-        background-color: $color-primary;
+        background-color: var(--primary);
         transform: translateX(calc(-50% - 1px));
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
             0 2px 1px -1px rgba(0, 0, 0, 0.12);
@@ -249,5 +242,5 @@ $default-color: $color-primary;
     top: 0;
     bottom: 0;
     width: 2px;
-    background-color: darken($default-color, 10);
+    background-color: var(--primary-dark);
 }

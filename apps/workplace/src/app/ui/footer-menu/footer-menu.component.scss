@@ -1,5 +1,3 @@
-@import 'variables';
-@import 'mixins';
 
 .footer-menu {
     display: flex;
@@ -46,7 +44,7 @@ a {
 
 .text {
     font-size: 0.8em;
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         display: none;
     }
 }

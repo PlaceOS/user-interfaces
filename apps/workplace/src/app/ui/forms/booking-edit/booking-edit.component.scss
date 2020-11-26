@@ -1,5 +1,3 @@
-@import 'variables';
-@import 'mixins';
 
 :host {
     display: grid;
@@ -10,7 +8,7 @@
         display: flex;
         flex-direction: column;
         background: white;
-        @include box-shadow;
+        @apply shadow;
 
         label {
             font-size: 1.2em;
@@ -43,7 +41,7 @@
                 height: 2px;
                 z-index: 1;
                 border-radius: inherit;
-                background: linear-gradient(to left, $bg-light calc(100% - 4em), transparent 3em);
+                background: linear-gradient(to left, var(--bg) calc(100% - 4em), transparent 3em);
             }
 
             &:last-of-type {

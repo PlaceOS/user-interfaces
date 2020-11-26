@@ -1,4 +1,3 @@
-@import 'variables';
 
 .header {
     width: 100%;
@@ -25,7 +24,7 @@ main {
 
 .icon {
     font-size: 2.5em;
-    color: $success;
+    color: var(--success);
 }
 
 footer {

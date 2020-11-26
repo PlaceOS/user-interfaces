@@ -1,5 +1,4 @@
-@import 'variables';
-@import 'mixins';
+
 
 .header {
     width: 100%;
@@ -11,7 +10,7 @@
     }
     .icon {
         font-size: 1.5em;
-        color: $success;
+        color: var(--success);
     }
 }
 
@@ -35,7 +34,7 @@
     }
 
     .actions {
-        color: $color-primary;
+        color: var(--primary);
     }
 }
 

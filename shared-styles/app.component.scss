@@ -1,9 +1,19 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
 
-@import 'variables';
-@import 'mixins';
+:root {
+    --primary: #c2185b;
+    --primary-dark: #ad1457;
+    --secondary: #263238;
+    --secondary-dark: #212121;
+    --font-light: #fff;
+    --font-dark: #000;
+    --success: #43a047;
+    --pending: #ffb300;
+    --error: #e53935;
+    --bg: #f0f0f0;
+    --bg-dark: #212121;
+    --font: 'Helvetica Neue', Roboto, Helvetica, sans-serif;
+    --heading-font: Georgia, 'Times New Roman', Times, serif;
+}
 
 html,
 body {
@@ -12,21 +22,12 @@ body {
     width: 100%;
     padding: 0;
     margin: 0;
-
-    @include respond-to(desktop) {
-        font-size: $base-size;
-    }
-    @include respond-to(tablet) {
-        font-size: $tablet-size;
-    }
-    @include respond-to(mobile) {
-        font-size: $mobile-size;
-    }
+    font-size: 16px;
 }
 
 * {
     user-select: none;
-    font-family: $font;
+    font-family: var(--font);
     box-sizing: border-box;
 }
 
@@ -35,47 +36,7 @@ body {
 }
 
 span.highlight {
-    color: $color-primary;
-}
-
-/*==============*\
-|| Media Styles ||
-\*==============*/
-
-@include respond-to(not-mobile) {
-    .mobile-only,
-    .mobile {
-        display: none !important;
-    }
-}
-
-@include respond-to(desktop) {
-    .not-desktop,
-    .tablet-only,
-    .tablet,
-    .mobile,
-    .mobile-only {
-        display: none !important;
-    }
-}
-
-@include respond-to(tablet) {
-    .desktop,
-    .desktop-only,
-    .not-tablet,
-    .mobile,
-    .mobile-only {
-        display: none !important;
-    }
-}
-
-@include respond-to(mobile) {
-    .desktop-only,
-    .desktop,
-    .mobile-hide,
-    .not-mobile {
-        display: none !important;
-    }
+    color: var(--primary);
 }
 
 /*=======================*\
@@ -173,7 +134,7 @@ div.tox-editor-container {
 }
 
 div.tox-tinymce {
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         min-height: 20em;
     }
 }

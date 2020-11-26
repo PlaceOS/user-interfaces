@@ -1,7 +1,4 @@
 
-@import 'variables';
-@import 'mixins';
-
 .booking-actions {
     position: absolute;
     bottom: 0;
@@ -12,7 +9,7 @@
     padding: 1em;
     max-width: 8.5em;
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         padding: .5em .25em;
     }
 }
