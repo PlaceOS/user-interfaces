@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors');
+
 module.exports = (isProd) => ({
     prefix: '',
     important: '#placeos',
@@ -12,6 +14,8 @@ module.exports = (isProd) => ({
     theme: {
         extend: {
             colors: {
+                transparent: colors.transparent,
+                gray: colors.gray,
                 primary: '#C92366',
                 secondary: '#0A0D2E',
                 error: '#e53935',
