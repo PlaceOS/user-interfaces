@@ -182,8 +182,11 @@ export class SpaceFlowService extends BaseClass {
     public save(): Promise<void> {
         const form = this._form.getValue();
         form.markAllAsTouched();
-        if (!form.controls.organiser.value)
-            form.patchValue({ organiser: this._staff.current });
+        if (!form.controls.organiser.value || !form.controls.host.value)
+            form.patchValue({
+                organiser: this._staff.current,
+                host: this._staff.current.email,
+            });
         if (!form.valid) {
             const list = [];
             for (const key in form.controls) {
