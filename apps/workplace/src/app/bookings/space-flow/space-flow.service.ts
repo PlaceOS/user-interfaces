@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
-import { addMinutes, roundToNearestMinutes } from 'date-fns';
+import { addMinutes, roundToNearestMinutes, isAfter, endOfDay } from 'date-fns';
 
 import { BaseClass, notifyError, unique } from '@user-interfaces/common';
 import {
@@ -81,6 +81,10 @@ export class SpaceFlowService extends BaseClass {
         })
     );
 
+    public get is_future_date() {
+        const date = this._form.getValue()?.controls?.date.value || new Date().valueOf();
+        return isAfter(new Date(date), endOfDay(new Date()));
+    }
 
     public readonly clearState = () => clearEventFormState();
 

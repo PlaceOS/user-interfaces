@@ -113,6 +113,7 @@ export const CAPACITY_OPTIONS = [
                     <div class="flex flex-grow flex-col w-48">
                         <label for="date" class="w-full">Start Time</label>
                         <a-time-field
+                            [no_past_times]="!is_future_date"
                             formControlName="date"
                             class="mb-8 pt-1"
                         ></a-time-field>
@@ -313,6 +314,10 @@ export class SpaceFlowFormComponent {
     public readonly newAttendee = () => this._service.newAttendee();
     public readonly setTitle = (t) => this._service.setValue('title', t);
     public readonly clearForm = () => this._service.clearForm();
+
+    public get is_future_date() {
+        return this._service.is_future_date;
+    }
 
     constructor(
         private _service: SpaceFlowService,
