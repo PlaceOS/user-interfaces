@@ -69,6 +69,7 @@ export const CAPACITY_OPTIONS = [
                     button
                     mat-button
                     [routerLink]="['/book', 'spaces', 'find']"
+                    (click)="setTitle('Quick Booking')"
                 >
                     <div class="flex items-center justify-center w-full sm:w-48">
                         Go
@@ -310,6 +311,7 @@ export class SpaceFlowFormComponent {
     public readonly updateCapacity = (c: number) =>
         this._service.updateFilters({ capacity: c });
     public readonly newAttendee = () => this._service.newAttendee();
+    public readonly setTitle = (t) => this._service.setValue('title', t);
     public readonly clearForm = () => this._service.clearForm();
 
     constructor(

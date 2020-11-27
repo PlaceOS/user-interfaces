@@ -42,8 +42,8 @@ let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 export function generateEventForm(event: CalendarEvent): FormGroup {
     const form = new FormGroup({
         id: new FormControl(event.id),
-        host: new FormControl(event.host, [Validators.required]),
-        organiser: new FormControl(event.organiser, [Validators.required]),
+        host: new FormControl(event.host || '', [Validators.required]),
+        organiser: new FormControl(event.organiser || {}, [Validators.required]),
         creator: new FormControl(event.creator, [Validators.required]),
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
