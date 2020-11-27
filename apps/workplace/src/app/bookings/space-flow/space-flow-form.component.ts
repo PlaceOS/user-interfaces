@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@user-interfaces/common';
-import { addDays, addHours, addMinutes, roundToNearestMinutes } from 'date-fns';
+import { addDays, addHours, addMinutes, roundToNearestMinutes, startOfDay } from 'date-fns';
 
 import { SpaceFlowService } from './space-flow.service';
 
@@ -106,6 +106,7 @@ export const CAPACITY_OPTIONS = [
                     <div class="flex flex-grow flex-col w-48 m-0">
                         <label for="date" class="w-full">Date</label>
                         <a-date-field
+                            [from]="current_date"
                             formControlName="date"
                             class="flex-1 mb-4"
                         ></a-date-field>
@@ -317,6 +318,10 @@ export class SpaceFlowFormComponent {
 
     public get is_future_date() {
         return this._service.is_future_date;
+    }
+
+    public get current_date() {
+        return startOfDay(new Date()).valueOf()
     }
 
     constructor(
