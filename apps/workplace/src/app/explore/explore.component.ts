@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({
     selector: 'app-explore',
@@ -29,6 +30,10 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class ExploreComponent {
+export class ExploreComponent implements OnInit {
     public show_menu: boolean = false;
+
+    public ngOnInit() {
+        clearEventFormState();
+    }
 }

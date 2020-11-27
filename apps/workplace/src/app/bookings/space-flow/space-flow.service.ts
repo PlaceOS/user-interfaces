@@ -20,6 +20,12 @@ export interface EventFormFilters {
     zones?: string[];
 }
 
+export function clearEventFormState(): void {
+    localStorage.removeItem('PLACEOS.event');
+    localStorage.removeItem('PLACEOS.event_form');
+    localStorage.removeItem('PLACEOS.event_filters');
+}
+
 @Injectable()
 export class SpaceFlowService extends BaseClass {
     /** Active event being worked on */
@@ -74,6 +80,9 @@ export class SpaceFlowService extends BaseClass {
                 });
         })
     );
+
+
+    public readonly clearState = () => clearEventFormState();
 
     constructor(
         private _events: EventsService,
@@ -170,12 +179,6 @@ export class SpaceFlowService extends BaseClass {
         if (filter_data) {
             this._filters.next(JSON.parse(filter_data));
         }
-    }
-
-    public clearState(): void {
-        localStorage.removeItem('PLACEOS.event');
-        localStorage.removeItem('PLACEOS.event_form');
-        localStorage.removeItem('PLACEOS.event_filters');
     }
 
     /** Save changes to event to the server */

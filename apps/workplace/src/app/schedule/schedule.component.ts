@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 import { EventPair } from './event-list/event-list.component';
 
@@ -33,6 +34,7 @@ export class ScheduleComponent extends BaseClass implements OnInit {
             })
         );
         this.loadEvents();
+        clearEventFormState();
     }
 
     /**

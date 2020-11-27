@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({
     selector: 'app-control',
@@ -16,5 +17,6 @@ export class ControlComponent extends BaseClass implements OnInit {
 
     public ngOnInit(): void {
         this._settings.title = 'Control';
+        clearEventFormState();
     }
 }
