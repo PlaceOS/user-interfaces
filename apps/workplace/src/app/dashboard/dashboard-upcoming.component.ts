@@ -16,7 +16,7 @@ import { DashboardStateService } from './dashboard-state.service';
         >
             <div name="status" class="absolute rounded-lg"></div>
             <div name="details" class="flex-1 mr-2">
-                <div name="time" class="text-sm text-bold mb-2">{{ event.time_period }}</div>
+                <div name="time" class="text-sm text-bold mb-2">{{ event.date | date:'shortTime' }}</div>
                 <div name="title" class="text-sm text-bold mb-2">{{ event.title }}</div>
                 <div name="space" class="text-xs flex items-center mb-2">
                     <app-icon

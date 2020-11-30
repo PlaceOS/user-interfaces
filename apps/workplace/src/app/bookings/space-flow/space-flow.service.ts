@@ -21,8 +21,8 @@ export interface EventFormFilters {
 }
 
 export function clearEventFormState(): void {
-    localStorage.removeItem('PLACEOS.event');
-    localStorage.removeItem('PLACEOS.event_form');
+    sessionStorage.removeItem('PLACEOS.event');
+    sessionStorage.removeItem('PLACEOS.event_form');
     localStorage.removeItem('PLACEOS.event_filters');
 }
 
@@ -155,11 +155,11 @@ export class SpaceFlowService extends BaseClass {
     /** Store current event details and form values */
     public storeState(): void {
         const form = this._form.getValue();
-        localStorage.setItem(
+        sessionStorage.setItem(
             'PLACEOS.event',
             JSON.stringify(this._event.getValue().toJSON())
         );
-        localStorage.setItem('PLACEOS.event_form', JSON.stringify(form.value));
+        sessionStorage.setItem('PLACEOS.event_form', JSON.stringify(form.value));
         localStorage.setItem(
             'PLACEOS.event_filters',
             JSON.stringify(this._filters.getValue())
@@ -168,12 +168,12 @@ export class SpaceFlowService extends BaseClass {
 
     /** Load old event details and form values */
     public loadState(): void {
-        const event_data = localStorage.getItem('PLACEOS.event') || '{}';
+        const event_data = sessionStorage.getItem('PLACEOS.event') || '{}';
         if (event_data) {
             this._event.next(new CalendarEvent(JSON.parse(event_data)));
         }
         console.log('Event:', this._event.getValue());
-        const form_data = localStorage.getItem('PLACEOS.event_form');
+        const form_data = sessionStorage.getItem('PLACEOS.event_form');
         if (form_data) {
             const form = generateEventForm(this._event.getValue());
             form.patchValue(JSON.parse(form_data));
