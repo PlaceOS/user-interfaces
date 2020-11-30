@@ -13,7 +13,7 @@ import { DEFAULT_COLOURS, ExploreStateService } from '@user-interfaces/explore';
 import { Desk, OrganisationService } from '@user-interfaces/organisation';
 import { StaffService, User } from '@user-interfaces/users';
 import { endOfDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, timer } from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -89,7 +89,7 @@ export class DeskFlowStateService extends BaseClass {
 
     public readonly desk_availability = combineLatest([
         this._options,
-        this.desk_list,
+        this.desk_list
     ]).pipe(
         debounceTime(500),
         distinctUntilChanged(),
@@ -116,11 +116,7 @@ export class DeskFlowStateService extends BaseClass {
             const active_bookings = bookings.filter(
                 (bkn) => bkn.status !== 'declined'
             );
-            const user_groups = this._staff.current.groups;
-            const bookable_desks = desks.filter(
-                (i) => i.bookable
-                && user_groups.includes((i.group || '').toLowerCase())
-            );
+            const bookable_desks = desks.filter((i) => i.bookable);
             this._loading.next(false);
             return bookable_desks.filter(
                 (desk) =>
@@ -153,6 +149,14 @@ export class DeskFlowStateService extends BaseClass {
         );
     }
 
+    public startPolling(delay: number = 5000) {
+        this.interval('poll', () => this._options.next({ ...this._options.getValue() }), delay);
+    }
+
+    public stopPolling() {
+        this.clearInterval('poll');
+    }
+
     public setOptions(state: DeskFlowState) {
         this._options.next({ ...this._options.getValue(), ...state });
     }
@@ -163,7 +167,7 @@ export class DeskFlowStateService extends BaseClass {
 
     public async bookDesk(desk: Desk, reason: string = '') {
         if (!this._host) {
-            return  notifyError('A host needs to be set before booking a desk.');
+            return notifyError('A host needs to be set before booking a desk.');
         }
         const level = this._org.levelWithID(
             desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
@@ -240,16 +244,19 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     private handleDeskAvailability(details: [Desk[], Desk[]]) {
-        const [in_use, desks] = details;
+        const [available, desks] = details;
         const style_map = {};
         const actions = [];
+        const user_groups = this._staff.current.groups as any[];
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk of desks) {
-            const status = !desk.bookable
-                ? 'not-bookable'
-                : !in_use.find((d) => d.id === desk.id)
-                ? 'free'
-                : 'busy';
+            const status =
+                !desk.bookable ||
+                user_groups.includes((desk.group || '').toLowerCase())
+                    ? 'not-bookable'
+                    : available.find((d) => d.id === desk.id)
+                    ? 'free'
+                    : 'busy';
             style_map[`#${desk.id}`] = {
                 fill:
                     colours[`desk-${status}`] ||
@@ -270,6 +277,7 @@ export class DeskFlowStateService extends BaseClass {
                 });
             }
         }
+        console.log('Styles:', style_map, available, desks);
         this._state.setStyles('desks', style_map);
         this._state.setActions('desks', actions);
         console.log('Actions:', actions);
