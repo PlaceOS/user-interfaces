@@ -194,6 +194,11 @@ export class SpaceFlowService extends BaseClass {
                 organiser: this._staff.current,
                 host: this._staff.current.email,
             });
+        if (!form.controls.title.value) {
+            form.patchValue({
+                title: this._staff.current.email
+            });
+        }
         if (!form.valid) {
             const list = [];
             for (const key in form.controls) {
