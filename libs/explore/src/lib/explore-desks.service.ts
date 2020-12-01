@@ -11,6 +11,7 @@ import {
     OrganisationService,
 } from '@user-interfaces/organisation';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
+import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 
 export interface DesksStats {
     free: number;
@@ -115,25 +116,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 this._reserved.next(
                     desks.filter((v) => !v.at_location).map((v) => v.map_id)
                 );
-                const list = [];
-                for (const device of devices) {
-                    const x = device.x / device.map_width;
-                    const y = device.y / device.map_height;
-                    list.push({
-                        location: {
-                            x: device.coordinates_from?.includes('right') ? 1 - x : x,
-                            y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
-                        },
-                        content: ExploreDeviceInfoComponent,
-                        data: { ...device, system: system_id }
-                    });
-                }
-                list.sort((a, b) => {
-                    const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
-                    const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
-                    return dist_a - dist_b;
-                });
-                this._state.setFeatures('devices', list);
+                this.processDevices(devices, system_id);
+                // this.processDesks(desks);
             })
         );
         binding.bind();
@@ -164,5 +148,40 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             };
         }
         this._state.setStyles('desks', style_map);
+    }
+
+    private processDevices(devices: HashMap[], system_id: string) {
+        const list = [];
+        for (const device of devices) {
+            const x = device.x / device.map_width;
+            const y = device.y / device.map_height;
+            list.push({
+                location: {
+                    x: device.coordinates_from?.includes('right') ? 1 - x : x,
+                    y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
+                },
+                content: ExploreDeviceInfoComponent,
+                data: { ...device, system: system_id }
+            });
+        }
+        list.sort((a, b) => {
+            const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
+            const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
+            return dist_a - dist_b;
+        });
+        this._state.setFeatures('devices', list);
+    }
+
+    private processDesks(desks: HashMap[]) {
+        const list = [];
+        for (const desk of desks) {
+            list.push({
+                location: desk.map_id,
+                content: ExploreDeskInfoComponent,
+                hover: true,
+                data: { map_id: desk.name, status: this._statuses[desk.map_id] }
+            });
+        }
+        this._state.setFeatures('desks', list);
     }
 }

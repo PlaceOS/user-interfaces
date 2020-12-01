@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { showMetadata, listChildMetadata } from '@placeos/ts-client';
-import { BookingsService } from '@user-interfaces/bookings';
+import { Booking, BookingsService } from '@user-interfaces/bookings';
 import {
     BaseClass,
     DialogEvent,
@@ -13,6 +13,7 @@ import { DEFAULT_COLOURS, ExploreStateService } from '@user-interfaces/explore';
 import { Desk, OrganisationService } from '@user-interfaces/organisation';
 import { StaffService, User } from '@user-interfaces/users';
 import { endOfDay, startOfDay } from 'date-fns';
+import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BehaviorSubject, combineLatest, timer } from 'rxjs';
 import {
     debounceTime,
@@ -89,7 +90,7 @@ export class DeskFlowStateService extends BaseClass {
 
     public readonly desk_availability = combineLatest([
         this._options,
-        this.desk_list
+        this.desk_list,
     ]).pipe(
         debounceTime(500),
         distinctUntilChanged(),
@@ -117,6 +118,7 @@ export class DeskFlowStateService extends BaseClass {
                 (bkn) => bkn.status !== 'declined'
             );
             const bookable_desks = desks.filter((i) => i.bookable);
+            this.processDeskBookings(details);
             this._loading.next(false);
             return bookable_desks.filter(
                 (desk) =>
@@ -150,7 +152,11 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     public startPolling(delay: number = 5000) {
-        this.interval('poll', () => this._options.next({ ...this._options.getValue() }), delay);
+        this.interval(
+            'poll',
+            () => this._options.next({ ...this._options.getValue() }),
+            delay
+        );
     }
 
     public stopPolling() {
@@ -268,11 +274,13 @@ export class DeskFlowStateService extends BaseClass {
                 actions.push({
                     id: desk.id,
                     action: 'click',
+                    zone: false,
                     callback: () => this.bookDesk(desk),
                 });
                 actions.push({
                     id: desk.id,
                     action: 'touchend',
+                    zone: false,
                     callback: () => this.bookDesk(desk),
                 });
             }
@@ -280,6 +288,28 @@ export class DeskFlowStateService extends BaseClass {
         console.log('Styles:', style_map, available, desks);
         this._state.setStyles('desks', style_map);
         this._state.setActions('desks', actions);
-        console.log('Actions:', actions);
+    }
+
+    private processDeskBookings(details) {
+        const [desks, bookings] = details;
+        const list = [];
+        for (const desk of desks) {
+            const booking: Booking = bookings.find(
+                (bkn) => bkn.asset_id === desk.id
+            );
+            list.push({
+                location: desk.id,
+                content: ExploreDeskInfoComponent,
+                hover: true,
+                data: {
+                    map_id: desk.name,
+                    user: booking?.user_name,
+                    start: booking?.date,
+                    end: booking?.date + booking?.duration * 60 * 1000,
+                    status: booking ? 'busy' : 'free',
+                },
+            });
+        }
+        this._state.setFeatures('desks', list);
     }
 }

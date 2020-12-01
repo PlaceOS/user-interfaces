@@ -21,6 +21,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                     [center]="(positions | async).center"
                     [styles]="styles | async"
                     [actions]="actions | async"
+                    [features]="features | async"
                 ></i-map>
                 <explore-zoom-controls
                     class="absolute bottom-0 right-0"
@@ -82,6 +83,8 @@ export class DeskFlowComponent implements OnInit, OnDestroy {
     public readonly styles = this._state.map_styles;
     /** Observable for the active map */
     public readonly positions = this._state.map_positions;
+    /** Observable for the active map */
+    public readonly features = this._state.map_features;
     /** Observable for the active map */
     public readonly actions = this._state.map_actions;
     /** Observable for the active map */
