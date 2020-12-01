@@ -8,7 +8,7 @@ import * as dayjs from 'dayjs';
 @Component({
     selector: 'a-date-field',
     template: `
-        <mat-form-field appearance="outline" overlay>
+        <mat-form-field appearance="outline" overlay (click)="picker.open()">
             <input matInput [ngModel]="date" [disabled]="disabled" [min]="from" [max]="until" (ngModelChange)="setValue($event)" [matDatepicker]="picker" />
             <mat-datepicker-toggle
                 matSuffix

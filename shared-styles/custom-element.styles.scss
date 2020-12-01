@@ -406,3 +406,10 @@ form {
         }
     }
 }
+
+mat-datepicker-toggle {
+    button {
+        position: relative;
+        top: .25rem;
+    }
+}
