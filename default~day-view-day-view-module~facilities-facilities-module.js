@@ -113,7 +113,7 @@ class BookingModalComponent {
             this.loading = 'Creating calendar event...';
             value.system = value.resources[0];
             const booking = yield this._event
-                .save(new _user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["CalendarEvent"](value).toJSON())
+                .save(new _user_interfaces_events__WEBPACK_IMPORTED_MODULE_5__["CalendarEvent"](value).toJSON(), { calendar: value.calendar })
                 .catch((_) => null);
             this.loading = '';
             if (!booking) {
