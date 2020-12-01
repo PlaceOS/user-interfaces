@@ -101,6 +101,7 @@ export class DeskFlowComponent implements OnInit, OnDestroy {
 
     public ngOnInit() {
         this._desks.setHost(this._staff.current);
+        this._state.setOptions({ show_zones: false });
         this._desks.startPolling();
     }
 
