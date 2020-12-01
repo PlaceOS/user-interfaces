@@ -3,7 +3,11 @@ import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CalendarService } from '@user-interfaces/calendar';
-import { DialogEvent, notifyError, notifySuccess } from '@user-interfaces/common';
+import {
+    DialogEvent,
+    notifyError,
+    notifySuccess,
+} from '@user-interfaces/common';
 import {
     CalendarEvent,
     EventsService,
@@ -40,13 +44,15 @@ export interface BookingModalData {
             </main>
         </ng-template>
     `,
-    styles: [`
-        main {
-            width: 32rem;
-            max-height: 65vh;
-            max-width: calc(100vw - 4rem);
-        }
-    `],
+    styles: [
+        `
+            main {
+                width: 32rem;
+                max-height: 65vh;
+                max-width: calc(100vw - 4rem);
+            }
+        `,
+    ],
 })
 export class BookingModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -69,8 +75,19 @@ export class BookingModalComponent implements OnInit {
 
     public async save() {
         this.form.markAllAsTouched();
+        if (this.form.controls.organiser.value && !this.form.controls.host.value) {
+            this.form.controls.host.setValue(this.form.controls.organiser.value.email);
+        }
         if (!this.form.valid || !this.form.value.resources?.length) {
-            return notifyError('Some form fields are invalid');
+            const list = [];
+            for (const key in this.form.controls) {
+                if (this.form.controls[key].invalid) {
+                    list.push(key);
+                }
+            }
+            return notifyError(
+                `Some form fields are not valid: [${list.join(', ')}]`
+            );
         }
         const value = this.form.value;
         this.loading = 'Check space availability...';
