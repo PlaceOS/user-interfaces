@@ -19847,12 +19847,16 @@ class CheckinStateService {
         });
     }
     checkinGuest() {
+        var _a, _b;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const guest = this._guest.getValue();
             const event = this._event.getValue();
             if (!guest || !event)
                 return;
-            yield this._events.checkInGuest(event.id, guest.email);
+            yield this._events.checkInGuest(event.id, guest.email, {
+                system_id: ((_a = event.system) === null || _a === void 0 ? void 0 : _a.id) || ((_b = event.resources[0]) === null || _b === void 0 ? void 0 : _b.id),
+                state: true
+            });
         });
     }
     printPass() {
