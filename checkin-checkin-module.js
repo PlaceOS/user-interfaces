@@ -7416,9 +7416,9 @@ function CheckinResultsComponent_div_0_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
 } if (rf & 2) {
     const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]();
-    var tmp_0_0 = null;
-    var tmp_2_0 = null;
-    var tmp_3_0 = null;
+    let tmp_0_0 = null;
+    let tmp_2_0 = null;
+    let tmp_3_0 = null;
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](4);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate2"](" Welcome, you have a meeting at ", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind2"](5, 6, ((tmp_0_0 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](6, 9, ctx_r0.event)) == null ? null : tmp_0_0.event_start) || "", "shortDate"), " with ", (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](7, 11, ctx_r0.event).organiser == null ? null : _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](7, 11, ctx_r0.event).organiser.name) || "", ".");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](5);
@@ -18674,7 +18674,7 @@ CheckinQRScanComponent.ɵfac = function CheckinQRScanComponent_Factory(t) { retu
 CheckinQRScanComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({ type: CheckinQRScanComponent, selectors: [["", "checkin-qr-scan", ""]], viewQuery: function CheckinQRScanComponent_Query(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵviewQuery"](_c0, true);
     } if (rf & 2) {
-        var _t;
+        let _t;
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵloadQuery"]()) && (ctx._video_el = _t.first);
     } }, attrs: _c1, decls: 12, vars: 3, consts: [[1, "bg-white", "rounded", "shadow", "overflow-hidden", "relative", "flex", "flex-col", "items-center"], [1, "mt-6", "mb-4"], ["appearance", "outline"], ["matInput", "", "placeholder", "Enter email...", "type", "email", "autocomplete", "off", 3, "ngModel", "ngModelChange", "blur", "keyup.enter"], ["id", "qr-stream", "playsinline", "", "width", "640", "height", "480", "autoplay", "", 1, "rounded", "m-4", "bg-gray-200", "border", "border-gray-500"], ["video", ""], ["mat-icon-button", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["className", "material-icons"]], template: function CheckinQRScanComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "div", 0);
