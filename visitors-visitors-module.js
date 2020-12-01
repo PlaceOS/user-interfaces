@@ -1151,10 +1151,11 @@ class VisitorsStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         this.clearInterval('poll');
     }
     checkGuestIn(event, user) {
+        var _a, _b;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const new_user = yield this._events
                 .checkInGuest(event.id, user.id, {
-                system_id: event.system.id,
+                system_id: ((_a = event.system) === null || _a === void 0 ? void 0 : _a.id) || ((_b = event.resources[0]) === null || _b === void 0 ? void 0 : _b.id),
                 state: true,
             })
                 .catch((e) => {
@@ -1168,10 +1169,11 @@ class VisitorsStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         });
     }
     checkGuestOut(event, user) {
+        var _a, _b;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const new_user = yield this._events
                 .checkInGuest(event.id, user.id, {
-                system_id: event.system.id,
+                system_id: ((_a = event.system) === null || _a === void 0 ? void 0 : _a.id) || ((_b = event.resources[0]) === null || _b === void 0 ? void 0 : _b.id),
                 state: false,
             })
                 .catch((e) => {
@@ -1189,10 +1191,13 @@ class VisitorsStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             const guests = event.attendees.filter((user) => user.is_external && !user.checked_in);
             if (guests.length <= 0)
                 throw new Error('No Guests to checkin');
-            const attendees = yield Promise.all(guests.map((user) => this._events.checkInGuest(event.id, user.id, {
-                system_id: event.system.id,
-                state: true,
-            }))).catch((e) => {
+            const attendees = yield Promise.all(guests.map((user) => {
+                var _a, _b;
+                return this._events.checkInGuest(event.id, user.id, {
+                    system_id: ((_a = event.system) === null || _a === void 0 ? void 0 : _a.id) || ((_b = event.resources[0]) === null || _b === void 0 ? void 0 : _b.id),
+                    state: true,
+                });
+            })).catch((e) => {
                 Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_2__["notifyError"])(`Error checking in all guests for ${event.organiser.name}'s meeting`);
                 throw e;
             });
@@ -1207,10 +1212,13 @@ class VisitorsStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             const guests = event.attendees.filter((user) => user.is_external && user.checked_in && !user.organizer);
             if (guests.length <= 0)
                 throw new Error('No Guests to checkout');
-            const attendees = yield Promise.all(guests.map((user) => this._events.checkInGuest(event.id, user.id, {
-                system_id: event.system.id,
-                state: false,
-            }))).catch((e) => {
+            const attendees = yield Promise.all(guests.map((user) => {
+                var _a, _b;
+                return this._events.checkInGuest(event.id, user.id, {
+                    system_id: ((_a = event.system) === null || _a === void 0 ? void 0 : _a.id) || ((_b = event.resources[0]) === null || _b === void 0 ? void 0 : _b.id),
+                    state: false,
+                });
+            })).catch((e) => {
                 Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_2__["notifyError"])(`Error checking out all guests from ${event.organiser.name}'s meeting`);
                 throw e;
             });
