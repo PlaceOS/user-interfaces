@@ -245,6 +245,163 @@ ExploreSearchComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵd
 
 /***/ }),
 
+/***/ "2h+Z":
+/*!*************************************************************************************************************!*\
+  !*** /home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-desk-info.component.ts ***!
+  \*************************************************************************************************************/
+/*! exports provided: ExploreDeskInfoComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ExploreDeskInfoComponent", function() { return ExploreDeskInfoComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "EM62");
+/* harmony import */ var _user_interfaces_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @user-interfaces/components */ "Rc+I");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common */ "2kYt");
+
+
+
+
+function ExploreDeskInfoComponent_p_5_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "p", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate"](ctx_r0.user);
+} }
+function ExploreDeskInfoComponent_p_6_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "p", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](3, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind2"](2, 2, ctx_r1.start, "shortTime"), " \u2013 ", _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind2"](3, 5, ctx_r1.end, "shortTime"), " ");
+} }
+class ExploreDeskInfoComponent {
+    constructor(_details, _element) {
+        this._details = _details;
+        this._element = _element;
+        /** Space to display details for */
+        this.map_id = this._details.map_id;
+        this.user = this._details.user;
+        this.start = this._details.start;
+        this.end = this._details.end;
+    }
+    ngOnInit(tries = 0) {
+        if (tries > 10)
+            return;
+        setTimeout(() => {
+            var _a;
+            const parent = (_a = this._element.nativeElement.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement;
+            if (!parent)
+                return this.ngOnInit(++tries);
+            const position = {
+                y: parseInt(parent.style.top, 10) / 100,
+                x: parseInt(parent.style.left, 10) / 100,
+            };
+            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
+            this.x_pos = position.x >= 0.5 ? 'right' : 'left';
+        }, 200);
+    }
+    get available_until() {
+        return '';
+    }
+}
+ExploreDeskInfoComponent.ɵfac = function ExploreDeskInfoComponent_Factory(t) { return new (t || ExploreDeskInfoComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_user_interfaces_components__WEBPACK_IMPORTED_MODULE_1__["MAP_FEATURE_DATA"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"])); };
+ExploreDeskInfoComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: ExploreDeskInfoComponent, selectors: [["explore-desk-info"]], decls: 7, vars: 6, consts: [["name", "space-info", 3, "id"], [1, "arrow"], [1, "details"], [1, "m-0", "font-medium"], ["class", "mt-2 text-sm", 4, "ngIf"], ["class", "mt-1 text-sm", 4, "ngIf"], [1, "mt-2", "text-sm"], [1, "mt-1", "text-sm"]], template: function ExploreDeskInfoComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](1, "div", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](2, "div", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](3, "h4", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](5, ExploreDeskInfoComponent_p_5_Template, 2, 1, "p", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](6, ExploreDeskInfoComponent_p_6_Template, 4, 8, "p", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+    } if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵclassMap"]("absolute rounded bg-white p-4 top-0 left-0 shadow " + ctx.x_pos + " " + ctx.y_pos);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("id", ctx.map_id);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate"](ctx.map_id);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx.user);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx.start);
+    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["DatePipe"]], styles: ["[_nghost-%COMP%] {\n                position: absolute;\n                top: 50%;\n                left: 50%;\n                transform: translate(-50%, -50%);\n                pointer-events: none;\n                z-index: 1;\n            }\n\n            [name='space-info'][_ngcontent-%COMP%] {\n                width: 16rem;\n            }\n\n            [name='status'][_ngcontent-%COMP%] {\n                background-color: #43a047;\n                font-weight: 500;\n            }\n\n            [name='status'].busy[_ngcontent-%COMP%] {\n                background-color: #e53935;\n            }\n\n            [name='status'].pending[_ngcontent-%COMP%] {\n                background-color: #ffb300;\n            }\n\n            [name='status'].not-bookable[_ngcontent-%COMP%] {\n                background-color: #757575;\n            }"] });
+/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](ExploreDeskInfoComponent, [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
+        args: [{
+                selector: 'explore-desk-info',
+                template: `
+        <div
+            name="space-info"
+            [id]="map_id"
+            [class]="
+                'absolute rounded bg-white p-4 top-0 left-0 shadow ' +
+                x_pos +
+                ' ' +
+                y_pos
+            "
+        >
+            <div class="arrow"></div>
+            <div class="details">
+                <h4 class="m-0 font-medium">{{ map_id }}</h4>
+                <p class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
+                <p class="mt-1 text-sm" *ngIf="start">
+                    {{ start | date: 'shortTime' }} &ndash;
+                    {{ end | date: 'shortTime' }}
+                </p>
+            </div>
+        </div>
+    `,
+                styles: [
+                    `
+            :host {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            [name='space-info'] {
+                width: 16rem;
+            }
+
+            [name='status'] {
+                background-color: #43a047;
+                font-weight: 500;
+            }
+
+            [name='status'].busy {
+                background-color: #e53935;
+            }
+
+            [name='status'].pending {
+                background-color: #ffb300;
+            }
+
+            [name='status'].not-bookable {
+                background-color: #757575;
+            }
+        `,
+                ],
+            }]
+    }], function () { return [{ type: undefined, decorators: [{
+                type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"],
+                args: [_user_interfaces_components__WEBPACK_IMPORTED_MODULE_1__["MAP_FEATURE_DATA"]]
+            }] }, { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] }]; }, null); })();
+
+
+/***/ }),
+
 /***/ "3Bmc":
 /*!*****************************************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-booking-modal.component.ts ***!
@@ -1130,6 +1287,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./explore-zoom-control.component */ "gGs/");
 /* harmony import */ var _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./explore-device-info.component */ "6j8/");
 /* harmony import */ var _explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./explore-booking-modal.component */ "3Bmc");
+/* harmony import */ var _explore_desk_info_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./explore-desk-info.component */ "2h+Z");
+
 
 
 
@@ -1149,6 +1308,7 @@ const COMPONENTS = [
     _explore_search_component__WEBPACK_IMPORTED_MODULE_7__["ExploreSearchComponent"],
     _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreSpaceInfoComponent"],
     _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeviceInfoComponent"],
+    _explore_desk_info_component__WEBPACK_IMPORTED_MODULE_12__["ExploreDeskInfoComponent"],
     _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__["ExploreZoomControlComponent"],
     _explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["ExploreBookingModalComponent"],
 ];
@@ -1167,6 +1327,7 @@ SharedExploreModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefi
         _explore_search_component__WEBPACK_IMPORTED_MODULE_7__["ExploreSearchComponent"],
         _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreSpaceInfoComponent"],
         _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeviceInfoComponent"],
+        _explore_desk_info_component__WEBPACK_IMPORTED_MODULE_12__["ExploreDeskInfoComponent"],
         _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__["ExploreZoomControlComponent"],
         _explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["ExploreBookingModalComponent"]], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_0__["CommonModule"],
         _user_interfaces_components__WEBPACK_IMPORTED_MODULE_3__["ComponentsModule"],
@@ -1177,6 +1338,7 @@ SharedExploreModule.ɵinj = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefi
         _explore_search_component__WEBPACK_IMPORTED_MODULE_7__["ExploreSearchComponent"],
         _explore_space_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreSpaceInfoComponent"],
         _explore_device_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeviceInfoComponent"],
+        _explore_desk_info_component__WEBPACK_IMPORTED_MODULE_12__["ExploreDeskInfoComponent"],
         _explore_zoom_control_component__WEBPACK_IMPORTED_MODULE_9__["ExploreZoomControlComponent"],
         _explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_11__["ExploreBookingModalComponent"]] }); })();
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](SharedExploreModule, [{
@@ -2125,6 +2287,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _explore_spaces_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./explore-spaces.service */ "fljt");
 /* harmony import */ var _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @user-interfaces/organisation */ "dJst");
 /* harmony import */ var _explore_device_info_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./explore-device-info.component */ "6j8/");
+/* harmony import */ var _explore_desk_info_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./explore-desk-info.component */ "2h+Z");
+
 
 
 
@@ -2207,30 +2371,12 @@ class ExploreDesksService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         }
         let binding = Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__["getModule"])(system_id, 'AreaManagement').binding(this._level.id);
         this.subscription(`desks_in_use`, binding.listen().subscribe((d) => {
-            var _a, _b;
             const devices = ((d === null || d === void 0 ? void 0 : d.value) || []).filter((v) => v.location !== 'desk');
             const desks = ((d === null || d === void 0 ? void 0 : d.value) || []).filter((v) => v.location === 'desk');
             this._in_use.next(desks.map((v) => v.map_id));
             this._reserved.next(desks.filter((v) => !v.at_location).map((v) => v.map_id));
-            const list = [];
-            for (const device of devices) {
-                const x = device.x / device.map_width;
-                const y = device.y / device.map_height;
-                list.push({
-                    location: {
-                        x: ((_a = device.coordinates_from) === null || _a === void 0 ? void 0 : _a.includes('right')) ? 1 - x : x,
-                        y: ((_b = device.coordinates_from) === null || _b === void 0 ? void 0 : _b.includes('bottom')) ? 1 - y : y,
-                    },
-                    content: _explore_device_info_component__WEBPACK_IMPORTED_MODULE_7__["ExploreDeviceInfoComponent"],
-                    data: Object.assign(Object.assign({}, device), { system: system_id })
-                });
-            }
-            list.sort((a, b) => {
-                const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
-                const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
-                return dist_a - dist_b;
-            });
-            this._state.setFeatures('devices', list);
+            this.processDevices(devices, system_id);
+            // this.processDesks(desks);
         }));
         binding.bind();
         this._bindings.push(binding);
@@ -2253,6 +2399,40 @@ class ExploreDesksService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
             };
         }
         this._state.setStyles('desks', style_map);
+    }
+    processDevices(devices, system_id) {
+        var _a, _b;
+        const list = [];
+        for (const device of devices) {
+            const x = device.x / device.map_width;
+            const y = device.y / device.map_height;
+            list.push({
+                location: {
+                    x: ((_a = device.coordinates_from) === null || _a === void 0 ? void 0 : _a.includes('right')) ? 1 - x : x,
+                    y: ((_b = device.coordinates_from) === null || _b === void 0 ? void 0 : _b.includes('bottom')) ? 1 - y : y,
+                },
+                content: _explore_device_info_component__WEBPACK_IMPORTED_MODULE_7__["ExploreDeviceInfoComponent"],
+                data: Object.assign(Object.assign({}, device), { system: system_id })
+            });
+        }
+        list.sort((a, b) => {
+            const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
+            const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
+            return dist_a - dist_b;
+        });
+        this._state.setFeatures('devices', list);
+    }
+    processDesks(desks) {
+        const list = [];
+        for (const desk of desks) {
+            list.push({
+                location: desk.map_id,
+                content: _explore_desk_info_component__WEBPACK_IMPORTED_MODULE_8__["ExploreDeskInfoComponent"],
+                hover: true,
+                data: { map_id: desk.name, status: this._statuses[desk.map_id] }
+            });
+        }
+        this._state.setFeatures('desks', list);
     }
 }
 ExploreDesksService.ɵfac = function ExploreDesksService_Factory(t) { return new (t || ExploreDesksService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_4__["ExploreStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_6__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_user_interfaces_common__WEBPACK_IMPORTED_MODULE_3__["SettingsService"])); };
@@ -2383,7 +2563,7 @@ ExploreMapControlComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["�
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ((tmp_0_0 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](2, 2, ctx.buildings)) == null ? null : tmp_0_0.length) > 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", (tmp_1_0 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind1"](4, 4, ctx.levels)) == null ? null : tmp_1_0.length);
-    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_4__["MatFormField"], _angular_material_select__WEBPACK_IMPORTED_MODULE_5__["MatSelect"], _angular_forms__WEBPACK_IMPORTED_MODULE_6__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_6__["NgModel"], _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgForOf"], _angular_material_core__WEBPACK_IMPORTED_MODULE_7__["MatOption"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                padding: 0.5rem;\n            }\n\n            mat-form-field[has-bld=\"true\"][_ngcontent-%COMP%] {\n                max-width: calc(50vw - 2.5rem);\n            }\n\n            [full][_nghost-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n                max-width: calc(50% - 2.5rem);\n            }"] });
+    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_4__["MatFormField"], _angular_material_select__WEBPACK_IMPORTED_MODULE_5__["MatSelect"], _angular_forms__WEBPACK_IMPORTED_MODULE_6__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_6__["NgModel"], _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgForOf"], _angular_material_core__WEBPACK_IMPORTED_MODULE_7__["MatOption"]], pipes: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["AsyncPipe"]], styles: ["[_nghost-%COMP%] {\n                padding: 0.5rem;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                min-width: 10rem;\n            }\n\n            mat-form-field[has-bld=\"true\"][_ngcontent-%COMP%] {\n                max-width: calc(50vw - 2.5rem);\n            }\n\n            [full][_nghost-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n                max-width: calc(50% - 2.5rem);\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](ExploreMapControlComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
@@ -2436,6 +2616,10 @@ ExploreMapControlComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["�
                     `
             :host {
                 padding: 0.5rem;
+            }
+
+            mat-form-field {
+                min-width: 10rem;
             }
 
             mat-form-field[has-bld="true"] {

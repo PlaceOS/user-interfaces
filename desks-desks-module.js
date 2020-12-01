@@ -2388,10 +2388,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @user-interfaces/organisation */ "dJst");
 /* harmony import */ var _user_interfaces_users__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @user-interfaces/users */ "mjT4");
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ "w8Fe");
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs */ "+kfY");
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ "0Wlh");
-/* harmony import */ var _desk_flow_confirm_modal_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./desk-flow-confirm-modal.component */ "5MZz");
-/* harmony import */ var _desk_flow_questions_modal_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./desk-flow-questions-modal.component */ "ltfU");
+/* harmony import */ var libs_explore_src_lib_explore_desk_info_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! libs/explore/src/lib/explore-desk-info.component */ "2h+Z");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs */ "+kfY");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs/operators */ "0Wlh");
+/* harmony import */ var _desk_flow_confirm_modal_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./desk-flow-confirm-modal.component */ "5MZz");
+/* harmony import */ var _desk_flow_questions_modal_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./desk-flow-questions-modal.component */ "ltfU");
+
 
 
 
@@ -2422,30 +2424,30 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         this._settings = _settings;
         this._org = _org;
         this._dialog = _dialog;
-        this._options = new rxjs__WEBPACK_IMPORTED_MODULE_10__["BehaviorSubject"]({
+        this._options = new rxjs__WEBPACK_IMPORTED_MODULE_11__["BehaviorSubject"]({
             date: new Date().valueOf(),
             zones: [],
         });
-        this._loading = new rxjs__WEBPACK_IMPORTED_MODULE_10__["BehaviorSubject"](false);
+        this._loading = new rxjs__WEBPACK_IMPORTED_MODULE_11__["BehaviorSubject"](false);
         this.options = this._options.asObservable();
         this.loading = this._loading.asObservable();
-        this.desk_list = this._options.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["debounceTime"])(500), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["distinctUntilChanged"])(), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["switchMap"])((opts) => {
+        this.desk_list = this._options.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["debounceTime"])(500), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["distinctUntilChanged"])(), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["switchMap"])((opts) => {
             const { zones } = opts;
             if (zones.length) {
                 const level = this._org.levelWithID(zones);
                 if (level) {
-                    return Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__["showMetadata"])(level.id, { name: 'desks' }).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["map"])((m) => m.details.map((i) => new _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["Desk"](Object.assign(Object.assign({}, i), { zone: level })))));
+                    return Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__["showMetadata"])(level.id, { name: 'desks' }).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["map"])((m) => m.details.map((i) => new _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["Desk"](Object.assign(Object.assign({}, i), { zone: level })))));
                 }
-                return Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__["listChildMetadata"])(zones[0], { name: 'desks' }).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["map"])((d) => d.reduce((l, m) => l.concat(m.metadata.desks.details instanceof Array
+                return Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__["listChildMetadata"])(zones[0], { name: 'desks' }).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["map"])((d) => d.reduce((l, m) => l.concat(m.metadata.desks.details instanceof Array
                     ? m.metadata.desks.details.map((i) => new _user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["Desk"](Object.assign(Object.assign({}, i), { zone: m.zone })))
                     : []), [])));
             }
             return Promise.resolve([]);
-        }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["shareReplay"])());
-        this.desk_availability = Object(rxjs__WEBPACK_IMPORTED_MODULE_10__["combineLatest"])([
+        }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["shareReplay"])());
+        this.desk_availability = Object(rxjs__WEBPACK_IMPORTED_MODULE_11__["combineLatest"])([
             this._options,
-            this.desk_list
-        ]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["debounceTime"])(500), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["distinctUntilChanged"])(), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["switchMap"])((details) => Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            this.desk_list,
+        ]).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["debounceTime"])(500), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["distinctUntilChanged"])(), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["switchMap"])((details) => Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             this._loading.next(true);
             const [options, desks] = details;
             const date = Object(date_fns__WEBPACK_IMPORTED_MODULE_9__["startOfDay"])(options.date ? new Date(options.date) : new Date());
@@ -2460,16 +2462,17 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
                 })
                     .catch((_) => []),
             ];
-        })), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["map"])((details) => {
+        })), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["map"])((details) => {
             const [desks, bookings] = details;
             const active_bookings = bookings.filter((bkn) => bkn.status !== 'declined');
             const bookable_desks = desks.filter((i) => i.bookable);
+            this.processDeskBookings(details);
             this._loading.next(false);
             return bookable_desks.filter((desk) => !active_bookings.find((bkn) => bkn.asset_id === desk.id));
-        }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["shareReplay"])());
+        }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["shareReplay"])());
         this.subscription('level', this._state.level.subscribe((lvl) => lvl ? this.setOptions({ zones: [lvl.id] }) : ''));
-        this.subscription('availability', Object(rxjs__WEBPACK_IMPORTED_MODULE_10__["combineLatest"])([this.desk_availability, this.desk_list])
-            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["debounceTime"])(500))
+        this.subscription('availability', Object(rxjs__WEBPACK_IMPORTED_MODULE_11__["combineLatest"])([this.desk_availability, this.desk_list])
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["debounceTime"])(500))
             .subscribe((details) => this.handleDeskAvailability(details)));
     }
     startPolling(delay = 5000) {
@@ -2491,21 +2494,21 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
                 return Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_5__["notifyError"])('A host needs to be set before booking a desk.');
             }
             const level = this._org.levelWithID(desk.zone instanceof Array ? desk.zone : [(_a = desk.zone) === null || _a === void 0 ? void 0 : _a.id]);
-            let ref = this._dialog.open(_desk_flow_questions_modal_component__WEBPACK_IMPORTED_MODULE_13__["DeskFlowQuestionsModalComponent"]);
+            let ref = this._dialog.open(_desk_flow_questions_modal_component__WEBPACK_IMPORTED_MODULE_14__["DeskFlowQuestionsModalComponent"]);
             let success = yield Promise.race([
                 ref.componentInstance.event
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["first"])((_) => _.reason === 'done'))
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["first"])((_) => _.reason === 'done'))
                     .toPromise(),
                 ref
                     .afterClosed()
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["map"])((_) => null))
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["map"])((_) => null))
                     .toPromise(),
             ]);
             if (!success)
                 return;
             ref.close();
             const options = this._options.getValue();
-            ref = this._dialog.open(_desk_flow_confirm_modal_component__WEBPACK_IMPORTED_MODULE_12__["DeskFlowConfirmModalComponent"], {
+            ref = this._dialog.open(_desk_flow_confirm_modal_component__WEBPACK_IMPORTED_MODULE_13__["DeskFlowConfirmModalComponent"], {
                 data: {
                     desk,
                     date: options.date || new Date().valueOf(),
@@ -2515,11 +2518,11 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             });
             success = yield Promise.race([
                 ref.componentInstance.event
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["first"])((_) => _.reason === 'done'))
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["first"])((_) => _.reason === 'done'))
                     .toPromise(),
                 ref
                     .afterClosed()
-                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_11__["map"])((_) => null))
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["map"])((_) => null))
                     .toPromise(),
             ]);
             if (!success)
@@ -2578,11 +2581,13 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
                 actions.push({
                     id: desk.id,
                     action: 'click',
+                    zone: false,
                     callback: () => this.bookDesk(desk),
                 });
                 actions.push({
                     id: desk.id,
                     action: 'touchend',
+                    zone: false,
                     callback: () => this.bookDesk(desk),
                 });
             }
@@ -2590,7 +2595,26 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         console.log('Styles:', style_map, available, desks);
         this._state.setStyles('desks', style_map);
         this._state.setActions('desks', actions);
-        console.log('Actions:', actions);
+    }
+    processDeskBookings(details) {
+        const [desks, bookings] = details;
+        const list = [];
+        for (const desk of desks) {
+            const booking = bookings.find((bkn) => bkn.asset_id === desk.id);
+            list.push({
+                location: desk.id,
+                content: libs_explore_src_lib_explore_desk_info_component__WEBPACK_IMPORTED_MODULE_10__["ExploreDeskInfoComponent"],
+                hover: true,
+                data: {
+                    map_id: desk.name,
+                    user: booking === null || booking === void 0 ? void 0 : booking.user_name,
+                    start: booking === null || booking === void 0 ? void 0 : booking.date,
+                    end: (booking === null || booking === void 0 ? void 0 : booking.date) + (booking === null || booking === void 0 ? void 0 : booking.duration) * 60 * 1000,
+                    status: booking ? 'busy' : 'free',
+                },
+            });
+        }
+        this._state.setFeatures('desks', list);
     }
 }
 DeskFlowStateService.ɵfac = function DeskFlowStateService_Factory(t) { return new (t || DeskFlowStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_user_interfaces_explore__WEBPACK_IMPORTED_MODULE_6__["ExploreStateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_user_interfaces_bookings__WEBPACK_IMPORTED_MODULE_4__["BookingsService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_user_interfaces_users__WEBPACK_IMPORTED_MODULE_8__["StaffService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_user_interfaces_common__WEBPACK_IMPORTED_MODULE_5__["SettingsService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_user_interfaces_organisation__WEBPACK_IMPORTED_MODULE_7__["OrganisationService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_2__["MatDialog"])); };
