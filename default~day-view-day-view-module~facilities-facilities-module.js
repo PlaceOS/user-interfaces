@@ -84,8 +84,17 @@ class BookingModalComponent {
         var _a;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             this.form.markAllAsTouched();
+            if (this.form.controls.organiser.value && !this.form.controls.host.value) {
+                this.form.controls.host.setValue(this.form.controls.organiser.value.email);
+            }
             if (!this.form.valid || !((_a = this.form.value.resources) === null || _a === void 0 ? void 0 : _a.length)) {
-                return Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_4__["notifyError"])('Some form fields are invalid');
+                const list = [];
+                for (const key in this.form.controls) {
+                    if (this.form.controls[key].invalid) {
+                        list.push(key);
+                    }
+                }
+                return Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_4__["notifyError"])(`Some form fields are not valid: [${list.join(', ')}]`);
             }
             const value = this.form.value;
             this.loading = 'Check space availability...';
@@ -138,7 +147,7 @@ BookingModalComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵde
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngIf", !ctx.loading)("ngIfElse", _r2);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](1);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngIf", !ctx.loading);
-    } }, directives: [_angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatButton"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_2__["MatDialogClose"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_7__["IconComponent"], _angular_common__WEBPACK_IMPORTED_MODULE_8__["NgIf"], _event_form_component__WEBPACK_IMPORTED_MODULE_9__["EventFormComponent"], _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_10__["MatSpinner"]], styles: ["main[_ngcontent-%COMP%] {\n            width: 32rem;\n            max-height: 65vh;\n            max-width: calc(100vw - 4rem);\n        }"] });
+    } }, directives: [_angular_material_button__WEBPACK_IMPORTED_MODULE_6__["MatButton"], _angular_material_dialog__WEBPACK_IMPORTED_MODULE_2__["MatDialogClose"], _libs_components_src_lib_icon_icon_component__WEBPACK_IMPORTED_MODULE_7__["IconComponent"], _angular_common__WEBPACK_IMPORTED_MODULE_8__["NgIf"], _event_form_component__WEBPACK_IMPORTED_MODULE_9__["EventFormComponent"], _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_10__["MatSpinner"]], styles: ["main[_ngcontent-%COMP%] {\n                width: 32rem;\n                max-height: 65vh;\n                max-width: calc(100vw - 4rem);\n            }"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](BookingModalComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"],
         args: [{
@@ -167,13 +176,15 @@ BookingModalComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵde
             </main>
         </ng-template>
     `,
-                styles: [`
-        main {
-            width: 32rem;
-            max-height: 65vh;
-            max-width: calc(100vw - 4rem);
-        }
-    `],
+                styles: [
+                    `
+            main {
+                width: 32rem;
+                max-height: 65vh;
+                max-width: calc(100vw - 4rem);
+            }
+        `,
+                ],
             }]
     }], function () { return [{ type: undefined, decorators: [{
                 type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Inject"],

@@ -2061,7 +2061,7 @@ class ExploreZonesService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
                 filled < .4 ? 'free' : filled < .75 ? 'pending' : 'busy';
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
-                content: `${zone.count} ${zone.count === 1 ? 'Person' : 'People'}`
+                content: `${zone.count} ${zone.count === 1 ? 'Device' : 'Devices'}`
             };
             labels.push(this._labels[zone.area_id]);
         }
