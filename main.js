@@ -10249,7 +10249,7 @@ function setupCache(cache, notify = () => null, interval = 5 * 60 * 1000) {
             const current = `current version is ${event.current.hash}`;
             const available = `available version is ${event.available.hash}`;
             Object(_general__WEBPACK_IMPORTED_MODULE_0__["log"])('CACHE', `Update available: ${current} ${available}`);
-            activateUpdate();
+            activateUpdate(cache);
         });
         _activated = cache.activated.subscribe(() => {
             Object(_general__WEBPACK_IMPORTED_MODULE_0__["log"])('CACHE', `Updates activated. Reloading...`);
@@ -10257,7 +10257,7 @@ function setupCache(cache, notify = () => null, interval = 5 * 60 * 1000) {
         });
         _timer = setInterval(() => {
             Object(_general__WEBPACK_IMPORTED_MODULE_0__["log"])('CACHE', `Checking for updates...`);
-            this._cache.checkForUpdate();
+            cache.checkForUpdate();
         }, interval);
     }
 }
@@ -10265,10 +10265,10 @@ function setupCache(cache, notify = () => null, interval = 5 * 60 * 1000) {
  * Update the cache and reload the page
  *
  */
-function activateUpdate() {
-    if (this._cache.isEnabled) {
+function activateUpdate(cache) {
+    if (cache.isEnabled) {
         Object(_general__WEBPACK_IMPORTED_MODULE_0__["log"])('CACHE', `Activating changes to the cache...`);
-        this._cache.activateUpdate().then(() => {
+        cache.activateUpdate().then(() => {
             Object(_notifications__WEBPACK_IMPORTED_MODULE_1__["notifyInfo"])('Newer version of the application is available', 'Refresh', () => location.reload(true));
         });
     }
@@ -11621,15 +11621,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "68a82b3",
-    "hash": "68a82b3",
+    "raw": "92f3c1c",
+    "hash": "92f3c1c",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "68a82b3",
+    "suffix": "92f3c1c",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606803625997
+    "time": 1606866086844
 };
 /* tslint:enable */
 
