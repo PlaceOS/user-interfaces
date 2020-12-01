@@ -29,7 +29,7 @@ export function setupCache(
             const current = `current version is ${event.current.hash}`;
             const available = `available version is ${event.available.hash}`;
             log('CACHE', `Update available: ${current} ${available}`);
-            activateUpdate();
+            activateUpdate(cache);
         });
         _activated = cache.activated.subscribe(() => {
             log('CACHE', `Updates activated. Reloading...`);
@@ -39,7 +39,7 @@ export function setupCache(
         });
         _timer = <any>setInterval(() => {
             log('CACHE', `Checking for updates...`);
-            this._cache.checkForUpdate();
+            cache.checkForUpdate();
         }, interval);
     }
 }
@@ -48,10 +48,10 @@ export function setupCache(
  * Update the cache and reload the page
  *
  */
-function activateUpdate() {
-    if (this._cache.isEnabled) {
+function activateUpdate(cache: SwUpdate) {
+    if (cache.isEnabled) {
         log('CACHE', `Activating changes to the cache...`);
-        this._cache.activateUpdate().then(() => {
+        cache.activateUpdate().then(() => {
             notifyInfo('Newer version of the application is available', 'Refresh', () =>
                 location.reload(true)
             );
