@@ -213,14 +213,11 @@ export class SpaceFlowService extends BaseClass {
             );
         }
         this._loading_event.next(true);
-        const values = {
+        const values = new CalendarEvent({
             ...this._event.getValue().toJSON(),
             ...this._form.getValue().value,
-        };
-        return (values.id
-            ? this._events.update(values.id, values)
-            : this._events.add(values)
-        ).then(
+        });
+        return this._events.save(values).then(
             () => this._loading_event.next(false),
             () => this._loading_event.next(false)
         );

@@ -233,6 +233,7 @@ export class BaseAPIService<T extends {} = BaseDataClass> extends BaseClass {
      * @param q Query parameters to pass to request
      */
     public save(data: HashMap, q: HashMap = {}) {
+        data = data.toJSON ? data.toJSON() : data;
         return data.id ? this.update(data.id, data, q) : this.add(data, q);
     }
 
