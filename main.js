@@ -1247,6 +1247,10 @@ class OrganisationService {
     }
     set building(bld) {
         this.active_building_subject.next(bld);
+        this._service.overrides = [
+            this._settings.details,
+            this.buildingSettings(bld.id).details,
+        ];
     }
     /** Get building by id */
     find(id) {
@@ -1317,6 +1321,7 @@ class OrganisationService {
      * Load buildings data for the organisation
      */
     loadBuildings() {
+        var _a;
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const building_list = yield Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__["queryZones"])({
                 tags: 'building',
@@ -1324,9 +1329,13 @@ class OrganisationService {
             })
                 .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])((i) => i.data))
                 .toPromise();
-            const buildings = building_list.map((bld) => new _building_class__WEBPACK_IMPORTED_MODULE_6__["Building"](bld));
+            const buildings = [];
+            for (const bld of building_list) {
+                const bindings = (_a = (yield Object(_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__["showMetadata"])(bld.id, { name: 'bindings' }).toPromise())) === null || _a === void 0 ? void 0 : _a.details;
+                buildings.push(new _building_class__WEBPACK_IMPORTED_MODULE_6__["Building"](Object.assign(Object.assign({}, bld), { bindings })));
+            }
             this.buildings_subject.next(buildings);
-            const id = localStorage.getItem(`CATERING.building`);
+            const id = localStorage.getItem(`PLACEOS.building`);
             if (id && this.buildings.find((bld) => bld.id === id)) {
                 this.active_building_subject.next(this.buildings.find((bld) => bld.id === id));
             }
@@ -1420,7 +1429,7 @@ class OrganisationService {
     }
     /** Save building selection */
     saveBuilding(id) {
-        localStorage.setItem(`CATERING.building`, id);
+        localStorage.setItem(`PLACEOS.building`, id);
     }
 }
 OrganisationService.ɵfac = function OrganisationService_Factory(t) { return new (t || OrganisationService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_user_interfaces_common__WEBPACK_IMPORTED_MODULE_9__["SettingsService"])); };
@@ -11456,6 +11465,7 @@ class Building extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_0__["Bas
                 }
             }
         }
+        this.bindings = raw_data.bindings || {};
         this.searchables = searchables;
         this.timezone = raw_data.timezone || disc_info.timezone || settings.timezone || '';
         this.catering_hours = raw_data.catering_hours || disc_info.catering_hours || settings.catering_hours || { start: 7, end: 20 };
@@ -11632,15 +11642,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "a786e27",
-    "hash": "a786e27",
+    "raw": "0b1a4ce",
+    "hash": "0b1a4ce",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "a786e27",
+    "suffix": "0b1a4ce",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606879176784
+    "time": 1606887782491
 };
 /* tslint:enable */
 
