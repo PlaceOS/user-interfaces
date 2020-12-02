@@ -96,7 +96,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         if (!building) {
             return;
         }
-        const system_id = this._org.organisation.bindings.area_management;
+        const system_id = this._org.organisation.bindings.area_management || this._org.building.bindings.area_management;
         if (!system_id) {
             return;
         }

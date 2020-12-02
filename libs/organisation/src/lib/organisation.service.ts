@@ -79,6 +79,11 @@ export class OrganisationService {
     }
     public set building(bld: Building) {
         this.active_building_subject.next(bld);
+        this._service.overrides = [
+            this._settings.details,
+            this.buildingSettings(bld.id).details,
+        ];
+
     }
 
     /** Get building by id */
@@ -166,9 +171,13 @@ export class OrganisationService {
         } as any)
             .pipe(map((i) => i.data))
             .toPromise();
-        const buildings = building_list.map((bld) => new Building(bld));
+        const buildings = []
+        for (const bld of building_list) {
+            const bindings = (await showMetadata(bld.id, { name: 'bindings' }).toPromise())?.details;
+            buildings.push(new Building({ ...bld, bindings }));
+        }
         this.buildings_subject.next(buildings);
-        const id = localStorage.getItem(`CATERING.building`);
+        const id = localStorage.getItem(`PLACEOS.building`);
         if (id && this.buildings.find((bld) => bld.id === id)) {
             this.active_building_subject.next(this.buildings.find((bld) => bld.id === id));
         }
@@ -268,6 +277,6 @@ export class OrganisationService {
 
     /** Save building selection */
     public saveBuilding(id: string) {
-        localStorage.setItem(`CATERING.building`, id);
+        localStorage.setItem(`PLACEOS.building`, id);
     }
 }

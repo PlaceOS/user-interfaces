@@ -76,6 +76,8 @@ export class Building extends BaseDataClass {
     public readonly room_configurations: readonly RoomConfiguration[];
     /** Start and end hours catering can be delivered */
     public readonly catering_hours: { start: number, end: number };
+    /** PlaceOS bindings for applications */
+    public readonly bindings: HashMap<string>;
 
     public readonly orientations: HashMap<number>;
     public readonly attributes: readonly Identity[];
@@ -136,6 +138,7 @@ export class Building extends BaseDataClass {
                 }
             }
         }
+        this.bindings = raw_data.bindings || {};
         this.searchables = searchables;
         this.timezone = raw_data.timezone || disc_info.timezone || settings.timezone || '';
         this.catering_hours = raw_data.catering_hours || disc_info.catering_hours || settings.catering_hours || { start: 7, end: 20 };
