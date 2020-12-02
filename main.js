@@ -1278,6 +1278,11 @@ class OrganisationService {
                 throw err;
             });
             this._initialised.next(true);
+            if (window.debug) {
+                if (!window.application)
+                    window.application = {};
+                window.application.orgs = this;
+            }
         });
     }
     /**
@@ -6498,6 +6503,11 @@ class StaffService extends _user_interfaces_common__WEBPACK_IMPORTED_MODULE_5__[
                 this._active_user.next(new _user_class__WEBPACK_IMPORTED_MODULE_6__["StaffUser"](Object.assign(Object.assign({}, user), { is_logged_in: true })));
                 _sentry_browser__WEBPACK_IMPORTED_MODULE_7__["configureScope"](scope => scope.setUser({ email: user.email }));
             }
+            if (window.debug) {
+                if (!window.application)
+                    window.application = {};
+                window.application.user = this.current;
+            }
         });
     }
     format(item) {
@@ -11621,15 +11631,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "92f3c1c",
-    "hash": "92f3c1c",
+    "raw": "bc15fe6",
+    "hash": "bc15fe6",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "92f3c1c",
+    "suffix": "bc15fe6",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606866086844
+    "time": 1606870429643
 };
 /* tslint:enable */
 
@@ -12401,6 +12411,11 @@ class SettingsService extends _base_class__WEBPACK_IMPORTED_MODULE_7__["BaseClas
             }
             Object(_general__WEBPACK_IMPORTED_MODULE_5__["log"])('Settings', 'Successfully loaded settings');
             this._initialised.next(true);
+            if (window.debug) {
+                if (!window.application)
+                    window.application = {};
+                window.application.settings = this;
+            }
         });
     }
     /** Whether settings service has initialised */
