@@ -776,7 +776,7 @@ function log(type, msg, args, stream = 'debug', force = false, app_name = _app_n
  */
 function getItemWithKeys(keys, map) {
     const key = keys.shift();
-    if (map[key]) {
+    if (map && map[key]) {
         return keys.length > 0 ? getItemWithKeys(keys, map[key]) : map[key];
     }
     return null;
@@ -11642,15 +11642,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "0b1a4ce",
-    "hash": "0b1a4ce",
+    "raw": "7a7677d",
+    "hash": "7a7677d",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "0b1a4ce",
+    "suffix": "7a7677d",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606887782491
+    "time": 1606888651917
 };
 /* tslint:enable */
 
