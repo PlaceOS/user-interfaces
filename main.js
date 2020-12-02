@@ -409,6 +409,7 @@ class BaseAPIService extends _base_class__WEBPACK_IMPORTED_MODULE_4__["BaseClass
      * @param q Query parameters to pass to request
      */
     save(data, q = {}) {
+        data = data.toJSON ? data.toJSON() : data;
         return data.id ? this.update(data.id, data, q) : this.add(data, q);
     }
     /**
@@ -11631,15 +11632,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "bc15fe6",
-    "hash": "bc15fe6",
+    "raw": "a786e27",
+    "hash": "a786e27",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "bc15fe6",
+    "suffix": "a786e27",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606870429643
+    "time": 1606879176784
 };
 /* tslint:enable */
 
