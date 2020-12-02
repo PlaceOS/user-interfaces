@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { OrganisationService } from '@user-interfaces/organisation';
+import { StaffService } from '@user-interfaces/users';
 import { first } from 'rxjs/operators';
 import { DeskFlowStateService } from './desk-flow-state.service';
 
@@ -150,11 +151,14 @@ export class DeskFlowListingComponent {
 
     constructor(
         private _desks: DeskFlowStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _staff: StaffService
     ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first(_ => _)).toPromise();
+        await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
+        this._desks.setHost(this._staff.current);
         this.setOptions({ zones: [this._org.building.id] });
     }
 }

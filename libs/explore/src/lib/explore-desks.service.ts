@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { getModule, listen } from '@placeos/ts-client';
+import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
