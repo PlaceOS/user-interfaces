@@ -2365,7 +2365,7 @@ class ExploreDesksService extends _user_interfaces_common__WEBPACK_IMPORTED_MODU
         if (!building) {
             return;
         }
-        const system_id = this._org.organisation.bindings.area_management;
+        const system_id = this._org.organisation.bindings.area_management || this._org.building.bindings.area_management;
         if (!system_id) {
             return;
         }

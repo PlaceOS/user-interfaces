@@ -2458,7 +2458,7 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
                     period_start: Math.floor(date.valueOf() / 1000),
                     period_end: Math.floor(Object(date_fns__WEBPACK_IMPORTED_MODULE_9__["endOfDay"])(date).valueOf() / 1000),
                     type: 'desk',
-                    zone: (options.zones || [])[0],
+                    zones: (options.zones || [])[0],
                 })
                     .catch((_) => []),
             ];
