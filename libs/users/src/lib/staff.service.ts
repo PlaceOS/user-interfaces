@@ -41,6 +41,10 @@ export class StaffService extends BaseAPIService<StaffUser> {
             this._active_user.next(new StaffUser({ ...user, is_logged_in: true } as any));
             Sentry.configureScope(scope => scope.setUser({ email: user.email }));
         }
+        if (window.debug) {
+            if (!window.application) window.application = {};
+            window.application.user = this.current;
+        }
     }
 
     public format(item) {

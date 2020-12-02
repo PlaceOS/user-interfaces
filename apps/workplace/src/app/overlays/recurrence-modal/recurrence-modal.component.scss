@@ -1,4 +1,3 @@
-@import 'variables';
 
 .heading {
     flex: 1;
@@ -15,25 +14,25 @@ label {
         margin-bottom: 0.5em;
     }
     span {
-        color: $pending;
+        color: var(--pending);
     }
 
     &.error {
-        color: $error;
+        color: var(--error);
     }
 }
 
 .error-message {
     font-size: 0.75em;
     font-weight: 400;
-    color: $error;
+    color: var(--error);
     margin-top: -1em;
 }
 
 .field {
     display: flex;
 
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
     flex-wrap: wrap;
     // }
 

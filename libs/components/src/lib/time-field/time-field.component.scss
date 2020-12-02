@@ -1,5 +1,3 @@
-@import 'variables';
-@import 'mixins';
 
 :host {
     margin-bottom: 1em;
@@ -25,9 +23,9 @@
     }
 
     &:focus {
-        box-shadow: inset 0 0 0 1px $color-primary;
-        border-color: $color-primary;
-        outline-color: $color-primary;
+        box-shadow: inset 0 0 0 1px var(--primary);
+        border-color: var(--primary);
+        outline-color: var(--primary);
     }
 
     &[disabled='true'] {
@@ -41,7 +39,6 @@
     flex: 1;
     min-width: 50%;
     padding: 0.5em;
-    @include hide-text-overflow;
 }
 
 .icon {

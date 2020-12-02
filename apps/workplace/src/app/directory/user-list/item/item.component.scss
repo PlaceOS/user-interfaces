@@ -1,5 +1,3 @@
-@import 'variables';
-@import 'mixins';
 
 .space-details {
     position: relative;
@@ -30,7 +28,7 @@
     display: flex;
     align-items: center;
     flex: 1;
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         border-bottom: 1px solid #ccc;
     }
 }
@@ -39,7 +37,7 @@
     flex: 1;
     min-width: 50%;
     padding: 0.5em 1em;
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         padding: 1em;
     }
 }
@@ -47,10 +45,10 @@
 .info {
     display: flex;
     align-items: center;
-    color: rgba($font-dark, 0.65);
+    color: rgba(0,0,0, 0.65);
 
     a {
-        color: rgba($font-dark, 0.65);
+        color: rgba(0,0,0, 0.65);
     }
 }
 
@@ -74,7 +72,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         flex-direction: row;
         flex: 1;
     }
@@ -88,7 +86,7 @@ a[button] {
         margin-bottom: 0.5em;
     }
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         width: 12em;
         margin: 0.5em;
     }

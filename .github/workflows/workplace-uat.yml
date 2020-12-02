@@ -29,6 +29,8 @@ jobs:
 
             - name: Setup Node.js environment
               uses: actions/setup-node@v1.4.4
+              with:
+                node-version: '13'
 
             - name: Cache node modules
               uses: actions/cache@v1
@@ -49,7 +51,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: nx build workplace --aot
+              run: nx build workplace --configuration=staging --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

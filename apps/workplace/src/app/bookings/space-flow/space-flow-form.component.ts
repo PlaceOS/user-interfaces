@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@user-interfaces/common';
-import { addDays, addHours, addMinutes, roundToNearestMinutes } from 'date-fns';
+import { addDays, addHours, addMinutes, roundToNearestMinutes, startOfDay } from 'date-fns';
 
 import { SpaceFlowService } from './space-flow.service';
 
@@ -69,6 +69,7 @@ export const CAPACITY_OPTIONS = [
                     button
                     mat-button
                     [routerLink]="['/book', 'spaces', 'find']"
+                    (click)="setTitle('Quick Booking')"
                 >
                     <div class="flex items-center justify-center w-full sm:w-48">
                         Go
@@ -105,6 +106,7 @@ export const CAPACITY_OPTIONS = [
                     <div class="flex flex-grow flex-col w-48 m-0">
                         <label for="date" class="w-full">Date</label>
                         <a-date-field
+                            [from]="current_date"
                             formControlName="date"
                             class="flex-1 mb-4"
                         ></a-date-field>
@@ -112,6 +114,7 @@ export const CAPACITY_OPTIONS = [
                     <div class="flex flex-grow flex-col w-48">
                         <label for="date" class="w-full">Start Time</label>
                         <a-time-field
+                            [no_past_times]="!is_future_date"
                             formControlName="date"
                             class="mb-8 pt-1"
                         ></a-time-field>
@@ -310,7 +313,16 @@ export class SpaceFlowFormComponent {
     public readonly updateCapacity = (c: number) =>
         this._service.updateFilters({ capacity: c });
     public readonly newAttendee = () => this._service.newAttendee();
+    public readonly setTitle = (t) => this._service.setValue('title', t);
     public readonly clearForm = () => this._service.clearForm();
+
+    public get is_future_date() {
+        return this._service.is_future_date;
+    }
+
+    public get current_date() {
+        return startOfDay(new Date()).valueOf()
+    }
 
     constructor(
         private _service: SpaceFlowService,

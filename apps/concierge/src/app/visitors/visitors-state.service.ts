@@ -103,7 +103,7 @@ export class VisitorsStateService extends BaseClass {
     public async checkGuestIn(event: CalendarEvent, user: User) {
         const new_user = await this._events
             .checkInGuest(event.id, user.id, {
-                system_id: event.system.id,
+                system_id: event.system?.id || event.resources[0]?.id,
                 state: true,
             })
             .catch((e) => {
@@ -128,7 +128,7 @@ export class VisitorsStateService extends BaseClass {
     public async checkGuestOut(event: CalendarEvent, user: User) {
         const new_user = await this._events
             .checkInGuest(event.id, user.id, {
-                system_id: event.system.id,
+                system_id: event.system?.id || event.resources[0]?.id,
                 state: false,
             })
             .catch((e) => {
@@ -158,7 +158,7 @@ export class VisitorsStateService extends BaseClass {
         const attendees = await Promise.all(
             guests.map((user) =>
                 this._events.checkInGuest(event.id, user.id, {
-                    system_id: event.system.id,
+                    system_id: event.system?.id || event.resources[0]?.id,
                     state: true,
                 })
             )
@@ -192,7 +192,7 @@ export class VisitorsStateService extends BaseClass {
         const attendees = await Promise.all(
             guests.map((user) =>
                 this._events.checkInGuest(event.id, user.id, {
-                    system_id: event.system.id,
+                    system_id: event.system?.id || event.resources[0]?.id,
                     state: false,
                 })
             )

@@ -1,12 +1,9 @@
 
-@import 'variables';
-@import 'mixins';
-
 .details {
     font-size: 1.5em;
     margin-bottom: 1em;
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         font-size: 1.2em;
     }
 }

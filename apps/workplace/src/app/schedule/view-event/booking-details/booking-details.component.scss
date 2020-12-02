@@ -1,5 +1,3 @@
-@import 'variables';
-@import 'mixins';
 
 .header {
     padding: 1em 0;
@@ -30,11 +28,11 @@
 }
 .booking {
     background-color: #fff;
-    @include box-shadow;
+    @apply shadow;
 }
 
 button {
-    color: $color-primary;
+    color: var(--primary);
 }
 
 .field {
@@ -59,7 +57,7 @@ button {
         height: 2px;
         z-index: 1;
         border-radius: inherit;
-        background: linear-gradient(to left, $bg-light calc(100% - 3em), transparent 3em);
+        background: linear-gradient(to left, var(--bg) calc(100% - 3em), transparent 3em);
     }
 
     &:last-of-type {

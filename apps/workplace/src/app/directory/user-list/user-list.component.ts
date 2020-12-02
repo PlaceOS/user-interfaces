@@ -4,6 +4,7 @@ import { switchMap, debounceTime, distinctUntilChanged, map } from 'rxjs/operato
 
 import { BaseClass, SettingsService } from '@user-interfaces/common';
 import { StaffService, User } from '@user-interfaces/users';
+import { clearEventFormState } from '../../bookings/space-flow/space-flow.service';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
@@ -65,6 +66,7 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
             })
         );
         this.search$.next('');
+        clearEventFormState();
     }
 
     public get letters(): string[] {

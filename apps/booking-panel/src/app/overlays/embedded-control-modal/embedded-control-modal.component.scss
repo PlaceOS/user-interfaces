@@ -1,5 +1,4 @@
 
-@import 'variables';
 
 .background {
     position: absolute;
@@ -17,7 +16,7 @@
     border: 2px solid #fff;
     border-top: 1px solid #ccc;
     overflow: hidden;
-    background-color: $color-primary;
+    background-color: var(--primary);
     transform: translate(-50%, calc(-50% + 1.75em));
 }
 

@@ -1,6 +1,3 @@
-@import 'variables';
-@import 'mixins';
-
 .spinner {
     svg {
         width: 100%;
@@ -11,31 +8,31 @@ button.mat-button,
 a[button],
 .dark-mode button.mat-button,
 .dark-mode a[button] {
-    background-color: $color-primary;
-    border: 1px solid $color-primary;
-    color: $font-light;
+    background-color: var(--primary);
+    border: 1px solid var(--primary);
+    color: var(--font-light);
     min-height: 3em;
 
     &.inverse {
         background-color: #fff;
-        color: $color-primary;
+        color: var(--primary);
     }
 
     &.success {
-        background-color: $success;
-        border-color: $success;
+        background-color: var(--success);
+        border-color: var(--primary);
     }
 
     &.clear {
         background: none;
         border: none;
-        color: $font-dark;
+        color: var(--font-dark);
     }
 
     &.error {
         background: none;
-        color: $error;
-        border-color: $error;
+        color: var(--error);
+        border-color: var(--error);
     }
 
     &[disabled] {
@@ -155,8 +152,8 @@ mat-dialog-container.mat-dialog-container {
         align-items: center;
         padding: 0.5em 1em;
         width: 100%;
-        background-color: $color-primary;
-        color: $font-light;
+        background-color: var(--primary);
+        color: var(--font-light);
 
         h1,
         h2,
@@ -193,7 +190,7 @@ mat-dialog-container.mat-dialog-container {
 mat-form-field {
     &.mat-form-field-appearance-outline.mat-focused {
         .mat-form-field-outline-thick {
-            color: $color-primary;
+            color: var(--primary);
         }
     }
 
@@ -205,7 +202,6 @@ mat-form-field {
 
         .mat-form-field-outline {
             background-color: #fff;
-            @include box-shadow;
             border-radius: 4px;
         }
     }
@@ -219,7 +215,7 @@ mat-form-field {
     .mat-option {
         &.mat-selected {
             &:not(.mat-option-disabled) {
-                color: $color-primary;
+                color: var(--primary);
             }
         }
     }
@@ -242,15 +238,15 @@ mat-select {
 
 .mat-snack-bar-container {
     &.success {
-        background-color: $success;
+        background-color: var(--success);
         color: #fff;
     }
     &.warn {
-        background-color: $pending;
+        background-color: var(--pending);
         color: #fff;
     }
     &.error {
-        background-color: $error;
+        background-color: var(--error);
         color: #fff;
     }
     &.info {
@@ -305,23 +301,23 @@ mat-select {
 .mat-chip.mat-standard-chip {
     &.mat-primary {
         background-color: #fff;
-        color: $color-primary;
+        color: var(--primary);
         border-radius: 0;
     }
     &.mat-accent {
-        background-color: $pending;
+        background-color: var(--pending);
     }
 }
 
 .mat-spinner {
     circle {
-        stroke: $color-primary;
+        stroke: var(--primary);
     }
 }
 
 .mat-progress-bar-fill {
     &::after {
-        background-color: $color-primary;
+        background-color: var(--primary);
     }
 }
 
@@ -340,7 +336,7 @@ div.mat-menu-panel {
 
 .mat-tooltip {
     font-size: 0.8em;
-    background-color: rgba($color-ternary, 0.85);
+    background-color: rgba(#212121, 0.85);
 }
 
 .mat-table {
@@ -351,10 +347,10 @@ div.mat-menu-panel {
 
 a-date-picker {
     .date.active {
-        background-color: $color-primary !important;
+        background-color: var(--primary) !important;
     }
     .dot {
-        background-color: $color-primary !important;
+        background-color: var(--primary) !important;
     }
 }
 
@@ -387,10 +383,6 @@ form {
     editor {
         flex: 1;
         min-width: 50%;
-
-        @include respond-to(mobile) {
-            min-width: 90%;
-        }
     }
 }
 
@@ -412,5 +404,12 @@ form {
             width: 10px;
             margin-right: 5px;
         }
+    }
+}
+
+mat-datepicker-toggle {
+    button {
+        position: relative;
+        top: .25rem;
     }
 }

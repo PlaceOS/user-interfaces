@@ -46,7 +46,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     /** Maximum duration option available */
     @Input() public max: number = 240;
     /** Minimum duration option available */
-    @Input() public min: number = 60;
+    @Input() public min: number = 30;
     /** Step value between options */
     @Input() public step: number = 15;
     /** Reference time for displaying next to durations */

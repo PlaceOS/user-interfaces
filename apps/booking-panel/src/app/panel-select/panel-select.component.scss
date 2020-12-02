@@ -1,6 +1,4 @@
 
-@import 'variables';
-
 .panel-select {
     position: absolute;
     top: 0;
@@ -40,7 +38,7 @@
     margin: .5em;
     height: 11.5em;
     width: 10em;
-    background-color: $bg-dark;
+    background-color: var(--bg-dark);
     box-shadow: 0 1px 3px 0 rgba(#000, .2), 0 1px 1px 0 rgba(#000, .14), 0 2px 1px -1px rgba(#000, .12);
     padding: .5em;
     border-radius: 4px;
@@ -51,11 +49,11 @@
         border-radius: 8px;
 
         &.available {
-            background-color: rgba($success, .6);
+            background-color: rgba(var(--success), .6);
         }
 
         &.unavailable {
-            background-color: rgba($error, .6);
+            background-color: rgba(var(--error), .6);
         }
 
         a-spinner {

@@ -1,12 +1,10 @@
-@import 'variables';
-@import 'mixins';
 
 .event-view {
     background-color: #fff;
-    @include box-shadow;
+    @apply shadow;
 
     button {
-        color: $color-primary;
+        color: var(--primary);
     }
 
     .field {
@@ -25,7 +23,7 @@
             height: 2px;
             z-index: 1;
             border-radius: inherit;
-            background: linear-gradient(to left, $bg-light calc(100% - 4em), transparent 3em);
+            background: linear-gradient(to left, var(--bg) calc(100% - 4em), transparent 3em);
         }
 
         &:last-of-type {

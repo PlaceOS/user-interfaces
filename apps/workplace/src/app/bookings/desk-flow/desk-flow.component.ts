@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ExploreStateService } from '@user-interfaces/explore';
 import { StaffService } from '@user-interfaces/users';
+import { first } from 'rxjs/operators';
 
 import { DeskFlowStateService } from './desk-flow-state.service';
 
@@ -21,6 +22,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                     [center]="(positions | async).center"
                     [styles]="styles | async"
                     [actions]="actions | async"
+                    [features]="features | async"
                 ></i-map>
                 <explore-zoom-controls
                     class="absolute bottom-0 right-0"
@@ -35,7 +37,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                     <a-date-field class="w-full" [ngModel]="(options | async).date" (ngModelChange)="setDate($event)"></a-date-field>
                 </div>
                 <ng-container *ngIf="loading | async">
-                    <div load-state class="absolute inset-0 flex flex-col justify-center items-center">
+                    <div load-state class="absolute bottom-0 left-0 p-4 flex flex-col justify-center items-center">
                         <mat-spinner [diameter]="48"></mat-spinner>
                     </div>
                 </ng-container>
@@ -65,10 +67,6 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 max-width: 50%;
             }
 
-            [load-state] {
-                background-color: rgba(255,255,255,.5);
-            }
-
             @media screen and (max-width: 640px) {
                 [date] {
                     transform: translateY(60%);
@@ -79,13 +77,15 @@ import { DeskFlowStateService } from './desk-flow-state.service';
     ],
     providers: [],
 })
-export class DeskFlowComponent implements OnInit {
+export class DeskFlowComponent implements OnInit, OnDestroy {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
     public readonly styles = this._state.map_styles;
     /** Observable for the active map */
     public readonly positions = this._state.map_positions;
+    /** Observable for the active map */
+    public readonly features = this._state.map_features;
     /** Observable for the active map */
     public readonly actions = this._state.map_actions;
     /** Observable for the active map */
@@ -103,7 +103,14 @@ export class DeskFlowComponent implements OnInit {
         private _staff: StaffService
     ) {}
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
         this._desks.setHost(this._staff.current);
+        this._state.setOptions({ show_zones: false });
+        this._desks.startPolling();
+    }
+
+    public ngOnDestroy() {
+        this._desks.stopPolling();
     }
 }

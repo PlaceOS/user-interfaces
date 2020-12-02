@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { logout } from '@placeos/ts-client';
 import { ApplicationLink, BaseClass, SettingsService, VERSION } from '@user-interfaces/common';
 import { StaffService } from '@user-interfaces/users';
+import { format } from 'date-fns';
 
 import * as dayjs from 'dayjs';
 
@@ -28,7 +29,11 @@ export class OverlayMenuComponent extends BaseClass {
 
     /** Application version */
     public get version(): string {
-        return VERSION.tag;
+        return format(VERSION.time, 'dd MMM yyyy, h:mm a');
+    }
+
+    public get user_groups(): string {
+        return this.current.groups.join(', ') || 'No User Groups';
     }
 
     public get settings() {

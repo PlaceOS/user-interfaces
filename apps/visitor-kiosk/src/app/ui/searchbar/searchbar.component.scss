@@ -1,7 +1,4 @@
 
-@import 'variables';
-@import 'mixins';
-
 .searchbar {
     display: flex;
     align-items: center;
@@ -11,9 +8,9 @@
     background-color: #fff;
     border-radius: 2em;
     padding: 0 .75em;
-    @include box-shadow;
+    @apply shadow;
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         border-radius: 0;
         box-shadow: none;
         margin: 0;

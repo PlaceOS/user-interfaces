@@ -8,13 +8,13 @@ import * as dayjs from 'dayjs';
 @Component({
     selector: 'a-date-field',
     template: `
-        <mat-form-field appearance="outline" overlay>
-            <input matInput [ngModel]="date" [disabled]="disabled" (ngModelChange)="setValue($event)" [matDatepicker]="picker" />
+        <mat-form-field appearance="outline" overlay (click)="picker.open()">
+            <input matInput [ngModel]="date" [disabled]="disabled" [min]="from" [max]="until" (ngModelChange)="setValue($event)" [matDatepicker]="picker" />
             <mat-datepicker-toggle
                 matSuffix
                 [for]="picker"
             ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+            <mat-datepicker  #picker></mat-datepicker>
         </mat-form-field>
     `,
     styles: [
@@ -55,12 +55,12 @@ export class DateFieldComponent extends BaseClass
     private _onTouch: (_: number) => void;
 
     /** First allowed date on the calendar */
-    public get from(): number {
-        return this._from || dayjs().startOf('d').valueOf();
+    public get from(): Date {
+        return new Date(this._from) || dayjs().startOf('d').toDate();
     }
     /** Current date value */
-    public get until(): number {
-        return this._to || dayjs().endOf('d').add(1, 'y').valueOf();
+    public get until(): Date {
+        return new Date(this._to) || dayjs().endOf('d').add(1, 'y').toDate();
     }
     /** Display value for the current date */
     public get date_string(): string {
@@ -84,8 +84,8 @@ export class DateFieldComponent extends BaseClass
             .startOf('m')
             .valueOf();
         // Check that new date is before from
-        if (new_date < this.from) {
-            new_date = this.from;
+        if (new_date < this.from.valueOf()) {
+            new_date = this.from.valueOf();
         }
         this.date = new Date(new_date).toISOString();
         if (this._onChange) {

@@ -1,11 +1,10 @@
-@import 'variables';
 
 .topbar-header {
     display: flex;
     align-items: center;
     height: 3.5em;
     background-color: #fff;
-    color: $font-dark;
+    color: var(--font-dark);
     box-shadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
         0 2px 1px -1px rgba(#000, 0.12);
     border-bottom: 1px solid #ccc;
@@ -45,7 +44,7 @@ img {
 
     &:first-child {
         a {
-            // background-color: $color-primary;
+            // background-color: var(--primary);
             height: 100%;
             display: flex;
             align-items: center;
@@ -81,6 +80,6 @@ a-searchbar {
     background-color: rgba(#000, 0.05);
 
     &.focus {
-        border-color: $color-primary;
+        border-color: var(--primary);
     }
 }

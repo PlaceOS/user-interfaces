@@ -73,6 +73,7 @@ export class AppComponent extends BaseClass implements OnInit {
 
     constructor(
         private _tracing: Sentry.TraceService,
+
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _spaces: SpacesService, // For init

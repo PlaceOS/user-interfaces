@@ -1,32 +1,29 @@
 
-@import 'variables';
-@import 'mixins';
-
 label {
     min-width: 100%;
     margin-top: 1.25em;
     margin-right: 1em;
     font-weight: bold;
     font-size: .8em;
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
         width: 100%;
         margin-top: 0;
         margin-bottom: .5em;
     // }
 
     span {
-        color: $pending;
+        color: var(--pending);
     }
 
     &.error {
-        color: $error;
+        color: var(--error);
     }
 }
 
 .field {
     display: flex;
 
-    // @include respond-to(mobile) {
+    // @media screen and (max-width: 639px) {
         flex-wrap: wrap;
     // }
 }
@@ -38,7 +35,7 @@ editor {
     flex: 1;
     min-width: 50%;
 
-    @include respond-to(mobile) {
+    @media screen and (max-width: 639px) {
         min-width: 16em;
     }
 }
@@ -58,7 +55,7 @@ editor {
             margin-right: 0;
         }
 
-        @include respond-to(mobile) {
+        @media screen and (max-width: 639px) {
             margin: 0;
         }
     }

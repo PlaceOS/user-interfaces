@@ -1,7 +1,4 @@
 
-@import 'variables';
-@import 'mixins';
-
 .body {
     position: relative;
     display: flex;
@@ -38,7 +35,7 @@
     border-radius: 1.1em;
     height: 2em;
     background-color: #fff;
-    @include box-shadow;
+    @apply shadow;
 }
 
 app-icon {
