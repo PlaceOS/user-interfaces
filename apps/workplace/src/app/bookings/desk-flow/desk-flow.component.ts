@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ExploreStateService } from '@user-interfaces/explore';
 import { StaffService } from '@user-interfaces/users';
+import { first } from 'rxjs/operators';
 
 import { DeskFlowStateService } from './desk-flow-state.service';
 
@@ -102,7 +103,8 @@ export class DeskFlowComponent implements OnInit, OnDestroy {
         private _staff: StaffService
     ) {}
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
         this._desks.setHost(this._staff.current);
         this._state.setOptions({ show_zones: false });
         this._desks.startPolling();
