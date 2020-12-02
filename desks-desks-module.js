@@ -2465,7 +2465,10 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         })), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_12__["map"])((details) => {
             const [desks, bookings] = details;
             const active_bookings = bookings.filter((bkn) => bkn.status !== 'declined');
-            const bookable_desks = desks.filter((i) => i.bookable);
+            const user_groups = this._staff.current.groups;
+            const bookable_desks = desks.filter((i) => i.bookable &&
+                (!i.group ||
+                    user_groups.includes((i.group || '').toLowerCase())));
             this.processDeskBookings(details);
             this._loading.next(false);
             return bookable_desks.filter((desk) => !active_bookings.find((bkn) => bkn.asset_id === desk.id));
@@ -2566,7 +2569,8 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk of desks) {
             const status = !desk.bookable ||
-                user_groups.includes((desk.group || '').toLowerCase())
+                (desk.group &&
+                    user_groups.includes((desk.group || '').toLowerCase()))
                 ? 'not-bookable'
                 : available.find((d) => d.id === desk.id)
                     ? 'free'
