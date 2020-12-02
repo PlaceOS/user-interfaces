@@ -107,7 +107,7 @@ export class DeskFlowStateService extends BaseClass {
                         period_start: Math.floor(date.valueOf() / 1000),
                         period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                         type: 'desk',
-                        zone: (options.zones || [])[0],
+                        zones: (options.zones || [])[0],
                     })
                     .catch((_) => []),
             ];
