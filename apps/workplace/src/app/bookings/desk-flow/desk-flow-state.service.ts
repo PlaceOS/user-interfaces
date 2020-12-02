@@ -117,7 +117,13 @@ export class DeskFlowStateService extends BaseClass {
             const active_bookings = bookings.filter(
                 (bkn) => bkn.status !== 'declined'
             );
-            const bookable_desks = desks.filter((i) => i.bookable);
+            const user_groups = this._staff.current.groups;
+            const bookable_desks = desks.filter(
+                (i) =>
+                    i.bookable &&
+                    (!i.group ||
+                        user_groups.includes((i.group || '').toLowerCase()))
+            );
             this.processDeskBookings(details);
             this._loading.next(false);
             return bookable_desks.filter(
@@ -258,7 +264,8 @@ export class DeskFlowStateService extends BaseClass {
         for (const desk of desks) {
             const status =
                 !desk.bookable ||
-                user_groups.includes((desk.group || '').toLowerCase())
+                (desk.group &&
+                    user_groups.includes((desk.group || '').toLowerCase()))
                     ? 'not-bookable'
                     : available.find((d) => d.id === desk.id)
                     ? 'free'
