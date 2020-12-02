@@ -126,6 +126,10 @@ export class OrganisationService {
             throw err;
         });
         this._initialised.next(true);
+        if (window.debug) {
+            if (!window.application) window.application = {};
+            window.application.orgs = this;
+        }
     }
 
     /**

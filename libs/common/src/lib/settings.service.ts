@@ -13,6 +13,7 @@ import { VERSION } from './version';
 declare global {
     interface Window {
         debug: boolean;
+        application: HashMap;
     }
 }
 
@@ -90,6 +91,10 @@ export class SettingsService extends BaseClass {
         }
         log('Settings', 'Successfully loaded settings');
         this._initialised.next(true);
+        if (window.debug) {
+            if (!window.application) window.application = {};
+            window.application.settings = this;
+        }
     }
 
     /** Whether settings service has initialised */
