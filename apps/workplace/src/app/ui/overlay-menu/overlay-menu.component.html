@@ -19,10 +19,8 @@
                     />
                 </div>
                 <div>
-                    <div class="name">{{ current.name }}</div>
-                    <div class="location" *ngIf="current.location">
-                        {{ current.location }}
-                    </div>
+                    <div class="name" [matTooltip]="user_groups">{{ current.name }}</div>
+                    <div class="location" *ngIf="current.location?.name">{{ current.location }}</div>
                 </div>
             </div>
         </div>
@@ -74,8 +72,8 @@
                 </ng-container>
             </ul>
         </div>
-        <!-- <div class="footer">
-            <div *ngIf="version">Version: {{ version }}</div>
-        </div> -->
+        <div class="footer">
+            <div class="text-sm text-opacity-60 text-white" *ngIf="version">Version: {{ version }}</div>
+        </div>
     </div>
 </div>
