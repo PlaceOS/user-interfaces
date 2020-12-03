@@ -58,5 +58,10 @@
                 >Assistance required</mat-checkbox
             >
         </div>
+        <div class="field" *ngIf="form.controls.visit_expected">
+            <mat-checkbox color="primary" formControlName="visit_expected"
+                >Visit expected</mat-checkbox
+            >
+        </div>
     </form>
 </div>

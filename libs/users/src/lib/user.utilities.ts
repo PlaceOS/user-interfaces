@@ -71,6 +71,7 @@ export function generateUserForm(user: User): FormGroup {
         organisation: new FormControl(user.organisation || '', Validators.required),
         phone: new FormControl(user.phone || ''),
         assistance_required: new FormControl(user.assistance_required || false),
+        visit_expected: new FormControl(user.visit_expected ?? true),
     };
 
     // Generate form group for the user
