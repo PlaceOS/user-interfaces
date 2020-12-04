@@ -2530,6 +2530,15 @@ class DeskFlowStateService extends _user_interfaces_common__WEBPACK_IMPORTED_MOD
             ]);
             if (!success)
                 return;
+            ref.componentInstance.loading = 'Checking for existing desk bookings...';
+            const desks = yield this._bookings.query({
+                type: 'desk',
+                period_start: Math.floor(Object(date_fns__WEBPACK_IMPORTED_MODULE_9__["startOfDay"])(options.date || new Date()).valueOf() / 1000),
+                period_end: Math.floor(Object(date_fns__WEBPACK_IMPORTED_MODULE_9__["endOfDay"])(options.date || new Date()).valueOf() / 1000),
+            });
+            if (!(desks === null || desks === void 0 ? void 0 : desks.length))
+                return Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_5__["notifyError"])('You currently already have a desk booked for the selected date.');
+            ref.componentInstance.loading = 'Booking desk...';
             yield this.makeDeskBooking(desk, options.date || new Date().valueOf(), reason);
             Object(_user_interfaces_common__WEBPACK_IMPORTED_MODULE_5__["notifySuccess"])('Successfully booked desk');
             ref.close();

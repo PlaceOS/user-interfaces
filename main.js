@@ -1834,12 +1834,13 @@ const roomConfigBuilder = (buildingConfigs = [], roomConfigs = []) => {
 /*!************************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/event.utilities.ts ***!
   \************************************************************************************************/
-/*! exports provided: generateEventForm, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings */
+/*! exports provided: generateEventForm, endInFuture, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateEventForm", function() { return generateEventForm; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "endInFuture", function() { return endInFuture; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNotEmpty", function() { return isNotEmpty; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isFuture", function() { return isFuture; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setMockBookingStartDatetime", function() { return setMockBookingStartDatetime; });
@@ -1878,7 +1879,9 @@ function generateEventForm(event) {
     const form = new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormGroup"]({
         id: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.id),
         host: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.host || '', [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
-        organiser: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.organiser || {}, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
+        organiser: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.organiser || {}, [
+            _angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required,
+        ]),
         creator: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.creator, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
         calendar: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.calendar),
         attendees: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.attendees || []),
@@ -1886,7 +1889,7 @@ function generateEventForm(event) {
         title: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.title, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
         body: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.body),
         private: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.private),
-        date: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.date, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required, isFuture]),
+        date: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.date, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
         duration: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.duration),
         all_day: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.all_day),
         recurring: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.recurring),
@@ -1902,11 +1905,22 @@ function generateEventForm(event) {
         needs_parking: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.needs_parking || false),
         system: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.system),
     });
+    form.controls.duration.setValidators([endInFuture(form)]);
     form.controls.organiser.valueChanges.subscribe((o) => {
         form.controls.host.setValue(o === null || o === void 0 ? void 0 : o.email);
     });
+    if (event.id) {
+        form.controls.organiser.disable();
+    }
     return form;
 }
+const endInFuture = (form) => (control) => {
+    if (form.controls.date &&
+        Object(date_fns__WEBPACK_IMPORTED_MODULE_1__["isAfter"])(new Date(), new Date(form.controls.date.value + control.value * 60 * 1000))) {
+        return { duration: true };
+    }
+    return null;
+};
 /** Array is not empty */
 function isNotEmpty(control) {
     if (Array.isArray(control.value) && !control.value.length) {
@@ -2621,6 +2635,7 @@ function generateMockUser(id, name, external) {
  * @param user User to generate form for
  */
 function generateUserForm(user) {
+    var _a;
     if (!user) {
         throw Error('No user passed');
     }
@@ -2630,6 +2645,7 @@ function generateUserForm(user) {
         organisation: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](user.organisation || '', _angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required),
         phone: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](user.phone || ''),
         assistance_required: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](user.assistance_required || false),
+        visit_expected: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"]((_a = user.visit_expected) !== null && _a !== void 0 ? _a : true),
     };
     // Generate form group for the user
     const form = new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormGroup"](fields);
@@ -4824,7 +4840,7 @@ StaffService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInje
 /*!***************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/events.ts ***!
   \***************************************************************************************/
-/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
+/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, endInFuture, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4837,6 +4853,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _event_interfaces__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event.interfaces */ "wf3U");
 /* empty/unused harmony star reexport *//* harmony import */ var _event_utilities__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./event.utilities */ "DjF3");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "generateEventForm", function() { return _event_utilities__WEBPACK_IMPORTED_MODULE_2__["generateEventForm"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "endInFuture", function() { return _event_utilities__WEBPACK_IMPORTED_MODULE_2__["endInFuture"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isNotEmpty", function() { return _event_utilities__WEBPACK_IMPORTED_MODULE_2__["isNotEmpty"]; });
 
@@ -6226,7 +6244,7 @@ MOCK_EVENTS.forEach((event) => {
 /*!**********************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/events/src/index.ts ***!
   \**********************************************************************************/
-/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
+/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, endInFuture, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6237,6 +6255,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CalendarEvent", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["CalendarEvent"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "generateEventForm", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["generateEventForm"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "endInFuture", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["endInFuture"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isNotEmpty", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["isNotEmpty"]; });
 
@@ -9726,15 +9746,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "bda167c",
-    "hash": "bda167c",
+    "raw": "6fd89dd",
+    "hash": "6fd89dd",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "bda167c",
+    "suffix": "6fd89dd",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606889145894
+    "time": 1607052017612
 };
 /* tslint:enable */
 
