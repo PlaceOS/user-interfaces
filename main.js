@@ -1081,6 +1081,13 @@ function UserFormComponent_div_0_div_6_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
 } }
+function UserFormComponent_div_0_div_7_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "mat-checkbox", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2, "Visit expected");
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+} }
 function UserFormComponent_div_0_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 1);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "form", 2);
@@ -1089,6 +1096,7 @@ function UserFormComponent_div_0_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](4, UserFormComponent_div_0_div_4_Template, 9, 3, "div", 3);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](5, UserFormComponent_div_0_div_5_Template, 6, 3, "div", 3);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](6, UserFormComponent_div_0_div_6_Template, 3, 0, "div", 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](7, UserFormComponent_div_0_div_7_Template, 3, 0, "div", 3);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
 } if (rf & 2) {
@@ -1105,12 +1113,14 @@ function UserFormComponent_div_0_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx_r0.form.controls.phone);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx_r0.form.controls.assistance_required);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx_r0.form.controls.visit_expected);
 } }
 class UserFormComponent {
 }
 UserFormComponent.ɵfac = function UserFormComponent_Factory(t) { return new (t || UserFormComponent)(); };
-UserFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: UserFormComponent, selectors: [["user-form"]], inputs: { form: "form" }, decls: 1, vars: 1, consts: [["class", "user form", 4, "ngIf"], [1, "user", "form"], [3, "formGroup"], ["class", "field", 4, "ngIf"], [1, "field"], ["for", "name"], ["appearance", "outline"], ["matInput", "", "name", "name", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "Email Address", "formControlName", "email"], ["for", "organisation"], ["matInput", "", "name", "organisation", "placeholder", "Organisation", "formControlName", "organisation"], ["for", "phone"], ["matInput", "", "name", "phone", "placeholder", "Phone", "formControlName", "phone"], ["color", "primary", "formControlName", "assistance_required"]], template: function UserFormComponent_Template(rf, ctx) { if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](0, UserFormComponent_div_0_Template, 7, 6, "div", 0);
+UserFormComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: UserFormComponent, selectors: [["user-form"]], inputs: { form: "form" }, decls: 1, vars: 1, consts: [["class", "user form", 4, "ngIf"], [1, "user", "form"], [3, "formGroup"], ["class", "field", 4, "ngIf"], [1, "field"], ["for", "name"], ["appearance", "outline"], ["matInput", "", "name", "name", "placeholder", "Name", "formControlName", "name"], [4, "ngIf"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "Email Address", "formControlName", "email"], ["for", "organisation"], ["matInput", "", "name", "organisation", "placeholder", "Organisation", "formControlName", "organisation"], ["for", "phone"], ["matInput", "", "name", "phone", "placeholder", "Phone", "formControlName", "phone"], ["color", "primary", "formControlName", "assistance_required"], ["color", "primary", "formControlName", "visit_expected"]], template: function UserFormComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](0, UserFormComponent_div_0_Template, 8, 7, "div", 0);
     } if (rf & 2) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx.form);
     } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["ɵangular_packages_forms_forms_y"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["NgControlStatusGroup"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormGroupDirective"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_3__["MatFormField"], _angular_material_input__WEBPACK_IMPORTED_MODULE_4__["MatInput"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["DefaultValueAccessor"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["NgControlStatus"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormControlName"], _angular_material_form_field__WEBPACK_IMPORTED_MODULE_3__["MatError"], _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_5__["MatCheckbox"]], styles: ["label[_ngcontent-%COMP%] {\n  min-width: 100%;\n  margin-top: 1.25em;\n  margin-right: 1em;\n  font-weight: bold;\n  font-size: 0.8em;\n  width: 100%;\n  margin-top: 0;\n  margin-bottom: 0.5em;\n}\nlabel[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  color: var(--pending);\n}\nlabel.error[_ngcontent-%COMP%] {\n  color: var(--error);\n}\n.field[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n}\nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImxpYnMvdXNlcnMvc3JjL2xpYi91c2VyLWZvcm0vdXNlci1mb3JtLmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsZUFBQTtFQUNBLGtCQUFBO0VBQ0EsaUJBQUE7RUFDQSxpQkFBQTtFQUNBLGdCQUFBO0VBRUEsV0FBQTtFQUNBLGFBQUE7RUFDQSxvQkFBQTtBQUFGO0FBRUU7RUFDRSxxQkFBQTtBQUFKO0FBRUU7RUFDRSxtQkFBQTtBQUFKO0FBSUE7RUFDRSxhQUFBO0VBRUEsZUFBQTtBQUZGO0FBTUE7RUFDRSxXQUFBO0FBSEYiLCJmaWxlIjoibGlicy91c2Vycy9zcmMvbGliL3VzZXItZm9ybS91c2VyLWZvcm0uY29tcG9uZW50LnNjc3MiLCJzb3VyY2VzQ29udGVudCI6WyJsYWJlbCB7XG4gIG1pbi13aWR0aDogMTAwJTtcbiAgbWFyZ2luLXRvcDogMS4yNWVtO1xuICBtYXJnaW4tcmlnaHQ6IDFlbTtcbiAgZm9udC13ZWlnaHQ6IGJvbGQ7XG4gIGZvbnQtc2l6ZTogLjhlbTtcbiAgLy8gQG1lZGlhIHNjcmVlbiBhbmQgKG1heC13aWR0aDogNjM5cHgpIHtcbiAgd2lkdGg6IDEwMCU7XG4gIG1hcmdpbi10b3A6IDA7XG4gIG1hcmdpbi1ib3R0b206IC41ZW07XG4gIC8vIH1cbiAgc3BhbiB7XG4gICAgY29sb3I6IHZhcigtLXBlbmRpbmcpO1xuICB9XG4gICYuZXJyb3Ige1xuICAgIGNvbG9yOiB2YXIoLS1lcnJvcik7XG4gIH1cbn1cblxuLmZpZWxkIHtcbiAgZGlzcGxheTogZmxleDtcbiAgLy8gQG1lZGlhIHNjcmVlbiBhbmQgKG1heC13aWR0aDogNjM5cHgpIHtcbiAgZmxleC13cmFwOiB3cmFwO1xuICAvLyB9XG59XG5cbm1hdC1mb3JtLWZpZWxkIHtcbiAgd2lkdGg6IDEwMCU7XG59XG4iXX0= */"] });
@@ -2762,12 +2772,13 @@ TakePhotoComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefin
 /*!************************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/event.utilities.ts ***!
   \************************************************************************************************/
-/*! exports provided: generateEventForm, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings */
+/*! exports provided: generateEventForm, endInFuture, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateEventForm", function() { return generateEventForm; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "endInFuture", function() { return endInFuture; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNotEmpty", function() { return isNotEmpty; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isFuture", function() { return isFuture; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setMockBookingStartDatetime", function() { return setMockBookingStartDatetime; });
@@ -2806,7 +2817,9 @@ function generateEventForm(event) {
     const form = new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormGroup"]({
         id: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.id),
         host: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.host || '', [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
-        organiser: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.organiser || {}, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
+        organiser: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.organiser || {}, [
+            _angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required,
+        ]),
         creator: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.creator, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
         calendar: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.calendar),
         attendees: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.attendees || []),
@@ -2814,7 +2827,7 @@ function generateEventForm(event) {
         title: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.title, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
         body: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.body),
         private: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.private),
-        date: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.date, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required, isFuture]),
+        date: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.date, [_angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required]),
         duration: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.duration),
         all_day: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.all_day),
         recurring: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.recurring),
@@ -2830,11 +2843,22 @@ function generateEventForm(event) {
         needs_parking: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.needs_parking || false),
         system: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](event.system),
     });
+    form.controls.duration.setValidators([endInFuture(form)]);
     form.controls.organiser.valueChanges.subscribe((o) => {
         form.controls.host.setValue(o === null || o === void 0 ? void 0 : o.email);
     });
+    if (event.id) {
+        form.controls.organiser.disable();
+    }
     return form;
 }
+const endInFuture = (form) => (control) => {
+    if (form.controls.date &&
+        Object(date_fns__WEBPACK_IMPORTED_MODULE_1__["isAfter"])(new Date(), new Date(form.controls.date.value + control.value * 60 * 1000))) {
+        return { duration: true };
+    }
+    return null;
+};
 /** Array is not empty */
 function isNotEmpty(control) {
     if (Array.isArray(control.value) && !control.value.length) {
@@ -3594,6 +3618,7 @@ function generateMockUser(id, name, external) {
  * @param user User to generate form for
  */
 function generateUserForm(user) {
+    var _a;
     if (!user) {
         throw Error('No user passed');
     }
@@ -3603,6 +3628,7 @@ function generateUserForm(user) {
         organisation: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](user.organisation || '', _angular_forms__WEBPACK_IMPORTED_MODULE_0__["Validators"].required),
         phone: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](user.phone || ''),
         assistance_required: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"](user.assistance_required || false),
+        visit_expected: new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormControl"]((_a = user.visit_expected) !== null && _a !== void 0 ? _a : true),
     };
     // Generate form group for the user
     const form = new _angular_forms__WEBPACK_IMPORTED_MODULE_0__["FormGroup"](fields);
@@ -6550,7 +6576,7 @@ StaffService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInje
 /*!***************************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/events.ts ***!
   \***************************************************************************************/
-/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
+/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, endInFuture, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6563,6 +6589,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _event_interfaces__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event.interfaces */ "wf3U");
 /* empty/unused harmony star reexport *//* harmony import */ var _event_utilities__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./event.utilities */ "DjF3");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "generateEventForm", function() { return _event_utilities__WEBPACK_IMPORTED_MODULE_2__["generateEventForm"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "endInFuture", function() { return _event_utilities__WEBPACK_IMPORTED_MODULE_2__["endInFuture"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isNotEmpty", function() { return _event_utilities__WEBPACK_IMPORTED_MODULE_2__["isNotEmpty"]; });
 
@@ -8057,7 +8085,7 @@ MOCK_EVENTS.forEach((event) => {
 /*!**********************************************************************************!*\
   !*** /home/runner/work/user-interfaces/user-interfaces/libs/events/src/index.ts ***!
   \**********************************************************************************/
-/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
+/*! exports provided: setDefaultCreator, CalendarEvent, generateEventForm, endInFuture, isNotEmpty, isFuture, setMockBookingStartDatetime, rulesForSpace, durationGreaterThanOrEqual, stringToMinutes, statusFromBookings, getFreeBookingSlots, getNextFreeBookingSlot, replaceBookings, EventsService, eventStatus, formatRecurrence */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8068,6 +8096,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CalendarEvent", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["CalendarEvent"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "generateEventForm", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["generateEventForm"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "endInFuture", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["endInFuture"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isNotEmpty", function() { return _lib_events__WEBPACK_IMPORTED_MODULE_0__["isNotEmpty"]; });
 
@@ -11642,15 +11672,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
     "dirty": false,
-    "raw": "bda167c",
-    "hash": "bda167c",
+    "raw": "6fd89dd",
+    "hash": "6fd89dd",
     "distance": null,
     "tag": null,
     "semver": null,
-    "suffix": "bda167c",
+    "suffix": "6fd89dd",
     "semverString": null,
     "version": "0.0.0",
-    "time": 1606889165906
+    "time": 1607052019236
 };
 /* tslint:enable */
 
