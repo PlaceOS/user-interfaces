@@ -73,6 +73,9 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
     form.controls.organiser.valueChanges.subscribe((o) => {
         form.controls.host.setValue(o?.email);
     });
+    if (event.id) {
+        form.controls.organiser.disable();
+    }
     return form;
 }
 
