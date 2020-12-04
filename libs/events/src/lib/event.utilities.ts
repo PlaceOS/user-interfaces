@@ -43,7 +43,9 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
     const form = new FormGroup({
         id: new FormControl(event.id),
         host: new FormControl(event.host || '', [Validators.required]),
-        organiser: new FormControl(event.organiser || {}, [Validators.required]),
+        organiser: new FormControl(event.organiser || {}, [
+            Validators.required,
+        ]),
         creator: new FormControl(event.creator, [Validators.required]),
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
@@ -51,7 +53,7 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         title: new FormControl(event.title, [Validators.required]),
         body: new FormControl(event.body),
         private: new FormControl(event.private),
-        date: new FormControl(event.date, [Validators.required, isFuture]),
+        date: new FormControl(event.date, [Validators.required]),
         duration: new FormControl(event.duration),
         all_day: new FormControl(event.all_day),
         recurring: new FormControl(event.recurring),
@@ -67,11 +69,25 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         needs_parking: new FormControl(event.needs_parking || false),
         system: new FormControl(event.system),
     });
+    form.controls.duration.setValidators([endInFuture(form)]);
     form.controls.organiser.valueChanges.subscribe((o) => {
         form.controls.host.setValue(o?.email);
     });
     return form;
 }
+
+export const endInFuture = (form: FormGroup) => (control: AbstractControl) => {
+    if (
+        form.controls.date &&
+        isAfter(
+            new Date(),
+            new Date(form.controls.date.value + control.value * 60 * 1000)
+        )
+    ) {
+        return { duration: true };
+    }
+    return null;
+};
 
 /** Array is not empty */
 export function isNotEmpty(control: AbstractControl): { [key: string]: boolean } | null {
