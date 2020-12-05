@@ -28,7 +28,6 @@ jobs:
               with:
                 url: ${{ secrets.STATUS_URL }}
                 body: '{ "chat_url": $secrets.CHAT_URL, "name": $github.repository, "commit": $github.sha, "pipeline_name": $github.workflow, "branch": $github.ref, "status": "processing", "url": "https://github.com/$github.repository/runs/$github.run_id" }'
-              if: secrets.CHAT_URL
 
             - name: Get short hash
               id: vars
@@ -74,4 +73,3 @@ jobs:
               with:
                 url: ${{ secrets.STATUS_URL }}
                 body: '{ "name": $github.repository, "commit": $github.sha, "pipeline_name": $github.workflow, "branch": $github.ref, "status": "processing", "url": "https://github.com/$github.repository/runs/$github.run_id" }'
-              if: secrets.CHAT_URL
