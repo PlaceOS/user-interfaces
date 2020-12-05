@@ -23,6 +23,12 @@ jobs:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - uses: actions/checkout@v2
 
+            - name: Initialise Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              with:
+                url: ${{ secrets.STATUS_URL }}
+                data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+
             - name: Get short hash
               id: vars
               run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
@@ -51,29 +57,19 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: nx build visitor-kiosk --aot
+              run: nx build workplace --configuration=staging --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
-                branch: build/visitor-kiosk/uat
-                source_folder: dist/apps/visitor-kiosk
+                branch: build/workplace/uat
+                source_folder: dist/apps/workplace
                 commit_message: >
-                    build(visitor-kiosk): CI build from ${{ steps.vars.outputs.sha_short }}
+                    build(workplace): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}
 
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
+            - name: Update Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
               with:
-                  name: Build
-                  url: ${{ secrets.CHAT_SUCCESS_VISITOR_KIOSK }}
-                  status: ${{ job.status }}
-              if: success()
-
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
-              with:
-                  name: Build
-                  url: ${{ secrets.CHAT_ERROR_VISITOR_KIOSK }}
-                  status: ${{ job.status }}
-              if: failure()
+                url: ${{ secrets.STATUS_URL }}
+                data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
