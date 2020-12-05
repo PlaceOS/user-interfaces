@@ -23,6 +23,13 @@ jobs:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - uses: actions/checkout@v2
 
+            - name: Initialise Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              with:
+                url: ${{ secrets.STATUS_URL }}
+                body: '{ "chat_url": ${{ secrets.CHAT_URL }}, "name": ${{ GITHUB_REPOSITORY }}, "commit": ${{ GITHUB_SHA }}, "pipeline_name": ${{ GITHUB_WORKFLOW }}, "branch": ${{ GITHUB_REF }}, "status": "processing", "url": "https://github.com/${{ GITHUB_REPOSITORY }}/runs/${{ GITHUB_RUN_ID }}" }'
+              if: ${{ secrets.CHAT_URL }}
+
             - name: Get short hash
               id: vars
               run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
@@ -62,18 +69,9 @@ jobs:
                     build(workplace): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}
 
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
+            - name: Update Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
               with:
-                  name: Build
-                  url: ${{ secrets.CHAT_SUCCESS_WORKPLACE }}
-                  status: ${{ job.status }}
-              if: success()
-
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
-              with:
-                  name: Build
-                  url: ${{ secrets.CHAT_ERROR_WORKPLACE }}
-                  status: ${{ job.status }}
-              if: failure()
+                url: ${{ secrets.STATUS_URL }}
+                body: '{ "name": ${{ GITHUB_REPOSITORY }}, "commit": ${{ GITHUB_SHA }}, "pipeline_name": ${{ GITHUB_WORKFLOW }}, "branch": ${{ GITHUB_REF }}, "status": ${{ job.status }}, "url": "https://github.com/${{ GITHUB_REPOSITORY }}/runs/${{ GITHUB_RUN_ID }}" }'
+              if: ${{ secrets.CHAT_URL }}

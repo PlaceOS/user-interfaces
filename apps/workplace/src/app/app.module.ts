@@ -51,4 +51,4 @@ import * as Sentry from "@sentry/angular";
     ],
     bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
