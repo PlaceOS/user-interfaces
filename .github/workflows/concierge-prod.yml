@@ -76,4 +76,4 @@ jobs:
               with:
                 url: ${{ secrets.STATUS_URL }}
                 data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
-              if: $job.status
+              if: ${{ always }}
