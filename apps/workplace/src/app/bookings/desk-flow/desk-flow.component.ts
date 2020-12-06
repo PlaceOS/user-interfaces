@@ -1,4 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BaseClass, notifyError, notifySuccess } from '@user-interfaces/common';
 import { ExploreStateService } from '@user-interfaces/explore';
 import { StaffService } from '@user-interfaces/users';
 import { first } from 'rxjs/operators';
@@ -11,7 +13,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
         <header>
             <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
         </header>
-        <main class="flex flex-1 flex-col relative">
+        <main class="flex flex-1 flex-col relative" *ngIf="!checkin">
             <div class="w-full text-center p-2 bg-white shadow z-10 relative">
                 Request a Desk
             </div>
@@ -47,6 +49,12 @@ import { DeskFlowStateService } from './desk-flow-state.service';
             <a-footer-menu class="w-full"></a-footer-menu>
         </footer>
         <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+        <ng-template #checkin_state>
+            <main class="flex-1 flex flex-col items-center justify-center w-full">
+                <mat-spinner class="mb-4" [diameter]="48"></mat-spinner>
+                <p>Checking in desk...</p>
+            </main>
+        </ng-template>
     `,
     styles: [
         `
@@ -77,7 +85,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
     ],
     providers: [],
 })
-export class DeskFlowComponent implements OnInit, OnDestroy {
+export class DeskFlowComponent extends BaseClass implements OnInit, OnDestroy {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
@@ -93,6 +101,8 @@ export class DeskFlowComponent implements OnInit, OnDestroy {
     /** Observable for the active map */
     public readonly options = this._desks.options;
 
+    public checkin: boolean;
+
     public show_menu: boolean = false;
 
     public readonly setDate = (date) => this._desks.setOptions({ date });
@@ -100,14 +110,26 @@ export class DeskFlowComponent implements OnInit, OnDestroy {
     constructor(
         private _state: ExploreStateService,
         private _desks: DeskFlowStateService,
-        private _staff: StaffService
-    ) {}
+        private _staff: StaffService,
+        private _route: ActivatedRoute
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
         this._desks.setHost(this._staff.current);
         this._state.setOptions({ show_zones: false });
         this._desks.startPolling();
+        this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
+            if (params.has('checkin')) {
+                this.checkin = true;
+                const success = await this._desks.checkin(params.get('checkin'));
+                this.checkin = false;
+                if (!success) return notifyError('Error checking in desk.');
+                notifySuccess('Successfully checked in to desk');
+            }
+        }));
     }
 
     public ngOnDestroy() {

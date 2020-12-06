@@ -177,6 +177,18 @@ export class DeskFlowStateService extends BaseClass {
         this._host = host;
     }
 
+    public async checkin(id: string) {
+        const bookings = await this._bookings.query({
+            period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
+            period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
+            type: 'desk'
+        });
+        const bkn = bookings.find(b => b.asset_id === id);
+        if (!bkn) return false;
+        const done = await this._bookings.checkIn(bkn);
+        return true;
+    }
+
     public async bookDesk(desk: Desk, reason: string = '') {
         if (!this._host) {
             return notifyError('A host needs to be set before booking a desk.');
