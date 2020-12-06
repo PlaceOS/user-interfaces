@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1607156668357,
+  "timestamp": 1607295085277,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,7 +11,7 @@
         "ignoreVary": true
       },
       "urls": [
-        "./bookings-bookings-module.1dabc93b1ee1c605b7bf.js",
+        "./bookings-bookings-module.3f053d27088711cef6ae.js",
         "./control-control-module.3c96fc8ee4bd31f53141.js",
         "./dashboard-dashboard-module.967edf8dc5b103c44854.js",
         "./default~bookings-bookings-module~explore-explore-module.4f1b0dc0e0eed06c5eec.js",
@@ -20,9 +20,9 @@
         "./favicon.ico",
         "./help-help-module.383522d731a7e1a1a8b6.js",
         "./index.html",
-        "./main.24517e70ed7fd5367d19.js",
+        "./main.89c8a7d7bb24ec85d805.js",
         "./polyfills.3c558801e44a4118fab0.js",
-        "./runtime.583b8e383e5f4c7b3fc6.js",
+        "./runtime.9d45862fd209c9ead879.js",
         "./schedule-schedule-module.23cf9955c5bc870bb155.js",
         "./styles.27c23d75c471d9f18d8d.css"
       ],
@@ -182,7 +182,7 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./bookings-bookings-module.1dabc93b1ee1c605b7bf.js": "f9d808356edc001f1b371c7a26d069cf0478b2dd",
+    "./bookings-bookings-module.3f053d27088711cef6ae.js": "eb6ac23640baf35802b6eff1c98ea1d2eba0864e",
     "./control-control-module.3c96fc8ee4bd31f53141.js": "fa32243c383cf91473d6c9667701eb2f709a654f",
     "./dashboard-dashboard-module.967edf8dc5b103c44854.js": "e31496750a8f01c73c05d7ab3e2008b0693c9bf8",
     "./default~bookings-bookings-module~explore-explore-module.4f1b0dc0e0eed06c5eec.js": "18b29291767a0fe06215e3835d120be90a3819c9",
@@ -190,10 +190,10 @@
     "./explore-explore-module.c636fb4647b70086d561.js": "ae0381272452098faa7b1f7e57a9a7356f91a48b",
     "./favicon.ico": "72264ebdcc0a3fbc5e221ce934212f00b1d6bb4c",
     "./help-help-module.383522d731a7e1a1a8b6.js": "2096fe2aa733b832c836c30b616b4c0b313d7967",
-    "./index.html": "2513153fb6cff7b52c560ff1d7c420797e1d3989",
-    "./main.24517e70ed7fd5367d19.js": "2d90e27da121dad56d990591a418c128a062fbd8",
+    "./index.html": "b621e3e4c88f88658d6f07000624f5457e8c69e1",
+    "./main.89c8a7d7bb24ec85d805.js": "0a9bdae130889eca8030f34a41cfb15a7039af38",
     "./polyfills.3c558801e44a4118fab0.js": "2d8d9d15fbc78d294b38e2729192123d2a9112b5",
-    "./runtime.583b8e383e5f4c7b3fc6.js": "267db7fa14b05ffe563172f0b465228441975ab7",
+    "./runtime.9d45862fd209c9ead879.js": "73f6e9a42e3f67d49f6c2b9512deb62171a8763c",
     "./schedule-schedule-module.23cf9955c5bc870bb155.js": "96d1be868a8b3d5acb790c57320870a493e3eed6",
     "./styles.27c23d75c471d9f18d8d.css": "eb0bd1a7960ba7d33ef5bfef08d44ae313e647f4"
   },
