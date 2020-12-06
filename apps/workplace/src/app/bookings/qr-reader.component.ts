@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { BrowserQRCodeReader } from '@zxing/library';
 import { BaseClass } from '@user-interfaces/common';
@@ -136,7 +136,7 @@ import { BaseClass } from '@user-interfaces/common';
         `,
     ],
 })
-export class QrReaderComponent extends BaseClass implements OnInit {
+export class QrReaderComponent extends BaseClass implements OnInit, OnDestroy {
     /** Whether to show the overlay menu */
     public show_menu: boolean;
     /** Boolean to toggle scan/code */
@@ -147,9 +147,21 @@ export class QrReaderComponent extends BaseClass implements OnInit {
     @Output() public menu = new EventEmitter(false);
     /** Device ID of Camera */
     private device_id: string;
+    /** Video element to emit camera feed */
+    @ViewChild('video') private _video_el: ElementRef<HTMLVideoElement>;
 
     constructor(private _router: Router) {
         super();
+    }
+
+    public ngOnDestroy() {
+        if (this._video_el?.nativeElement.srcObject) {
+            const track = (this._video_el.nativeElement
+                .srcObject as any).getTracks()[0];
+            if (track) {
+                track.stop();
+            }
+        }
     }
 
     public ngOnInit(): void {
