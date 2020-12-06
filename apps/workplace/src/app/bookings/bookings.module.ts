@@ -8,7 +8,7 @@ import { SharedContentModule } from '../ui/shared.module';
 import { SharedExploreModule } from '@user-interfaces/explore';
 import { SharedUsersModule } from '@user-interfaces/users';
 
-import { QrReaderComponent } from './qr-reader/qr-reader.component';
+import { QrReaderComponent } from './qr-reader.component';
 
 import { SpaceFlowComponent } from './space-flow/space-flow.component';
 import { SpaceFlowFormComponent } from './space-flow/space-flow-form.component';
