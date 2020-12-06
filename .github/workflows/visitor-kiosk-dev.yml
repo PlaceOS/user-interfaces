@@ -57,15 +57,15 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: nx build workplace --configuration=staging --aot
+              run: nx build visitor-kiosk --configuration=staging --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
-                branch: build/workplace/dev
-                source_folder: dist/apps/workplace
+                branch: build/visitor-kiosk/dev
+                source_folder: dist/apps/visitor-kiosk
                 commit_message: >
-                    build(workplace): CI build from ${{ steps.vars.outputs.sha_short }}
+                    build(visitor-kiosk): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}
 
             - name: Update Pipeline Chat Status
