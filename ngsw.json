@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1607295021235,
+  "timestamp": 1607306875176,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,21 +11,21 @@
         "ignoreVary": true
       },
       "urls": [
-        "./catering-catering-module.9aa9100415061953dbba.js",
+        "./catering-catering-module.882338ee6ccb8caa7c53.js",
         "./common.05ef6491f693e14523fb.js",
-        "./day-view-day-view-module.6e210f427a4afbc8c26d.js",
+        "./day-view-day-view-module.a6e03acf8b094530e3bf.js",
         "./default~day-view-day-view-module~facilities-facilities-module.cbd329ec6db613ed068f.js",
-        "./default~desks-desks-module~facilities-facilities-module.f89898fd6955bf410247.js",
-        "./desks-desks-module.bb308f0f953a2ccbc7f9.js",
-        "./facilities-facilities-module.5e874205eb5fff9dd745.js",
+        "./default~desks-desks-module~facilities-facilities-module.91a616d2095e45ef6484.js",
+        "./desks-desks-module.49ff2c7d406f39744177.js",
+        "./facilities-facilities-module.19fc7a5fe25d630016af.js",
         "./favicon.ico",
         "./index.html",
-        "./main.978470a554b2b1c8b82d.js",
+        "./main.9d346eae25b1ceb05344.js",
         "./polyfills.3c558801e44a4118fab0.js",
-        "./runtime.acab5933253f50e805db.js",
-        "./staff-staff-module.9ca8c8b4bb4cbe364db7.js",
+        "./runtime.7640f16f387be566f87a.js",
+        "./staff-staff-module.b5952097c01b4a8a0081.js",
         "./styles.5cf340cf8b31a62a748a.css",
-        "./visitors-visitors-module.2ee8b2ae26b06daa4703.js"
+        "./visitors-visitors-module.92d7554d396900ee9a29.js"
       ],
       "patterns": []
     },
@@ -75,21 +75,21 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./catering-catering-module.9aa9100415061953dbba.js": "16881c868efe92a880078290f353cc870a42f518",
+    "./catering-catering-module.882338ee6ccb8caa7c53.js": "d31ef7be6ec7e5c2092b4e46301d0309d7ef3e34",
     "./common.05ef6491f693e14523fb.js": "98ec36b68fcdb396192f78cd9331be5666cba948",
-    "./day-view-day-view-module.6e210f427a4afbc8c26d.js": "61173ba46ec1ae548936022510645341eea7bf7a",
+    "./day-view-day-view-module.a6e03acf8b094530e3bf.js": "8f6383017efc6316d42d9ffb746c9d9e4da057d2",
     "./default~day-view-day-view-module~facilities-facilities-module.cbd329ec6db613ed068f.js": "d00b00e1250f00454afac78e0aabfe5e12fe8270",
-    "./default~desks-desks-module~facilities-facilities-module.f89898fd6955bf410247.js": "80aad92e2a47deabe4572e1bf7bf93304afff47e",
-    "./desks-desks-module.bb308f0f953a2ccbc7f9.js": "b78e03b1cc0508e9960754d1bf5aaf98602715dd",
-    "./facilities-facilities-module.5e874205eb5fff9dd745.js": "45e9418874637cf6732398990fbd978e79e557ce",
+    "./default~desks-desks-module~facilities-facilities-module.91a616d2095e45ef6484.js": "7f5976a2d5808b3d0abcb937c6cb2c88edaecc0d",
+    "./desks-desks-module.49ff2c7d406f39744177.js": "6b474abf02d4a6ed1c7be05cab546d122fa54ccd",
+    "./facilities-facilities-module.19fc7a5fe25d630016af.js": "f051b5bece1f8457c0e205e95d3992789cefd8d6",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "f9c1619ba78e21345199282241522551ae65456f",
-    "./main.978470a554b2b1c8b82d.js": "4e8d7f7dd1dbeefc8de5d7adf843dd9be17214a6",
+    "./index.html": "1f722d47f1a09f932208138b999757d46234ac34",
+    "./main.9d346eae25b1ceb05344.js": "df5a54e97c9e3e1f9fb38cf97d136f998148c543",
     "./polyfills.3c558801e44a4118fab0.js": "2d8d9d15fbc78d294b38e2729192123d2a9112b5",
-    "./runtime.acab5933253f50e805db.js": "eaf10be8dc497833787efeaedc84218726346901",
-    "./staff-staff-module.9ca8c8b4bb4cbe364db7.js": "e78ca002488c124eb7ad45881fab8cd0932da988",
+    "./runtime.7640f16f387be566f87a.js": "08a45b86aff5ebb0e33a19f9026d33b7e5dd6c13",
+    "./staff-staff-module.b5952097c01b4a8a0081.js": "6206937cfcf1d4c8c27853936d41a37dd8f6f66f",
     "./styles.5cf340cf8b31a62a748a.css": "50e042230b9d77c1e244871e317bb2ddd42c3f3b",
-    "./visitors-visitors-module.2ee8b2ae26b06daa4703.js": "d30da89556edd4edcd2e58ef10d5b1ab1c0d5aeb"
+    "./visitors-visitors-module.92d7554d396900ee9a29.js": "768ea117b8d5dab4dbbc1e006f5b328ed4698384"
   },
   "navigationUrls": [
     {
