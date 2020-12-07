@@ -1,4 +1,8 @@
+import { MatDialog } from '@angular/material/dialog';
+import { first } from 'rxjs/operators';
 import { HashMap } from './types';
+
+import { ConfirmModalComponent, ConfirmModalData, CONFIRM_METADATA } from '../../../components/src/lib/confirm-modal.component';
 
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
@@ -68,6 +72,21 @@ export function unique(array: any[], key: string = '') {
  */
 export function randomInt(ceil: number, floor: number = 0) {
     return Math.floor(Math.random() * (ceil - floor)) + floor;
+}
+
+export async function openConfirmModal(data: ConfirmModalData, dialog: MatDialog) {
+    const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(ConfirmModalComponent, {
+        ...CONFIRM_METADATA,
+        data,
+    });
+    return {
+        ...(await Promise.race([
+            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')).toPromise(),
+            ref.afterClosed().toPromise(),
+        ])),
+        loading: (s) => (ref.componentInstance.loading = s),
+        close: () => ref.close(),
+    };
 }
 
 /**

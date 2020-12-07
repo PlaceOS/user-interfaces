@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, Identity } from '@user-interfaces/common';
+import { BaseClass } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
-import { BookingUIOptions, EventsStateService } from './events-state.service';
+
+import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({
-    selector: 'dayview-topbar',
+    selector: 'week-view-topbar',
     template: `
         <button mat-button class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
@@ -30,30 +31,11 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 </mat-option>
             </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-select
-                multiple
-                [(ngModel)]="type_list"
-                (ngModelChange)="updateTypes($event)"
-                placeholder="No Events"
-            >
-                <mat-select-trigger>Legend</mat-select-trigger>
-                <mat-option *ngFor="let type of types" [value]="type.id">
-                    {{ type.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
         <mat-slide-toggle
             class="m-2"
-            [ngModel]="(ui_options | async)?.show_overflow"
-            (ngModelChange)="updateUIOptions({ show_overflow: $event })"
-            ><div class="text-xs">Setup / Breakdown</div></mat-slide-toggle
-        >
-        <mat-slide-toggle
-            class="m-2"
-            [ngModel]="(ui_options | async)?.show_cleaning"
-            (ngModelChange)="updateUIOptions({ show_cleaning: $event })"
-            ><div class="text-xs">Cleaners View</div></mat-slide-toggle
+            [ngModel]="(options | async)?.show_weekends"
+            (ngModelChange)="setWeekends($event)"
+            ><div class="text-xs">Show weekends</div></mat-slide-toggle
         >
         <div class="flex-1 w-0"></div>
         <!-- <searchbar class="mr-2"></searchbar> -->
@@ -79,34 +61,22 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 width: 8em;
                 margin-left: 1em;
             }
-
-            mat-slide-toggle div {
-                width: 5.5em;
-                white-space: initial;
-                line-height: 1.2em
-            }
         `,
     ],
 })
-export class DayviewTopbarComponent extends BaseClass {
+export class WeekViewTopbarComponent extends BaseClass implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
-
-    public readonly types: Identity[] = [
-        { id: 'internal', name: 'Internal' },
-        { id: 'external', name: 'External' },
-        { id: 'cancelled', name: 'Cancelled' },
-    ];
-    /** List of selected types */
-    public type_list: string[] = this.types.map((i) => `${i.id}`);
-    /** Set filtered date */
-    public readonly setDate = (d) => this._state.setDate(d);
-    /**  */
-    public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
-    /** List of levels for the active building */
-    public readonly ui_options = this._state.options;
+    /** Options set for week view */
+    public readonly options = this._state.options;
+    /** Set filtered date */
+    public readonly setDate = (d) => this._state.setDate(d);
+    /** Set filtered date */
+    public readonly setWeekends = (d) => this._state.setUIOptions({ show_weekends: d });
+    /**  */
+    public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {
@@ -115,18 +85,6 @@ export class DayviewTopbarComponent extends BaseClass {
         });
         this._state.setZones(z);
     };
-    /** List of levels for the active building */
-    public readonly updateTypes = (types) =>
-        this._state.setFilters({
-            hide_type: this.types.reduce((list, item) => {
-                !types.includes(item.id) ? list.push(item) : '';
-                return list;
-            }, []),
-        });
-
-    public updateUIOptions(options: BookingUIOptions) {
-        this._state.setUIOptions(options);
-    }
 
     constructor(
         private _state: EventsStateService,
@@ -167,6 +125,5 @@ export class DayviewTopbarComponent extends BaseClass {
                 this.updateZones(this.zones);
             })
         );
-        this.updateTypes(this.type_list);
     }
 }

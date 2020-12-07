@@ -10,7 +10,6 @@ import { DayviewTopbarComponent } from './dayview-topbar.component';
 import { DayviewTimelineComponent } from './dayview-timeline.component';
 import { DayviewSpaceComponent } from './dayview-space.component';
 import { DayviewEventComponent } from './dayview-event.component';
-import { DayviewEventDetailsComponent } from './dayview-event-details.component';
 
 import { BookingModalComponent } from './booking-modal.component';
 import { EventFormComponent } from './event-form.component';
@@ -26,7 +25,6 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
         DayviewTimelineComponent,
         DayviewSpaceComponent,
         DayviewEventComponent,
-        DayviewEventDetailsComponent,
 
         BookingModalComponent,
         EventFormComponent

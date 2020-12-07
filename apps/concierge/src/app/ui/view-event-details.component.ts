@@ -3,10 +3,10 @@ import { format, addMinutes } from 'date-fns';
 
 import { CalendarEvent } from '@user-interfaces/events';
 import { SpacesService } from '@user-interfaces/spaces';
-import { EventsStateService } from './events-state.service';
+import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({
-    selector: 'dayview-event-details',
+    selector: 'view-event-details',
     template: `
         <div class="fixed inset-0" (click)="close()"></div>
         <div name="panel" class="absolute rounded shadow flex flex-col" (click)="$event.stopPropagation()">
@@ -80,7 +80,7 @@ import { EventsStateService } from './events-state.service';
         `,
     ],
 })
-export class DayviewEventDetailsComponent {
+export class ViewEventDetailsComponent {
     /** Event to display */
     @Input() public event: CalendarEvent;
     /** Close displayed event */

@@ -15,6 +15,7 @@ import { EventsStateService } from './events-state.service';
         ></div>
         <div
             name="event"
+            matRipple
             [class]="'absolute rounded overflow-hidden text-sm ' + type"
             *ngIf="event"
             [style.top]="top * 100 + '%'"
@@ -127,7 +128,7 @@ export class DayviewEventComponent implements OnChanges {
 
     public readonly view = (e) => this._state.setEvent(e);
 
-    public readonly ui_options = this._state.ui_options;
+    public readonly ui_options = this._state.options;
 
     public get time() {
         const date = new Date(this.event.date);
