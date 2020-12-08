@@ -159,11 +159,3 @@ div.tox-tinymce {
         background-color: #d32f2f;
     }
 }
-
-i-map svg {
-    display: initial !important;
-
-    *:not([id^="table"]):not([id^="area"]):not([id^="book"]):not([id^="furniature"]) {
-        display: none;
-    }
-}

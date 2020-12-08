@@ -6,11 +6,3 @@
 // For more information: https://material.angular.io/guide/theming
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 // Plus imports for other components in your app.
-
-i-map svg {
-    display: initial !important;
-
-    *:not([id^="table"]):not([id^="area"]):not([id^="book"]) {
-        display: none;
-    }
-}

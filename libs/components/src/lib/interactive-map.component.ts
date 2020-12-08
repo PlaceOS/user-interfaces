@@ -31,11 +31,20 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     selector: `i-map,interactive-map`,
     template: `
         <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
-        <mat-spinner *ngIf="!viewer" class="center" [diameter]="48"></mat-spinner>
+        <mat-spinner
+            *ngIf="!viewer || loading"
+            class="center"
+            [diameter]="48"
+        ></mat-spinner>
         <div hidden>
             <ng-container *ngFor="let element of features; let i = index">
                 <div *ngIf="element">
-                    <div #feature class="pointer-events-none" [attr.el-id]="element.location" [attr.view-id]="viewer">
+                    <div
+                        #feature
+                        class="pointer-events-none"
+                        [attr.el-id]="element.location"
+                        [attr.view-id]="viewer"
+                    >
                         <ng-container
                             *ngComponentOutlet="
                                 element.content;
@@ -49,14 +58,16 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
     `,
     styles: [
         `
-        :host {
-            height: 100%;
-            width: 100%;
-        }
-    `,
+            :host {
+                height: 100%;
+                width: 100%;
+            }
+        `,
     ],
 })
-export class InteractiveMapComponent extends BaseClass implements AfterViewInit {
+export class InteractiveMapComponent
+    extends BaseClass
+    implements AfterViewInit {
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -71,6 +82,8 @@ export class InteractiveMapComponent extends BaseClass implements AfterViewInit 
     @Input() public labels: ViewerLabel[];
     /** List of available user actions for the SVG */
     @Input() public actions: ViewAction[];
+
+    public loading: boolean;
 
     public injectors: Injector[] = [];
 
@@ -141,7 +154,9 @@ export class InteractiveMapComponent extends BaseClass implements AfterViewInit 
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
-        if (!getViewer(this.viewer)) return this.timeout('update_view', () => this.updateView());
+        if (!getViewer(this.viewer) || this.loading) {
+            return this.timeout('update_view', () => this.updateView());
+        }
         try {
             updateViewer(this.viewer, {
                 styles: this.styles,
@@ -164,6 +179,7 @@ export class InteractiveMapComponent extends BaseClass implements AfterViewInit 
 
     private async createView() {
         if (this.src && this._outlet_el?.nativeElement) {
+            this.loading = true;
             if (this.viewer) {
                 removeViewer(this.viewer);
             }
@@ -178,11 +194,15 @@ export class InteractiveMapComponent extends BaseClass implements AfterViewInit 
                 labels: this.labels,
                 actions: this.actions,
             });
-
-            this.timeout('update_view', () => {
-                this.updateView();
-                this.updateDisplay();
-            }, 100);
+            this.timeout(
+                'update_view',
+                () => {
+                    this.updateView();
+                    this.updateDisplay();
+                },
+                100
+            );
+            this.loading = false;
         }
     }
 }
