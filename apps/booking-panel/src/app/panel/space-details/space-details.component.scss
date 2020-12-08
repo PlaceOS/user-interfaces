@@ -10,25 +10,25 @@
 
 .current {
     .time {
-        color: $error;
+        color: var(--error);
     }
 }
 
 .next {
     .time {
-        color: $pending;
+        color: var(--pending);
     }
 }
 
 .other {
     .time {
-        color: $success;
+        color: var(--success);
     }
 }
 
 .host {
     font-size: .9em;
-    color: rgba($font-light, .6);
+    color: rgba(var(--font-light), .6);
 }
 
 .time {

@@ -60,7 +60,7 @@ jobs:
               run: npm run postversion
 
             - name: Builds the application
-              run: nx build bookings --prod --aot
+              run: nx build booking-panel --prod --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

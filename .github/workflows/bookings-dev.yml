@@ -57,7 +57,7 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: nx build bookings --configuration=staging --aot
+              run: nx build booking-panel --configuration=staging --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1

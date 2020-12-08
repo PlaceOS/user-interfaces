@@ -37,7 +37,7 @@
     }
 
     &.in-use {
-        background-color: rgba($error, .6);
+        background-color: rgba(var(--error), .6);
     }
 }
 
@@ -85,7 +85,7 @@
         width: 2px;
         border: none;
         display: initial;
-        background-color: $color-primary;
+        background-color: var(--primary);
     }
     z-index: 4;
 }
@@ -98,7 +98,7 @@
     height: 0;
     border-style: solid;
     border-width: .8em .8em 0 .8em;
-    border-color: $color-primary transparent transparent transparent;
+    border-color: var(--primary) transparent transparent transparent;
 }
 
 .time-display {
