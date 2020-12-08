@@ -57,13 +57,13 @@ jobs:
             #   run: npm run test:ci
 
             - name: Builds the application
-              run: nx build catering --configuration=staging --aot
+              run: nx build caterer-ui --configuration=staging --aot
 
             - name: Deploy the application
               uses:  MrYuion/gha-publish-to-git@v1.1
               with:
                 branch: build/catering/uat
-                source_folder: dist/apps/catering
+                source_folder: dist/apps/caterer-ui
                 commit_message: >
                     build(catering): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}
