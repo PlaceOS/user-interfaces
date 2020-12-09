@@ -14,6 +14,7 @@ import { BaseClass } from '@user-interfaces/common';
                 [zoom]="(positions | async).zoom"
                 [center]="(positions | async).center"
                 [styles]="styles | async"
+                [features]="features | async"
                 [actions]="actions | async"
             ></i-map>
             <explore-zoom-controls
@@ -64,6 +65,8 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
     public readonly positions = this._state.map_positions;
     /** Observable for the active map */
     public readonly actions = this._state.map_actions;
+    /** Observable for the active map */
+    public readonly features = this._state.map_features;
     /** Observable for the active map */
     public readonly loading = this._flow.loading;
     /** Observable for the active map */

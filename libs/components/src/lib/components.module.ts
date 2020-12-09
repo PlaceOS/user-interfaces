@@ -32,6 +32,7 @@ import { CommonModule } from '@angular/common';
 import { InteractiveMapComponent } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 export * from './action-field/action-field.component';
 export * from './action-icon/action-icon.component';
@@ -99,7 +100,9 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
         APipesModule,
         ...MAT_MODULES,
     ],
-    providers: [],
+    providers: [
+        { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    ],
     exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
 })
 export class ComponentsModule {}

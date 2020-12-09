@@ -132,7 +132,7 @@ export class BaseAPIService<T extends {} = BaseDataClass> extends BaseClass {
      * Query the index of the API route associated with this service
      * @param query_params Map of query paramaters to add to the request URL
      */
-    public query(query_params: HashMap = { update_list: true }): Promise<T[]> {
+    public query(query_params: HashMap = {}): Promise<T[]> {
         let cache = 1000;
         let subroute = '';
         if (query_params) {

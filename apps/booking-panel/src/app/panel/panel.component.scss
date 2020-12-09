@@ -43,18 +43,6 @@
         align-items: center;
     }
 
-    @include respond-to(tablet-landscape) {
-        width: 8em;
-    }
-
-    @include respond-to(mobile-portrait) {
-        height: 4em;
-    }
-
-    @include respond-to(mobile-landscape) {
-        width: 6em;
-    }
-
     &.available {
         background-color: var(--success);
     }

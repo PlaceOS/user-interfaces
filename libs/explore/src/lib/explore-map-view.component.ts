@@ -31,7 +31,7 @@ import { getModule } from '@placeos/ts-client';
         <explore-map-controls
             class="absolute top-0 left-0"
         ></explore-map-controls>
-        <explore-search class="absolute top-0 right-0"></explore-search>
+        <!-- <explore-search class="absolute top-0 right-0"></explore-search> -->
         <div
             name="zones"
             class="p-2 bg-white border border-gray-400 absolute left-0 m-2 rounded flex items-center"

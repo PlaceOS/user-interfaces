@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BaseClass, notifyError, notifySuccess } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 import { StaffService } from '@user-interfaces/users';
 import { first } from 'rxjs/operators';
@@ -10,7 +12,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
         <header>
             <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
         </header>
-        <main class="flex flex-1 flex-col relative">
+        <main class="flex flex-1 flex-col relative" *ngIf="!checkin; else checkin_state">
             <div class="w-full bg-gray-800 text-white p-4">
                 <div options class="m-auto">
                     <h2 class="text-xl font-medium mb-4 text-center">
@@ -96,6 +98,12 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 <p>Retrieving available desks for building and time...</p>
             </div>
         </ng-template>
+        <ng-template #checkin_state>
+            <main class="flex-1 flex flex-col items-center justify-center w-full">
+                <mat-spinner class="mb-4" [diameter]="48"></mat-spinner>
+                <p>Checking in desk...</p>
+            </main>
+        </ng-template>
     `,
     styles: [
         `
@@ -131,11 +139,13 @@ import { DeskFlowStateService } from './desk-flow-state.service';
         `,
     ],
 })
-export class DeskFlowListingComponent {
+export class DeskFlowListingComponent extends BaseClass {
     /** Reason for making the booking */
     public reason: string;
 
     public show_menu: boolean = false;
+
+    public checkin: boolean;
 
     public readonly buildings = this._org.building_list;
 
@@ -152,13 +162,25 @@ export class DeskFlowListingComponent {
     constructor(
         private _desks: DeskFlowStateService,
         private _org: OrganisationService,
-        private _staff: StaffService
-    ) {}
+        private _staff: StaffService,
+        private _route: ActivatedRoute
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first(_ => _)).toPromise();
         await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
         this._desks.setHost(this._staff.current);
         this.setOptions({ zones: [this._org.building.id] });
+        this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
+            if (params.has('checkin')) {
+                this.checkin = true;
+                const success = await this._desks.checkin(params.get('checkin'));
+                this.checkin = false;
+                if (!success) return notifyError('Error checking in desk.');
+                notifySuccess('Successfully checked in to desk');
+            }
+        }));
     }
 }

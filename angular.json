@@ -526,6 +526,26 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/booking-panel/src/environments/environment.ts",
+                                    "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/booking-panel/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/booking-panel/ngsw-config.json"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
@@ -697,6 +717,26 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/concierge/src/environments/environment.ts",
+                                    "with": "apps/concierge/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/concierge/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/concierge/ngsw-config.json"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
@@ -866,6 +906,26 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/visitor-kiosk/src/environments/environment.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/visitor-kiosk/ngsw-config.json"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
@@ -1036,6 +1096,26 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/control/src/environments/environment.ts",
+                                    "with": "apps/control/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/control/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/control/ngsw-config.json"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
@@ -1197,6 +1277,26 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/caterer-ui/src/environments/environment.ts",
+                                    "with": "apps/caterer-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/caterer-ui/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/caterer-ui/ngsw-config.json"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
@@ -1366,6 +1466,26 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/map-kiosk/src/environments/environment.ts",
+                                    "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/map-kiosk/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/map-kiosk/ngsw-config.json"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {

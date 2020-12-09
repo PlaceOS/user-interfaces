@@ -24,12 +24,14 @@ import { APipesModule } from '@acaprojects/ngx-pipes';
 import { SidebarComponent } from './sidebar.component';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
+import { ViewEventDetailsComponent } from './view-event-details.component';
 import { ComponentsModule } from '@user-interfaces/components';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
     DateOptionsComponent,
     SearchbarComponent,
+    ViewEventDetailsComponent
 ];
 
 const MAT_MODULES: any[] = [

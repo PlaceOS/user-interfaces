@@ -27,6 +27,12 @@ jobs:
               id: vars
               run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
+            - name: Initialise Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              with:
+                url: ${{ secrets.STATUS_URL }}
+                data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+
             - name: Setup Node.js environment
               uses: actions/setup-node@v1.4.4
               with:
@@ -65,18 +71,9 @@ jobs:
                     build(workplace): CI build from ${{ steps.vars.outputs.sha_short }}
                 github_pat: ${{ secrets.API_GITHUB_TOKEN }}
 
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
+            - name: Update Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
               with:
-                  name: Build
-                  url: ${{ secrets.CHAT_SUCCESS_WORKPLACE }}
-                  status: ${{ job.status }}
-              if: success()
-
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
-              with:
-                  name: Build
-                  url: ${{ secrets.CHAT_ERROR_WORKPLACE }}
-                  status: ${{ job.status }}
-              if: failure()
+                url: ${{ secrets.STATUS_URL }}
+                data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              if: ${{ always() }}

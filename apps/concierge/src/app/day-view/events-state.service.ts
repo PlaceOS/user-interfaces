@@ -55,6 +55,8 @@ export interface BookingUIOptions {
     show_overflow?: boolean;
     /** Whether to show cleaning status of the events */
     show_cleaning?: boolean;
+    /** Whether weekends should be shown on week view */
+    show_weekends?: boolean;
 }
 
 @Injectable({
@@ -70,7 +72,7 @@ export class EventsStateService extends BaseClass {
     /** Filter details for bookings */
     private _filters = new BehaviorSubject<BookingFilters>({});
     /** Filter details for bookings */
-    private _ui_options = new BehaviorSubject<BookingUIOptions>({});
+    private _options = new BehaviorSubject<BookingUIOptions>({});
     /** Currently active date */
     private _date = new BehaviorSubject<number>(new Date().valueOf());
     /** Currently displayed zone */
@@ -94,7 +96,7 @@ export class EventsStateService extends BaseClass {
     /** Observable for active zone */
     public readonly zones = this._zones.asObservable();
     /** Observable for UI display options */
-    public readonly ui_options = this._ui_options.asObservable();
+    public readonly options = this._options.asObservable();
     /** Observable for loading state of bookings */
     public readonly loading = this._loading.asObservable();
     /** Observable for viewed event */
@@ -234,8 +236,8 @@ export class EventsStateService extends BaseClass {
      * @param details
      */
     public setUIOptions(options: BookingUIOptions) {
-        const old_options = this._ui_options.getValue();
-        this._ui_options.next({ ...old_options, ...options });
+        const old_options = this._options.getValue();
+        this._options.next({ ...old_options, ...options });
     }
 
     /**
