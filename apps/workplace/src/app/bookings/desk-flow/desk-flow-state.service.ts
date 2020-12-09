@@ -230,12 +230,16 @@ export class DeskFlowStateService extends BaseClass {
         ]);
         if (!success) return;
         ref.componentInstance.loading = 'Checking for existing desk bookings...';
-        const desks = await this._bookings.query({
+        const bookings = await this._bookings.query({
             type: 'desk',
             period_start: Math.floor(startOfDay(options.date || new Date()).valueOf() / 1000),
             period_end: Math.floor(endOfDay(options.date || new Date()).valueOf() / 1000),
         });
-        if (!desks?.length) return notifyError('You currently already have a desk booked for the selected date.');
+        const desks = bookings.filter(d => d.user_email === this._staff.current.email);
+        if (desks?.length) {
+            ref.close();
+            return notifyError('You currently already have a desk booked for the selected date.');
+        }
         ref.componentInstance.loading = 'Booking desk...';
         await this.makeDeskBooking(
             desk,
