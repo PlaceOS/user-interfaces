@@ -1,0 +1,136 @@
+import { Injectable } from '@angular/core';
+import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { CalendarService } from '@user-interfaces/calendar';
+import { BaseClass, timePeriodsIntersect } from '@user-interfaces/common';
+import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
+
+export interface ScheduleOptions {
+    date: number;
+    calendar?: string;
+}
+
+@Injectable({
+    providedIn: 'root',
+})
+export class ScheduleStateService extends BaseClass {
+    private _loading = new BehaviorSubject<boolean>(false);
+    private _poll = new BehaviorSubject<boolean>(false);
+
+    private _active_item = new BehaviorSubject<string>('');
+
+    private _event_list = new BehaviorSubject<(CalendarEvent | Booking)[]>([]);
+
+    private _options = new BehaviorSubject<ScheduleOptions>({
+        date: new Date().valueOf(),
+    });
+
+    public readonly loading = this._loading.asObservable();
+    public readonly events = this._event_list.asObservable();
+    public readonly options = this._options.asObservable();
+    public readonly calendars = this._calendars.calendar_list;
+
+    public readonly active_item = this._active_item.pipe(
+        switchMap((id) =>
+            this._bookings.show(id, {
+                calendar: this._options.getValue().calendar,
+            })
+        ),
+        catchError((_) => this._events.show(this._active_item.getValue())),
+        catchError((_) => null)
+    );
+
+    public readonly filtered_events = combineLatest([
+        this._options,
+        this._event_list,
+    ]).pipe(
+        map(([options, events]) => {
+            return events.filter(
+                (e) =>
+                    (options.calendar && e instanceof CalendarEvent) ||
+                    ((!options.calendar || options.calendar === 'desks') && e instanceof Booking)
+            );
+        })
+    );
+
+    public get date() {
+        return this._options.getValue().date;
+    }
+
+    constructor(
+        private _events: EventsService,
+        private _bookings: BookingsService,
+        private _calendars: CalendarService
+    ) {
+        super();
+        this.subscription(
+            'event_list',
+            combineLatest([this._options, this._poll])
+                .pipe(
+                    debounceTime(1000),
+                    switchMap(([options]) => {
+                        this._loading.next(true);
+                        const start = startOfDay(options.date).valueOf();
+                        let duration = isToday(start) ? 6 : 4;
+                        const end = endOfDay(addDays(start, duration)).valueOf();
+                        return Promise.all([
+                            this._events.query({
+                                period_start: Math.floor(start / 1000),
+                                period_end: Math.floor(end / 1000),
+                                calendars: options.calendar,
+                            }),
+                            this._bookings.query({
+                                period_start: Math.floor(start / 1000),
+                                period_end: Math.floor(end / 1000),
+                                type: 'desk',
+                            }),
+                        ]);
+                    }),
+                    map(([events, bookings]) =>
+                        (events as any[]).concat(bookings)
+                    ),
+                    catchError(_ => [])
+                )
+                .subscribe((event_list) => {
+                    console.log('Event List:', event_list);
+                    const start = startOfDay(
+                        this._options.getValue().date
+                    ).valueOf();
+                    const end = endOfDay(addDays(start, 6)).valueOf();
+                    let list = this._event_list.getValue().filter((item) => {
+                        return (
+                            !timePeriodsIntersect(
+                                start,
+                                end,
+                                item.date,
+                                item.date + item.duration * 60 * 1000
+                            ) && !event_list.find((i) => i.id === item.id)
+                        );
+                    });
+                    list = list.concat(event_list)
+                    list.sort((a, b) => a.date - b.date);
+                    this._event_list.next(list);
+                    this._loading.next(false);
+                })
+        );
+    }
+
+    public setOptions(options: Partial<ScheduleOptions>) {
+        this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public startPolling(delay: number = 15 * 1000) {
+        this._poll.next(!this._poll.getValue());
+        this.interval(
+            'poll',
+            () => this._poll.next(!this._poll.getValue()),
+            delay
+        );
+    }
+
+    public stopPolling() {
+        this.clearInterval('poll');
+    }
+}

@@ -1,67 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-
-import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
-
-import { EventPair } from './event-list/event-list.component';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-schedule',
-    templateUrl: './schedule.template.html',
-    styleUrls: ['./schedule.styles.scss'],
+    template: `
+        <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
+        <ng-container [ngSwitch]="page">
+            <ng-container *ngSwitchCase="'view'">
+                <schedule-view-event class="flex-1 h-1/2"></schedule-view-event>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+                <schedule-event-list class="flex-1 h-1/2"></schedule-event-list>
+            </ng-container>
+        </ng-container>
+        <a-footer-menu class="w-full"></a-footer-menu>
+        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+        `,
+    ],
 })
-export class ScheduleComponent extends BaseClass implements OnInit {
+export class ScheduleComponent {
     /** Name of the page to render */
     public page: string;
-    /** Current list of loaded events */
-    public events: EventPair[];
     /** Whether to show menu */
     public show_menu = false;
-
-    constructor(private _route: ActivatedRoute, private _settings: SettingsService) {
-        super();
-    }
-
-    public ngOnInit(): void {
-        this._settings.post('navTitle', 'My Day');
-        this.subscription(
-            'route.route',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('page')) {
-                    this.page = params.get('page');
-                }
-            })
-        );
-        this.loadEvents();
-        clearEventFormState();
-    }
-
-    /**
-     * Update local event listing
-     * @param event_list New list of events
-     */
-    public updateEvents(event_list: EventPair[]) {
-        this.events = event_list;
-        this.saveEvents();
-    }
-
-    /**
-     * Save the current event listing
-     */
-    public saveEvents() {
-        if (localStorage) {
-            localStorage.setItem('STAFF.events', JSON.stringify(this.events || []));
-        }
-    }
-
-    /**
-     * Load the last saved event listing
-     */
-    public loadEvents() {
-        if (localStorage) {
-            const data = localStorage.getItem('STAFF.events');
-            this.events = JSON.parse(data || '[]');
-        }
-    }
 }
