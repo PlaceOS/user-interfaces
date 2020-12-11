@@ -37,12 +37,14 @@ export interface EventPair {
                 Legend
             </button>
             <mat-menu #legend="matMenu">
-                <div class="legend" *ngFor="let item of legend_list">
-                    <div
-                        class="color"
-                        [style.background-color]="item.color"
-                    ></div>
-                    {{ item.name }}
+                <div class="flex items-center px-4 py-2 hover:bg-gray-100">
+                    <div class="bg-success h-2 w-2 rounded-full mr-4"></div>Approved
+                </div>
+                <div class="flex items-center px-4 py-2 hover:bg-gray-100">
+                    <div class="bg-pending h-2 w-2 rounded-full mr-4"></div>Tentative
+                </div>
+                <div class="flex items-center px-4 py-2 hover:bg-gray-100">
+                    <div class="bg-error h-2 w-2 rounded-full mr-4"></div>Declined
                 </div>
             </mat-menu>
             <button mat-icon-button class="relative" #dateMenu>
@@ -86,6 +88,8 @@ export interface EventPair {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
+                height: 50%;
+                flex: 1;
             }
         `,
     ],
@@ -94,7 +98,6 @@ export class ScheduleEventViewComponent extends BaseClass implements OnInit {
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
     public readonly calendars = this._state.calendars;
-    public readonly legend_list = [];
 
     public readonly events = combineLatest([this._state.filtered_events, this._state.options]).pipe(
         map(([events, options]) => {
