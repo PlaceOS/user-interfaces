@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { Booking, BookingsService } from '@user-interfaces/bookings';
 import { CalendarService } from '@user-interfaces/calendar';
-import { BaseClass, timePeriodsIntersect } from '@user-interfaces/common';
+import { BaseClass, notifyError, notifySuccess, openConfirmModal, timePeriodsIntersect } from '@user-interfaces/common';
 import { CalendarEvent, EventsService } from '@user-interfaces/events';
 import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { catchError, debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface ScheduleOptions {
     date: number;
@@ -16,7 +18,7 @@ export interface ScheduleOptions {
     providedIn: 'root',
 })
 export class ScheduleStateService extends BaseClass {
-    private _loading = new BehaviorSubject<boolean>(false);
+    private _loading = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject<boolean>(false);
 
     private _active_item = new BehaviorSubject<string>('');
@@ -26,6 +28,8 @@ export class ScheduleStateService extends BaseClass {
     private _options = new BehaviorSubject<ScheduleOptions>({
         date: new Date().valueOf(),
     });
+
+    private _item: CalendarEvent | Booking;
 
     public readonly loading = this._loading.asObservable();
     public readonly events = this._event_list.asObservable();
@@ -39,7 +43,12 @@ export class ScheduleStateService extends BaseClass {
             })
         ),
         catchError((_) => this._events.show(this._active_item.getValue())),
-        catchError((_) => null)
+        catchError((_) => of(null)),
+        map((_: CalendarEvent | Booking | null) => {
+            this._item = _;
+            return _;
+        }),
+        shareReplay()
     );
 
     public readonly filtered_events = combineLatest([
@@ -62,7 +71,9 @@ export class ScheduleStateService extends BaseClass {
     constructor(
         private _events: EventsService,
         private _bookings: BookingsService,
-        private _calendars: CalendarService
+        private _calendars: CalendarService,
+        private _dialog: MatDialog,
+        private _router: Router
     ) {
         super();
         this.subscription(
@@ -71,7 +82,7 @@ export class ScheduleStateService extends BaseClass {
                 .pipe(
                     debounceTime(1000),
                     switchMap(([options]) => {
-                        this._loading.next(true);
+                        this._loading.next(' ');
                         const start = startOfDay(options.date).valueOf();
                         let duration = isToday(start) ? 6 : 4;
                         const end = endOfDay(addDays(start, duration)).valueOf();
@@ -94,7 +105,6 @@ export class ScheduleStateService extends BaseClass {
                     catchError(_ => [])
                 )
                 .subscribe((event_list) => {
-                    console.log('Event List:', event_list);
                     const start = startOfDay(
                         this._options.getValue().date
                     ).valueOf();
@@ -112,13 +122,18 @@ export class ScheduleStateService extends BaseClass {
                     list = list.concat(event_list)
                     list.sort((a, b) => a.date - b.date);
                     this._event_list.next(list);
-                    this._loading.next(false);
+                    this._loading.next('');
                 })
         );
     }
 
     public setOptions(options: Partial<ScheduleOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public setItem(id: string) {
+        console.log('Set ID:', id);
+        this._active_item.next(id);
     }
 
     public startPolling(delay: number = 15 * 1000) {
@@ -132,5 +147,23 @@ export class ScheduleStateService extends BaseClass {
 
     public stopPolling() {
         this.clearInterval('poll');
+    }
+
+    public async deleteEvent() {
+        if (!this._item) return;
+        const details = await openConfirmModal({
+            title: 'Cancel Meeting',
+            content: `Are you sure you want to cancel this meeting: ${this._item.title}`,
+            icon: { content: 'delete' }
+        }, this._dialog);
+        if (!details) return;
+        const is_event = this._item instanceof CalendarEvent;
+        details.loading(`Cancelling ${is_event ? 'meeting' : 'desk booking'}...`);
+        const method = is_event ? this._events.delete : this._bookings.delete
+        const err = await method(this._item.id).catch(_ => _);
+        details.close();
+        if (err) return notifyError(`Error unable to cancel ${is_event ? 'meeting' : 'desk booking'}. Error: ${err.statusText || err.message || err}`);
+        notifySuccess(`Successfully cancelled ${is_event ? 'meeting' : 'desk booking'}.`);
+        this._router.navigate(['/schedule', 'listing'], { queryParamsHandling: 'preserve' });
     }
 }
