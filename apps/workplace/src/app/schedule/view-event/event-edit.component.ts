@@ -1,27 +1,69 @@
 import {
     Component,
-    OnInit,
     EventEmitter,
     Input,
-    Output,
-    SimpleChanges,
     OnChanges,
     OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-
 import { BaseClass } from '@user-interfaces/common';
 import { CalendarEvent, generateEventForm } from '@user-interfaces/events';
-
-import { BookingConfirmComponent } from '../../../bookings/overlays/booking-confirm/booking-confirm.component';
+import { BookingConfirmComponent } from '../../bookings/overlays/booking-confirm/booking-confirm.component';
 
 @Component({
     selector: 'schedule-event-edit',
-    templateUrl: './event-edit.component.html',
-    styleUrls: ['./event-edit.component.scss'],
+    template: `
+        <form
+            class="grid m-auto mt-8"
+            *ngIf="form && event"
+            [formGroup]="form"
+            (ngSubmit)="save()"
+        >
+            <booking-edit [form]="form" [event]="event"></booking-edit>
+            <div
+                class="footer flex items-center justify-center w-full p-2 space-x-2"
+            >
+                <button
+                    mat-button
+                    type="button"
+                    class="inverse"
+                    (click)="cancel()"
+                >
+                    Cancel
+                </button>
+                <button mat-button type="submit">Save</button>
+            </div>
+        </form>
+    `,
+    styles: [
+        `
+            form {
+                grid-template-columns: max-content;
+                grid-template-rows: 1fr auto;
+                grid-template-areas:
+                    'edit'
+                    'actions';
+                max-width: 600px;
+            }
+
+            booking-edit,
+            schedule-event-view {
+                grid-area: edit;
+            }
+
+            .footer {
+                grid-area: actions;
+            }
+        `,
+    ],
 })
-export class EventEditComponent extends BaseClass implements OnInit, OnChanges, OnDestroy {
+export class EventEditComponent
+    extends BaseClass
+    implements OnInit, OnChanges, OnDestroy {
     /** Booking to display */
     @Input() public event: CalendarEvent;
     /** Emitter for action on the display view */

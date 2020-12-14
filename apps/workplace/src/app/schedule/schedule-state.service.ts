@@ -3,11 +3,23 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, BookingsService } from '@user-interfaces/bookings';
 import { CalendarService } from '@user-interfaces/calendar';
-import { BaseClass, notifyError, notifySuccess, openConfirmModal, timePeriodsIntersect } from '@user-interfaces/common';
+import {
+    BaseClass,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+    timePeriodsIntersect
+} from '@user-interfaces/common';
 import { CalendarEvent, EventsService } from '@user-interfaces/events';
 import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of, throwError } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap
+} from 'rxjs/operators';
 
 export interface ScheduleOptions {
     date: number;
@@ -37,12 +49,19 @@ export class ScheduleStateService extends BaseClass {
     public readonly calendars = this._calendars.calendar_list;
 
     public readonly active_item = this._active_item.pipe(
-        switchMap((id) =>
-            this._bookings.show(id, {
-                calendar: this._options.getValue().calendar,
-            })
+        debounceTime(500),
+        switchMap((id) => {
+            return id
+                ? this._events.show(id, {
+                      calendar: this._options.getValue().calendar,
+                  })
+                : throwError('No ID');
+        }),
+        catchError((_) =>
+            this._active_item.getValue()
+                ? this._bookings.show(this._active_item.getValue())
+                : of(null)
         ),
-        catchError((_) => this._events.show(this._active_item.getValue())),
         catchError((_) => of(null)),
         map((_: CalendarEvent | Booking | null) => {
             this._item = _;
@@ -59,7 +78,8 @@ export class ScheduleStateService extends BaseClass {
             return events.filter(
                 (e) =>
                     (options.calendar && e instanceof CalendarEvent) ||
-                    ((!options.calendar || options.calendar === 'desks') && e instanceof Booking)
+                    ((!options.calendar || options.calendar === 'desks') &&
+                        e instanceof Booking)
             );
         })
     );
@@ -85,7 +105,9 @@ export class ScheduleStateService extends BaseClass {
                         this._loading.next(' ');
                         const start = startOfDay(options.date).valueOf();
                         let duration = isToday(start) ? 6 : 4;
-                        const end = endOfDay(addDays(start, duration)).valueOf();
+                        const end = endOfDay(
+                            addDays(start, duration)
+                        ).valueOf();
                         return Promise.all([
                             this._events.query({
                                 period_start: Math.floor(start / 1000),
@@ -102,7 +124,7 @@ export class ScheduleStateService extends BaseClass {
                     map(([events, bookings]) =>
                         (events as any[]).concat(bookings)
                     ),
-                    catchError(_ => [])
+                    catchError((_) => [])
                 )
                 .subscribe((event_list) => {
                     const start = startOfDay(
@@ -119,7 +141,7 @@ export class ScheduleStateService extends BaseClass {
                             ) && !event_list.find((i) => i.id === item.id)
                         );
                     });
-                    list = list.concat(event_list)
+                    list = list.concat(event_list);
                     list.sort((a, b) => a.date - b.date);
                     this._event_list.next(list);
                     this._loading.next('');
@@ -149,21 +171,49 @@ export class ScheduleStateService extends BaseClass {
         this.clearInterval('poll');
     }
 
+    public duplicateEvent() {
+        if (sessionStorage) {
+            const booking = new CalendarEvent({
+                ...(this._item as any),
+                id: '',
+            });
+            sessionStorage.setItem(
+                'STAFF.booking_form',
+                JSON.stringify(booking)
+            );
+        }
+        this._router.navigate(['/book']);
+    }
+
     public async deleteEvent() {
         if (!this._item) return;
-        const details = await openConfirmModal({
-            title: 'Cancel Meeting',
-            content: `Are you sure you want to cancel this meeting: ${this._item.title}`,
-            icon: { content: 'delete' }
-        }, this._dialog);
+        const details = await openConfirmModal(
+            {
+                title: 'Cancel Meeting',
+                content: `Are you sure you want to cancel this meeting: ${this._item.title}`,
+                icon: { content: 'delete' },
+            },
+            this._dialog
+        );
         if (!details) return;
         const is_event = this._item instanceof CalendarEvent;
-        details.loading(`Cancelling ${is_event ? 'meeting' : 'desk booking'}...`);
-        const method = is_event ? this._events.delete : this._bookings.delete
-        const err = await method(this._item.id).catch(_ => _);
+        details.loading(
+            `Cancelling ${is_event ? 'meeting' : 'desk booking'}...`
+        );
+        const method = is_event ? this._events.delete : this._bookings.delete;
+        const err = await method(this._item.id).catch((_) => _);
         details.close();
-        if (err) return notifyError(`Error unable to cancel ${is_event ? 'meeting' : 'desk booking'}. Error: ${err.statusText || err.message || err}`);
-        notifySuccess(`Successfully cancelled ${is_event ? 'meeting' : 'desk booking'}.`);
-        this._router.navigate(['/schedule', 'listing'], { queryParamsHandling: 'preserve' });
+        if (err)
+            return notifyError(
+                `Error unable to cancel ${
+                    is_event ? 'meeting' : 'desk booking'
+                }. Error: ${err.statusText || err.message || err}`
+            );
+        notifySuccess(
+            `Successfully cancelled ${is_event ? 'meeting' : 'desk booking'}.`
+        );
+        this._router.navigate(['/schedule', 'listing'], {
+            queryParamsHandling: 'preserve',
+        });
     }
 }

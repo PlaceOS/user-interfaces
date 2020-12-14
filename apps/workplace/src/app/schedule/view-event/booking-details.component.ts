@@ -1,16 +1,13 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Booking } from '@user-interfaces/bookings';
+import { BaseClass } from '@user-interfaces/common';
+import { Space } from '@user-interfaces/spaces';
+import * as dayjs from 'dayjs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-import { BaseClass } from '@user-interfaces/common';
-import { Booking } from '@user-interfaces/bookings';
-import { Space } from '@user-interfaces/spaces';
-
-import { ScheduleStateService } from '../../schedule-state.service';
-import { ViewRoomModalComponent } from '../../../overlays/view-room-modal/view-room-modal.component';
-
-import * as dayjs from 'dayjs';
+import { ViewRoomModalComponent } from '../../overlays/view-room-modal/view-room-modal.component';
+import { ScheduleStateService } from '../schedule-state.service';
 
 @Component({
     selector: 'schedule-booking-details',

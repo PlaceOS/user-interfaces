@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { combineLatest } from 'rxjs';
-
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@user-interfaces/common';
+import { combineLatest } from 'rxjs';
+import { first } from 'rxjs/operators';
 import { ScheduleStateService } from '../schedule-state.service';
+
 
 @Component({
     selector: 'schedule-view-event',
@@ -24,6 +25,7 @@ import { ScheduleStateService } from '../schedule-state.service';
                     </schedule-booking-details>
                     <schedule-event-details
                         *ngSwitchDefault
+                        [event]="(event | async)"
                     ></schedule-event-details>
                 </ng-container>
             </div>
@@ -85,15 +87,15 @@ export class ScheduleViewEventComponent extends BaseClass implements OnInit {
         );
         this.timeout(
             'check_event',
-            async () => {
-                const event = await this._state.active_item.toPromise();
-                if (!event)
-                    this._router.navigate(['/schedule', 'listing'], {
-                        queryParamsHandling: 'preserve',
-                    });
-            },
-            2000
+            async () =>
+                this._router.navigate(['/schedule', 'listing'], {
+                    queryParamsHandling: 'preserve',
+                }),
+            3000
         );
+        this._state.active_item
+            .pipe(first((_) => !!_))
+            .subscribe(() => this.clearTimeout('check_event'));
     }
 
     public back() {
