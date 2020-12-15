@@ -316,7 +316,6 @@ export class DeskFlowStateService extends BaseClass {
                 });
             }
         }
-        console.log('Styles:', style_map, available, desks);
         this._state.setStyles('desks', style_map);
         this._state.setActions('desks', actions);
     }

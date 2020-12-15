@@ -174,7 +174,6 @@ export class ScheduleEventViewComponent extends BaseClass implements OnInit {
         if (!active_day) return;
         const date = new Date(active_day.getAttribute('date'));
         if (!isSameDay(date, this._state.date)) {
-            console.log('Date:', format(date, 'dd MMM yyyy'));
             this.setDate(date.valueOf());
         }
     }

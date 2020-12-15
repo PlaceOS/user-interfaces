@@ -43,7 +43,6 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         use_iframe: true,
         mock,
     };
-    console.log('Config:', config);
     if (localStorage) {
         localStorage.setItem('mock', `${!!mock && !location.href.includes('mock=false')}`);
     }

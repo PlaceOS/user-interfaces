@@ -154,7 +154,6 @@ export class ScheduleStateService extends BaseClass {
     }
 
     public setItem(id: string) {
-        console.log('Set ID:', id);
         this._active_item.next(id);
     }
 

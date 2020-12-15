@@ -172,7 +172,6 @@ export class SpaceFlowService extends BaseClass {
         if (event_data) {
             this._event.next(new CalendarEvent(JSON.parse(event_data)));
         }
-        console.log('Event:', this._event.getValue());
         const form_data = sessionStorage.getItem('PLACEOS.event_form');
         if (form_data) {
             const form = generateEventForm(this._event.getValue());

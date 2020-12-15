@@ -133,13 +133,11 @@ export class ExploreDeviceInfoComponent implements OnInit {
     }
 
     public async loadUser() {
-        console.log('Loading user...', this.username);
         if (this.username) return;
         const mod = getModule(this._details.system, 'LocationServices');
         if (mod) {
             this.username = 'Loading...'
             const details = await mod.execute('check_ownership_of', [this.mac]).catch(_ => null);
-            console.log('Details:', details);
             this.username = details && details.assigned_to ? details.assigned_to : '';
         }
     }
