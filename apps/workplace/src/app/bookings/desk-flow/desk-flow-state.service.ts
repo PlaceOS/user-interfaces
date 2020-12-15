@@ -257,6 +257,9 @@ export class DeskFlowStateService extends BaseClass {
     private async makeDeskBooking(desk: Desk, date: number, reason: string) {
         const location = `${desk.zone?.name}-${desk.id}`;
         const options = this._options.getValue();
+        if (!options.date) {
+            options.date = new Date().valueOf();
+        }
         const level = this._org.levelWithID(
             desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
         );
