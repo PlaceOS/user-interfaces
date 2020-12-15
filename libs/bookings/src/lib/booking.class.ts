@@ -45,6 +45,8 @@ export class Booking extends BaseDataClass {
     public readonly extension_data: HashMap<any>;
     /** Default type */
     public readonly type: string;
+    /** Default type */
+    public readonly access: boolean;
     /** Status of the booking */
     public readonly status: 'declined' | 'approved' | 'tentative';
 
@@ -76,6 +78,7 @@ export class Booking extends BaseDataClass {
         this.approver_email = data.approver_email;
         this.approver_name = data.approver_name;
         this.extension_data = data.extension_data;
+        this.access = !!data.extension_data?.access;
         this.all_day = data.all_day || true;
         this.status = this.rejected ? 'declined' : this.approved ? 'approved' : 'tentative';
     }

@@ -29,7 +29,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ConfirmModalComponent } from './confirm-modal.component';
 import { CounterComponent } from './counter/counter.component';
 import { CommonModule } from '@angular/common';
-import { InteractiveMapComponent } from './interactive-map.component';
+import { InteractiveMapComponent, MAP_FEATURE_DATA } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
@@ -102,6 +102,7 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
     ],
     providers: [
         { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+        { provide: MAP_FEATURE_DATA, useValue: {} }
     ],
     exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
 })
