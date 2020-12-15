@@ -44,6 +44,8 @@ export class DeskFlowStateService extends BaseClass {
 
     private _host: User;
 
+    public ignore_duplicates = false;
+
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
 
@@ -189,7 +191,7 @@ export class DeskFlowStateService extends BaseClass {
         return true;
     }
 
-    public async bookDesk(desk: Desk, reason: string = '') {
+    public async bookDesk(desk: Desk, reason: string = '', force: boolean = this.ignore_duplicates) {
         if (!this._host) {
             return notifyError('A host needs to be set before booking a desk.');
         }
@@ -229,16 +231,18 @@ export class DeskFlowStateService extends BaseClass {
                 .toPromise(),
         ]);
         if (!success) return;
-        ref.componentInstance.loading = 'Checking for existing desk bookings...';
-        const bookings = await this._bookings.query({
-            type: 'desk',
-            period_start: Math.floor(startOfDay(options.date || new Date()).valueOf() / 1000),
-            period_end: Math.floor(endOfDay(options.date || new Date()).valueOf() / 1000),
-        });
-        const desks = bookings.filter(d => d.user_email === this._staff.current.email);
-        if (desks?.length) {
-            ref.close();
-            return notifyError('You currently already have a desk booked for the selected date.');
+        if (!force) {
+            ref.componentInstance.loading = 'Checking for existing desk bookings...';
+            const bookings = await this._bookings.query({
+                type: 'desk',
+                period_start: Math.floor(startOfDay(options.date || new Date()).valueOf() / 1000),
+                period_end: Math.floor(endOfDay(options.date || new Date()).valueOf() / 1000),
+            });
+            const desks = bookings.filter(d => d.user_email === this._host.email);
+            if (desks?.length) {
+                ref.close();
+                return notifyError('You currently already have a desk booked for the selected date.');
+            }
         }
         ref.componentInstance.loading = 'Booking desk...';
         await this.makeDeskBooking(
