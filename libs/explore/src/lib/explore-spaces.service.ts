@@ -14,7 +14,7 @@ import { ExploreBookingModalComponent } from './explore-booking-modal.component'
 export const DEFAULT_COLOURS = {
     free: '#43a047',
     pending: '#ffb300',
-    reserved: '#3949ab',
+    reserved: '#e65100',
     busy: '#e53935',
     'not-bookable': '#757575',
     unknown: '#757575',
