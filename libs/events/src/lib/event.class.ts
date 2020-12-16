@@ -270,7 +270,7 @@ export class CalendarEvent {
     public toJSON(): HashMap {
         const obj: HashMap = { ...this };
         const end = Math.floor(
-            add(new Date(this.date), { minutes: this.duration }).valueOf() /
+            addMinutes(new Date(this.date), this.duration).valueOf() /
                 1000
         );
         obj.event_start = Math.floor(this.date / 1000);
