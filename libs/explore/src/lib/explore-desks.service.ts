@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { getModule } from '@placeos/ts-client';
+import { getModule, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
@@ -8,10 +8,12 @@ import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import {
     BuildingLevel,
+    Desk,
     OrganisationService,
 } from '@user-interfaces/organisation';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 export interface DesksStats {
     free: number;
@@ -33,6 +35,12 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         total: 0,
     });
 
+    public readonly desk_list = this._state.level.pipe(
+        switchMap((lvl) => showMetadata(lvl.id, { name: 'desks' })),
+        map((i) => i.details.map((j) => new Desk(j))),
+        catchError((_) => [])
+    );
+
     constructor(
         private _state: ExploreStateService,
         private _org: OrganisationService,
@@ -50,23 +58,30 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.subscription(
             'changes',
             combineLatest([
-                this._desks,
+                this.desk_list,
                 this._in_use,
                 this._reserved,
             ]).subscribe((details) => {
                 const [desks, in_use, reserved] = details;
                 this._statuses = {};
-                for (const id of desks) {
+                for (const { id, bookable } of desks) {
                     const is_used = in_use.some((i) => id === i);
                     const is_reserved = reserved.some((i) => id === i);
-                    this._statuses[id] = !is_used
-                        ? 'free'
-                        : is_reserved
-                        ? 'reserved'
-                        : 'busy';
+                    this._statuses[id] = bookable
+                        ? !is_used
+                            ? 'free'
+                            : is_reserved
+                            ? 'reserved'
+                            : 'busy'
+                        : 'not-bookable';
                 }
+                this.processDesks(desks);
                 this.timeout('update', () => this.updateStatus(), 100);
             })
+        );
+        this.subscription(
+            'desks',
+            this.desk_list.subscribe((desks) => this.processDesks(desks))
         );
     }
 
@@ -76,10 +91,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     }
 
     public clearBindings() {
-        const bindings = [
-            'desks_in_use',
-            'desk_list'
-        ];
+        const bindings = ['desks_in_use', 'desk_list'];
         for (const id of bindings) {
             this.unsub(id);
         }
@@ -96,7 +108,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         if (!building) {
             return;
         }
-        const system_id = this._org.building.bindings.area_management || this._org.organisation.bindings.area_management;
+        const system_id =
+            this._org.building.bindings.area_management ||
+            this._org.organisation.bindings.area_management;
         if (!system_id) {
             return;
         }
@@ -117,7 +131,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     desks.filter((v) => !v.at_location).map((v) => v.map_id)
                 );
                 this.processDevices(devices, system_id);
-                // this.processDesks(desks);
             })
         );
         binding.bind();
@@ -135,8 +148,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
 
     private updateStatus() {
         const style_map = {};
-        const colours =
-            this._settings.get('app.explore.colors') || {};
+        const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
             if (!this._statuses.hasOwnProperty(desk_id)) continue;
             style_map[`#${desk_id}`] = {
@@ -161,12 +173,14 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
                 },
                 content: ExploreDeviceInfoComponent,
-                data: { ...device, system: system_id }
+                data: { ...device, system: system_id },
             });
         }
         list.sort((a, b) => {
-            const dist_a = 1 - Math.sqrt(Math.pow(a.x - .5, 2) + Math.pow(a.x - .5, 2));
-            const dist_b = 1 - Math.sqrt(Math.pow(b.x - .5, 2) + Math.pow(b.x - .5, 2));
+            const dist_a =
+                1 - Math.sqrt(Math.pow(a.x - 0.5, 2) + Math.pow(a.x - 0.5, 2));
+            const dist_b =
+                1 - Math.sqrt(Math.pow(b.x - 0.5, 2) + Math.pow(b.x - 0.5, 2));
             return dist_a - dist_b;
         });
         this._state.setFeatures('devices', list);
@@ -179,7 +193,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 location: desk.map_id,
                 content: ExploreDeskInfoComponent,
                 hover: true,
-                data: { map_id: desk.name, status: this._statuses[desk.map_id] }
+                data: {
+                    map_id: desk.name,
+                    status: this._statuses[desk.map_id],
+                },
             });
         }
         this._state.setFeatures('desks', list);
