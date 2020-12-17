@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1608166132854,
+  "timestamp": 1608175870924,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -12,20 +12,21 @@
       },
       "urls": [
         "./catering-catering-module.08027fe6262efcad55b6.js",
-        "./common.8b7306a86c432d860727.js",
-        "./day-view-day-view-module.af982e2694f9a05bd4f6.js",
-        "./default~desks-desks-module~facilities-facilities-module.9b624a5be54a5e469346.js",
+        "./common.4bd86d26505efbb1d12d.js",
+        "./day-view-day-view-module.4a852c01442f1c02ab2f.js",
+        "./default~desks-desks-module~facilities-facilities-module.25156833eafe84508301.js",
         "./desks-desks-module.b836643304b27ecb4632.js",
         "./facilities-facilities-module.885b5e4a3f36ea2a91cb.js",
         "./favicon.ico",
         "./index.html",
-        "./main.e39b6d2cdf6109b2decc.js",
-        "./polyfills.693d3e8e037139a0780b.js",
-        "./runtime.95e8b7ec9bdb6514b857.js",
-        "./staff-staff-module.68573b3af8b79781bb79.js",
+        "./main.addc3f52c782d750cd06.js",
+        "./polyfills.e4628c2c8f7f1776e286.js",
+        "./reports-reports-module.83bb0ee5fa26875e2c16.js",
+        "./runtime.acf035ad1180f58c7da7.js",
+        "./staff-staff-module.91d9f759085518af9384.js",
         "./styles.27c23d75c471d9f18d8d.css",
-        "./visitors-visitors-module.1e74360309d5838f1f8c.js",
-        "./week-view-week-view-module.d2b7457e5f0ba47eb3f6.js"
+        "./visitors-visitors-module.3ab3464ef5206c304aae.js",
+        "./week-view-week-view-module.84340426fe0885a90acc.js"
       ],
       "patterns": []
     },
@@ -76,20 +77,21 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./catering-catering-module.08027fe6262efcad55b6.js": "f7af2e7df9002e23858fea32b53ab9b9b5925603",
-    "./common.8b7306a86c432d860727.js": "6ad90a5f036a816fbc69ad3e2c0a9b7cb33a8e6d",
-    "./day-view-day-view-module.af982e2694f9a05bd4f6.js": "556d0e2f8bdf2505efafd0a8df928ba7a18226e3",
-    "./default~desks-desks-module~facilities-facilities-module.9b624a5be54a5e469346.js": "246783966c47fbfe7bc02f64f14a27cd0e75abe5",
+    "./common.4bd86d26505efbb1d12d.js": "924555ebd6f247e3e2fad83f706611ab8614161e",
+    "./day-view-day-view-module.4a852c01442f1c02ab2f.js": "158d8f4b3bc4bdf807b80b5ad2733c139b2716dd",
+    "./default~desks-desks-module~facilities-facilities-module.25156833eafe84508301.js": "a7be1edcc5919b04ee0457a724e88a0a98aea8ed",
     "./desks-desks-module.b836643304b27ecb4632.js": "f4d8e20175410589f6b1786b2a887d580c41db1e",
     "./facilities-facilities-module.885b5e4a3f36ea2a91cb.js": "c5e0b1a6f93e6f40ce8e314486d37dc6b925301a",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "cbc3be67ae3f00aa8261a44bfc52f2f4c2363619",
-    "./main.e39b6d2cdf6109b2decc.js": "68c6bf40faaa4f3015f1a68e063348ebb8eac477",
-    "./polyfills.693d3e8e037139a0780b.js": "d252e63b684b853d45b4683ba5c653668d3a4ba5",
-    "./runtime.95e8b7ec9bdb6514b857.js": "c70d94524b69f0760749798e3ccfd0c6ee578b2a",
-    "./staff-staff-module.68573b3af8b79781bb79.js": "3c29854dbc3710cf6432ef1e60e1f8ce7480b91d",
+    "./index.html": "68d88674d8ecaa59d282a77fbd262b172c7ad793",
+    "./main.addc3f52c782d750cd06.js": "62f2b180e845da6b0eed90919482d85cbd497e67",
+    "./polyfills.e4628c2c8f7f1776e286.js": "82719f0cb8adb9aa09c625a160e1613109243bda",
+    "./reports-reports-module.83bb0ee5fa26875e2c16.js": "4853976f3d10ed525a10cf64124507270236e72d",
+    "./runtime.acf035ad1180f58c7da7.js": "8f22b9d9ba98b45869dc07f4209b35bca3e4a354",
+    "./staff-staff-module.91d9f759085518af9384.js": "f58465502511d46cda20dceb09c25df425e0640e",
     "./styles.27c23d75c471d9f18d8d.css": "eb0bd1a7960ba7d33ef5bfef08d44ae313e647f4",
-    "./visitors-visitors-module.1e74360309d5838f1f8c.js": "41b1d31d9858b8f123f265d94bffd9868dc259c7",
-    "./week-view-week-view-module.d2b7457e5f0ba47eb3f6.js": "be93206e4582109c080859633e1421325b069ae5"
+    "./visitors-visitors-module.3ab3464ef5206c304aae.js": "c87fe70bdb210e648c6e82effbd4ab2b276522a8",
+    "./week-view-week-view-module.84340426fe0885a90acc.js": "1d16505b96c3916836dbaa4e1486d6013f901ff3"
   },
   "navigationUrls": [
     {
