@@ -19,8 +19,10 @@ import { DeskFlowComponent } from './desk-flow/desk-flow.component';
 import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
 import { DeskFlowConfirmModalComponent } from './desk-flow/desk-flow-confirm-modal.component';
 import { DeskFlowQuestionsModalComponent } from './desk-flow/desk-flow-questions-modal.component';
+import { DeskFlowCheckinComponent } from './desk-flow/desk-flow-checkin.component';
 
 const ROUTES: Route[] = [
+    { path: 'desk', component: DeskFlowCheckinComponent },
     { path: ':flow', component: BookingsComponent },
     { path: ':flow/:step', component: BookingsComponent },
     { path: '', redirectTo: 'spaces' },
@@ -34,6 +36,7 @@ const ROUTES: Route[] = [
         DeskFlowListingComponent,
         DeskFlowConfirmModalComponent,
         DeskFlowQuestionsModalComponent,
+        DeskFlowCheckinComponent,
 
         SpaceFlowComponent,
         SpaceFlowFormComponent,

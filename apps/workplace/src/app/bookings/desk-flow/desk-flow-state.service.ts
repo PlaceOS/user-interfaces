@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { showMetadata, listChildMetadata } from '@placeos/ts-client';
+import { getModule, listChildMetadata, showMetadata } from '@placeos/ts-client';
 import { Booking, BookingsService } from '@user-interfaces/bookings';
 import {
     BaseClass,
@@ -14,7 +14,7 @@ import { Desk, OrganisationService } from '@user-interfaces/organisation';
 import { StaffService, User } from '@user-interfaces/users';
 import { endOfDay, startOfDay } from 'date-fns';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
-import { BehaviorSubject, combineLatest, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -29,6 +29,8 @@ import { DeskFlowQuestionsModalComponent } from './desk-flow-questions-modal.com
 export interface DeskFlowState {
     date?: number;
     zones?: string[];
+    filter_sit_to_stand?: boolean;
+    filter_dual_monitors?: boolean;
 }
 
 @Injectable({
@@ -38,16 +40,29 @@ export class DeskFlowStateService extends BaseClass {
     private _options = new BehaviorSubject<DeskFlowState>({
         date: new Date().valueOf(),
         zones: [],
+        filter_sit_to_stand: false,
+        filter_dual_monitors: false,
     });
 
     private _loading = new BehaviorSubject<boolean>(false);
 
     private _host: User;
 
-    public ignore_duplicates = false;
-
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
+
+    public readonly todays_bookings = timer(1000).pipe(
+        switchMap((_) =>
+            this._bookings.query({
+                period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
+                period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
+                type: 'desk',
+            })
+        ),
+        map((list) =>
+            list.filter((i) => i.user_email === this._staff.current.email)
+        )
+    );
 
     public readonly desk_list = this._options.pipe(
         debounceTime(500),
@@ -59,9 +74,18 @@ export class DeskFlowStateService extends BaseClass {
                 if (level) {
                     return showMetadata(level.id, { name: 'desks' }).pipe(
                         map((m) =>
-                            m.details.map(
-                                (i) => new Desk({ ...i, zone: level })
-                            )
+                            m.details
+                                .filter((i) => {
+                                    if (opts.filter_sit_to_stand)
+                                        return i.sit_to_stand;
+                                    return true;
+                                })
+                                .filter((i) => {
+                                    if (opts.filter_dual_monitors)
+                                        return i.dual_monitors;
+                                    return true;
+                                })
+                                .map((i) => new Desk({ ...i, zone: level }))
                         )
                     );
                 }
@@ -71,13 +95,24 @@ export class DeskFlowStateService extends BaseClass {
                             (l, m) =>
                                 l.concat(
                                     m.metadata.desks.details instanceof Array
-                                        ? m.metadata.desks.details.map(
-                                              (i) =>
-                                                  new Desk({
-                                                      ...i,
-                                                      zone: m.zone,
-                                                  })
-                                          )
+                                        ? m.metadata.desks.details
+                                              .filter((i) => {
+                                                  if (opts.filter_sit_to_stand)
+                                                      return i.sit_to_stand;
+                                                  return true;
+                                              })
+                                              .filter((i) => {
+                                                  if (opts.filter_dual_monitors)
+                                                      return i.dual_monitors;
+                                                  return true;
+                                              })
+                                              .map(
+                                                  (i) =>
+                                                      new Desk({
+                                                          ...i,
+                                                          zone: m.zone,
+                                                      })
+                                              )
                                         : []
                                 ),
                             []
@@ -90,7 +125,7 @@ export class DeskFlowStateService extends BaseClass {
         shareReplay()
     );
 
-    public readonly desk_availability = combineLatest([
+    public readonly desk_availability: Observable<Desk[]> = combineLatest([
         this._options,
         this.desk_list,
     ]).pipe(
@@ -165,6 +200,7 @@ export class DeskFlowStateService extends BaseClass {
             () => this._options.next({ ...this._options.getValue() }),
             delay
         );
+
     }
 
     public stopPolling() {
@@ -183,15 +219,15 @@ export class DeskFlowStateService extends BaseClass {
         const bookings = await this._bookings.query({
             period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
             period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
-            type: 'desk'
+            type: 'desk',
         });
-        const bkn = bookings.find(b => b.asset_id === id);
+        const bkn = bookings.find((b) => b.asset_id === id);
         if (!bkn) return false;
         const done = await this._bookings.checkIn(bkn);
         return true;
     }
 
-    public async bookDesk(desk: Desk, reason: string = '', force: boolean = this.ignore_duplicates) {
+    public async bookDesk(desk: Desk, reason: string = '') {
         if (!this._host) {
             return notifyError('A host needs to be set before booking a desk.');
         }
@@ -231,18 +267,27 @@ export class DeskFlowStateService extends BaseClass {
                 .toPromise(),
         ]);
         if (!success) return;
-        if (!force) {
-            ref.componentInstance.loading = 'Checking for existing desk bookings...';
-            const bookings = await this._bookings.query({
-                type: 'desk',
-                period_start: Math.floor(startOfDay(options.date || new Date()).valueOf() / 1000),
-                period_end: Math.floor(endOfDay(options.date || new Date()).valueOf() / 1000),
-            });
-            const desks = bookings.filter(d => d.user_email === this._host.email);
-            if (desks?.length) {
-                ref.close();
-                return notifyError('You currently already have a desk booked for the selected date.');
-            }
+        ref.componentInstance.loading =
+            'Checking for existing desk bookings...';
+        const bookings = await this._bookings.query({
+            type: 'desk',
+            period_start: Math.floor(
+                startOfDay(options.date || new Date()).valueOf() / 1000
+            ),
+            period_end: Math.floor(
+                endOfDay(options.date || new Date()).valueOf() / 1000
+            ),
+        });
+        const desks = bookings.filter(
+            (d) =>
+                d.user_email.toLowerCase() ===
+                this._host.email.toLowerCase()
+        );
+        if (desks?.length) {
+            ref.close();
+            return notifyError(
+                'You currently already have a desk booked for the selected date.'
+            );
         }
         ref.componentInstance.loading = 'Booking desk...';
         await this.makeDeskBooking(
@@ -251,15 +296,13 @@ export class DeskFlowStateService extends BaseClass {
             reason
         );
         notifySuccess('Successfully booked desk');
+        setTimeout(() => this.setOptions({}), 100); // Force refresh of availble desks
         ref.close();
     }
 
     private async makeDeskBooking(desk: Desk, date: number, reason: string) {
         const location = `${desk.zone?.name}-${desk.id}`;
         const options = this._options.getValue();
-        if (!options.date) {
-            options.date = new Date().valueOf();
-        }
         const level = this._org.levelWithID(
             desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
         );
@@ -286,8 +329,7 @@ export class DeskFlowStateService extends BaseClass {
         return this._bookings.save(booking_data);
     }
 
-    private handleDeskAvailability(details: [Desk[], Desk[]]) {
-        const [available, desks] = details;
+    private handleDeskAvailability([available, desks]: [Desk[], Desk[]]) {
         const style_map = {};
         const actions = [];
         const user_groups = this._staff.current.groups as any[];
@@ -296,7 +338,7 @@ export class DeskFlowStateService extends BaseClass {
             const status =
                 !desk.bookable ||
                 (desk.group &&
-                    user_groups.includes((desk.group || '').toLowerCase()))
+                    !user_groups.includes((desk.group || '').toLowerCase()))
                     ? 'not-bookable'
                     : available.find((d) => d.id === desk.id)
                     ? 'free'

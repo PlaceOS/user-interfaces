@@ -13,7 +13,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
         <header>
             <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
         </header>
-        <main class="flex flex-1 flex-col relative" *ngIf="!checkin">
+        <main class="flex flex-1 flex-col relative h-1/2" *ngIf="!checkin">
             <div class="w-full text-center p-2 bg-white shadow z-10 relative">
                 Request a Desk
             </div>
@@ -29,28 +29,52 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 <explore-zoom-controls
                     class="absolute bottom-0 right-0"
                 ></explore-zoom-controls>
-                <explore-map-controls full
+                <explore-map-controls
+                    full
                     class="absolute top-0 left-0"
                 ></explore-map-controls>
-                <div info class="absolute bottom-0 rounded p-2 bg-white shadow text-center">
+                <div
+                    info
+                    class="absolute bottom-0 rounded p-2 bg-white shadow text-center"
+                >
                     Click/Tap an available desk to book it.
                 </div>
-                <div date class="absolute top-0 left-0 sm:right-0 sm:left-auto p-2">
-                    <a-date-field class="w-full" [ngModel]="(options | async).date" (ngModelChange)="setDate($event)"></a-date-field>
+                <div
+                    date
+                    class="absolute top-0 left-0 sm:right-0 sm:left-auto p-2"
+                >
+                    <a-date-field
+                        class="w-full"
+                        [ngModel]="(options | async).date"
+                        (ngModelChange)="setDate($event)"
+                    ></a-date-field>
                 </div>
                 <ng-container *ngIf="loading | async">
-                    <div load-state class="absolute bottom-0 left-0 p-4 flex flex-col justify-center items-center">
+                    <div
+                        load-state
+                        class="absolute bottom-0 left-0 p-4 flex flex-col justify-center items-center"
+                    >
                         <mat-spinner [diameter]="48"></mat-spinner>
                     </div>
                 </ng-container>
             </div>
+            <a
+                button
+                mat-button
+                class="rounded-3xl absolute bottom-2 left-2 shadow"
+                [routerLink]="['/book', 'desks']"
+            >
+                Desk List
+            </a>
         </main>
         <footer class="flex">
             <a-footer-menu class="w-full"></a-footer-menu>
         </footer>
         <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
         <ng-template #checkin_state>
-            <main class="flex-1 flex flex-col items-center justify-center w-full">
+            <main
+                class="flex-1 flex flex-col items-center justify-center w-full"
+            >
                 <mat-spinner class="mb-4" [diameter]="48"></mat-spinner>
                 <p>Checking in desk...</p>
             </main>
@@ -117,19 +141,24 @@ export class DeskFlowComponent extends BaseClass implements OnInit, OnDestroy {
     }
 
     public async ngOnInit() {
-        await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
+        await this._staff.initialised.pipe(first((_) => !!_)).toPromise();
         this._desks.setHost(this._staff.current);
         this._state.setOptions({ show_zones: false });
         this._desks.startPolling();
-        this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
-            if (params.has('checkin')) {
-                this.checkin = true;
-                const success = await this._desks.checkin(params.get('checkin'));
-                this.checkin = false;
-                if (!success) return notifyError('Error checking in desk.');
-                notifySuccess('Successfully checked in to desk');
-            }
-        }));
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('checkin')) {
+                    this.checkin = true;
+                    const success = await this._desks.checkin(
+                        params.get('checkin')
+                    );
+                    this.checkin = false;
+                    if (!success) return notifyError('Error checking in desk.');
+                    notifySuccess('Successfully checked in to desk');
+                }
+            })
+        );
     }
 
     public ngOnDestroy() {
