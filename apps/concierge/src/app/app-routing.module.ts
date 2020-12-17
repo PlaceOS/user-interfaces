@@ -46,6 +46,13 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'reports',
+        loadChildren: () =>
+            import('./reports/reports.module').then((m) => m.ReportsModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'staff',
         loadChildren: () =>
             import('./staff/staff.module').then((m) => m.StaffModule),
