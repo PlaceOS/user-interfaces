@@ -23,16 +23,7 @@ import { SpaceFlowService } from './space-flow.service';
         </footer>
         <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
         <ng-container *ngIf="success">
-            <div name="success" class="fixed inset-0 flex flex-col items-center justify-center">
-                <div class="text-4xl rounded-full bg-white text-success mb-4">
-                    <app-icon [icon]="{ class: 'material-icons', content: 'done' }"></app-icon>
-                </div>
-                <div class="text-center text-lg text-white mb-4">Thank you, you room booking was successful!<br/>An event has been added to your calendar</div>
-                <div class="flex items-center">
-                    <a button mat-button [routerLink]="['/book', 'spaces']" [queryParams]="{}">New Booking</a>
-                    <a button mat-button style="margin-left: .5rem" [routerLink]="['/schedule']" [queryParams]="{}">My Day</a>
-                </div>
-            </div>
+            <booking-success></booking-success>
         </ng-container>
     `,
     styles: [

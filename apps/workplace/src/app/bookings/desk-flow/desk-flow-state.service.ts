@@ -298,6 +298,7 @@ export class DeskFlowStateService extends BaseClass {
         notifySuccess('Successfully booked desk');
         setTimeout(() => this.setOptions({}), 100); // Force refresh of availble desks
         ref.close();
+        return true;
     }
 
     private async makeDeskBooking(desk: Desk, date: number, reason: string) {

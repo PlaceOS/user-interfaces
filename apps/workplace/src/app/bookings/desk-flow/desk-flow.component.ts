@@ -79,6 +79,9 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 <p>Checking in desk...</p>
             </main>
         </ng-template>
+        <ng-container *ngIf="success">
+            <booking-success calendar="desks" route="desks" type="desk"></booking-success>
+        </ng-container>
     `,
     styles: [
         `
@@ -127,6 +130,8 @@ export class DeskFlowComponent extends BaseClass implements OnInit, OnDestroy {
 
     public checkin: boolean;
 
+    public success: boolean;
+
     public show_menu: boolean = false;
 
     public readonly setDate = (date) => this._desks.setOptions({ date });
@@ -157,6 +162,7 @@ export class DeskFlowComponent extends BaseClass implements OnInit, OnDestroy {
                     if (!success) return notifyError('Error checking in desk.');
                     notifySuccess('Successfully checked in to desk');
                 }
+                this.success = params.has('success');
             })
         );
     }

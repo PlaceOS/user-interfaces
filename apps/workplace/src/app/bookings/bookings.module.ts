@@ -20,6 +20,7 @@ import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.componen
 import { DeskFlowConfirmModalComponent } from './desk-flow/desk-flow-confirm-modal.component';
 import { DeskFlowQuestionsModalComponent } from './desk-flow/desk-flow-questions-modal.component';
 import { DeskFlowCheckinComponent } from './desk-flow/desk-flow-checkin.component';
+import { BookingSuccessComponent } from './booking-success.component';
 
 const ROUTES: Route[] = [
     { path: 'desk', component: DeskFlowCheckinComponent },
@@ -31,6 +32,7 @@ const ROUTES: Route[] = [
 @NgModule({
     declarations: [
         BookingsComponent,
+        BookingSuccessComponent,
 
         DeskFlowComponent,
         DeskFlowListingComponent,

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass, notifyError, notifySuccess } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 import { StaffService } from '@user-interfaces/users';
@@ -104,6 +104,9 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 <p>Checking in desk...</p>
             </main>
         </ng-template>
+        <ng-container *ngIf="success">
+            <booking-success calendar="desks" route="desks" type="desk"></booking-success>
+        </ng-container>
     `,
     styles: [
         `
@@ -147,6 +150,8 @@ export class DeskFlowListingComponent extends BaseClass {
 
     public checkin: boolean;
 
+    public success: boolean;
+
     public readonly buildings = this._org.building_list;
 
     public readonly available = this._desks.desk_availability;
@@ -157,13 +162,19 @@ export class DeskFlowListingComponent extends BaseClass {
 
     public readonly setOptions = (o) => this._desks.setOptions(o);
 
-    public readonly bookDesk = (d) => this._desks.bookDesk(d, this.reason);
+    public readonly bookDesk = async (d) => {
+        const sucess = await this._desks.bookDesk(d, this.reason);
+        if (!success) return;
+        this._router.navigate([], { relativeTo: this._route, queryParams: { success: 'true' } });
+        this.success = true;
+    };
 
     constructor(
         private _desks: DeskFlowStateService,
         private _org: OrganisationService,
         private _staff: StaffService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         super();
     }
@@ -181,6 +192,7 @@ export class DeskFlowListingComponent extends BaseClass {
                 if (!success) return notifyError('Error checking in desk.');
                 notifySuccess('Successfully checked in to desk');
             }
+            this.success = params.has('success');
         }));
     }
 }
