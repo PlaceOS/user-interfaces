@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { map } from 'rxjs/operators';
 
 import { DesksStateService } from './desks-state.service';
 
@@ -100,7 +101,7 @@ import { DesksStateService } from './desks-state.service';
 export class DeskListingsComponent {
     public readonly filters = this._state.filters;
 
-    public readonly desks = this._state.desks;
+    public readonly desks = this._state.desks.pipe(map(list => list.filter(i => i.bookable)));
 
     public readonly bookings = this._state.bookings;
 
