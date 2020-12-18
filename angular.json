@@ -1621,6 +1621,194 @@
                     }
                 }
             }
+        },
+        "timetable-ui": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
+                }
+            },
+            "root": "apps/timetable-ui",
+            "sourceRoot": "apps/timetable-ui/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "build": {
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "baseHref": ".",
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/timetable-ui/src/environments/settings.ts"
+                            }
+                        ],
+                        "outputPath": "dist/apps/timetable-ui",
+                        "index": "apps/timetable-ui/src/index.html",
+                        "main": "apps/timetable-ui/src/main.ts",
+                        "polyfills": "apps/timetable-ui/src/polyfills.ts",
+                        "tsConfig": "apps/timetable-ui/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "apps/timetable-ui/src/favicon.ico",
+                            "apps/timetable-ui/src/assets",
+                            {
+                                "glob": "**",
+                                "input": "shared-assets",
+                                "output": "/assets/"
+                            },
+                            {
+                                "glob": "oauth-resp.html",
+                                "input": "node_modules/@placeos/ts-client/dist/",
+                                "output": "/"
+                            }
+                        ],
+                        "styles": ["apps/timetable-ui/src/styles.scss"],
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "staging": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/timetable-ui/src/environments/environment.ts",
+                                    "with": "apps/timetable-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/timetable-ui/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": true,
+                            "extractCss": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/timetable-ui/ngsw-config.json"
+                        },
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "apps/timetable-ui/src/environments/environment.ts",
+                                    "with": "apps/timetable-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/timetable-ui/src/environments/settings.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "5mb"
+                                }
+                            ],
+                            "serviceWorker": true,
+                            "ngswConfigPath": "apps/timetable-ui/ngsw-config.json"
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-builders/custom-webpack:dev-server",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "browserTarget": "timetable-ui:build",
+                        "proxyConfig": "config/proxy.conf.js"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "timetable-ui:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "timetable-ui:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "apps/timetable-ui/tsconfig.app.json",
+                            "apps/timetable-ui/tsconfig.spec.json",
+                            "apps/timetable-ui/tsconfig.editor.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/timetable-ui/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                        "stylePreprocessorOptions": {
+                            "includePaths": ["shared-styles"]
+                        },
+                        "jestConfig": "apps/timetable-ui/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "timetable-ui-e2e": {
+            "root": "apps/timetable-ui-e2e",
+            "sourceRoot": "apps/timetable-ui-e2e/src",
+            "projectType": "application",
+            "architect": {
+                "e2e": {
+                    "builder": "@nrwl/cypress:cypress",
+                    "options": {
+                        "cypressConfig": "apps/timetable-ui-e2e/cypress.json",
+                        "tsConfig": "apps/timetable-ui-e2e/tsconfig.e2e.json",
+                        "devServerTarget": "timetable-ui:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "timetable-ui:serve:production"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": ["apps/timetable-ui-e2e/tsconfig.e2e.json"],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!apps/timetable-ui-e2e/**/*"
+                        ]
+                    }
+                }
+            }
         }
     },
     "cli": {

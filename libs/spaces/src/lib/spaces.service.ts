@@ -56,6 +56,7 @@ export class SpacesService {
         const space_list = systems.map(
             (sys) => new Space({ ...(sys as any), level: this._org.levelWithID([...sys.zones]) })
         );
+
         // Remove spaces without a map ID
         const valid_spaces = space_list.filter((space) => space.map_id);
         this._list.next(valid_spaces);

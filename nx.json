@@ -104,6 +104,13 @@
         "map-kiosk-e2e": {
             "tags": [],
             "implicitDependencies": ["map-kiosk"]
+        },
+        "timetable-ui": {
+            "tags": []
+        },
+        "timetable-ui-e2e": {
+            "tags": [],
+            "implicitDependencies": ["timetable-ui"]
         }
     }
 }
