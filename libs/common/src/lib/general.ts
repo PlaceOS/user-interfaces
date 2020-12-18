@@ -93,31 +93,28 @@ export async function openConfirmModal(data: ConfirmModalData, dialog: MatDialog
  * Parse raw CSV data into a JSON object
  * @param csv CSV data to parse
  */
-export function csvToJson(csv: string) {
-    const lines = csv.split('\n');
-    let fields = lines.splice(0, 1)[0].split(',');
-    fields = fields.map((v) => v.replace('\r', ''));
-    const list: any[] = [];
-    for (const line of lines) {
-        let parts = line.split(',');
-        parts = parts.map((v) => v.replace('\r', ''));
-        if (parts.length >= fields.length) {
-            const item: any = {};
-            for (let i = 0; i <= parts.length; i++) {
-                let part = null;
-                part = parts[i];
-                if (part !== undefined) {
-                    let value = part;
-                    try { value = JSON.parse(part); }
-                    catch(e) { }
-                    item[(fields[i] || '').split(' ').join('_').toLowerCase()] = value;
-                }
-            }
-            list.push(item);
-        }
+export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
+    const objPattern = new RegExp(("(\\,|\\r?\\n|\\r|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\\,\\r\\n]*))"),"gi");
+    let arrMatches = null, arrData = [[]];
+    while (arrMatches = objPattern.exec(csv)){
+        if (arrMatches[1].length && arrMatches[1] !== ",")arrData.push([]);
+        arrData[arrData.length - 1].push(arrMatches[2] ?
+            arrMatches[2].replace(new RegExp( "\"\"", "g" ), "\"") :
+            arrMatches[3]);
     }
-
-    return list;
+    const headers: string[] = arrData.splice(0, 1)[0];
+    const elements = arrData.map((row) => {
+        const element = {};
+        for (let i = 0; i < row.length; i++) {
+            try {
+                element[headers[i]] = JSON.parse(row[i]);
+            } catch (e) {
+                element[headers[i]] = row[i] || '';
+            }
+        }
+        return element;
+    });
+    return elements;
 }
 
 /**
