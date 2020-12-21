@@ -1,18 +1,19 @@
-export interface CalenderAvailabilityParams {
-    /** Comma seperated list of zone ids to filter the spaces on */
+
+export interface CalendarAvailabilityQueryParams {
+    /** Comma seperated list of zone ids to check availability */
     zone_ids?: string;
-    /** Comma seperated list of space ids to grab  */
+    /** Comma seperated list of system(space) ids to check availability */
     system_ids?: string;
-    /** Comma seperated list of calendars to grab */
+    /** Comma seperated list of calendar ids to check availability */
     calendars?: string;
     /** Minimum capacity required */
     capacity?: number;
-    /** Comma seperated list of features to filter for */
+    /** Comma seperated of space features to filter */
     features?: string;
-    /** Unix epoch start time in seconds */
-    period_start?: number;
-    /** Unix epoch end time in seconds */
-    period_end?: number;
+    /** Epoch in seconds for the start of the availability period */
+    period_start: number;
+    /** Epoch in seconds for the end of the availability period */
+    period_end: number;
     /** ID of a booking to ignore in availability check */
     ignore?: string;
 }

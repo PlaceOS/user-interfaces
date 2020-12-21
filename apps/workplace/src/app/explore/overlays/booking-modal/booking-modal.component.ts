@@ -109,7 +109,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             system_ids: event.system.id,
             period_start: Math.floor(event.date / 1000),
             period_end: Math.floor((event.date + event.duration * 60 * 1000) / 1000),
-        });
+        }).toPromise();
 
         if (available_spaces.length < 1) {
             throw new Error(`The space is not available for the selected time period.`);

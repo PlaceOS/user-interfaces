@@ -143,11 +143,11 @@ export class DashboardStateService extends BaseClass {
         if (!this._org.building) return;
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const list = await this._calendar.availability({
+        const list = await this._calendar.freeBusy({
             period_start,
             period_end,
             zone_ids: this._org.building.id,
-        });
+        }).toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
     }

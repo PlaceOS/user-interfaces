@@ -99,6 +99,7 @@ export class BookingModalComponent implements OnInit {
                     value.duration * 60,
                 system_ids: value.resources.map((space) => space.id).join(','),
             })
+            .toPromise()
             .catch((_) => []);
         if (spaces.length < value.resources.length) {
             this.loading = '';

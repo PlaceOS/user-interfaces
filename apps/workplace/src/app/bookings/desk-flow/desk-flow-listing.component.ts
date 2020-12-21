@@ -163,7 +163,7 @@ export class DeskFlowListingComponent extends BaseClass {
     public readonly setOptions = (o) => this._desks.setOptions(o);
 
     public readonly bookDesk = async (d) => {
-        const sucess = await this._desks.bookDesk(d, this.reason);
+        const success = await this._desks.bookDesk(d, this.reason);
         if (!success) return;
         this._router.navigate([], { relativeTo: this._route, queryParams: { success: 'true' } });
         this.success = true;

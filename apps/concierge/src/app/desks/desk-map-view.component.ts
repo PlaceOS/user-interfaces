@@ -83,7 +83,6 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        this._flow.ignore_duplicates = true;
         this.subscription(
             'date',
             this._desk.filters.subscribe((opts) =>

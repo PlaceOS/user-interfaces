@@ -102,7 +102,7 @@ export class ExploreBookingModalComponent {
             system_ids: this.form.controls.resources.value?.map(s => s.id).join(','),
             period_start: Math.floor(this.form.value.date / 1000),
             period_end: Math.floor(this.form.value.date / 1000) + this.form.value.duration * 60,
-        }).catch((e) => {
+        }).toPromise().catch((e) => {
             on_error('Space is unavailble for the selected time and duration');
             throw e;
         });

@@ -82,11 +82,12 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
         this.loading = true;
         const date = dayjs(this._data.date);
         this.available_spaces = await this._calendar
-            .availability({
+            .freeBusy({
                 zone_ids: this.building.id,
                 period_start: date.unix(),
                 period_end: date.add(this._data.duration, 'm').unix(),
             })
+            .toPromise()
             .catch((err) => {
                 notifyError(`Error finding available spaces: ${err.message || err}`);
                 return [];

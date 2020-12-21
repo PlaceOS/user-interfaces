@@ -65,11 +65,11 @@ export class SpaceFlowService extends BaseClass {
                 ? filters.zones
                 : [this._org.building?.id];
             return this._calendar
-                .availability({
+                .freeBusy({
                     zone_ids: zones.join(','),
                     period_start,
                     period_end,
-                })
+                }).toPromise()
                 .then((list) => {
                     this._loading_spaces.next(false);
                     return list.filter(

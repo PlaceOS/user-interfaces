@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { formatDuration } from 'date-fns';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogRef,
+    MatDialog,
+} from '@angular/material/dialog';
+import { endOfDay, formatDuration } from 'date-fns';
 
 import { BaseClass, RoomConfiguration } from '@user-interfaces/common';
 import { CalendarEvent, EventsService } from '@user-interfaces/events';
@@ -48,7 +52,9 @@ export class BookingConfirmComponent extends BaseClass {
             return `${date.format('DD MMM YYYY')} - All Day`;
         } else {
             if (date.isSame(end, 'd')) {
-                return `${date.format('DD MMM YYYY, h:mm A')} - ${end.format('h:mm A')}`;
+                return `${date.format('DD MMM YYYY, h:mm A')} - ${end.format(
+                    'h:mm A'
+                )}`;
             } else {
                 return `${date.format('DD MMM YYYY, h:mm A')} - ${end.format(
                     'DD MMM YYYY, h:mm A'
@@ -76,7 +82,10 @@ export class BookingConfirmComponent extends BaseClass {
         return order ? [...order.items] : [];
     }
     public get catering_items_total(): number {
-        return this.catering_items.reduce((amount, item) => amount + item.amount, 0);
+        return this.catering_items.reduce(
+            (amount, item) => amount + item.amount,
+            0
+        );
     }
     public get catering_notes(): string {
         // return this.booking.catering_notes;
@@ -135,30 +144,39 @@ export class BookingConfirmComponent extends BaseClass {
             this.booking.resources.some((r) => r.email === space.email)
         );
         if (
-            (this.booking.id && this._data.old_booking.date === this.booking.date) ||
+            (this.booking.id &&
+                this._data.old_booking.date === this.booking.date) ||
             this._data.old_booking.duration === this.booking.duration ||
             (spaces && spaces.length <= 0)
         ) {
             return true;
         }
         const start = Math.floor(this.booking.date / 1000);
-        const end = dayjs(this.booking.date).add(this.booking.duration, 'm').unix();
-        const available_spaces = await this._calendar.availability(
-            {
+        let end = dayjs(this.booking.date)
+            .add(this.booking.duration, 'm')
+            .valueOf();
+        if (this.booking.all_day) {
+            end = endOfDay(end).valueOf();
+        }
+        const available_spaces = await this._calendar
+            .availability({
                 system_ids: spaces.map((space) => space.id).join(','),
                 period_start: start,
-                period_end: end,
-            },
-            this.booking.all_day
-        );
+                period_end: Math.floor(end / 1000),
+            })
+            .toPromise();
 
         if (available_spaces.length < 1) {
-            throw new Error(`There are no spaces available for the selected time period.`);
+            throw new Error(
+                `There are no spaces available for the selected time period.`
+            );
         }
 
         available_spaces.forEach((available) => {
             if (!spaces.find((space) => space.email === available.email)) {
-                throw new Error(`${available.name} is not available for the selected time period.`);
+                throw new Error(
+                    `${available.name} is not available for the selected time period.`
+                );
             }
         });
         return true;
@@ -169,7 +187,10 @@ export class BookingConfirmComponent extends BaseClass {
             width: '32em',
             maxWidth: '95vw',
             maxHeight: '95vh',
-            data: { catering: this.catering_items, catering_note: this.catering_notes },
+            data: {
+                catering: this.catering_items,
+                catering_note: this.catering_notes,
+            },
         });
     }
 
