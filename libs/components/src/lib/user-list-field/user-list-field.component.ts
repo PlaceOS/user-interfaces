@@ -85,7 +85,7 @@ export class UserListFieldComponent extends BaseClass
                         q: query,
                         cache: 60 * 1000,
                     }),
-                    this._guests.query({ q: query }),
+                    this._guests.search(query).toPromise(),
                 ])
                     .then(([users, guests]) => [
                         ...users,

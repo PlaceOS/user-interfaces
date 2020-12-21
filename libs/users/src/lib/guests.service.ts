@@ -1,38 +1,56 @@
 import { Injectable } from '@angular/core';
-import { updateMetadata } from '@placeos/ts-client';
-import { BaseAPIService, HashMap } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass } from '@user-interfaces/common';
+import {
+    GuestsQueryParams,
+    listGuestMeetings,
+    queryGuests,
+    removeGuest,
+    searchGuests,
+    showGuest,
+    updateGuest,
+} from './guests.fn';
 
 import { GuestUser } from './user.class';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GuestsService extends BaseAPIService<GuestUser> {
-    constructor() {
-        super();
-        this._name = 'Guest';
-        this._api_route = 'guests';
-    }
-
-    protected process(raw_data: HashMap): GuestUser {
-        return new GuestUser(raw_data);
-    }
+export class GuestsService extends BaseClass {
+    /**
+     * Search guests
+     * @param q Search string for filtering guests
+     */
+    public readonly search = (q: string) => searchGuests(q);
 
     /**
-     * Update metadata associated with guest
-     * @param email Email of the guest
-     * @param data New state of the guest's metadata
+     * List guests
+     * @param q Parameters to pass to the API request
      */
-    public updateMetadata(email: string, data: HashMap | any[]) {
-        return updateMetadata(email, { id: email, name: 'guest-metadata', details: data });
-    }
+    public readonly query = (q: GuestsQueryParams) => queryGuests(q);
 
     /**
-     * Get upcoming meetings for a guest
-     * @param id Email Address of the guest
+     * Get guest details
+     * @param id ID of the guest
      */
-    public async meetings(id: string): Promise<CalendarEvent[]> {
-        return (await this.task(id, 'meetings', {}, 'get')).map(i => new CalendarEvent(i));
-    }
+    public readonly show = (id: string) => showGuest(id);
+
+    /**
+     * Update guest metadata
+     * @param id ID of the guest
+     * @param data New metadata state
+     */
+    public readonly update = (id: string, data: Partial<GuestUser>) =>
+        updateGuest(id, data);
+
+    /**
+     * Remove a guest
+     * @param id ID of the guest to remove
+     */
+    public readonly remove = (id: string) => removeGuest(id);
+
+    /**
+     * List upcoming meetings for a guest
+     * @param id ID of the guest
+     */
+    public readonly meetings = (id: string) => listGuestMeetings(id);
 }
