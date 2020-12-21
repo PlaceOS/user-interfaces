@@ -61,7 +61,7 @@ export class StaffStateService extends BaseClass {
                 period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
                 period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
                 type: 'staff',
-            });
+            }).toPromise();
             const checkin_map = {};
             const now = new Date().valueOf();
             for (const bkn of bookings) {
@@ -121,8 +121,8 @@ export class StaffStateService extends BaseClass {
             description: this._org.building.display_name || this._org.building.name,
             zones: [this._org.building.id],
             booking_type: 'staff',
-        });
-        await this._bookings.checkIn(result, true);
+        } as any).toPromise();
+        await this._bookings.checkin(result.id, true);
         this._events[user.email] = result;
         this._onsite[user.email] = true;
     }
@@ -130,11 +130,11 @@ export class StaffStateService extends BaseClass {
     public async checkout(user: StaffUser) {
         const event = this._events[user.email];
         if (event) {
-            const result = await this._bookings.update(event.id, {
+            const result = await this._bookings.save({
                 ...event.toJSON(),
                 booking_end: Math.floor(new Date().valueOf() / 1000),
-            });
-            await this._bookings.checkIn(result, false);
+            } as any).toPromise();
+            await this._bookings.checkin(result.id, false).toPromise();
             this._events[user.email] = result;
             this._onsite[user.email] = false;
         }

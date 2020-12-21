@@ -68,7 +68,7 @@ export class ReportsStateService {
             return options.type === 'desks'
                 ? this._bookings.query({
                       ...query,
-                      zone_ids: zones,
+                      zones: zones,
                       type: 'desk',
                   })
                 : this._events.query({ ...query, zone_ids: zones });

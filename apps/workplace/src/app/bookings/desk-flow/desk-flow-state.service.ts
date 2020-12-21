@@ -145,7 +145,7 @@ export class DeskFlowStateService extends BaseClass {
                         period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                         type: 'desk',
                         zones: (options.zones || [])[0],
-                    })
+                    }).toPromise()
                     .catch((_) => []),
             ];
         }),
@@ -220,10 +220,10 @@ export class DeskFlowStateService extends BaseClass {
             period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
             period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
             type: 'desk',
-        });
+        }).toPromise();
         const bkn = bookings.find((b) => b.asset_id === id);
         if (!bkn) return false;
-        const done = await this._bookings.checkIn(bkn);
+        const done = await this._bookings.checkin(bkn.id, true).toPromise();
         return true;
     }
 
@@ -277,7 +277,7 @@ export class DeskFlowStateService extends BaseClass {
             period_end: Math.floor(
                 endOfDay(options.date || new Date()).valueOf() / 1000
             ),
-        });
+        }).toPromise();
         const desks = bookings.filter(
             (d) =>
                 d.user_email.toLowerCase() ===
@@ -327,7 +327,7 @@ export class DeskFlowStateService extends BaseClass {
                 group: desk.group,
             },
         };
-        return this._bookings.save(booking_data);
+        return this._bookings.save(booking_data as any);
     }
 
     private handleDeskAvailability([available, desks]: [Desk[], Desk[]]) {

@@ -199,7 +199,7 @@ export class ScheduleStateService extends BaseClass {
         details.loading(
             `Cancelling ${is_event ? 'meeting' : 'desk booking'}...`
         );
-        const method = is_event ? this._events.remove(this._item.id).toPromise() : this._bookings.delete(this._item.id);
+        const method = is_event ? this._events.remove(this._item.id).toPromise() : this._bookings.remove(this._item.id).toPromise();
         const err = await method.catch((_) => _);
         details.close();
         if (err)

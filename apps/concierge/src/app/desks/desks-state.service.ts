@@ -123,7 +123,7 @@ export class DesksStateService extends BaseClass {
 
     public async checkinDesk(desk: Booking) {
         const success = await this._bookings
-            .checkIn(desk, true)
+            .checkin(desk.id, true).toPromise()
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error checking in desk booking')
@@ -132,7 +132,7 @@ export class DesksStateService extends BaseClass {
 
     public async approveDesk(desk: Booking) {
         const success = await this._bookings
-            .approve(desk.id)
+            .approve(desk.id).toPromise()
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error approving in desk booking')
@@ -141,7 +141,7 @@ export class DesksStateService extends BaseClass {
 
     public async rejectDesk(desk: Booking) {
         const success = await this._bookings
-            .reject(desk.id)
+            .reject(desk.id).toPromise()
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error rejecting in desk booking')
@@ -150,12 +150,8 @@ export class DesksStateService extends BaseClass {
 
     public async giveAccess(desk: Booking) {
         const success = await this._bookings
-            .update(
-                desk.id,
-                new Booking({ ...desk, access: true }),
-                undefined,
-                'patch'
-            )
+            .save(
+                new Booking({ ...desk, access: true })).toPromise()
             .catch((_) => 'failed');
         if (success === 'failed')
             return notifyError('Error giving building access booking host');
@@ -189,9 +185,9 @@ export class DesksStateService extends BaseClass {
                             'Rejecting all desks for selected date...';
                         success = true;
                         await Promise.all(
-                            list.map((desk) => this._bookings.reject(desk.id))
+                            list.map((desk) => this._bookings.reject(desk.id).toPromise())
                         );
-                        resolve();
+                        resolve('');
                         notifySuccess(
                             'Successfull rejected all desk bookings for selected date.'
                         );
