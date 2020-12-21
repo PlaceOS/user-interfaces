@@ -110,7 +110,7 @@ export class ExploreBookingModalComponent {
             return on_error('Space is unavailble for the selected time and duration');
         }
         this.loading = 'Creating booking...';
-        await this._events.save(new CalendarEvent(this.form.value)).catch((e) => {
+        await this._events.save(new CalendarEvent(this.form.value)).toPromise().catch((e) => {
             on_error('Error creating booking.');
             throw e;
         });

@@ -216,7 +216,7 @@ export class SpaceFlowService extends BaseClass {
             ...this._event.getValue(),
             ...this._form.getValue().value,
         });
-        return this._events.save(values).then(
+        return this._events.save(values).toPromise().then(
             () => this._loading_event.next(false),
             () => this._loading_event.next(false)
         );

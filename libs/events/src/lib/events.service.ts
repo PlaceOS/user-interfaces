@@ -1,63 +1,90 @@
 import { Injectable } from '@angular/core';
-import { get, post } from '@placeos/ts-client';
 
-import { BaseAPIService, HashMap, toQueryString } from '@user-interfaces/common';
+import { BaseClass } from '@user-interfaces/common';
 import { CalendarEvent } from './event.class';
-
-import * as dayjs from 'dayjs';
+import {
+    approveEvent,
+    CalendarEventQueryParams,
+    CalendarEventShowParams,
+    checkinEventGuest,
+    queryEventGuests,
+    queryEvents,
+    rejectEvent,
+    removeEvent,
+    saveEvent,
+    showEvent,
+} from './events.fn';
 
 @Injectable({
     providedIn: 'root',
 })
-export class EventsService extends BaseAPIService<CalendarEvent> {
-    constructor() {
-        super();
-        this._name = 'Events';
-        this._api_route = 'events';
-    }
-
-    /** Retrieve events for selected date for the given calendar
-     * @param calendar_ids Array of user calendars
-     * @param date Date in unix ms
+export class EventsService extends BaseClass {
+    /**
+     * List events
+     * @param q Parameters to pass to the API request
      */
-    public getDayEvents(date: number, calendar_ids: string[]) {
-        const period_start = dayjs(date).startOf('d').unix();
-        const period_end = dayjs(date).endOf('d').unix();
-        const calendars = calendar_ids.join(',');
-        return this.query({
-            period_start,
-            period_end,
-            calendars,
-        });
-    }
+    public readonly query = (q: CalendarEventQueryParams) => queryEvents(q);
 
-    /** Get event */
-    public getEvent(id: string, query_params: HashMap = {}) {
-        const query = toQueryString(query_params);
-        const url = `${this.route()}/${id}?${query}`;
-        return get(url)
-            .toPromise()
-            .then((res) => this.process(res));
-    }
-
-    /** Check in guest
-     * @param query_params Need `system_id` and `state`
+    /**
+     * Get event details
+     * @param id ID of the event to grab
+     * @param q Parameters to pass to the API request
      */
-    public checkInGuest(event_id: string, guest_id: string, query_params: HashMap = {}) {
-        const query = toQueryString(query_params);
-        const url = `${this.route()}/${event_id}/guests/${guest_id}/checkin?${query}`;
-        return post(url, {}).toPromise();
-    }
+    public readonly show = (id: string, q: CalendarEventShowParams) =>
+        showEvent(id, q);
 
-    public accept(id: string, fields?: HashMap) {
-        return this.task(id, 'approve', fields, 'post', fields);
-    }
+    /**
+     * Save changes to or create a calendar event
+     * @param data State of the calendar event
+     * @param q Parameters to pass to the API request
+     */
+    public readonly save = (
+        data: Partial<CalendarEvent>,
+        q?: CalendarEventShowParams
+    ) => saveEvent(data, q);
 
-    public decline(id: string, fields?: HashMap) {
-        return this.task(id, 'reject', fields, 'post', fields);
-    }
+    /**
+     * Remove calendar event from the database
+     * @param id ID of the event to remove
+     * @param q Parameters to pass to the API request
+     */
+    public readonly remove = (id: string, q?: CalendarEventShowParams) =>
+        removeEvent(id, q);
+    /**
+     * Set the approval state of the event to approved
+     * @param id ID of the event to approve
+     * @param system_id Associated system to approve
+     */
+    public readonly approve = (id: string, system_id: string) =>
+        approveEvent(id, system_id);
 
-    protected process(raw_data: HashMap): CalendarEvent {
-        return new CalendarEvent(raw_data);
-    }
+    /**
+     * Set the approval state of the event to rejected
+     * @param id ID of the event to reject
+     * @param system_id Associated system to reject
+     */
+    public readonly reject = (id: string, system_id: string) =>
+        rejectEvent(id, system_id);
+
+    /**
+     * List guests for event
+     * @param id ID of the event to grab
+     * @param q Parameters to pass to the API request
+     */
+    public readonly queryGuests = (id: string, q: CalendarEventShowParams) =>
+        queryEventGuests(id, q);
+
+    /**
+     * Set the checkin state of an event guest
+     * @param id ID of the event to grab
+     * @param guest_id ID of the guest to update
+     * @param state New checkin state of the guest
+     * @param q Parameters to pass to the API request
+     */
+    public readonly checkinGuest = (
+        id: string,
+        guest: string,
+        state: boolean,
+        q: CalendarEventShowParams
+    ) => checkinEventGuest(id, guest, state, q);
 }

@@ -113,7 +113,7 @@ export class ScheduleStateService extends BaseClass {
                                 period_start: Math.floor(start / 1000),
                                 period_end: Math.floor(end / 1000),
                                 calendars: options.calendar,
-                            }),
+                            }).toPromise(),
                             this._bookings.query({
                                 period_start: Math.floor(start / 1000),
                                 period_end: Math.floor(end / 1000),
@@ -199,8 +199,8 @@ export class ScheduleStateService extends BaseClass {
         details.loading(
             `Cancelling ${is_event ? 'meeting' : 'desk booking'}...`
         );
-        const method = is_event ? this._events.delete : this._bookings.delete;
-        const err = await method(this._item.id).catch((_) => _);
+        const method = is_event ? this._events.remove(this._item.id).toPromise() : this._bookings.delete(this._item.id);
+        const err = await method.catch((_) => _);
         details.close();
         if (err)
             return notifyError(

@@ -116,7 +116,7 @@ export class BookingConfirmComponent extends BaseClass {
             this.checking_available = false;
 
             try {
-                await this._events.save(this.booking).catch((e) => {
+                await this._events.save(this.booking).toPromise().catch((e) => {
                     throw new Error(e);
                 });
                 this.event.emit({ type: 'success' });

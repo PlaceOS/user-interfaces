@@ -9,13 +9,16 @@ import { EventsService } from '@user-interfaces/events';
 import { ITimelineEventGroup } from '../../ui/event-timeline/event-timeline.component';
 
 import * as dayjs from 'dayjs';
+import { endOfDay, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'app-user-availability-modal',
     templateUrl: './user-availability.modal.component.html',
     styleUrls: ['./user-availability.modal.component.scss'],
 })
-export class UserAvailabilityModalComponent extends BaseClass implements OnInit {
+export class UserAvailabilityModalComponent
+    extends BaseClass
+    implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of Users to check availability */
@@ -31,7 +34,10 @@ export class UserAvailabilityModalComponent extends BaseClass implements OnInit 
     /** Date subject */
     public date$ = new BehaviorSubject(this.date);
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: any, private _events: EventsService) {
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: any,
+        private _events: EventsService
+    ) {
         super();
     }
 
@@ -55,12 +61,19 @@ export class UserAvailabilityModalComponent extends BaseClass implements OnInit 
     /** Load events for all attendees */
     public async loadAvailability() {
         this.loading = true;
+        const period_start = Math.floor(startOfDay(this.date).valueOf() / 1000);
+        const period_end = Math.floor(endOfDay(this.date).valueOf() / 1000);
         const result = await Promise.all(
             this.users.map(async (user) => {
                 return {
                     name: user.name,
                     events: await this._events
-                        .getDayEvents(this.date, [user.email])
+                        .query({
+                            period_start,
+                            period_end,
+                            calendars: user.email,
+                        })
+                        .toPromise()
                         .then((res) =>
                             res.map((i) => ({
                                 start: dayjs(i.date).hour(),
@@ -78,7 +91,10 @@ export class UserAvailabilityModalComponent extends BaseClass implements OnInit 
     /** Change date keeping hours and minutes */
     public changeDate(new_date: number) {
         const date = dayjs(this.date);
-        this.date = dayjs(new_date).hour(date.hour()).minute(date.minute()).valueOf();
+        this.date = dayjs(new_date)
+            .hour(date.hour())
+            .minute(date.minute())
+            .valueOf();
         this.date$.next(this.date);
     }
 
@@ -91,6 +107,9 @@ export class UserAvailabilityModalComponent extends BaseClass implements OnInit 
         if (this.is_past) {
             return;
         }
-        this.event.emit({ reason: 'done', metadata: { date: this.date, duration: this.duration } });
+        this.event.emit({
+            reason: 'done',
+            metadata: { date: this.date, duration: this.duration },
+        });
     }
 }

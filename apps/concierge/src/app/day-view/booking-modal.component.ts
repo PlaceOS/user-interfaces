@@ -110,7 +110,7 @@ export class BookingModalComponent implements OnInit {
         this.loading = 'Creating calendar event...';
         value.system = value.resources[0];
         const booking = await this._event
-            .save(new CalendarEvent(value).toJSON(), { calendar: value.calendar })
+            .save(new CalendarEvent(value).toJSON(), { calendar: value.calendar }).toPromise()
             .catch((_) => null);
         this.loading = '';
         if (!booking) {

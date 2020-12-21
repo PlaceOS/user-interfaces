@@ -324,7 +324,7 @@ export class EventsStateService extends BaseClass {
         ]);
         if (done) {
             ref.componentInstance.loading = 'Deleting booking...';
-            await this._events.delete(event.id, { system_id: event.system?.id });
+            await this._events.remove(event.id, { system_id: event.system?.id });
             this.remove(event);
             ref.close();
         }

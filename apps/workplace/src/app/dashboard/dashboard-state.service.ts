@@ -159,7 +159,7 @@ export class DashboardStateService extends BaseClass {
             period_start,
             period_end,
             calendars: this._users.current.email,
-        });
+        }).toPromise();
         this._upcoming_events.next(events);
     }
 

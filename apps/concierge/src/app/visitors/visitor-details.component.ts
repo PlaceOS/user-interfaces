@@ -122,7 +122,7 @@ export class VisitorDetailsComponent {
         const new_item = new CalendarEvent({ ...(this.event.toJSON()), remote: remote_list }).toJSON();
         console.log('Remote:', remote_list, new_item)
         this.event = await this._events
-            .update(this.event.id, new_item, { system_id: this.event.system?.id }, 'patch')
+            .save(new_item).toPromise()
             .catch((e) => {
                 notifyError(`Error setting visitor status. Error: ${e.statusText || e.message || e}`);
                 return this.event;

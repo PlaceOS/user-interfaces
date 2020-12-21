@@ -115,6 +115,6 @@ export class CateringOrdersService extends BaseClass {
                 updated_order
             ].map((i) => new CateringOrder({ ...i })),
         });
-        return this._events.patch(event.id, event);
+        return this._events.save(event);
     }
 }

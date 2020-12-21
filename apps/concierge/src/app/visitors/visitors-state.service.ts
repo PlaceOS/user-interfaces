@@ -102,10 +102,9 @@ export class VisitorsStateService extends BaseClass {
 
     public async checkGuestIn(event: CalendarEvent, user: User) {
         const new_user = await this._events
-            .checkInGuest(event.id, user.id, {
+            .checkinGuest(event.id, user.id, true, {
                 system_id: event.system?.id || event.resources[0]?.id,
-                state: true,
-            })
+            }).toPromise()
             .catch((e) => {
                 notifyError(
                     `Error checking in ${user.name} for ${event.organiser.name}'s meeting`
@@ -127,10 +126,9 @@ export class VisitorsStateService extends BaseClass {
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
         const new_user = await this._events
-            .checkInGuest(event.id, user.id, {
-                system_id: event.system?.id || event.resources[0]?.id,
-                state: false,
-            })
+            .checkinGuest(event.id, user.id, false, {
+                system_id: event.system?.id || event.resources[0]?.id
+            }).toPromise()
             .catch((e) => {
                 notifyError(
                     `Error checking out ${user.name} from ${event.organiser.name}'s meeting`
@@ -157,10 +155,8 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkin');
         const attendees = await Promise.all(
             guests.map((user) =>
-                this._events.checkInGuest(event.id, user.id, {
-                    system_id: event.system?.id || event.resources[0]?.id,
-                    state: true,
-                })
+                this._events.checkinGuest(event.id, user.id, true, {
+                    system_id: event.system?.id || event.resources[0]?.id }).toPromise()
             )
         ).catch((e) => {
             notifyError(
@@ -191,10 +187,9 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkout');
         const attendees = await Promise.all(
             guests.map((user) =>
-                this._events.checkInGuest(event.id, user.id, {
+                this._events.checkinGuest(event.id, user.id, false, {
                     system_id: event.system?.id || event.resources[0]?.id,
-                    state: false,
-                })
+                }).toPromise()
             )
         ).catch((e) => {
             notifyError(
