@@ -102,7 +102,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                     if (!space) return;
                     this.locateSpace(space);
                 } else if (params.has('user')) {
-                    const user = await this._users.show(params.get('user'));
+                    const user = await this._users.show(params.get('user')).toPromise();
                     if (!user) return;
                     this.locateUser(user);
                 } else {

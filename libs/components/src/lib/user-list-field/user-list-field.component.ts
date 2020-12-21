@@ -81,10 +81,7 @@ export class UserListFieldComponent extends BaseClass
             switchMap((query) => {
                 this.loading = true;
                 return Promise.all([
-                    this._users.query({
-                        q: query,
-                        cache: 60 * 1000,
-                    }),
+                    this._users.search(query).toPromise(),
                     this._guests.search(query).toPromise(),
                 ])
                     .then(([users, guests]) => [

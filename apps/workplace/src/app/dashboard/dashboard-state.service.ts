@@ -91,7 +91,7 @@ export class DashboardStateService extends BaseClass {
                 this._contact_search.next([]);
                 return;
             }
-            const contact_results = await this._users.query({ q: search_str });
+            const contact_results = await this._users.search(search_str).toPromise();
             this._contact_search.next(contact_results || []);
         }, 500);
     }

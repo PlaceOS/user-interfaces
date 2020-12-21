@@ -141,7 +141,7 @@ export class StaffStateService extends BaseClass {
     }
 
     private async loadUsers() {
-        const user_list = await this._staff.query();
+        const user_list = await this._staff.search('').toPromise();
         user_list.sort((a, b) => a.name.localeCompare(b.name));
         this._users.next(user_list);
     }

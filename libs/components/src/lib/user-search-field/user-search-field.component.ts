@@ -124,10 +124,7 @@ export class UserSearchFieldComponent extends BaseClass
                 return this.options && this.options.length > 0
                     ? Promise.resolve(this.options)
                     : query.length >= 3
-                    ? (this._users.query({
-                          q: query.slice(0, 3),
-                          cache: 60 * 1000,
-                      }) as Promise<User[]>)
+                    ? this._users.search(query.slice(0, 3)).toPromise()
                     : Promise.resolve([]);
             }),
             catchError((err) => of([])),

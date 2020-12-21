@@ -54,7 +54,7 @@ export class ExploreSearchService {
             );
             this._user_list.next([]);
             if (s.length > 2) {
-                const users = await this._staff.query({ q: s }).catch(_ => null);
+                const users = await this._staff.search(s).toPromise().catch(_ => null);
                 this._user_list.next(users || [])
             }
             this._loading.next(false);

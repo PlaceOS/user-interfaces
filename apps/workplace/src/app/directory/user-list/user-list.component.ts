@@ -48,7 +48,7 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
                 this.loading = true;
                 const retVal =
                     query.length >= this.min_search_length
-                        ? this._users.query({ q: query }).catch(() => [])
+                        ? this._users.search(query).toPromise().catch(() => [])
                         : Promise.resolve(this.user_list || []);
                 return retVal;
             }),
