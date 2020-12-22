@@ -9,7 +9,7 @@ import { formatDuration } from 'date-fns';
 import * as dayjs from 'dayjs';
 import { ViewAttendeesModalComponent } from '../../overlays/view-attendees-modal/view-attendees-modal.component';
 import { ViewCateringModalComponent } from '../../overlays/view-catering-modal/view-catering-modal.component';
-import { ViewRoomModalComponent } from '../../overlays/view-room-modal/view-room-modal.component';
+import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component';
 import { ScheduleStateService } from '../schedule-state.service';
 
 @Component({

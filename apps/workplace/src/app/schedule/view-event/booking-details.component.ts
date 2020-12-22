@@ -6,7 +6,7 @@ import { Space } from '@user-interfaces/spaces';
 import * as dayjs from 'dayjs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ViewRoomModalComponent } from '../../overlays/view-room-modal/view-room-modal.component';
+import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component';
 import { ScheduleStateService } from '../schedule-state.service';
 
 @Component({

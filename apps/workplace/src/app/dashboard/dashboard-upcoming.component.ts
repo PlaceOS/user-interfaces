@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@user-interfaces/spaces';
 
-import { ViewRoomModalComponent } from '../overlays/view-room-modal/view-room-modal.component';
+import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
