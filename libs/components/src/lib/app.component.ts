@@ -132,9 +132,10 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     private onInitError() {
-        if (isMock()) {
+        if (isMock() || this._users.current.is_logged_in) {
             return;
         }
+        console.error('Error initialising user.');
         invalidateToken();
         location.reload();
     }

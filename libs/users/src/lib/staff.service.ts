@@ -63,5 +63,6 @@ export class StaffService extends BaseClass {
             if (!window.application) window.application = {};
             window.application.user = this.current;
         }
+        this._initialised.next(true);
     }
 }

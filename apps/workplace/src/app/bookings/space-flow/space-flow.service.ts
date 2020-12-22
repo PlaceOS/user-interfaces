@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { first, switchMap } from 'rxjs/operators';
+import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { addMinutes, roundToNearestMinutes, isAfter, endOfDay } from 'date-fns';
 
 import { BaseClass, notifyError, unique } from '@user-interfaces/common';
@@ -78,7 +78,8 @@ export class SpaceFlowService extends BaseClass {
                             filters.capacity >= space.capacity
                     );
                 });
-        })
+        }),
+        shareReplay()
     );
 
     public get is_future_date() {

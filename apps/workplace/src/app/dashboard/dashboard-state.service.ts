@@ -62,6 +62,7 @@ export class DashboardStateService extends BaseClass {
                 .pipe(filter((bld) => !!bld))
                 .subscribe(() => this.updateBuildingMetadata())
         );
+        if (!this._org.organisation.bindings.area_management) return;
         const binding = getModule(this._org.organisation.bindings.area_management, 'AreaManagement').binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
