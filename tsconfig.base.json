@@ -26,7 +26,10 @@
             "@user-interfaces/organisation": ["libs/organisation/src/index.ts"],
             "@user-interfaces/spaces": ["libs/spaces/src/index.ts"],
             "@user-interfaces/users": ["libs/users/src/index.ts"],
-            "@user-interfaces/components": ["libs/components/src/index.ts"]
+            "@user-interfaces/components": ["libs/components/src/index.ts"],
+            "@user-interfaces/forms": ["libs/forms/src/index.ts"],
+            "@user-interfaces/form-fields": ["libs/form-fields/src/index.ts"],
+            "@user-interfaces/types": ["libs/types/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]
