@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { CalendarEvent } from '../../../events/src/lib/event.class';
 import { toQueryString } from 'libs/common/src/lib/api';
 import { GuestUser } from './user.class';
+import { Observable } from 'rxjs';
 
 const GUEST_ENDPOINT = '/api/staff/v1/guests';
 
@@ -22,7 +23,7 @@ export interface GuestsQueryParams {
  * Search guests
  * @param q Search string for filtering guests
  */
-export function searchGuests(q: string) {
+export function searchGuests(q: string): Observable<GuestUser[]> {
     const query = toQueryString({ q });
     return get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new GuestUser(item)))
@@ -33,7 +34,7 @@ export function searchGuests(q: string) {
  * List guests
  * @param q Parameters to pass to the API request
  */
-export function queryGuests(q: GuestsQueryParams) {
+export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
     const query = toQueryString({ q });
     return get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new GuestUser(item)))

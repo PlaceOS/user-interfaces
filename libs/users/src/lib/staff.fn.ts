@@ -1,5 +1,6 @@
 import { get } from "@placeos/ts-client";
 import { toQueryString } from "libs/common/src/lib/api";
+import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { StaffUser } from "./user.class";
 
@@ -9,7 +10,7 @@ const STAFF_ENDPOINT = '/api/staff/v1/people';
  * Search staff members
  * @param q Search string for filtering staff
  */
-export function searchStaff(q: string) {
+export function searchStaff(q: string): Observable<StaffUser[]> {
     const query = toQueryString({ q });
     return get(`${STAFF_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new StaffUser(item)))
