@@ -15,8 +15,82 @@ import * as dayjs from 'dayjs';
 
 @Component({
     selector: 'a-time-field',
-    templateUrl: './time-field.component.html',
-    styleUrls: ['./time-field.component.scss'],
+    template: `
+        <div
+            class="relative flex items-center w-full rounded border-2 border-gray-200 hover:border-black px-2 py-1"
+            role="button"
+            [style.display]="show_select ? 'none' : ''"
+            [attr.disabled]="disabled"
+            form-field
+            tabindex="0"
+            (keydown.enter)="showSelect()"
+        >
+            <input
+                matInput
+                type="time"
+                class="flex-1 w-1/2"
+                [disabled]="disabled"
+                [ngModel]="time"
+                (ngModelChange)="setValue($event)"
+            />
+            <app-icon class="text-3xl" matRipple (click)="showSelect()">{{
+                show_select ? 'arrow_drop_up' : 'arrow_drop_down'
+            }}</app-icon>
+        </div>
+        <mat-form-field appearance="outline" *ngIf="show_select">
+            <mat-select
+                #select
+                [value]="time"
+                [disabled]="disabled"
+                (valueChange)="setValue($event)"
+            >
+                <mat-option
+                    *ngFor="let option of time_options"
+                    [value]="option.id"
+                >
+                    {{ option.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    `,
+    styles: [
+        `
+            :host {
+                margin-bottom: 1em;
+                height: 2.75em;
+                width: 100%;
+            }
+
+            :host > div {
+                width: 100%;
+                height: 2.75em;
+                box-shadow: inset 0 0 0 1px #fff;
+                transition: border 200ms, box-shadow 200ms;
+            }
+
+            :host > div:hover {
+                box-shadow: inset 0 0 0 1px #464646;
+                border-color: #464646;
+            }
+
+            :host > div:focus {
+                box-shadow: inset 0 0 0 1px var(--primary);
+                border-color: var(--primary);
+                outline-color: var(--primary);
+            }
+
+            :host > div[disabled='true'] {
+                pointer-events: none;
+                border-color: #f0f0f0;
+                color: #ccc;
+            }
+
+            mat-form-field {
+                margin-top: -0.25em;
+                width: 100%;
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -52,7 +126,11 @@ export class TimeFieldComponent
 
     public ngOnInit(): void {
         this.show_select = true;
-        this._time_options = this.generateAvailableTimes(this.date, !this.no_past_times, this.step);
+        this._time_options = this.generateAvailableTimes(
+            this.date,
+            !this.no_past_times,
+            this.step
+        );
         this.timeout('hide', () => (this.show_select = false));
     }
 
@@ -80,7 +158,9 @@ export class TimeFieldComponent
                 name: `${date.format(timeFormatString())}`,
                 id: date.format('HH:mm'),
             });
-            this._time_options.sort((a, b) => `${a.id}`.localeCompare(`${b.id}`));
+            this._time_options.sort((a, b) =>
+                `${a.id}`.localeCompare(`${b.id}`)
+            );
         }
         return this._time_options;
     }
@@ -110,7 +190,11 @@ export class TimeFieldComponent
         let date = dayjs(this.date).startOf('m');
         date = date.minute(Math.ceil(date.minute() / 5) * 5);
         this.time = date.format('HH:mm');
-        this._time_options = this.generateAvailableTimes(this.date, !this.no_past_times, this.step);
+        this._time_options = this.generateAvailableTimes(
+            this.date,
+            !this.no_past_times,
+            this.step
+        );
     }
 
     public setDisabledState(disabled: boolean) {

@@ -1,6 +1,5 @@
 import {
     Component,
-    OnInit,
     forwardRef,
     Output,
     EventEmitter,
@@ -13,26 +12,106 @@ import {
     downloadFile,
     notifyError,
 } from '@user-interfaces/common';
-import { Subject, Observable } from 'rxjs';
-import {
-    switchMap,
-    debounceTime,
-    distinctUntilChanged,
-    map,
-    filter,
-    first,
-} from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
-import { User } from '../../../../users/src/lib/user.class';
-import { StaffService } from '../../../../users/src/lib/staff.service';
-import { GuestsService } from '../../../../users/src/lib/guests.service';
-import { NewUserModalComponent } from '../../../../users/src/lib/new-user-modal/new-user-modal.component';
+import {
+    StaffService,
+    NewUserModalComponent,
+    User,
+} from '@user-interfaces/users';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'a-user-list-field',
-    templateUrl: './user-list-field.component.html',
-    styleUrls: ['./user-list-field.component.scss'],
+    template: `
+        <div
+            class="mb-4 border border-grey-200"
+            form-field
+            [attr.disabled]="disabled"
+        >
+            <a-user-search-field
+                [(ngModel)]="search_user"
+                [guests]="guests"
+                (ngModelChange)="addUser($event)"
+            ></a-user-search-field>
+            <div class="p-2 -mt-2 border-b border-grey-200">
+                <mat-chip-list
+                    aria-label="User List"
+                    *ngIf="active_list && active_list.length; else empty_state"
+                >
+                    <mat-chip
+                        *ngFor="let user of active_list"
+                        [id]="user.email"
+                        [color]="
+                            user.visit_expected || user.is_external
+                                ? 'accent'
+                                : 'primary'
+                        "
+                        (click)="
+                            user.visit_expected || user.is_external
+                                ? new_user.emit(user)
+                                : null
+                        "
+                        [removable]="true"
+                        (removed)="removeUser(user)"
+                    >
+                        {{ user.name }}
+                        <app-icon
+                            matChipRemove
+                            [icon]="{
+                                type: 'icon',
+                                class: 'material-icons',
+                                content: 'close'
+                            }"
+                        ></app-icon>
+                    </mat-chip>
+                </mat-chip-list>
+            </div>
+            <div class="flex items-center">
+                <button
+                    mat-button
+                    name="new-contact"
+                    class="flex-1 rounded-none border-none text-black underline"
+                    (click)="openNewUserModal()"
+                    i18n="Add new external attendee"
+                >
+                    Add External
+                </button>
+                <button
+                    mat-button
+                    class="relative flex-1 rounded-none border-t-0 border-b-0 border-l border-r border-gray-200 text-black underline"
+                    name="upload-csv"
+                    i18n="Upload attendee list from CSV file"
+                >
+                    Upload CSV
+                    <input
+                        class="opacity-0 absolute inset-0"
+                        type="file"
+                        (change)="addUsersFromFile($event)"
+                    />
+                </button>
+                <button
+                    mat-button
+                    class="flex-1 rounded-none border-none text-black underline"
+                    name="download-template"
+                    (click)="downloadCSVTemplate()"
+                    i18n="Download template CSV file"
+                >
+                    CSV Template
+                </button>
+            </div>
+        </div>
+        <ng-template #empty_state>
+            <div i18n="Attendee empty state">No attendees</div>
+        </ng-template>
+    `,
+    styles: [
+        `
+            button {
+                background: transparent;
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -41,14 +120,19 @@ import { MatDialog } from '@angular/material/dialog';
         },
     ],
 })
-export class UserListFieldComponent extends BaseClass
-    implements OnInit, ControlValueAccessor {
+export class UserListFieldComponent
+    extends BaseClass
+    implements ControlValueAccessor {
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Number of characters needed before a search will start */
     @Input() public limit: number = 3;
+    /** Whether guests should also show when searching for users */
+    @Input() public guests: boolean;
     /** Emitter for action to make a new user */
     @Output() public new_user = new EventEmitter<void>();
+
+    public search_user: User;
 
     /** User list to display */
     public user_list: User[];
@@ -56,58 +140,14 @@ export class UserListFieldComponent extends BaseClass
     public active_list: User[];
     /** Whether user list is loading */
     public loading: boolean;
-    /** String  */
-    public search_str: string;
-    /** List of users from an API search */
-    public search_results$: Observable<User[]>;
-    /** Subject holding the value of the search */
-    public search$ = new Subject<string>();
 
     /** Form control on change handler */
     private _onChange: (_: User[]) => void;
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
-    constructor(private _users: StaffService, private _guests: GuestsService, private _dialog: MatDialog) {
+    constructor(private _users: StaffService, private _dialog: MatDialog) {
         super();
-    }
-
-    public ngOnInit() {
-        // Listen for input changes
-        this.search_results$ = this.search$.pipe(
-            debounceTime(400),
-            distinctUntilChanged(),
-            filter((query) => query.length >= this.limit),
-            switchMap((query) => {
-                this.loading = true;
-                return Promise.all([
-                    this._users.search(query).toPromise(),
-                    this._guests.search(query).toPromise(),
-                ])
-                    .then(([users, guests]) => [
-                        ...users,
-                        ...guests.map((i) => {
-                            i.visit_expected = true;
-                            return i;
-                        }),
-                    ])
-                    .catch(() => []);
-            }),
-            map((list: User[]) => {
-                this.loading = false;
-                const search = this.search_str.toLowerCase();
-                return list.filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(search) ||
-                        item.email.toLowerCase().includes(search)
-                );
-            })
-        );
-        // Process API results
-        this.subscription(
-            'search_results',
-            this.search_results$.subscribe((list) => (this.user_list = list))
-        );
     }
 
     /**
@@ -127,7 +167,7 @@ export class UserListFieldComponent extends BaseClass
             this.active_list = [...this.active_list, user];
         }
         this.setValue(this.active_list);
-        this.search_str = '';
+        this.search_user = null;
     }
 
     /**
@@ -250,7 +290,7 @@ export class UserListFieldComponent extends BaseClass
             {
                 width: 'auto',
                 height: 'auto',
-                data: {}
+                data: {},
             }
         );
         ref.componentInstance.event

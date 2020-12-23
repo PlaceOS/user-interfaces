@@ -27,6 +27,7 @@ import { SharedCateringModule } from '@user-interfaces/catering';
 import { ComponentsModule } from '@user-interfaces/components';
 import { SharedSpacesModule } from '@user-interfaces/spaces';
 import { SharedUsersModule } from '@user-interfaces/users';
+import { FormFieldsModule } from '@user-interfaces/form-fields';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
@@ -84,6 +85,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         RouterModule,
         EditorModule,
         ComponentsModule,
+        FormFieldsModule,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,
     ],
@@ -91,6 +93,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         APipesModule,
         EditorModule,
         ComponentsModule,
+        FormFieldsModule,
         SharedSpacesModule,
         SharedCateringModule,
         SharedUsersModule,

@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Subject, Observable, of } from 'rxjs';
+import { Subject, Observable, of, forkJoin } from 'rxjs';
 import {
     switchMap,
     debounceTime,
@@ -9,9 +9,8 @@ import {
     catchError,
 } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { User } from '../../../../users/src/lib/user.class';
-import { StaffService } from '../../../../users/src/lib/staff.service';
+import { BaseClass, flatten } from '@user-interfaces/common';
+import { GuestsService, StaffService, User } from '@user-interfaces/users';
 
 @Component({
     selector: 'a-user-search-field',
@@ -29,13 +28,7 @@ import { StaffService } from '../../../../users/src/lib/staff.service';
                     (blur)="resetSearchString()"
                 />
                 <div class="prefix" matPrefix>
-                    <app-icon
-                        [icon]="{
-                            type: 'icon',
-                            class: 'material-icons',
-                            content: 'search'
-                        }"
-                    ></app-icon>
+                    <app-icon class="text-2xl relative">search</app-icon>
                 </div>
                 <div class="suffix" matSuffix *ngIf="loading">
                     <mat-spinner diameter="16"></mat-spinner>
@@ -46,8 +39,8 @@ import { StaffService } from '../../../../users/src/lib/staff.service';
                 (optionSelected)="setValue($event.option.value)"
             >
                 <mat-option *ngFor="let option of user_list" [value]="option">
-                    <div class="name">{{ option.name }}</div>
-                    <div class="email">{{ option.email }}</div>
+                    <div class="leading-tight">{{ option.name }}</div>
+                    <div class="text-xs text-black opacity-60">{{ option.email }}</div>
                 </mat-option>
             </mat-autocomplete>
         </div>
@@ -60,19 +53,8 @@ import { StaffService } from '../../../../users/src/lib/staff.service';
             }
 
             app-icon {
-                font-size: 1.5em;
-                position: relative;
                 top: 0.15em;
                 left: -0.15em;
-            }
-
-            .name {
-                height: 1em;
-            }
-
-            .email {
-                font-size: 0.6em;
-                color: rgba(#000, 0.65);
             }
         `,
     ],
@@ -84,7 +66,8 @@ import { StaffService } from '../../../../users/src/lib/staff.service';
         },
     ],
 })
-export class UserSearchFieldComponent extends BaseClass
+export class UserSearchFieldComponent
+    extends BaseClass
     implements OnInit, ControlValueAccessor {
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
@@ -92,6 +75,8 @@ export class UserSearchFieldComponent extends BaseClass
     @Input() public placeholder: string;
     /** Limit available options to these */
     @Input() public options: User[];
+    /** Whether guests should also show when searching for users */
+    @Input() public guests: boolean;
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -100,44 +85,48 @@ export class UserSearchFieldComponent extends BaseClass
     public loading: boolean;
     /** Current display value of the search input field  */
     public search_str: string;
-    /** List of users from an API search */
-    public search_results$: Observable<User[]>;
     /** Subject holding the value of the search */
     public search$ = new Subject<string>();
+    /** List of users from an API search */
+    public search_results$: Observable<User[]> = this.search$.pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        switchMap((query) => {
+            this.loading = true;
+            return this.options && this.options.length > 0
+                ? of(this.options)
+                : query.length >= 3
+                ? !this.guests
+                    ? this._users.search(query.slice(0, 3))
+                    : forkJoin([
+                          this._users.search(query.slice(0, 3)),
+                          this._guests.search(query.slice(0, 3))
+                      ])
+                : of([]);
+        }),
+        catchError(_ => of([])),
+        map((list: User[]) => {
+            this.loading = false;
+            list = flatten(list);
+            const search = this.search_str.toLowerCase();
+            return list.filter(
+                (item) =>
+                    item.name.toLowerCase().includes(search) ||
+                    item.email.toLowerCase().includes(search)
+            );
+        })
+    );
 
     /** Form control on change handler */
     private _onChange: (_: User) => void;
     /** Form control on touch handler */
     private _onTouch: (_: User) => void;
 
-    constructor(private _users: StaffService) {
+    constructor(private _users: StaffService, private _guests: GuestsService) {
         super();
     }
 
     public ngOnInit(): void {
-        // Listen for input changes
-        this.search_results$ = this.search$.pipe(
-            debounceTime(400),
-            distinctUntilChanged(),
-            switchMap((query) => {
-                this.loading = true;
-                return this.options && this.options.length > 0
-                    ? Promise.resolve(this.options)
-                    : query.length >= 3
-                    ? this._users.search(query.slice(0, 3)).toPromise()
-                    : Promise.resolve([]);
-            }),
-            catchError((err) => of([])),
-            map((list: User[]) => {
-                this.loading = false;
-                const search = this.search_str.toLowerCase();
-                return list.filter(
-                    (item) =>
-                        item.name.toLowerCase().includes(search) ||
-                        item.email.toLowerCase().includes(search)
-                );
-            })
-        );
         // Process API results
         this.subscription(
             'search_results',
