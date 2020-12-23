@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
@@ -32,7 +33,7 @@ import { CommonModule } from '@angular/common';
 import { InteractiveMapComponent, MAP_FEATURE_DATA } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { SearchbarComponent } from './searchbar.component';
 
 export * from './action-field/action-field.component';
 export * from './action-icon/action-icon.component';
@@ -53,6 +54,7 @@ export * from './user-search-field/user-search-field.component';
 export * from './interactive-map.component';
 export * from './map-pin.component';
 export * from './map-radius.component';
+export * from './searchbar.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -87,6 +89,7 @@ const COMPONENTS: Type<any>[] = [
     InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
+    SearchbarComponent
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

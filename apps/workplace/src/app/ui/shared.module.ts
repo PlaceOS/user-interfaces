@@ -35,7 +35,6 @@ import { BookingFormComponent } from './forms/booking-form/booking-form.componen
 import { InfiniteScrollComponent } from './infinite-scroll.component';
 import { MapControlsComponent } from './map-controls/map-controls.component';
 import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
-import { SearchbarComponent } from './searchbar/searchbar.component';
 import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 
@@ -43,7 +42,6 @@ const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
     OverlayMenuComponent,
     FooterMenuComponent,
-    SearchbarComponent,
     BookingFormComponent,
     BookingFormModalComponent,
     BookingEditComponent,
