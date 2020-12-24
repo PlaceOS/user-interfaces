@@ -10,9 +10,9 @@ import {
     Router,
 } from '@angular/router';
 import { onlineState } from '@placeos/ts-client';
+import { current_user } from '@user-interfaces/common';
 import { first } from 'rxjs/operators';
 
-import { StaffService } from '../../../users/src/lib/staff.service';
 import { StaffUser } from '../../../users/src/lib/user.class';
 
 export abstract class PLACEOS_APP_ACCESS {
@@ -25,7 +25,6 @@ export abstract class PLACEOS_APP_ACCESS {
 export class AuthorisedUserGuard implements CanActivate, CanLoad {
     constructor(
         private _router: Router,
-        private _users: StaffService,
         @Optional() private _access: PLACEOS_APP_ACCESS
     ) {}
 
@@ -36,7 +35,7 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: StaffUser = await this._users.active_user
+        const user: StaffUser = await current_user
             .pipe(first((_) => !!_))
             .toPromise();
         const can_activate = !!(
@@ -56,7 +55,7 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: StaffUser = await this._users.active_user
+        const user: StaffUser = await current_user
             .pipe(first((_) => !!_))
             .toPromise();
         const can_activate = !!(user && user.groups);

@@ -3,10 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
 
 import { Space } from '@user-interfaces/spaces';
-import { BaseClass, DialogEvent } from '@user-interfaces/common';
+import { BaseClass, currentUser, DialogEvent } from '@user-interfaces/common';
 import { CalendarEvent, generateEventForm, saveEvent } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
-import { StaffService } from '@user-interfaces/users';
 
 export interface BookingModalData {
     space: Space;
@@ -39,7 +38,6 @@ export class BookingModalComponent extends BaseClass implements OnInit {
 
     constructor(
         private _calendar: CalendarService,
-        private _staff: StaffService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>,
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData
     ) {
@@ -52,8 +50,8 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             system: { id: this._data.space.id },
             attendees: [
                 {
-                    id: this._staff.current.id,
-                    email: this._staff.current.email,
+                    id: currentUser().id,
+                    email: currentUser().email,
                 },
             ],
         } as any);

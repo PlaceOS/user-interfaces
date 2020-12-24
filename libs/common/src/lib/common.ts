@@ -1,5 +1,4 @@
 export { BaseClass } from './base.class';
-export { BaseAPIService } from './base.service';
 export { GoogleAnalyticsService } from './google-analytics.service';
 export { HotkeysService } from './hotkeys.service';
 export { SettingsService } from './settings.service';
@@ -17,3 +16,4 @@ export * from './placeos';
 export * from './room-configuration.interface';
 export * from './settings';
 export * from './types';
+export * from './user-state';

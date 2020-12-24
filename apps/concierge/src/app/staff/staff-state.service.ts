@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { StaffUser } from '@user-interfaces/users';
+import { searchStaff, StaffUser } from '@user-interfaces/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
-import { StaffService } from '@user-interfaces/users';
 import { Booking, checkinBooking, queryBookings, saveBooking } from '@user-interfaces/bookings';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
@@ -85,7 +84,6 @@ export class StaffStateService extends BaseClass {
     );
 
     constructor(
-        private _staff: StaffService,
         private _org: OrganisationService
     ) {
         super();
@@ -140,7 +138,7 @@ export class StaffStateService extends BaseClass {
     }
 
     private async loadUsers() {
-        const user_list = await this._staff.search('').toPromise();
+        const user_list = await searchStaff('').toPromise();
         user_list.sort((a, b) => a.name.localeCompare(b.name));
         this._users.next(user_list);
     }

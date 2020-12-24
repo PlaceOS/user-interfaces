@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { getModule } from '@placeos/ts-client';
+import { first } from 'rxjs/operators';
+
+import { BaseClass } from '@user-interfaces/common';
+import { Space, SpacesService } from '@user-interfaces/spaces';
+import { MapLocation, showStaff, User } from '@user-interfaces/users';
+import { MapPinComponent, MapRadiusComponent } from '@user-interfaces/components';
+import { OrganisationService } from '@user-interfaces/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
-import { BaseClass } from '@user-interfaces/common';
-import { ActivatedRoute } from '@angular/router';
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { MapLocation, StaffService, User } from '@user-interfaces/users';
-import { first } from 'rxjs/operators';
-import { MapPinComponent, MapRadiusComponent } from '@user-interfaces/components';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'explore-map-view',
@@ -83,7 +84,6 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         private _zones: ExploreZonesService,
         private _route: ActivatedRoute,
         private _spaces: SpacesService,
-        private _users: StaffService,
         private _org: OrganisationService
     ) {
         super();
@@ -102,7 +102,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                     if (!space) return;
                     this.locateSpace(space);
                 } else if (params.has('user')) {
-                    const user = await this._users.show(params.get('user')).toPromise();
+                    const user = await showStaff(params.get('user')).toPromise();
                     if (!user) return;
                     this.locateUser(user);
                 } else {

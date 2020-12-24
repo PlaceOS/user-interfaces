@@ -3,10 +3,9 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { rulesForSpace } from '@user-interfaces/bookings';
 import { CalendarService } from '@user-interfaces/calendar';
-import { BaseClass, DialogEvent, HashMap, Identity, SettingsService } from '@user-interfaces/common';
+import { BaseClass, currentUser, DialogEvent, HashMap, Identity, SettingsService } from '@user-interfaces/common';
 import { Building, OrganisationService } from '@user-interfaces/organisation';
 import { Space } from '@user-interfaces/spaces';
-import { StaffService } from '@user-interfaces/users';
 
 
 import * as dayjs from 'dayjs';
@@ -67,7 +66,6 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _calendar: CalendarService,
-        private _staff: StaffService,
         @Inject(MAT_DIALOG_DATA) private _data: SpaceSelectModalData
     ) {
         super();
@@ -105,7 +103,7 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
                 time: date,
                 duration: all_day ? 24 * 60 : duration,
                 visitor_type,
-                user: this._staff.current,
+                user: currentUser(),
                 rules: booking_rules,
                 space
             });

@@ -8,7 +8,7 @@ import {
 } from 'rxjs/operators';
 
 import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { StaffService, User } from '@user-interfaces/users';
+import { searchStaff, User } from '@user-interfaces/users';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
@@ -94,8 +94,7 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
     }
 
     constructor(
-        private _settings: SettingsService,
-        private _users: StaffService
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -109,8 +108,7 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
                 this.loading = true;
                 const retVal =
                     query.length >= this.min_search_length
-                        ? this._users
-                              .search(query)
+                        ? searchStaff(query)
                               .toPromise()
                               .catch(() => [])
                         : Promise.resolve(this.user_list || []);

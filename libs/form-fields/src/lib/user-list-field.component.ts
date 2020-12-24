@@ -9,13 +9,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
     BaseClass,
     csvToJson,
+    currentUser,
     downloadFile,
     notifyError,
 } from '@user-interfaces/common';
 import { first } from 'rxjs/operators';
 
 import {
-    StaffService,
     NewUserModalComponent,
     User,
 } from '@user-interfaces/users';
@@ -146,7 +146,7 @@ export class UserListFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
-    constructor(private _users: StaffService, private _dialog: MatDialog) {
+    constructor(private _dialog: MatDialog) {
         super();
     }
 
@@ -210,7 +210,7 @@ export class UserListFieldComponent
      */
     private processCsvData(data: string) {
         const list = csvToJson(data) || [];
-        const id = this._users.current.staff_id;
+        const id = currentUser().staff_id;
         list.forEach((el) => {
             el.name = el.name || `${el.first_name} ${el.last_name}`;
             const display = (

@@ -1,16 +1,19 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { formatDuration } from 'date-fns';
+
 import { CateringItem } from '@user-interfaces/catering';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass, currentUser } from '@user-interfaces/common';
 import { CalendarEvent } from '@user-interfaces/events';
 import { Space, SpacesService } from '@user-interfaces/spaces';
-import { StaffService, User } from '@user-interfaces/users';
-import { formatDuration } from 'date-fns';
-import * as dayjs from 'dayjs';
+import { User } from '@user-interfaces/users';
+
 import { ViewAttendeesModalComponent } from '../../overlays/view-attendees-modal/view-attendees-modal.component';
 import { ViewCateringModalComponent } from '../../overlays/view-catering-modal/view-catering-modal.component';
 import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component';
 import { ScheduleStateService } from '../schedule-state.service';
+
+import * as dayjs from 'dayjs';
 
 @Component({
     selector: 'schedule-event-details',
@@ -150,7 +153,6 @@ export class EventDetailsComponent extends BaseClass {
     public readonly editEvent = () => this.editing = true;
 
     constructor(
-        private _users: StaffService,
         private _dialog: MatDialog,
         private _spaces: SpacesService,
         private _state: ScheduleStateService
@@ -160,7 +162,7 @@ export class EventDetailsComponent extends BaseClass {
 
     /** Host of the event */
     public get organiser(): string {
-        return this.event.creator || this._users.current.name;
+        return this.event.creator || currentUser().name;
     }
 
     /** Display string of when the event will occur */

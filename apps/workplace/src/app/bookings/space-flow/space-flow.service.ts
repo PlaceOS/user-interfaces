@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { addMinutes, roundToNearestMinutes, isAfter, endOfDay } from 'date-fns';
 
-import { BaseClass, notifyError, unique } from '@user-interfaces/common';
+import { BaseClass, currentUser, notifyError, unique } from '@user-interfaces/common';
 import {
     CalendarEvent,
     generateEventForm,
@@ -12,7 +12,7 @@ import {
 } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
 import { OrganisationService } from '@user-interfaces/organisation';
-import { NewUserModalComponent, StaffService } from '@user-interfaces/users';
+import { NewUserModalComponent } from '@user-interfaces/users';
 import { MatDialog } from '@angular/material/dialog';
 
 export interface EventFormFilters {
@@ -92,7 +92,6 @@ export class SpaceFlowService extends BaseClass {
     constructor(
         private _calendar: CalendarService,
         private _org: OrganisationService,
-        private _staff: StaffService,
         private _dialog: MatDialog
     ) {
         super();
@@ -190,12 +189,12 @@ export class SpaceFlowService extends BaseClass {
         form.markAllAsTouched();
         if (!form.controls.organiser.value || !form.controls.host.value)
             form.patchValue({
-                organiser: this._staff.current,
-                host: this._staff.current.email,
+                organiser: currentUser(),
+                host: currentUser().email,
             });
         if (!form.controls.title.value) {
             form.patchValue({
-                title: this._staff.current.email
+                title: currentUser().email
             });
         }
         if (!form.valid) {

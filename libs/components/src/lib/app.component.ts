@@ -14,6 +14,8 @@ import {
 
 import {
     BaseClass,
+    current_user,
+    currentUser,
     HotkeysService,
     notifySuccess,
     setAppName,
@@ -25,14 +27,13 @@ import {
 import { OrganisationService } from '@user-interfaces/organisation';
 
 import { SpacesService } from '../../../spaces/src/lib/spaces.service';
-import { StaffService } from '../../../users/src/lib/staff.service';
 import { setDefaultCreator } from '../../../events/src/lib/event.class';
 import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
 import { Integrations } from '@sentry/tracing';
 
-export function initSentry(dsn: string, sample_rate: number = .2) {
+export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
     Sentry.init({
         dsn,
@@ -76,7 +77,6 @@ export class AppComponent extends BaseClass implements OnInit {
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _spaces: SpacesService, // For init
-        private _users: StaffService,
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
         private _hotkey: HotkeysService,
@@ -125,14 +125,14 @@ export class AppComponent extends BaseClass implements OnInit {
         this._loading.next(false);
         setupCache(this._cache);
         this.timeout('wait_for_user', () => this.onInitError(), 5 * 1000);
-        await this._users.initialised.pipe(first((_) => _)).toPromise();
+        await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
-        setDefaultCreator(this._users.current);
+        setDefaultCreator(currentUser());
         initSentry(this._settings.get('app.sentry_dsn'));
     }
 
     private onInitError() {
-        if (isMock() || this._users.current?.is_logged_in) {
+        if (isMock() || currentUser()?.is_logged_in) {
             return;
         }
         console.error('Error initialising user.');

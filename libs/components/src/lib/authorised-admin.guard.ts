@@ -9,16 +9,15 @@ import {
     UrlTree,
     Router,
 } from '@angular/router';
-import { PlaceUser, onlineState } from '@placeos/ts-client';
+import { onlineState } from '@placeos/ts-client';
+import { current_user } from '@user-interfaces/common';
 import { first } from 'rxjs/operators';
-
-import { StaffService } from '../../../users/src/lib/staff.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthorisedAdminGuard implements CanActivate, CanLoad {
-    constructor(private _router: Router, private _users: StaffService) {}
+    constructor(private _router: Router) {}
 
     public async canActivate(
         next: ActivatedRouteSnapshot,
@@ -27,20 +26,23 @@ export class AuthorisedAdminGuard implements CanActivate, CanLoad {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: PlaceUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise() as any;
-        const can_activate = user && user.sys_admin;
+        const user = await current_user.pipe(first((_) => !!_)).toPromise();
+        const can_activate = user && user.groups.includes('placeos_admin');
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
         return can_activate;
     }
 
-    public async canLoad(route: Route, segments: UrlSegment[]): Promise<boolean> {
+    public async canLoad(
+        route: Route,
+        segments: UrlSegment[]
+    ): Promise<boolean> {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: PlaceUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise() as any;
-        const can_activate = user && user.sys_admin;
+        const user = await current_user.pipe(first((_) => !!_)).toPromise();
+        const can_activate = user && user.groups.includes('placeos_admin');
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }

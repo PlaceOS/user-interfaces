@@ -1,10 +1,9 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass, DialogEvent, HashMap, Identity, notifyError, SettingsService } from '@user-interfaces/common'
+import { BaseClass, currentUser, DialogEvent, HashMap, Identity, notifyError, SettingsService } from '@user-interfaces/common'
 import { Building, OrganisationService } from '@user-interfaces/organisation';
 import { CalendarService } from '../../../../calendar/src/lib/calendar.service';
-import { StaffService } from '../../../../users/src/lib/staff.service';
 import { filterSpacesRules } from '../../../../bookings/src/lib/booking.utilities';
 import { Space } from '../space.class';
 
@@ -65,7 +64,6 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
     constructor(
         private _org: OrganisationService,
         private _calendar: CalendarService,
-        private _staff: StaffService,
         private _settings: SettingsService,
         @Inject(MAT_DIALOG_DATA) private _data: SpaceSelectModalData
     ) {
@@ -99,7 +97,7 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
     /** Check booking rules and filter spaces */
     public filterSpaces(list: Space[]): Space[] {
         const settings = this._org.building_settings;
-        const res = filterSpacesRules(list, settings, this._staff.current, { ...this._data });
+        const res = filterSpacesRules(list, settings, currentUser(), { ...this._data });
         return res;
     }
 
