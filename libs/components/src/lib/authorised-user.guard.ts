@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import {
     CanActivate,
     CanLoad,
@@ -15,11 +15,19 @@ import { first } from 'rxjs/operators';
 import { StaffService } from '../../../users/src/lib/staff.service';
 import { StaffUser } from '../../../users/src/lib/user.class';
 
+export abstract class PLACEOS_APP_ACCESS {
+    public readonly group: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class AuthorisedUserGuard implements CanActivate, CanLoad {
-    constructor(private _router: Router, private _users: StaffService) {}
+    constructor(
+        private _router: Router,
+        private _users: StaffService,
+        @Optional() private _access: PLACEOS_APP_ACCESS
+    ) {}
 
     public async canActivate(
         next: ActivatedRouteSnapshot,
@@ -31,7 +39,10 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
         const user: StaffUser = await this._users.active_user
             .pipe(first((_) => !!_))
             .toPromise();
-        const can_activate = !!(user && user.groups);
+        const can_activate = !!(
+            user &&
+            (!this._access?.group || user.groups.includes(this._access.group))
+        );
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
