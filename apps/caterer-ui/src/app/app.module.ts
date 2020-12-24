@@ -2,31 +2,50 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
 
-import { UnauthorisedComponent } from '@user-interfaces/components';
+import { SharedCateringModule } from '@user-interfaces/catering';
+import { ComponentsModule, UnauthorisedComponent } from '@user-interfaces/components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
+import { CateringComponent } from './catering.component';
+import { CateringTopbarComponent } from './catering-topbar.component';
 
 import '@user-interfaces/mocks';
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
-    declarations: [AppComponent, UnauthorisedComponent],
+    declarations: [
+        AppComponent,
+        UnauthorisedComponent,
+        CateringComponent,
+        CateringTopbarComponent,
+    ],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
+        FormsModule,
+        ReactiveFormsModule,
         AppRoutingModule,
         MatSnackBarModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        MatTabsModule,
+        MatChipsModule,
+        SharedCateringModule,
+        ComponentsModule,
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
     ],
     providers: [
         {
