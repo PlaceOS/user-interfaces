@@ -4,7 +4,7 @@ import { FormGroup } from '@angular/forms';
 
 import { Space } from '@user-interfaces/spaces';
 import { BaseClass, DialogEvent } from '@user-interfaces/common';
-import { CalendarEvent, EventsService, generateEventForm } from '@user-interfaces/events';
+import { CalendarEvent, generateEventForm, saveEvent } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
 import { StaffService } from '@user-interfaces/users';
 
@@ -39,7 +39,6 @@ export class BookingModalComponent extends BaseClass implements OnInit {
 
     constructor(
         private _calendar: CalendarService,
-        private _events: EventsService,
         private _staff: StaffService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>,
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData
@@ -86,7 +85,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             this.loading = 'Processing booking request...';
             try {
                 const booking = new CalendarEvent({ ...this.booking, ...this.form.value });
-                await this._events.save(booking);
+                await saveEvent(booking);
                 this.event.emit({ reason: 'done' });
                 this._dialog_ref.close();
                 // this._service.notifySuccess(

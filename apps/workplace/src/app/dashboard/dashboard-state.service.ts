@@ -12,7 +12,7 @@ import { endOfDay } from 'date-fns';
 
 import { BaseClass, HashMap, unique } from '@user-interfaces/common';
 import { Space } from '@user-interfaces/spaces';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, queryEvents } from '@user-interfaces/events';
 import { StaffService, User } from '@user-interfaces/users';
 import { BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
 import { CalendarService } from '@user-interfaces/calendar';
@@ -45,7 +45,6 @@ export class DashboardStateService extends BaseClass {
     public level_occupancy = this._level_occupancy.asObservable();
 
     constructor(
-        private _events: EventsService,
         private _calendar: CalendarService,
         private _org: OrganisationService,
         private _users: StaffService
@@ -156,7 +155,7 @@ export class DashboardStateService extends BaseClass {
     private async updateUpcomingEvents() {
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const events = await this._events.query({
+        const events = await queryEvents({
             period_start,
             period_end,
             calendars: this._users.current.email,

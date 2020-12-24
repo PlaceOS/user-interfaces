@@ -7,7 +7,7 @@ import {
 import { endOfDay, formatDuration } from 'date-fns';
 
 import { BaseClass, RoomConfiguration } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, saveEvent } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
 import { Space, SpacesService } from '@user-interfaces/spaces';
 import { OrganisationService } from '@user-interfaces/organisation';
@@ -97,7 +97,6 @@ export class BookingConfirmComponent extends BaseClass {
         @Inject(MAT_DIALOG_DATA)
         private _data: { old_booking: CalendarEvent; booking: CalendarEvent },
         private _calendar: CalendarService,
-        private _events: EventsService,
         private _spaces: SpacesService,
         private _org: OrganisationService,
         private _dialogService: MatDialog
@@ -116,7 +115,7 @@ export class BookingConfirmComponent extends BaseClass {
             this.checking_available = false;
 
             try {
-                await this._events.save(this.booking).toPromise().catch((e) => {
+                await saveEvent(this.booking).toPromise().catch((e) => {
                     throw new Error(e);
                 });
                 this.event.emit({ type: 'success' });

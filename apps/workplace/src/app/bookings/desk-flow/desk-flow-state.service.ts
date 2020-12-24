@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { getModule, listChildMetadata, showMetadata } from '@placeos/ts-client';
-import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { Booking, checkinBooking, queryBookings, saveBooking } from '@user-interfaces/bookings';
 import {
     BaseClass,
     DialogEvent,
@@ -53,7 +53,7 @@ export class DeskFlowStateService extends BaseClass {
 
     public readonly todays_bookings = timer(1000).pipe(
         switchMap((_) =>
-            this._bookings.query({
+            queryBookings({
                 period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
                 period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
                 type: 'desk',
@@ -139,8 +139,7 @@ export class DeskFlowStateService extends BaseClass {
             );
             return [
                 desks,
-                await this._bookings
-                    .query({
+                await queryBookings({
                         period_start: Math.floor(date.valueOf() / 1000),
                         period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                         type: 'desk',
@@ -173,7 +172,6 @@ export class DeskFlowStateService extends BaseClass {
 
     constructor(
         private _state: ExploreStateService,
-        private _bookings: BookingsService,
         private _staff: StaffService,
         private _settings: SettingsService,
         private _org: OrganisationService,
@@ -216,14 +214,14 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     public async checkin(id: string) {
-        const bookings = await this._bookings.query({
+        const bookings = await queryBookings({
             period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
             period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
             type: 'desk',
         }).toPromise();
         const bkn = bookings.find((b) => b.asset_id === id);
         if (!bkn) return false;
-        const done = await this._bookings.checkin(bkn.id, true).toPromise();
+        const done = await checkinBooking(bkn.id, true).toPromise();
         return true;
     }
 
@@ -269,7 +267,7 @@ export class DeskFlowStateService extends BaseClass {
         if (!success) return;
         ref.componentInstance.loading =
             'Checking for existing desk bookings...';
-        const bookings = await this._bookings.query({
+        const bookings = await queryBookings({
             type: 'desk',
             period_start: Math.floor(
                 startOfDay(options.date || new Date()).valueOf() / 1000
@@ -327,7 +325,7 @@ export class DeskFlowStateService extends BaseClass {
                 group: desk.group,
             },
         };
-        return this._bookings.save(booking_data as any);
+        return saveBooking(booking_data as any);
     }
 
     private handleDeskAvailability([available, desks]: [Desk[], Desk[]]) {

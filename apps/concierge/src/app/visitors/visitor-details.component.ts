@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { notifyError } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, saveEvent } from '@user-interfaces/events';
 import { User } from '@user-interfaces/users';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -31,7 +31,11 @@ import { VisitorsStateService } from './visitors-state.service';
         <div flex class="p-2 flex-1">{{ visitor?.name || visitor?.email }}</div>
         <div class="w-40 p-2 flex items-center justify-end">
             <action-icon
-                [matTooltip]="remote ? 'Set as In-Person Visitor' : 'Set as Remote Visitior'"
+                [matTooltip]="
+                    remote
+                        ? 'Set as In-Person Visitor'
+                        : 'Set as Remote Visitior'
+                "
                 [loading]="loading === 'remote'"
                 className="material-icons"
                 [content]="remote ? 'tap_and_play' : 'business'"
@@ -115,16 +119,24 @@ export class VisitorDetailsComponent {
 
     public readonly toggleRemote = async () => {
         this.loading = 'remote';
-        const remote_list = this.event.remote.filter(e => e !== this.visitor.email);
+        const remote_list = this.event.remote.filter(
+            (e) => e !== this.visitor.email
+        );
         if (!this.remote) {
             remote_list.push(this.visitor.email);
         }
-        const new_item = new CalendarEvent({ ...(this.event.toJSON()), remote: remote_list }).toJSON();
-        console.log('Remote:', remote_list, new_item)
-        this.event = await this._events
-            .save(new_item).toPromise()
+        const new_item = new CalendarEvent({
+            ...this.event.toJSON(),
+            remote: remote_list,
+        }).toJSON();
+        this.event = await saveEvent(new_item)
+            .toPromise()
             .catch((e) => {
-                notifyError(`Error setting visitor status. Error: ${e.statusText || e.message || e}`);
+                notifyError(
+                    `Error setting visitor status. Error: ${
+                        e.statusText || e.message || e
+                    }`
+                );
                 return this.event;
             });
         this.eventChange.emit(this.event);
@@ -140,8 +152,8 @@ export class VisitorDetailsComponent {
     };
 
     public get remote(): boolean {
-        return !!this.event?.remote.find(e => e === this.visitor?.email);
+        return !!this.event?.remote.find((e) => e === this.visitor?.email);
     }
 
-    constructor(private _state: VisitorsStateService, private _events: EventsService) {}
+    constructor(private _state: VisitorsStateService) {}
 }

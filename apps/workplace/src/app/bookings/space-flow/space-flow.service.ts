@@ -7,8 +7,8 @@ import { addMinutes, roundToNearestMinutes, isAfter, endOfDay } from 'date-fns';
 import { BaseClass, notifyError, unique } from '@user-interfaces/common';
 import {
     CalendarEvent,
-    EventsService,
     generateEventForm,
+    saveEvent,
 } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
 import { OrganisationService } from '@user-interfaces/organisation';
@@ -90,7 +90,6 @@ export class SpaceFlowService extends BaseClass {
     public readonly clearState = () => clearEventFormState();
 
     constructor(
-        private _events: EventsService,
         private _calendar: CalendarService,
         private _org: OrganisationService,
         private _staff: StaffService,
@@ -217,7 +216,7 @@ export class SpaceFlowService extends BaseClass {
             ...this._event.getValue(),
             ...this._form.getValue().value,
         });
-        return this._events.save(values).toPromise().then(
+        return saveEvent(values).toPromise().then(
             () => this._loading_event.next(false),
             () => this._loading_event.next(false)
         );

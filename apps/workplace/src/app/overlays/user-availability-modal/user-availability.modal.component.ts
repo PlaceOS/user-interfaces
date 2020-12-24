@@ -2,14 +2,14 @@ import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
+import { endOfDay, startOfDay } from 'date-fns';
 
 import { BaseClass, DialogEvent } from '@user-interfaces/common';
 import { StaffUser } from '@user-interfaces/users';
-import { EventsService } from '@user-interfaces/events';
 import { ITimelineEventGroup } from '../../ui/event-timeline/event-timeline.component';
 
 import * as dayjs from 'dayjs';
-import { endOfDay, startOfDay } from 'date-fns';
+import { queryEvents } from '@user-interfaces/events';
 
 @Component({
     selector: 'app-user-availability-modal',
@@ -36,7 +36,6 @@ export class UserAvailabilityModalComponent
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: any,
-        private _events: EventsService
     ) {
         super();
     }
@@ -67,8 +66,7 @@ export class UserAvailabilityModalComponent
             this.users.map(async (user) => {
                 return {
                     name: user.name,
-                    events: await this._events
-                        .query({
+                    events: await queryEvents({
                             period_start,
                             period_end,
                             calendars: user.email,

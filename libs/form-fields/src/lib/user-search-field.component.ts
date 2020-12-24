@@ -10,7 +10,7 @@ import {
 } from 'rxjs/operators';
 
 import { BaseClass, flatten } from '@user-interfaces/common';
-import { GuestsService, StaffService, User } from '@user-interfaces/users';
+import { searchGuests, searchStaff, User } from '@user-interfaces/users';
 
 @Component({
     selector: 'a-user-search-field',
@@ -40,7 +40,9 @@ import { GuestsService, StaffService, User } from '@user-interfaces/users';
             >
                 <mat-option *ngFor="let option of user_list" [value]="option">
                     <div class="leading-tight">{{ option.name }}</div>
-                    <div class="text-xs text-black opacity-60">{{ option.email }}</div>
+                    <div class="text-xs text-black opacity-60">
+                        {{ option.email }}
+                    </div>
                 </mat-option>
             </mat-autocomplete>
         </div>
@@ -97,14 +99,14 @@ export class UserSearchFieldComponent
                 ? of(this.options)
                 : query.length >= 3
                 ? !this.guests
-                    ? this._users.search(query.slice(0, 3))
+                    ? searchStaff(query.slice(0, 3))
                     : forkJoin([
-                          this._users.search(query.slice(0, 3)),
-                          this._guests.search(query.slice(0, 3))
+                          searchStaff(query.slice(0, 3)),
+                          searchGuests(query.slice(0, 3)),
                       ])
                 : of([]);
         }),
-        catchError(_ => of([])),
+        catchError((_) => of([])),
         map((list: User[]) => {
             this.loading = false;
             list = flatten(list);
@@ -121,10 +123,6 @@ export class UserSearchFieldComponent
     private _onChange: (_: User) => void;
     /** Form control on touch handler */
     private _onTouch: (_: User) => void;
-
-    constructor(private _users: StaffService, private _guests: GuestsService) {
-        super();
-    }
 
     public ngOnInit(): void {
         // Process API results

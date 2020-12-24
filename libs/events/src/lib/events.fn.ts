@@ -100,7 +100,7 @@ export const saveEvent = (
  * @param id ID of the event to remove
  * @param q Parameters to pass to the API request
  */
-export function removeEvent(id: string, q: CalendarEventShowParams) {
+export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
     const query = toQueryString(q);
     return del(`${EVENTS_ENDPOINT}/${id}${query ? '?' + query : ''}`, {
         response_type: 'void',

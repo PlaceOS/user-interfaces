@@ -5,7 +5,7 @@ import { startOfDay, endOfDay } from 'date-fns';
 
 import { BaseClass, flatten } from '@user-interfaces/common';
 import { CalendarEvent } from '../../../events/src/lib/event.class';
-import { EventsService } from '../../../events/src/lib/events.service';
+import { queryEvents, saveEvent } from '@user-interfaces/events';
 
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
@@ -46,7 +46,7 @@ export class CateringOrdersService extends BaseClass {
                 startOfDay(new Date(filters.date || Date.now())).valueOf() / 1000
             );
             const end = Math.floor(endOfDay(new Date(filters.date || Date.now())).valueOf() / 1000);
-            return this._events.query({
+            return queryEvents({
                 zone_ids: (filters.zones || []).join(','),
                 period_start: start,
                 period_end: end,
@@ -73,7 +73,7 @@ export class CateringOrdersService extends BaseClass {
         map((list) => list.filter((order) => checkOrder(order, this._filters.getValue())))
     );
 
-    constructor(private _events: EventsService) {
+    constructor() {
         super();
         this.subscription(
             'changes',
@@ -115,6 +115,6 @@ export class CateringOrdersService extends BaseClass {
                 updated_order
             ].map((i) => new CateringOrder({ ...i })),
         });
-        return this._events.save(event);
+        return saveEvent(event);
     }
 }
