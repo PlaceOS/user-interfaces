@@ -14,11 +14,11 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
-import { BindingDirective } from './binding/binding.directive';
-import { ActionIconComponent } from './action-icon/action-icon.component';
-import { IconComponent } from './icon/icon.component';
-import { PopoutMenuComponent } from './popout-menu/popout-menu.component';
-import { UserAvatarComponent } from './user-avatar/user-avatar.component';
+import { BindingDirective } from './binding.directive';
+import { ActionIconComponent } from './action-icon.component';
+import { IconComponent } from './icon.component';
+import { PopoutMenuComponent } from './popout-menu.component';
+import { UserAvatarComponent } from './user-avatar.component';
 
 import { MatDialogModule } from '@angular/material/dialog';
 import { ConfirmModalComponent } from './confirm-modal.component';
@@ -28,15 +28,14 @@ import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
 import { SearchbarComponent } from './searchbar.component';
 
-export * from './action-icon/action-icon.component';
-export * from './binding/binding.directive';
-export * from './booking-form/booking-form.component';
+export * from './action-icon.component';
+export * from './binding.directive';
 export * from './confirm-modal.component';
-export * from './icon/icon.component';
+export * from './icon.component';
 export * from './login/login.component';
-export * from './popout-menu/popout-menu.component';
-export * from './unauthorised/unauthorised.component';
-export * from './user-avatar/user-avatar.component';
+export * from './popout-menu.component';
+export * from './unauthorised.component';
+export * from './user-avatar.component';
 export * from './interactive-map.component';
 export * from './map-pin.component';
 export * from './map-radius.component';

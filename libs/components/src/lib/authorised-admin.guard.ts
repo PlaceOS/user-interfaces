@@ -9,16 +9,15 @@ import {
     UrlTree,
     Router,
 } from '@angular/router';
-import { onlineState } from '@placeos/ts-client';
+import { PlaceUser, onlineState } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
-import { StaffService } from '../../../../users/src/lib/staff.service';
-import { StaffUser } from '../../../../users/src/lib/user.class';
+import { StaffService } from '../../../users/src/lib/staff.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class AuthorisedUserGuard implements CanActivate, CanLoad {
+export class AuthorisedAdminGuard implements CanActivate, CanLoad {
     constructor(private _router: Router, private _users: StaffService) {}
 
     public async canActivate(
@@ -28,30 +27,23 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: StaffUser = await this._users.active_user
-            .pipe(first((_) => !!_))
-            .toPromise();
-        const can_activate = !!(user && user.groups);
+        const user: PlaceUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise() as any;
+        const can_activate = user && user.sys_admin;
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
-        return !!can_activate;
+        return can_activate;
     }
 
-    public async canLoad(
-        route: Route,
-        segments: UrlSegment[]
-    ): Promise<boolean> {
+    public async canLoad(route: Route, segments: UrlSegment[]): Promise<boolean> {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        const user: StaffUser = await this._users.active_user
-            .pipe(first((_) => !!_))
-            .toPromise();
-        const can_activate = !!(user && user.groups);
+        const user: PlaceUser = await this._users.active_user.pipe(first((_) => !!_)).toPromise() as any;
+        const can_activate = user && user.sys_admin;
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
-        return !!can_activate;
+        return can_activate;
     }
 }
