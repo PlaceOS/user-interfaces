@@ -11,6 +11,7 @@ import { SpacesService } from '@user-interfaces/spaces';
 export interface MapOptions {
     show_zones?: boolean;
     show_devices?: boolean;
+    show_levels?: boolean;
 }
 
 @Injectable({
@@ -90,6 +91,10 @@ export class ExploreStateService extends BaseClass {
 
     public get positions() {
         return this._positions.getValue();
+    }
+
+    public get active_level() {
+        return this._level.getValue()
     }
 
     constructor(private _org: OrganisationService, private _spaces: SpacesService, private _settings: SettingsService) {
