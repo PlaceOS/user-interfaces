@@ -37,7 +37,7 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
  * @param q Parameters to pass to the API request
  */
 export function showBooking(id: string) {
-    return get(`${BOOKINGS_ENDPOINT}/${id}`).pipe(
+    return get(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
         map((item) => new Booking(item))
     );
 }
@@ -64,7 +64,7 @@ export function updateBooking(
     method: 'put' | 'patch' = 'patch'
 ) {
     return (method === 'patch' ? patch : put)(
-        `${BOOKINGS_ENDPOINT}/${id}`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`,
         data
     ).pipe(map((item) => new Booking(item)));
 }
@@ -84,7 +84,7 @@ export const saveBooking = (
  * @param q Parameters to pass to the API request
  */
 export function removeBooking(id: string) {
-    return del(`${BOOKINGS_ENDPOINT}/${id}`, {
+    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
         response_type: 'void',
     });
 }
@@ -96,7 +96,7 @@ export function removeBooking(id: string) {
  */
 export function approveBooking(id: string) {
     return post(
-        `${BOOKINGS_ENDPOINT}/${id}/approve`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
         ''
     ).pipe(map((item) => new Booking(item)));
 }
@@ -108,7 +108,7 @@ export function approveBooking(id: string) {
  */
 export function rejectBooking(id: string) {
     return post(
-        `${BOOKINGS_ENDPOINT}/${id}/reject`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
         ''
     ).pipe(map((item) => new Booking(item)));
 }
@@ -121,7 +121,7 @@ export function rejectBooking(id: string) {
 export function checkinBooking(id: string, state: boolean) {
     const query = toQueryString({ state });
     return post(
-        `${BOOKINGS_ENDPOINT}/${id}/check_in?${query}`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
         ''
     ).pipe(map((item) => new Booking(item)));
 }

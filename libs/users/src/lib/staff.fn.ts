@@ -22,7 +22,7 @@ export function searchStaff(q: string): Observable<StaffUser[]> {
  * @param id User ID or email
  */
 export function showStaff(id: string) {
-    return get(`${STAFF_ENDPOINT}/${id}`).pipe(
+    return get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
         map((item) => new StaffUser(item))
     );
 }

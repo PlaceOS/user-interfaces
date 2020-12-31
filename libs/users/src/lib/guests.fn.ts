@@ -46,7 +46,7 @@ export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
  * @param id ID of the guest
  */
 export function showGuest(id: string) {
-    return get(`${GUEST_ENDPOINT}/${id}`).pipe(
+    return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
         map((item) => new GuestUser(item))
     );
 }
@@ -57,7 +57,7 @@ export function showGuest(id: string) {
  * @param data New metadata state
  */
 export function updateGuest(id: string, data: Partial<GuestUser>) {
-    return patch(`${GUEST_ENDPOINT}/${id}`, data).pipe(
+    return patch(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, data).pipe(
         map((item) => new GuestUser(item))
     );
 }
@@ -67,7 +67,7 @@ export function updateGuest(id: string, data: Partial<GuestUser>) {
  * @param id ID of the guest to remove
  */
 export function removeGuest(id: string) {
-    return del(`${GUEST_ENDPOINT}/${id}`, { response_type: 'void' });
+    return del(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, { response_type: 'void' });
 }
 
 /**
@@ -75,7 +75,7 @@ export function removeGuest(id: string) {
  * @param id ID of the guest
  */
 export function listGuestMeetings(id: string) {
-    return get(`${GUEST_ENDPOINT}/${id}/meetings`).pipe(
+    return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}/meetings`).pipe(
         map((list) => list.map((item) => new CalendarEvent(item)))
     );
 }
