@@ -8,13 +8,13 @@ import { OrganisationService } from '@user-interfaces/organisation';
         <div class="m-2 rounded overflow-hidden bg-white shadow divide-y divide-gray-100">
             <button
                 *ngFor="let lvl of levels | async"
-                class="flex flex-col items-center justify-center h-20 w-20 p-2"
+                class="flex flex-col items-center justify-center h-16 w-16 p-2"
                 [class.active]="lvl.id === (level | async).id"
                 (click)="setLevel(lvl)"
                 matRipple
             >
-                <div class="text-3xl">{{ lvl.number }}</div>
-                <p>{{ lvl.display_name || lvl.name }}</p>
+                <div class="text-2xl">{{ lvl.number }}</div>
+                <p class="text-sm">{{ lvl.display_name || lvl.name }}</p>
             </button>
         </div>
     `,

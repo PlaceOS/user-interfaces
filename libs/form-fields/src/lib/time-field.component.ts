@@ -17,7 +17,7 @@ import * as dayjs from 'dayjs';
     selector: 'a-time-field',
     template: `
         <div
-            class="relative flex items-center w-full rounded border-2 border-gray-200 hover:border-black px-2 py-1"
+            class="relative flex items-center w-full rounded border border-gray-200 hover:border-black px-2 py-1 mt-1"
             role="button"
             [style.display]="show_select ? 'none' : ''"
             [attr.disabled]="disabled"

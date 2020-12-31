@@ -31,6 +31,6 @@ export class BuildingLevel {
         this.number = (parts.length >= 2
             ? parts[parts.length - 1]
             : this.display_name[0]
-        ).toUpperCase();
+        )?.toUpperCase() || '';
     }
 }

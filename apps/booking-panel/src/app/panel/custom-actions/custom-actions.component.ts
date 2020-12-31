@@ -9,7 +9,7 @@ import {
     CONFIRM_METADATA,
     ConfirmModalData,
 } from '@user-interfaces/components';
-import { EmbeddedControlModalComponent } from '../../overlays/embedded-control-modal/embedded-control-modal.component';
+import { EmbeddedControlModalComponent } from '../../overlays/embedded-control-modal.component';
 import { PanelStateService } from '../panel-state.service';
 
 @Component({
