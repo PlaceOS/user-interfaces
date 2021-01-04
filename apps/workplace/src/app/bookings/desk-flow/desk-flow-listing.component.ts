@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass, notifyError, notifySuccess } from '@user-interfaces/common';
+import { BaseClass, currentUser, current_user, notifyError, notifySuccess } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
-import { StaffService } from '@user-interfaces/users';
+
 import { first } from 'rxjs/operators';
 import { DeskFlowStateService } from './desk-flow-state.service';
 
@@ -163,7 +163,7 @@ export class DeskFlowListingComponent extends BaseClass {
     public readonly setOptions = (o) => this._desks.setOptions(o);
 
     public readonly bookDesk = async (d) => {
-        const sucess = await this._desks.bookDesk(d, this.reason);
+        const success = await this._desks.bookDesk(d, this.reason);
         if (!success) return;
         this._router.navigate([], { relativeTo: this._route, queryParams: { success: 'true' } });
         this.success = true;
@@ -172,7 +172,6 @@ export class DeskFlowListingComponent extends BaseClass {
     constructor(
         private _desks: DeskFlowStateService,
         private _org: OrganisationService,
-        private _staff: StaffService,
         private _route: ActivatedRoute,
         private _router: Router
     ) {
@@ -181,8 +180,8 @@ export class DeskFlowListingComponent extends BaseClass {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first(_ => _)).toPromise();
-        await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
-        this._desks.setHost(this._staff.current);
+        await current_user.pipe(first(_ => !!_)).toPromise();
+        this._desks.setHost(currentUser());
         this.setOptions({ zones: [this._org.building.id] });
         this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
             if (params.has('checkin')) {

@@ -27,6 +27,7 @@ import { SharedCateringModule } from '@user-interfaces/catering';
 import { ComponentsModule } from '@user-interfaces/components';
 import { SharedSpacesModule } from '@user-interfaces/spaces';
 import { SharedUsersModule } from '@user-interfaces/users';
+import { FormFieldsModule } from '@user-interfaces/form-fields';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
@@ -35,7 +36,6 @@ import { BookingFormComponent } from './forms/booking-form/booking-form.componen
 import { InfiniteScrollComponent } from './infinite-scroll.component';
 import { MapControlsComponent } from './map-controls/map-controls.component';
 import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
-import { SearchbarComponent } from './searchbar/searchbar.component';
 import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 
@@ -43,7 +43,6 @@ const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
     OverlayMenuComponent,
     FooterMenuComponent,
-    SearchbarComponent,
     BookingFormComponent,
     BookingFormModalComponent,
     BookingEditComponent,
@@ -86,6 +85,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         RouterModule,
         EditorModule,
         ComponentsModule,
+        FormFieldsModule,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,
     ],
@@ -93,6 +93,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         APipesModule,
         EditorModule,
         ComponentsModule,
+        FormFieldsModule,
         SharedSpacesModule,
         SharedCateringModule,
         SharedUsersModule,

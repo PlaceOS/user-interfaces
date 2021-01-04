@@ -4,19 +4,17 @@ import { RouterModule, Route } from '@angular/router';
 
 import { ControlComponent } from './control.component';
 import { SharedContentModule } from '../ui/shared.module';
-import { ControlSpaceListComponent } from './space-list/space-list.component';
-import { ControlSpaceListItemComponent } from './space-list/item/item.component';
+import { ControlSpaceListComponent } from './space-list.component';
+import { ControlSpaceListItemComponent } from './list-item.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: ControlComponent }
-];
+const ROUTES: Route[] = [{ path: '', component: ControlComponent }];
 
 @NgModule({
-    declarations: [ControlComponent, ControlSpaceListComponent, ControlSpaceListItemComponent],
-    imports: [
-        CommonModule,
-        RouterModule.forChild(ROUTES),
-        SharedContentModule
-    ]
+    declarations: [
+        ControlComponent,
+        ControlSpaceListComponent,
+        ControlSpaceListItemComponent,
+    ],
+    imports: [CommonModule, RouterModule.forChild(ROUTES), SharedContentModule],
 })
 export class ControlModule {}

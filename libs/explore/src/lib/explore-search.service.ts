@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Space, SpacesService } from '@user-interfaces/spaces';
-import { StaffService, User } from '@user-interfaces/users';
+import { searchStaff, User } from '@user-interfaces/users';
 
 @Injectable({
     providedIn: 'root',
@@ -39,7 +39,7 @@ export class ExploreSearchService {
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
 
-    constructor(private _spaces: SpacesService, private _staff: StaffService) {
+    constructor(private _spaces: SpacesService) {
         this._spaces.list.subscribe(() => this._filter.next(this._filter.getValue()))
         this._filter.subscribe(async (filter_str) => {
             this._loading.next(true);
@@ -54,7 +54,7 @@ export class ExploreSearchService {
             );
             this._user_list.next([]);
             if (s.length > 2) {
-                const users = await this._staff.query({ q: s }).catch(_ => null);
+                const users = await searchStaff(s).toPromise().catch(_ => null);
                 this._user_list.next(users || [])
             }
             this._loading.next(false);

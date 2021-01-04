@@ -18,5 +18,8 @@ module.exports = {
         '<rootDir>/apps/control',
         '<rootDir>/apps/caterer-ui',
         '<rootDir>/apps/map-kiosk',
+        '<rootDir>/libs/forms',
+        '<rootDir>/libs/form-fields',
+        '<rootDir>/libs/types',
     ],
 };

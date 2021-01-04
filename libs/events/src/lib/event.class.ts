@@ -147,7 +147,7 @@ export class CalendarEvent {
     constructor(data: Partial<CalendarEvent> = {}) {
         this.id = data.id || '';
         this.calendar = data.calendar || '';
-        this.creator = (data.creator || _default_user.email).toLowerCase();
+        this.creator = (data.creator || _default_user.email)?.toLowerCase();
         this.host = (data.host || this.creator || '').toLowerCase();
         const attendees = data.attendees || [];
         this.attendees = attendees

@@ -1,18 +1,23 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import {
     catchError,
     debounceTime,
-    distinctUntilChanged,
     first,
     map,
-    share,
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
 
-import { Booking, BookingsService } from '@user-interfaces/bookings';
+import {
+    approveBooking,
+    Booking,
+    checkinBooking,
+    queryBookings,
+    rejectBooking,
+    saveBooking,
+} from '@user-interfaces/bookings';
 import {
     BaseClass,
     notifyError,
@@ -47,7 +52,9 @@ export class DesksStateService extends BaseClass {
     public readonly desks: Observable<Desk[]> = this._filters.pipe(
         debounceTime(500),
         switchMap((filters) => {
-            const zones = (filters.zones || []).filter((z: any) => z !== -1 && z !== '-1');
+            const zones = (filters.zones || []).filter(
+                (z: any) => z !== -1 && z !== '-1'
+            );
             return zones[0]
                 ? showMetadata(zones[0], {
                       name: 'desks',
@@ -62,7 +69,7 @@ export class DesksStateService extends BaseClass {
                       )
                   );
         }),
-        catchError(_ => []),
+        catchError((_) => []),
         map((list) => {
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name.localeCompare(b.name));
@@ -77,11 +84,15 @@ export class DesksStateService extends BaseClass {
         switchMap((filters) => {
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
-            let zones = (filters.zones || []).filter((z: any) => z !== -1 && z !== '-1');
+            let zones = (filters.zones || []).filter(
+                (z: any) => z !== -1 && z !== '-1'
+            );
             if (!zones?.length) {
-                zones = this._org.levelsForBuilding(this._org.building).map(i => i.id);
+                zones = this._org
+                    .levelsForBuilding(this._org.building)
+                    .map((i) => i.id);
             }
-            return this._bookings.query({
+            return queryBookings({
                 period_start: Math.floor(startOfDay(date).valueOf() / 1000),
                 period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                 type: 'desk',
@@ -97,11 +108,7 @@ export class DesksStateService extends BaseClass {
         shareReplay()
     );
 
-    constructor(
-        private _bookings: BookingsService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog
-    ) {
+    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
         super();
     }
 
@@ -122,8 +129,8 @@ export class DesksStateService extends BaseClass {
     }
 
     public async checkinDesk(desk: Booking) {
-        const success = await this._bookings
-            .checkIn(desk, true)
+        const success = await checkinBooking(desk.id, true)
+            .toPromise()
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error checking in desk booking')
@@ -131,8 +138,8 @@ export class DesksStateService extends BaseClass {
     }
 
     public async approveDesk(desk: Booking) {
-        const success = await this._bookings
-            .approve(desk.id)
+        const success = await approveBooking(desk.id)
+            .toPromise()
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error approving in desk booking')
@@ -140,8 +147,8 @@ export class DesksStateService extends BaseClass {
     }
 
     public async rejectDesk(desk: Booking) {
-        const success = await this._bookings
-            .reject(desk.id)
+        const success = await rejectBooking(desk.id)
+            .toPromise()
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error rejecting in desk booking')
@@ -149,13 +156,10 @@ export class DesksStateService extends BaseClass {
     }
 
     public async giveAccess(desk: Booking) {
-        const success = await this._bookings
-            .update(
-                desk.id,
-                new Booking({ ...desk, access: true }),
-                undefined,
-                'patch'
-            )
+        const success = await saveBooking(
+            new Booking({ ...desk, access: true })
+        )
+            .toPromise()
             .catch((_) => 'failed');
         if (success === 'failed')
             return notifyError('Error giving building access booking host');
@@ -189,9 +193,11 @@ export class DesksStateService extends BaseClass {
                             'Rejecting all desks for selected date...';
                         success = true;
                         await Promise.all(
-                            list.map((desk) => this._bookings.reject(desk.id))
+                            list.map((desk) =>
+                                rejectBooking(desk.id).toPromise()
+                            )
                         );
-                        resolve();
+                        resolve('');
                         notifySuccess(
                             'Successfull rejected all desk bookings for selected date.'
                         );

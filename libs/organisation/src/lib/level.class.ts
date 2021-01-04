@@ -1,6 +1,5 @@
 import { HashMap, Identity } from '@user-interfaces/common';
 
-
 /** Building Level data */
 export class BuildingLevel {
     /** ID of the building level zone */
@@ -13,6 +12,8 @@ export class BuildingLevel {
     public readonly display_name: string;
     /** Capacity for the level */
     public readonly capacity: number;
+    /** Number or letter representing the level */
+    public readonly number: string;
     /** URL of the map associated with the level */
     public readonly map_id: string;
     public readonly settings: HashMap = {};
@@ -26,5 +27,10 @@ export class BuildingLevel {
         this.map_id = _data.map_id || '';
         this.capacity = _data.capacity || 0;
         this.locations = _data.locations || [];
+        const parts = this.display_name.split(' ');
+        this.number = (parts.length >= 2
+            ? parts[parts.length - 1]
+            : this.display_name[0]
+        )?.toUpperCase() || '';
     }
 }

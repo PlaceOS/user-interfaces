@@ -1,13 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { UnauthorisedComponent } from '@user-interfaces/components';
+import { BootstrapComponent } from './bootstrap.component';
+import { ExploreComponent } from './explore.component';
 
 const routes: Routes = [
     {
         path: 'unauthorised',
         component: UnauthorisedComponent,
     },
-    { path: '**', redirectTo: 'unauthorised' }
+    { path: 'bootstrap', component: BootstrapComponent },
+    { path: 'explore', component: ExploreComponent },
+    { path: '**', redirectTo: 'bootstrap' },
 ];
 
 @NgModule({

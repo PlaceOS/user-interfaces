@@ -104,6 +104,15 @@
         "map-kiosk-e2e": {
             "tags": [],
             "implicitDependencies": ["map-kiosk"]
+        },
+        "forms": {
+            "tags": []
+        },
+        "form-fields": {
+            "tags": []
+        },
+        "types": {
+            "tags": []
         }
     }
 }

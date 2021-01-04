@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
     getModule,
-    listen,
+    PlaceMetadata,
     PlaceVariableBinding,
     showMetadata,
     updateMetadata,
@@ -10,10 +10,10 @@ import { BehaviorSubject } from 'rxjs';
 import { filter, first } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
-import { BaseClass, HashMap, unique } from '@user-interfaces/common';
+import { BaseClass, currentUser, HashMap, unique } from '@user-interfaces/common';
 import { Space } from '@user-interfaces/spaces';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
-import { StaffService, User } from '@user-interfaces/users';
+import { CalendarEvent, queryEvents } from '@user-interfaces/events';
+import { searchStaff, User } from '@user-interfaces/users';
 import { BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
 import { CalendarService } from '@user-interfaces/calendar';
 
@@ -45,10 +45,8 @@ export class DashboardStateService extends BaseClass {
     public level_occupancy = this._level_occupancy.asObservable();
 
     constructor(
-        private _events: EventsService,
         private _calendar: CalendarService,
-        private _org: OrganisationService,
-        private _users: StaffService
+        private _org: OrganisationService
     ) {
         super();
         this.init();
@@ -62,6 +60,7 @@ export class DashboardStateService extends BaseClass {
                 .pipe(filter((bld) => !!bld))
                 .subscribe(() => this.updateBuildingMetadata())
         );
+        if (!this._org.organisation.bindings.area_management) return;
         const binding = getModule(this._org.organisation.bindings.area_management, 'AreaManagement').binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
@@ -91,7 +90,7 @@ export class DashboardStateService extends BaseClass {
                 this._contact_search.next([]);
                 return;
             }
-            const contact_results = await this._users.query({ q: search_str });
+            const contact_results = await searchStaff(search_str).toPromise();
             this._contact_search.next(contact_results || []);
         }, 500);
     }
@@ -101,9 +100,9 @@ export class DashboardStateService extends BaseClass {
     }
 
     public async updateContacts() {
-        const metadata = await showMetadata(this._users.current.id, {
+        const metadata: PlaceMetadata = await showMetadata(currentUser().id, {
             name: 'contacts',
-        }).toPromise();
+        }).toPromise() as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         this._contacts.next(list.map((i) => new User(i)));
     }
@@ -112,7 +111,7 @@ export class DashboardStateService extends BaseClass {
         let users = [...this._contacts.getValue()];
         users.push(user);
         users = unique(users, 'email');
-        const metadata = await updateMetadata(this._users.current.id, {
+        const metadata = await updateMetadata(currentUser().id, {
             name: 'contacts',
             description: 'Contacts for the User',
             details: users,
@@ -124,7 +123,7 @@ export class DashboardStateService extends BaseClass {
     public async removeContact(user: User) {
         let users = [...this._contacts.getValue()];
         users = users.filter((u) => u.email !== user.email);
-        const metadata = await updateMetadata(this._users.current.id, {
+        const metadata = await updateMetadata(currentUser().id, {
             name: 'contacts',
             description: 'Contacts for the User',
             details: users,
@@ -143,11 +142,11 @@ export class DashboardStateService extends BaseClass {
         if (!this._org.building) return;
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const list = await this._calendar.availability({
+        const list = await this._calendar.freeBusy({
             period_start,
             period_end,
             zone_ids: this._org.building.id,
-        });
+        }).toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
     }
@@ -155,11 +154,11 @@ export class DashboardStateService extends BaseClass {
     private async updateUpcomingEvents() {
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const events = await this._events.query({
+        const events = await queryEvents({
             period_start,
             period_end,
-            calendars: this._users.current.email,
-        });
+            calendars: currentUser().email,
+        }).toPromise();
         this._upcoming_events.next(events);
     }
 

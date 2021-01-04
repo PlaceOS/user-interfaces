@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { BootstrapComponent } from './bootstrap/bootstrap.component';
+import { BootstrapComponent } from './bootstrap.component';
 import { BookingPanelComponent } from './panel/panel.component';
 import { BookingPanelArrayComponent } from './panel-array/panel-array.component';
 import { BookingPanelSelectComponent } from './panel-select/panel-select.component';

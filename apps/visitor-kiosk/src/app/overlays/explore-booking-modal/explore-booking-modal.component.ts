@@ -4,7 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { format } from 'date-fns-tz';
 
 import { BaseClass, DialogEvent, notifyError, notifySuccess } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, saveEvent } from '@user-interfaces/events';
 import { Space } from '@user-interfaces/spaces';
 import { Building, OrganisationService } from '@user-interfaces/organisation';
 
@@ -84,8 +84,7 @@ export class ExploreBookingModalComponent extends BaseClass implements OnInit {
     constructor(
         private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>,
         @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
-        private _org: OrganisationService,
-        private _events: EventsService
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -109,7 +108,7 @@ export class ExploreBookingModalComponent extends BaseClass implements OnInit {
         this.form.markAllAsTouched();
         if (this.form.valid) {
             this.loading = true;
-            this._events.save(this.booking).then(
+            saveEvent(this.booking).toPromise().then(
                 () => {
                     notifySuccess(`Sucessfully made booking`);
                     this._dialog_ref.close();

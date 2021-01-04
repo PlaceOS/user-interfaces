@@ -3,10 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
 
 import { Space } from '@user-interfaces/spaces';
-import { BaseClass, DialogEvent } from '@user-interfaces/common';
-import { CalendarEvent, EventsService, generateEventForm } from '@user-interfaces/events';
+import { BaseClass, currentUser, DialogEvent } from '@user-interfaces/common';
+import { CalendarEvent, generateEventForm, saveEvent } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
-import { StaffService } from '@user-interfaces/users';
 
 export interface BookingModalData {
     space: Space;
@@ -39,8 +38,6 @@ export class BookingModalComponent extends BaseClass implements OnInit {
 
     constructor(
         private _calendar: CalendarService,
-        private _events: EventsService,
-        private _staff: StaffService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>,
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData
     ) {
@@ -53,8 +50,8 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             system: { id: this._data.space.id },
             attendees: [
                 {
-                    id: this._staff.current.id,
-                    email: this._staff.current.email,
+                    id: currentUser().id,
+                    email: currentUser().email,
                 },
             ],
         } as any);
@@ -86,7 +83,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             this.loading = 'Processing booking request...';
             try {
                 const booking = new CalendarEvent({ ...this.booking, ...this.form.value });
-                await this._events.save(booking);
+                await saveEvent(booking);
                 this.event.emit({ reason: 'done' });
                 this._dialog_ref.close();
                 // this._service.notifySuccess(
@@ -109,7 +106,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             system_ids: event.system.id,
             period_start: Math.floor(event.date / 1000),
             period_end: Math.floor((event.date + event.duration * 60 * 1000) / 1000),
-        });
+        }).toPromise();
 
         if (available_spaces.length < 1) {
             throw new Error(`The space is not available for the selected time period.`);

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { SharedContentModule } from '../ui/shared.module';
-import { ViewRoomModalComponent } from './view-room-modal/view-room-modal.component';
+import { ViewRoomModalComponent } from './view-room-modal.component';
 
 import { BookingConfirmComponent } from '../bookings/overlays/booking-confirm/booking-confirm.component';
 import { SpaceSelectModalComponent } from './space-select-modal/space-select-modal.component';

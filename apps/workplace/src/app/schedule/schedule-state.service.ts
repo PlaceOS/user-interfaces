@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { Booking, queryBookings, removeBooking, showBooking } from '@user-interfaces/bookings';
 import { CalendarService } from '@user-interfaces/calendar';
 import {
     BaseClass,
@@ -10,7 +10,7 @@ import {
     openConfirmModal,
     timePeriodsIntersect
 } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, queryEvents, removeEvent, showEvent } from '@user-interfaces/events';
 import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of, throwError } from 'rxjs';
 import {
@@ -52,14 +52,14 @@ export class ScheduleStateService extends BaseClass {
         debounceTime(500),
         switchMap((id) => {
             return id
-                ? this._events.show(id, {
+                ? showEvent(id, {
                       calendar: this._options.getValue().calendar,
                   })
                 : throwError('No ID');
         }),
         catchError((_) =>
             this._active_item.getValue()
-                ? this._bookings.show(this._active_item.getValue())
+                ? showBooking(this._active_item.getValue())
                 : of(null)
         ),
         catchError((_) => of(null)),
@@ -89,8 +89,6 @@ export class ScheduleStateService extends BaseClass {
     }
 
     constructor(
-        private _events: EventsService,
-        private _bookings: BookingsService,
         private _calendars: CalendarService,
         private _dialog: MatDialog,
         private _router: Router
@@ -109,12 +107,12 @@ export class ScheduleStateService extends BaseClass {
                             addDays(start, duration)
                         ).valueOf();
                         return Promise.all([
-                            this._events.query({
+                            queryEvents({
                                 period_start: Math.floor(start / 1000),
                                 period_end: Math.floor(end / 1000),
                                 calendars: options.calendar,
-                            }),
-                            this._bookings.query({
+                            }).toPromise(),
+                            queryBookings({
                                 period_start: Math.floor(start / 1000),
                                 period_end: Math.floor(end / 1000),
                                 type: 'desk',
@@ -199,8 +197,8 @@ export class ScheduleStateService extends BaseClass {
         details.loading(
             `Cancelling ${is_event ? 'meeting' : 'desk booking'}...`
         );
-        const method = is_event ? this._events.delete : this._bookings.delete;
-        const err = await method(this._item.id).catch((_) => _);
+        const method = is_event ? removeEvent(this._item.id).toPromise() : removeBooking(this._item.id).toPromise();
+        const err = await method.catch((_) => _);
         details.close();
         if (err)
             return notifyError(

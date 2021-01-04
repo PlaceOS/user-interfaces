@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { notifyError, notifySuccess } from '@user-interfaces/common';
-import { CalendarEvent, EventsService, generateEventForm } from '@user-interfaces/events';
+import { CalendarEvent, generateEventForm, saveEvent } from '@user-interfaces/events';
 import { Space } from '@user-interfaces/spaces';
 import { CalendarService } from '@user-interfaces/calendar';
 
@@ -69,7 +69,6 @@ export class ExploreBookingModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
         private _calendars: CalendarService,
-        private _events: EventsService,
         private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>
     ) {}
 
@@ -102,7 +101,7 @@ export class ExploreBookingModalComponent {
             system_ids: this.form.controls.resources.value?.map(s => s.id).join(','),
             period_start: Math.floor(this.form.value.date / 1000),
             period_end: Math.floor(this.form.value.date / 1000) + this.form.value.duration * 60,
-        }).catch((e) => {
+        }).toPromise().catch((e) => {
             on_error('Space is unavailble for the selected time and duration');
             throw e;
         });
@@ -110,7 +109,7 @@ export class ExploreBookingModalComponent {
             return on_error('Space is unavailble for the selected time and duration');
         }
         this.loading = 'Creating booking...';
-        await this._events.save(new CalendarEvent(this.form.value)).catch((e) => {
+        await saveEvent(new CalendarEvent(this.form.value)).toPromise().catch((e) => {
             on_error('Error creating booking.');
             throw e;
         });

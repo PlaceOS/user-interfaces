@@ -10,49 +10,36 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
-import { BindingDirective } from './binding/binding.directive';
-import { ActionIconComponent } from './action-icon/action-icon.component';
-import { IconComponent } from './icon/icon.component';
-import { PopoutMenuComponent } from './popout-menu/popout-menu.component';
-import { UserAvatarComponent } from './user-avatar/user-avatar.component';
+import { BindingDirective } from './binding.directive';
+import { ActionIconComponent } from './action-icon.component';
+import { IconComponent } from './icon.component';
+import { PopoutMenuComponent } from './popout-menu.component';
+import { UserAvatarComponent } from './user-avatar.component';
 
-import { ActionFieldComponent } from './action-field/action-field.component';
-import { DateFieldComponent } from './date-field/date-field.component';
-import { DurationFieldComponent } from './duration-field/duration-field.component';
-import { TimeFieldComponent } from './time-field/time-field.component';
-import { UserListFieldComponent } from './user-list-field/user-list-field.component';
-import { UserSearchFieldComponent } from './user-search-field/user-search-field.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ConfirmModalComponent } from './confirm-modal.component';
-import { CounterComponent } from './counter/counter.component';
 import { CommonModule } from '@angular/common';
 import { InteractiveMapComponent, MAP_FEATURE_DATA } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { SearchbarComponent } from './searchbar.component';
 
-export * from './action-field/action-field.component';
-export * from './action-icon/action-icon.component';
-export * from './binding/binding.directive';
-export * from './booking-form/booking-form.component';
+export * from './action-icon.component';
+export * from './binding.directive';
 export * from './confirm-modal.component';
-export * from './counter/counter.component';
-export * from './date-field/date-field.component';
-export * from './duration-field/duration-field.component';
-export * from './icon/icon.component';
+export * from './icon.component';
 export * from './login/login.component';
-export * from './popout-menu/popout-menu.component';
-export * from './time-field/time-field.component';
-export * from './unauthorised/unauthorised.component';
-export * from './user-avatar/user-avatar.component';
-export * from './user-list-field/user-list-field.component';
-export * from './user-search-field/user-search-field.component';
+export * from './popout-menu.component';
+export * from './unauthorised.component';
+export * from './user-avatar.component';
 export * from './interactive-map.component';
 export * from './map-pin.component';
 export * from './map-radius.component';
+export * from './searchbar.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -76,17 +63,11 @@ const COMPONENTS: Type<any>[] = [
     PopoutMenuComponent,
     UserAvatarComponent,
 
-    ActionFieldComponent,
-    DateFieldComponent,
-    DurationFieldComponent,
-    CounterComponent,
-    TimeFieldComponent,
-    UserListFieldComponent,
-    UserSearchFieldComponent,
     ConfirmModalComponent,
     InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
+    SearchbarComponent
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

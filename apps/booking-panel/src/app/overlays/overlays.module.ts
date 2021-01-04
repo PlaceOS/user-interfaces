@@ -5,8 +5,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 
 import { ComponentsModule } from '@user-interfaces/components';
-import { EmbeddedControlModalComponent } from './embedded-control-modal/embedded-control-modal.component';
-import { BookingModalComponent } from './booking-modal/booking-modal.component';
+import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { EmbeddedControlModalComponent } from './embedded-control-modal.component';
+import { BookingModalComponent } from './booking-modal.component';
 
 const OVERLAYS: Type<any>[] = [
     EmbeddedControlModalComponent,
@@ -22,6 +23,7 @@ const OVERLAYS: Type<any>[] = [
         FormsModule,
         ReactiveFormsModule,
         ComponentsModule,
+        FormFieldsModule,
         MatDialogModule
     ],
     exports: [

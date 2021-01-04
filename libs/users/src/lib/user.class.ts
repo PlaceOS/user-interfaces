@@ -1,20 +1,11 @@
-
-import { BaseDataClass, HashMap } from '@user-interfaces/common';
+import { BaseDataClass } from '../../../common/src/lib/base-api.class';
 import { USER_DOMAIN } from './user.utilities';
 
-export type EventResponseStatus = 'needsAction' | 'declined' | 'tentative' | 'accepted' | '';
-
-export type UserGroup =
-    | 'tax'
-    | 'ladies'
-    | 'ifs'
-    | 'consulting'
-    | 'assurance'
-    | 'it'
-    | 'deals'
-    | 'partner'
-    | 'manager'
-    | 'director'
+export type EventResponseStatus =
+    | 'needsAction'
+    | 'declined'
+    | 'tentative'
+    | 'accepted'
     | '';
 
 export class User extends BaseDataClass {
@@ -39,9 +30,9 @@ export class User extends BaseDataClass {
     /** Whether user has been checked in */
     public readonly checked_in: boolean;
     /** Department that the user belongs to in the organisation */
-    public readonly groups: UserGroup[];
+    public readonly groups: string[];
     /** Extra metadata associated with the user */
-    public readonly extension_data: HashMap;
+    public readonly extension_data: Record<string, any>;
     /** Whether user is external from the organisation */
     public readonly is_external: boolean;
     /** Whether user needs assistance when attending an event */
@@ -59,7 +50,10 @@ export class User extends BaseDataClass {
         this.visit_expected = data.visit_expected;
         this.checked_in = data.checked_in;
         this.response_status = data.response_status || '';
-        this.groups = (data.groups || []).map((i) => (i || '').toLowerCase()) as any;
+        const groups = (data.groups || []).map((i) => (i || '').toLowerCase());
+        if ((data as any).sys_admin) groups.push('placeos_admin');
+        if ((data as any).support) groups.push('placeos_support');
+        this.groups = groups;
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;
@@ -77,7 +71,8 @@ export class GuestUser extends User {
     constructor(data: Partial<GuestUser> = {}) {
         super(data);
         this.preferred_beverage = data.preferred_beverage || '';
-        this.accepted_terms_conditions = data.accepted_terms_conditions || false;
+        this.accepted_terms_conditions =
+            data.accepted_terms_conditions || false;
     }
 }
 
@@ -89,7 +84,7 @@ export class StaffUser extends User {
     /** Whether user is logged in */
     public readonly is_logged_in: boolean;
     /** Location of the user */
-    public readonly location: HashMap;
+    public readonly location: Record<string, any>;
 
     constructor(data: Partial<StaffUser> = {}) {
         super(data);

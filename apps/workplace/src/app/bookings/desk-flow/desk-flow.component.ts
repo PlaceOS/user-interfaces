@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass, notifyError, notifySuccess } from '@user-interfaces/common';
+import { BaseClass, currentUser, current_user, notifyError, notifySuccess } from '@user-interfaces/common';
 import { ExploreStateService } from '@user-interfaces/explore';
-import { StaffService } from '@user-interfaces/users';
 import { first } from 'rxjs/operators';
 
 import { DeskFlowStateService } from './desk-flow-state.service';
@@ -139,15 +138,14 @@ export class DeskFlowComponent extends BaseClass implements OnInit, OnDestroy {
     constructor(
         private _state: ExploreStateService,
         private _desks: DeskFlowStateService,
-        private _staff: StaffService,
         private _route: ActivatedRoute
     ) {
         super();
     }
 
     public async ngOnInit() {
-        await this._staff.initialised.pipe(first((_) => !!_)).toPromise();
-        this._desks.setHost(this._staff.current);
+        await current_user.pipe(first((_) => !!_)).toPromise();
+        this._desks.setHost(currentUser());
         this._state.setOptions({ show_zones: false });
         this._desks.startPolling();
         this.subscription(

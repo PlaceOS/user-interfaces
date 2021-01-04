@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { getModule, listChildMetadata, showMetadata } from '@placeos/ts-client';
-import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { listChildMetadata, showMetadata } from '@placeos/ts-client';
+import { Booking, checkinBooking, queryBookings, saveBooking } from '@user-interfaces/bookings';
 import {
     BaseClass,
+    currentUser,
     DialogEvent,
     notifyError,
     notifySuccess,
@@ -11,7 +12,7 @@ import {
 } from '@user-interfaces/common';
 import { DEFAULT_COLOURS, ExploreStateService } from '@user-interfaces/explore';
 import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { StaffService, User } from '@user-interfaces/users';
+import { User } from '@user-interfaces/users';
 import { endOfDay, startOfDay } from 'date-fns';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
@@ -53,14 +54,14 @@ export class DeskFlowStateService extends BaseClass {
 
     public readonly todays_bookings = timer(1000).pipe(
         switchMap((_) =>
-            this._bookings.query({
+            queryBookings({
                 period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
                 period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
                 type: 'desk',
             })
         ),
         map((list) =>
-            list.filter((i) => i.user_email === this._staff.current.email)
+            list.filter((i) => i.user_email === currentUser().email)
         )
     );
 
@@ -139,13 +140,12 @@ export class DeskFlowStateService extends BaseClass {
             );
             return [
                 desks,
-                await this._bookings
-                    .query({
+                await queryBookings({
                         period_start: Math.floor(date.valueOf() / 1000),
                         period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                         type: 'desk',
                         zones: (options.zones || [])[0],
-                    })
+                    }).toPromise()
                     .catch((_) => []),
             ];
         }),
@@ -154,7 +154,7 @@ export class DeskFlowStateService extends BaseClass {
             const active_bookings = bookings.filter(
                 (bkn) => bkn.status !== 'declined'
             );
-            const user_groups = this._staff.current.groups;
+            const user_groups = currentUser().groups;
             const bookable_desks = desks.filter(
                 (i) =>
                     i.bookable &&
@@ -173,8 +173,6 @@ export class DeskFlowStateService extends BaseClass {
 
     constructor(
         private _state: ExploreStateService,
-        private _bookings: BookingsService,
-        private _staff: StaffService,
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog
@@ -216,14 +214,14 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     public async checkin(id: string) {
-        const bookings = await this._bookings.query({
+        const bookings = await queryBookings({
             period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
             period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
             type: 'desk',
-        });
+        }).toPromise();
         const bkn = bookings.find((b) => b.asset_id === id);
         if (!bkn) return false;
-        const done = await this._bookings.checkIn(bkn);
+        const done = await checkinBooking(bkn.id, true).toPromise();
         return true;
     }
 
@@ -269,7 +267,7 @@ export class DeskFlowStateService extends BaseClass {
         if (!success) return;
         ref.componentInstance.loading =
             'Checking for existing desk bookings...';
-        const bookings = await this._bookings.query({
+        const bookings = await queryBookings({
             type: 'desk',
             period_start: Math.floor(
                 startOfDay(options.date || new Date()).valueOf() / 1000
@@ -277,7 +275,7 @@ export class DeskFlowStateService extends BaseClass {
             period_end: Math.floor(
                 endOfDay(options.date || new Date()).valueOf() / 1000
             ),
-        });
+        }).toPromise();
         const desks = bookings.filter(
             (d) =>
                 d.user_email.toLowerCase() ===
@@ -327,13 +325,13 @@ export class DeskFlowStateService extends BaseClass {
                 group: desk.group,
             },
         };
-        return this._bookings.save(booking_data);
+        return saveBooking(booking_data as any);
     }
 
     private handleDeskAvailability([available, desks]: [Desk[], Desk[]]) {
         const style_map = {};
         const actions = [];
-        const user_groups = this._staff.current.groups as any[];
+        const user_groups = currentUser().groups as any[];
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk of desks) {
             const status =

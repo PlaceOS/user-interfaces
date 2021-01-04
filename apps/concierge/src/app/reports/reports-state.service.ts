@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
-import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { Booking, queryBookings } from '@user-interfaces/bookings';
 import {
     downloadFile,
     HashMap,
     jsonToCsv,
     notifyError,
 } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, queryEvents } from '@user-interfaces/events';
 import { OrganisationService } from '@user-interfaces/organisation';
 import { differenceInDays, endOfDay, format, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
@@ -15,7 +15,6 @@ import {
     catchError,
     debounceTime,
     map,
-    mergeMap,
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
@@ -35,10 +34,11 @@ export interface ReportOptions {
     providedIn: 'root',
 })
 export class ReportsStateService {
-
     private _generate = new Subject<number>();
     private _loading = new BehaviorSubject<string>('');
-    private _active_bookings = new BehaviorSubject<(CalendarEvent | Booking)[]>([]);
+    private _active_bookings = new BehaviorSubject<(CalendarEvent | Booking)[]>(
+        []
+    );
 
     private _options = new BehaviorSubject<ReportOptions>({
         start: new Date(),
@@ -66,12 +66,12 @@ export class ReportsStateService {
                 period_end: Math.floor(end / 1000),
             };
             return options.type === 'desks'
-                ? this._bookings.query({
+                ? queryBookings({
                       ...query,
-                      zone_ids: zones,
+                      zones: zones,
                       type: 'desk',
                   })
-                : this._events.query({ ...query, zone_ids: zones });
+                : queryEvents({ ...query, zone_ids: zones });
         }),
         catchError((_) => []),
         map((_) => {
@@ -140,11 +140,7 @@ export class ReportsStateService {
         return Math.abs(differenceInDays(opts.start, opts.end));
     }
 
-    constructor(
-        private _bookings: BookingsService,
-        private _events: EventsService,
-        private _org: OrganisationService
-    ) {
+    constructor(private _org: OrganisationService) {
         this._bookings_list.subscribe((_) => _);
     }
 
@@ -184,12 +180,14 @@ export class ReportsStateService {
                 options.start,
                 'yyyy-MM-dd'
             )}+${format(options.end, 'yyyy-MM-dd')}.csv`,
-            jsonToCsv(bookings.map((bkn) => {
-                const details = bkn.toJSON();
-                delete details.zones;
-                delete details.server_names;
-                return details;
-            }))
+            jsonToCsv(
+                bookings.map((bkn) => {
+                    const details = bkn.toJSON();
+                    delete details.zones;
+                    delete details.server_names;
+                    return details;
+                })
+            )
         );
     }
 }
