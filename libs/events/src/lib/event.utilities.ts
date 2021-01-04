@@ -77,6 +77,9 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         form.controls.host.disable();
         form.controls.organiser.disable();
     }
+    if (event.state === 'started') {
+        form.controls.date.disable();
+    }
     return form;
 }
 
