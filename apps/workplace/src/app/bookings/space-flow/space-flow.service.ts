@@ -54,6 +54,7 @@ export class SpaceFlowService extends BaseClass {
         switchMap((filters) => {
             this._loading_spaces.next(true);
             const form = this._form.getValue().value;
+            if (!form.date) form.date = new Date().valueOf();
             const period_start = Math.floor(
                 new Date(form.date).valueOf() / 1000
             );
