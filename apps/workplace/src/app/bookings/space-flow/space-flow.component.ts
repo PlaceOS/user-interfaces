@@ -39,6 +39,10 @@ import { SpaceFlowService } from './space-flow.service';
                 flex-direction: column;
             }
 
+            main {
+                background: #f0f0f0;
+            }
+
             [button] {
                 width: 10em;
             }

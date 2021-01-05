@@ -100,6 +100,10 @@ import { combineLatest } from 'rxjs';
                 height: 50%;
                 flex: 1;
             }
+
+            main {
+                background: #f0f0f0;
+            }
         `,
     ],
 })

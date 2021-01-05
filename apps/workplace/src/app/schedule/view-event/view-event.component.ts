@@ -6,7 +6,6 @@ import { combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { ScheduleStateService } from '../schedule-state.service';
 
-
 @Component({
     selector: 'schedule-view-event',
     template: `
@@ -25,7 +24,7 @@ import { ScheduleStateService } from '../schedule-state.service';
                     </schedule-booking-details>
                     <schedule-event-details
                         *ngSwitchDefault
-                        [event]="(event | async)"
+                        [event]="event | async"
                     ></schedule-event-details>
                 </ng-container>
             </div>
@@ -47,6 +46,10 @@ import { ScheduleStateService } from '../schedule-state.service';
                 width: 100%;
                 height: 50%;
                 flex: 1;
+            }
+
+            main {
+                background: #f0f0f0;
             }
         `,
     ],
