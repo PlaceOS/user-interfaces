@@ -29,6 +29,7 @@ jobs:
 
             - name: Initialise Pipeline Chat Status
               uses: fjogeleit/http-request-action@master
+              continue-on-error: true
               with:
                 url: ${{ secrets.STATUS_URL }}
                 data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
@@ -73,6 +74,7 @@ jobs:
 
             - name: Update Pipeline Chat Status
               uses: fjogeleit/http-request-action@master
+              continue-on-error: true
               with:
                 url: ${{ secrets.STATUS_URL }}
                 data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ github.workflow }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
