@@ -48,7 +48,7 @@ import { DialogEvent, notifyError } from '@user-interfaces/common';
                 <button mat-button (click)="submit()">Submit</button>
             </footer>
             <button close mat-icon-button mat-dialog-close>
-                <app-icon className="material-icons">close</app-icon>
+                <i class="material-icons">close</i>
             </button>
         </div>
         <ng-template #fail_state>
@@ -80,7 +80,7 @@ import { DialogEvent, notifyError } from '@user-interfaces/common';
         `,
     ],
 })
-export class DeskFlowQuestionsModalComponent implements OnInit {
+export class DeskQuestionsModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public form: FormGroup;

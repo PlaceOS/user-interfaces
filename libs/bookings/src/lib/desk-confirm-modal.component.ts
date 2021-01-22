@@ -3,11 +3,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@user-interfaces/common';
 import { BuildingLevel, Desk } from '@user-interfaces/organisation';
 
-export interface DeskFlowConfirmModalData {
+export interface DeskConfirmModalData {
     desk: Desk;
     date: number;
     reason: string;
     level: BuildingLevel;
+    can_set_date: boolean;
 }
 
 @Component({
@@ -17,14 +18,15 @@ export interface DeskFlowConfirmModalData {
             <h2>Confirm Booking</h2>
             <div class="flex-1"></div>
             <button mat-icon-button mat-dialog-close *ngIf="!loading">
-                <app-icon className="material-icons">close</app-icon>
+                <i class="material-icons">close</i>
             </button>
         </header>
         <ng-container *ngIf="!loading; else load_state">
             <main class="p-4">
                 <div class="mb-4">
                     <label>Date</label>
-                    <div>{{ date | date: 'mediumDate' }}</div>
+                    <div *ngIf="!can_set_date">{{ date | date: 'mediumDate' }}</div>
+                    <a-date-field *ngIf="can_set_date" [(ngModel)]="date"></a-date-field>
                 </div>
                 <div class="mb-4">
                     <label>Reason</label>
@@ -55,12 +57,14 @@ export interface DeskFlowConfirmModalData {
         `,
     ],
 })
-export class DeskFlowConfirmModalComponent {
+export class DeskConfirmModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public readonly desk = this._data.desk;
 
-    public readonly date = this._data.date;
+    public date = this._data.date;
+
+    public can_set_date: boolean;
 
     public readonly reason = this._data.reason;
 
@@ -69,8 +73,13 @@ export class DeskFlowConfirmModalComponent {
     public loading: string;
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: DeskFlowConfirmModalData
-    ) {}
+        @Inject(MAT_DIALOG_DATA) private _data: DeskConfirmModalData
+    ) {
+    }
+
+    public ngOnInit() {
+        this.can_set_date = this._data.can_set_date;
+    }
 
     public confirm() {
         this.loading = 'Requesting desk booking...';

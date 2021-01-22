@@ -4,6 +4,8 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
 
+import { DesksService } from '@user-interfaces/bookings';
+
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import {
@@ -13,8 +15,11 @@ import {
 } from '@user-interfaces/organisation';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, first, map, switchMap } from 'rxjs/operators';
 
+export interface DeskOptions {
+    enable_booking?: boolean;
+}
 export interface DesksStats {
     free: number;
     occupied: number;
@@ -25,6 +30,7 @@ export interface DesksStats {
 export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _level: BuildingLevel = null;
     private _in_use = new BehaviorSubject<string[]>([]);
+    private _options = new BehaviorSubject<DeskOptions>({});
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
@@ -44,9 +50,18 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     constructor(
         private _state: ExploreStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _desks_service: DesksService
     ) {
         super();
+        this.ngOnInit();
+    }
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.setOptions({
+            enable_booking: this._settings.get('app.desks.enabled') !== false,
+        });
         this.subscription(
             'spaces',
             this._state.level.subscribe((level) => {
@@ -61,8 +76,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 this.desk_list,
                 this._in_use,
                 this._reserved,
-            ]).subscribe((details) => {
-                const [desks, in_use, reserved] = details;
+                this._options,
+            ]).subscribe(([desks, in_use, reserved]) => {
                 this._statuses = {};
                 for (const { id, bookable } of desks) {
                     const is_used = in_use.some((i) => id === i);
@@ -90,6 +105,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.clearBindings();
     }
 
+    public setOptions(options: DeskOptions) {
+        this._options.next({ ...this._options.getValue(), ...options });
+    }
+
     public clearBindings() {
         const bindings = ['desks_in_use', 'desk_list'];
         for (const id of bindings) {
@@ -105,15 +124,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const building = this._org.buildings.find(
             (bld) => bld.id === this._level.parent_id
         );
-        if (!building) {
-            return;
-        }
+        if (!building) return;
         const system_id =
             this._org.building.bindings.area_management ||
             this._org.organisation.bindings.area_management;
-        if (!system_id) {
-            return;
-        }
+        if (!system_id) return;
         let binding = getModule(system_id, 'AreaManagement').binding(
             this._level.id
         );
@@ -188,9 +203,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
 
     private processDesks(desks: HashMap[]) {
         const list = [];
+        const actions = [];
         for (const desk of desks) {
             list.push({
-                location: desk.map_id,
+                location: desk.id,
                 content: ExploreDeskInfoComponent,
                 hover: true,
                 data: {
@@ -198,7 +214,27 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     status: this._statuses[desk.map_id],
                 },
             });
+            actions.push({
+                id: desk.id,
+                action: 'click',
+                callback: () =>
+                    this._desks_service.bookDesk({
+                        desk: desk as any,
+                    }),
+            });
+            actions.push({
+                id: desk.id,
+                action: 'touchend',
+                callback: () =>
+                    this._desks_service.bookDesk({
+                        desk: desk as any,
+                    }),
+            });
         }
+        this._state.setActions(
+            'desks',
+            this._options.getValue().enable_booking ? actions : []
+        );
         this._state.setFeatures('desks', list);
     }
 }

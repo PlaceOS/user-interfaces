@@ -50,6 +50,7 @@ import { ExploreDesksService } from './explore-desks.service';
             :host {
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
 
             [name='zones'] {

@@ -38,6 +38,7 @@ import { MapControlsComponent } from './map-controls/map-controls.component';
 import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
 import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
+import { SharedBookingsModule } from '@user-interfaces/bookings';
 
 const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
@@ -97,6 +98,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         SharedSpacesModule,
         SharedCateringModule,
         SharedUsersModule,
+        SharedBookingsModule,
         ...COMPONENTS,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,

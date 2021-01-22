@@ -109,7 +109,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
             }
         `,
     ],
-    providers: [],
+    providers: [DeskFlowStateService],
 })
 export class DeskFlowComponent extends BaseClass implements OnInit, OnDestroy {
     /** Observable for the active map */

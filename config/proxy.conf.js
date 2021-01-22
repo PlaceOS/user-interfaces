@@ -1,9 +1,9 @@
 /** FQDN to proxy requests. i.e. No protocol and path should be in the value */
-const domain = 'localhost:8443';
+const domain = 'placeos-dev.aca.im';
 /** Whether the proxied endpoints use SSL */
 const secure = true;
 /** Whether the SSL certificate used is valid on the internet */
-const valid_ssl = false;
+const valid_ssl = true;
 
 const PROXY_CONFIG = [
     {
