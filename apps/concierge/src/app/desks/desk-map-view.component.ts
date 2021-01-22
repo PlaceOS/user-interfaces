@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ExploreStateService } from '@user-interfaces/explore';
+import {
+    ExploreDesksService,
+    ExploreStateService,
+} from '@user-interfaces/explore';
 
 import { DesksStateService } from './desks-state.service';
-import { DeskFlowStateService } from '../../../../workplace/src/app/bookings/desk-flow/desk-flow-state.service';
 import { BaseClass } from '@user-interfaces/common';
 
 @Component({
@@ -21,7 +23,11 @@ import { BaseClass } from '@user-interfaces/common';
                 class="absolute bottom-0 right-0"
             ></explore-zoom-controls>
             <div class="absolute top-0 left-0 p-2 text-black">
-                <a-user-search-field [ngModel]="null" (ngModelChange)="setHost($event)" placeholder="User for bookings..."></a-user-search-field>
+                <a-user-search-field
+                    [ngModel]="null"
+                    (ngModelChange)="setHost($event)"
+                    placeholder="User for bookings..."
+                ></a-user-search-field>
             </div>
             <div
                 info
@@ -29,14 +35,6 @@ import { BaseClass } from '@user-interfaces/common';
             >
                 Click/Tap an available desk to book it.
             </div>
-            <ng-container *ngIf="loading | async">
-                <div
-                    load-state
-                    class="absolute inset-0 flex flex-col justify-center items-center"
-                >
-                    <mat-spinner [diameter]="48"></mat-spinner>
-                </div>
-            </ng-container>
         </div>
     `,
     styles: [
@@ -55,6 +53,7 @@ import { BaseClass } from '@user-interfaces/common';
             }
         `,
     ],
+    providers: [ExploreDesksService],
 })
 export class DeskMapViewComponent extends BaseClass implements OnInit {
     /** Observable for the active map */
@@ -67,17 +66,13 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
     public readonly actions = this._state.map_actions;
     /** Observable for the active map */
     public readonly features = this._state.map_features;
-    /** Observable for the active map */
-    public readonly loading = this._flow.loading;
-    /** Observable for the active map */
-    public readonly options = this._flow.options;
 
-    public readonly setHost = (u) => this._flow.setHost(u)
+    public readonly setHost = (u) => this._desks_state.setOptions({ host: u });
 
     constructor(
         private _state: ExploreStateService,
         private _desk: DesksStateService,
-        private _flow: DeskFlowStateService
+        private _desks_state: ExploreDesksService
     ) {
         super();
     }
@@ -85,9 +80,13 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
     public ngOnInit(): void {
         this.subscription(
             'date',
-            this._desk.filters.subscribe((opts) =>
-                this._flow.setOptions({ date: opts.date, zones: opts.zones })
-            )
+            this._desk.filters.subscribe((opts) => {
+                console.log('Desk Options:', opts);
+                this._desks_state.setOptions({
+                    date: opts.date ? new Date(opts.date) : new Date(),
+                    zones: opts.zones,
+                });
+            })
         );
     }
 }

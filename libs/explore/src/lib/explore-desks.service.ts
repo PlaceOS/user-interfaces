@@ -16,9 +16,13 @@ import {
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { catchError, first, map, switchMap } from 'rxjs/operators';
+import { StaffUser } from '@user-interfaces/users';
 
 export interface DeskOptions {
     enable_booking?: boolean;
+    date?: number | Date;
+    zones?: string[],
+    host?: StaffUser
 }
 export interface DesksStats {
     free: number;
@@ -204,6 +208,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private processDesks(desks: HashMap[]) {
         const list = [];
         const actions = [];
+        const options = this._options.getValue();
         for (const desk of desks) {
             list.push({
                 location: desk.id,
@@ -220,6 +225,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 callback: () =>
                     this._desks_service.bookDesk({
                         desk: desk as any,
+                        host: options.host,
+                        date: options.date as any
                     }),
             });
             actions.push({
@@ -228,6 +235,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 callback: () =>
                     this._desks_service.bookDesk({
                         desk: desk as any,
+                        host: options.host,
+                        date: options.date as any
                     }),
             });
         }

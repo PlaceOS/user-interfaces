@@ -21,6 +21,7 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 export class DesksService {
 
     public can_set_date: boolean = true;
+    public error_on_host: boolean = true;
 
     constructor(
         private _org: OrganisationService,
@@ -38,6 +39,9 @@ export class DesksService {
         reason?: string;
         date?: Date;
     }) {
+        if (this.error_on_host && !host) {
+            return notifyError('You need to select a host to book a desk.')
+        }
         host = host || currentUser();
         reason = reason || '';
         const level = this._org.levelWithID(

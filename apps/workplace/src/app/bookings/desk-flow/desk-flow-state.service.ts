@@ -188,6 +188,7 @@ export class DeskFlowStateService extends BaseClass {
                 .subscribe((details) => this.handleDeskAvailability(details))
         );
         this._desks.can_set_date = false;
+        this._desks.error_on_host = false;
     }
 
     public ngOnDestroy() {
