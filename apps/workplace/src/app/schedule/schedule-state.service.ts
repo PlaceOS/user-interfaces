@@ -5,6 +5,7 @@ import { Booking, queryBookings, removeBooking, showBooking } from '@user-interf
 import { CalendarService } from '@user-interfaces/calendar';
 import {
     BaseClass,
+    currentUser,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -53,7 +54,7 @@ export class ScheduleStateService extends BaseClass {
         switchMap((id) => {
             return id
                 ? showEvent(id, {
-                      calendar: this._options.getValue().calendar,
+                      calendar: this._options.getValue().calendar || currentUser().email,
                   })
                 : throwError('No ID');
         }),
