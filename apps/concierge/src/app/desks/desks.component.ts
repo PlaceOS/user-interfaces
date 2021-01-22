@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
-    selector: 'app-desks',
+    selector: '[app-desks]',
     template: `
         <sidebar></sidebar>
         <main class="relative overflow-hidden flex-1 flex flex-col">
@@ -17,6 +17,7 @@ import { DesksStateService } from './desks-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
         `,
     ],

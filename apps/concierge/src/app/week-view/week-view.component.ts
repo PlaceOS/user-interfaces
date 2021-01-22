@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'app-weekview',
+    selector: '[app-weekview]',
     template: `
         <sidebar></sidebar>
         <main class="relative overflow-hidden">
@@ -15,6 +15,7 @@ import { Component } from '@angular/core';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
 
             sidebar {

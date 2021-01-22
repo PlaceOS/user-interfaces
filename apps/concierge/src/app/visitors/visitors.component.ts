@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
-    selector: 'app-visitors',
+    selector: '[app-visitors]',
     template: `
         <sidebar></sidebar>
         <main class="relative overflow-hidden flex-1 flex flex-col">
@@ -17,6 +17,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
         `
     ],

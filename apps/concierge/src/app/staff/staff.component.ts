@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StaffStateService } from './staff-state.service';
 
 @Component({
-    selector: 'app-staff',
+    selector: '[app-staff]',
     template: `
         <sidebar></sidebar>
         <main class="relative overflow-hidden flex-1 flex flex-col">
@@ -22,6 +22,7 @@ import { StaffStateService } from './staff-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
         `,
     ],
