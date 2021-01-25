@@ -67,7 +67,7 @@
         "@types/node": "12.12.38",
         "@typescript-eslint/eslint-plugin": "4.3.0",
         "@typescript-eslint/parser": "4.3.0",
-        "@yuion/svg-viewer": "0.0.20-development",
+        "@yuion/svg-viewer": "0.0.23-development",
         "@zxing/library": "^0.17.1",
         "autoprefixer": "^10.0.2",
         "codelyzer": "6.0.1",
