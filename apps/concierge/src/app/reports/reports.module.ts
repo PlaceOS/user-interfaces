@@ -14,6 +14,7 @@ import { ReportSpacesComponent } from './report-spaces.component';
 import { ReportDesksComponent } from './desks/report-desks.component';
 import { ReportDesksOverallListComponent } from './desks/report-desks-overall-list.component';
 import { ReportDesksLevelListComponent } from './desks/report-desks-level-list.component';
+import { ReportsMenuComponent } from './reports-menu.component';
 
 const ROUTES: Route[] = [
     {
@@ -35,7 +36,8 @@ const ROUTES: Route[] = [
         ReportSpacesComponent,
         ReportDesksComponent,
         ReportDesksOverallListComponent,
-        ReportDesksLevelListComponent
+        ReportDesksLevelListComponent,
+        ReportsMenuComponent
     ],
     imports: [
         CommonModule,
