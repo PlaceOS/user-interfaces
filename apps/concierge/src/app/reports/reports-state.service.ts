@@ -145,7 +145,6 @@ export class ReportsStateService {
     }
 
     public generateReport() {
-        console.log('Report');
         this._generate.next(new Date().valueOf());
     }
 

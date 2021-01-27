@@ -52,10 +52,8 @@ export class DesksStateService extends BaseClass {
     public readonly desks: Observable<Desk[]> = this._filters.pipe(
         debounceTime(500),
         switchMap((filters) => {
-            const zones = (filters.zones || []).filter(
-                (z: any) => z !== -1 && z !== '-1'
-            );
-            return zones[0]
+            const zones = filters.zones || []
+            return !zones.includes('All')
                 ? showMetadata(zones[0], {
                       name: 'desks',
                   }).pipe(map((m) => m.details))
@@ -85,7 +83,7 @@ export class DesksStateService extends BaseClass {
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
             let zones = (filters.zones || []).filter(
-                (z: any) => z !== -1 && z !== '-1'
+                (z: any) => z !== -1 && z !== '-1'  && z !== 'All'
             );
             if (!zones?.length) {
                 zones = this._org
@@ -113,6 +111,20 @@ export class DesksStateService extends BaseClass {
     }
 
     public setFilters(filters: DeskFilters) {
+        if (filters.zones?.includes('All')) {
+            filters.zones = [
+                'All',
+                ...this._org
+                    .levelsForBuilding(this._org.building)
+                    .map((lvl) => lvl.id),
+            ];
+        } else if (
+            filters.zones &&
+            this._filters.getValue()?.zones?.includes('All')
+        ) {
+            filters.zones = [];
+        }
+        console.warn('Zones:', filters.zones);
         this._filters.next({ ...this._filters.getValue(), ...filters });
     }
 
