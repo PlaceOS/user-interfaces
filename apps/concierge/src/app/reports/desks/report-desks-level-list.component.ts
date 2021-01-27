@@ -23,7 +23,7 @@ import { ReportsStateService } from '../reports-state.service';
                 class="flex items-center font-medium border-b border-gray-200"
             >
                 <div class="w-1/3 p-4">Level</div>
-                <div class="w-1/6 p-4">Avg. Free Desks</div>
+                <div class="w-1/6 p-4">Avg. Used Desks</div>
                 <div class="w-1/6 p-4">Approved Bookings</div>
                 <div class="w-1/6 p-4">Total Requests</div>
                 <div class="w-1/6 p-4">Utilisation</div>
@@ -42,7 +42,7 @@ import { ReportsStateService } from '../reports-state.service';
                         {{ lvl.name }}
                     </div>
                     <div class="w-1/6 p-4">
-                        {{ lvl.free || 0 }} / {{ lvl.total || 0 }}
+                        {{ lvl.count || 0 }} / {{ lvl.total || 0 }}
                     </div>
                     <div class="w-1/6 p-4">{{ lvl.approved || 0 }}</div>
                     <div class="w-1/6 p-4">{{ lvl.count || 0 }}</div>

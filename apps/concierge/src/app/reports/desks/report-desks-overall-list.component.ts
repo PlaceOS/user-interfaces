@@ -22,7 +22,7 @@ import { ReportsStateService } from '../reports-state.service';
                 class="flex items-center font-medium border-b border-gray-200"
             >
                 <div class="w-1/3 p-4">Date</div>
-                <div class="w-1/6 p-4">Free Desks</div>
+                <div class="w-1/6 p-4">Used Desks</div>
                 <div class="w-1/6 p-4">Approved Bookings</div>
                 <div class="w-1/6 p-4">Total Requests</div>
                 <div class="w-1/6 p-4">Utilisation</div>
@@ -41,7 +41,7 @@ import { ReportsStateService } from '../reports-state.service';
                         {{ date.date | date: 'MMMM d, y(EEE)' }}
                     </div>
                     <div class="w-1/6 p-4">
-                        {{ date.free || 0 }} / {{ date.total || 0 }}
+                        {{ date.count || 0 }} / {{ date.total || 0 }}
                     </div>
                     <div class="w-1/6 p-4">{{ date.approved || 0 }}</div>
                     <div class="w-1/6 p-4">{{ date.count || 0 }}</div>
