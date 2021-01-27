@@ -16,6 +16,7 @@ import { DurationFieldComponent } from './duration-field.component';
 import { TimeFieldComponent } from './time-field.component';
 import { UserListFieldComponent } from './user-list-field.component';
 import { UserSearchFieldComponent } from './user-search-field.component';
+import { ItemListFieldComponent } from './item-list-field.component';
 
 export * from './action-field.component';
 export * from './counter.component';
@@ -33,6 +34,7 @@ const COMPONENTS: Type<any>[] = [
     TimeFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
+    ItemListFieldComponent
 ];
 @NgModule({
     declarations: [...COMPONENTS],

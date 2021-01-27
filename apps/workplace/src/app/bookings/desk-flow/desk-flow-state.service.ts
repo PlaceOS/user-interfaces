@@ -227,15 +227,12 @@ export class DeskFlowStateService extends BaseClass {
         return true;
     }
 
-    public async bookDesk(
-        desk: Desk,
-        reason: string = ''
-    ) {
+    public async bookDesk(desk: Desk, reason: string = '') {
         return this._desks.bookDesk({
             desk,
             host: this._host as any,
             reason,
-            date: new Date(this._options.getValue().date)
+            date: new Date(this._options.getValue().date),
         });
     }
 
@@ -248,7 +245,7 @@ export class DeskFlowStateService extends BaseClass {
             const status =
                 !desk.bookable ||
                 (desk.groups &&
-                    !desk.groups.find(_ => user_groups.includes(_)))
+                    !desk.groups.find((_) => user_groups.includes(_)))
                     ? 'not-bookable'
                     : available.find((d) => d.id === desk.id)
                     ? 'free'

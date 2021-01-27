@@ -112,7 +112,7 @@ export class OrganisationService {
      * @param id_list List of IDs to find a match
      */
     public levelWithID(id_list: string[]): BuildingLevel {
-        return this.levels.find((lvl) => id_list.includes(lvl.id));
+        return this.levels.find((lvl) => id_list?.includes(lvl.id));
     }
 
     /**
