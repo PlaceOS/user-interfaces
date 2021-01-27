@@ -21,8 +21,8 @@ import { StaffUser } from '@user-interfaces/users';
 export interface DeskOptions {
     enable_booking?: boolean;
     date?: number | Date;
-    zones?: string[],
-    host?: StaffUser
+    zones?: string[];
+    host?: StaffUser;
 }
 export interface DesksStats {
     free: number;
@@ -46,8 +46,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     });
 
     public readonly desk_list = this._state.level.pipe(
-        switchMap((lvl) => showMetadata(lvl.id, { name: 'desks' })),
-        map((i) => i.details.map((j) => new Desk(j))),
+        switchMap((lvl) =>
+            showMetadata(lvl.id, { name: 'desks' }).pipe(
+                map((i) => i.details.map((j) => new Desk({ ...j, zone: lvl })))
+            )
+        ),
         catchError((_) => [])
     );
 
@@ -226,7 +229,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     this._desks_service.bookDesk({
                         desk: desk as any,
                         host: options.host,
-                        date: options.date as any
+                        date: options.date as any,
                     }),
             });
             actions.push({
@@ -236,7 +239,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     this._desks_service.bookDesk({
                         desk: desk as any,
                         host: options.host,
-                        date: options.date as any
+                        date: options.date as any,
                     }),
             });
         }
