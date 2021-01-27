@@ -137,6 +137,6 @@ export class DesksService {
                 group: desk.group,
             },
         };
-        return saveBooking(booking_data as any);
+        return saveBooking(booking_data as any).toPromise();
     }
 }
