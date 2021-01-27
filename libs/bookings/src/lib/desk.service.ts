@@ -134,7 +134,7 @@ export class DesksService {
             zones,
             booking_type: 'desk',
             extension_data: {
-                group: desk.group,
+                groups: desk.groups,
             },
         };
         return saveBooking(booking_data as any).toPromise();

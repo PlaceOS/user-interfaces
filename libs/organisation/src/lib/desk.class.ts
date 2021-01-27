@@ -9,23 +9,23 @@ export class Desk {
     /** Zone/Level of the desk */
     public readonly zone: any;
     /** Group/Department allocated to the desk */
-    public readonly group: string;
+    public readonly groups: string[];
 
     constructor(data) {
         this.id = data.id;
         this.name = data.name;
         this.bookable = data.bookable;
         this.zone = data.zone;
-        this.group = data.group;
+        this.groups = data.groups || [];
     }
 
     public format() {
-        const { id, name, bookable, group } = this;
+        const { id, name, bookable, groups } = this;
         return {
             id,
             name,
             bookable,
-            group,
+            groups,
         };
     }
 }

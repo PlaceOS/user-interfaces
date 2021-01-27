@@ -247,8 +247,8 @@ export class DeskFlowStateService extends BaseClass {
         for (const desk of desks) {
             const status =
                 !desk.bookable ||
-                (desk.group &&
-                    !user_groups.includes((desk.group || '').toLowerCase()))
+                (desk.groups &&
+                    !desk.groups.find(_ => user_groups.includes(_)))
                     ? 'not-bookable'
                     : available.find((d) => d.id === desk.id)
                     ? 'free'
