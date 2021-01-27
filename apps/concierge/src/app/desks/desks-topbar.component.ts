@@ -28,6 +28,7 @@ import { DesksStateService } from './desks-state.service';
         <a
             button
             mat-button
+            *ngIf="(filters | async).zones?.length === 1"
             [routerLink]="['/desks']"
             [queryParams]="{ show_map: !(filters | async)?.show_map }"
             queryParamsHandling="merge"
