@@ -39,7 +39,7 @@ export interface DeviceInfoData {
             <div class="arrow"></div>
             <div class="details">
                 <p><label>MAC:</label> {{ mac }}</p>
-                <p><label>Variance:</label> {{ variance }}</p>
+                <p><label>Accuracy:</label> {{ variance }}m</p>
                 <p><label>Last Seen:</label> {{ last_seen }}</p>
                 <p *ngIf="manufacturer"><label>Manufacturer:</label> {{ manufacturer }}</p>
                 <p *ngIf="os"><label>OS:</label> {{ os }}</p>
