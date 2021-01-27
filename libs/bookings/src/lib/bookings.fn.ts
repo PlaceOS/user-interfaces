@@ -8,8 +8,10 @@ import { Booking } from "./booking.class";
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
     zones?: string;
-    /** Limit list to user. Set to `current` to return the current user's bookings */
+    /** User ID to filter bookings */
     user?: string;
+    /** Email address to filter bookings */
+    email?: string;
     /** Epoch in seconds for the start of the availability period */
     period_start: number;
     /** Epoch in seconds for the end of the availability period */

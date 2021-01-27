@@ -22,7 +22,7 @@ import { DesksStateService } from './desks-state.service';
                             ((bookings | async)?.length || 0)
                     }}
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="menu">
+                <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="(filters | async).zones?.length">
                     <app-icon className="material-icons">more_vert</app-icon>
                 </button>
             </div>

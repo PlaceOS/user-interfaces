@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass, currentUser } from '@user-interfaces/common';
 import { Booking, queryBookings } from '@user-interfaces/bookings';
 import { first } from 'rxjs/operators';
 
@@ -93,7 +93,8 @@ export class DeskFlowCheckinComponent extends BaseClass {
             period_start: getUnixTime(startOfDay(new Date())),
             period_end: getUnixTime(endOfDay(new Date())),
             type: 'desk',
-            zones: zone
+            zones: zone,
+            email: currentUser().email
         }).toPromise();
         if (!bookings?.length) {
             this.loading = '';
