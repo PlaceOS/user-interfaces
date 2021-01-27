@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseClass } from '@user-interfaces/common';
-import { Booking } from '@user-interfaces/bookings';
+import { Booking, queryBookings } from '@user-interfaces/bookings';
 import { first } from 'rxjs/operators';
 
 import { DeskFlowStateService } from './desk-flow-state.service';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'desk-flow-checkin',
@@ -42,7 +43,8 @@ export class DeskFlowCheckinComponent extends BaseClass {
 
     constructor(
         private _state: DeskFlowStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         super();
     }
@@ -51,14 +53,17 @@ export class DeskFlowCheckinComponent extends BaseClass {
         this.subscription(
             'route',
             this._route.queryParamMap.subscribe((params) => {
-                if (!params.has('checkin')) return;
-                this.checkDesk(params.get('checkin'));
+                if (params.has('checkin')) {
+                    this.checkDesk(params.get('checkin'));
+                } else if (params.has('zone')) {
+                    this.checkinFromZone(params.get('zone'));
+                }
             })
         );
     }
 
     public checkDesk(desk_id: string) {
-        this.loading = 'Checking for existing desk booking...';
+        this.loading = 'Checking for existing desk reservation...';
         this._state.todays_bookings
             .pipe(first((_) => !!_))
             .subscribe((bookings) => this.checkInBooking(desk_id, bookings));
@@ -67,7 +72,7 @@ export class DeskFlowCheckinComponent extends BaseClass {
     public async checkInBooking(desk_id: string, bookings: Booking[]) {
         const bkn = bookings.find((bkn) => bkn.asset_id === desk_id);
         if (bkn) {
-            this.loading = 'Checkin in booking...';
+            this.loading = 'Checkin in reservation...';
             await this._state
                 .checkin(desk_id)
                 .catch(
@@ -77,8 +82,25 @@ export class DeskFlowCheckinComponent extends BaseClass {
                         }`)
                 );
         } else {
-            this.error = 'Unable to find a booking for the given desk.';
+            this.error = 'Unable to find a reservation for the given desk.';
         }
+        this.loading = '';
+    }
+
+    private async checkinFromZone(zone: string) {
+        this.loading = 'Searching for existing desk reservation...';
+        const bookings = await queryBookings({
+            period_start: getUnixTime(startOfDay(new Date())),
+            period_end: getUnixTime(endOfDay(new Date())),
+            type: 'desk',
+            zones: zone
+        }).toPromise();
+        if (!bookings?.length) {
+            this.loading = '';
+            this.timeout('new_booking', () => this._router.navigate(['/explore', zone]));
+            return this.error = `Unable to find exisiting desk reservation`
+        }
+        this.checkInBooking(bookings[0].asset_id, bookings);
         this.loading = '';
     }
 }
