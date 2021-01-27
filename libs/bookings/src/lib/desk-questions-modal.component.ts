@@ -10,7 +10,8 @@ import { DialogEvent, notifyError } from '@user-interfaces/common';
             <main class="p-4" [formGroup]="form">
                 <div class="flex flex-col mb-4">
                     <label>
-                        Have you travelled overseas within the last 14 days?
+                        Have you travelled overseas within the last 14
+                        days?<span>*</span>
                     </label>
                     <mat-radio-group
                         formControlName="travelled"
@@ -23,7 +24,7 @@ import { DialogEvent, notifyError } from '@user-interfaces/common';
                 <div class="flex flex-col mb-4">
                     <label>
                         Are you unwell or experiencing any cold or flu-like
-                        symptoms?
+                        symptoms?<span>*</span>
                     </label>
                     <mat-radio-group formControlName="unwell" class="space-x-2">
                         <mat-radio-button [value]="true">Yes</mat-radio-button>
@@ -33,7 +34,7 @@ import { DialogEvent, notifyError } from '@user-interfaces/common';
                 <div class="flex flex-col">
                     <label>
                         Have you had contact with anyone with suspected
-                        COVID-19?
+                        COVID-19?<span>*</span>
                     </label>
                     <mat-radio-group
                         formControlName="contact"
@@ -54,13 +55,13 @@ import { DialogEvent, notifyError } from '@user-interfaces/common';
         <ng-template #fail_state>
             <main class="pt-8 relative">
                 <p class="p-4">
-                    Your request to work from the office has been rejected based on
-                    your response to the compulsory Covid-19 questions. Please feel
-                    free to submit a new request when circumstances change in a way
-                    that changes your answer to the questions.
+                    Your request to work from the office has been rejected based
+                    on your response to the compulsory Covid-19 questions.
+                    Please feel free to submit a new request when circumstances
+                    change in a way that changes your answer to the questions.
                 </p>
                 <button close mat-icon-button mat-dialog-close>
-                    <app-icon className="material-icons">close</app-icon>
+                    <app-icon>close</app-icon>
                 </button>
             </main>
         </ng-template>
