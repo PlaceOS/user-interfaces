@@ -49,7 +49,7 @@ import { ReportsStateService } from './reports-state.service';
         <button
             mat-button
             class="ml-4"
-            [disabled]="!!(loading | async)"
+            [disabled]="!!(loading | async) || !(options | async)?.zones?.length"
             (click)="generateReport()"
         >
             <mat-spinner *ngIf="loading | async" [diameter]="32"></mat-spinner>
