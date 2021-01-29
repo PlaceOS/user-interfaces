@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, Inject, OnInit } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { MAP_FEATURE_DATA } from '@user-interfaces/components';
-import { formatDistanceToNow } from 'date-fns';
+import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 
 export interface DeviceInfoData {
     mac: string;
@@ -11,6 +11,8 @@ export interface DeviceInfoData {
     manufacturer?: string;
     os?: string;
     ssid?: string;
+    user?: any;
+    bg_color?: string;
 }
 
 @Component({
@@ -44,7 +46,8 @@ export interface DeviceInfoData {
                 <p *ngIf="manufacturer"><label>Manufacturer:</label> {{ manufacturer }}</p>
                 <p *ngIf="os"><label>OS:</label> {{ os }}</p>
                 <p *ngIf="ssid"><label>SSID:</label> {{ ssid }}</p>
-                <p *ngIf="username"><label>Username:</label> {{ username }}</p>
+                <p *ngIf="username"><label>Username:</label> {{ user?.name || user?.username || username }}</p>
+                <p *ngIf="user"><label>Type:</label> {{ user.type }}</p>
             </div>
         </div>
     `,
@@ -83,6 +86,8 @@ export interface DeviceInfoData {
 export class ExploreDeviceInfoComponent implements OnInit {
     /** Name of the user associated with the mac address */
     public username = '';
+    /** User details associated with device */
+    public readonly user = this._details.user;
     /** Mac Address of the device */
     public readonly mac = this._details.mac;
     /** Mac Address of the device */
@@ -96,7 +101,7 @@ export class ExploreDeviceInfoComponent implements OnInit {
     /** Diameter of the radius circle */
     public readonly diameter = this._details.variance * 100;
     /** Background color for the dot */
-    public readonly bg_color = this.ssid === 'Blue' ? '#1976d2' : this.ssid === 'Green' ? '#689f38' : '#616161'
+    public readonly bg_color = this._details.bg_color || (this.distance < 10 ? '#43a047' : this.distance < 20 ? '#ffb300' : '#e53935')
     /** Time of the last update */
     public get last_seen() {
         return formatDistanceToNow(new Date(this._details.last_seen * 1000), {
@@ -107,6 +112,10 @@ export class ExploreDeviceInfoComponent implements OnInit {
     public y_pos: 'top' | 'bottom';
 
     public x_pos: 'left' | 'right';
+
+    public get distance() {
+        return Math.abs(differenceInMinutes(this._details.last_seen * 1000, new Date()));
+    }
 
     @HostListener('mouseenter') public onEnter = () => this.loadUser();
     @HostListener('click') public onClick = () => this.loadUser();

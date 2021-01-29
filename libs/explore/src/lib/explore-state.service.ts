@@ -19,6 +19,7 @@ import { SpacesService } from '@user-interfaces/spaces';
 export interface MapOptions {
     show_zones?: boolean;
     show_devices?: boolean;
+    show_contacts?: boolean;
     show_levels?: boolean;
 }
 
@@ -71,13 +72,15 @@ export class ExploreStateService extends BaseClass {
             const [features, options] = details;
             let list = [];
             for (const key in features) {
-                if (
-                    key !== 'devices' ||
-                    (options.show_zones &&
-                        this._settings.get('app.explore.display_devices') !==
-                            false)
-                ) {
-                    list = list.concat(features[key]);
+                switch (key) {
+                    case 'devices':
+                        options.show_zones && options.show_devices ? list = list.concat(features[key]) : '';
+                        break;
+                    case 'contacts':
+                        options.show_contacts ? list = list.concat(features[key]) : '';
+                        break;
+                    default:
+                        list = list.concat(features[key]);
                 }
             }
             return list;
@@ -156,6 +159,10 @@ export class ExploreStateService extends BaseClass {
                         if (!has_level && level_list.length) {
                             this.setLevel(level_list[0].id);
                         }
+                        this.setOptions({
+                            show_devices:
+                                this._settings.get('app.explore.display_devices') !== false,
+                        });
                     })
             );
         });
