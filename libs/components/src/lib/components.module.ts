@@ -40,6 +40,7 @@ export * from './interactive-map.component';
 export * from './map-pin.component';
 export * from './map-radius.component';
 export * from './searchbar.component';
+export * from './misconfigured.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,

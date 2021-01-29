@@ -10,7 +10,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 
 import '@user-interfaces/mocks';
 
-import { UnauthorisedComponent } from '@user-interfaces/components';
+import { MisconfiguredComponent, UnauthorisedComponent } from '@user-interfaces/components';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -23,7 +23,8 @@ import * as Sentry from "@sentry/angular";
 @NgModule({
     declarations: [
         AppComponent,
-        UnauthorisedComponent
+        UnauthorisedComponent,
+        MisconfiguredComponent
     ],
     imports: [
         BrowserModule,

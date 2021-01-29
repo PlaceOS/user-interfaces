@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { UnauthorisedComponent, AuthorisedUserGuard } from '@user-interfaces/components';
+import { UnauthorisedComponent, AuthorisedUserGuard, MisconfiguredComponent } from '@user-interfaces/components';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
+    { path: 'misconfigured', component: MisconfiguredComponent },
     {
         path: 'dashboard',
         canActivate: [AuthorisedUserGuard],
