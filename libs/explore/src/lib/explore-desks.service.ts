@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
 
-import { DesksService } from '@user-interfaces/bookings';
+import { DesksService, queryBookings } from '@user-interfaces/bookings';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -17,6 +17,7 @@ import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { catchError, first, map, switchMap } from 'rxjs/operators';
 import { StaffUser } from '@user-interfaces/users';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -44,6 +45,21 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         occupied: 0,
         total: 0,
     });
+    private _poll = new BehaviorSubject<number>(0);
+
+    private _desk_bookings = combineLatest([
+        this._state.level,
+        this._poll,
+    ]).pipe(
+        switchMap(([lvl, _]) =>
+            queryBookings({
+                period_start: getUnixTime(startOfDay(new Date())),
+                period_end: getUnixTime(endOfDay(new Date())),
+                type: 'desk',
+                zones: lvl.id,
+            })
+        )
+    );
 
     public readonly desk_list = this._state.level.pipe(
         switchMap((lvl) =>
@@ -105,11 +121,25 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             'desks',
             this.desk_list.subscribe((desks) => this.processDesks(desks))
         );
+        this.subscription(
+            'desks_in_use_bookings',
+            this._desk_bookings.subscribe((_) =>
+                this._in_use.next(_.map((i) => i.asset_id))
+            )
+        );
     }
 
     public ngOnDestroy() {
         super.ngOnDestroy();
         this.clearBindings();
+    }
+
+    public startPolling(delay: number = 30 * 1000) {
+        this.interval('poll', () => this._poll.next(new Date().valueOf()), delay);
+    }
+
+    public stopPolling() {
+        this.clearInterval('poll');
     }
 
     public setOptions(options: DeskOptions) {
@@ -135,7 +165,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const system_id =
             this._org.building.bindings.area_management ||
             this._org.organisation.bindings.area_management;
-        if (!system_id) return;
+        if (!system_id) {
+            this.startPolling();
+            return;
+        }
         let binding = getModule(system_id, 'AreaManagement').binding(
             this._level.id
         );
