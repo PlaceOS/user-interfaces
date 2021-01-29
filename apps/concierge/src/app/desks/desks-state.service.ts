@@ -8,7 +8,7 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, format, startOfDay } from 'date-fns';
 
 import {
     approveBooking,
@@ -155,7 +155,7 @@ export class DesksStateService extends BaseClass {
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error approving in desk booking')
-            : notifySuccess(`Approved desk booking for ${desk.user_name}.`);
+            : notifySuccess(`Approved desk booking for ${desk.user_name} on ${format(desk.date, 'MMM Do')}.`);
     }
 
     public async rejectDesk(desk: Booking) {
@@ -164,7 +164,7 @@ export class DesksStateService extends BaseClass {
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error rejecting in desk booking')
-            : notifySuccess(`Rejected desk booking for ${desk.user_name}.`);
+            : notifySuccess(`Rejected desk booking for ${desk.user_name} on ${format(desk.date, 'MMM Do')}.`);
     }
 
     public async giveAccess(desk: Booking) {

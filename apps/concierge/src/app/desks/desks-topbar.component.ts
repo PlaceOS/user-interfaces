@@ -5,6 +5,7 @@ import { first, take } from 'rxjs/operators';
 import { BaseClass } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
 import { DesksStateService } from './desks-state.service';
+import { showBooking } from '@user-interfaces/bookings';
 
 @Component({
     selector: 'desks-topbar',
@@ -115,6 +116,14 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                         this.updateZones(zones);
                     }
                 }
+                if (params.has('date')) {
+                    this.setDate(new Date(+params.get('date')));
+                }
+                if (params.has('approve')) {
+                    this.approve(params.get('approve'));
+                } else if (params.has('reject')) {
+                    this.reject(params.get('reject'));
+                }
                 this.show_map =
                     params.has('show_map') && params.get('show_map') === 'true';
                 this._desks.setFilters({ show_map: this.show_map });
@@ -133,5 +142,27 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 this.updateZones(zones);
             })
         );
+    }
+
+    /**
+     * Aprrove a desk booking
+     * @param id Booking ID to approve
+     */
+    private async approve(id: string) {
+        const booking = await showBooking(id).toPromise();
+        if (booking) {
+            this._desks.approveDesk(booking);
+        }
+    }
+
+    /**
+     * Reject a desk booking
+     * @param id Booking ID to reject
+     */
+    private async reject(id: string) {
+        const booking = await showBooking(id).toPromise();
+        if (booking) {
+            this._desks.rejectDesk(booking);
+        }
     }
 }
