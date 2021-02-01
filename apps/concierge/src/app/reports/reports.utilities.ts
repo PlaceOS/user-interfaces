@@ -16,7 +16,7 @@ export function generateReportForDeskBookings(bookings: Booking[], util_period: 
 
 export function generateReportForBookings(bookings: CalendarEvent[], util_period: number = 8) {
     const total_users = bookings.reduce((c, i) => c + i.attendees.length, 0);
-    const total_capacity = bookings.reduce((c, i) => c + i.system.capacity, 0);
+    const total_capacity = bookings.reduce((c, i) => c + i.system?.capacity, 0);
     const utilisation = bookings.reduce((c, i) => c + i.duration, 0) / (util_period * 60);
     const occupancy = total_users / total_capacity;
     return {

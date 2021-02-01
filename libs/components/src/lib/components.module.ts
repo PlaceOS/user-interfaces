@@ -28,6 +28,7 @@ import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
 import { SearchbarComponent } from './searchbar.component';
 import { StatusOverlayComponent } from './status-overlay.component';
+import { FixedPipe } from './fixed.pipe';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -43,6 +44,7 @@ export * from './map-radius.component';
 export * from './searchbar.component';
 export * from './misconfigured.component';
 export * from './status-overlay.component';
+export * from './fixed.pipe';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -71,7 +73,9 @@ const COMPONENTS: Type<any>[] = [
     MapPinComponent,
     MapRadiusComponent,
     SearchbarComponent,
-    StatusOverlayComponent
+    StatusOverlayComponent,
+
+    FixedPipe
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
