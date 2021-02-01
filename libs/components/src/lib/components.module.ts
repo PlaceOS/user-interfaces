@@ -27,6 +27,7 @@ import { InteractiveMapComponent, MAP_FEATURE_DATA } from './interactive-map.com
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
 import { SearchbarComponent } from './searchbar.component';
+import { StatusOverlayComponent } from './status-overlay.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -41,6 +42,7 @@ export * from './map-pin.component';
 export * from './map-radius.component';
 export * from './searchbar.component';
 export * from './misconfigured.component';
+export * from './status-overlay.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -68,7 +70,8 @@ const COMPONENTS: Type<any>[] = [
     InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
-    SearchbarComponent
+    SearchbarComponent,
+    StatusOverlayComponent
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
