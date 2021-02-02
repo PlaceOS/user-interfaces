@@ -329,6 +329,11 @@ mat-form-field {
     }
 }
 
+.mat-button-toggle-button[aria-pressed="true"] {
+    background-color: var(--primary);
+    color: var(--font-light);
+}
+
 .mat-chip.mat-standard-chip {
     &.mat-primary {
         color: var(--primary);

@@ -15,25 +15,24 @@ import {
 } from '@user-interfaces/common';
 import { first } from 'rxjs/operators';
 
-import {
-    NewUserModalComponent,
-    User,
-} from '@user-interfaces/users';
+import { NewUserModalComponent, User } from '@user-interfaces/users';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'a-user-list-field',
     template: `
         <div
-            class="mb-4 border border-grey-200"
+            class="mb-4 border border-grey-200 rounded bg-white text-black"
             form-field
             [attr.disabled]="disabled"
         >
-            <a-user-search-field
-                [(ngModel)]="search_user"
-                [guests]="guests"
-                (ngModelChange)="addUser($event)"
-            ></a-user-search-field>
+            <div search>
+                <a-user-search-field
+                    [(ngModel)]="search_user"
+                    [guests]="guests"
+                    (ngModelChange)="addUser($event)"
+                ></a-user-search-field>
+            </div>
             <div class="p-2 -mt-2 border-b border-grey-200">
                 <mat-chip-list
                     aria-label="User List"
@@ -109,6 +108,11 @@ import { MatDialog } from '@angular/material/dialog';
         `
             button {
                 background: transparent;
+            }
+
+            [search] {
+                height: 3.5rem;
+                margin-top: -0.25rem;
             }
         `,
     ],
