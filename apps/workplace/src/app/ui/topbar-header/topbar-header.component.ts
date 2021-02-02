@@ -32,6 +32,8 @@ export class TopbarHeaderComponent extends BaseClass implements OnInit {
     public readonly updateSearch = (s) =>
         this._dashboard.setOptions({ search: s });
 
+    public setSelected = (opt) => this._settings.post('last_search', opt);
+
     public readonly search_results = combineLatest([
         this._dashboard.options,
         this._dashboard.contacts,

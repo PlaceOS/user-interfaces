@@ -39,6 +39,7 @@
                     class="clear w-full text-left h-full rounded-none text-normal text-base"
                     [routerLink]="['/explore']"
                     [queryParams]="option.map_id ? { space: option.id } : { user: option.email }"
+                    (click)="setSelected(option)"
                 >
                     <div class="flex items-center">
                         <div class="text-xs w-12 text-primary">{{
