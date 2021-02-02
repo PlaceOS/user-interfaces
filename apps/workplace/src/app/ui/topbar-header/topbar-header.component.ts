@@ -2,10 +2,15 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 
-import { ApplicationIcon, BaseClass, SettingsService } from '@user-interfaces/common';
+import {
+    ApplicationIcon,
+    BaseClass,
+    SettingsService,
+} from '@user-interfaces/common';
 import { SpacesService } from '@user-interfaces/spaces';
 
 import { DashboardStateService } from '../../dashboard/dashboard-state.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'a-topbar-header',
@@ -24,14 +29,21 @@ export class TopbarHeaderComponent extends BaseClass implements OnInit {
     /** Current page title */
     public title: string;
 
-    public readonly updateSearch = (s) => this._dashboard.updateContactSearch(s);
+    public readonly updateSearch = (s) =>
+        this._dashboard.setOptions({ search: s });
 
-    public readonly search_results = this._dashboard.contacts_search.pipe(
-        map((list) => {
-            const new_list: any[] = list.concat(
-                this._spaces.space_list.filter((i) =>
-                    i.name.toLowerCase().includes(this.search_str.toLowerCase())
-                ) as any
+    public readonly search_results = combineLatest([
+        this._dashboard.options,
+        this._dashboard.contacts,
+        this._dashboard.search_results,
+        this._spaces.list,
+    ]).pipe(
+        map(([{ search }, contacts, users, spaces]) => {
+            const list = [...contacts, ...users, ...spaces];
+            const new_list = list.filter(
+                (i) =>
+                    i.name.toLowerCase().includes(search.toLowerCase()) ||
+                    i.email.toLowerCase().includes(search.toLowerCase())
             );
             new_list.sort((a, b) => a.name?.localeCompare(b.name));
             return new_list;
@@ -58,7 +70,8 @@ export class TopbarHeaderComponent extends BaseClass implements OnInit {
 
     public ngOnInit(): void {
         this.logo = this._settings.get('app.logo_light') || { type: 'icon' };
-        this.reverse = this._settings.get('app.general.menu.position') === 'left';
+        this.reverse =
+            this._settings.get('app.general.menu.position') === 'left';
         // this.title = this._service.get('title');
         // this.subscription('title', () =>
         // this._service.listen('title', value => (this.title = value))

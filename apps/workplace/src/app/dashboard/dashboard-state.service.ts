@@ -6,29 +6,40 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject } from 'rxjs';
-import { filter, first } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { debounceTime, filter, first, shareReplay, switchMap } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
-import { BaseClass, currentUser, HashMap, unique } from '@user-interfaces/common';
+import {
+    BaseClass,
+    currentUser,
+    HashMap,
+    unique,
+} from '@user-interfaces/common';
 import { Space } from '@user-interfaces/spaces';
 import { CalendarEvent, queryEvents } from '@user-interfaces/events';
 import { searchStaff, User } from '@user-interfaces/users';
-import { BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
+import {
+    BuildingLevel,
+    OrganisationService,
+} from '@user-interfaces/organisation';
 import { CalendarService } from '@user-interfaces/calendar';
+
+export interface DashboardOptions {
+    search?: string;
+}
 
 @Injectable({
     providedIn: 'root',
 })
 export class DashboardStateService extends BaseClass {
+    private _options = new BehaviorSubject<DashboardOptions>({});
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
     private _upcoming_events = new BehaviorSubject<CalendarEvent[]>([]);
     /**  */
     private _contacts = new BehaviorSubject<User[]>([]);
-    /**  */
-    private _contact_search = new BehaviorSubject<User[]>([]);
     /**  */
     private _level_occupancy = new BehaviorSubject<BuildingLevel[]>([]);
     /**  */
@@ -40,7 +51,13 @@ export class DashboardStateService extends BaseClass {
     /**  */
     public contacts = this._contacts.asObservable();
     /**  */
-    public contacts_search = this._contact_search.asObservable();
+    public options = this._options.asObservable();
+
+    public readonly search_results = this._options.pipe(
+        debounceTime(500),
+        switchMap(({ search }) => (search ? searchStaff(search) : of([]))),
+        shareReplay(1)
+    );
     /**  */
     public level_occupancy = this._level_occupancy.asObservable();
 
@@ -53,7 +70,7 @@ export class DashboardStateService extends BaseClass {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first(_ => _)).toPromise();
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'building',
             this._org.active_building
@@ -61,9 +78,16 @@ export class DashboardStateService extends BaseClass {
                 .subscribe(() => this.updateBuildingMetadata())
         );
         if (!this._org.organisation.bindings.area_management) return;
-        const binding = getModule(this._org.organisation.bindings.area_management, 'AreaManagement').binding('overview');
+        const binding = getModule(
+            this._org.organisation.bindings.area_management,
+            'AreaManagement'
+        ).binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
+    }
+
+    public setOptions(options: Partial<DashboardOptions>) {
+        this._options.next({ ...this._options.getValue(), ...options });
     }
 
     public pollFreeSpaces(delay: number = 10 * 1000) {
@@ -77,32 +101,21 @@ export class DashboardStateService extends BaseClass {
 
     public pollUpcomingEvents(delay: number = 10 * 1000) {
         this.updateUpcomingEvents();
-        this.interval('upcoming_events', () => this.updateUpcomingEvents(), delay);
+        this.interval(
+            'upcoming_events',
+            () => this.updateUpcomingEvents(),
+            delay
+        );
     }
 
     public stopPollingUpcomingEvents() {
         this.clearInterval('upcoming_events');
     }
 
-    public updateContactSearch(search_str: string) {
-        this.timeout('contact_search', async () => {
-            if (!search_str) {
-                this._contact_search.next([]);
-                return;
-            }
-            const contact_results = await searchStaff(search_str).toPromise();
-            this._contact_search.next(contact_results || []);
-        }, 500);
-    }
-
-    public clearContactSearch() {
-        this._contact_search.next([]);
-    }
-
     public async updateContacts() {
-        const metadata: PlaceMetadata = await showMetadata(currentUser().id, {
+        const metadata: PlaceMetadata = (await showMetadata(currentUser().id, {
             name: 'contacts',
-        }).toPromise() as any;
+        }).toPromise()) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         this._contacts.next(list.map((i) => new User(i)));
     }
@@ -134,7 +147,9 @@ export class DashboardStateService extends BaseClass {
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
         const levels = [...this._org.levels];
-        levels.sort((a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation);
+        levels.sort(
+            (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation
+        );
         this._level_occupancy.next(levels);
     }
 
@@ -142,11 +157,13 @@ export class DashboardStateService extends BaseClass {
         if (!this._org.building) return;
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const list = await this._calendar.freeBusy({
-            period_start,
-            period_end,
-            zone_ids: this._org.building.id,
-        }).toPromise();
+        const list = await this._calendar
+            .freeBusy({
+                period_start,
+                period_end,
+                zone_ids: this._org.building.id,
+            })
+            .toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
     }
@@ -164,7 +181,9 @@ export class DashboardStateService extends BaseClass {
 
     private async updateBuildingMetadata() {
         const building = this._org.building;
-        const metadata = await showMetadata(building.id, { name: 'bindings' }).toPromise();
+        const metadata = await showMetadata(building.id, {
+            name: 'bindings',
+        }).toPromise();
         if (!(metadata.details as HashMap).occupancy) return;
         const details = (metadata.details as HashMap).occupancy;
         const module = getModule(details.sys, details.module, details.index);
@@ -177,9 +196,16 @@ export class DashboardStateService extends BaseClass {
         this.subscription(
             'occupancy_binding',
             this._occupancy_binding.listen().subscribe((value) => {
-                const levels = Object.keys(value).map(key => ({ id: key, ...value[key] }));
-                levels.sort((a, b) => a.recommendation_factor - b.recommendation_factor);
-                this._level_occupancy.next(levels.map(i => this._org.levelWithID([i.id])));
+                const levels = Object.keys(value).map((key) => ({
+                    id: key,
+                    ...value[key],
+                }));
+                levels.sort(
+                    (a, b) => a.recommendation_factor - b.recommendation_factor
+                );
+                this._level_occupancy.next(
+                    levels.map((i) => this._org.levelWithID([i.id]))
+                );
             })
         );
     }
