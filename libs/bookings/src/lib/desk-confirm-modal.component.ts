@@ -4,7 +4,7 @@ import { DialogEvent } from '@user-interfaces/common';
 import { BuildingLevel, Desk } from '@user-interfaces/organisation';
 
 export interface DeskConfirmModalData {
-    desk: Desk;
+    desks: Desk[];
     date: number;
     reason: string;
     level: BuildingLevel;
@@ -33,7 +33,7 @@ export interface DeskConfirmModalData {
                     <div>{{ reason || '~No set reason~' }}</div>
                 </div>
                 <p>
-                    Your desk will be {{ desk?.name }} on
+                    Your desk{{ desks.length === 1 ? '' : 's' }} will be {{ desk_list }} on
                     {{ level?.display_name || level?.name }}
                 </p>
             </main>
@@ -60,7 +60,7 @@ export interface DeskConfirmModalData {
 export class DeskConfirmModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
-    public readonly desk = this._data.desk;
+    public readonly desks = this._data.desks || [];
 
     public date = this._data.date;
 
@@ -71,6 +71,10 @@ export class DeskConfirmModalComponent {
     public readonly level = this._data.level;
 
     public loading: string;
+
+    public get desk_list() {
+        return this.desks.map(_ => _.name).join(', ');
+    }
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: DeskConfirmModalData

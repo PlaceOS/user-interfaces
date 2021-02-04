@@ -7,7 +7,7 @@ import {
     notifySuccess,
 } from '@user-interfaces/common';
 import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { StaffUser } from '@user-interfaces/users';
+import { StaffUser, User } from '@user-interfaces/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 
@@ -19,7 +19,6 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
     providedIn: 'root',
 })
 export class DesksService {
-
     public can_set_date: boolean = true;
     public error_on_host: boolean = true;
 
@@ -29,23 +28,25 @@ export class DesksService {
     ) {}
 
     public async bookDesk({
-        desk,
+        desks,
         host,
         reason,
+        attendees,
         date,
     }: {
-        desk: Desk;
+        desks: Desk[];
         host?: StaffUser;
+        attendees?: User[];
         reason?: string;
         date?: Date;
     }) {
         if (this.error_on_host && !host) {
-            return notifyError('You need to select a host to book a desk.')
+            return notifyError('You need to select a host to book a desk.');
         }
         host = host || currentUser();
         reason = reason || '';
         const level = this._org.levelWithID(
-            desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
+            desks[0].zone instanceof Array ? desks[0].zone : [desks[0].zone?.id]
         );
         let ref: MatDialogRef<any> = this._dialog.open(
             DeskQuestionsModalComponent
@@ -63,7 +64,7 @@ export class DesksService {
         ref.close();
         ref = this._dialog.open(DeskConfirmModalComponent, {
             data: {
-                desk,
+                desks,
                 date: date ? new Date(date) : new Date(),
                 reason,
                 level,
@@ -88,22 +89,28 @@ export class DesksService {
             period_start: getUnixTime(startOfDay(date || new Date())),
             period_end: getUnixTime(endOfDay(date || new Date())),
         }).toPromise();
-        const desks = bookings.filter(
+        const desk_list = bookings.filter(
             (d) => d.user_email.toLowerCase() === host.email.toLowerCase()
         );
-        if (desks?.length) {
+        if (desk_list?.length) {
             ref.close();
             return notifyError(
                 'You currently already have a desk booked for the selected date.'
             );
         }
         ref.componentInstance.loading = 'Booking desk...';
-        await this.makeDeskBooking(
-            desk,
-            host,
-            date.valueOf() || new Date().valueOf(),
-            reason
-        );
+        const users = [host, ...attendees];
+        await Promise.all([
+            desks.map((desk, idx) =>
+                this.makeDeskBooking(
+                    desk,
+                    host,
+                    date.valueOf() || new Date().valueOf(),
+                    reason,
+                    users[idx]
+                )
+            ),
+        ]);
         notifySuccess('Successfully booked desk');
         ref.close();
         return true;
@@ -113,7 +120,8 @@ export class DesksService {
         desk: Desk,
         host: StaffUser,
         date: number,
-        reason: string
+        reason: string,
+        for_user: User = null
     ) {
         const location = `${desk.zone?.name}-${desk.id}`;
         const level = this._org.levelWithID(
@@ -135,6 +143,7 @@ export class DesksService {
             booking_type: 'desk',
             extension_data: {
                 groups: desk.groups,
+                for_user: for_user?.email
             },
         };
         return saveBooking(booking_data as any).toPromise();

@@ -8,6 +8,7 @@ import { SharedContentModule } from '../ui/shared.module';
 import { SharedExploreModule } from '@user-interfaces/explore';
 import { SharedUsersModule } from '@user-interfaces/users';
 
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { QrReaderComponent } from './qr-reader.component';
 
 import { SpaceFlowComponent } from './space-flow/space-flow.component';
@@ -18,6 +19,8 @@ import { SpaceFlowConfirmComponent } from './space-flow/space-flow-confirm.compo
 import { DeskFlowComponent } from './desk-flow/desk-flow.component';
 import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
 import { DeskFlowCheckinComponent } from './desk-flow/desk-flow-checkin.component';
+import { DeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
+
 import { BookingSuccessComponent } from './booking-success.component';
 
 const ROUTES: Route[] = [
@@ -35,6 +38,7 @@ const ROUTES: Route[] = [
         DeskFlowComponent,
         DeskFlowListingComponent,
         DeskFlowCheckinComponent,
+        DeskFlowFormComponent,
 
         SpaceFlowComponent,
         SpaceFlowFormComponent,
@@ -50,8 +54,9 @@ const ROUTES: Route[] = [
         ReactiveFormsModule,
         SharedContentModule,
         SharedUsersModule,
-        SharedExploreModule
-    ],
+        SharedExploreModule,
+        MatButtonToggleModule
+    ]
 })
 export class BookingsModule {
 

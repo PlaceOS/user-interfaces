@@ -28,23 +28,28 @@ import {
 export interface DeskFlowState {
     date?: number;
     zones?: string[];
+    attendees: User[];
     filter_sit_to_stand?: boolean;
     filter_dual_monitors?: boolean;
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DeskFlowStateService extends BaseClass {
     private _options = new BehaviorSubject<DeskFlowState>({
         date: new Date().valueOf(),
         zones: [],
+        attendees: [],
         filter_sit_to_stand: false,
         filter_dual_monitors: false,
     });
 
     private _loading = new BehaviorSubject<boolean>(false);
 
-    private _host: User;
+    private _host = new BehaviorSubject<User>(null);
 
+    public readonly host = this._host.asObservable();
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
 
@@ -119,7 +124,7 @@ export class DeskFlowStateService extends BaseClass {
             }
             return Promise.resolve([]);
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     public readonly desk_availability: Observable<Desk[]> = combineLatest([
@@ -165,7 +170,7 @@ export class DeskFlowStateService extends BaseClass {
                     !active_bookings.find((bkn) => bkn.asset_id === desk.id)
             );
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     constructor(
@@ -207,12 +212,12 @@ export class DeskFlowStateService extends BaseClass {
         this.clearInterval('poll');
     }
 
-    public setOptions(state: DeskFlowState) {
+    public setOptions(state: Partial<DeskFlowState>) {
         this._options.next({ ...this._options.getValue(), ...state });
     }
 
     public setHost(host: User) {
-        this._host = host;
+        this._host.next(host);
     }
 
     public async checkin(id: string) {
@@ -227,10 +232,11 @@ export class DeskFlowStateService extends BaseClass {
         return true;
     }
 
-    public async bookDesk(desk: Desk, reason: string = '') {
+    public async bookDesk(desks: Desk | Desk[], reason: string = '') {
         return this._desks.bookDesk({
-            desk,
-            host: this._host as any,
+            desks: desks instanceof Desk ? [desks] : desks,
+            host: this._host.getValue() as any,
+            attendees: this._options.getValue().attendees || [],
             reason,
             date: new Date(this._options.getValue().date),
         });

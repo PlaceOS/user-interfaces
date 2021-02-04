@@ -101,7 +101,7 @@ import { MatDialog } from '@angular/material/dialog';
             </div>
         </div>
         <ng-template #empty_state>
-            <div i18n="Attendee empty state">No attendees</div>
+            <div class="m-2" i18n="Attendee empty state">No attendees</div>
         </ng-template>
     `,
     styles: [

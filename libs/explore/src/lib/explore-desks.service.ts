@@ -260,7 +260,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 action: 'click',
                 callback: () =>
                     this._desks_service.bookDesk({
-                        desk: desk as any,
+                        desks: [desk as any],
                         host: options.host,
                         date: options.date as any,
                     }),
@@ -270,7 +270,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 action: 'touchend',
                 callback: () =>
                     this._desks_service.bookDesk({
-                        desk: desk as any,
+                        desks: [desk as any],
                         host: options.host,
                         date: options.date as any,
                     }),
