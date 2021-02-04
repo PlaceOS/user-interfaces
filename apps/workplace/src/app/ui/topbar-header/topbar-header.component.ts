@@ -41,11 +41,12 @@ export class TopbarHeaderComponent extends BaseClass implements OnInit {
         this._spaces.list,
     ]).pipe(
         map(([{ search }, contacts, users, spaces]) => {
+            search = (search || '').toLowerCase()
             const list = [...contacts, ...users, ...spaces];
             const new_list = list.filter(
                 (i) =>
-                    i.name.toLowerCase().includes(search.toLowerCase()) ||
-                    i.email.toLowerCase().includes(search.toLowerCase())
+                    i.name?.toLowerCase().includes(search) ||
+                    i.email?.toLowerCase().includes(search)
             );
             new_list.sort((a, b) => a.name?.localeCompare(b.name));
             return new_list;
