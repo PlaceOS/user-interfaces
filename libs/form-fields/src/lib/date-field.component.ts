@@ -1,6 +1,5 @@
-import { Component, OnInit, forwardRef, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { MatMenuTrigger } from '@angular/material/menu';
 import { BaseClass } from '@user-interfaces/common';
 
 import * as dayjs from 'dayjs';
@@ -9,12 +8,20 @@ import * as dayjs from 'dayjs';
     selector: 'a-date-field',
     template: `
         <mat-form-field appearance="outline" overlay (click)="picker.open()">
-            <input matInput [ngModel]="date" [disabled]="disabled" [min]="from" [max]="until" (ngModelChange)="setValue($event)" [matDatepicker]="picker" />
+            <input
+                matInput
+                [ngModel]="date"
+                [disabled]="disabled"
+                [min]="from"
+                [max]="until"
+                (ngModelChange)="setValue($event)"
+                [matDatepicker]="picker"
+            />
             <mat-datepicker-toggle
                 matSuffix
                 [for]="picker"
             ></mat-datepicker-toggle>
-            <mat-datepicker  #picker></mat-datepicker>
+            <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
     `,
     styles: [
@@ -32,7 +39,8 @@ import * as dayjs from 'dayjs';
         },
     ],
 })
-export class DateFieldComponent extends BaseClass
+export class DateFieldComponent
+    extends BaseClass
     implements OnInit, ControlValueAccessor {
     /** Earliest date available the user is allowed to pick */
     @Input('from') public _from: number = dayjs().valueOf();
