@@ -141,7 +141,8 @@ export class ExploreSearchComponent extends BaseClass {
     public select(item: SearchResult) {
         this.search_str = item.name;
         const query: any = {};
-        query[item.type || 'space'] = item.id;
+        const type = item.type === 'space' ? 'space' : item.type === 'feature' ? 'feature' : 'user';
+        query[type] = item.id;
         this._router.navigate([], { relativeTo: this._route, queryParams: query });
     }
 }
