@@ -32,6 +32,7 @@ import { BookingPanelSelectComponent } from './panel-select/panel-select.compone
 
 import * as Sentry from "@sentry/angular";
 
+
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
     MatInputModule,
