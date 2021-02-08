@@ -7,7 +7,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, filter, first, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, debounceTime, filter, first, shareReplay, switchMap } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
 import {
@@ -56,6 +56,7 @@ export class DashboardStateService extends BaseClass {
     public readonly search_results = this._options.pipe(
         debounceTime(500),
         switchMap(({ search }) => (search ? searchStaff(search) : of([]))),
+        catchError(_ => []),
         shareReplay(1)
     );
     /**  */
