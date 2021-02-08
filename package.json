@@ -59,7 +59,7 @@
         "@nrwl/jest": "11.0.4",
         "@nrwl/tao": "11.0.4",
         "@nrwl/workspace": "11.0.4",
-        "@placeos/ts-client": "^3.5.0",
+        "@placeos/ts-client": "^3.6.3",
         "@sentry/angular": "^5.27.4",
         "@sentry/tracing": "^5.27.4",
         "@tinymce/tinymce-angular": "^4.2.0",
