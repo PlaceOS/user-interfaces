@@ -46,7 +46,7 @@ export function log(
  */
 export function getItemWithKeys(keys: string[], map: HashMap) {
     const key = keys.shift();
-    if (map && map[key]) {
+    if (map && map[key] != null) {
         return keys.length > 0 ? getItemWithKeys(keys, map[key]) : map[key];
     }
     return null;
