@@ -106,6 +106,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 if (params.has('level')) {
                     this._state.setLevel(params.get('level'));
                 }
+                this._state.setFeatures('_located', []);
                 if (params.has('space')) {
                     const space = this._spaces.find(params.get('space'));
                     if (!space) return;
