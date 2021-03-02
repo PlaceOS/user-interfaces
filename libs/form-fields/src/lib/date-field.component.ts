@@ -1,8 +1,42 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    forwardRef,
+    Input,
+    Injectable,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import {
+    DateAdapter,
+    MatDateFormats,
+    MAT_DATE_FORMATS,
+    NativeDateAdapter,
+} from '@angular/material/core';
 import { BaseClass } from '@user-interfaces/common';
+import { format } from 'date-fns';
 
 import * as dayjs from 'dayjs';
+
+@Injectable()
+class FieldDateAdapter extends NativeDateAdapter {
+    format(date: Date, displayFormat: Object): string {
+        if (displayFormat === 'input') {
+            return format(date, 'MMMM d, yyyy');
+        }
+        return format(date, 'MMM yyyy');
+    }
+}
+const FIELD_DATE_FORMATS: MatDateFormats = {
+    parse: {
+        dateInput: 'LL',
+    },
+    display: {
+        dateInput: 'input',
+        monthYearLabel: 'MMM YYYY',
+        dateA11yLabel: 'LL',
+        monthYearA11yLabel: 'MMMM YYYY',
+    },
+};
 
 @Component({
     selector: 'a-date-field',
@@ -32,6 +66,8 @@ import * as dayjs from 'dayjs';
         `,
     ],
     providers: [
+        { provide: DateAdapter, useClass: FieldDateAdapter },
+        { provide: MAT_DATE_FORMATS, useValue: FIELD_DATE_FORMATS },
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => DateFieldComponent),
