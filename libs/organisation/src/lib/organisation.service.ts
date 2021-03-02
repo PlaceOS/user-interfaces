@@ -6,6 +6,7 @@ import {
     updateMetadata,
     listChildMetadata,
     authority,
+    isMock,
 } from '@placeos/ts-client';
 import { first, map } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -156,7 +157,8 @@ export class OrganisationService {
             .pipe(map((i) => i.data))
             .toPromise();
         if (org_list.length) {
-            const org = org_list.find(list => list.id === authority().config?.org_zone) || org_list[0];
+            const auth = authority();
+            const org = org_list.find(list => isMock() || list.id === auth?.config?.org_zone) || org_list[0];
             const bindings = (await showMetadata(org.id, { name: 'bindings' }).toPromise())?.details;
             this._organisation = new Organisation({ ...org_list[0], bindings } as any);
         } else {
