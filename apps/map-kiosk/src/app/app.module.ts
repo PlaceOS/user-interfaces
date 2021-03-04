@@ -8,18 +8,31 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { UnauthorisedComponent } from '@user-interfaces/components';
+import { ComponentsModule, UnauthorisedComponent } from '@user-interfaces/components';
+import { SharedExploreModule } from '@user-interfaces/explore';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
+import { BootstrapComponent } from './bootstrap.component';
+import { ExploreComponent } from './explore.component';
 
 import '@user-interfaces/mocks';
 
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
+import { ExploreLevelSelectComponent } from './explore-level-select.component';
+import { ExploreMapStackComponent } from './explore-map-stack.component';
+import { MatRippleModule } from '@angular/material/core';
 
 @NgModule({
-    declarations: [AppComponent, UnauthorisedComponent],
+    declarations: [
+        AppComponent,
+        UnauthorisedComponent,
+        BootstrapComponent,
+        ExploreComponent,
+        ExploreLevelSelectComponent,
+        ExploreMapStackComponent
+    ],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
@@ -27,7 +40,12 @@ import * as Sentry from "@sentry/angular";
         MatSnackBarModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        MatRippleModule,
+        ComponentsModule,
+        SharedExploreModule,
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
     ],
     providers: [
         {

@@ -27,7 +27,6 @@ import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { TopbarHeaderComponent } from './topbar-header.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
-import { SearchbarComponent } from './searchbar/searchbar.component';
 
 import { UserFormComponent } from './forms/user-form/user-form.component';
 import { BookingFormComponent } from './forms/booking-form/booking-form.component';
@@ -39,7 +38,6 @@ import { ComponentsModule } from '@user-interfaces/components';
 const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
     FooterMenuComponent,
-    SearchbarComponent,
 
     UserFormComponent,
     BookingFormComponent,

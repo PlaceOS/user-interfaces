@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@user-interfaces/common';
 
 @Component({
-    selector: 'app-catering',
+    selector: '[app-catering]',
     template: `
         <sidebar></sidebar>
         <main class="relative w-full flex flex-col">
@@ -62,6 +62,7 @@ import { BaseClass } from '@user-interfaces/common';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
 
             a {

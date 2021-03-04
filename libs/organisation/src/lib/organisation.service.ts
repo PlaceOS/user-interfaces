@@ -6,6 +6,7 @@ import {
     updateMetadata,
     listChildMetadata,
     authority,
+    isMock,
 } from '@placeos/ts-client';
 import { first, map } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -15,6 +16,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Desk } from './desk.class';
 import { HashMap, notifyError, RoomConfiguration, SettingsService } from '@user-interfaces/common';
+import { Router } from '@angular/router';
 
 @Injectable({
     providedIn: 'root',
@@ -96,7 +98,7 @@ export class OrganisationService {
         return this.levels_subject.getValue();
     }
 
-    constructor(private _service: SettingsService) {
+    constructor(private _service: SettingsService, private _router: Router) {
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
@@ -112,7 +114,7 @@ export class OrganisationService {
      * @param id_list List of IDs to find a match
      */
     public levelWithID(id_list: string[]): BuildingLevel {
-        return this.levels.find((lvl) => id_list.includes(lvl.id));
+        return this.levels.find((lvl) => id_list?.includes(lvl.id));
     }
 
     /**
@@ -155,9 +157,12 @@ export class OrganisationService {
             .pipe(map((i) => i.data))
             .toPromise();
         if (org_list.length) {
-            const org = org_list.find(list => list.id === authority().config?.org_zone) || org_list[0];
+            const auth = authority();
+            const org = org_list.find(list => isMock() || list.id === auth?.config?.org_zone) || org_list[0];
             const bindings = (await showMetadata(org.id, { name: 'bindings' }).toPromise())?.details;
             this._organisation = new Organisation({ ...org_list[0], bindings } as any);
+        } else {
+            this._router.navigate(['/misconfigured']);
         }
     }
 
@@ -171,6 +176,9 @@ export class OrganisationService {
         } as any)
             .pipe(map((i) => i.data))
             .toPromise();
+        if (!building_list?.length) {
+            this._router.navigate(['/misconfigured']);
+        }
         const buildings = []
         for (const bld of building_list) {
             const bindings = (await showMetadata(bld.id, { name: 'bindings' }).toPromise())?.details;
@@ -193,6 +201,9 @@ export class OrganisationService {
         const level_list = await queryZones({ tags: 'level', limit: 2500 } as any)
             .pipe(map((i) => i.data))
             .toPromise();
+        if (!level_list?.length) {
+            this._router.navigate(['/misconfigured']);
+        }
         const levels = level_list.map((lvl) => new BuildingLevel(lvl));
         levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         this.levels_subject.next(levels);

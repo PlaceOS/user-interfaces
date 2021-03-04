@@ -8,6 +8,7 @@ import { SharedContentModule } from '../ui/shared.module';
 import { SharedExploreModule } from '@user-interfaces/explore';
 import { SharedUsersModule } from '@user-interfaces/users';
 
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { QrReaderComponent } from './qr-reader.component';
 
 import { SpaceFlowComponent } from './space-flow/space-flow.component';
@@ -17,10 +18,13 @@ import { SpaceFlowConfirmComponent } from './space-flow/space-flow-confirm.compo
 
 import { DeskFlowComponent } from './desk-flow/desk-flow.component';
 import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
-import { DeskFlowConfirmModalComponent } from './desk-flow/desk-flow-confirm-modal.component';
-import { DeskFlowQuestionsModalComponent } from './desk-flow/desk-flow-questions-modal.component';
+import { DeskFlowCheckinComponent } from './desk-flow/desk-flow-checkin.component';
+import { DeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
+
+import { BookingSuccessComponent } from './booking-success.component';
 
 const ROUTES: Route[] = [
+    { path: 'desk', component: DeskFlowCheckinComponent },
     { path: ':flow', component: BookingsComponent },
     { path: ':flow/:step', component: BookingsComponent },
     { path: '', redirectTo: 'spaces' },
@@ -29,11 +33,12 @@ const ROUTES: Route[] = [
 @NgModule({
     declarations: [
         BookingsComponent,
+        BookingSuccessComponent,
 
         DeskFlowComponent,
         DeskFlowListingComponent,
-        DeskFlowConfirmModalComponent,
-        DeskFlowQuestionsModalComponent,
+        DeskFlowCheckinComponent,
+        DeskFlowFormComponent,
 
         SpaceFlowComponent,
         SpaceFlowFormComponent,
@@ -49,8 +54,9 @@ const ROUTES: Route[] = [
         ReactiveFormsModule,
         SharedContentModule,
         SharedUsersModule,
-        SharedExploreModule
-    ],
+        SharedExploreModule,
+        MatButtonToggleModule
+    ]
 })
 export class BookingsModule {
 

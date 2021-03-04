@@ -21,7 +21,7 @@ import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
-import { BootstrapComponent } from './bootstrap/bootstrap.component';
+import { BootstrapComponent } from './bootstrap.component';
 import { BookingPanelComponent } from './panel/panel.component';
 import { PanelTimelineComponent } from './panel/timeline/timeline.component';
 import { PanelSpaceDetailsComponent } from './panel/space-details/space-details.component';
@@ -31,6 +31,7 @@ import { BookingPanelArrayComponent } from './panel-array/panel-array.component'
 import { BookingPanelSelectComponent } from './panel-select/panel-select.component';
 
 import * as Sentry from "@sentry/angular";
+
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,

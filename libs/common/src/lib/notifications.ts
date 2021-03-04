@@ -1,6 +1,4 @@
-import { MatSnackBar } from '@angular/material/snack-bar';
-
-import { ApplicationIcon } from './types';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 let _service: MatSnackBar;
 
@@ -14,18 +12,14 @@ export function setNotifyOutlet(snackbar: MatSnackBar) {
  * @param message Message to display on the notificaiton
  * @param action Display text for the callback action
  * @param on_action Callback of action on the notification
- * @param icon Icon to render to the left of the notification message
+ * @param config Configuration details to pass to the snackbar
  */
 export function notify(
     type: string,
     message: string,
     action: string = 'OK',
     on_action?: () => void,
-    icon: ApplicationIcon = {
-        type: 'icon',
-        class: 'material-icons',
-        content: 'info',
-    }
+    config: Partial<MatSnackBarConfig> = {}
 ): void {
     if (!_service) {
         throw new Error("Snackbar service hasn't been initialised");
@@ -33,6 +27,7 @@ export function notify(
     const snackbar_ref = _service.open(message, action, {
         panelClass: [type],
         duration: 5000,
+        ...config,
     });
     if (action) {
         on_action = on_action || (() => snackbar_ref.dismiss());
@@ -45,15 +40,16 @@ export function notify(
  * @param msg Message to display on the notificaiton
  * @param action Display text for the callback action
  * @param on_action Callback of action on the notification
+ * @param config Configuration details to pass to the snackbar
  */
-export function notifySuccess(msg: string, action?: string, on_action?: () => void): void {
-    const icon: ApplicationIcon = {
-        type: 'icon',
-        class: 'material-icons',
-        content: 'done',
-    };
+export function notifySuccess(
+    msg: string,
+    action?: string,
+    on_action?: () => void,
+    config: Partial<MatSnackBarConfig> = {}
+): void {
     console.debug(msg);
-    notify('success', msg, action, on_action, icon);
+    notify('success', msg, action, on_action, config);
 }
 
 /**
@@ -61,15 +57,16 @@ export function notifySuccess(msg: string, action?: string, on_action?: () => vo
  * @param msg Message to display on the notificaiton
  * @param action Display text for the callback action
  * @param on_action Callback of action on the notification
+ * @param config Configuration details to pass to the snackbar
  */
-export function notifyError(msg: string, action?: string, on_action?: () => void): void {
-    const icon: ApplicationIcon = {
-        type: 'icon',
-        class: 'material-icons',
-        content: 'error',
-    };
+export function notifyError(
+    msg: string,
+    action?: string,
+    on_action?: () => void,
+    config: Partial<MatSnackBarConfig> = {}
+): void {
     console.error(msg);
-    notify('error', msg, action, on_action, icon);
+    notify('error', msg, action, on_action, config);
 }
 
 /**
@@ -77,15 +74,16 @@ export function notifyError(msg: string, action?: string, on_action?: () => void
  * @param msg Message to display on the notificaiton
  * @param action Display text for the callback action
  * @param on_action Callback of action on the notification
+ * @param config Configuration details to pass to the snackbar
  */
-export function notifyWarn(msg: string, action?: string, on_action?: () => void): void {
-    const icon: ApplicationIcon = {
-        type: 'icon',
-        class: 'material-icons',
-        content: 'warning',
-    };
+export function notifyWarn(
+    msg: string,
+    action?: string,
+    on_action?: () => void,
+    config: Partial<MatSnackBarConfig> = {}
+): void {
     console.warn(msg);
-    notify('warn', msg, action, on_action, icon);
+    notify('warn', msg, action, on_action, config);
 }
 
 /**
@@ -93,8 +91,14 @@ export function notifyWarn(msg: string, action?: string, on_action?: () => void)
  * @param msg Message to display on the notificaiton
  * @param action Display text for the callback action
  * @param on_action Callback of action on the notification
+ * @param config Configuration details to pass to the snackbar
  */
-export function notifyInfo(msg: string, action?: string, on_action?: () => void): void {
+export function notifyInfo(
+    msg: string,
+    action?: string,
+    on_action?: () => void,
+    config: Partial<MatSnackBarConfig> = {}
+): void {
     console.info(msg);
-    notify('info', msg, action, on_action);
+    notify('info', msg, action, on_action, config);
 }

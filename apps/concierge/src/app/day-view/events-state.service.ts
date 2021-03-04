@@ -27,7 +27,8 @@ import {
 } from '@user-interfaces/common';
 import {
     CalendarEvent,
-    EventsService,
+    queryEvents,
+    removeEvent,
     replaceBookings,
 } from '@user-interfaces/events';
 import { SpacesService } from '@user-interfaces/spaces';
@@ -131,11 +132,7 @@ export class EventsStateService extends BaseClass {
         return this._filters.getValue();
     }
 
-    constructor(
-        private _events: EventsService,
-        private _spaces: SpacesService,
-        private _dialog: MatDialog
-    ) {
+    constructor(private _spaces: SpacesService, private _dialog: MatDialog) {
         super();
         /** Generate observable for updating bookings */
         const search = combineLatest([
@@ -153,7 +150,7 @@ export class EventsStateService extends BaseClass {
                 this._loading.next(true);
                 const start = startOfDay(new Date(this._date.getValue()));
                 const end = endOfDay(start);
-                return this._events.query({
+                return queryEvents({
                     zone_ids: fzones.join(','),
                     period_start: Math.floor(start.valueOf() / 1000),
                     period_end: Math.floor(end.valueOf() / 1000),
@@ -180,7 +177,7 @@ export class EventsStateService extends BaseClass {
                     new Date(props[2])
                 );
                 const end = (type === 'week' ? endOfWeek : endOfMonth)(start);
-                return this._events.query({
+                return queryEvents({
                     zone_ids: fzones.join(','),
                     period_start: Math.floor(start.valueOf() / 1000),
                     period_end: Math.floor(end.valueOf() / 1000),
@@ -324,7 +321,7 @@ export class EventsStateService extends BaseClass {
         ]);
         if (done) {
             ref.componentInstance.loading = 'Deleting booking...';
-            await this._events.delete(event.id, { system_id: event.system?.id });
+            await removeEvent(event.id, { system_id: event.system?.id });
             this.remove(event);
             ref.close();
         }

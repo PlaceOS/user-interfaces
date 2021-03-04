@@ -5,7 +5,7 @@ import {
     notifySuccess,
     unique,
 } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
+import { CalendarEvent, checkinEventGuest, queryEvents } from '@user-interfaces/events';
 import { User } from '@user-interfaces/users';
 import { endOfDay, endOfWeek, startOfDay, startOfWeek } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -40,7 +40,7 @@ export class VisitorsStateService extends BaseClass {
             const date = filters.date ? new Date(filters.date) : new Date();
             const start = (filters.show_week ? startOfWeek(date) : startOfDay(date)).valueOf();
             const end = (filters.show_week ? endOfWeek(date) : endOfDay(date)).valueOf();
-            return this._events.query({
+            return queryEvents({
                 period_start: Math.floor(start / 1000),
                 period_end: Math.floor(end / 1000),
                 zone_ids: (filters.zones || []).join(','),
@@ -76,7 +76,7 @@ export class VisitorsStateService extends BaseClass {
         return this._search.getValue();
     }
 
-    constructor(private _events: EventsService) {
+    constructor() {
         super();
     }
 
@@ -101,11 +101,9 @@ export class VisitorsStateService extends BaseClass {
     }
 
     public async checkGuestIn(event: CalendarEvent, user: User) {
-        const new_user = await this._events
-            .checkInGuest(event.id, user.id, {
+        const new_user = checkinEventGuest(event.id, user.id, true, {
                 system_id: event.system?.id || event.resources[0]?.id,
-                state: true,
-            })
+            }).toPromise()
             .catch((e) => {
                 notifyError(
                     `Error checking in ${user.name} for ${event.organiser.name}'s meeting`
@@ -126,11 +124,9 @@ export class VisitorsStateService extends BaseClass {
     }
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
-        const new_user = await this._events
-            .checkInGuest(event.id, user.id, {
-                system_id: event.system?.id || event.resources[0]?.id,
-                state: false,
-            })
+        const new_user = await checkinEventGuest(event.id, user.id, false, {
+                system_id: event.system?.id || event.resources[0]?.id
+            }).toPromise()
             .catch((e) => {
                 notifyError(
                     `Error checking out ${user.name} from ${event.organiser.name}'s meeting`
@@ -157,10 +153,8 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkin');
         const attendees = await Promise.all(
             guests.map((user) =>
-                this._events.checkInGuest(event.id, user.id, {
-                    system_id: event.system?.id || event.resources[0]?.id,
-                    state: true,
-                })
+                checkinEventGuest(event.id, user.id, true, {
+                    system_id: event.system?.id || event.resources[0]?.id }).toPromise()
             )
         ).catch((e) => {
             notifyError(
@@ -191,10 +185,9 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkout');
         const attendees = await Promise.all(
             guests.map((user) =>
-                this._events.checkInGuest(event.id, user.id, {
+                checkinEventGuest(event.id, user.id, false, {
                     system_id: event.system?.id || event.resources[0]?.id,
-                    state: false,
-                })
+                }).toPromise()
             )
         ).catch((e) => {
             notifyError(

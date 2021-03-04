@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { map } from 'rxjs/operators';
 
 import { DesksStateService } from './desks-state.service';
 
@@ -21,24 +22,25 @@ import { DesksStateService } from './desks-state.service';
                             ((bookings | async)?.length || 0)
                     }}
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="menu">
+                <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="(filters | async).zones?.length">
                     <app-icon className="material-icons">more_vert</app-icon>
                 </button>
             </div>
-            <div class="w-full flex-1 text-sm">
+            <div class="w-full flex flex-col flex-1 text-sm h-1/2">
                 <div
                     class="w-full flex items-center bg-white border-b border-gray-500 p-2 font-medium"
                 >
                     <div class="w-32 p-2">Person</div>
-                    <div class="w-32 p-2">LoS</div>
+                    <div class="w-32 p-2">Group</div>
                     <div class="w-24 p-2">Date</div>
                     <div flex class="p-2 flex-1">Desk</div>
                     <div class="w-24 p-2">Status</div>
                     <div class="w-32 p-2">Approver</div>
                     <div class="w-32 p-2">Checked In</div>
+                    <div class="w-24 p-2">Access</div>
                     <div class="w-32 p-2"></div>
                 </div>
-                <div class="w-full flex-1 overflow-auto">
+                <div class="w-full flex-1 overflow-auto h-1/2">
                     <ng-container
                         *ngIf="(bookings | async)?.length; else empty_state"
                     >
@@ -99,7 +101,7 @@ import { DesksStateService } from './desks-state.service';
 export class DeskListingsComponent {
     public readonly filters = this._state.filters;
 
-    public readonly desks = this._state.desks;
+    public readonly desks = this._state.desks.pipe(map(list => list.filter(i => i.bookable)));
 
     public readonly bookings = this._state.bookings;
 

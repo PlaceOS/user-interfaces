@@ -1,13 +1,23 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { updateMetadata } from '@placeos/ts-client';
 import { HashMap, notifyError } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
-import { GuestsService, GuestUser, generateGuestForm } from '@user-interfaces/users';
+import {
+    CalendarEvent,
+    checkinEventGuest,
+    showEvent,
+} from '@user-interfaces/events';
+import {
+    GuestUser,
+    generateGuestForm,
+    showGuest,
+    listGuestMeetings,
+} from '@user-interfaces/users';
 import { isSameDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class CheckinStateService {
     /** Current event being checked in */
@@ -26,8 +36,6 @@ export class CheckinStateService {
     public readonly error = this._error.asObservable();
     public readonly form = this._form.asObservable();
 
-    constructor(private _guests: GuestsService, private _events: EventsService) {}
-
     public clear() {
         this._guest.next(null);
         this._event.next(null);
@@ -44,17 +52,19 @@ export class CheckinStateService {
 
     /** Load gie */
     public async loadGuestAndEvent(email: string, event_id?: string) {
-        const guest = await this._guests.show(email);
+        const guest = await showGuest(email).toPromise();
         if (event_id) {
-            const event = await this._events.show(event_id);
+            const event = await showEvent(event_id).toPromise();
             this._guest.next(guest);
             this._event.next(event);
-            this._form.next(generateGuestForm(guest, event.host))
+            this._form.next(generateGuestForm(guest, event.host));
             return { guest, event };
         }
-        const upcoming = await this._guests.meetings(email);
+        const upcoming = await listGuestMeetings(email).toPromise();
         const today = new Date();
-        const todays_events = upcoming.filter(event => isSameDay(new Date(event.date), today));
+        const todays_events = upcoming.filter((event) =>
+            isSameDay(new Date(event.date), today)
+        );
         todays_events.sort((a, b) => a.date - b.date);
         if (todays_events.length <= 0) {
             throw new Error(`No meetings for with guest "${email}" today`);
@@ -69,23 +79,25 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const form = this._form.getValue();
         if (!guest || !form) return;
-        await this._guests.updateMetadata(guest.email, { ...guest, ...form.value, ...(data || {}) });
+        await updateMetadata(guest.email, {
+            name: 'preferences',
+            details: { ...guest, ...form.value, ...(data || {}) },
+        });
     }
 
     public async checkinGuest() {
         const guest = this._guest.getValue();
         const event = this._event.getValue();
         if (!guest || !event) return;
-        await this._events.checkInGuest(event.id, guest.email, {
+        await checkinEventGuest(event.id, guest.email, true, {
             system_id: event.system?.id || event.resources[0]?.id,
-            state: true
         });
     }
 
     public printPass() {
         try {
             // TODO: actually trigger print visitor pass
-            return new Promise((res) => setTimeout(() => res(), 5000));
+            return new Promise((res) => setTimeout(() => res(''), 5000));
         } catch (err) {
             notifyError('Error printing visitor pass');
         }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DesksService } from '@user-interfaces/bookings';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({
@@ -33,7 +34,10 @@ import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 export class ExploreComponent implements OnInit {
     public show_menu: boolean = false;
 
+    constructor(private _desks: DesksService) {}
+
     public ngOnInit() {
+        this._desks.error_on_host = false;
         clearEventFormState();
     }
 }

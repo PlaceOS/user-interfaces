@@ -1,44 +1,72 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Location } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { combineLatest } from 'rxjs';
-
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@user-interfaces/common';
-import { CalendarEvent, EventsService } from '@user-interfaces/events';
-import { Booking, BookingsService } from '@user-interfaces/bookings';
-import { ConfirmModalComponent } from '@user-interfaces/components';
-
+import { combineLatest } from 'rxjs';
+import { first } from 'rxjs/operators';
+import { ScheduleStateService } from '../schedule-state.service';
 
 @Component({
     selector: 'schedule-view-event',
-    templateUrl: './view-event.component.html',
-    styleUrls: ['./view-event.component.scss'],
+    template: `
+        <div class="w-full h-12 flex items-center bg-white shadow px-2">
+            <button mat-button class="clear" (click)="back()">
+                <div class="flex items-center">
+                    <app-icon class="mr-2">keyboard_backspace</app-icon>
+                    Back
+                </div>
+            </button>
+        </div>
+        <main class="flex-1 h-1/2 w-full overflow-auto">
+            <div *ngIf="(event | async) && !(loading | async); else load_state">
+                <ng-container [ngSwitch]="type">
+                    <schedule-booking-details *ngSwitchCase="'booking'">
+                    </schedule-booking-details>
+                    <schedule-event-details
+                        *ngSwitchDefault
+                        [event]="event | async"
+                    ></schedule-event-details>
+                </ng-container>
+            </div>
+        </main>
+        <ng-template #load_state>
+            <div
+                class="p-8 flex flex-col items-center justify-center h-full w-full"
+            >
+                <mat-spinner class="mb-4" [diameter]="48"></mat-spinner>
+                <p>{{ (loading | async) || 'Loading event details...' }}</p>
+            </div>
+        </ng-template>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 50%;
+                flex: 1;
+            }
+
+            main {
+                background: #f0f0f0;
+            }
+        `,
+    ],
 })
 export class ScheduleViewEventComponent extends BaseClass implements OnInit {
-    /** ID of the current booking to display */
-    public id: string;
-    /** Calendar the event belongs to */
-    public calendar: string;
-    /** Type of event to retrieve */
-    public type: string;
-    /** Booking to display */
-    public event: CalendarEvent | Booking;
-    /** Whether booking data is being loaded */
-    public loading: string;
-    /** Whether booking is being edited */
-    public editing: boolean;
-    /** Whether booking is being deleted */
-    public deleting: boolean;
-    /** Menu event */
-    @Output() public menu = new EventEmitter(false);
+    public readonly loading = this._state.loading;
+    public readonly event = this._state.active_item;
+
+    public readonly setOptions = (o) => this._state.setOptions(o);
+    public readonly setID = (id) => this._state.setItem(id);
+
+    public type: string = '';
 
     constructor(
-        private _bookings: BookingsService,
-        private _events: EventsService,
+        private _state: ScheduleStateService,
         private _router: Router,
         private _route: ActivatedRoute,
-        private _dialog: MatDialog,
         private _location: Location
     ) {
         super();
@@ -47,111 +75,33 @@ export class ScheduleViewEventComponent extends BaseClass implements OnInit {
     public ngOnInit(): void {
         this.subscription(
             'route.params',
-            combineLatest([this._route.paramMap, this._route.queryParamMap]).subscribe(
-                ([param, queryParam]) => {
-                    if (param.has('id')) {
-                        this.id = param.get('id');
-                    }
-                    if (queryParam.has('calendar')) {
-                        this.calendar = queryParam.get('calendar');
-                    }
-                    if (queryParam.has('type')) {
-                        this.type = queryParam.get('type');
-                    }
-                    if (this.id) {
-                        this.loadEvent();
-                    }
+            combineLatest([
+                this._route.paramMap,
+                this._route.queryParamMap,
+            ]).subscribe(([param, queryParam]) => {
+                if (param.has('id')) {
+                    this.setID(param.get('id'));
                 }
-            )
+                if (queryParam.has('type')) this.type = queryParam.get('type');
+                if (queryParam.has('calendar')) {
+                    this.setOptions({ calendar: queryParam.get('calendar') });
+                }
+            })
         );
+        this.timeout(
+            'check_event',
+            async () =>
+                this._router.navigate(['/schedule', 'listing'], {
+                    queryParamsHandling: 'preserve',
+                }),
+            3000
+        );
+        this._state.active_item
+            .pipe(first((_) => !!_))
+            .subscribe(() => this.clearTimeout('check_event'));
     }
 
     public back() {
-        if (this.editing) {
-            this.onChange({ type: 'cancel_edit' });
-        } else {
-            this._location.back();
-        }
-    }
-
-    /**
-     * Load the details of the active event
-     */
-    public async loadEvent() {
-        if (this.deleting) {
-            return;
-        }
-        this.loading = 'Loading booking data...';
-        let booking;
-        try {
-            switch (this.type) {
-                case 'booking':
-                    booking = await this._bookings.show(this.id);
-                    break;
-                default:
-                    booking = await this._events.show(this.id, { calendar: this.calendar });
-            }
-            this.loading = '';
-            this.event = booking;
-        } catch (err) {
-            this.loading = '';
-            // this._service.notifyError(`Failed to load booking data\nID: ${this.id}`);
-            this._router.navigate(['/schedule']);
-        }
-    }
-
-    /**
-     * Delete event
-     */
-    private async deleteEvent() {
-        if (this.event && !this.loading) {
-            this.loading = 'Cancelling meeting...';
-            const { id, title } = this.event;
-            this.deleting = true;
-            await this._events
-                .delete(id, { calendar: (this.event as CalendarEvent).calendar })
-                .catch(() => {
-                    // this._service.notifyError(`Failed to cancel booking \n ${title}`);
-                });
-            // this._service.notifySuccess(`Booking ${title} was successfully cancelled`);
-            this._router.navigate(['/schedule']);
-            this.event = null;
-            this.loading = '';
-            this.deleting = false;
-        }
-    }
-
-    private confirmDelete() {
-        const dialog_ref = this._dialog.open(ConfirmModalComponent, {
-            data: {
-                title: 'Cancel Meeting',
-                content: `Are you sure you want to cancel this meeting: ${this.event.title}`,
-                okText: `I'm sure`,
-                cancelText: 'No',
-            },
-        });
-        dialog_ref.afterClosed().subscribe((evt) => {
-            if (evt) {
-                this.deleteEvent();
-            }
-        });
-    }
-
-    /**
-     * Handle changes to sub-components
-     */
-    public onChange(event: { type: string }): void {
-        if (event.type === 'edit') {
-            if (localStorage) {
-                const booking = new CalendarEvent({ ...this.event as any });
-                localStorage.setItem('STAFF.booking_form', JSON.stringify(booking));
-            }
-            this._router.navigate(['/book', 'spaces']);
-        } else if (event.type === 'view' || event.type === 'cancel_edit') {
-            this.editing = false;
-        } else if (event.type === 'cancel_booking') {
-            this.editing = false;
-            this.confirmDelete();
-        }
+        this._location.back();
     }
 }

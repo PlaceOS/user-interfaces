@@ -14,8 +14,6 @@ import { DesksTopbarComponent } from './desks-topbar.component';
 import { DeskListModalComponent } from './desk-list-modal.component';
 import { DeskMapViewComponent } from './desk-map-view.component';
 import { SharedExploreModule } from '@user-interfaces/explore';
-import { DeskFlowConfirmModalComponent } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-confirm-modal.component';
-import { DeskFlowQuestionsModalComponent } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-questions-modal.component';
 
 const ROUTES: Route[] = [{ path: '', component: DesksComponent }];
 
@@ -27,8 +25,6 @@ const ROUTES: Route[] = [{ path: '', component: DesksComponent }];
         DesksTopbarComponent,
         DeskListModalComponent,
         DeskMapViewComponent,
-        DeskFlowConfirmModalComponent,
-        DeskFlowQuestionsModalComponent
     ],
     imports: [
         CommonModule,

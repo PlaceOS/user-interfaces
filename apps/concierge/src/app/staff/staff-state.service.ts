@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { StaffUser } from '@user-interfaces/users';
+import { searchStaff, StaffUser } from '@user-interfaces/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
-import { StaffService } from '@user-interfaces/users';
-import { Booking, BookingsService } from '@user-interfaces/bookings';
+import { Booking, checkinBooking, queryBookings, saveBooking } from '@user-interfaces/bookings';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
 import { BaseClass, timePeriodsIntersect } from '@user-interfaces/common';
@@ -57,11 +56,11 @@ export class StaffStateService extends BaseClass {
     public readonly user_events = combineLatest([this._filters]).pipe(
         switchMap(async (_) => {
             this._loading.next(true);
-            const bookings = await this._bookings.query({
+            const bookings = await queryBookings({
                 period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
                 period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
                 type: 'staff',
-            });
+            }).toPromise();
             const checkin_map = {};
             const now = new Date().valueOf();
             for (const bkn of bookings) {
@@ -85,8 +84,6 @@ export class StaffStateService extends BaseClass {
     );
 
     constructor(
-        private _staff: StaffService,
-        private _bookings: BookingsService,
         private _org: OrganisationService
     ) {
         super();
@@ -111,7 +108,7 @@ export class StaffStateService extends BaseClass {
     }
 
     public async checkin(user: StaffUser) {
-        const result = await this._bookings.save({
+        const result = await saveBooking({
             booking_start: Math.floor(
                 new Date().valueOf() / 1000
             ),
@@ -121,8 +118,8 @@ export class StaffStateService extends BaseClass {
             description: this._org.building.display_name || this._org.building.name,
             zones: [this._org.building.id],
             booking_type: 'staff',
-        });
-        await this._bookings.checkIn(result, true);
+        } as any).toPromise();
+        await checkinBooking(result.id, true);
         this._events[user.email] = result;
         this._onsite[user.email] = true;
     }
@@ -130,18 +127,18 @@ export class StaffStateService extends BaseClass {
     public async checkout(user: StaffUser) {
         const event = this._events[user.email];
         if (event) {
-            const result = await this._bookings.update(event.id, {
+            const result = await saveBooking({
                 ...event.toJSON(),
                 booking_end: Math.floor(new Date().valueOf() / 1000),
-            });
-            await this._bookings.checkIn(result, false);
+            } as any).toPromise();
+            await checkinBooking(result.id, false).toPromise();
             this._events[user.email] = result;
             this._onsite[user.email] = false;
         }
     }
 
     private async loadUsers() {
-        const user_list = await this._staff.query();
+        const user_list = await searchStaff('').toPromise();
         user_list.sort((a, b) => a.name.localeCompare(b.name));
         this._users.next(user_list);
     }

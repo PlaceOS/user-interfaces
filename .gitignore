@@ -38,3 +38,4 @@ testem.log
 .DS_Store
 Thumbs.db
 libs/common/src/lib/version.ts
+.vscode/settings.json

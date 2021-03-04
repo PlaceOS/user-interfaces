@@ -135,6 +135,7 @@ export const CAPACITY_OPTIONS = [
                         <label for="date" class="w-full">Attendees</label>
                         <a-user-list-field
                             formControlName="attendees"
+                            [guests]="true"
                             class="flex-1"
                             (new_user)="newAttendee()"
                         ></a-user-list-field>

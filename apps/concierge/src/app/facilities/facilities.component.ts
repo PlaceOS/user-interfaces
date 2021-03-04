@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'app-facilities',
+    selector: '[app-facilities]',
     template: `
         <sidebar></sidebar>
         <main class="relative">
@@ -18,6 +18,7 @@ import { Component } from '@angular/core';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                background: var(--bg);
             }
 
             sidebar {

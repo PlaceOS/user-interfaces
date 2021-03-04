@@ -1,10 +1,12 @@
 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { HashMap, predictableRandomInt, unique } from '@user-interfaces/common';
+import { predictableRandomInt, unique } from '../../../common/src/lib/general';
 
 import { GuestUser, User } from './user.class';
 
 let USER_COUNT = 0;
+
+type HashMap<T = any> = Record<string, T>;
 
 export let USER_DOMAIN = 'acaprojects.com';
 

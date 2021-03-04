@@ -65,9 +65,9 @@ Commits to the branch `master` will produce a production build that is commited 
 There are 7 available frontends for this client
 
 -   [`bookings`](./apps/booking-panel/README.md) | Booking Panel user interface
--   [`catering`](./projects/caterers-ui/README.md) | Interface for external caterers
--   [`concierge`](./projects/concierge/README.md) | Concierge / Front of House application
--   [`control`](./projects/control/README.md) | AV/Room Control application
--   [`kiosk`](./projects/map-kiosk/README.md) | Internal building location kiosk UI
--   [`visitors`](./projects/visitor-kiosk/README.md) | Internal building location kiosk UI
--   [`workplace`](./projects/workplace/README.md) | Staff Application
+-   [`catering`](./apps/caterers-ui/README.md) | Interface for external caterers
+-   [`concierge`](./apps/concierge/README.md) | Concierge / Front of House application
+-   [`control`](./apps/control/README.md) | AV/Room Control application
+-   [`kiosk`](./apps/map-kiosk/README.md) | Internal building location kiosk UI
+-   [`visitors`](./apps/visitor-kiosk/README.md) | Internal building location kiosk UI
+-   [`workplace`](./apps/workplace/README.md) | Staff Application

@@ -10,8 +10,8 @@ import {
 } from '@user-interfaces/common';
 import {
     CalendarEvent,
-    EventsService,
     generateEventForm,
+    saveEvent,
 } from '@user-interfaces/events';
 
 export interface BookingModalData {
@@ -62,7 +62,6 @@ export class BookingModalComponent implements OnInit {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
         private _calendar: CalendarService,
-        private _event: EventsService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>
     ) {}
 
@@ -75,8 +74,13 @@ export class BookingModalComponent implements OnInit {
 
     public async save() {
         this.form.markAllAsTouched();
-        if (this.form.controls.organiser.value && !this.form.controls.host.value) {
-            this.form.controls.host.setValue(this.form.controls.organiser.value.email);
+        if (
+            this.form.controls.organiser.value &&
+            !this.form.controls.host.value
+        ) {
+            this.form.controls.host.setValue(
+                this.form.controls.organiser.value.email
+            );
         }
         if (!this.form.valid || !this.form.value.resources?.length) {
             const list = [];
@@ -99,6 +103,7 @@ export class BookingModalComponent implements OnInit {
                     value.duration * 60,
                 system_ids: value.resources.map((space) => space.id).join(','),
             })
+            .toPromise()
             .catch((_) => []);
         if (spaces.length < value.resources.length) {
             this.loading = '';
@@ -108,8 +113,10 @@ export class BookingModalComponent implements OnInit {
         }
         this.loading = 'Creating calendar event...';
         value.system = value.resources[0];
-        const booking = await this._event
-            .save(new CalendarEvent(value).toJSON(), { calendar: value.calendar })
+        const booking = await saveEvent(new CalendarEvent(value).toJSON(), {
+            calendar: value.calendar,
+        })
+            .toPromise()
             .catch((_) => null);
         this.loading = '';
         if (!booking) {

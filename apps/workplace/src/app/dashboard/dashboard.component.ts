@@ -42,6 +42,7 @@ import { format } from 'date-fns';
 
         main {
             min-height: 50%;
+            background: #f0f0f0;
         }
 
         .top {

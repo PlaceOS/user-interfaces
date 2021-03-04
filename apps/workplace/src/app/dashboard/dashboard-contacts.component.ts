@@ -58,7 +58,7 @@ import { DashboardStateService } from './dashboard-state.service';
                     placeholder="Search for user..."
                 />
             </div>
-            <button mat-menu-item *ngIf="!(search_results | async).length">
+            <button mat-menu-item *ngIf="!(search_results | async)?.length">
                 {{ !search_str ? 'Type to search for users...' : 'No matches for "' + search_str + '"'}}
             </button>
             <button mat-menu-item *ngFor="let user of search_results | async | slice:0:8" (click)="addUser(user)">
@@ -123,13 +123,13 @@ import { DashboardStateService } from './dashboard-state.service';
 export class DashboardContactsComponent extends BaseClass {
     public readonly contacts = this._state.contacts;
 
-    public readonly search_results = this._state.contacts_search;
+    public readonly search_results = this._state.search_results;
 
     public readonly addUser = (u) => this._state.addContact(u);
 
     public readonly removeUser = (u) => this._state.removeContact(u);
 
-    public readonly updateSearch = (s) => this._state.updateContactSearch(s);
+    public readonly updateSearch = (s) => this._state.setOptions({ search: s });
 
     public search_str: string = '';
 
@@ -153,6 +153,6 @@ export class DashboardContactsComponent extends BaseClass {
 
     public clearInput() {
         this.search_str = '';
-        this._state.clearContactSearch();
+        this._state.setOptions({ search: '' });
     }
 }

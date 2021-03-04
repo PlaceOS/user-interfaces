@@ -1,16 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { Booking } from '@user-interfaces/bookings';
 import { DesksStateService } from './desks-state.service';
-
-export interface DeskBooking extends Booking {
-    los: string;
-}
-
 @Component({
     selector: 'desk-details',
     template: `
         <div class="w-32 p-2 bg">{{ desk?.user_name }}</div>
-        <div class="w-32 p-2">{{ desk?.los }}</div>
+        <div class="w-32 p-2">{{ desk?.extension_data?.group }}</div>
         <div class="w-24 p-2">{{ desk.date | date: 'shortTime' }}</div>
         <div flex class="p-2 flex-1 truncate">{{ desk?.description }}</div>
         <div [class]="'w-24 p-2 capitalize text-red-600 ' + desk?.status">
@@ -71,7 +66,7 @@ export interface DeskBooking extends Booking {
     ],
 })
 export class DeskDetailsComponent {
-    @Input() public desk: DeskBooking;
+    @Input() public desk: Booking;
 
     public loading: string;
 

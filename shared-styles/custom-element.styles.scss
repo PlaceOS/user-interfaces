@@ -298,11 +298,45 @@ mat-select {
     }
 }
 
+mat-form-field {
+    &.mat-form-field-appearance-outline.mat-focused {
+        .mat-form-field-outline-thick {
+            color: var(--primary);
+        }
+    }
+}
+
+
+[hide-outline] {
+    mat-form-field {
+
+        .mat-form-field-outline > * {
+            border-color: rgba(0, 0, 0, 0);
+        }
+        &:hover .mat-form-field-outline > *,
+        &.mat-focused .mat-form-field-outline > * {
+            border-color: inherit;
+        }
+    }
+}
+
+[no-wrapper] {
+    mat-form-field {
+        .mat-form-field-wrapper {
+            padding: 0;
+            margin: 0;
+        }
+    }
+}
+
+.mat-button-toggle-button[aria-pressed="true"] {
+    background-color: var(--primary);
+    color: var(--font-light);
+}
+
 .mat-chip.mat-standard-chip {
     &.mat-primary {
-        background-color: #fff;
         color: var(--primary);
-        border-radius: 0;
     }
     &.mat-accent {
         background-color: var(--pending);
@@ -407,9 +441,10 @@ form {
     }
 }
 
-mat-datepicker-toggle {
+#placeos .mat-datepicker-toggle {
     button {
         position: relative;
+        margin-top: -1rem;
         top: .25rem;
     }
 }

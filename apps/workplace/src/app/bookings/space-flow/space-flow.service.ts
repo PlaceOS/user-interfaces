@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { first, switchMap } from 'rxjs/operators';
+import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { addMinutes, roundToNearestMinutes, isAfter, endOfDay } from 'date-fns';
 
-import { BaseClass, notifyError, unique } from '@user-interfaces/common';
+import { BaseClass, currentUser, notifyError, unique } from '@user-interfaces/common';
 import {
     CalendarEvent,
-    EventsService,
     generateEventForm,
+    saveEvent,
 } from '@user-interfaces/events';
 import { CalendarService } from '@user-interfaces/calendar';
 import { OrganisationService } from '@user-interfaces/organisation';
-import { NewUserModalComponent, StaffService } from '@user-interfaces/users';
+import { NewUserModalComponent } from '@user-interfaces/users';
 import { MatDialog } from '@angular/material/dialog';
 
 export interface EventFormFilters {
@@ -54,6 +54,7 @@ export class SpaceFlowService extends BaseClass {
         switchMap((filters) => {
             this._loading_spaces.next(true);
             const form = this._form.getValue().value;
+            if (!form.date) form.date = new Date().valueOf();
             const period_start = Math.floor(
                 new Date(form.date).valueOf() / 1000
             );
@@ -65,11 +66,11 @@ export class SpaceFlowService extends BaseClass {
                 ? filters.zones
                 : [this._org.building?.id];
             return this._calendar
-                .availability({
+                .freeBusy({
                     zone_ids: zones.join(','),
                     period_start,
                     period_end,
-                })
+                }).toPromise()
                 .then((list) => {
                     this._loading_spaces.next(false);
                     return list.filter(
@@ -78,7 +79,8 @@ export class SpaceFlowService extends BaseClass {
                             filters.capacity >= space.capacity
                     );
                 });
-        })
+        }),
+        shareReplay()
     );
 
     public get is_future_date() {
@@ -89,10 +91,8 @@ export class SpaceFlowService extends BaseClass {
     public readonly clearState = () => clearEventFormState();
 
     constructor(
-        private _events: EventsService,
         private _calendar: CalendarService,
         private _org: OrganisationService,
-        private _staff: StaffService,
         private _dialog: MatDialog
     ) {
         super();
@@ -172,7 +172,6 @@ export class SpaceFlowService extends BaseClass {
         if (event_data) {
             this._event.next(new CalendarEvent(JSON.parse(event_data)));
         }
-        console.log('Event:', this._event.getValue());
         const form_data = sessionStorage.getItem('PLACEOS.event_form');
         if (form_data) {
             const form = generateEventForm(this._event.getValue());
@@ -191,12 +190,12 @@ export class SpaceFlowService extends BaseClass {
         form.markAllAsTouched();
         if (!form.controls.organiser.value || !form.controls.host.value)
             form.patchValue({
-                organiser: this._staff.current,
-                host: this._staff.current.email,
+                organiser: currentUser(),
+                host: currentUser().email,
             });
         if (!form.controls.title.value) {
             form.patchValue({
-                title: this._staff.current.email
+                title: currentUser().email
             });
         }
         if (!form.valid) {
@@ -214,10 +213,10 @@ export class SpaceFlowService extends BaseClass {
         }
         this._loading_event.next(true);
         const values = new CalendarEvent({
-            ...this._event.getValue().toJSON(),
+            ...this._event.getValue(),
             ...this._form.getValue().value,
         });
-        return this._events.save(values).then(
+        return saveEvent(values).toPromise().then(
             () => this._loading_event.next(false),
             () => this._loading_event.next(false)
         );

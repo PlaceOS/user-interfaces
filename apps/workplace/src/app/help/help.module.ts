@@ -4,7 +4,7 @@ import { RouterModule, Route } from '@angular/router';
 
 import { HelpComponent } from './help.component';
 import { SharedContentModule } from '../ui/shared.module';
-import { HelpOptionListComponent } from './option-list/option-list.component';
+import { HelpOptionListComponent } from './option-list.component';
 
 const ROUTES: Route[] = [
     { path: '', component: HelpComponent }

@@ -39,7 +39,7 @@
         <app-icon
             [icon]="{ type: 'icon', class: 'material-icons', content: 'perm_identity' }"
         ></app-icon>
-        <label>{{ event.organizer.name }}</label>
+        <label>{{ event.organiser.name }}</label>
     </div>
 
     <div class="when">
@@ -79,7 +79,7 @@
             <a href="{{ link }}" target="blank">{{ link }}</a>
         </label>
     </div>
-    <div *ngIf="event.catering_items_total > 0">
+    <div *ngIf="event.catering?.length > 0">
         <app-icon
             [icon]="{ type: 'icon', class: 'material-icons', content: 'room_service' }"
         ></app-icon>

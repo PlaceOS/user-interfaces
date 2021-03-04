@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { logout } from '@placeos/ts-client';
-import { ApplicationLink, BaseClass, SettingsService, VERSION } from '@user-interfaces/common';
-import { StaffService } from '@user-interfaces/users';
+import { ApplicationLink, BaseClass, currentUser, SettingsService, VERSION } from '@user-interfaces/common';
+
 import { format } from 'date-fns';
 
 import * as dayjs from 'dayjs';
@@ -41,7 +41,7 @@ export class OverlayMenuComponent extends BaseClass {
         return settings;
     }
 
-    constructor(private _staff: StaffService, private _settings: SettingsService) {
+    constructor(private _settings: SettingsService) {
         super();
     }
 
@@ -52,7 +52,7 @@ export class OverlayMenuComponent extends BaseClass {
 
     /** Current user */
     public get current() {
-        return this._staff.current;
+        return currentUser();
     }
 
     /** Show groups */

@@ -1,16 +1,26 @@
 import { Injectable } from '@angular/core';
-import { Point, ViewAction, ViewerFeature, ViewerLabel, ViewerStyles } from '@yuion/svg-viewer';
+import {
+    Point,
+    ViewAction,
+    ViewerFeature,
+    ViewerLabel,
+    ViewerStyles,
+} from '@yuion/svg-viewer';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { debounceTime, filter, first, map } from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
-import { BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
+import {
+    BuildingLevel,
+    OrganisationService,
+} from '@user-interfaces/organisation';
 import { SpacesService } from '@user-interfaces/spaces';
-
 
 export interface MapOptions {
     show_zones?: boolean;
     show_devices?: boolean;
+    show_contacts?: boolean;
+    show_levels?: boolean;
 }
 
 @Injectable({
@@ -38,39 +48,72 @@ export class ExploreStateService extends BaseClass {
     /** Currently active level */
     public readonly level = this._level.asObservable();
     /** Spaces associated with the active level */
-    public readonly spaces = combineLatest([this._level, this._spaces.list]).pipe(
-        map((details) => details[1].filter((space) => space.zones.includes(details[0].id)))
+    public readonly spaces = combineLatest([
+        this._level,
+        this._spaces.list,
+    ]).pipe(
+        map((details) =>
+            details[1].filter((space) => space.zones.includes(details[0].id))
+        )
     );
     /** Currently shown space's map URL */
-    public readonly map_url = this._level.pipe(map((lvl) => (lvl ? lvl.map_id : '') || ''));
+    public readonly map_url = this._level.pipe(
+        map((lvl) => (lvl ? lvl.map_id : '') || '')
+    );
     /** Currently center and zoom positions for map */
     public readonly map_positions = this._positions.asObservable();
     /** Currently center and zoom positions for map */
-    public readonly map_features = combineLatest([this._features, this._options]).pipe(map(details => {
-        const [features, options] = details;
-        let list = [];
-        for (const key in features) {
-            if (key !== 'devices' || (options.show_zones && this._settings.get('app.explore.display_devices') !== false)) {
-                list = list.concat(features[key]);
+    public readonly map_features = combineLatest([
+        this._features,
+        this._options,
+    ]).pipe(
+        debounceTime(500),
+        map((details) => {
+            const [features, options] = details;
+            let list = [];
+            for (const key in features) {
+                switch (key) {
+                    case 'devices':
+                        options.show_zones && options.show_devices ? list = list.concat(features[key]) : '';
+                        break;
+                    case 'contacts':
+                        options.show_contacts ? list = list.concat(features[key]) : '';
+                        break;
+                    default:
+                        list = list.concat(features[key]);
+                }
             }
-        }
-        return list;
-    }));
+            return list;
+        })
+    );
     /** Currently center and zoom positions for map */
-    public readonly map_actions = this._actions.pipe(map(i => Object.values(i).reduce((list, a) => list.concat(a), [])));
+    public readonly map_actions = this._actions.pipe(
+        debounceTime(500),
+        map((i) => Object.values(i).reduce((list, a) => list.concat(a), []))
+    );
     /** Currently center and zoom positions for map */
-    public readonly map_labels = combineLatest([this._labels, this._options]).pipe(map(details => {
-        const [labels, options] = details;
-        let list = [];
-        for (const key in labels) {
-            if (key !== 'zones' || options.show_zones) {
-                list = list.concat(labels[key]);
+    public readonly map_labels = combineLatest([
+        this._labels,
+        this._options,
+    ]).pipe(
+        debounceTime(500),
+        map((details) => {
+            const [labels, options] = details;
+            let list = [];
+            for (const key in labels) {
+                if (key !== 'zones' || options.show_zones) {
+                    list = list.concat(labels[key]);
+                }
             }
-        }
-        return list;
-    }));
+            return list;
+        })
+    );
     /** Current map styles */
-    public readonly map_styles = combineLatest([this._styles, this._options]).pipe(
+    public readonly map_styles = combineLatest([
+        this._styles,
+        this._options,
+    ]).pipe(
+        debounceTime(500),
         map((details) => {
             const [styles, options] = details;
             const style_mappings = Object.keys(styles).reduce(
@@ -92,19 +135,35 @@ export class ExploreStateService extends BaseClass {
         return this._positions.getValue();
     }
 
-    constructor(private _org: OrganisationService, private _spaces: SpacesService, private _settings: SettingsService) {
+    public get active_level() {
+        return this._level.getValue();
+    }
+
+    constructor(
+        private _org: OrganisationService,
+        private _spaces: SpacesService,
+        private _settings: SettingsService
+    ) {
         super();
         this._org.initialised.pipe(first((_) => _)).subscribe(() => {
             this.subscription(
                 'building',
-                this._org.active_building.pipe(filter((_) => !!_)).subscribe((bld) => {
-                    const level = this._level.getValue();
-                    const level_list = this._org.levelsForBuilding(bld);
-                    const has_level = level_list.find((lvl) => level?.id === lvl.id);
-                    if (!has_level && level_list.length) {
-                        this.setLevel(level_list[0].id);
-                    }
-                })
+                this._org.active_building
+                    .pipe(filter((_) => !!_))
+                    .subscribe((bld) => {
+                        const level = this._level.getValue();
+                        const level_list = this._org.levelsForBuilding(bld);
+                        const has_level = level_list.find(
+                            (lvl) => level?.id === lvl.id
+                        );
+                        if (!has_level && level_list.length) {
+                            this.setLevel(level_list[0].id);
+                        }
+                        this.setOptions({
+                            show_devices:
+                                this._settings.get('app.explore.display_devices') !== false,
+                        });
+                    })
             );
         });
     }

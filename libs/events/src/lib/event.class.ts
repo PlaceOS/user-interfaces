@@ -147,7 +147,7 @@ export class CalendarEvent {
     constructor(data: Partial<CalendarEvent> = {}) {
         this.id = data.id || '';
         this.calendar = data.calendar || '';
-        this.creator = (data.creator || _default_user.email).toLowerCase();
+        this.creator = (data.creator || _default_user.email)?.toLowerCase();
         this.host = (data.host || this.creator || '').toLowerCase();
         const attendees = data.attendees || [];
         this.attendees = attendees
@@ -270,7 +270,7 @@ export class CalendarEvent {
     public toJSON(): HashMap {
         const obj: HashMap = { ...this };
         const end = Math.floor(
-            add(new Date(this.date), { minutes: this.duration }).valueOf() /
+            addMinutes(new Date(this.date), this.duration).valueOf() /
                 1000
         );
         obj.event_start = Math.floor(this.date / 1000);

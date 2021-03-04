@@ -155,7 +155,8 @@
                         },
                         "jestConfig": "apps/workplace/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/workplace"]
                 }
             }
         },
@@ -210,7 +211,8 @@
                     "options": {
                         "jestConfig": "libs/common/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/common"]
                 }
             }
         },
@@ -235,7 +237,8 @@
                     "options": {
                         "jestConfig": "libs/bookings/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/bookings"]
                 }
             }
         },
@@ -260,7 +263,8 @@
                     "options": {
                         "jestConfig": "libs/calendar/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/calendar"]
                 }
             }
         },
@@ -285,7 +289,8 @@
                     "options": {
                         "jestConfig": "libs/catering/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/catering"]
                 }
             }
         },
@@ -310,7 +315,8 @@
                     "options": {
                         "jestConfig": "libs/events/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/events"]
                 }
             }
         },
@@ -335,7 +341,8 @@
                     "options": {
                         "jestConfig": "libs/explore/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/explore"]
                 }
             }
         },
@@ -360,7 +367,8 @@
                     "options": {
                         "jestConfig": "libs/mocks/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/mocks"]
                 }
             }
         },
@@ -388,7 +396,8 @@
                     "options": {
                         "jestConfig": "libs/organisation/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/organisation"]
                 }
             }
         },
@@ -413,7 +422,8 @@
                     "options": {
                         "jestConfig": "libs/spaces/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/spaces"]
                 }
             }
         },
@@ -438,7 +448,8 @@
                     "options": {
                         "jestConfig": "libs/users/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/users"]
                 }
             }
         },
@@ -466,7 +477,8 @@
                     "options": {
                         "jestConfig": "libs/components/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/libs/components"]
                 }
             },
             "schematics": {
@@ -630,7 +642,8 @@
                         },
                         "jestConfig": "apps/booking-panel/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/booking-panel"]
                 }
             }
         },
@@ -821,7 +834,8 @@
                         },
                         "jestConfig": "apps/concierge/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/concierge"]
                 }
             }
         },
@@ -1009,7 +1023,8 @@
                         },
                         "jestConfig": "apps/visitor-kiosk/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/visitor-kiosk"]
                 }
             }
         },
@@ -1197,7 +1212,8 @@
                         },
                         "jestConfig": "apps/control/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/control"]
                 }
             }
         },
@@ -1381,7 +1397,8 @@
                         },
                         "jestConfig": "apps/caterer-ui/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/caterer-ui"]
                 }
             }
         },
@@ -1570,7 +1587,8 @@
                         },
                         "jestConfig": "apps/map-kiosk/jest.config.js",
                         "passWithNoTests": true
-                    }
+                    },
+                    "outputs": ["coverage/apps/map-kiosk"]
                 }
             }
         },
@@ -1600,6 +1618,82 @@
                             "**/node_modules/**",
                             "!apps/map-kiosk-e2e/**/*"
                         ]
+                    }
+                }
+            }
+        },
+        "forms": {
+            "projectType": "library",
+            "root": "libs/forms",
+            "sourceRoot": "libs/forms/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/forms/tsconfig.lib.json",
+                            "libs/forms/tsconfig.spec.json"
+                        ],
+                        "exclude": ["**/node_modules/**", "!libs/forms/**/*"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/forms"],
+                    "options": {
+                        "jestConfig": "libs/forms/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "form-fields": {
+            "projectType": "library",
+            "root": "libs/form-fields",
+            "sourceRoot": "libs/form-fields/src",
+            "prefix": "user-interfaces",
+            "architect": {
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "libs/form-fields/tsconfig.lib.json",
+                            "libs/form-fields/tsconfig.spec.json"
+                        ],
+                        "exclude": [
+                            "**/node_modules/**",
+                            "!libs/form-fields/**/*"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/form-fields"],
+                    "options": {
+                        "jestConfig": "libs/form-fields/jest.config.js",
+                        "passWithNoTests": true
+                    }
+                }
+            }
+        },
+        "types": {
+            "root": "libs/types",
+            "sourceRoot": "libs/types/src",
+            "projectType": "library",
+            "architect": {
+                "lint": {
+                    "builder": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": ["libs/types/**/*.ts"]
+                    }
+                },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/types"],
+                    "options": {
+                        "jestConfig": "libs/types/jest.config.js",
+                        "passWithNoTests": true
                     }
                 }
             }
@@ -1649,6 +1743,9 @@
         },
         "@nrwl/angular:library": {
             "unitTestRunner": "jest"
+        },
+        "@nrwl/angular:component": {
+            "style": "css"
         }
     },
     "defaultProject": "workplace"

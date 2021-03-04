@@ -36,7 +36,10 @@ export interface DeskListModalData {
                 <div
                     class="flex items-center p-2 space-x-2 w-full border-b border-gray-300"
                 >
-                    <searchbar [model]="filter$ | async" (modelChange)="filter$.next($event)"></searchbar>
+                    <searchbar
+                        [model]="filter$ | async"
+                        (modelChange)="filter$.next($event)"
+                    ></searchbar>
                     <div class="flex-1 w-0"></div>
                     <button mat-button class="relative">
                         Upload List
@@ -56,8 +59,8 @@ export interface DeskListModalData {
                     >
                         <div class="w-40 p-1 flex-1" flex>ID</div>
                         <div class="w-32 p-1">Name</div>
-                        <div class="w-32 p-1">Safe</div>
-                        <div class="w-32 p-1">LoS</div>
+                        <div class="w-24 p-1">Bookable</div>
+                        <div class="w-52 p-1">Groups</div>
                     </div>
                     <div table class="flex-1 overflow-auto">
                         <div
@@ -68,16 +71,16 @@ export interface DeskListModalData {
                                 {{ desk.id }}
                             </div>
                             <div class="w-32 p-1">{{ desk.name }}</div>
-                            <div class="w-32 p-1">
+                            <div class="w-24 p-1">
                                 <mat-checkbox
                                     [(ngModel)]="desk.bookable"
                                 ></mat-checkbox>
                             </div>
-                            <div class="w-32">
-                                <input
-                                    class="border-none bg-none w-full p-1"
-                                    [(ngModel)]="desk.group"
-                                />
+                            <div class="w-52">
+                                <item-list-field
+                                    hide-outline no-wrapper
+                                    [(ngModel)]="desk.groups"
+                                ></item-list-field>
                             </div>
                         </div>
                     </div>
@@ -130,7 +133,10 @@ export class DeskListModalComponent {
         })
     );
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: DeskListModalData, private _dialog_ref: MatDialogRef<DeskListModalComponent>) {}
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: DeskListModalData,
+        private _dialog_ref: MatDialogRef<DeskListModalComponent>
+    ) {}
 
     /** Download Desks list */
     public download() {
@@ -166,14 +172,14 @@ export class DeskListModalComponent {
             name: 'desks',
             description: 'desks',
             details: this.desks$.getValue(),
-        }).toPromise().catch(e => {
-            this.loading = '';
-            notifyError(`Error saving desk data. Error: ${e.message || e}`);
-            throw e;
-        });
-        notifySuccess(
-            'Successfully updated desks'
-        );
+        })
+            .toPromise()
+            .catch((e) => {
+                this.loading = '';
+                notifyError(`Error saving desk data. Error: ${e.message || e}`);
+                throw e;
+            });
+        notifySuccess('Successfully updated desks');
         this.loading = '';
         this._dialog_ref.close();
     }
@@ -186,5 +192,4 @@ export class DeskListModalComponent {
             'Upload was sucessful. Click Save Button to save the changes'
         );
     }
-
 }

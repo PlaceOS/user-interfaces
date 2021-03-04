@@ -1,60 +1,51 @@
-import { NgModule, Type } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { APipesModule } from '@acaprojects/ngx-pipes';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { EditorModule } from '@tinymce/tinymce-angular';
-
-import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CommonModule } from '@angular/common';
+import { NgModule, Type } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatSelectModule } from '@angular/material/select';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
-
-import { APipesModule } from '@acaprojects/ngx-pipes';
-
-import { SharedSpacesModule } from '@user-interfaces/spaces';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
+import { EditorModule } from '@tinymce/tinymce-angular';
 import { SharedCateringModule } from '@user-interfaces/catering';
-import { SharedUsersModule } from '@user-interfaces/users';
-
-import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
-import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
-import { FooterMenuComponent } from './footer-menu/footer-menu.component';
-import { SearchbarComponent } from './searchbar/searchbar.component';
-import { EventTimelineComponent } from './event-timeline/event-timeline.component';
-import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
-
 import { ComponentsModule } from '@user-interfaces/components';
-import { BookingFormComponent } from './forms/booking-form/booking-form.component';
-
-import { MapControlsComponent } from './map-controls/map-controls.component';
-import { BookingFormModalComponent } from './forms/booking-form-modal/booking-form-modal-component';
-import { EventViewComponent } from '../schedule/view-event/event-view/event-view.component';
+import { SharedSpacesModule } from '@user-interfaces/spaces';
+import { SharedUsersModule } from '@user-interfaces/users';
+import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { EventTimelineComponent } from './event-timeline/event-timeline.component';
+import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
-
+import { BookingFormModalComponent } from './forms/booking-form-modal/booking-form-modal-component';
+import { BookingFormComponent } from './forms/booking-form/booking-form.component';
 import { InfiniteScrollComponent } from './infinite-scroll.component';
+import { MapControlsComponent } from './map-controls/map-controls.component';
+import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
+import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
+import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
+import { SharedBookingsModule } from '@user-interfaces/bookings';
 
 const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
     OverlayMenuComponent,
     FooterMenuComponent,
-    SearchbarComponent,
     BookingFormComponent,
     BookingFormModalComponent,
-    EventViewComponent,
     BookingEditComponent,
     MapControlsComponent,
     InfiniteScrollComponent,
@@ -95,6 +86,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         RouterModule,
         EditorModule,
         ComponentsModule,
+        FormFieldsModule,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,
     ],
@@ -102,9 +94,11 @@ const CDK_MODULES: any[] = [ScrollingModule];
         APipesModule,
         EditorModule,
         ComponentsModule,
+        FormFieldsModule,
         SharedSpacesModule,
         SharedCateringModule,
         SharedUsersModule,
+        SharedBookingsModule,
         ...COMPONENTS,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,

@@ -1,9 +1,15 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { BaseClass, notifyError, notifySuccess } from '@user-interfaces/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+    BaseClass,
+    currentUser,
+    current_user,
+    notifyError,
+    notifySuccess,
+} from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
-import { StaffService } from '@user-interfaces/users';
-import { first } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { debounceTime, first, map, shareReplay } from 'rxjs/operators';
 import { DeskFlowStateService } from './desk-flow-state.service';
 
 @Component({
@@ -12,53 +18,11 @@ import { DeskFlowStateService } from './desk-flow-state.service';
         <header>
             <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
         </header>
-        <main class="flex flex-1 flex-col relative" *ngIf="!checkin; else checkin_state">
-            <div class="w-full bg-gray-800 text-white p-4">
-                <div options class="m-auto">
-                    <h2 class="text-xl font-medium mb-4 text-center">
-                        Request a desk
-                    </h2>
-                    <div class="flex items-center space-x-2">
-                        <div class="flex flex-col flex-1 w-40">
-                            <label>Building</label>
-                            <mat-form-field overlay appearance="outline">
-                                <mat-select
-                                    placeholder="Select Building..."
-                                    [ngModel]="(options | async).zones[0]"
-                                    (ngModelChange)="
-                                        setOptions({ zones: [$event] })
-                                    "
-                                >
-                                    <mat-option
-                                        *ngFor="let bld of buildings | async"
-                                        [value]="bld.id"
-                                    >
-                                        {{ bld.display_name || bld.name }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-col flex-1 w-40">
-                            <label>Date</label>
-                            <a-date-field
-                                [ngModel]="(options | async).date"
-                                class="text-black"
-                                (ngModelChange)="setOptions({ date: $event })"
-                            ></a-date-field>
-                        </div>
-                    </div>
-                    <div class="flex flex-col">
-                        <label>Reason</label>
-                        <mat-form-field overlay appearance="outline">
-                            <input
-                                [(ngModel)]="reason"
-                                matInput
-                                placeholder="Reason for booking"
-                            />
-                        </mat-form-field>
-                    </div>
-                </div>
-            </div>
+        <main
+            class="flex flex-1 flex-col relative"
+            *ngIf="!checkin; else checkin_state"
+        >
+            <desk-flow-form></desk-flow-form>
             <div class="flex-1 overflow-auto w-full bg-gray-200 relative">
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <div
@@ -72,8 +36,16 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                             class="bg-white rounded shadow p-2 m-1"
                         >
                             <div>{{ desk.name }}</div>
-                            <div class="mb-2 text-sm">{{ desk.zone?.display_name || desk.zone?.name }}</div>
-                            <button mat-button class="w-full" (click)="bookDesk(desk)">Book</button>
+                            <div class="mb-2 text-sm">
+                                {{ desk.zone?.display_name || desk.zone?.name }}
+                            </div>
+                            <button
+                                mat-button
+                                class="w-full"
+                                (click)="bookDesk(desk)"
+                            >
+                                Book
+                            </button>
                         </div>
                     </div>
                 </ng-container>
@@ -99,11 +71,20 @@ import { DeskFlowStateService } from './desk-flow-state.service';
             </div>
         </ng-template>
         <ng-template #checkin_state>
-            <main class="flex-1 flex flex-col items-center justify-center w-full">
+            <main
+                class="flex-1 flex flex-col items-center justify-center w-full"
+            >
                 <mat-spinner class="mb-4" [diameter]="48"></mat-spinner>
                 <p>Checking in desk...</p>
             </main>
         </ng-template>
+        <ng-container *ngIf="success">
+            <booking-success
+                calendar="desks"
+                route="desks"
+                type="desk"
+            ></booking-success>
+        </ng-container>
     `,
     styles: [
         `
@@ -127,11 +108,6 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 max-width: 100vw;
             }
 
-            [options] {
-                width: 480px;
-                max-width: calc(100vw - 2rem);
-            }
-
             [desk] {
                 width: 240px;
                 max-width: calc(100vw - 1rem);
@@ -140,47 +116,75 @@ import { DeskFlowStateService } from './desk-flow-state.service';
     ],
 })
 export class DeskFlowListingComponent extends BaseClass {
-    /** Reason for making the booking */
-    public reason: string;
-
     public show_menu: boolean = false;
 
     public checkin: boolean;
 
-    public readonly buildings = this._org.building_list;
-
-    public readonly available = this._desks.desk_availability;
-
-    public readonly options = this._desks.options;
-
+    public success: boolean;
+    public readonly available = combineLatest([
+        this._desks.desk_availability,
+        this._desks.options,
+    ]).pipe(
+        debounceTime(50),
+        map(([desks, { attendees }]) => {
+            const count = attendees.length + 1;
+            const list = desks.sort((a, b) => a.zone?.name?.localeCompare(b.zone.name) || a.name?.localeCompare(b.name));
+            const groups = Math.floor(list.length / count);
+            const desk_list = [];
+            for (let i = 0; i < groups; i++) {
+                const items = list.splice(0, count);
+                desk_list.push({
+                    id: `group-${i}`,
+                    name: `${items
+                        .map((_) => _.name)
+                        .join(', ')}`,
+                    desks: items,
+                    zone: items[0].zone,
+                });
+            }
+            return desk_list;
+        }),
+        shareReplay(1)
+    );
     public readonly loading = this._desks.loading;
 
-    public readonly setOptions = (o) => this._desks.setOptions(o);
-
-    public readonly bookDesk = (d) => this._desks.bookDesk(d, this.reason);
+    public readonly bookDesk = async (d) => {
+        const success = await this._desks.bookDesk(d.desks, '');
+        if (!success) return;
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { success: 'true' },
+        });
+        this.success = true;
+    };
 
     constructor(
         private _desks: DeskFlowStateService,
         private _org: OrganisationService,
-        private _staff: StaffService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         super();
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first(_ => _)).toPromise();
-        await this._staff.initialised.pipe(first(_ => !!_)).toPromise();
-        this._desks.setHost(this._staff.current);
-        this.setOptions({ zones: [this._org.building.id] });
-        this.subscription('route.query', this._route.queryParamMap.subscribe(async (params) => {
-            if (params.has('checkin')) {
-                this.checkin = true;
-                const success = await this._desks.checkin(params.get('checkin'));
-                this.checkin = false;
-                if (!success) return notifyError('Error checking in desk.');
-                notifySuccess('Successfully checked in to desk');
-            }
-        }));
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await current_user.pipe(first((_) => !!_)).toPromise();
+        this._desks.setHost(currentUser());
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('checkin')) {
+                    this.checkin = true;
+                    const success = await this._desks.checkin(
+                        params.get('checkin')
+                    );
+                    this.checkin = false;
+                    if (!success) return notifyError('Error checking in desk.');
+                    notifySuccess('Successfully checked in to desk');
+                }
+                this.success = params.has('success');
+            })
+        );
     }
 }

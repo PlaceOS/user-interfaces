@@ -14,7 +14,7 @@ import {
 } from '@user-interfaces/components';
 
 import { SpaceStatus } from './booking-actions/booking-actions.component';
-import { openBookingModal } from '../overlays/booking-modal/booking-modal.component';
+import { openBookingModal } from '../overlays/booking-modal.component';
 
 export interface PanelSettings {
     /** Whether booking has a pending state */

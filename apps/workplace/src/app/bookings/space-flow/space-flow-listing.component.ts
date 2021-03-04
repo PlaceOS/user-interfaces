@@ -5,7 +5,7 @@ import { first } from 'rxjs/operators';
 import { OrganisationService } from '@user-interfaces/organisation';
 import { Space } from '@user-interfaces/spaces';
 
-import { ViewRoomModalComponent } from '../../overlays/view-room-modal/view-room-modal.component';
+import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component';
 import { SpaceFlowService } from './space-flow.service';
 import { CAPACITY_OPTIONS } from './space-flow-form.component';
 

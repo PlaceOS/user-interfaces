@@ -1,4 +1,3 @@
-
 import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -26,12 +25,13 @@ import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
 import { ComponentsModule } from '@user-interfaces/components';
+import { FormFieldsModule } from '@user-interfaces/form-fields';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
     DateOptionsComponent,
     SearchbarComponent,
-    ViewEventDetailsComponent
+    ViewEventDetailsComponent,
 ];
 
 const MAT_MODULES: any[] = [
@@ -52,14 +52,25 @@ const MAT_MODULES: any[] = [
     MatRippleModule,
 ];
 
-const ANGULAR_MODULES: any[] = [
-    FormsModule,
-    ReactiveFormsModule,
-]
+const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [CommonModule, ...ANGULAR_MODULES, ...MAT_MODULES, ComponentsModule, APipesModule, RouterModule.forChild([])],
-    exports: [...COMPONENTS, ...MAT_MODULES, ...ANGULAR_MODULES, ComponentsModule, APipesModule]
+    imports: [
+        CommonModule,
+        ...ANGULAR_MODULES,
+        ...MAT_MODULES,
+        ComponentsModule,
+        APipesModule,
+        RouterModule.forChild([]),
+    ],
+    exports: [
+        ...COMPONENTS,
+        ...MAT_MODULES,
+        ...ANGULAR_MODULES,
+        FormFieldsModule,
+        ComponentsModule,
+        APipesModule,
+    ],
 })
-export class UIModule { }
+export class UIModule {}
