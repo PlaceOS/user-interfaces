@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@user-interfaces/common';
 import { User } from '@user-interfaces/users';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
@@ -15,123 +15,33 @@ import { ReportsStateService } from '../reports-state.service';
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <div
-                table-head
-                class="flex items-center font-medium border-b border-gray-200"
-            >
-                <div
-                    class="flex-1 w-1/6 p-4 flex items-center"
-                    [class.active]="(sort$ | async)?.prop === 'name'"
-                    (click)="toggleSort('name')"
-                >
-                    Name
-                    <app-icon class="ml-2">{{
-                        (sort$ | async)?.desc ? 'south' : 'north'
-                    }}</app-icon>
-                </div>
-                <div
-                    class="w-28 p-4 flex items-center"
-                    [class.active]="(sort$ | async)?.prop === 'capacity'"
-                    (click)="toggleSort('capacity')"
-                >
-                    Capacity
-                    <app-icon class="ml-2">{{
-                        (sort$ | async)?.desc ? 'south' : 'north'
-                    }}</app-icon>
-                </div>
-                <div
-                    class="w-44 p-4 flex items-center"
-                    [class.active]="(sort$ | async)?.prop === 'count'"
-                    (click)="toggleSort('count')"
-                >
-                    Meeting Count
-                    <app-icon class="ml-2">{{
-                        (sort$ | async)?.desc ? 'south' : 'north'
-                    }}</app-icon>
-                </div>
-                <div
-                    class="w-44 p-4 flex items-center"
-                    [class.active]="(sort$ | async)?.prop === 'avg_attendees'"
-                    (click)="toggleSort('avg_attendees')"
-                >
-                    Avg. Attendees
-                    <app-icon class="ml-2">{{
-                        (sort$ | async)?.desc ? 'south' : 'north'
-                    }}</app-icon>
-                </div>
-                <div
-                    class="w-32 p-4 flex items-center"
-                    [class.active]="(sort$ | async)?.prop === 'occupancy'"
-                    (click)="toggleSort('occupancy')"
-                >
-                    Occupancy
-                    <app-icon class="ml-2">{{
-                        (sort$ | async)?.desc ? 'south' : 'north'
-                    }}</app-icon>
-                </div>
-            </div>
-            <div table-body>
-                <div
-                    table-row
-                    class="flex items-center border-b border-gray-200"
-                    *ngFor="
-                        let user of user_list
-                            | async
-                            | slice: page * 7:page * 7 + 7
-                    "
-                >
-                    <div class="flex-1 w-1/6 p-4 truncate">
-                        {{ user.name }}
-                    </div>
-                    <div class="w-28 p-4">{{ user.capacity }}</div>
-                    <div class="w-44 p-4">{{ user.count }}</div>
-                    <div class="w-44 p-4">{{ user.avg_attendees }}</div>
-                    <div class="w-32 p-4">
-                        {{ user.occupancy * 100 | toFixed }}%
-                    </div>
-                </div>
-            </div>
-            <div table-footer>
-                <mat-paginator
-                    [length]="(user_list | async)?.length || 0"
-                    [pageSize]="7"
-                    (page)="page = $event.pageIndex"
-                    [hidePageSize]="true"
-                >
-                </mat-paginator>
-            </div>
+            <custom-table
+                [dataSource]="user_list"
+                [pagination]="true"
+                [columns]="[
+                    'name',
+                    'capacity',
+                    'count',
+                    'avg_attendees',
+                    'occupancy'
+                ]"
+                [display_column]="[
+                    'Name',
+                    'Capacity',
+                    'Meeting Count',
+                    'Avg. Attendees',
+                    'Occupancy'
+                ]"
+                [column_size]="['flex']"
+            ></custom-table>
         </div>
     `,
-    styles: [
-        `
-            [table-head] > div app-icon {
-                display: none;
-            }
-            [table-head] > div:hover app-icon {
-                display: initial;
-                opacity: 0.5;
-            }
-            [table-head] > div.active app-icon {
-                display: initial;
-            }
-        `,
-    ],
+    styles: [``],
 })
 export class ReportSpacesUserListing {
-    /** Current page being display */
-    public page: number = 0;
-
-    public readonly sort$ = new BehaviorSubject<{
-        prop: string;
-        desc: boolean;
-    }>(null);
-
-    public readonly user_list = combineLatest([
-        this._reports.stats,
-        this.sort$,
-    ]).pipe(
+    public readonly user_list = combineLatest([this._reports.stats]).pipe(
         debounceTime(300),
-        map(([stats, sort]) => {
+        map(([stats]) => {
             let list = [];
             for (const booking of stats.events) {
                 const attendees: User[] = booking.attendees || [];
@@ -158,17 +68,6 @@ export class ReportSpacesUserListing {
                 space.avg_attendees = space.attendees / space.count;
                 space.occupancy = space.avg_attendees / space.capacity;
             }
-
-            if (sort?.prop) {
-                const { prop, desc } = sort;
-                list = list.sort((a, b) =>
-                    typeof a[prop] === 'string'
-                        ? a[prop].localeCompare(b[prop])
-                        : a[prop] - b[prop]
-                );
-                if (!desc) list = list.reverse();
-            }
-            this.page = 0;
             return list;
         }),
         shareReplay(1)
@@ -178,15 +77,6 @@ export class ReportSpacesUserListing {
         const data = await this.user_list.pipe(take(1)).toPromise();
         downloadFile('report-space-attendee-usage.csv', jsonToCsv(data));
     };
-
-    public toggleSort(prop: string) {
-        const sort = this.sort$.getValue();
-        this.sort$.next(
-            prop === sort?.prop && !sort.desc
-                ? ({} as any)
-                : { prop, desc: prop !== sort?.prop }
-        );
-    }
 
     constructor(private _reports: ReportsStateService) {}
 }

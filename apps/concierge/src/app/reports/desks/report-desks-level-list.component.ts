@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { Booking } from '@user-interfaces/bookings';
-import { downloadFile, jsonToCsv, timePeriodsIntersect } from '@user-interfaces/common';
+import { downloadFile, jsonToCsv } from '@user-interfaces/common';
 import { OrganisationService } from '@user-interfaces/organisation';
-import { addDays, differenceInDays, endOfDay, format, isBefore, startOfDay } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';
 
@@ -18,51 +17,18 @@ import { ReportsStateService } from '../reports-state.service';
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <div
-                table-head
-                class="flex items-center font-medium border-b border-gray-200"
-            >
-                <div class="w-1/3 p-4">Level</div>
-                <div class="w-1/6 p-4">Avg. Used Desks</div>
-                <div class="w-1/6 p-4">Approved Bookings</div>
-                <div class="w-1/6 p-4">Total Requests</div>
-                <div class="w-1/6 p-4">Utilisation</div>
-            </div>
-            <div table-body>
-                <div
-                    table-row
-                    class="flex items-center border-b border-gray-200"
-                    *ngFor="
-                        let lvl of level_list
-                            | async
-                            | slice: page * 7:page * 7 + 7
-                    "
-                >
-                    <div class="w-1/3 p-4">
-                        {{ lvl.name }}
-                    </div>
-                    <div class="w-1/6 p-4">
-                        {{ lvl.count || 0 }} / {{ lvl.total || 0 }}
-                    </div>
-                    <div class="w-1/6 p-4">{{ lvl.approved || 0 }}</div>
-                    <div class="w-1/6 p-4">{{ lvl.count || 0 }}</div>
-                    <div class="w-1/6 p-4">{{ lvl.utilisation }}%</div>
-                </div>
-            </div>
-            <div table-footer>
-                <mat-paginator
-                    [length]="(level_list | async)?.length || 0"
-                    [pageSize]="7"
-                    (page)="page = $event.pageIndex"
-                    [hidePageSize]="true"
-                >
-                </mat-paginator>
-            </div>
+            <custom-table
+                red-header
+                [dataSource]="level_list"
+                [pagination]="true"
+                [columns]="['name', 'avg_usage', 'approved', 'count', 'utilisation']"
+                [display_column]="['Level', 'Avg. Used Desks', 'Approved Bookings', 'Total Requests', 'Utilisation']"
+                [column_size]="['flex']"
+            ></custom-table>
         </div>
     `,
 })
 export class ReportDesksLevelListComponent {
-    public page: number = 0;
 
     public readonly level_list = combineLatest([
         this._state.options,
@@ -72,7 +38,6 @@ export class ReportDesksLevelListComponent {
         map(([options, stats, counts]) => {
             const { start, end, zones } = options;
             const duration = differenceInDays(end, start);
-            this.page = 0;
             const levels = [];
             console.log('Duration:', duration);
             for (const zone of zones) {
