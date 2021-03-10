@@ -52,8 +52,8 @@ export class ExploreStateService extends BaseClass {
         this._level,
         this._spaces.list,
     ]).pipe(
-        map((details) =>
-            details[1].filter((space) => space.zones.includes(details[0].id))
+        map(([level, spaces]) =>
+            spaces.filter((space) => space.zones.includes(level.id))
         )
     );
     /** Currently shown space's map URL */
@@ -74,10 +74,14 @@ export class ExploreStateService extends BaseClass {
             for (const key in features) {
                 switch (key) {
                     case 'devices':
-                        options.show_zones && options.show_devices ? list = list.concat(features[key]) : '';
+                        options.show_zones && options.show_devices
+                            ? (list = list.concat(features[key]))
+                            : '';
                         break;
                     case 'contacts':
-                        options.show_contacts ? list = list.concat(features[key]) : '';
+                        options.show_contacts
+                            ? (list = list.concat(features[key]))
+                            : '';
                         break;
                     default:
                         list = list.concat(features[key]);
@@ -161,7 +165,9 @@ export class ExploreStateService extends BaseClass {
                         }
                         this.setOptions({
                             show_devices:
-                                this._settings.get('app.explore.display_devices') !== false,
+                                this._settings.get(
+                                    'app.explore.display_devices'
+                                ) !== false,
                         });
                     })
             );
