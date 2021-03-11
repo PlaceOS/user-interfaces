@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BaseClass } from '@user-interfaces/common';
+import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
     selector: 'app-schedule',
@@ -19,9 +22,27 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class ScheduleComponent {
+export class ScheduleComponent extends BaseClass {
     /** Name of the page to render */
     public page: string;
     /** Whether to show menu */
     public show_menu = false;
+
+    constructor(
+        private _route: ActivatedRoute,
+        private _state: ScheduleStateService
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('email')) {
+                    this._state.setOptions({ calendar: params.get('email') });
+                }
+            })
+        );
+    }
 }

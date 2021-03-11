@@ -23,10 +23,17 @@ import {
     showEvent,
 } from '@user-interfaces/events';
 import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of, throwError } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    Observable,
+    of,
+    throwError,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
+    first,
     map,
     shareReplay,
     switchMap,
@@ -46,8 +53,6 @@ export class ScheduleStateService extends BaseClass {
 
     private _active_item = new BehaviorSubject<string>('');
 
-    private _event_list = new BehaviorSubject<(CalendarEvent | Booking)[]>([]);
-
     private _options = new BehaviorSubject<ScheduleOptions>({
         date: new Date().valueOf(),
     });
@@ -55,9 +60,33 @@ export class ScheduleStateService extends BaseClass {
     private _item: CalendarEvent | Booking;
 
     public readonly loading = this._loading.asObservable();
-    public readonly events = this._event_list.asObservable();
     public readonly options = this._options.asObservable();
     public readonly calendars = this._calendars.calendar_list;
+
+    public readonly events: Observable<
+        (CalendarEvent | Booking)[]
+    > = combineLatest([this._options, this._poll]).pipe(
+        debounceTime(1000),
+        switchMap(([options]) => {
+            this._loading.next(' ');
+            const start = startOfDay(options.date).valueOf();
+            let duration = isToday(start) ? 6 : 4;
+            const end = endOfDay(addDays(start, duration)).valueOf();
+            return options.calendar === 'desks'
+                ? queryBookings({
+                      period_start: Math.floor(start / 1000),
+                      period_end: Math.floor(end / 1000),
+                      type: 'desk',
+                  })
+                : queryEvents({
+                      period_start: Math.floor(start / 1000),
+                      period_end: Math.floor(end / 1000),
+                      calendars: options.calendar,
+                  });
+        }),
+        catchError((_) => []),
+        shareReplay(1)
+    );
 
     public readonly active_item = this._active_item.pipe(
         debounceTime(500),
@@ -83,20 +112,6 @@ export class ScheduleStateService extends BaseClass {
         shareReplay()
     );
 
-    public readonly filtered_events = combineLatest([
-        this._options,
-        this._event_list,
-    ]).pipe(
-        map(([options, events]) => {
-            return events.filter(
-                (e) =>
-                    (options.calendar && e instanceof CalendarEvent) ||
-                    ((!options.calendar || options.calendar === 'desks') &&
-                        e instanceof Booking)
-            );
-        })
-    );
-
     public get date() {
         return this._options.getValue().date;
     }
@@ -107,57 +122,9 @@ export class ScheduleStateService extends BaseClass {
         private _router: Router
     ) {
         super();
-        this.subscription(
-            'event_list',
-            combineLatest([this._options, this._poll])
-                .pipe(
-                    debounceTime(1000),
-                    switchMap(([options]) => {
-                        this._loading.next(' ');
-                        const start = startOfDay(options.date).valueOf();
-                        let duration = isToday(start) ? 6 : 4;
-                        const end = endOfDay(
-                            addDays(start, duration)
-                        ).valueOf();
-                        return Promise.all([
-                            queryEvents({
-                                period_start: Math.floor(start / 1000),
-                                period_end: Math.floor(end / 1000),
-                                calendars: options.calendar,
-                            }).toPromise(),
-                            queryBookings({
-                                period_start: Math.floor(start / 1000),
-                                period_end: Math.floor(end / 1000),
-                                type: 'desk',
-                            }),
-                        ]);
-                    }),
-                    map(([events, bookings]) =>
-                        (events as any[]).concat(bookings)
-                    ),
-                    catchError((_) => [])
-                )
-                .subscribe((event_list) => {
-                    const start = startOfDay(
-                        this._options.getValue().date
-                    ).valueOf();
-                    const end = endOfDay(addDays(start, 6)).valueOf();
-                    let list = this._event_list.getValue().filter((item) => {
-                        return (
-                            !timePeriodsIntersect(
-                                start,
-                                end,
-                                item.date,
-                                item.date + item.duration * 60 * 1000
-                            ) && !event_list.find((i) => i.id === item.id)
-                        );
-                    });
-                    list = list.concat(event_list);
-                    list.sort((a, b) => a.date - b.date);
-                    this._event_list.next(list);
-                    this._loading.next('');
-                })
-        );
+        this.calendars
+            .pipe(first((_) => _?.length > 0))
+            .subscribe((_) => this.setOptions({ calendar: _[0].id }));
     }
 
     public setOptions(options: Partial<ScheduleOptions>) {

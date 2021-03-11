@@ -29,7 +29,7 @@ import { combineLatest } from 'rxjs';
                         *ngFor="let cal of calendars | async"
                         [value]="cal.id"
                     >
-                        {{ cal.summary }}
+                        {{ cal.summary || 'Calendar' }}
                     </mat-option>
                     <mat-option value="desks">Desks</mat-option>
                 </mat-select>
@@ -113,7 +113,7 @@ export class ScheduleEventViewComponent extends BaseClass implements OnInit {
     public readonly calendars = this._state.calendars;
 
     public readonly events = combineLatest([
-        this._state.filtered_events,
+        this._state.events,
         this._state.options,
     ]).pipe(
         map(([events, options]) => {
