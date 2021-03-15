@@ -18,7 +18,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 ></app-icon>
                 <div>Most free space:</div>
             </div>
-            <div class="items space-y-2 w-full">
+            <div free-levels class="items space-y-2 w-full">
                 <a
                     button
                     mat-button
@@ -31,7 +31,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 </a>
             </div>
         </div>
-        <div class="flex items-center flex-col rounded-lg bg-white my-4 p-2">
+        <div free-spaces class="flex items-center flex-col rounded-lg bg-white my-4 p-2">
             <div class="flex items-center w-full mb-2">
                 <app-icon
                     class="bg-darken rounded-lg mr-2 text-2xl"

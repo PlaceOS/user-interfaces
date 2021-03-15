@@ -72,7 +72,7 @@
         "@zxing/library": "^0.17.1",
         "autoprefixer": "^10.0.2",
         "codelyzer": "6.0.1",
-        "cypress": "^4.1.0",
+        "cypress": "^6.6.0",
         "date-fns": "^2.16.1",
         "date-fns-tz": "^1.0.12",
         "dayjs": "^1.9.3",
