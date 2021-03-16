@@ -18,14 +18,14 @@ import { CateringOption } from './catering.interfaces';
                 </div>
             </div>
             <button mat-icon-button [matMenuTriggerFor]="menu">
-                <app-icon className="material-icons">more_vert</app-icon>
+                <app-icon>more_vert</app-icon>
             </button>
             <button
                 mat-icon-button
                 [disabled]="!item.options.length"
                 (click)="show_options = !show_options"
             >
-                <app-icon className="material-icons">expand_more</app-icon>
+                <app-icon>expand_more</app-icon>
             </button>
         </div>
         <div
@@ -39,24 +39,24 @@ import { CateringOption } from './catering.interfaces';
                     <div class="text-xs text-dark-fade">{{ option.group }}</div>
                 </div>
                 <button mat-icon-button class="mx-2" (click)="editOption(option)">
-                    <app-icon className="material-icons">edit</app-icon>
+                    <app-icon>edit</app-icon>
                 </button>
                 <button mat-icon-button class="mx-2" (click)="removeOption(option)">
-                    <app-icon className="material-icons">delete</app-icon>
+                    <app-icon>delete</app-icon>
                 </button>
             </div>
         </div>
         <mat-menu #menu="matMenu">
             <button mat-menu-item class="flex items-center" (click)="addOption()">
-                <app-icon className="material-icons">add</app-icon>
+                <app-icon>add</app-icon>
                 <div class="ml-2">Add Option</div>
             </button>
             <button mat-menu-item class="flex items-center" (click)="editItem()">
-                <app-icon className="material-icons">edit</app-icon>
+                <app-icon>edit</app-icon>
                 <div class="ml-2">Edit Item</div>
             </button>
             <button mat-menu-item class="flex items-center" (click)="removeItem()">
-                <app-icon className="material-icons">delete</app-icon>
+                <app-icon>delete</app-icon>
                 <div class="ml-2">Remove Item</div>
             </button>
         </mat-menu>

@@ -18,7 +18,7 @@ export interface CateringConfigModalData {
         <header>
             <h3>Edit Catering Configuration</h3>
             <button mat-icon-button mat-dialog-close *ngIf="!loading">
-                <app-icon className="material-icons">close</app-icon>
+                <app-icon>close</app-icon>
             </button>
         </header>
         <main class="overflow-auto text-center">
@@ -42,7 +42,7 @@ export interface CateringConfigModalData {
                         class="mb-6"
                         (click)="set.rules.push(['', '']); show_rules = set.id"
                     >
-                        <app-icon className="material-icons">add</app-icon>
+                        <app-icon>add</app-icon>
                     </button>
                     <button
                         mat-icon-button
@@ -50,7 +50,7 @@ export interface CateringConfigModalData {
                         [disabled]="!set.rules.length"
                         (click)="show_rules = show_rules !== set.id ? set.id : ''"
                     >
-                        <app-icon className="material-icons">{{
+                        <app-icon>{{
                             show_rules === set.id ? 'expand_less' : 'expand_more'
                         }}</app-icon>
                     </button>

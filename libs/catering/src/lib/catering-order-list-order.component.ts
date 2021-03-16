@@ -17,7 +17,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 <div
                     class="rounded-full bg-gray-300  p-2 text-2xl text-dark-fade flex items-center justify-center"
                 >
-                    <app-icon className="material-icons">room_service</app-icon>
+                    <app-icon>room_service</app-icon>
                 </div>
             </div>
             <div class="w-24">{{ order.deliver_at | date: 'shortTime' }}</div>
@@ -40,12 +40,12 @@ import { CATERING_STATUSES } from './catering.vars';
                     [matMenuTriggerFor]="menu"
                 >
                     <div class="flex text-center capitalize mx-2">{{ status?.name }}</div>
-                    <app-icon class="pl-2" className="material-icons">arrow_drop_down</app-icon>
+                    <app-icon class="pl-2">arrow_drop_down</app-icon>
                 </button>
             </div>
             <div class="w-12">
                 <button mat-icon-button (click)="show_items = !show_items">
-                    <app-icon className="material-icons">{{
+                    <app-icon>{{
                         show_items ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
                     }}</app-icon>
                 </button>

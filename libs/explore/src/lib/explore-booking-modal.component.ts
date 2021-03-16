@@ -21,7 +21,7 @@ export interface ExploreBookingModalData {
             <h2>New Booking</h2>
             <div class="flex-1"></div>
             <button *ngIf="!loading" mat-icon-button mat-dialog-close>
-                <app-icon className="material-icons">close</app-icon>
+                <app-icon>close</app-icon>
             </button>
         </header>
         <ng-container *ngIf="!loading; else load_state">
