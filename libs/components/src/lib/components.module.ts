@@ -15,6 +15,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CdkTableModule } from '@angular/cdk/table';
+import { PortalModule } from '@angular/cdk/portal';
 
 import { APipesModule } from '@acaprojects/ngx-pipes';
 
@@ -32,6 +33,7 @@ import { SearchbarComponent } from './searchbar.component';
 import { StatusOverlayComponent } from './status-overlay.component';
 import { FixedPipe } from './fixed.pipe';
 import { CustomTableComponent } from './custom-table.component';
+import { CustomTooltipComponent } from './custom-tooltip.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -48,6 +50,7 @@ export * from './searchbar.component';
 export * from './misconfigured.component';
 export * from './status-overlay.component';
 export * from './custom-table.component';
+export * from './custom-tooltip.component';
 export * from './fixed.pipe';
 
 const MAT_MODULES: any[] = [
@@ -65,7 +68,8 @@ const MAT_MODULES: any[] = [
     MatProgressSpinnerModule,
     MatChipsModule,
     MatPaginatorModule,
-    CdkTableModule
+    CdkTableModule,
+    PortalModule
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -81,6 +85,7 @@ const COMPONENTS: Type<any>[] = [
     SearchbarComponent,
     StatusOverlayComponent,
     CustomTableComponent,
+    CustomTooltipComponent,
 
     FixedPipe
 ];
