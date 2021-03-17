@@ -15,6 +15,7 @@ import { ControlStateService } from './control-state.service';
             >
                 <topbar-header></topbar-header>
                 <div control-page-view></div>
+                <control-status-bar></control-status-bar>
             </div>
         </ng-container>
         <ng-template #power_off_state>

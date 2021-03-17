@@ -1,0 +1,51 @@
+import { Component } from '@angular/core';
+import { map } from 'rxjs/operators';
+
+import { ControlStateService } from './control-state.service';
+
+@Component({
+    selector: 'control-advanced-view',
+    template: `
+        <div class="w-full flex-1 h-1/2 flex items-center justify-center flex-wrap">
+            <output-display
+                *ngFor="
+                    let output of outputs
+                        | async
+                        | slice: page * 6:(page + 1) * 6
+                "
+                [item]="output"
+            ></output-display>
+        </div>
+        <div class="w-full h-12 flex items-center justify-center px-2 pb-2 space-x-2" *ngIf="(page_count | async)?.length > 1">
+            <button
+                mat-icon-button
+                *ngFor="let idx of page_count | async; let i = index"
+                [class.bg-primary]="page === i"
+                [class.text-black]="page !== i"
+                [class.bg-gray-100]="page !== i"
+                (click)="page = i"
+            >
+                {{ i + 1 }}
+            </button>
+        </div>
+    `,
+    styles: [`
+        :host {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+    `],
+})
+export class ControlAdvancedViewComponent {
+    public page = 0;
+
+    public readonly outputs = this._state.output_list.pipe(map(_ => _ || []));
+
+    public readonly page_count = this.outputs.pipe(
+        map((_) => new Array(Math.floor(_.length / 6) + 1).fill(0))
+    );
+
+    constructor(private _state: ControlStateService) {}
+}

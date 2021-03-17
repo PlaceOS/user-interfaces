@@ -1,6 +1,7 @@
 import { HashMap, unique } from '@user-interfaces/common';
 
-interface RoomInput {
+export interface RoomInput {
+    id?: string;
     name: string;
     type: string;
     module: string;
@@ -10,7 +11,8 @@ interface RoomInput {
     outputs: string[];
 }
 
-interface RoomOutput {
+export interface RoomOutput {
+    id?: string;
     name: string;
     type: string;
     module: string;
@@ -37,8 +39,9 @@ class RoomModule {
         this.connected = _data.connected ?? true;
         this.power = _data.power || false;
         this.input_list = _data.input_list;
-        this.inputs = Object.keys(this.input_list || {});
-        this.outputs = Object.keys(this.output_list || {});
+        this.output_list = _data.output_list;
+        this.inputs = Object.keys(this.input_list || {}) || [];
+        this.outputs = Object.keys(this.output_list || {}) || [];
         this.inputs.forEach(
             (key) => (this[`input/${key}`] = this.input_list[key])
         );
@@ -73,10 +76,10 @@ class RoomModule {
      **/
     $route(input: string, output: string) {
         if (this.inputs.includes(input) && this.outputs.includes(output)) {
-            this._updateState(input, {
-                routes: unique([...this.input_list[input].routes, output]),
+            this.$updateState(input, {
+                routes: unique([...(this.input_list[input].routes || []), output]),
             });
-            this._updateState(output, {
+            this.$updateState(output, {
                 source: input,
                 following: input,
             });
@@ -129,7 +132,7 @@ class RoomModule {
     $volume() {}
     /** Interact with audio muting on supporting signal nodes within the space. */
     $mute(source: string, state: boolean = true) {
-        this._updateState(source, { mute: state });
+        this.$updateState(source, { mute: state });
     }
     /**
      * Activates or deactivates a signal mute for the associated IO. If this is not possible,
@@ -149,14 +152,14 @@ class RoomModule {
     $environment() {}
     /** Locks an IO node. Prevents any route changes that include this until unlocked. */
     $lock(source: string) {
-        this._updateState(source, { locked: true });
+        this.$updateState(source, { locked: true });
     }
     /** Unlocks an IO node. */
     $unlock(source: string) {
-        this._updateState(source, { locked: false });
+        this.$updateState(source, { locked: false });
     }
 
-    _updateState(source: string, data: HashMap) {
+    $updateState(source: string, data: HashMap) {
         if (this[`input/${source}`]) {
             this[`input/${source}`] = { ...this[`input/${source}`], ...data };
             this.input_list[source] = { ...this[`input/${source}`], ...data };
@@ -167,7 +170,93 @@ class RoomModule {
     }
 }
 
+const input_list: HashMap = {
+    PC1: {
+        name: 'PC-1',
+        type: 'PC',
+    },
+    PC2: {
+        name: 'PC-2',
+        type: 'PC',
+    },
+    PC3: {
+        name: 'PC-3',
+        type: 'PC',
+    },
+    PC4: {
+        name: 'PC-4',
+        type: 'PC',
+    },
+    HDMI: {
+        name: 'Laptop HDMI',
+        type: 'Laptop',
+    },
+    VGA: {
+        name: 'Laptop VGA',
+        type: 'Laptop',
+    },
+    Camera1: {
+        name: 'Camera Rear',
+        type: 'Camera',
+    },
+    Camera2: {
+        name: 'Camera Front',
+        type: 'Camera',
+    },
+    Camera3: {
+        name: 'Camera Rear 2',
+        type: 'Camera',
+    },
+    Camera4: {
+        name: 'Camera Front 2',
+        type: 'Camera',
+    },
+    TV1: {
+        name: 'IPTV 1',
+        type: 'TV',
+    }
+}
+
+const output_list: HashMap = {
+    Display1: {
+        name: 'Display 1',
+        type: 'Display',
+        source: 'PC1'
+    },
+    Display2: {
+        name: 'Display 2',
+        type: 'Display'
+    },
+    Display3: {
+        name: 'Display 3',
+        type: 'Display',
+        source: 'PC2'
+    },
+    Display4: {
+        name: 'Display 4',
+        type: 'Display'
+    },
+    Display5: {
+        name: 'Display 5',
+        type: 'Display',
+        source: 'TV1'
+    },
+    Display6: {
+        name: 'Display 6',
+        type: 'Display'
+    },
+    Display7: {
+        name: 'Display 7',
+        type: 'Display',
+        source: 'Laptop1'
+    },
+    Display8: {
+        name: 'Display 8',
+        type: 'Display'
+    }
+}
+
 export function createSystemModule(space: HashMap, overrides: HashMap = {}) {
-    const mod = new RoomModule({ ...space, ...overrides });
+    const mod = new RoomModule({ ...space, input_list, output_list, ...overrides });
     return mod;
 }

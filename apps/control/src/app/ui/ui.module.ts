@@ -15,6 +15,9 @@ import { HelpTooltipComponent } from './help-tooltip.component';
 import { BlindsTooltipComponent } from './blinds-tooltip.component';
 import { CameraTooltipComponent } from './camera-tooltip.component';
 import { MicrophoneTooltipComponent } from './microphone-tooltip.component';
+import { SourceSelectComponent } from './source-select.component';
+import { SourceSelectModalComponent } from './source-select-modal.component';
+import { OutputDisplayComponent } from './output-display.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -22,7 +25,10 @@ const COMPONENTS: Type<any>[] = [
     HelpTooltipComponent,
     BlindsTooltipComponent,
     CameraTooltipComponent,
-    MicrophoneTooltipComponent
+    MicrophoneTooltipComponent,
+    SourceSelectComponent,
+    SourceSelectModalComponent,
+    OutputDisplayComponent
 ];
 
 const MAT_MODULES: any[] = [

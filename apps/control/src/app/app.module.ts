@@ -16,11 +16,13 @@ import { UIModule } from './ui/ui.module';
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';
 import { TopbarHeaderComponent } from './topbar-header.component';
+import { ControlPageViewComponent } from './page-view.component';
+import { ControlStatusBarComponent } from './status-bar.component';
+import { ControlAdvancedViewComponent } from './advanced-view.component';
 
 import '@user-interfaces/mocks';
 
 import * as Sentry from "@sentry/angular";
-import { ControlPageViewComponent } from './page-view.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +30,9 @@ import { ControlPageViewComponent } from './page-view.component';
         BootstrapComponent,
         ControlMainViewComponent,
         TopbarHeaderComponent,
-        ControlPageViewComponent
+        ControlPageViewComponent,
+        ControlStatusBarComponent,
+        ControlAdvancedViewComponent
     ],
     imports: [
         BrowserModule,
