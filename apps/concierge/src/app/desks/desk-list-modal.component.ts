@@ -28,7 +28,7 @@ export interface DeskListModalData {
                 {{ level.display_name || level.name }}
             </h2>
             <button mat-icon-button mat-dialog-close>
-                <app-icon className="material-icons">close</app-icon>
+                <app-icon>close</app-icon>
             </button>
         </header>
         <ng-container *ngIf="!loading; else load_state">

@@ -43,7 +43,7 @@ export class ControlStateService extends BaseClass {
     public powerOff() {
         const mod = getModule(this._id.getValue(), 'System');
         if (!mod) return;
-        return mod.execute('power_off');
+        return mod.execute('shutdown');
     }
 
     private bindToState(id: string) {

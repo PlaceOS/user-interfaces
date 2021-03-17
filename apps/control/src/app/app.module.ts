@@ -7,6 +7,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSliderModule } from '@angular/material/slider';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
@@ -19,6 +20,7 @@ import { TopbarHeaderComponent } from './topbar-header.component';
 import '@user-interfaces/mocks';
 
 import * as Sentry from "@sentry/angular";
+import { ControlPageViewComponent } from './page-view.component';
 
 @NgModule({
     declarations: [
@@ -26,6 +28,7 @@ import * as Sentry from "@sentry/angular";
         BootstrapComponent,
         ControlMainViewComponent,
         TopbarHeaderComponent,
+        ControlPageViewComponent
     ],
     imports: [
         BrowserModule,
@@ -35,6 +38,7 @@ import * as Sentry from "@sentry/angular";
         MatDialogModule,
         MatProgressSpinnerModule,
         UIModule,
+        MatSliderModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

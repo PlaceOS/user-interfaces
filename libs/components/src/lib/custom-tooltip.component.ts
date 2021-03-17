@@ -96,7 +96,6 @@ export class CustomTooltipComponent<T = any> extends BaseClass implements OnChan
 
     public open() {
         this._updateType();
-        console.log('Open Custom Tooltip:', this.type, this.content);
         if (this._overlay_ref) this.close();
         if (!this._portal) return;
         this._overlay_ref = this._overlay.create({

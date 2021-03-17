@@ -37,7 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         : 'Set as Remote Visitior'
                 "
                 [loading]="loading === 'remote'"
-                className="material-icons"
+
                 [content]="remote ? 'tap_and_play' : 'business'"
                 (click)="toggleRemote()"
                 [class.invisible]="!visitor?.is_external || visitor?.organizer"
@@ -47,7 +47,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 matTooltip="Checkin Guest"
                 [loading]="loading === 'checkin'"
                 [state]="visitor?.checked_in ? 'success' : ''"
-                className="material-icons"
+
                 content="event_available"
                 (click)="checkin()"
                 [class.invisible]="!visitor?.is_external || visitor?.organizer"
@@ -56,7 +56,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <action-icon
                 matTooltip="Checkout Guest"
                 [loading]="loading === 'checkout'"
-                className="material-icons"
+
                 content="event_busy"
                 (click)="checkout()"
                 [class.invisible]="!visitor?.is_external || visitor?.organizer"
@@ -67,7 +67,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 mat-icon-button
                 [matTooltip]="visitor?.organizer ? 'Email Host' : 'Email Guest'"
             >
-                <app-icon className="material-icons">email</app-icon>
+                <app-icon>email</app-icon>
             </a>
         </div>
         <div class="w-16 p-2"></div>

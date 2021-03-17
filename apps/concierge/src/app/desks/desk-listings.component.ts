@@ -23,7 +23,7 @@ import { DesksStateService } from './desks-state.service';
                     }}
                 </div>
                 <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="(filters | async).zones?.length">
-                    <app-icon className="material-icons">more_vert</app-icon>
+                    <app-icon>more_vert</app-icon>
                 </button>
             </div>
             <div class="w-full flex flex-col flex-1 text-sm h-1/2">
@@ -62,13 +62,13 @@ import { DesksStateService } from './desks-state.service';
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="updateDesks()">
                 <div class="flex items-center">
-                    <app-icon className="material-icons">edit</app-icon>
+                    <app-icon>edit</app-icon>
                     <span class="pl-2">Edit Desks</span>
                 </div>
             </button>
             <button mat-menu-item (click)="rejectAll()">
                 <div class="flex items-center">
-                    <app-icon className="material-icons">event_busy</app-icon>
+                    <app-icon>event_busy</app-icon>
                     <span class="pl-2">Reject All</span>
                 </div>
             </button>
