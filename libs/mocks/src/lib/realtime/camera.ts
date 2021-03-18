@@ -1,12 +1,12 @@
 import { HashMap } from '@user-interfaces/common';
 
-enum CameraTilt {
+export enum CameraTilt {
     Down,
     Up,
     Stop,
 }
 
-enum CameraPan {
+export enum CameraPan {
     Left,
     Right,
     Stop,
@@ -23,7 +23,9 @@ class CameraModule {
 
     presets: string[];
 
-    constructor(_) {}
+    constructor(_) {
+        this.presets = ['Preset One', 'Preset 2', 'Preset Three'];
+    }
 
     $pan(dir: CameraPan) {}
 

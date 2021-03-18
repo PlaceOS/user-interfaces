@@ -18,6 +18,7 @@ import { MicrophoneTooltipComponent } from './microphone-tooltip.component';
 import { SourceSelectComponent } from './source-select.component';
 import { SourceSelectModalComponent } from './source-select-modal.component';
 import { OutputDisplayComponent } from './output-display.component';
+import { JoystickComponent } from './joystick.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -28,7 +29,8 @@ const COMPONENTS: Type<any>[] = [
     MicrophoneTooltipComponent,
     SourceSelectComponent,
     SourceSelectModalComponent,
-    OutputDisplayComponent
+    OutputDisplayComponent,
+    JoystickComponent
 ];
 
 const MAT_MODULES: any[] = [

@@ -52,7 +52,10 @@ export class ControlStateService extends BaseClass {
     public readonly system = this._system.asObservable();
     /** List of available input sources */
     public readonly input_list = this._input_data.asObservable();
-    /** List of available input sources */
+    /** List of available output sources */
+    public readonly output_list = this._output_data.asObservable();
+    public readonly volume = this._volume.asObservable();
+    /** List of available microphone input sources */
     public readonly mic_list = this._input_data.pipe(
         map((list) =>
             list?.filter(
@@ -61,9 +64,15 @@ export class ControlStateService extends BaseClass {
             )
         )
     );
-    /** List of available output sources */
-    public readonly output_list = this._output_data.asObservable();
-    public readonly volume = this._volume.asObservable();
+    /** List of available camera input sources */
+    public readonly camera_list = this._input_data.pipe(
+        map((list) =>
+            list?.filter(
+                (_) =>
+                    _.type === 'Camera' || _.module?.includes('Camera')
+            )
+        )
+    );
 
     public get id() {
         return this._id.getValue();
