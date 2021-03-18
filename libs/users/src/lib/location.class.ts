@@ -1,4 +1,4 @@
-import { Point } from '@yuion/svg-viewer';
+import { Point } from '@placeos/svg-viewer';
 import { HashMap } from '@user-interfaces/common';
 
 export class MapLocation {

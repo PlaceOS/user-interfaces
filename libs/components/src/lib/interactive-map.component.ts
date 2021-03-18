@@ -23,7 +23,7 @@ import {
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-} from '@yuion/svg-viewer';
+} from '@placeos/svg-viewer';
 
 export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
 

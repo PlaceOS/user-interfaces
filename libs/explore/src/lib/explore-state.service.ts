@@ -5,7 +5,7 @@ import {
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-} from '@yuion/svg-viewer';
+} from '@placeos/svg-viewer';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
