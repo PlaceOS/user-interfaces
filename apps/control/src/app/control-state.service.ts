@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { BaseClass, HashMap } from '@user-interfaces/common';
 import { MatDialog } from '@angular/material/dialog';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
+import { map } from 'rxjs/operators';
 
 export interface RoomInput {
     id?: string;
@@ -51,6 +52,15 @@ export class ControlStateService extends BaseClass {
     public readonly system = this._system.asObservable();
     /** List of available input sources */
     public readonly input_list = this._input_data.asObservable();
+    /** List of available input sources */
+    public readonly mic_list = this._input_data.pipe(
+        map((list) =>
+            list?.filter(
+                (_) =>
+                    _.type === 'Microphone' || _.module?.includes('Microphone')
+            )
+        )
+    );
     /** List of available output sources */
     public readonly output_list = this._output_data.asObservable();
     public readonly volume = this._volume.asObservable();
@@ -62,8 +72,8 @@ export class ControlStateService extends BaseClass {
     constructor(private _dialog: MatDialog) {
         super();
         this._id.subscribe((id) => this.bindToState(id));
-        this._inputs.subscribe(_ => this.bindSources('input', _ || []));
-        this._outputs.subscribe(_ => this.bindSources('output', _ || []));
+        this._inputs.subscribe((_) => this.bindSources('input', _ || []));
+        this._outputs.subscribe((_) => this.bindSources('output', _ || []));
     }
 
     public setID(id: string) {
@@ -105,7 +115,7 @@ export class ControlStateService extends BaseClass {
 
     public switchSource(output: string) {
         this._dialog.open(SourceSelectModalComponent, {
-            data: { output }
+            data: { output },
         });
     }
 
@@ -123,15 +133,22 @@ export class ControlStateService extends BaseClass {
         const id = this._id.getValue();
         if (!id) return;
         for (const alias of alias_list) {
-            this.bindTo(id, `${type}/${alias}`, undefined, (d) => this.updateSourceData(type, alias, d));
+            this.bindTo(id, `${type}/${alias}`, undefined, (d) =>
+                this.updateSourceData(type, alias, d)
+            );
         }
     }
 
     /** Update listed data for given source */
-    private updateSourceData(type: 'input' | 'output', id: string, data: HashMap) {
-        const list_observer = type === 'input' ? this._input_data : this._output_data;
+    private updateSourceData(
+        type: 'input' | 'output',
+        id: string,
+        data: HashMap
+    ) {
+        const list_observer =
+            type === 'input' ? this._input_data : this._output_data;
         const list: any[] = [...list_observer.getValue()];
-        const index = list.findIndex(item => item.id === id);
+        const index = list.findIndex((item) => item.id === id);
         if (index >= 0) {
             list.splice(index, 1, { id, ...data });
         } else {

@@ -26,7 +26,7 @@ import { PowerTooltipComponent } from './ui/power-tooltip.component';
                     <app-icon>unfold_more</app-icon>
                 </button>
             </div>
-            <div customTooltip [content]="cmp.mics">
+            <div customTooltip [content]="cmp.mics" *ngIf="(mic_list | async)?.length">
                 <button mat-icon-button>
                     <app-icon>mic</app-icon>
                 </button>
@@ -69,6 +69,7 @@ import { PowerTooltipComponent } from './ui/power-tooltip.component';
 })
 export class TopbarHeaderComponent {
     public readonly system = this._state.system;
+    public readonly mic_list = this._state.mic_list;
 
     public readonly cmp = {
         lighting: LightingTooltipComponent,

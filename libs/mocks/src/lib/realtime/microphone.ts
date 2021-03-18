@@ -1,4 +1,4 @@
-import { HashMap } from '@user-interfaces/common';
+import { HashMap, randomInt } from '@user-interfaces/common';
 
 class MicrophoneModule {
     mute: boolean;
@@ -12,7 +12,9 @@ class MicrophoneModule {
         this.volume = value;
     }
 
-    constructor(_) {}
+    constructor(_) {
+        this.volume = randomInt(100);
+    }
 }
 
 export const createMicrophoneModule = (

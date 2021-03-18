@@ -50,8 +50,6 @@ class RoomModule {
         this.outputs.forEach(
             (key) => (this[`output/${key}`] = this.output_list[key])
         );
-
-        setInterval(() => this.$volume('all', 100), 5000);
     }
 
     $power_on() {
@@ -182,6 +180,21 @@ class RoomModule {
 }
 
 const input_list: HashMap = {
+    Mic1: {
+        name: 'Lectern Mic',
+        type: 'Microphone',
+        module: 'Microphone_1'
+    },
+    Mic2: {
+        name: 'Lapel Mic',
+        type: 'Microphone',
+        module: 'Microphone_2'
+    },
+    Mic3: {
+        name: 'Handheld Mic',
+        type: 'Microphone',
+        module: 'Microphone_3'
+    },
     PC1: {
         name: 'PC-1',
         type: 'PC',
