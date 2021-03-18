@@ -34,6 +34,8 @@ class RoomModule {
     public readonly inputs;
     public readonly outputs;
 
+    public volume = 0;
+
     constructor(_data: Partial<RoomModule>) {
         this.name = _data.name || 'Test Module';
         this.connected = _data.connected ?? true;
@@ -48,10 +50,12 @@ class RoomModule {
         this.outputs.forEach(
             (key) => (this[`output/${key}`] = this.output_list[key])
         );
+
+        setInterval(() => this.$volume('all', 100), 5000);
     }
 
     $power_on() {
-        console.log('Power On')
+        console.log('Power On');
         this.power = true;
     }
     /**
@@ -77,7 +81,10 @@ class RoomModule {
     $route(input: string, output: string) {
         if (this.inputs.includes(input) && this.outputs.includes(output)) {
             this.$updateState(input, {
-                routes: unique([...(this.input_list[input].routes || []), output]),
+                routes: unique([
+                    ...(this.input_list[input].routes || []),
+                    output,
+                ]),
             });
             this.$updateState(output, {
                 source: input,
@@ -129,7 +136,11 @@ class RoomModule {
      * where supported (e.g. microphone). If unspecified, default is to interact with a ‘primary’
      * output node.
      **/
-    $volume() {}
+    $volume(source: string, value: number) {
+        if (source === 'all') {
+            this.volume = value;
+        }
+    }
     /** Interact with audio muting on supporting signal nodes within the space. */
     $mute(source: string, state: boolean = true) {
         this.$updateState(source, { mute: state });
@@ -198,65 +209,60 @@ const input_list: HashMap = {
     Camera1: {
         name: 'Camera Rear',
         type: 'Camera',
+        module: 'Camera_1',
     },
     Camera2: {
         name: 'Camera Front',
         type: 'Camera',
+        module: 'Camera_2',
     },
     Camera3: {
         name: 'Camera Rear 2',
         type: 'Camera',
+        module: 'Camera_3',
     },
     Camera4: {
         name: 'Camera Front 2',
         type: 'Camera',
+        module: 'Camera_4',
     },
     TV1: {
         name: 'IPTV 1',
         type: 'TV',
-    }
-}
+        module: 'IPTV_1',
+    },
+};
 
 const output_list: HashMap = {
     Display1: {
         name: 'Display 1',
         type: 'Display',
-        source: 'PC1'
+        source: 'PC1',
+        module: 'Display_1',
     },
     Display2: {
         name: 'Display 2',
-        type: 'Display'
+        type: 'Display',
+        module: 'Display_2',
     },
     Display3: {
         name: 'Display 3',
         type: 'Display',
-        source: 'PC2'
+        source: 'PC2',
+        module: 'Display_3',
     },
     Display4: {
         name: 'Display 4',
-        type: 'Display'
+        type: 'Display',
+        module: 'Display_4',
     },
     Display5: {
         name: 'Display 5',
         type: 'Display',
-        source: 'TV1'
+        module: 'Display_5',
+        source: 'TV1',
     },
-    Display6: {
-        name: 'Display 6',
-        type: 'Display'
-    },
-    Display7: {
-        name: 'Display 7',
-        type: 'Display',
-        source: 'Laptop1'
-    },
-    Display8: {
-        name: 'Display 8',
-        type: 'Display'
-    }
-}
+};
 
-export function createSystemModule(space: HashMap, overrides: HashMap = {}) {
-    const mod = new RoomModule({ ...space, input_list, output_list, ...overrides });
-    return mod;
-}
+export const createSystemModule = (space: HashMap, overrides: HashMap = {}) =>
+    new RoomModule({ ...space, input_list, output_list, ...overrides });
