@@ -43,6 +43,7 @@ export class ControlStateService extends BaseClass {
     private _system = new BehaviorSubject<SystemState>({});
     private _inputs = new BehaviorSubject<string[]>([]);
     private _outputs = new BehaviorSubject<string[]>([]);
+    private _volume = new BehaviorSubject<number>(0);
     private _input_data = new BehaviorSubject<RoomInput[]>([]);
     private _output_data = new BehaviorSubject<RoomOutput[]>([]);
 
@@ -52,6 +53,7 @@ export class ControlStateService extends BaseClass {
     public readonly input_list = this._input_data.asObservable();
     /** List of available output sources */
     public readonly output_list = this._output_data.asObservable();
+    public readonly volume = this._volume.asObservable();
 
     public get id() {
         return this._id.getValue();
@@ -83,19 +85,19 @@ export class ControlStateService extends BaseClass {
     }
 
     /** Route input source to output */
-    public route(input: string, output: string) {
+    public setRoute(input: string, output: string) {
         const mod = getModule(this._id.getValue(), 'System');
         if (!mod) return;
         return mod.execute('route', [input, output]);
     }
 
-    public mute(source: string = '', state: boolean = true) {
+    public setMute(source: string = '', state: boolean = true) {
         const mod = getModule(this._id.getValue(), 'System');
         if (!mod) return;
         return mod.execute('mute', [source, state]);
     }
 
-    public volume(source: string = '', value: number = 0) {
+    public setVolume(source: string = '', value: number = 0) {
         const mod = getModule(this._id.getValue(), 'System');
         if (!mod) return;
         return mod.execute('volume', [source, value]);

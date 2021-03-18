@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { BaseClass } from '@user-interfaces/common';
+import { ControlStateService } from './control-state.service';
 
 @Component({
     selector: 'control-status-bar',
@@ -33,7 +35,15 @@ import { Component } from '@angular/core';
         <div class="flex-1"></div>
         <div class="flex items-center space-x-2 w-64 py-2 px-4">
             <button mat-icon-button><app-icon>volume_up</app-icon></button>
-            <mat-slider white class="flex-1"></mat-slider>
+            <mat-slider
+                [min]="0"
+                [max]="100"
+                [step]="1"
+                [ngModel]="volume | async"
+                (ngModelChange)="setVolume($event)"
+                white
+                class="flex-1"
+            ></mat-slider>
         </div>
     `,
     styles: [
@@ -48,4 +58,12 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class ControlStatusBarComponent {}
+export class ControlStatusBarComponent extends BaseClass {
+    public readonly volume = this._state.volume;
+
+    public readonly setVolume = (v) => this._state.setVolume('all', v);
+
+    constructor(private _state: ControlStateService) {
+        super();
+    }
+}

@@ -5,11 +5,12 @@ import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 
 const ICON_MAP = {
-    'Display': 'deskotp_windows',
-    'PC': 'desktop_windows',
-    'Laptop': 'laptop_chromebook',
-    'TV': 'tv'
-}
+    Display: 'deskotp_windows',
+    PC: 'desktop_windows',
+    Laptop: 'laptop_chromebook',
+    Camera: 'videocam',
+    TV: 'tv',
+};
 
 @Component({
     selector: 'output-display',
@@ -31,19 +32,51 @@ const ICON_MAP = {
                 <app-icon class="text-7xl">{{
                     icons[(input | async)?.type] || 'add_to_queue'
                 }}</app-icon>
-                <p>
+                <p class="font-medium">
                     {{
                         (input | async)?.name || 'Click to select input source'
                     }}
                 </p>
                 <p class="text-xs">
-                    <span *ngIf="(input | async)?.name">Click to switch input source</span>
+                    <span *ngIf="(input | async)?.name" class="opacity-50">
+                        Click to switch input source
+                    </span>
                 </p>
             </div>
             <div class="flex items-center space-x-2 w-full">
-                <button mat-icon-button><app-icon>volume_up</app-icon></button>
-                <mat-slider class="flex-1"></mat-slider>
+                <button mat-icon-button (click)="mute = !mute">
+                    <app-icon>{{
+                        mute
+                            ? 'volume_off'
+                            : volume > 0
+                            ? 'volume_up'
+                            : 'volume_mute'
+                    }}</app-icon>
+                </button>
+                <mat-slider
+                    [ngModel]="!mute ? volume : 0"
+                    (ngModelChange)="volume = $event; mute = false"
+                    class="flex-1"
+                ></mat-slider>
             </div>
+        </div>
+        <div *ngIf="item?.module">
+            <i
+                binding
+                [sys]="id"
+                [mod]="item.module"
+                bind="volume"
+                exec="volume"
+                [(model)]="volume"
+            ></i>
+            <i
+                binding
+                [sys]="id"
+                [mod]="item.module"
+                bind="mute"
+                exec="mute"
+                [(model)]="mute"
+            ></i>
         </div>
     `,
     styles: [
@@ -56,6 +89,10 @@ const ICON_MAP = {
 })
 export class OutputDisplayComponent {
     @Input() public item: RoomOutput;
+    /** Current volume level for output */
+    public volume: number;
+    /** Current mute state of the output */
+    public mute: boolean;
     /** ID of the input associated with the displayed output */
     private _input = new BehaviorSubject('');
     /** Details of the associated input */
@@ -68,6 +105,9 @@ export class OutputDisplayComponent {
 
     public readonly switchSource = () => this._state.switchSource(this.item.id);
 
+    public get id(): string {
+        return this._state.id;
+    }
 
     constructor(private _state: ControlStateService) {}
 

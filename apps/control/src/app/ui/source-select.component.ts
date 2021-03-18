@@ -86,7 +86,7 @@ export class SourceSelectComponent implements OnChanges {
 
     public async selectSource(input: RoomInput) {
         this.loading = true;
-        await this._state.route(input.id, this.output);
+        await this._state.setRoute(input.id, this.output);
         this.loading = false;
         this.source.emit(input);
         console.log('Input routed:', input, this.output);
