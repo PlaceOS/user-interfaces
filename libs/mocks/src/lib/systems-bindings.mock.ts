@@ -7,6 +7,7 @@ import { createLocationServicesModule } from './realtime/desks';
 import { createCameraModule } from './realtime/camera';
 import { createDisplayModule } from './realtime/display';
 import { createMicrophoneModule } from './realtime/microphone';
+import { createCaptureModule } from './realtime/capture';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {
@@ -15,6 +16,7 @@ export function createSystem(space: HashMap) {
         AreaManagement: [createLocationServicesModule(space)],
         Camera: new Array(10).fill(0).map(_ => createCameraModule(space)),
         Display: new Array(10).fill(0).map(_ => createDisplayModule(space)),
-        Microphone: new Array(10).fill(0).map(_ => createMicrophoneModule(space))
+        Microphone: new Array(10).fill(0).map(_ => createMicrophoneModule(space)),
+        Capture: [createCaptureModule(space)]
     });
 }

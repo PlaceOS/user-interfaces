@@ -26,6 +26,7 @@ export interface RoomOutput {
 class RoomModule {
     public readonly name: string;
     public readonly connected: boolean;
+    public readonly recording = true;
     public power: boolean;
 
     public readonly input_list: HashMap<RoomInput>;

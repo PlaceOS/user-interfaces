@@ -19,6 +19,7 @@ import { SourceSelectComponent } from './source-select.component';
 import { SourceSelectModalComponent } from './source-select-modal.component';
 import { OutputDisplayComponent } from './output-display.component';
 import { JoystickComponent } from './joystick.component';
+import { DurationPipe } from './duration.pipe';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -30,7 +31,9 @@ const COMPONENTS: Type<any>[] = [
     SourceSelectComponent,
     SourceSelectModalComponent,
     OutputDisplayComponent,
-    JoystickComponent
+    JoystickComponent,
+
+    DurationPipe
 ];
 
 const MAT_MODULES: any[] = [

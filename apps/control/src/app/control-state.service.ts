@@ -133,6 +133,7 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'name');
         this.bindTo(id, 'power');
         this.bindTo(id, 'connected');
+        this.bindTo(id, 'recording');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'outputs', undefined, (l) => this._outputs.next(l));
     }
