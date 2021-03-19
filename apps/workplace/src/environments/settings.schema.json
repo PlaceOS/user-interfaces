@@ -1,0 +1,227 @@
+{
+    "type": "object",
+    "description": "Customisable settings for the workplace app",
+    "properties": {
+        "short_name": {
+            "type": "string",
+            "description": "Short name for the application"
+        },
+        "sentry_dsn": {
+            "type":"string",
+            "description": "Connector string for setting up Sentry"
+        },
+        "general": {
+            "type": "object",
+            "description": "General settings associated with the app",
+            "properties": {
+                "menu": {
+                    "type": "object",
+                    "description": "Data associated with rendering menus in the app",
+                    "properties": {
+                        "items": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/link" }
+                        },
+                        "copyright": {
+                            "type": "string",
+                            "description": "Copyright organisation to render in the menu"
+                        },
+                        "position": {
+                            "type": "string",
+                            "enum": ["right", "left"],
+                            "description": "Side of the screen to render the overlay menu"
+                        }
+                    }
+                }
+            }
+        },
+        "home": {
+            "type": "object",
+            "description": "Data associated with rendering the home page in the app",
+            "properties": {
+                "background": {
+                    "type": "string",
+                    "description": "URL of the background image to render on the home page"
+                },
+                "tiles": {
+                    "type": "array",
+                    "description": "List of links to render as tiles on the home page",
+                    "items": { "$ref": "#/$defs/link" }
+                },
+                "footer": {
+                    "type": "array",
+                    "description": "List of links to render as tiles in the footer menu",
+                    "items": { "$ref": "#/$defs/link" }
+                }
+            }
+        },
+        "help": {
+            "type": "object",
+            "description": "Data associated with rendering the home page in the app",
+            "properties": {
+                "tiles": {
+                    "type": "array",
+                    "description": "List of links to render as tiles on the home page",
+                    "items": { "$ref": "#/$defs/link" }
+                },
+                "columns": {
+                    "type": "number",
+                    "description": "Number of columns with which to display the help page tiles"
+                }
+            }
+        },
+        "booking": {
+            "type": "object",
+            "description": "Data associated with booking flow",
+            "properties": {
+                "meeting_types": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/identity" }
+                },
+                "capacity_filters": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/identity" }
+                },
+                "show_fields": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Form fields available for use in the booking flow"
+                },
+                "html_body": {
+                    "type": "boolean",
+                    "description": "Whether booking form should allow for a HTML body in the event data"
+                },
+                "multiple_spaces": {
+                    "type": "boolean",
+                    "description": "Whether users are allowed to book multiple spaces in the booking flow"
+                },
+                "setup": {
+                    "type": "number",
+                    "description": "Default setup time for new bookings in minutes"
+                },
+                "breakdown": {
+                    "type": "number",
+                    "description": "Default breakdown time for new bookings in minutes"
+                }
+            }
+        },
+        "desks": {
+            "type": "object",
+            "description": "Data associated wth desk booking flow",
+            "properties": {
+                "has_group_booking": {
+                    "type": "boolean",
+                    "description": "Whether users are allowed make group desk bookings"
+                }
+            }
+        },
+        "spaces": {
+            "type": "object",
+            "description": "Data associated with spaces rendering",
+            "properties": {
+                "show_images": {
+                    "type": "boolean",
+                    "description": "Whether UI should render images associated with the space"
+                }
+            }
+        },
+        "directory": {
+            "type": "object",
+            "description": "Data associated with user directory",
+            "properties": {
+                "show_avatars": {
+                    "type": "boolean",
+                    "description": "Whether UI should render avatars associated with the user"
+                },
+                "min_search_length": {
+                    "type": "number",
+                    "description": "Minimum number of characters needed to start performing a user"
+                }
+            }
+        },
+        "explore": {
+            "type": "object",
+            "description": "Data asscoiated with map rendering",
+            "properties": {
+                "colors": {
+                    "type": "object",
+                    "description": "Mapping of keys to their color values. Keys are usual in the format `<type>-<status>`",
+                    "additionalProperties": { "type": "string" }
+                },
+                "can_select_building": {
+                    "type": "boolean",
+                    "description": "Whether user is allowed to select different buildings to view"
+                },
+                "legend": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/identity" }
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "link": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Display name for the link"
+                },
+                "route": {
+                    "type": "string",
+                    "description": "Path that the link routes to internally"
+                },
+                "icon": { "$ref": "#/$defs/icon" },
+                "query_params": {
+                    "type": "object",
+                    "description": "Query parameters to add to the route"
+                },
+                "background": {
+                    "type": "string",
+                    "description": "URL of the background image to associate with the link"
+                }
+            }
+        },
+        "icon": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["img", "icon"],
+                    "description": "Type of icon to render. Either `img` or `icon`"
+                },
+                "src": {
+                    "type": "string",
+                    "description": "URL of the image icon to display"
+                },
+                "class": {
+                    "type": "string",
+                    "description": "CSS class to apply to icon container element"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content to add to the icon container element"
+                }
+            }
+        },
+        "identity": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier for this object"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display string for the object"
+                }
+            }
+        }
+    }
+}
