@@ -15,6 +15,12 @@
     --heading-font: Georgia, 'Times New Roman', Times, serif;
 }
 
+@media screen {
+    .print-only {
+        display: none !important;
+    }
+}
+
 html,
 body {
     background-color: #f0f0f0;

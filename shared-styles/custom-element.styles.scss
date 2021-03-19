@@ -469,3 +469,26 @@ form {
         top: .25rem;
     }
 }
+
+[qr-code] {
+    font-size: 6vmin;
+
+    h2 {
+        font-size: 1.5em;
+        margin: 0;
+        padding: 0;
+    }
+
+    span {
+        font-weight: 500;
+    }
+
+    &.space-y-2 > * + * {
+        margin-top: 0.5em;
+    }
+
+    img {
+        height: 70vmin;
+        width: 70vmin;
+    }
+}
