@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1614664958049,
+  "timestamp": 1616133615780,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,22 +11,22 @@
         "ignoreVary": true
       },
       "urls": [
-        "./catering-catering-module.4b7bd0004c0b19c90ac7.js",
-        "./day-view-day-view-module.0226b3cc7f22f383c12e.js",
-        "./default~desks-desks-module~facilities-facilities-module.3268bb6f80653ad59492.js",
-        "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.fe4026f061c11f0a13de.js",
-        "./desks-desks-module.cb4c405fad858358ac37.js",
-        "./facilities-facilities-module.4dd613c4b1909b29b107.js",
+        "./catering-catering-module.40407c1c1cca83d63825.js",
+        "./day-view-day-view-module.04a580ac4be64a7d1341.js",
+        "./default~desks-desks-module~facilities-facilities-module.a584f75fc6e13374927b.js",
+        "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.46b9e6519e439c8a65a2.js",
+        "./desks-desks-module.8beeef32a4e46b7cb34b.js",
+        "./facilities-facilities-module.8f3668290f106a3abf4a.js",
         "./favicon.ico",
         "./index.html",
-        "./main.9429b1e2709195d268f9.js",
+        "./main.a59555571518bada3748.js",
         "./polyfills.e4628c2c8f7f1776e286.js",
-        "./reports-reports-module.53bd19393dca0212aeb5.js",
-        "./runtime.67f490af30579ebc4ed8.js",
-        "./staff-staff-module.c56da7deb05e0b236a81.js",
+        "./reports-reports-module.77bba54263e38ac92d44.js",
+        "./runtime.4c5299846360948bdf94.js",
+        "./staff-staff-module.bd93eeac044e175601c1.js",
         "./styles.27c23d75c471d9f18d8d.css",
-        "./visitors-visitors-module.fdbee0cb48627b51917e.js",
-        "./week-view-week-view-module.ec25684b7f58e89dc9c5.js"
+        "./visitors-visitors-module.626e601e807e630784af.js",
+        "./week-view-week-view-module.3f447c62c6e51fe16ce9.js"
       ],
       "patterns": []
     },
@@ -76,22 +76,22 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./catering-catering-module.4b7bd0004c0b19c90ac7.js": "14d8b6f8b3d28110ffeee3dc91fc062fc7954cfc",
-    "./day-view-day-view-module.0226b3cc7f22f383c12e.js": "99108250aae39b27ed8155ef9055ae1cf69af6e2",
-    "./default~desks-desks-module~facilities-facilities-module.3268bb6f80653ad59492.js": "94044ef71b09813e76a6c7b729cef327d59d25b6",
-    "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.fe4026f061c11f0a13de.js": "da9b8ffd9d12eda64368800f3cdf1cb5b8b42f44",
-    "./desks-desks-module.cb4c405fad858358ac37.js": "14af4bcdf03e8692b89d71a76fb33314fd0b102e",
-    "./facilities-facilities-module.4dd613c4b1909b29b107.js": "9cb834ae349c7ca9f215c3eee1a6663492da3e54",
+    "./catering-catering-module.40407c1c1cca83d63825.js": "ca0cb8df04fb448b470f4a7632ee94b4616edf59",
+    "./day-view-day-view-module.04a580ac4be64a7d1341.js": "417707bc11055ed377446269b9f8f340f3459b43",
+    "./default~desks-desks-module~facilities-facilities-module.a584f75fc6e13374927b.js": "ca5c7c55c2292bb420ee8662ecdfffdc36ce5b74",
+    "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.46b9e6519e439c8a65a2.js": "f1ae5b16d0e3c4bc9b991701428fb7a122d8a357",
+    "./desks-desks-module.8beeef32a4e46b7cb34b.js": "9dc7b29d411ecde02f70f1256c7a405074e19dda",
+    "./facilities-facilities-module.8f3668290f106a3abf4a.js": "b547cecec6f25bd28712fd56af2de1d7e8a60f92",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "e188e9a054aa09f7e0a92aaee0cb92f190a02ffd",
-    "./main.9429b1e2709195d268f9.js": "e255105250c2af629beb68cf4ca4e0f613a1e000",
+    "./index.html": "bf7ec0a1b3fa7bca25d1f4b9a95d2ebf13035c16",
+    "./main.a59555571518bada3748.js": "c9e6b7d38a823736489ba79589b021f2b3af2413",
     "./polyfills.e4628c2c8f7f1776e286.js": "82719f0cb8adb9aa09c625a160e1613109243bda",
-    "./reports-reports-module.53bd19393dca0212aeb5.js": "125a0e422ba0abd361771b5af5ef7d7b02131bdd",
-    "./runtime.67f490af30579ebc4ed8.js": "f3cd7bf63999fbb659ea6f11f74a8fcbc6889349",
-    "./staff-staff-module.c56da7deb05e0b236a81.js": "813a8fe9e8a2965d36abc33486ab902b6c8dbabb",
+    "./reports-reports-module.77bba54263e38ac92d44.js": "cabc24ff80d1763a39cd76fb0448c2dec2f12e7c",
+    "./runtime.4c5299846360948bdf94.js": "164d40d1d5e2e0a387de94cb813add4edbb971ec",
+    "./staff-staff-module.bd93eeac044e175601c1.js": "fef330860c847a10cacc4589a2c230e370a0795a",
     "./styles.27c23d75c471d9f18d8d.css": "eb0bd1a7960ba7d33ef5bfef08d44ae313e647f4",
-    "./visitors-visitors-module.fdbee0cb48627b51917e.js": "413bbbd9786c422689afab594d6123f7886b5ec6",
-    "./week-view-week-view-module.ec25684b7f58e89dc9c5.js": "5d89c1a40410715d3d59c3c147a03dffe82900d5"
+    "./visitors-visitors-module.626e601e807e630784af.js": "25178a9be9e8dfa603d76961d5d719343662d4b9",
+    "./week-view-week-view-module.3f447c62c6e51fe16ce9.js": "49f41b881ceb8833451b7964cd2af907bd935060"
   },
   "navigationUrls": [
     {
