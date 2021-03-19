@@ -17,7 +17,7 @@ import { ReportsStateService } from '../reports-state.service';
                 </button>
             </div>
             <custom-table
-                [dataSource]="level_list"
+                [dataSource]="space_list"
                 [pagination]="true"
                 [columns]="[
                     'name',
@@ -42,6 +42,7 @@ import { ReportsStateService } from '../reports-state.service';
     styles: [``],
 })
 export class ReportSpacesSpaceListing {
+
     public readonly space_list = combineLatest([
         this._reports.stats,
         this._reports.options,
