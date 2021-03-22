@@ -90,7 +90,7 @@ jobs:
 
             - name: Build affected applications
               run: |
-                npm run build ${{  }} --base=${{ github.ref }}~1 --head=${{ github.ref }} --verbose --configuration=${{ env.configuration }}
+                npm run build ${{ maxtrix.package }} --base=${{ github.ref }}~1 --head=${{ github.ref }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
               uses: MrYuion/gha-publish-to-git@v1.1
