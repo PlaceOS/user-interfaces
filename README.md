@@ -1,26 +1,7 @@
 # PlaceOS Template User Interfaces
 
-![Bookings PROD](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-PROD/badge.svg)
-![Bookings DEV](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-DEVELOP/badge.svg)
-![Bookings UAT](https://github.com/placeos/user-interfaces/workflows/BOOKINGS-UAT/badge.svg)  
-![Catering PROD](https://github.com/placeos/user-interfaces/workflows/CATERING-PROD/badge.svg)
-![Catering DEV](https://github.com/placeos/user-interfaces/workflows/CATERING-DEVELOP/badge.svg)
-![Catering UAT](https://github.com/placeos/user-interfaces/workflows/CATERING-UAT/badge.svg)  
-![Concierge PROD](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-PROD/badge.svg)
-![Concierge DEV](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-DEVELOP/badge.svg)
-![Concierge UAT](https://github.com/placeos/user-interfaces/workflows/CONCIERGE-UAT/badge.svg)  
-![Control PROD](https://github.com/placeos/user-interfaces/workflows/CONTROL-PROD/badge.svg)
-![Control DEV](https://github.com/placeos/user-interfaces/workflows/CONTROL-DEVELOP/badge.svg)
-![Control UAT](https://github.com/placeos/user-interfaces/workflows/CONTROL-UAT/badge.svg)  
-![Visitor Kiosk PROD](https://github.com/placeos/user-interfaces/workflows/VISITOR-KIOSK-PROD/badge.svg)
-![Visitor Kiosk DEV](https://github.com/placeos/user-interfaces/workflows/VISITOR-KIOSK-DEVELOP/badge.svg)
-![Visitor Kiok UAT](https://github.com/placeos/user-interfaces/workflows/VISITOR-KIOSK-UAT/badge.svg)  
-![Map Kiosk PROD](https://github.com/placeos/user-interfaces/workflows/MAP-KIOSK-PROD/badge.svg)
-![Map Kiosk DEV](https://github.com/placeos/user-interfaces/workflows/MAP-KIOSK-DEVELOP/badge.svg)
-![Map Kiosk UAT](https://github.com/placeos/user-interfaces/workflows/MAP-KIOSK-UAT/badge.svg)  
-![Workplace PROD](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-PROD/badge.svg)
-![Workplace DEV](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-DEVELOP/badge.svg)
-![Workplace UAT](https://github.com/placeos/user-interfaces/workflows/WORKPLACE-UAT/badge.svg)
+![BUILD](https://github.com/placeos/user-interfaces/workflows/BUILD/badge.svg)
+![TEST](https://github.com/placeos/user-interfaces/workflows/TEST/badge.svg)
 
 ## Setup
 
