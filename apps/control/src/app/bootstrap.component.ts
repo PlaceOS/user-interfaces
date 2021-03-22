@@ -111,6 +111,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                 }
             })
         );
+
         this.checkBootstrapped();
     }
 
