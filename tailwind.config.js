@@ -8,7 +8,7 @@ module.exports = (isProd) => ({
         purgeLayersByDefault: true,
     },
     purge: {
-        enabled: isProd && false,
+        enabled: isProd,
         content: ['**/*.html', '**/*.ts'],
         options: {
             whitelistPatterns: [/^cdk-|mat-/],

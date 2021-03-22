@@ -1,3 +1,8 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 :root {
     --primary: #c2185b;
