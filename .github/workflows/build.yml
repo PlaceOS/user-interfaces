@@ -23,7 +23,11 @@ jobs:
               uses: actions/cache@v2
               with:
                 path: node_modules
-                key: cache-node-modules-${{ hashFiles('package-lock.json') }}
+                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-build-${{ env.cache-name }}-
+                    ${{ runner.os }}-build-
+                    ${{ runner.os }}-
 
             - name: Setup Node.js environment
               uses: actions/setup-node@v1.4.4
@@ -68,6 +72,7 @@ jobs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
             configuration: ${{ steps.build_ext.outputs.configuration }}
             deploy_branch: ${{ steps.build_ext.outputs.deploy_branch }}
+            short_sha: ${{ steps.vars.outputs.short_sha }}
 
 
     # This workflow contains a single job called "build"
@@ -81,6 +86,7 @@ jobs:
             jobCount: ${{ fromJSON(needs.install_deps.outputs.affected_apps).length }}
             configuration: ${{ needs.install_deps.outputs.configuration }}
             deploy_branch: ${{ needs.install_deps.outputs.deploy_branch }}
+            short_sha: ${{ needs.install_deps.outputs.short_sha }}
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
 
@@ -91,7 +97,15 @@ jobs:
               uses: actions/cache@v2
               with:
                 path: node_modules
-                key: cache-node-modules-${{ hashFiles('package-lock.json') }}
+                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix-package}}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix-package}}-
+                    ${{ runner.os }}-build-${{ env.cache-name }}-
+                    ${{ runner.os }}-build-
+                    ${{ runner.os }}-
+
+            - name: Setup version
+              run: npm run postinstall
 
             - name: Initialise Pipeline Chat Status
               uses: fjogeleit/http-request-action@master
