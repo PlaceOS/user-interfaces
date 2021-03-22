@@ -97,9 +97,9 @@ jobs:
               uses: actions/cache@v2
               with:
                 path: node_modules
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix-package}}-${{ hashFiles('**/package-lock.json') }}
+                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
                 restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix-package}}-
+                    ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix.package}}-
                     ${{ runner.os }}-build-${{ env.cache-name }}-
                     ${{ runner.os }}-build-
                     ${{ runner.os }}-
