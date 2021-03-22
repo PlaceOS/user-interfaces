@@ -9,7 +9,7 @@ console.log(
 
 function commands(target) {
   const array = JSON.parse(
-    execSync(`npx nx print-affected --base=${baseSha} --target=${target}`)
+    execSync(`npx nx print-affected --base=${baseSha}~1 --target=${target}`)
       .toString()
       .trim()
   ).tasks.map((t) => t.target.project);
