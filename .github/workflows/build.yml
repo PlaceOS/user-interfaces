@@ -93,7 +93,7 @@ jobs:
 
             - name: Build affected applications
               run: |
-                npm run build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+                npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
               uses: MrYuion/gha-publish-to-git@v1.1
