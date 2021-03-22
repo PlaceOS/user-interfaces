@@ -19,7 +19,7 @@ module.exports = (config) => {
                                 require('postcss-import'),
                                 require('postcss-nested'),
                                 require('postcss-custom-properties'),
-                                require('tailwindcss')(tailwindConfig),
+                                require('@tailwindcss/jit')(tailwindConfig),
                                 require('autoprefixer'),
                             ],
                         },
