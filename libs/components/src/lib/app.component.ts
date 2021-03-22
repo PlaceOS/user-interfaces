@@ -131,6 +131,7 @@ export class AppComponent extends BaseClass implements OnInit {
         }
         console.error('Error initialising user.');
         invalidateToken();
+
         location.reload();
     }
 }
