@@ -76,8 +76,10 @@ jobs:
             # - name: Test the application
             #   run: npm run test:ci
 
-            - name: Builds the application
-              run: npx nx affected:build --configuration=${{ steps.build_ext.outputs.configuration }}
+            - name: Build affected applications
+              run: |
+                npx nx affected:apps --base=${{ github.event.before }} --verbose --configuration=${{ steps.build_ext.outputs.configuration }}
+                npx nx affected:libs --base=${{ github.event.before }} --verbose --configuration=${{ steps.build_ext.outputs.configuration }}
 
             - name: Deploy the application(bookings)
               uses: MrYuion/gha-publish-to-git@v1.1
