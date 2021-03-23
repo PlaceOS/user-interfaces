@@ -1,0 +1,79 @@
+{
+  "configVersion": 1,
+  "timestamp": 1616481148992,
+  "index": "/catering/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/catering/favicon.ico",
+        "/catering/index.html",
+        "/catering/main.121ea01b403f1e470dbb.js",
+        "/catering/polyfills.826566046f172a27ba4c.js",
+        "/catering/runtime.acf0dec4155e77772545.js",
+        "/catering/styles.82f429f87f023e88393b.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/catering/assets/icons/icon-128x128.png",
+        "/catering/assets/icons/icon-144x144.png",
+        "/catering/assets/icons/icon-152x152.png",
+        "/catering/assets/icons/icon-192x192.png",
+        "/catering/assets/icons/icon-384x384.png",
+        "/catering/assets/icons/icon-512x512.png",
+        "/catering/assets/icons/icon-72x72.png",
+        "/catering/assets/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/catering/assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
+    "/catering/assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
+    "/catering/assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
+    "/catering/assets/icons/icon-192x192.png": "7730e4802e6050f7326310f08e5ef3145f7d30dc",
+    "/catering/assets/icons/icon-384x384.png": "8c570c687541e467485ed56bcd6feefaf7378946",
+    "/catering/assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
+    "/catering/assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
+    "/catering/assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
+    "/catering/favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
+    "/catering/index.html": "a7eea38b6a35220540d54fcccc13910206c4966d",
+    "/catering/main.121ea01b403f1e470dbb.js": "2f983317e0d8721c13c9062df7b377a9f751c304",
+    "/catering/polyfills.826566046f172a27ba4c.js": "b43928058931728a0fde15125d4879e8ec6d8ee5",
+    "/catering/runtime.acf0dec4155e77772545.js": "a9aafcf49f49145093fc831efd9b8e2f6c71bb9c",
+    "/catering/styles.82f429f87f023e88393b.css": "9bd23cdd8a0ad47250e9b674dbb1d29ea1639505"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
