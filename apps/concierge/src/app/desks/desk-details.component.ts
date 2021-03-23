@@ -16,7 +16,7 @@ import { DesksStateService } from './desks-state.service';
         <div class="w-32 p-2 flex items-center">
             <action-icon
                 mat-icon-button
-                className="material-icons"
+
                 (click)="checkin()"
                 [loading]="loading === 'checkin'"
                 [state]="desk?.checked_in ? 'success' : ''"
@@ -24,7 +24,7 @@ import { DesksStateService } from './desks-state.service';
             ></action-icon>
             <action-icon
                 mat-icon-button
-                className="material-icons"
+
                 (click)="approve()"
                 [loading]="loading === 'approve'"
                 [state]="desk?.approved ? 'success' : ''"
@@ -32,7 +32,7 @@ import { DesksStateService } from './desks-state.service';
             ></action-icon>
             <action-icon
                 mat-icon-button
-                className="material-icons"
+
                 (click)="reject()"
                 [loading]="loading === 'reject'"
                 [state]="desk?.status === 'declined' ? 'success' : ''"

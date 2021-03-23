@@ -82,6 +82,9 @@ export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
             this.ngOnDestroy();
             this.bindVariable();
         }
+        if (changes.model && changes.model.previousValue !== this.model && this.model != null) {
+            this.execute();
+        }
         if (changes.on_event && this.on_event) {
             if (this.event_listener) {
                 this.event_listener();
@@ -112,6 +115,7 @@ export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
     private execute() {
         if (authority() && this.exec && this.sys && this.mod) {
             const module = getModule(this.sys, this.mod, this.index);
+            if (this.bind) this.params = [this.model];
             module.execute(this.exec, this.params).then(result => {
                 // Emit exec result if not bound to status variable
                 if (!this.bind) {
@@ -128,8 +132,6 @@ export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
     public writeValue(value: T) {
         this.model = value;
         this.modelChange.emit(this.model);
-        if (this.exec) {
-            this.execute();
-        }
+        this.execute();
     }
 }

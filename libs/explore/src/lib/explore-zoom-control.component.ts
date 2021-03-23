@@ -5,13 +5,13 @@ import { ExploreStateService } from './explore-state.service';
     selector: `explore-zoom-controls`,
     template: `
         <button mat-icon-button class="bg-white" (click)="zoomIn()">
-            <app-icon className="material-icons">add</app-icon>
+            <app-icon>add</app-icon>
         </button>
         <button mat-icon-button class="bg-white" (click)="zoomOut()">
-            <app-icon className="material-icons">remove</app-icon>
+            <app-icon>remove</app-icon>
         </button>
         <button mat-icon-button class="bg-white" (click)="reset()">
-            <app-icon className="material-icons">autorenew</app-icon>
+            <app-icon>autorenew</app-icon>
         </button>
     `,
     styles: [

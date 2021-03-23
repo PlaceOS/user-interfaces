@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { ViewerLabel, Point } from '@yuion/svg-viewer';
+import { ViewerLabel, Point } from '@placeos/svg-viewer';
 
 import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
 import {

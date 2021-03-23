@@ -36,7 +36,7 @@
                             "apps/workplace/src/assets",
                             {
                                 "glob": "**",
-                                "input": "shared-assets",
+                                "input": "shared/assets",
                                 "output": "/assets/"
                             },
                             {
@@ -45,7 +45,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/workplace/src/styles.scss"],
+                        "styles": [
+                            "apps/workplace/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
@@ -522,7 +528,7 @@
                             "apps/booking-panel/src/assets",
                             {
                                 "glob": "**",
-                                "input": "shared-assets",
+                                "input": "shared/assets",
                                 "output": "/assets/"
                             },
                             {
@@ -531,7 +537,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/booking-panel/src/styles.scss"],
+                        "styles": [
+                            "apps/booking-panel/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "stylePreprocessorOptions": {
                             "includePaths": ["shared-styles"]
                         },
@@ -717,7 +729,7 @@
                             "apps/concierge/src/assets",
                             {
                                 "glob": "**",
-                                "input": "shared-assets",
+                                "input": "shared/assets",
                                 "output": "/assets/"
                             },
                             {
@@ -726,7 +738,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/concierge/src/styles.scss"],
+                        "styles": [
+                            "apps/concierge/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "scripts": []
                     },
                     "configurations": {
@@ -907,7 +925,7 @@
                             "apps/visitor-kiosk/src/assets",
                             {
                                 "glob": "**",
-                                "input": "shared-assets",
+                                "input": "shared/assets",
                                 "output": "/assets/"
                             },
                             {
@@ -916,7 +934,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/visitor-kiosk/src/styles.scss"],
+                        "styles": [
+                            "apps/visitor-kiosk/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "scripts": []
                     },
                     "configurations": {
@@ -1098,7 +1122,7 @@
                             "apps/control/src/assets",
                             {
                                 "glob": "**",
-                                "input": "shared-assets",
+                                "input": "shared/assets",
                                 "output": "/assets/"
                             },
                             {
@@ -1107,7 +1131,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/control/src/styles.scss"],
+                        "styles": [
+                            "apps/control/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "scripts": []
                     },
                     "configurations": {
@@ -1289,7 +1319,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/caterer-ui/src/styles.scss"],
+                        "styles": [
+                            "apps/caterer-ui/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "scripts": []
                     },
                     "configurations": {
@@ -1470,7 +1506,7 @@
                             "apps/map-kiosk/src/assets",
                             {
                                 "glob": "**",
-                                "input": "shared-assets",
+                                "input": "shared/assets",
                                 "output": "/assets/"
                             },
                             {
@@ -1479,7 +1515,13 @@
                                 "output": "/"
                             }
                         ],
-                        "styles": ["apps/map-kiosk/src/styles.scss"],
+                        "styles": [
+                            "apps/map-kiosk/src/styles.scss",
+                            "shared/styles/application.scss",
+                            "shared/styles/custom-element.scss",
+                            "shared/styles/native-element.scss",
+                            "shared/styles/utility.scss"
+                        ],
                         "scripts": []
                     },
                     "configurations": {

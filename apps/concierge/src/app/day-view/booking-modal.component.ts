@@ -25,7 +25,7 @@ export interface BookingModalData {
             <h2>New Booking</h2>
             <div class="flex-1 w-0"></div>
             <button mat-icon-button mat-dialog-close>
-                <app-icon className="material-icons">close</app-icon>
+                <app-icon>close</app-icon>
             </button>
         </header>
         <main *ngIf="!loading; else load_state" class="overflow-auto p-4">

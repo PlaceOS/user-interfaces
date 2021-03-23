@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { getModule } from '@placeos/ts-client';
 
 import { BaseClass } from '@user-interfaces/common';
 
@@ -12,10 +11,11 @@ import { ControlStateService } from './control-state.service';
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
                 *ngIf="(system | async).power; else power_off_state"
-                class="absolute inset-0"
+                class="absolute inset-0 flex flex-col"
             >
                 <topbar-header></topbar-header>
-                <page-view></page-view>
+                <div control-page-view></div>
+                <control-status-bar></control-status-bar>
             </div>
         </ng-container>
         <ng-template #power_off_state>

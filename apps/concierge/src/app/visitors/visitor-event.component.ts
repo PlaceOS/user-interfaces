@@ -24,7 +24,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     matTooltip="Checkin All Guests"
                     [loading]="loading === 'checkin'"
                     [disabled]="guestCount <= 0"
-                    className="material-icons"
+
                     content="event_available"
                     (click)="checkinGuests()"
                 >
@@ -33,7 +33,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     matTooltip="Checkout All Guests"
                     [loading]="loading === 'checkout'"
                     [disabled]="guestCount <= 0"
-                    className="material-icons"
+
                     content="event_busy"
                     (click)="checkoutGuests()"
                 >
@@ -43,7 +43,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     [href]="'mailto:' + event?.organiser?.email"
                     matTooltip="Email Host"
                 >
-                    <app-icon className="material-icons">email</app-icon>
+                    <app-icon>email</app-icon>
                 </a>
             </div>
             <div class="w-16 p-2">
@@ -57,7 +57,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             : 'Show Attendees'
                     "
                 >
-                    <app-icon className="material-icons">{{
+                    <app-icon>{{
                         show_attendees
                             ? 'keyboard_arrow_down'
                             : 'keyboard_arrow_right'

@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
-import { ViewAction, ViewerFeature } from '@yuion/svg-viewer';
+import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 
 import { BaseClass, HashMap, notifyError, SettingsService } from '@user-interfaces/common';
 import { Space } from '@user-interfaces/spaces';

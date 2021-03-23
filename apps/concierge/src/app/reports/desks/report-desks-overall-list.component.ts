@@ -17,51 +17,18 @@ import { ReportsStateService } from '../reports-state.service';
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <div
-                table-head
-                class="flex items-center font-medium border-b border-gray-200"
-            >
-                <div class="w-1/3 p-4">Date</div>
-                <div class="w-1/6 p-4">Used Desks</div>
-                <div class="w-1/6 p-4">Approved Bookings</div>
-                <div class="w-1/6 p-4">Total Requests</div>
-                <div class="w-1/6 p-4">Utilisation</div>
-            </div>
-            <div table-body>
-                <div
-                    table-row
-                    class="flex items-center border-b border-gray-200"
-                    *ngFor="
-                        let date of day_list
-                            | async
-                            | slice: page * 7:page * 7 + 7
-                    "
-                >
-                    <div class="w-1/3 p-4">
-                        {{ date.date | date: 'MMMM d, y(EEE)' }}
-                    </div>
-                    <div class="w-1/6 p-4">
-                        {{ date.count || 0 }} / {{ date.total || 0 }}
-                    </div>
-                    <div class="w-1/6 p-4">{{ date.approved || 0 }}</div>
-                    <div class="w-1/6 p-4">{{ date.count || 0 }}</div>
-                    <div class="w-1/6 p-4">{{ date.utilisation }}%</div>
-                </div>
-            </div>
-            <div table-footer>
-                <mat-paginator
-                    [length]="(day_list | async)?.length || 0"
-                    [pageSize]="7"
-                    (page)="page = $event.pageIndex"
-                    [hidePageSize]="true"
-                >
-                </mat-paginator>
-            </div>
+            <custom-table
+                red-header
+                [dataSource]="day_list"
+                [pagination]="true"
+                [columns]="['date', 'usage', 'approved', 'count', 'utilisation']"
+                [display_column]="['Date', 'Used Desks', 'Approved Bookings', 'Total Requests', 'Utilisation']"
+                [column_size]="['flex']"
+            ></custom-table>
         </div>
     `,
 })
 export class ReportDesksOverallListComponent {
-    public page: number = 0;
 
     public readonly day_list = combineLatest([
         this._state.options,
@@ -69,7 +36,6 @@ export class ReportDesksOverallListComponent {
     ]).pipe(
         map(([options, stats]) => {
             const { start, end } = options;
-            this.page = 0;
             let date = start;
             const dates = [];
             while (isBefore(date, end)) {

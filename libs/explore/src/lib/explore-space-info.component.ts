@@ -2,7 +2,7 @@ import { Component, ElementRef, Inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@user-interfaces/components';
 import { CalendarEvent } from '@user-interfaces/events';
 import { Space } from '@user-interfaces/spaces';
-import { getViewer, coordinatesForElement } from '@yuion/svg-viewer';
+import { getViewer, coordinatesForElement } from '@placeos/svg-viewer';
 
 export interface SpaceInfoData {
     space: Space;

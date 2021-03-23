@@ -1,3 +1,8 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 :root {
     --primary: #c2185b;
@@ -11,8 +16,14 @@
     --error: #e53935;
     --bg: #f0f0f0;
     --bg-dark: #212121;
-    --font: 'Helvetica Neue', Roboto, Helvetica, sans-serif;
+    --font: 'Helvetica Neue', 'Roboto', Helvetica, sans-serif;
     --heading-font: Georgia, 'Times New Roman', Times, serif;
+}
+
+@media screen {
+    .print-only {
+        display: none !important;
+    }
 }
 
 html,

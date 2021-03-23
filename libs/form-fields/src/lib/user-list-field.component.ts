@@ -30,6 +30,7 @@ import { MatDialog } from '@angular/material/dialog';
                 <a-user-search-field
                     [(ngModel)]="search_user"
                     [guests]="guests"
+                    [filter]="filter"
                     (ngModelChange)="addUser($event)"
                 ></a-user-search-field>
             </div>
@@ -66,7 +67,7 @@ import { MatDialog } from '@angular/material/dialog';
                     </mat-chip>
                 </mat-chip-list>
             </div>
-            <div class="flex items-center">
+            <div class="flex items-center" *ngIf="!hide_actions">
                 <button
                     mat-button
                     name="new-contact"
@@ -132,7 +133,11 @@ export class UserListFieldComponent
     /** Number of characters needed before a search will start */
     @Input() public limit: number = 3;
     /** Whether guests should also show when searching for users */
-    @Input() public guests: boolean;
+    @Input() public guests: boolean = false;
+    /** Whether optional actions should be shown */
+    @Input('hideActions') public hide_actions: boolean = false;
+    /** Function for filtering the results of the user list */
+    @Input() public filter: (_: any) => boolean;
     /** Emitter for action to make a new user */
     @Output() public new_user = new EventEmitter<void>();
 

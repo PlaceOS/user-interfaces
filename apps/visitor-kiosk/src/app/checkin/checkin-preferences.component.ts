@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
-                <app-icon className="material-icons">close</app-icon>
+                <app-icon>close</app-icon>
             </a>
         </div>
     `,

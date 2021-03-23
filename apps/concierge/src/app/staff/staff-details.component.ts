@@ -18,16 +18,16 @@ import { StaffStateService } from './staff-state.service';
                 <action-icon
                     [matTooltip]="onsite ? 'Checkout Staff' : 'Checkin Staff'"
                     [loading]="loading"
-                    className="material-icons"
+
                     [content]="onsite ? 'event_busy' : 'event_available'"
                     (click)="onsite ? checkout() : checkin()"
                 >
                 </action-icon>
                 <a mat-icon-button matTooltip="Email Staff" [disabled]="!user?.email" [href]="'mailto:' + user?.email">
-                    <app-icon className="material-icons">email</app-icon>
+                    <app-icon>email</app-icon>
                 </a>
                 <a mat-icon-button matTooltip="Phone Staff" [disabled]="!user?.phone" [href]="'tel:' + user?.phone">
-                    <app-icon className="material-icons">call</app-icon>
+                    <app-icon>call</app-icon>
                 </a>
             </div>
         </div>

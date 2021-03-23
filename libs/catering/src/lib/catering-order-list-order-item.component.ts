@@ -16,7 +16,7 @@ import { CateringItem } from './catering-item.class';
                 [class.text-white]="active"
                 [class.border-solid]="active"
             >
-                <app-icon className="material-icons">{{ active ? 'done' : 'local_pizza' }}</app-icon>
+                <app-icon>{{ active ? 'done' : 'local_pizza' }}</app-icon>
             </button>
         </div>
         <div class="flex-1 border-none border-b border-gray-300 border-solid py-4">

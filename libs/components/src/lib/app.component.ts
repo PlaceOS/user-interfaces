@@ -59,13 +59,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
             </div>
         </div>
     `,
-    styleUrls: [
-        '../../../../shared-styles/utility.scss',
-        '../../../../shared-styles/app.component.scss',
-        '../../../../shared-styles/custom-element.styles.scss',
-        '../../../../shared-styles/native-element.styles.scss',
-    ],
-    encapsulation: ViewEncapsulation.None,
+    styles: [``]
 })
 export class AppComponent extends BaseClass implements OnInit {
     private _loading = new BehaviorSubject<boolean>(false);

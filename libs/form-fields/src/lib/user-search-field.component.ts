@@ -79,6 +79,8 @@ export class UserSearchFieldComponent
     @Input() public options: User[];
     /** Whether guests should also show when searching for users */
     @Input() public guests: boolean;
+    /** Function for filtering the results of the user list */
+    @Input() public filter: (_: any) => boolean;
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -113,11 +115,13 @@ export class UserSearchFieldComponent
             const search = this.search_str.toLowerCase();
             return list.filter(
                 (item) =>
-                    item.name.toLowerCase().includes(search) ||
-                    item.email.toLowerCase().includes(search)
+                    (!this.filter || this.filter(item)) &&
+                    (item.name?.toLowerCase().includes(search) ||
+                        item.email.toLowerCase().includes(search))
             );
         })
     );
+
 
     /** Form control on change handler */
     private _onChange: (_: User) => void;
@@ -136,9 +140,7 @@ export class UserSearchFieldComponent
      * Reset the search string back to the name of the active user
      */
     public resetSearchString() {
-        if (this.active_user) {
-            this.search_str = this.active_user.name;
-        }
+        this.search_str = this.active_user?.name || '';
     }
 
     /**

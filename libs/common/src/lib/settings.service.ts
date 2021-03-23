@@ -64,7 +64,7 @@ export class SettingsService extends BaseClass {
         return this._title.getTitle();
     }
     public set title(value: string) {
-        this._title.setTitle(`${value} | ${this._app_name}`);
+        this._title.setTitle(`${value} | ${this.get('app.name') || this._app_name}`);
     }
 
     constructor(private _title: Title) {

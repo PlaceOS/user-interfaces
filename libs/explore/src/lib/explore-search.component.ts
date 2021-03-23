@@ -26,7 +26,7 @@ export interface SearchResult {
                 class="text-2xl"
                 tabindex="0"
                 (click)="show ? closeSearch($event) : showSearch()"
-                className="material-icons"
+
             >
                 {{ show || search_str ? 'close' : 'search' }}
             </app-icon>

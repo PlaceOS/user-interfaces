@@ -73,7 +73,7 @@ export const CAPACITY_OPTIONS = [
                 >
                     <div class="flex items-center justify-center w-full sm:w-48">
                         Go
-                        <app-icon class="text-lg" className="material-icons"
+                        <app-icon class="text-lg"
                             >arrow_forward</app-icon
                         >
                     </div>

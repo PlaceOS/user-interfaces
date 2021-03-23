@@ -1,7 +1,17 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { notifyError } from '@user-interfaces/common';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
+import {
+    BaseClass,
+    notifyError,
+    SettingsService,
+} from '@user-interfaces/common';
 import { CalendarEvent, saveEvent } from '@user-interfaces/events';
-import { User } from '@user-interfaces/users';
+import { showGuest, User } from '@user-interfaces/users';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -29,7 +39,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </ng-template>
         </div>
         <div flex class="p-2 flex-1">{{ visitor?.name || visitor?.email }}</div>
-        <div class="w-40 p-2 flex items-center justify-end">
+        <div class="w-48 p-2 flex items-center justify-end">
             <action-icon
                 [matTooltip]="
                     remote
@@ -37,7 +47,6 @@ import { VisitorsStateService } from './visitors-state.service';
                         : 'Set as Remote Visitior'
                 "
                 [loading]="loading === 'remote'"
-                className="material-icons"
                 [content]="remote ? 'tap_and_play' : 'business'"
                 (click)="toggleRemote()"
                 [class.invisible]="!visitor?.is_external || visitor?.organizer"
@@ -47,7 +56,6 @@ import { VisitorsStateService } from './visitors-state.service';
                 matTooltip="Checkin Guest"
                 [loading]="loading === 'checkin'"
                 [state]="visitor?.checked_in ? 'success' : ''"
-                className="material-icons"
                 content="event_available"
                 (click)="checkin()"
                 [class.invisible]="!visitor?.is_external || visitor?.organizer"
@@ -56,7 +64,6 @@ import { VisitorsStateService } from './visitors-state.service';
             <action-icon
                 matTooltip="Checkout Guest"
                 [loading]="loading === 'checkout'"
-                className="material-icons"
                 content="event_busy"
                 (click)="checkout()"
                 [class.invisible]="!visitor?.is_external || visitor?.organizer"
@@ -67,10 +74,45 @@ import { VisitorsStateService } from './visitors-state.service';
                 mat-icon-button
                 [matTooltip]="visitor?.organizer ? 'Email Host' : 'Email Guest'"
             >
-                <app-icon className="material-icons">email</app-icon>
+                <app-icon>email</app-icon>
             </a>
+            <action-icon
+                matTooltip="Print QR Code"
+                [loading]="loading === 'printing'"
+                content="event_busy"
+                (click)="printQRCode()"
+                [class.invisible]="!can_print"
+            >
+            </action-icon>
         </div>
-        <div class="w-16 p-2"></div>
+        <div class="w-8 p-2"></div>
+        <div
+            qr-code
+            *ngIf="show_qr_code"
+            class="print-only fixed inset-0 flex flex-col justify-center bg-white space-y-2"
+        >
+            <h2>{{ visitor?.name || visitor?.email }}</h2>
+            <div>
+                <span>Host:</span>
+                {{
+                    event?.organiser?.name ||
+                        event?.organiser?.name ||
+                        event?.creator
+                }}
+            </div>
+            <div><span>Purpose:</span> {{ event?.title }}</div>
+            <div>
+                <span>Location:</span>
+                {{ event?.location || '&lt;Unspecified&gt;' }}
+            </div>
+            <div><span>Issue Date:</span> {{ today | date: 'mediumDate' }}</div>
+            <div class="flex justify-center">
+                <img
+                    [src]="visitor?.extension_data?.qr?.code || ''"
+                    alt="qr-code"
+                />
+            </div>
+        </div>
     `,
     styles: [
         `
@@ -100,13 +142,14 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
 })
-export class VisitorDetailsComponent {
+export class VisitorDetailsComponent extends BaseClass {
     @Input() public event: CalendarEvent;
     @Input() public visitor: User;
     @Output() public eventChange = new EventEmitter<CalendarEvent>();
 
     public show_attendees: boolean;
     public loading: string;
+    public show_qr_code: boolean;
 
     public readonly checkin = async () => {
         this.loading = 'checkin';
@@ -151,9 +194,60 @@ export class VisitorDetailsComponent {
         this.loading = '';
     };
 
+
+    /** Open print dialog for user's QR code */
+    public readonly printQRCode = () => {
+        this.show_qr_code = true;
+        this.timeout('print', () => {
+            window.print();
+            this.show_qr_code = false;
+        }, 50);
+
+    }
+
+    public get can_print(): boolean {
+        return (
+            this._settings.get('app.can_print_qr') &&
+            this.visitor.checked_in &&
+            this.visitor?.extension_data.qr
+        );
+    }
+
+    public get today(): number {
+        return Math.floor(new Date().valueOf() / 60 / 1000) * 60 * 1000;
+    }
+
     public get remote(): boolean {
         return !!this.event?.remote.find((e) => e === this.visitor?.email);
     }
 
-    constructor(private _state: VisitorsStateService) {}
+    constructor(
+        private _state: VisitorsStateService,
+        private _settings: SettingsService
+    ) {
+        super();
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.visitor) {
+            this.loadGuest();
+        }
+    }
+
+    public async loadGuest(tries: number = 0) {
+        if (!this.visitor) return;
+        this.loading = 'printing';
+        if (this.visitor.checked_in) {
+            const guest = await showGuest(this.visitor.email)
+                .toPromise()
+                .catch((_) => null);
+            if (!guest?.extension_data?.qr?.code && tries < 5) {
+                this.timeout('load_guest', () => this.loadGuest(++tries), 1000);
+            } else {
+                this.loading = '';
+            }
+        } else {
+            this.loading = '';
+        }
+    }
 }

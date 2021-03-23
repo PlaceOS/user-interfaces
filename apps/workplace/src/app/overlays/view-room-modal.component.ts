@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ViewerFeature, ViewerStyles } from '@yuion/svg-viewer';
+import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
 import { BaseClass } from '@user-interfaces/common';
 import { BuildingLevel } from '@user-interfaces/organisation';
