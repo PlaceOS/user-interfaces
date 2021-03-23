@@ -1,5 +1,13 @@
 import { HashMap, unique } from '@user-interfaces/common';
 
+export interface EnvironmentSource {
+    id?: string;
+    name: string;
+    type?: 'lights' | 'blinds' | 'screen';
+    state: string | number;
+    states: string[];
+}
+
 export interface RoomInput {
     id?: string;
     name: string;
@@ -31,9 +39,11 @@ class RoomModule {
 
     public readonly input_list: HashMap<RoomInput>;
     public readonly output_list: HashMap<RoomOutput>;
+    public readonly env_sources: EnvironmentSource[];
 
     public readonly inputs;
     public readonly outputs;
+    public readonly environment;
 
     public volume = 0;
 
@@ -43,8 +53,19 @@ class RoomModule {
         this.power = _data.power || false;
         this.input_list = _data.input_list;
         this.output_list = _data.output_list;
+        this.env_sources = _data.env_sources || [];
         this.inputs = Object.keys(this.input_list || {}) || [];
         this.outputs = Object.keys(this.output_list || {}) || [];
+        const types = unique(this.env_sources.map((_) => _.type));
+        types.forEach(
+            (t) =>
+                (this[`${t}`] = this.env_sources
+                    .filter((_) => _.type === t)
+                    .map((_) => _.id))
+        );
+        this.env_sources.forEach(
+            (source) => (this[`${source.type}/${source.id}`] = source)
+        );
         this.inputs.forEach(
             (key) => (this[`input/${key}`] = this.input_list[key])
         );
@@ -159,7 +180,12 @@ class RoomModule {
      *
      * System state provides the ability to introspect configured points for both control limits and current value.
      **/
-    $environment() {}
+    $environment(id: string, state: string | number) {
+        const source = this.env_sources.find(_ => _.id === id);
+        if (source) {
+            this[`${source.type}/${source.id}`] = { ...source, state };
+        }
+    }
     /** Locks an IO node. Prevents any route changes that include this until unlocked. */
     $lock(source: string) {
         this.$updateState(source, { locked: true });
@@ -184,17 +210,17 @@ const input_list: HashMap = {
     Mic1: {
         name: 'Lectern Mic',
         type: 'Microphone',
-        module: 'Microphone_1'
+        module: 'Microphone_1',
     },
     Mic2: {
         name: 'Lapel Mic',
         type: 'Microphone',
-        module: 'Microphone_2'
+        module: 'Microphone_2',
     },
     Mic3: {
         name: 'Handheld Mic',
         type: 'Microphone',
-        module: 'Microphone_3'
+        module: 'Microphone_3',
     },
     PC1: {
         name: 'PC-1',
@@ -278,5 +304,28 @@ const output_list: HashMap = {
     },
 };
 
+const env_sources: any[] = [
+    {
+        id: 'light1',
+        name: 'Lighting',
+        type: 'lights',
+        states: ['Off', 'Presentation', 'Meeting', 'Full'],
+        state: 'Off',
+    },
+    {
+        id: 'blinds',
+        name: 'Blinds',
+        type: 'blinds',
+        states: ['Off', 'Presentation', 'Meeting'],
+        state: 'Off',
+    },
+];
+
 export const createSystemModule = (space: HashMap, overrides: HashMap = {}) =>
-    new RoomModule({ ...space, input_list, output_list, ...overrides });
+    new RoomModule({
+        ...space,
+        input_list,
+        output_list,
+        env_sources,
+        ...overrides,
+    });

@@ -7,6 +7,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 import { map } from 'rxjs/operators';
 
+export interface EnvironmentSource {
+    name: string;
+    states: string[];
+    state: string;
+}
+
 export interface RoomInput {
     id?: string;
     name: string;
@@ -47,6 +53,8 @@ export class ControlStateService extends BaseClass {
     private _volume = new BehaviorSubject<number>(0);
     private _input_data = new BehaviorSubject<RoomInput[]>([]);
     private _output_data = new BehaviorSubject<RoomOutput[]>([]);
+    private _lights = new BehaviorSubject<string[]>([]);
+    private _blinds = new BehaviorSubject<string[]>([]);
 
     /** General data associated with the active system */
     public readonly system = this._system.asObservable();
@@ -54,6 +62,10 @@ export class ControlStateService extends BaseClass {
     public readonly input_list = this._input_data.asObservable();
     /** List of available output sources */
     public readonly output_list = this._output_data.asObservable();
+    /** List of available light sources */
+    public readonly lights = this._lights.asObservable();
+    /** List of available light sources */
+    public readonly blinds = this._blinds.asObservable();
     public readonly volume = this._volume.asObservable();
     /** List of available microphone input sources */
     public readonly mic_list = this._input_data.pipe(
@@ -136,6 +148,8 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'recording');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'outputs', undefined, (l) => this._outputs.next(l));
+        this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
+        this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
     }
 
     /** Bind to changes on input or output sources */
