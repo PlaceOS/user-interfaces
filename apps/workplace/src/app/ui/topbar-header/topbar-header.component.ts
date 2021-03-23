@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 
@@ -17,17 +17,11 @@ import { combineLatest } from 'rxjs';
     templateUrl: './topbar-header.component.html',
     styleUrls: ['./topbar-header.component.scss'],
 })
-export class TopbarHeaderComponent extends BaseClass implements OnInit {
-    /** Logo of the application organisation */
-    public logo: ApplicationIcon;
+export class TopbarHeaderComponent extends BaseClass {
     /** Whether to show menu */
     @Input() public menu: boolean;
     /** Emiiter for changes to menu state */
     @Output() public menuChange = new EventEmitter<boolean>();
-    /** Whether to reverse the side of the menu icon */
-    public reverse: boolean;
-    /** Current page title */
-    public title: string;
 
     public readonly updateSearch = (s) =>
         this._dashboard.setOptions({ search: s });
@@ -62,6 +56,21 @@ export class TopbarHeaderComponent extends BaseClass implements OnInit {
 
     public search_str = '';
 
+    /** Logo of the application organisation */
+    public get logo(): ApplicationIcon {
+        return this._settings.get('app.logo_light') || { type: 'icon' } as any;
+    }
+
+    /** Whether to reverse the side of the menu icon */
+    public get reverse() {
+        return this._settings.get('app.general.menu.position') === 'left';
+    }
+
+    /** Current page title */
+    public get title() {
+        return this._settings.get('navTitle');
+    }
+
     constructor(
         private router: Router,
         private _settings: SettingsService,
@@ -69,17 +78,6 @@ export class TopbarHeaderComponent extends BaseClass implements OnInit {
         private _spaces: SpacesService
     ) {
         super();
-    }
-
-    public ngOnInit(): void {
-        this.logo = this._settings.get('app.logo_light') || { type: 'icon' };
-        this.reverse =
-            this._settings.get('app.general.menu.position') === 'left';
-        // this.title = this._service.get('title');
-        // this.subscription('title', () =>
-        // this._service.listen('title', value => (this.title = value))
-        // );
-        this.title = this._settings.get('navTitle');
     }
 
     /** Toggle Menu */
