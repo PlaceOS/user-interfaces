@@ -1,0 +1,115 @@
+{
+  "configVersion": 1,
+  "timestamp": 1616481158300,
+  "index": "/concierge/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/concierge/0.1725c78f0e89b67aac16.js",
+        "/concierge/10.da2ec53d6553f378fe46.js",
+        "/concierge/11.6376b3978644438a62e9.js",
+        "/concierge/12.35fb87808fec47af3c4d.js",
+        "/concierge/13.dfbfffb10bae6da679f4.js",
+        "/concierge/2.4b9527f93893c03fee92.js",
+        "/concierge/6.48205370147c440650cd.js",
+        "/concierge/7.f54b5bb1091624c1cd6b.js",
+        "/concierge/8.374794bc1c9f9c603239.js",
+        "/concierge/9.28239350831e59990cc2.js",
+        "/concierge/favicon.ico",
+        "/concierge/index.html",
+        "/concierge/main.5ae5653fa0cf185d2366.js",
+        "/concierge/polyfills.d7e6e1af712b0b22cb61.js",
+        "/concierge/runtime.ab86bf1fe9fe309c4062.js",
+        "/concierge/styles.82f429f87f023e88393b.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/concierge/assets/icons/icon-128x128.png",
+        "/concierge/assets/icons/icon-144x144.png",
+        "/concierge/assets/icons/icon-152x152.png",
+        "/concierge/assets/icons/icon-192x192.png",
+        "/concierge/assets/icons/icon-384x384.png",
+        "/concierge/assets/icons/icon-512x512.png",
+        "/concierge/assets/icons/icon-72x72.png",
+        "/concierge/assets/icons/icon-96x96.png",
+        "/concierge/assets/logo-dark.svg",
+        "/concierge/assets/logo-light.svg",
+        "/concierge/assets/not-supported.html",
+        "/concierge/assets/support/chrome-logo.svg",
+        "/concierge/assets/support/edge-logo.svg",
+        "/concierge/assets/support/firefox-logo.svg",
+        "/concierge/assets/support/opera-logo.svg",
+        "/concierge/assets/support/safari-logo.svg"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/concierge/0.1725c78f0e89b67aac16.js": "b911e725638e8ed27e5e8c6895a0df0201b48ea7",
+    "/concierge/10.da2ec53d6553f378fe46.js": "18b9c50ba10533a718c45c5f8ff1fe1ed98c68dc",
+    "/concierge/11.6376b3978644438a62e9.js": "0e51117a42007c757ebffb7a52a0e601edb4c7b6",
+    "/concierge/12.35fb87808fec47af3c4d.js": "2abf59fd5225a037750f631952f45dd6875cfd06",
+    "/concierge/13.dfbfffb10bae6da679f4.js": "4a858b651f0e4e9643dbb811e1f7f9db73e3ac55",
+    "/concierge/2.4b9527f93893c03fee92.js": "eec10ea318937f8b0fff2b8faff4f435f40afafd",
+    "/concierge/6.48205370147c440650cd.js": "400da17a19e83fdfebb7126c2000454447bf112c",
+    "/concierge/7.f54b5bb1091624c1cd6b.js": "b6658b363a78cc434ecbab85f72ab298e3a6f7dd",
+    "/concierge/8.374794bc1c9f9c603239.js": "850d0bdd5d0579774848c429b629d218b8dde52e",
+    "/concierge/9.28239350831e59990cc2.js": "8d4de54afe51d6932d078c088a1284e154ef60d4",
+    "/concierge/assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
+    "/concierge/assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
+    "/concierge/assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
+    "/concierge/assets/icons/icon-192x192.png": "7730e4802e6050f7326310f08e5ef3145f7d30dc",
+    "/concierge/assets/icons/icon-384x384.png": "8c570c687541e467485ed56bcd6feefaf7378946",
+    "/concierge/assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
+    "/concierge/assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
+    "/concierge/assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
+    "/concierge/assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
+    "/concierge/assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
+    "/concierge/assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
+    "/concierge/assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
+    "/concierge/assets/support/edge-logo.svg": "28d8691fd6c19223a3d99dd8732416d32a82d496",
+    "/concierge/assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
+    "/concierge/assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
+    "/concierge/assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
+    "/concierge/favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
+    "/concierge/index.html": "0a9ad217bac43a585d78ee5f4c21c472794d81d8",
+    "/concierge/main.5ae5653fa0cf185d2366.js": "3774d7fc66c843c15dc397cd75f2f1b3019c6354",
+    "/concierge/polyfills.d7e6e1af712b0b22cb61.js": "0cc457a3d24f175a52e28e0b25de0dedd28535f8",
+    "/concierge/runtime.ab86bf1fe9fe309c4062.js": "fc5b9074ab7b17f2641486941c2ecb9636d10894",
+    "/concierge/styles.82f429f87f023e88393b.css": "9bd23cdd8a0ad47250e9b674dbb1d29ea1639505"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
