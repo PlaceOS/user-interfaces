@@ -86,7 +86,7 @@ export class ControlMainViewComponent extends BaseClass {
             )
         );
         this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstap']) : ''
+            !this._state.id ? this._router.navigate(['/bootstrap']) : ''
         );
     }
 }

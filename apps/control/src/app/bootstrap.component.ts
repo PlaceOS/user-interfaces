@@ -79,7 +79,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     /** Whether application data is loading */
     public loading: boolean;
     /** ID of the system to bootstrap */
-    public system_id: string;
+    public system_id: string = '';
     /** Selected system to bootstrap */
     public selected_system: Space = null;
     /** Whether input field is focused */
