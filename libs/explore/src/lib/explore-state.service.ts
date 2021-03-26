@@ -67,7 +67,7 @@ export class ExploreStateService extends BaseClass {
         this._features,
         this._options,
     ]).pipe(
-        debounceTime(500),
+        debounceTime(200),
         map((details) => {
             const [features, options] = details;
             let list = [];
@@ -92,7 +92,7 @@ export class ExploreStateService extends BaseClass {
     );
     /** Currently center and zoom positions for map */
     public readonly map_actions = this._actions.pipe(
-        debounceTime(500),
+        debounceTime(200),
         map((i) => Object.values(i).reduce((list, a) => list.concat(a), []))
     );
     /** Currently center and zoom positions for map */
@@ -100,7 +100,7 @@ export class ExploreStateService extends BaseClass {
         this._labels,
         this._options,
     ]).pipe(
-        debounceTime(500),
+        debounceTime(200),
         map((details) => {
             const [labels, options] = details;
             let list = [];
@@ -117,7 +117,7 @@ export class ExploreStateService extends BaseClass {
         this._styles,
         this._options,
     ]).pipe(
-        debounceTime(500),
+        debounceTime(200),
         map((details) => {
             const [styles, options] = details;
             const style_mappings = Object.keys(styles).reduce(

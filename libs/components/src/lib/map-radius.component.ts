@@ -1,4 +1,5 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { formatDistanceToNow } from 'date-fns';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 
 export interface MapRadiusData {
@@ -6,6 +7,7 @@ export interface MapRadiusData {
     radius: number;
     fill: string;
     stroke: string;
+    last_seen?: number;
 }
 
 @Component({
@@ -22,10 +24,13 @@ export interface MapRadiusData {
             <div
                 *ngIf="message && show_message"
                 name="message"
-                [style.top]="'-' + radius * 100 + '%'"
-                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap"
+                [style.top]="'-' + ((radius / 2) * 100 + 550) + '%'"
+                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
             >
                 {{ message }}
+                <span *ngIf="last_seen" class="text-xs">
+                    Last updated: {{ last_seen_at }}
+                </span>
             </div>
         </ng-container>
     `,
@@ -67,6 +72,12 @@ export class MapRadiusComponent implements OnInit {
     public readonly radius = this._details.radius || 10;
     /** Stroke colour for the pin SVG */
     public readonly stroke = this._details.stroke || '#e53935';
+
+    public readonly last_seen: number = this._details.last_seen || 0;
+
+    public get last_seen_at() {
+        return formatDistanceToNow(this.last_seen * 1000) + ' ago';
+    }
 
     public show: boolean;
     public show_message: boolean;

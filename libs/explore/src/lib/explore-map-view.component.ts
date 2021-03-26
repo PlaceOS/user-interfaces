@@ -82,6 +82,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     public readonly labels = this._state.map_labels;
     /** Observable for the active map */
     public readonly options = this._state.options;
+    /** Observable for user messages */
+    public readonly message = this._state.message;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
@@ -91,6 +93,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
         private _route: ActivatedRoute,
+        private _router: Router,
         private _spaces: SpacesService,
         private _org: OrganisationService,
         private _settings: SettingsService
@@ -118,10 +121,11 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                         user = await showStaff(params.get('user')).toPromise();
                     }
                     if (!user)
-                        return notifyError(
-                            `Unable to user details for ${params.get('user')}`
-                        );
-                    this.locateUser(user);
+                        return notifyError(`Unable to user details for ${params.get('user')}`);
+                    this.locateUser(user instanceof Array ? user[0] : user).catch((_) => {
+                        notifyError(`Unable to locate ${params.get('user')}`);
+                        this._router.navigate([], { relativeTo: this._route, queryParams: {} });
+                    });
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
@@ -146,8 +150,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private async locateUser(user: User) {
-        let locate_details: any = this._org.organisation.bindings
-            .location_services;
+        let locate_details: any = this._org.organisation.bindings.location_services;
         if (!locate_details) return;
         if (typeof locate_details === 'string') {
             locate_details = {
@@ -161,22 +164,19 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         ).map((i) => new MapLocation(i));
         locations.sort(
             (a, b) =>
-                locate_details.priority.indexOf(a.type) -
-                locate_details.priority.indexOf(b.type)
+                locate_details.priority.indexOf(a.type) - locate_details.priority.indexOf(b.type)
         );
         if (!locations?.length) {
-            return notifyError(`Unable to locate ${user.name}`);
+            throw 'No locations for the given user';
         }
         this._state.setLevel(this._org.levelWithID([locations[0]?.level]).id);
         const feature: any = {
             location: locations[0].position,
-            content:
-                locations[0].type === 'wireless'
-                    ? MapRadiusComponent
-                    : MapPinComponent,
+            content: locations[0].type === 'wireless' ? MapRadiusComponent : MapPinComponent,
             data: {
                 message: `${user.name} is here`,
                 radius: locations[0].variance,
+                last_seen: locations[0].last_seen,
             },
         };
         this.timeout('update_location', () => {
