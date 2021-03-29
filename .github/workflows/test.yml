@@ -10,63 +10,118 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-    # This workflow contains a single job called "build"
-    build:
-        # The type of runner that the job will run on
-        runs-on: ubuntu-latest
 
-        # Steps represent a sequence of tasks that will be executed as part of the job
+    install_deps:
+        runs-on: ubuntu-latest
         steps:
-            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - uses: actions/checkout@v2
+              with:
+                  fetch-depth: '2'
+
+            - name: Cache node modules
+              id: cache
+              uses: actions/cache@v2
+              with:
+                path: node_modules
+                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-build-${{ env.cache-name }}-
+                    ${{ runner.os }}-build-
+                    ${{ runner.os }}-
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v1.4.4
+              with:
+                  node-version: '13'
+
+            - name: NPM install
+              if: steps.cache.outputs.cache-hit != 'true'
+              run: npm install
 
             - name: Get short hash
               id: vars
               run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-            - name: Setup Node.js environment
-              uses: actions/setup-node@v1.4.4
-              with:
-                node-version: '13'
+            - name: Extract branch name
+              id: branch_name
+              shell: bash
+              run: echo "::set-output name=name::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+
+            - name: Extract build configuration
+              shell: bash
+              id: build_ext
+              run: |
+                    if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
+                    then
+                        echo "::set-output name=configuration::production"
+                        echo "::set-output name=deploy_branch::prod"
+                    elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                    then
+                        echo "::set-output name=configuration::staging"
+                        echo "::set-output name=deploy_branch::uat"
+                    else
+                        echo "::set-output name=configuration::staging"
+                        echo "::set-output name=deploy_branch::dev"
+                    fi
+            - name: List affected applications
+              id: affected_apps
+              run: |
+                echo "::set-output name=affected_apps::$(node ./tools/get-affected.js ${{ github.ref }} test)"
+
+        outputs:
+            affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
+            configuration: ${{ steps.build_ext.outputs.configuration }}
+            deploy_branch: ${{ steps.build_ext.outputs.deploy_branch }}
+            short_sha: ${{ steps.vars.outputs.short_sha }}
+
+
+    # This workflow contains a single job called "build"
+    build:
+        runs-on: ubuntu-latest
+        needs: install_deps
+        strategy:
+          matrix:
+            package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
+        env:
+            jobCount: ${{ fromJSON(needs.install_deps.outputs.affected_apps).length }}
+            configuration: ${{ needs.install_deps.outputs.configuration }}
+            deploy_branch: ${{ needs.install_deps.outputs.deploy_branch }}
+            short_sha: ${{ needs.install_deps.outputs.short_sha }}
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+
+            - uses: actions/checkout@v2
 
             - name: Cache node modules
-              uses: actions/cache@v1
-              env:
-                  cache-name: cache-node-modules
+              id: cache
+              uses: actions/cache@v2
               with:
-                  path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                path: node_modules
+                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-build-${{ env.cache-name }}-${{matrix.package}}-
+                    ${{ runner.os }}-build-${{ env.cache-name }}-
+                    ${{ runner.os }}-build-
+                    ${{ runner.os }}-
 
-            - name: Install node modules
-              run: npm install && npm install -g @angular/cli && npm install -g nx
+            - name: Setup version
+              run: npm run postinstall
 
-            - name: Test the application
-              run: npm run test:ci
-
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
+            - name: Initialise Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              continue-on-error: true
               with:
-                  name: Build
-                  url: ${{ secrets.CHAT_SUCCESS }}
-                  status: ${{ job.status }}
-              if: success()
+                  url: ${{ secrets.STATUS_URL }}
+                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
 
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
-              with:
-                  name: Build
-                  url: ${{ secrets.CHAT_ERROR }}
-                  status: ${{ job.status }}
-              if: failure()
+            - name: Build affected applications
+              run: |
+                npx nx test ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
-            - name: Google Chat Notification
-              uses: Co-qn/google-chat-notification@releases/v1
+            - name: Update Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              continue-on-error: true
               with:
-                  name: Build
-                  url: ${{ secrets.CHAT_ERROR }}
-                  status: ${{ job.status }}
-              if: cancelled()
+                  url: ${{ secrets.STATUS_URL }}
+                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              if: ${{ always() }}
