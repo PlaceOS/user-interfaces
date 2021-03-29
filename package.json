@@ -65,7 +65,7 @@
         "@placeos/ts-client": "^3.7.0",
         "@sentry/angular": "^5.27.4",
         "@sentry/tracing": "^5.27.4",
-        "@tailwindcss/jit": "^0.1.5",
+        "@tailwindcss/jit": "^0.1.17",
         "@tinymce/tinymce-angular": "^4.2.0",
         "@types/jest": "26.0.8",
         "@types/node": "12.12.38",
