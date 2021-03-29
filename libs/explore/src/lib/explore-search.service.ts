@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, first, map } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { catchError, debounceTime, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { Space, SpacesService } from '@user-interfaces/spaces';
 import { searchStaff, User } from '@user-interfaces/users';
@@ -12,9 +12,6 @@ import { OrganisationService } from '@user-interfaces/organisation';
     providedIn: 'root',
 })
 export class ExploreSearchService {
-    private _space_list = new BehaviorSubject<Space[]>([]);
-    /** Current search results for staff users */
-    private _user_list = new BehaviorSubject<User[]>([]);
     /** Current search results for staff users */
     private _emergency_contacts = new BehaviorSubject<User[]>([]);
     /** Filter string for results */
@@ -24,9 +21,27 @@ export class ExploreSearchService {
 
     public readonly emergency_contacts = this._emergency_contacts.asObservable();
 
+    private _user_search = this._filter.pipe(
+        debounceTime(500),
+        switchMap((q) => (q?.length > 2 ? searchStaff(q) : of([]))),
+        catchError((_) => []),
+        shareReplay(1)
+    );
+    private _space_search = combineLatest([this._filter, this._spaces.list]).pipe(
+        map(
+            ([f, spaces]) =>
+                spaces.filter((_) =>
+                    _.email.toLowerCase().includes(f.toLowerCase()) ||
+                    _.name.toLowerCase().includes(f.toLowerCase()) ||
+                    _.display_name.toLowerCase().includes(f.toLowerCase())
+                )
+        ),
+        shareReplay(1)
+    );
+
     public readonly search_results = combineLatest([
-        this._space_list,
-        this._user_list,
+        this._space_search,
+        this._user_search,
         this._emergency_contacts,
         this._filter,
     ]).pipe(
@@ -64,40 +79,19 @@ export class ExploreSearchService {
                 'id'
             );
             results.sort((a, b) => a.name.localeCompare(b.name));
+            this._loading.next(false);
             return results;
         })
     );
-    /** Obverable for current space search results */
-    public readonly space_list = this._space_list.asObservable();
-    /** Obverable for current user search results */
-    public readonly user_list = this._user_list.asObservable();
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
 
-    constructor(private _spaces: SpacesService, private _org: OrganisationService) {
-        this._spaces.list.subscribe(() =>
-            this._filter.next(this._filter.getValue())
-        );
-        this._filter.subscribe(async (filter_str) => {
-            this._loading.next(true);
-            const s = filter_str.toLowerCase();
-            this._space_list.next(
-                this._spaces.space_list.filter(
-                    (space) =>
-                        space.email.toLowerCase().includes(s) ||
-                        space.name.toLowerCase().includes(s) ||
-                        space.display_name.toLowerCase().includes(s)
-                )
-            );
-            this._user_list.next([]);
-            if (s.length > 2) {
-                const users = await searchStaff(s)
-                    .toPromise()
-                    .catch((_) => null);
-                this._user_list.next(users || []);
-            }
-            this._loading.next(false);
-        });
+    constructor(
+        private _spaces: SpacesService,
+        private _org: OrganisationService
+    ) {
+        this._spaces.list.subscribe(() => this._filter.next(this._filter.getValue()));
+        this._filter.subscribe(_ => this._loading.next(true));
         this.ngOnInit();
     }
 
@@ -107,7 +101,6 @@ export class ExploreSearchService {
             this._org.organisation.bindings?.location_services,
             'LocationServices'
         );
-        console.log('Module:', mod);
         if (mod) {
             const binding = mod.binding('emergency_contacts');
             binding.listen().subscribe((contacts_map) => {
