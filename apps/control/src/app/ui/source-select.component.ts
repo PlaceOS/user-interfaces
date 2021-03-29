@@ -18,7 +18,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             <h3 class="font-medium text-xl mb-2">
                 Select input source for {{ (details | async)?.name || '= No Name =' }}
             </h3>
-            <div class="flex divide divide-gray-200">
+            <div class="flex flex-wrap divide divide-gray-200">
                 <div *ngFor="let type of input_types | async" class="flex flex-col p-2 space-y-2">
                     <h4 class="text-center underline">{{ type }}</h4>
                     <button

@@ -22,8 +22,9 @@ import {
                 ></i>
             </div>
             <h3 class="mb-2 text-xl font-medium">Lighting Presets</h3>
-            <ng-container *ngIf="light?.states?.length">
+            <ng-container *ngIf="light?.states?.length; else empty_state">
                 <button
+                    state
                     mat-button
                     class="w-64"
                     *ngFor="let state of light.states"
@@ -39,6 +40,11 @@ import {
                 </button>
             </ng-container>
         </div>
+        <ng-template #empty_state>
+            <div class="flex items-center justify-center p-8">
+                <p>No presets available for lights</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })

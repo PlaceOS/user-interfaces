@@ -22,7 +22,7 @@ describe('MicrophoneTooltipComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    blinds: new BehaviorSubject([]),
+                    mic_list: new BehaviorSubject([]),
                 },
             },
             {
@@ -38,4 +38,22 @@ describe('MicrophoneTooltipComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
+
+    it('should list microphones available', async () => {
+        spectator.detectChanges();
+        expect('p').toContainText('No microphones available');
+        const service = spectator.inject(ControlStateService);
+        (service as any).mic_list.next([
+            { id: 'mic1', name: 'Microphone 1' },
+            { id: 'mic2', name: 'Microphone 2' }
+        ])
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect('p').not.toExist();
+        expect(`label[for="mic1"]`).toContainText('Microphone 1');
+        expect(`[name="mic1"]`).toExist();
+        expect(`[name="mic1"] button[mute]`).toExist();
+        expect(`[name="mic1"] mat-slider`).toExist();
+    })
 });

@@ -26,4 +26,16 @@ describe('PowerTooltipComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
+
+    it('should allow shutting down', () => {
+        expect('button:not(.inverse)').toExist();
+        spectator.click('button:not(.inverse)');
+        expect(spectator.inject(ControlStateService).powerOff).toBeCalled();
+    });
+
+    it('should allow cancelling', () => {
+        expect('button.inverse').toExist();
+        spectator.click('button.inverse');
+        expect(spectator.inject(CustomTooltipData).close).toBeCalled();
+    });
 });

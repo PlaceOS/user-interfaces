@@ -10,44 +10,60 @@ import { ControlStateService } from '../control-state.service';
             class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
         >
             <h3 class="mb-2 text-xl font-medium">Microphones</h3>
-            <div *ngFor="let mic of mic_list | async">
-                <label for="mic-1">{{ mic.name }}</label>
-                <div class="flex items-center space-x-2 w-64">
-                    <button mat-icon-button (click)="mute[mic.id] = !mute[mic.id]">
-                        <app-icon>{{
-                            mute[mic.id]
-                                ? 'volume_off'
-                                : volume[mic.id] > 0
-                                ? 'volume_up'
-                                : 'volume_mute'
-                        }}</app-icon>
-                    </button>
-                    <mat-slider
-                        [ngModel]="!mute[mic.id] ? volume[mic.id] : 0"
-                        (ngModelChange)="volume[mic.id] = $event; mute[mic.id] = false"
-                        class="flex-1"
-                    ></mat-slider>
+            <ng-container *ngIf="(mic_list | async)?.length; else empty_state">
+                <div *ngFor="let mic of mic_list | async">
+                    <label [for]="mic.id">{{ mic.name }}</label>
+                    <div
+                        class="flex items-center space-x-2 w-64"
+                        [attr.name]="mic.id"
+                    >
+                        <button
+                            mute
+                            mat-icon-button
+                            (click)="mute[mic.id] = !mute[mic.id]"
+                        >
+                            <app-icon>{{
+                                mute[mic.id]
+                                    ? 'volume_off'
+                                    : volume[mic.id] > 0
+                                    ? 'volume_up'
+                                    : 'volume_mute'
+                            }}</app-icon>
+                        </button>
+                        <mat-slider
+                            [ngModel]="!mute[mic.id] ? volume[mic.id] : 0"
+                            (ngModelChange)="
+                                volume[mic.id] = $event; mute[mic.id] = false
+                            "
+                            class="flex-1"
+                        ></mat-slider>
+                    </div>
+                    <div hidden *ngIf="mic?.module">
+                        <i
+                            binding
+                            [sys]="id"
+                            [mod]="mic.module"
+                            bind="volume"
+                            exec="volume"
+                            [(model)]="volume[mic.id]"
+                        ></i>
+                        <i
+                            binding
+                            [sys]="id"
+                            [mod]="mic.module"
+                            bind="mute"
+                            exec="mute"
+                            [(model)]="mute[mic.id]"
+                        ></i>
+                    </div>
                 </div>
-                <div hidden *ngIf="mic?.module">
-                    <i
-                        binding
-                        [sys]="id"
-                        [mod]="mic.module"
-                        bind="volume"
-                        exec="volume"
-                        [(model)]="volume[mic.id]"
-                    ></i>
-                    <i
-                        binding
-                        [sys]="id"
-                        [mod]="mic.module"
-                        bind="mute"
-                        exec="mute"
-                        [(model)]="mute[mic.id]"
-                    ></i>
-                </div>
-            </div>
+            </ng-container>
         </div>
+        <ng-template #empty_state>
+            <div class="flex items-center justify-center p-8">
+                <p>No microphones available for system</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })

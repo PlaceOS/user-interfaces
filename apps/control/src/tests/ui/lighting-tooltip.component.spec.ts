@@ -34,4 +34,18 @@ describe('LightingTooltipComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
+
+    it('should list light presets', () => {
+        spectator.detectChanges();
+        expect('p').toContainText('No presets available');
+        spectator.component.light = { states: ['One', 'Two', 'Three'], state: 'One' } as any;
+        spectator.detectChanges();
+        expect('p').not.toExist();
+        expect('button[state]').toExist();
+        expect('button[state].inverse').toContainText('One');
+        spectator.component.light.state = 'Two';
+        spectator.detectChanges();
+        expect('button[state].inverse').not.toContainText('One');
+        expect('button[state].inverse').toContainText('Two');
+    })
 });

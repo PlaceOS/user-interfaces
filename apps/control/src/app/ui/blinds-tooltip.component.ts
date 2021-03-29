@@ -19,8 +19,9 @@ import { ControlStateService, EnvironmentSource } from "../control-state.service
                 ></i>
             </div>
             <h3 class="mb-2 text-xl font-medium">Blinds Presets</h3>
-            <ng-container *ngIf="blind?.states?.length">
+            <ng-container *ngIf="blind?.states?.length; else empty_state">
                 <button
+                    state
                     mat-button
                     class="w-64"
                     *ngFor="let state of blind.states"
@@ -36,6 +37,11 @@ import { ControlStateService, EnvironmentSource } from "../control-state.service
                 </button>
             </ng-container>
         </div>
+        <ng-template #empty_state>
+            <div class="flex items-center justify-center p-8">
+                <p>No presets available for blinds</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
