@@ -12,37 +12,37 @@ import { PowerTooltipComponent } from './ui/power-tooltip.component';
     selector: 'topbar-header',
     template: `
         <div class="flex-1 px-4">
-            <img class="h-10" [src]="logo.src" />
+            <img logo class="h-10" [src]="logo?.src" alt="Logo" />
         </div>
         <div class="p-4 text-lg">{{ (system | async).name }}</div>
         <div class="flex-1 p-4 flex items-center justify-end space-x-2">
             <div customTooltip [content]="cmp.lighting" *ngIf="(lights_list | async)?.length">
-                <button mat-icon-button>
+                <button lights mat-icon-button>
                     <app-icon>brightness_high</app-icon>
                 </button>
             </div>
             <div customTooltip [content]="cmp.blinds" *ngIf="(blinds_list | async)?.length">
-                <button mat-icon-button>
+                <button blinds mat-icon-button>
                     <app-icon>unfold_more</app-icon>
                 </button>
             </div>
             <div customTooltip [content]="cmp.mics" *ngIf="(mic_list | async)?.length">
-                <button mat-icon-button>
+                <button mics mat-icon-button>
                     <app-icon>mic</app-icon>
                 </button>
             </div>
             <div customTooltip [content]="cmp.camera" *ngIf="(camera_list | async)?.length">
-                <button mat-icon-button>
+                <button cameras mat-icon-button>
                     <app-icon>photo_camera</app-icon>
                 </button>
             </div>
             <div customTooltip [content]="cmp.help">
-                <button mat-icon-button>
+                <button help mat-icon-button>
                     <app-icon>help</app-icon>
                 </button>
             </div>
             <div customTooltip [content]="cmp.power">
-                <button mat-icon-button>
+                <button power mat-icon-button>
                     <app-icon>power_settings_new</app-icon>
                 </button>
             </div>
