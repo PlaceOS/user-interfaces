@@ -1,25 +1,11 @@
-const colors = require('tailwindcss/colors');
 
-module.exports = (isProd) => ({
-    prefix: '',
-    important: '#placeos',
-    future: {
-        removeDeprecatedGapUtilities: true,
-        purgeLayersByDefault: true,
-    },
-    purge: {
-        enabled: isProd,
-        content: ['**/*.html', '**/*.ts'],
-        options: {
-            whitelistPatterns: [/^cdk-|mat-/],
-        },
-    },
-    theme: {
+
+module.exports = {
+    // important: '#placeos',
+    darkMode: 'class',
+    purge: ['**/*.html', '**/*.ts'],
+    extends: {
         colors: {
-            transparent: colors.transparent,
-            black: colors.black,
-            white: colors.white,
-            gray: colors.gray,
             primary: '#C92366',
             secondary: '#0A0D2E',
             ternary: '#0A0D2E',
@@ -29,4 +15,10 @@ module.exports = (isProd) => ({
             success: '#43a047',
         },
     },
-});
+    plugins: [
+        require('@tailwindcss/line-clamp')
+    ],
+    corePlugins: {
+        preflight: false
+    }
+};

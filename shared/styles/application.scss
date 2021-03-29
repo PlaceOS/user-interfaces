@@ -26,6 +26,12 @@
     }
 }
 
+@media print {
+    .screen-only {
+        display: none !important;
+    }
+}
+
 html,
 body {
     background-color: #f0f0f0;
