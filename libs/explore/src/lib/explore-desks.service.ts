@@ -179,7 +179,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     (v) => v.location !== 'desk'
                 );
                 const desks = (d?.value || []).filter(
-                    (v) => v.location === 'desk'
+                    (v) => v.location === 'desk' || (v.location === 'booking' && v.type === 'desk')
                 );
                 this._in_use.next(desks.map((v) => v.map_id));
                 this._reserved.next(
