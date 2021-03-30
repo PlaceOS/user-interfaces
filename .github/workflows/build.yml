@@ -70,7 +70,7 @@ jobs:
 
             - name: Print affected applications
               run: |
-                echo ${{ steps.affected_apps.outputs.affected_apps }}
+                echo ${{ steps.affected_apps.outputs.affected_apps }} ${{ fromJSON(steps.affected_apps.outputs.affected_apps).length }}
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
