@@ -40,19 +40,13 @@ describe('BootstrapComponent', () => {
 
     it('should show form', async () => {
         expect('mat-spinner').toExist();
-        (spectator.inject(SpacesService) as any).initialised.next(true);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (spectator.inject(SpacesService) as any).initialised.next(true);        spectator.detectChanges();
         expect('mat-spinner').not.toExist();
         expect('input').toExist();
     });
 
     it('should allow inputing system ID', async () => {
-        (spectator.inject(SpacesService) as any).initialised.next(true);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (spectator.inject(SpacesService) as any).initialised.next(true);        spectator.detectChanges();
         expect('button').toBeDisabled();
         spectator.typeInElement('space-0', 'input');
         expect('input').toHaveValue('space-0');
@@ -70,15 +64,9 @@ describe('BootstrapComponent', () => {
         (spectator.inject(SpacesService) as any).space_list = [
             { id: 'space-0', name: 'Space 0' },
         ];
-        (spectator.inject(SpacesService) as any).initialised.next(true);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (spectator.inject(SpacesService) as any).initialised.next(true);        spectator.detectChanges();
         expect('button').toBeDisabled();
-        spectator.typeInElement('space-', 'input');
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        spectator.typeInElement('space-', 'input');        spectator.detectChanges();
         expect('mat-option').toExist();
         spectator.click('mat-option');
         spectator.detectChanges();

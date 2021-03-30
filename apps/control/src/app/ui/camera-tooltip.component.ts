@@ -13,7 +13,7 @@ export enum ZoomDirection {
 @Component({
     selector: 'camera-tooltip',
     template: `
-        <div class="my-2 bg-white shadow rounded flex flex-col">
+        <div class="my-2 bg-white shadow rounded flex flex-col" *ngIf="(camera_list | async)?.length; else empty_state">
             <mat-form-field appearance="outline" class="m-4 h-12">
                 <mat-select
                     [(ngModel)]="active_camera"
@@ -34,6 +34,7 @@ export enum ZoomDirection {
                     <h3 class="mb-2 text-xl font-medium">Presets</h3>
                     <ng-container *ngIf="presets?.length; else no_presets">
                         <button
+                            preset
                             mat-button
                             class="w-48"
                             [class.inverse]="preset === name"
@@ -56,6 +57,7 @@ export enum ZoomDirection {
                             class="flex flex-col items-center border border-gray-600 rounded"
                         >
                             <button
+                                zoom-in
                                 mat-icon-button
                                 class="rounded"
                                 (mousedown)="startZoom('in', $event)"
@@ -71,6 +73,7 @@ export enum ZoomDirection {
                             </div>
 
                             <button
+                            zoom-out
                                 mat-icon-button
                                 class="rounded"
                                 (mousedown)="startZoom('out', $event)"
@@ -131,6 +134,11 @@ export enum ZoomDirection {
                 exec="recall"
             ></i>
         </div>
+        <ng-template #empty_state>
+            <div  class="my-2 bg-white shadow rounded flex flex-col p-8 text-center">
+                <p>No cameras available for this system</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })

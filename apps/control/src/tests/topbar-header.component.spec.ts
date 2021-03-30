@@ -44,40 +44,28 @@ describe('TopbarHeaderComponent', () => {
     it('should show the lights action', async () => {
         expect('button[lights]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).lights.next([{}]);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).lights.next([{}]);        spectator.detectChanges();
         expect('button[lights]').toExist();
     });
 
     it('should show the blinds action', async () => {
         expect('button[blinds]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).blinds.next([{}]);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).blinds.next([{}]);        spectator.detectChanges();
         expect('button[blinds]').toExist();
     });
 
     it('should show the mics action', async () => {
         expect('button[mics]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).mic_list.next([{}]);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).mic_list.next([{}]);        spectator.detectChanges();
         expect('button[mics]').toExist();
     });
 
     it('should show the camera action', async () => {
         expect('button[cameras]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).camera_list.next([{}]);
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).camera_list.next([{}]);        spectator.detectChanges();
         expect('button[cameras]').toExist();
     });
 

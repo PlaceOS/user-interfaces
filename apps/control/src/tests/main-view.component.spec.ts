@@ -57,19 +57,13 @@ describe('ControlMainViewComponent', () => {
     it('should shown loading when connecting to system', async () => {
         const service = spectator.inject(ControlStateService);
         (service as any).system.next({ connected: true });
-        expect('[name="loader"]').toExist();
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        expect('[name="loader"]').toExist();        spectator.detectChanges();
         expect('[name="loader"]').not.toExist();
     });
 
     it('should show splash page for space', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ connected: true });
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).system.next({ connected: true });        spectator.detectChanges();
         expect('[name="splash"]').toExist();
         expect('topbar-header').not.toExist();
         spectator.click('[name="splash"]');
@@ -78,10 +72,7 @@ describe('ControlMainViewComponent', () => {
 
     it('should show panel when powered up', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ connected: true, power: true });
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).system.next({ connected: true, power: true });        spectator.detectChanges();
         expect('[name="splash"]').not.toExist();
         expect('topbar-header').toExist();
         expect('[control-page-view]').toExist();

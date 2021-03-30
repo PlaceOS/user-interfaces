@@ -23,11 +23,22 @@ describe('SourceSelectModalComponent', () => {
             },
             { provide: MatDialogRef, useValue: { close: jest.fn() } },
         ],
+
     });
 
     beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should close on source changes', () => {
+        expect('source-select').toExist();
+        spectator.dispatchFakeEvent('source-select', 'source');
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
+    });
+
+    it('should show close button', () => {
+        expect('button[mat-dialog-close]').toExist();
     });
 });

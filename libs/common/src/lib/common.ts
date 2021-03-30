@@ -17,3 +17,4 @@ export * from './room-configuration.interface';
 export * from './settings';
 export * from './types';
 export * from './user-state';
+export * from './spec-helpers';

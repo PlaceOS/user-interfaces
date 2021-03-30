@@ -40,19 +40,13 @@ describe('ControlStatusBarComponent', () => {
     it('should show recording details', async () => {
         expect('[recording]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ recording: true });
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).system.next({ recording: true });        spectator.detectChanges();
         expect('[recording]').toExist();
     });
 
     it('should allow pausing and resuming recordings', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ recording: true });
-        spectator.detectChanges();
-        await spectator.fixture.whenStable();
-        spectator.detectChanges();
+        (service as any).system.next({ recording: true });        spectator.detectChanges();
         expect('[place-action="start"]').toExist();
         expect('[place-action="pause"]').not.toExist();
         spectator.component.rec_status = 'playing';
