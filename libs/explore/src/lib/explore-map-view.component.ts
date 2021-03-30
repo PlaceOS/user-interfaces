@@ -170,8 +170,13 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
             throw 'No locations for the given user';
         }
         this._state.setLevel(this._org.levelWithID([locations[0]?.level]).id);
+        const pos = locations[0].position;
+        const { coordinates_from } = locations[0];
         const feature: any = {
-            location: locations[0].position,
+            location: location[0].type === 'wireless' ? {
+                x: coordinates_from?.includes('right') ? 1 - pos.x : pos.x,
+                y: coordinates_from?.includes('bottom') ? 1 - pos.y : pos.y,
+            } : pos,
             content: locations[0].type === 'wireless' ? MapRadiusComponent : MapPinComponent,
             data: {
                 message: `${user.name} is here`,
