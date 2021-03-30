@@ -104,8 +104,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
             this.route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && params.get('clear')) {
                     this.clearBootstrap();
-                }
-                if (params.has('system_id') || params.has('sys_id')) {
+                } else if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id = params.get('system_id') || params.get('sys_id');
                     this.bootstrap();
                 }

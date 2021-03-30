@@ -118,6 +118,5 @@ export class SourceSelectComponent implements OnChanges {
         await this._state.setRoute(input.id, this.output);
         this.loading = false;
         this.source.emit(input);
-        console.log('Input routed:', input, this.output);
     }
 }

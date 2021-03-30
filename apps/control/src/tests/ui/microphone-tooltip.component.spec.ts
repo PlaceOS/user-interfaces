@@ -46,7 +46,8 @@ describe('MicrophoneTooltipComponent', () => {
         (service as any).mic_list.next([
             { id: 'mic1', name: 'Microphone 1' },
             { id: 'mic2', name: 'Microphone 2' }
-        ])        spectator.detectChanges();
+        ]);
+        spectator.detectChanges();
         expect('p').not.toExist();
         expect(`label[for="mic1"]`).toContainText('Microphone 1');
         expect(`[name="mic1"]`).toExist();

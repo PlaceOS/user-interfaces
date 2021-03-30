@@ -149,7 +149,6 @@ export class JoystickComponent extends BaseClass {
         const angle =
             (Math.atan2(point.y - box_point.y, point.x - box_point.x) * 180) /
             Math.PI;
-        console.log('Handle Event:', angle);
         this.tilt =
             angle >= 150 || angle <= -150 || (angle > -30 && angle < 30)
                 ? JoystickTilt.Stop
@@ -162,7 +161,6 @@ export class JoystickComponent extends BaseClass {
                 : angle > 90 || angle < -90
                 ? JoystickPan.Left
                 : JoystickPan.Right;
-        console.log('Pan:', this.pan, '| Tilt:', this.tilt, '\n\n\n\n\n\n\n\n');
         this.tiltChange.emit(this.tilt);
         this.panChange.emit(this.pan);
     }
