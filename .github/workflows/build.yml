@@ -67,6 +67,7 @@ jobs:
               id: affected_apps
               run: |
                 echo "::set-output name=affected_apps::$(node ./tools/get-affected.js ${{ github.ref }})"
+                echo ${{ steps.affected_apps.outputs.affected_apps }}
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
