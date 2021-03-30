@@ -104,7 +104,7 @@ jobs:
                     ${{ runner.os }}-
 
             - name: Cache nx build cahce
-              id: cache
+              id: cache-nx
               uses: actions/cache@v2
               with:
                 path: node_modules/.cache/nx
