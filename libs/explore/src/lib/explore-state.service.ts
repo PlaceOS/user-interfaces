@@ -45,8 +45,12 @@ export class ExploreStateService extends BaseClass {
 
     private _options = new BehaviorSubject<MapOptions>({});
 
+    private _message = new BehaviorSubject<string>('');
+
     /** Currently active level */
     public readonly level = this._level.asObservable();
+    /** Currently active level */
+    public readonly message = this._message.asObservable();
     /** Spaces associated with the active level */
     public readonly spaces = combineLatest([
         this._level,
