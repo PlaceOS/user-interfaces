@@ -1,45 +1,40 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 
-import { IconComponent } from './icon.component';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+
+import { IconComponent } from '../lib/icon.component';
+import { SafePipe } from '../lib/safe.pipe';
 
 describe('IconComponent', () => {
-    let component: IconComponent;
-    let fixture: ComponentFixture<IconComponent>;
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-        declarations: [ IconComponent ],
-        imports: [APipesModule]
-        })
-        .compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(IconComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    let spectator: Spectator<IconComponent>;
+    const createComponent = createComponentFactory({
+        component: IconComponent,
+        declarations: [SafePipe]
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
     it('should show font icons', () => {
-        component.icon = { type: 'icon', class: 'test-icon', content: 'test-contents' };
-        fixture.detectChanges();
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const el = compiled.querySelector('.test-icon');
-        expect(el).toBeTruthy();
-        expect(el.textContent).toBe('test-contents');
+        spectator.component.icon = {
+            type: 'icon',
+            class: 'test-icon',
+            content: 'test-contents',
+        };
+        spectator.detectChanges();
+        expect('.test-icon').toBeTruthy();
+        expect('.test-icon').toContainText('test-contents');
     });
 
     it('should show images', () => {
-        component.icon = { type: 'img', src: '/test-image.png' };
-        fixture.detectChanges();
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const el = compiled.querySelector('img');
-        expect(el).toBeTruthy();
-        expect(el.src).toBe(`${location.origin}/test-image.png`);
-    })
+        spectator.component.icon = { type: 'img', src: '/test-image.png' };
+        spectator.detectChanges();
+        expect('img').toBeTruthy();
+        expect('img').toContainProperty(
+            'src',
+            `${location.origin}/test-image.png`
+        );
+    });
 });

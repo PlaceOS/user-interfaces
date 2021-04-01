@@ -5,7 +5,6 @@ import {
     ElementRef,
     HostListener,
     Injectable,
-    InjectionToken,
     Injector,
     Input,
     OnChanges,

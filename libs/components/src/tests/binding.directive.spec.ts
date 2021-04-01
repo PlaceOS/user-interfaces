@@ -1,21 +1,20 @@
-import { BindingDirective } from './binding.directive';
+import {
+    createDirectiveFactory,
+    SpectatorDirective,
+} from '@ngneat/spectator/jest';
+import { BindingDirective } from '../lib/binding.directive';
 
 describe('BindingDirective', () => {
-    let directive: BindingDirective;
-    let element: any;
-    let renderer: any;
+    let spectator: SpectatorDirective<BindingDirective>;
+    const createDirective = createDirectiveFactory(BindingDirective);
 
     beforeEach(() => {
-        element = {
-            'exec': jest.fn()
-        };
-        renderer = {
-            'listen': jest.fn()
-        };
-        directive = new BindingDirective(element, renderer);
+        spectator = createDirective(
+            `<div binding>Testing Binding Directive</div>`
+        );
     });
 
     it('should create an instance', () => {
-        expect(directive).toBeTruthy();
+        expect(spectator.directive).toBeTruthy();
     });
 });

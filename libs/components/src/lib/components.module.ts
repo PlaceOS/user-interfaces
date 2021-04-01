@@ -39,7 +39,7 @@ export * from './action-icon.component';
 export * from './binding.directive';
 export * from './confirm-modal.component';
 export * from './icon.component';
-export * from './login/login.component';
+export * from './login.component';
 export * from './popout-menu.component';
 export * from './unauthorised.component';
 export * from './user-avatar.component';
@@ -102,13 +102,12 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        APipesModule,
         ...MAT_MODULES,
     ],
     providers: [
         { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
         { provide: MAP_FEATURE_DATA, useValue: {} }
     ],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
 })
 export class ComponentsModule {}

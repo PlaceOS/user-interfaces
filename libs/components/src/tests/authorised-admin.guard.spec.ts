@@ -1,15 +1,20 @@
-import { TestBed, async, inject } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 
-import { AuthorisedAdminGuard } from './authorised-admin.guard';
+import { AuthorisedAdminGuard } from '../lib/authorised-admin.guard';
 
 describe('AuthorisedAdminGuard', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [AuthorisedAdminGuard]
+    let spectator: SpectatorService<AuthorisedAdminGuard>;
+    const createService = createServiceFactory({
+        service: AuthorisedAdminGuard,
+        providers: [
+            { provide: Router, useValue: { navigate: jest.fn() } }
+        ]
     });
-  });
 
-  it('should ...', inject([AuthorisedAdminGuard], (guard: AuthorisedAdminGuard) => {
-    expect(guard).toBeTruthy();
-  }));
+    beforeEach(() => (spectator = createService()));
+
+    it('should create the service', () => {
+        expect(spectator.service).toBeTruthy();
+    });
 });

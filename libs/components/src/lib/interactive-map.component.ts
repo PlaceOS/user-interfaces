@@ -37,7 +37,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
             [diameter]="48"
         ></mat-spinner>
         <div hidden *ngIf="injectors?.length">
-            <ng-container *ngFor="let element of features; let i = index">
+            <ng-container *ngFor="let element of features; let i = index; trackBy: element?.location">
                 <div *ngIf="element">
                     <div
                         #feature

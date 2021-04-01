@@ -28,18 +28,21 @@ export const CONFIRM_METADATA = {
         <header>
             <h3 mat-dialog-title>{{ title || 'Confirm' }}</h3>
         </header>
-        <mat-dialog-content>
-            <div class="body" *ngIf="!loading; else load_state">
-                <app-icon [icon]="icon"></app-icon>
-                <div class="content">
-                    <p [innerHTML]="content"></p>
-                </div>
+        <main
+            class="flex flex-col items-center"
+            *ngIf="!loading; else load_state"
+        >
+            <app-icon [icon]="icon" class="text-5xl"></app-icon>
+            <div class="content text-center text-sm">
+                <p [innerHTML]="content"></p>
             </div>
-        </mat-dialog-content>
-        <mat-dialog-actions *ngIf="!loading">
+        </main>
+        <footer class="flex items-center justify-center" *ngIf="!loading">
             <button mat-button class="inverse" mat-dialog-close>Cancel</button>
-            <button mat-button name="accept" (click)="accept()">{{ action }}</button>
-        </mat-dialog-actions>
+            <button mat-button name="accept" (click)="accept()">
+                {{ action }}
+            </button>
+        </footer>
         <ng-template #load_state>
             <div class="body">
                 <div class="info-block">
@@ -53,25 +56,8 @@ export const CONFIRM_METADATA = {
     `,
     styles: [
         `
-            .body {
-                display: flex;
-                align-items: center;
-                flex-direction: column;
-                padding: 1em;
-            }
-
             .content {
                 min-width: 16rem;
-                text-align: center;
-                font-size: 0.8em;
-            }
-
-            app-icon {
-                font-size: 3em;
-            }
-
-            mat-dialog-actions {
-                justify-content: center;
             }
 
             mat-dialog-actions button {
@@ -90,7 +76,10 @@ export class ConfirmModalComponent extends BaseClass {
     /** Display text on the confirm button */
     public action: string = this._data.action || 'Ok';
     /** Display icon properties */
-    public icon: ApplicationIcon = this._data.icon || { class: 'material-icons', content: 'done' };
+    public icon: ApplicationIcon = this._data.icon || {
+        class: 'material-icons',
+        content: 'done',
+    };
     /** Loading state */
     public loading: string;
 

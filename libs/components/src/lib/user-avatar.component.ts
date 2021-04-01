@@ -10,6 +10,7 @@ import { User } from '../../../users/src/lib/user.class';
             [attr.user-id]="user.id"
         >
             <div
+                initials
                 class="text-black text-opacity-30 uppercase"
                 *ngIf="!user.photo; else image_state"
             >

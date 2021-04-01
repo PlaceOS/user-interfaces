@@ -1,15 +1,17 @@
-
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
-import { PopoutMenuComponent } from '../lib/popout-menu.component';
 import { IconComponent } from '../lib/icon.component';
+import { SearchbarComponent } from '../lib/searchbar.component';
 
-describe('PopoutMenuComponent', () => {
-    let spectator: Spectator<PopoutMenuComponent>;
+describe('SearchbarComponent', () => {
+    let spectator: Spectator<SearchbarComponent>;
     const createComponent = createComponentFactory({
-        component: PopoutMenuComponent,
+        component: SearchbarComponent,
         declarations: [MockComponent(IconComponent)],
+        imports: [MatProgressSpinnerModule, FormsModule]
     });
 
     beforeEach(() => (spectator = createComponent()));

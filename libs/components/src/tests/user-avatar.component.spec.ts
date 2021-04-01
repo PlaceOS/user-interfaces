@@ -1,44 +1,35 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 
-import { UserAvatarComponent } from './user-avatar.component';
-import { User } from '../../users/user.class';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { User } from '@user-interfaces/users';
+import { SafePipe } from '../lib/safe.pipe';
+
+import { UserAvatarComponent } from '../lib/user-avatar.component';
 
 describe('UserAvatarComponent', () => {
-    let component: UserAvatarComponent;
-    let fixture: ComponentFixture<UserAvatarComponent>;
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [UserAvatarComponent],
-            imports: [APipesModule]
-        }).compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(UserAvatarComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    let spectator: Spectator<UserAvatarComponent>;
+    const createComponent = createComponentFactory({
+        component: UserAvatarComponent,
+        declarations: [SafePipe]
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
     it('should show the user\'s image', () => {
-        component.user = new User({ name: 'John Smith', photo: 'true.png' });
-        fixture.detectChanges();
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        expect(compiled.querySelector('img')).toBeTruthy();
-        expect(compiled.querySelector('.initials')).toBeFalsy();
+        spectator.component.user = new User({ name: 'John Smith', photo: 'true.png' });
+        spectator.detectChanges();
+        expect('img').toExist();
+        expect('[initials]').not.toExist();
     });
 
     it('should show the user\'s initials', () => {
-        component.user = new User({ name: 'John Smith' });
-        fixture.detectChanges();
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        expect(compiled.querySelector('img')).toBeFalsy();
-        expect(compiled.querySelector('.initials')).toBeTruthy();
-        expect(compiled.querySelector('.initials').textContent).toBe('JS');
+        spectator.component.user = new User({ name: 'John Smith' });
+        spectator.detectChanges();
+        expect('img').not.toExist();
+        expect('[initials]').toExist();
+        expect('[initials]').toContainText('JS');
     });
 });
