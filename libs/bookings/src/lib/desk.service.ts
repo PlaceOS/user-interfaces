@@ -99,7 +99,7 @@ export class DesksService {
             );
         }
         ref.componentInstance.loading = 'Booking desk...';
-        const users = [host, ...attendees];
+        const users = [host, ...(attendees || [])];
         await Promise.all([
             desks.map((desk, idx) =>
                 this.makeDeskBooking(
