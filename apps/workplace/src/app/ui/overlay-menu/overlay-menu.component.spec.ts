@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RouterModule, Router } from '@angular/router';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 import { MockModule } from 'ng-mocks';
 
 import { OverlayMenuComponent } from './overlay-menu.component';
@@ -29,8 +28,7 @@ describe('OverlayMenuComponent', () => {
             declarations: [OverlayMenuComponent, MockComponent],
             providers: [{ provide: ApplicationService, useValue: service }],
             imports: [
-                MockModule(RouterModule.forRoot([{ path: 'test', component: MockComponent }])),
-                APipesModule,
+                MockModule(RouterModule.forRoot([{ path: 'test', component: MockComponent }]))
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(OverlayMenuComponent);

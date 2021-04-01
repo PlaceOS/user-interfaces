@@ -2,7 +2,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
 import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { NewUserModalComponent } from './new-user-modal.component';
 import { IconComponent } from 'src/app/ui/icon/icon.component';
@@ -37,7 +36,7 @@ describe('NewUserModalComponent', () => {
                     },
                 },
             ],
-            imports: [MatProgressSpinnerModule, APipesModule, MockModule(MatDialogModule)],
+            imports: [MatProgressSpinnerModule, MockModule(MatDialogModule)],
         }).compileComponents();
     }));
 

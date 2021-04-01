@@ -17,8 +17,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { CdkTableModule } from '@angular/cdk/table';
 import { PortalModule } from '@angular/cdk/portal';
 
-import { APipesModule } from '@acaprojects/ngx-pipes';
-
 import { BindingDirective } from './binding.directive';
 import { ActionIconComponent } from './action-icon.component';
 import { IconComponent } from './icon.component';
@@ -32,6 +30,8 @@ import { MapRadiusComponent } from './map-radius.component';
 import { SearchbarComponent } from './searchbar.component';
 import { StatusOverlayComponent } from './status-overlay.component';
 import { FixedPipe } from './fixed.pipe';
+import { SafePipe } from './safe.pipe';
+import { SanitizePipe } from './sanitise.pipe';
 import { CustomTableComponent } from './custom-table.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 
@@ -52,6 +52,8 @@ export * from './status-overlay.component';
 export * from './custom-table.component';
 export * from './custom-tooltip.component';
 export * from './fixed.pipe';
+export * from './safe.pipe';
+export * from './sanitise.pipe';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -87,7 +89,9 @@ const COMPONENTS: Type<any>[] = [
     CustomTableComponent,
     CustomTooltipComponent,
 
-    FixedPipe
+    FixedPipe,
+    SafePipe,
+    SanitizePipe
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

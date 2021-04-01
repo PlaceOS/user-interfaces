@@ -23,8 +23,6 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 
-import { APipesModule } from '@acaprojects/ngx-pipes';
-
 import { TopbarHeaderComponent } from './topbar-header.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 

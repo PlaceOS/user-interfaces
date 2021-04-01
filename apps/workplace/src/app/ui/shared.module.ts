@@ -1,4 +1,3 @@
-import { APipesModule } from '@acaprojects/ngx-pipes';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
@@ -82,7 +81,6 @@ const CDK_MODULES: any[] = [ScrollingModule];
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        APipesModule,
         RouterModule,
         EditorModule,
         ComponentsModule,
@@ -91,7 +89,6 @@ const CDK_MODULES: any[] = [ScrollingModule];
         ...CDK_MODULES,
     ],
     exports: [
-        APipesModule,
         EditorModule,
         ComponentsModule,
         FormFieldsModule,

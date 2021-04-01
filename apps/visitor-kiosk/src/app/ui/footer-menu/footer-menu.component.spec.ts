@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { FooterMenuComponent } from './footer-menu.component';
 import { ApplicationService } from 'src/app/services/app.service';
@@ -18,7 +17,7 @@ describe('FooterMenuComponent', () => {
             providers: [
                 { provide: ApplicationService, useValue: jasmine.createSpyObj('ApplicationService', ['listen', 'setting']) },
             ],
-            imports: [RouterModule.forRoot([]), APipesModule]
+            imports: [RouterModule.forRoot([])]
         }).compileComponents();
     }));
 
