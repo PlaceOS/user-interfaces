@@ -1,5 +1,5 @@
-
-import { BaseDataClass, HashMap } from '@user-interfaces/common'
+import { BaseDataClass, HashMap } from '@user-interfaces/common';
+import { addMinutes, endOfDay, format, isAfter, isSameDay } from 'date-fns';
 
 import * as dayjs from 'dayjs';
 
@@ -64,7 +64,10 @@ export class Booking extends BaseDataClass {
                   .startOf('m')
                   .valueOf();
         this.date = start;
-        this.duration = data.duration || dayjs((data as any).booking_end * 1000).diff(start, 'm') || 60;
+        this.duration =
+            data.duration ||
+            dayjs((data as any).booking_end * 1000).diff(start, 'm') ||
+            60;
         this.timezone = data.timezone;
         this.user_email = data.user_email;
         this.user_id = data.user_id;
@@ -79,8 +82,12 @@ export class Booking extends BaseDataClass {
         this.approver_name = data.approver_name;
         this.extension_data = data.extension_data;
         this.access = !!data.extension_data?.access;
-        this.all_day = data.all_day || true;
-        this.status = this.rejected ? 'declined' : this.approved ? 'approved' : 'tentative';
+        this.all_day = data.all_day ?? true;
+        this.status = this.rejected
+            ? 'declined'
+            : this.approved
+            ? 'approved'
+            : 'tentative';
     }
 
     public toJSON(this: Booking): HashMap<any> {
@@ -109,13 +116,15 @@ export class Booking extends BaseDataClass {
     }
 
     public get is_today(): boolean {
-        return dayjs(this.date).isSame(dayjs(), 'd');
+        return isSameDay(this.date, new Date());
     }
 
     /** Whether booking is done */
     public get is_done(): boolean {
-        const start = dayjs(this.date);
-        const end = this.all_day ? dayjs(this.date).endOf('d') : start.add(this.duration, 'm');
-        return start.isAfter(end, 'm');
+        const start = new Date();
+        const end = this.all_day
+            ? endOfDay(this.date)
+            : addMinutes(this.date, this.duration);
+        return isAfter(start, end);
     }
 }
