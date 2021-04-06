@@ -8,7 +8,10 @@ const _current_user = new BehaviorSubject<StaffUser>(null);
 
 export const current_user = _current_user.asObservable();
 
+declare let jest;
+
 setTimeout(() => {
+    if (jest) return;
     console.log('Loading logged in user details...');
     showUser('current')
         .pipe(

@@ -37,12 +37,18 @@ import { Observable } from 'rxjs';
                         *cdkCellDef="let row"
                         [title]="row[column]"
                     >
-                        <ng-container *ngIf="!template[column]">{{ row[column] }}</ng-container>
-                        <ng-container *ngIf="template[column]">
+                        <ng-container
+                            *ngIf="!template[column]; else cell_outlet"
+                            >{{ row[column] }}</ng-container
+                        >
+                        <ng-template #cell_outlet>
                             <ng-container
-                                *ngTemplateOutlet="template[column]; context: { data: row[column] }"
+                                *ngTemplateOutlet="
+                                    template[column];
+                                    context: { data: row[column] }
+                                "
                             ></ng-container>
-                        </ng-container>
+                        </ng-template>
                     </div>
                 </ng-container>
             </ng-container>
@@ -80,7 +86,7 @@ import { Observable } from 'rxjs';
             }
 
             cdk-row {
-                border-bottom: 1px solid rgba(0,0,0, .1 );
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             }
 
             cdk-row:hover {
@@ -111,7 +117,9 @@ export class CustomTableComponent<T extends {} = any>
     /** Displayed value when the table is empty */
     @Input() public template: HashMap<TemplateRef<any>> = {};
 
-    public data_source: MatTableDataSource<T> = new MatTableDataSource([]);
+    public readonly data_source: MatTableDataSource<T> = new MatTableDataSource(
+        []
+    );
 
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
     @ViewChild(MatSort) private _sort: MatSort;
@@ -126,21 +134,26 @@ export class CustomTableComponent<T extends {} = any>
             if (this.dataSource instanceof Observable) {
                 this.subscription(
                     'data',
-                    this.dataSource.subscribe((data) => (this.data_source.data = data))
+                    this.dataSource.subscribe(
+                        (data) => (this.data_source.data = data)
+                    )
                 );
             } else {
                 this.data_source.data = this.dataSource;
             }
         }
         if (changes.pagination) {
-            console.log('Pagination:', this.pagination, this._paginator);
-            this.data_source.paginator = this.pagination ? this._paginator : null;
+            this.data_source.paginator = this.pagination
+                ? this._paginator
+                : null;
         }
         if (changes.filter) {
             this.data_source.filter = (this.filter || '').trim().toLowerCase();
         }
         if (changes.columns && this.columns) {
-            this.display_column = this.columns.map((_) => _.split('_').join(' '));
+            this.display_column = this.columns.map((_) =>
+                _.split('_').join(' ')
+            );
         }
         if (!this.column_size) {
             this.column_size = [];

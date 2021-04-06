@@ -26,7 +26,7 @@ import { first } from 'rxjs/operators';
                         [src]="logo.src | safe: 'resource'"
                     />
                 </div>
-                <div class="w-full relative h-1/3 flex-1" [class.error]="error">
+                <div class="w-full relative h-1/3 flex-1">
                     <ng-container *ngIf="!loading; else loading_state">
                         <div class="flex flex-col">
                             <label
