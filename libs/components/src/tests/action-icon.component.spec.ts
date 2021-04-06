@@ -19,4 +19,33 @@ describe('ActionIconComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
+
+    it('should show icon', () => {
+        expect('app-icon[root]').toExist();
+    });
+
+    it('should allow toggling of states', () => {
+        expect('.state app-icon').not.toExist();
+        spectator.setInput({ state: 'success' });
+        spectator.detectChanges();
+        expect('.state app-icon').toExist();
+        expect('.state app-icon').toContainText('done');
+        spectator.setInput({ state: 'error' });
+        spectator.detectChanges();
+        expect('.state app-icon').toExist();
+        expect('.state app-icon').toContainText('close');
+        spectator.setInput({ state: '' });
+        spectator.detectChanges();
+        expect('.state app-icon').not.toExist();
+    });
+
+    it('should allow toggling of loading state', () => {
+        expect('mat-spinner').not.toExist();
+        spectator.setInput({ loading: true });
+        spectator.detectChanges();
+        expect('mat-spinner').toExist();
+        spectator.setInput({ loading: false });
+        spectator.detectChanges();
+        expect('mat-spinner').not.toExist();
+    })
 });
