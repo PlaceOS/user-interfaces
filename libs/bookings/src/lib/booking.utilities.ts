@@ -7,7 +7,7 @@ import { CateringItem } from '../../../catering/src/lib/catering-item.class';
 import { HashMap, predictableRandomInt } from '@user-interfaces/common';
 import { User } from '../../../users/src/lib/user.class';
 import { generateMockUser } from '../../../users/src/lib/user.utilities';
-import { CalendarEvent } from '@user-interfaces/events';
+import { CalendarEvent, getFreeBookingSlots } from '@user-interfaces/events';
 import { Space } from '../../../spaces/src/lib/space.class';
 
 import * as dayjs from 'dayjs';
@@ -87,76 +87,6 @@ export function generateMockBooking(override: HashMap = {}, resetDate = false) {
         room_ids: [],
         ...override,
     };
-}
-
-export interface IBookingSlot {
-    start: number;
-    end: number;
-}
-
-/**
- * Generate a list of free time slots between the given bookings
- * @param list List of bookings to find slots between
- * @param min_size Minimum length of a free slot in minutes
- */
-export function getFreeBookingSlots(list: CalendarEvent[], min_size: number = 30): IBookingSlot[] {
-    if (!list) {
-        return [
-            {
-                start: 0,
-                end: dayjs().startOf('m').valueOf() * 10,
-            },
-        ];
-    }
-    const slots: IBookingSlot[] = [];
-    let start = dayjs(0);
-    list.sort((a, b) => a.date - b.date);
-    for (const booking of list) {
-        const bkn_start = dayjs(booking.date);
-        const bkn_end = bkn_start.add(booking.duration, 'm');
-        if (bkn_start.isAfter(start)) {
-            const diff = Math.abs(bkn_start.diff(start, 'm'));
-            if (diff >= min_size) {
-                slots.push({ start: start.valueOf(), end: bkn_start.valueOf() });
-            }
-            start = bkn_end;
-        } else if (start.startOf('m').valueOf() === bkn_start.startOf('m').valueOf()) {
-            start = bkn_end;
-        }
-    }
-    slots.push({
-        start: start.valueOf(),
-        end: dayjs().startOf('m').valueOf() * 10,
-    });
-    return slots;
-}
-
-/**
- * Get the next free time slot from the given bookings
- * @param list List of bookings to find the next slot
- * @param date Date to find next slot after in ms since UTC epoch
- * @param min_size Minimum length of the free slot in minutes
- */
-export function getNextFreeBookingSlot(
-    list: CalendarEvent[],
-    date: number = dayjs().valueOf(),
-    min_size: number = 30
-): IBookingSlot {
-    const slots = getFreeBookingSlots(list, min_size);
-    const time = dayjs(date).startOf('m').second(1);
-    for (const block of slots) {
-        const start = dayjs(block.start).startOf('m');
-        const end = dayjs(block.end).startOf('m');
-        if (start.isAfter(time, 's')) {
-            return block;
-        } else if (time.isBefore(end, 's')) {
-            const duration = end.diff(time, 'm');
-            if (duration >= min_size) {
-                return block;
-            }
-        }
-    }
-    return slots[slots.length - 1];
 }
 
 const STORED_BOOKING_KEY = 'STAFF.booking_form';
