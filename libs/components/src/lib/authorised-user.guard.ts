@@ -29,9 +29,20 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
     ) {}
 
     public async canActivate(
-        next: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot
+        next?: ActivatedRouteSnapshot,
+        state?: RouterStateSnapshot
     ): Promise<boolean | UrlTree> {
+        return this.checkUser();
+    }
+
+    public async canLoad(
+        route?: Route,
+        segments?: UrlSegment[]
+    ): Promise<boolean> {
+        return this.checkUser();
+    }
+
+    private async checkUser() {
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
@@ -42,23 +53,6 @@ export class AuthorisedUserGuard implements CanActivate, CanLoad {
             user &&
             (!this._access?.group || user.groups.includes(this._access.group))
         );
-        if (!can_activate) {
-            this._router.navigate(['/unauthorised']);
-        }
-        return !!can_activate;
-    }
-
-    public async canLoad(
-        route: Route,
-        segments: UrlSegment[]
-    ): Promise<boolean> {
-        await onlineState()
-            .pipe(first((_) => _))
-            .toPromise();
-        const user: StaffUser = await current_user
-            .pipe(first((_) => !!_))
-            .toPromise();
-        const can_activate = !!(user && user.groups);
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
         }
