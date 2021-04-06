@@ -16,7 +16,7 @@ module.exports = (config) => {
                             syntax: 'postcss-scss',
                             plugins: [
                                 require('postcss-import'),
-                                require('@tailwindcss/jit')(tailwindConfig),
+                                require('tailwindcss')(tailwindConfig),
                                 require('postcss-nested'),
                                 require('postcss-custom-properties'),
                                 require('autoprefixer'),
