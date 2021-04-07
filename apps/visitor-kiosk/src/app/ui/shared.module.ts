@@ -74,7 +74,6 @@ const CDK_MODULES: any[] = [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        APipesModule,
         ComponentsModule,
         RouterModule,
         EditorModule,
@@ -82,7 +81,6 @@ const CDK_MODULES: any[] = [
         ...CDK_MODULES
     ],
     exports: [
-        APipesModule,
         ComponentsModule,
         ...COMPONENTS,
         ...MATERIAL_MODULES,

@@ -24,7 +24,10 @@ import { PopoutMenuComponent } from './popout-menu.component';
 import { UserAvatarComponent } from './user-avatar.component';
 
 import { ConfirmModalComponent } from './confirm-modal.component';
-import { InteractiveMapComponent, MAP_FEATURE_DATA } from './interactive-map.component';
+import {
+    InteractiveMapComponent,
+    MAP_FEATURE_DATA,
+} from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
 import { SearchbarComponent } from './searchbar.component';
@@ -55,6 +58,9 @@ export * from './fixed.pipe';
 export * from './safe.pipe';
 export * from './sanitise.pipe';
 
+export * from './authorised-admin.guard';
+export * from './authorised-user.guard';
+
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
     MatMenuModule,
@@ -71,7 +77,7 @@ const MAT_MODULES: any[] = [
     MatChipsModule,
     MatPaginatorModule,
     CdkTableModule,
-    PortalModule
+    PortalModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -91,22 +97,17 @@ const COMPONENTS: Type<any>[] = [
 
     FixedPipe,
     SafePipe,
-    SanitizePipe
+    SanitizePipe,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ...MAT_MODULES,
-    ],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ...MAT_MODULES],
     providers: [
         { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
-        { provide: MAP_FEATURE_DATA, useValue: {} }
+        { provide: MAP_FEATURE_DATA, useValue: {} },
     ],
     exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
 })
