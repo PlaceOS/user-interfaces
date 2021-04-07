@@ -48,6 +48,12 @@
                         "polyfills": "apps/workplace/src/polyfills.ts",
                         "tsConfig": "apps/workplace/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/workplace/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/workplace/src/favicon.ico",
                             "apps/workplace/src/assets",
@@ -81,6 +87,10 @@
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
                                     "with": "apps/workplace/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/workplace/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
@@ -95,6 +105,10 @@
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
                                     "with": "apps/workplace/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/workplace/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -200,6 +214,12 @@
                         "polyfills": "apps/concierge/src/polyfills.ts",
                         "tsConfig": "apps/concierge/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/concierge/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/concierge/src/favicon.ico",
                             "apps/concierge/src/assets",
@@ -231,12 +251,16 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/workplace/src/environments/environment.ts",
-                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                    "replace": "apps/concierge/src/environments/environment.ts",
+                                    "with": "apps/concierge/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/concierge/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                            "ngswConfigPath": "apps/concierge/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -352,6 +376,12 @@
                         "polyfills": "apps/control/src/polyfills.ts",
                         "tsConfig": "apps/control/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/control/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/control/src/favicon.ico",
                             "apps/control/src/assets",
@@ -383,12 +413,16 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/workplace/src/environments/environment.ts",
-                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                    "replace": "apps/control/src/environments/environment.ts",
+                                    "with": "apps/control/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/control/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                            "ngswConfigPath": "apps/control/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -399,6 +433,10 @@
                                 {
                                     "replace": "apps/control/src/environments/environment.ts",
                                     "with": "apps/control/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/control/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -504,6 +542,12 @@
                         "polyfills": "apps/booking-panel/src/polyfills.ts",
                         "tsConfig": "apps/booking-panel/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/booking-panel/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/booking-panel/src/favicon.ico",
                             "apps/booking-panel/src/assets",
@@ -535,12 +579,16 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/workplace/src/environments/environment.ts",
-                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                    "replace": "apps/booking-panel/src/environments/environment.ts",
+                                    "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/booking-panel/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                            "ngswConfigPath": "apps/booking-panel/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -551,6 +599,10 @@
                                 {
                                     "replace": "apps/booking-panel/src/environments/environment.ts",
                                     "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/booking-panel/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -658,6 +710,12 @@
                         "polyfills": "apps/map-kiosk/src/polyfills.ts",
                         "tsConfig": "apps/map-kiosk/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/map-kiosk/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/map-kiosk/src/favicon.ico",
                             "apps/map-kiosk/src/assets",
@@ -689,12 +747,16 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/workplace/src/environments/environment.ts",
-                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                    "replace": "apps/map-kiosk/src/environments/environment.ts",
+                                    "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/map-kiosk/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                            "ngswConfigPath": "apps/map-kiosk/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -705,6 +767,10 @@
                                 {
                                     "replace": "apps/map-kiosk/src/environments/environment.ts",
                                     "with": "apps/map-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/map-kiosk/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -810,6 +876,12 @@
                         "polyfills": "apps/visitor-kiosk/src/polyfills.ts",
                         "tsConfig": "apps/visitor-kiosk/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/visitor-kiosk/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/visitor-kiosk/src/favicon.ico",
                             "apps/visitor-kiosk/src/assets",
@@ -842,11 +914,15 @@
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
-                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                    "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                            "ngswConfigPath": "apps/visitor-kiosk/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -857,6 +933,10 @@
                                 {
                                     "replace": "apps/visitor-kiosk/src/environments/environment.ts",
                                     "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/visitor-kiosk/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -964,6 +1044,12 @@
                         "polyfills": "apps/caterer-ui/src/polyfills.ts",
                         "tsConfig": "apps/caterer-ui/tsconfig.app.json",
                         "aot": true,
+                        "fileReplacements": [
+                            {
+                                "replace": "libs/common/src/lib/settings.ts",
+                                "with": "apps/caterer-ui/src/environments/settings.ts"
+                            }
+                        ],
                         "assets": [
                             "apps/caterer-ui/src/favicon.ico",
                             "apps/caterer-ui/src/assets",
@@ -995,12 +1081,16 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/workplace/src/environments/environment.ts",
-                                    "with": "apps/workplace/src/environments/environment.prod.ts"
+                                    "replace": "apps/caterer-ui/src/environments/environment.ts",
+                                    "with": "apps/caterer-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/caterer-ui/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                            "ngswConfigPath": "apps/caterer-ui/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -1011,6 +1101,10 @@
                                 {
                                     "replace": "apps/caterer-ui/src/environments/environment.ts",
                                     "with": "apps/caterer-ui/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/caterer-ui/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
