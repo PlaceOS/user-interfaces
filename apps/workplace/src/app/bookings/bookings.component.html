@@ -1,6 +1,6 @@
 <ng-container [ngSwitch]="flow">
     <app-desk-flow (menu)="show_menu = $event" *ngSwitchCase="'desks-map'"></app-desk-flow>
-    <desk-flow-listing (menu)="show_menu = $event" *ngSwitchCase="'desks'"></desk-flow-listing>
+    <desk-flow-page (menu)="show_menu = $event" *ngSwitchCase="'desks'"></desk-flow-page>
     <space-flow
         (menu)="show_menu = $event"
         *ngSwitchDefault

@@ -15,13 +15,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
 @Component({
     selector: 'desk-flow-listing',
     template: `
-        <header>
-            <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
-        </header>
-        <main
-            class="flex flex-1 flex-col relative"
-            *ngIf="!checkin; else checkin_state"
-        >
+        <ng-container *ngIf="!checkin; else checkin_state">
             <desk-flow-form></desk-flow-form>
             <div class="flex-1 overflow-auto w-full bg-gray-200 relative">
                 <ng-container *ngIf="!(loading | async); else load_state">
@@ -50,11 +44,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                     </div>
                 </ng-container>
             </div>
-        </main>
-        <footer class="flex">
-            <a-footer-menu class="w-full"></a-footer-menu>
-        </footer>
-        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+        </ng-container>
         <ng-template #empty_state>
             <div
                 class="absolute flex flex-col inset-0 items-center justify-center"
@@ -71,12 +61,12 @@ import { DeskFlowStateService } from './desk-flow-state.service';
             </div>
         </ng-template>
         <ng-template #checkin_state>
-            <main
+            <div
                 class="flex-1 flex flex-col items-center justify-center w-full"
             >
                 <mat-spinner class="mb-4" [diameter]="48"></mat-spinner>
                 <p>Checking in desk...</p>
-            </main>
+            </div>
         </ng-template>
         <ng-container *ngIf="success">
             <booking-success
@@ -89,18 +79,8 @@ import { DeskFlowStateService } from './desk-flow-state.service';
     styles: [
         `
             :host {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                overflow: hidden;
                 display: flex;
                 flex-direction: column;
-            }
-
-            main {
-                max-height: calc(100vh - 6.15rem);
             }
 
             [list] {
@@ -116,8 +96,6 @@ import { DeskFlowStateService } from './desk-flow-state.service';
     ],
 })
 export class DeskFlowListingComponent extends BaseClass {
-    public show_menu: boolean = false;
-
     public checkin: boolean;
 
     public success: boolean;
@@ -128,16 +106,18 @@ export class DeskFlowListingComponent extends BaseClass {
         debounceTime(50),
         map(([desks, { attendees }]) => {
             const count = attendees.length + 1;
-            const list = desks.sort((a, b) => a.zone?.name?.localeCompare(b.zone.name) || a.name?.localeCompare(b.name));
+            const list = desks.sort(
+                (a, b) =>
+                    a.zone?.name?.localeCompare(b.zone.name) ||
+                    a.name?.localeCompare(b.name)
+            );
             const groups = Math.floor(list.length / count);
             const desk_list = [];
             for (let i = 0; i < groups; i++) {
                 const items = list.splice(0, count);
                 desk_list.push({
                     id: `group-${i}`,
-                    name: `${items
-                        .map((_) => _.name)
-                        .join(', ')}`,
+                    name: `${items.map((_) => _.name).join(', ')}`,
                     desks: items,
                     zone: items[0].zone,
                 });
@@ -159,10 +139,10 @@ export class DeskFlowListingComponent extends BaseClass {
     };
 
     constructor(
-        private _desks: DeskFlowStateService,
         private _org: OrganisationService,
-        private _route: ActivatedRoute,
-        private _router: Router
+        private _desks: DeskFlowStateService,
+        private _router: Router,
+        private _route: ActivatedRoute
     ) {
         super();
     }
