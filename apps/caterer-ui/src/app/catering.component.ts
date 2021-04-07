@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'app-catering',

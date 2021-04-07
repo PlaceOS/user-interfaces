@@ -5,9 +5,9 @@ import {
     DialogEvent,
     notifyError,
     notifySuccess,
-} from '@user-interfaces/common';
-import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { StaffUser, User } from '@user-interfaces/users';
+} from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
+import { StaffUser, User } from '@placeos/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 

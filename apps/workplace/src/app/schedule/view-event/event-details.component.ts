@@ -2,11 +2,11 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { formatDuration } from 'date-fns';
 
-import { CateringItem } from '@user-interfaces/catering';
-import { BaseClass, currentUser } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { User } from '@user-interfaces/users';
+import { CateringItem } from '@placeos/catering';
+import { BaseClass, currentUser } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
+import { Space, SpacesService } from '@placeos/spaces';
+import { User } from '@placeos/users';
 
 import { ViewAttendeesModalComponent } from '../../overlays/view-attendees-modal/view-attendees-modal.component';
 import { ViewCateringModalComponent } from '../../overlays/view-catering-modal/view-catering-modal.component';

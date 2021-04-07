@@ -4,7 +4,7 @@ import { first, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
 import { Space } from './space.class';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { OrganisationService } from '@placeos/organisation';
 
 @Injectable({
     providedIn: 'root',

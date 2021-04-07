@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { SettingsService } from '@user-interfaces/common';
-import { User } from '@user-interfaces/users';
+import { SettingsService } from '@placeos/common';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'a-directory-user-list-item',

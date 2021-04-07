@@ -9,12 +9,12 @@ import {
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
 import {
     BuildingLevel,
     OrganisationService,
-} from '@user-interfaces/organisation';
-import { SpacesService } from '@user-interfaces/spaces';
+} from '@placeos/organisation';
+import { SpacesService } from '@placeos/spaces';
 
 export interface MapOptions {
     show_zones?: boolean;

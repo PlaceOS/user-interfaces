@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { updateMetadata } from '@placeos/ts-client';
-import { HashMap, notifyError } from '@user-interfaces/common';
+import { HashMap, notifyError } from '@placeos/common';
 import {
     CalendarEvent,
     checkinEventGuest,
     showEvent,
-} from '@user-interfaces/events';
+} from '@placeos/events';
 import {
     GuestUser,
     generateGuestForm,
     showGuest,
     listGuestMeetings,
-} from '@user-interfaces/users';
+} from '@placeos/users';
 import { isSameDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 

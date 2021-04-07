@@ -4,15 +4,15 @@ import { BehaviorSubject } from 'rxjs';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { addMinutes, roundToNearestMinutes, isAfter, endOfDay } from 'date-fns';
 
-import { BaseClass, currentUser, notifyError, unique } from '@user-interfaces/common';
+import { BaseClass, currentUser, notifyError, unique } from '@placeos/common';
 import {
     CalendarEvent,
     generateEventForm,
     saveEvent,
-} from '@user-interfaces/events';
-import { CalendarService } from '@user-interfaces/calendar';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { NewUserModalComponent } from '@user-interfaces/users';
+} from '@placeos/events';
+import { CalendarService } from '@placeos/calendar';
+import { OrganisationService } from '@placeos/organisation';
+import { NewUserModalComponent } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 
 export interface EventFormFilters {

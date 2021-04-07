@@ -1,6 +1,6 @@
 import { Component, Renderer2 } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
-import { CustomTooltipData } from '@user-interfaces/components';
+import { BaseClass } from '@placeos/common';
+import { CustomTooltipData } from '@placeos/components';
 
 import { ControlStateService, RoomInput } from '../control-state.service';
 import { JoystickPan, JoystickTilt } from './joystick.component';

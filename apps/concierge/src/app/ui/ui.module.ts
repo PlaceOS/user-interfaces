@@ -22,8 +22,8 @@ import { SidebarComponent } from './sidebar.component';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
-import { ComponentsModule } from '@user-interfaces/components';
-import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { ComponentsModule } from '@placeos/components';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,

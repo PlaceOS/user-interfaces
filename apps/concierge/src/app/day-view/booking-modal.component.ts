@@ -2,17 +2,17 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { CalendarService } from '@user-interfaces/calendar';
+import { CalendarService } from '@placeos/calendar';
 import {
     DialogEvent,
     notifyError,
     notifySuccess,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import {
     CalendarEvent,
     generateEventForm,
     saveEvent,
-} from '@user-interfaces/events';
+} from '@placeos/events';
 
 export interface BookingModalData {
     event?: CalendarEvent;

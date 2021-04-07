@@ -6,8 +6,8 @@ import {
     ApplicationIcon,
     BaseClass,
     SettingsService,
-} from '@user-interfaces/common';
-import { SpacesService } from '@user-interfaces/spaces';
+} from '@placeos/common';
+import { SpacesService } from '@placeos/spaces';
 
 import { DashboardStateService } from '../../dashboard/dashboard-state.service';
 import { combineLatest } from 'rxjs';

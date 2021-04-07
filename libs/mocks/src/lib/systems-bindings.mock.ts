@@ -1,5 +1,5 @@
 import { registerSystem } from '@placeos/ts-client';
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 
 import { createSystemModule } from './realtime/control';
 import { createBookingsModule } from './realtime/events';

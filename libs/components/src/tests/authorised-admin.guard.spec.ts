@@ -3,10 +3,10 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
 jest.mock('@placeos/ts-client');
-jest.mock('@user-interfaces/common');
+jest.mock('@placeos/common');
 
 import * as ts_client from '@placeos/ts-client';
-import * as common_lib from '@user-interfaces/common';
+import * as common_lib from '@placeos/common';
 
 import { AuthorisedAdminGuard } from '../lib/authorised-admin.guard';
 

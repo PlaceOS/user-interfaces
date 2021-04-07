@@ -1,5 +1,5 @@
-import { BaseDataClass, HashMap, Identity, RoomConfiguration } from '@user-interfaces/common';
-import { BookingRule } from '@user-interfaces/events';
+import { BaseDataClass, HashMap, Identity, RoomConfiguration } from '@placeos/common';
+import { BookingRule } from '@placeos/events';
 
 import { BuildingLevel } from './level.class';
 

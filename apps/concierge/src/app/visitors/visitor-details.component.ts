@@ -9,9 +9,9 @@ import {
     BaseClass,
     notifyError,
     SettingsService,
-} from '@user-interfaces/common';
-import { CalendarEvent, saveEvent } from '@user-interfaces/events';
-import { showGuest, User } from '@user-interfaces/users';
+} from '@placeos/common';
+import { CalendarEvent, saveEvent } from '@placeos/events';
+import { showGuest, User } from '@placeos/users';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({

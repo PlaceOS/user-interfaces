@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { Space } from '@user-interfaces/spaces';
+import { Space } from '@placeos/spaces';
 
 @Component({
     selector: 'a-space-select-item',

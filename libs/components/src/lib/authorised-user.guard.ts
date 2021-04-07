@@ -10,7 +10,7 @@ import {
     Router,
 } from '@angular/router';
 import { onlineState } from '@placeos/ts-client';
-import { current_user } from '@user-interfaces/common';
+import { current_user } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 import { StaffUser } from '../../../users/src/lib/user.class';

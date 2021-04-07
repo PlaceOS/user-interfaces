@@ -7,11 +7,11 @@ import { SharedContentModule } from '../ui/shared.module';
 import { ExploreComponent } from './explore.component';
 
 import { BookingModalComponent } from './overlays/booking-modal/booking-modal.component';
-import { SharedExploreModule } from '@user-interfaces/explore';
+import { SharedExploreModule } from '@placeos/explore';
 
 import {
     MAP_FEATURE_DATA,
-} from '@user-interfaces/components';
+} from '@placeos/components';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },

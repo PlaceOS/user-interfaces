@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { BaseClass, Identity } from '@user-interfaces/common';
-import { Building, BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, Identity } from '@placeos/common';
+import { Building, BuildingLevel, OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: '[bootstrap]',

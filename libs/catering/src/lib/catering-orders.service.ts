@@ -3,9 +3,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map, switchMap, debounceTime } from 'rxjs/operators';
 import { startOfDay, endOfDay } from 'date-fns';
 
-import { BaseClass, flatten } from '@user-interfaces/common';
+import { BaseClass, flatten } from '@placeos/common';
 import { CalendarEvent } from '../../../events/src/lib/event.class';
-import { queryEvents, saveEvent } from '@user-interfaces/events';
+import { queryEvents, saveEvent } from '@placeos/events';
 
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';

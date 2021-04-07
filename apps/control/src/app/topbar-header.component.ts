@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@user-interfaces/common';
+import { SettingsService } from '@placeos/common';
 import { ControlStateService } from './control-state.service';
 import { BlindsTooltipComponent } from './ui/blinds-tooltip.component';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';

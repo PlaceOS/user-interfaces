@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CateringItem } from './catering-item.class';
 
-import { DialogEvent, randomInt } from '@user-interfaces/common';
+import { DialogEvent, randomInt } from '@placeos/common';
 
 export interface CateringItemModalData {
     item: CateringItem;

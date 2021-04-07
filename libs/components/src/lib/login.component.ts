@@ -4,7 +4,7 @@ import {
     ApplicationIcon,
     BaseClass,
     SettingsService,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Component({

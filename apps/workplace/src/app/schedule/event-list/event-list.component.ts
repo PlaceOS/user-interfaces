@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { Booking } from '@user-interfaces/bookings';
-import { CalendarEvent } from '@user-interfaces/events';
+import { Booking } from '@placeos/bookings';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'schedule-event-date-list',

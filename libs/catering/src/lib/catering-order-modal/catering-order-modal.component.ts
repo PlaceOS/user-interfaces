@@ -11,7 +11,7 @@ import { CateringOption, CateringRuleset } from '../catering.interfaces';
 
 import { CalendarEvent } from '../../../../events/src/lib/event.class';
 import { stringToMinutes } from '../../../../events/src/lib/event.utilities';
-import { BaseClass, DialogEvent, HashMap, unique } from '@user-interfaces/common';
+import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
 
 export interface CateringOrderModalData {
     order: CateringOrder;

@@ -9,8 +9,8 @@ import {
     catchError,
 } from 'rxjs/operators';
 
-import { BaseClass, flatten } from '@user-interfaces/common';
-import { searchGuests, searchStaff, User } from '@user-interfaces/users';
+import { BaseClass, flatten } from '@placeos/common';
+import { searchGuests, searchStaff, User } from '@placeos/users';
 
 @Component({
     selector: 'a-user-search-field',

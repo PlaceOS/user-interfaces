@@ -4,14 +4,14 @@ import { listen, getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
 import { map, first } from 'rxjs/operators';
 
-import { CalendarEvent,  } from '@user-interfaces/events';
-import { SpacesService } from '@user-interfaces/spaces';
-import { BaseClass, notifyError, timePeriodsIntersect } from '@user-interfaces/common';
+import { CalendarEvent,  } from '@placeos/events';
+import { SpacesService } from '@placeos/spaces';
+import { BaseClass, notifyError, timePeriodsIntersect } from '@placeos/common';
 import {
     ConfirmModalComponent,
     ConfirmModalData,
     CONFIRM_METADATA,
-} from '@user-interfaces/components';
+} from '@placeos/components';
 
 import { SpaceStatus } from './booking-actions/booking-actions.component';
 import { openBookingModal } from '../overlays/booking-modal.component';

@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
-} from '@user-interfaces/components';
+} from '@placeos/components';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },

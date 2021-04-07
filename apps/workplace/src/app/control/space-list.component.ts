@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { Space, SpacesService } from '@user-interfaces/spaces';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { Space, SpacesService } from '@placeos/spaces';
 
 @Component({
     selector: 'a-control-space-list',

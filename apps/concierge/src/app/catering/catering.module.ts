@@ -10,7 +10,7 @@ import { UIModule } from '../ui/ui.module';
 
 import { CateringComponent } from './catering.component';
 import { CateringTopbarComponent } from './catering-topbar.component';
-import { SharedCateringModule } from '@user-interfaces/catering';
+import { SharedCateringModule } from '@placeos/catering';
 
 const ROUTES: Route[] = [
     { path: '', component: CateringComponent },

@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTooltipData } from '@user-interfaces/components';
+import { CustomTooltipData } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';

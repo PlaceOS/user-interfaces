@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 
 import { ActionFieldComponent } from './action-field.component';
 import { CounterComponent } from './counter.component';

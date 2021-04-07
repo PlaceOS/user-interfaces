@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ApplicationIcon, BaseClass } from '@user-interfaces/common';
+import { ApplicationIcon, BaseClass } from '@placeos/common';
 
 export interface PopoutAction extends ApplicationIcon {
     /** ID of the action */

@@ -1,7 +1,7 @@
 
 import { differenceInMinutes } from 'date-fns';
 
-import { BaseDataClass } from '@user-interfaces/common';
+import { BaseDataClass } from '@placeos/common';
 import { Space } from '../../../spaces/src/lib/space.class';
 
 import { CalendarAvailability } from './calendar.interfaces';

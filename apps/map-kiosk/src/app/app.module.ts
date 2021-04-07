@@ -8,8 +8,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { ComponentsModule, UnauthorisedComponent } from '@user-interfaces/components';
-import { SharedExploreModule } from '@user-interfaces/explore';
+import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
+import { SharedExploreModule } from '@placeos/explore';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
@@ -17,7 +17,7 @@ import { environment } from '../environments/environment';
 import { BootstrapComponent } from './bootstrap.component';
 import { ExploreComponent } from './explore.component';
 
-import '@user-interfaces/mocks';
+import '@placeos/mocks';
 
 import * as Sentry from '@sentry/angular';
 import { ExploreLevelSelectComponent } from './explore-level-select.component';

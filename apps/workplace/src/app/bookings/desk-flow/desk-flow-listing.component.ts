@@ -6,8 +6,8 @@ import {
     current_user,
     notifyError,
     notifySuccess,
-} from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { debounceTime, first, map, shareReplay } from 'rxjs/operators';
 import { DeskFlowStateService } from './desk-flow-state.service';

@@ -1,5 +1,5 @@
-import { randomInt } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { randomInt } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';

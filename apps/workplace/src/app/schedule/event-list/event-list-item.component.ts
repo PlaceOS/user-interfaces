@@ -2,8 +2,8 @@ import { Component, HostListener, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { addMinutes, format, isAfter, isBefore } from 'date-fns';
 
-import { Booking } from '@user-interfaces/bookings';
-import { CalendarEvent } from '@user-interfaces/events';
+import { Booking } from '@placeos/bookings';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'schedule-event-item',

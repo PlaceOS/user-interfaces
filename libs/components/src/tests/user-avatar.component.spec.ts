@@ -1,6 +1,6 @@
 
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { User } from '@user-interfaces/users';
+import { User } from '@placeos/users';
 import { SafePipe } from '../lib/safe.pipe';
 
 import { UserAvatarComponent } from '../lib/user-avatar.component';

@@ -2,9 +2,9 @@ import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
-import { CalendarEvent } from '@user-interfaces/events';
-import { DialogEvent, HashMap, BaseClass } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
+import { CalendarEvent } from '@placeos/events';
+import { DialogEvent, HashMap, BaseClass } from '@placeos/common';
+import { Space } from '@placeos/spaces';
 
 export interface BookingModalData extends HashMap {
     title?: string;

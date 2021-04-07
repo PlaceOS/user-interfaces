@@ -2,9 +2,9 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 
-import { BaseClass, HashMap, notifyError, SettingsService } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass, HashMap, notifyError, SettingsService } from '@placeos/common';
+import { Space } from '@placeos/spaces';
+import { CalendarEvent } from '@placeos/events';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';

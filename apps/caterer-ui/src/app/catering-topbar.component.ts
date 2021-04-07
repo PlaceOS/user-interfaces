@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import {
     CateringOrdersService,
     CateringStateService,
-} from '@user-interfaces/catering';
+} from '@placeos/catering';
 
 @Component({
     selector: 'catering-topbar',

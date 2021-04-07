@@ -1,1 +1,1 @@
-export * from './lib/explore';
+export * from './lib/explore.module';

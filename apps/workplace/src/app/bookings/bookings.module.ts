@@ -5,8 +5,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { BookingsComponent } from './bookings.component';
 import { SharedContentModule } from '../ui/shared.module';
-import { SharedExploreModule } from '@user-interfaces/explore';
-import { SharedUsersModule } from '@user-interfaces/users';
+import { SharedExploreModule } from '@placeos/explore';
+import { SharedUsersModule } from '@placeos/users';
 
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { QrReaderComponent } from './qr-reader.component';

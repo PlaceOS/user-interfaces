@@ -2,9 +2,9 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
 
-import { DesksService, queryBookings } from '@user-interfaces/bookings';
+import { DesksService, queryBookings } from '@placeos/bookings';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -12,11 +12,11 @@ import {
     BuildingLevel,
     Desk,
     OrganisationService,
-} from '@user-interfaces/organisation';
+} from '@placeos/organisation';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { catchError, first, map, switchMap } from 'rxjs/operators';
-import { StaffUser } from '@user-interfaces/users';
+import { StaffUser } from '@placeos/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 export interface DeskOptions {

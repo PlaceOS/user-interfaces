@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DialogEvent } from '@user-interfaces/common';
-import { BuildingLevel, Desk } from '@user-interfaces/organisation';
+import { DialogEvent } from '@placeos/common';
+import { BuildingLevel, Desk } from '@placeos/organisation';
 
 export interface DeskConfirmModalData {
     desks: Desk[];

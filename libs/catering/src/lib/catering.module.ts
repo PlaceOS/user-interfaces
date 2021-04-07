@@ -5,7 +5,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 
 import { CateringConfigModalComponent } from './catering-config-modal.component';
 import { CateringItemModalComponent } from './catering-item-modal.component';

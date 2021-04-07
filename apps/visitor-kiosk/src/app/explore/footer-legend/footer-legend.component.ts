@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Identity } from '@user-interfaces/common';
+import { Identity } from '@placeos/common';
 
 @Component({
   selector: 'a-footer-legend',

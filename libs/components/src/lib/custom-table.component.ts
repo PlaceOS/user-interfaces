@@ -10,7 +10,7 @@ import {
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { BaseClass, HashMap } from '@user-interfaces/common';
+import { BaseClass, HashMap } from '@placeos/common';
 import { Observable } from 'rxjs';
 
 @Component({

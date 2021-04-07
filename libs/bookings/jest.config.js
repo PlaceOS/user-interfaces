@@ -1,14 +1,23 @@
 module.exports = {
-    displayName: 'bookings',
-    preset: '../../jest.preset.js',
-    globals: {
-        'ts-jest': {
-            tsConfig: '<rootDir>/tsconfig.spec.json',
-        },
+  displayName: 'bookings',
+  preset: '../../jest.preset.js',
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  globals: {
+    'ts-jest': {
+      tsConfig: '<rootDir>/tsconfig.spec.json',
+      stringifyContentPathRegex: '\\.(html|svg)$',
+      astTransformers: {
+        before: [
+          'jest-preset-angular/build/InlineFilesTransformer',
+          'jest-preset-angular/build/StripStylesTransformer',
+        ],
+      },
     },
-    transform: {
-        '^.+\\.[tj]sx?$': 'ts-jest',
-    },
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-    coverageDirectory: '../../coverage/libs/bookings',
+  },
+  coverageDirectory: '../../coverage/libs/bookings',
+  snapshotSerializers: [
+    'jest-preset-angular/build/AngularNoNgAttributesSnapshotSerializer.js',
+    'jest-preset-angular/build/AngularSnapshotSerializer.js',
+    'jest-preset-angular/build/HTMLCommentSerializer.js',
+  ],
 };

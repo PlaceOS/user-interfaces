@@ -8,8 +8,8 @@ import { MockModule } from 'ng-mocks';
 import { AppComponent } from './app.component';
 import { SettingsService } from './settings.service';
 
-import { OrganisationService } from '@user-interfaces/organisation';
-import { SpacesService } from '@user-interfaces/spaces';
+import { OrganisationService } from '@placeos/organisation';
+import { SpacesService } from '@placeos/spaces';
 
 describe('AppComponent', () => {
     beforeEach(async(() => {

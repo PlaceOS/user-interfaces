@@ -8,7 +8,7 @@ import {
     SimpleChanges,
     OnChanges,
 } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'a-searchbar',

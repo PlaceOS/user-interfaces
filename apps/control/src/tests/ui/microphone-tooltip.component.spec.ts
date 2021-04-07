@@ -6,7 +6,7 @@ import {
     BindingDirective,
     CustomTooltipData,
     IconComponent,
-} from '@user-interfaces/components';
+} from '@placeos/components';
 import { MockComponent, MockDirective } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';

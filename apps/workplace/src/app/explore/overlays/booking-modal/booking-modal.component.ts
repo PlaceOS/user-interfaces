@@ -2,10 +2,10 @@ import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
 
-import { Space } from '@user-interfaces/spaces';
-import { BaseClass, currentUser, DialogEvent } from '@user-interfaces/common';
-import { CalendarEvent, generateEventForm, saveEvent } from '@user-interfaces/events';
-import { CalendarService } from '@user-interfaces/calendar';
+import { Space } from '@placeos/spaces';
+import { BaseClass, currentUser, DialogEvent } from '@placeos/common';
+import { CalendarEvent, generateEventForm, saveEvent } from '@placeos/events';
+import { CalendarService } from '@placeos/calendar';
 
 export interface BookingModalData {
     space: Space;

@@ -12,10 +12,10 @@ import {
     currentUser,
     downloadFile,
     notifyError,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import { first } from 'rxjs/operators';
 
-import { NewUserModalComponent, User } from '@user-interfaces/users';
+import { NewUserModalComponent, User } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({

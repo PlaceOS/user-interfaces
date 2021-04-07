@@ -5,8 +5,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { whenChangesStable } from '@user-interfaces/common';
-import { SpacesService } from '@user-interfaces/spaces';
+import { whenChangesStable } from '@placeos/common';
+import { SpacesService } from '@placeos/spaces';
 import { BehaviorSubject } from 'rxjs';
 
 import { BootstrapComponent } from '../app/bootstrap.component';

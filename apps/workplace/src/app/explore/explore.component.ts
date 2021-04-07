@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DesksService } from '@user-interfaces/bookings';
+import { DesksService } from '@placeos/bookings';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({

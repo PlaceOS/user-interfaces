@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 
-import { OrganisationService } from '@user-interfaces/organisation';
-import { Space } from '@user-interfaces/spaces';
+import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 
 import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component';
 import { SpaceFlowService } from './space-flow.service';

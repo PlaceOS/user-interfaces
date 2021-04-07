@@ -1,4 +1,4 @@
-import { HashMap, Identity } from '@user-interfaces/common';
+import { HashMap, Identity } from '@placeos/common';
 
 /** Building Level data */
 export class BuildingLevel {

@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
 import { StaffStateService } from './staff-state.service';

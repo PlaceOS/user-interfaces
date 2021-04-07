@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
 import { DashboardStateService } from './dashboard-state.service';

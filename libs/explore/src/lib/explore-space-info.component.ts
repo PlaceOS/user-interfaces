@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject } from '@angular/core';
-import { MAP_FEATURE_DATA } from '@user-interfaces/components';
-import { CalendarEvent } from '@user-interfaces/events';
-import { Space } from '@user-interfaces/spaces';
+import { MAP_FEATURE_DATA } from '@placeos/components';
+import { CalendarEvent } from '@placeos/events';
+import { Space } from '@placeos/spaces';
 import { getViewer, coordinatesForElement } from '@placeos/svg-viewer';
 
 export interface SpaceInfoData {

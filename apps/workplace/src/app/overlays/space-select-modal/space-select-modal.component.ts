@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { rulesForSpace } from '@user-interfaces/bookings';
-import { CalendarService } from '@user-interfaces/calendar';
-import { BaseClass, currentUser, DialogEvent, HashMap, Identity, SettingsService } from '@user-interfaces/common';
-import { Building, OrganisationService } from '@user-interfaces/organisation';
-import { Space } from '@user-interfaces/spaces';
+import { rulesForSpace } from '@placeos/bookings';
+import { CalendarService } from '@placeos/calendar';
+import { BaseClass, currentUser, DialogEvent, HashMap, Identity, SettingsService } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 
 
 import * as dayjs from 'dayjs';

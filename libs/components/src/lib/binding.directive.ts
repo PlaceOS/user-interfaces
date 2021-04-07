@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { onlineState, authority, getModule } from '@placeos/ts-client';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Directive({

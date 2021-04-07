@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { BaseClass } from '@user-interfaces/common';
-import { ExploreStateService } from '@user-interfaces/explore';
+import { BaseClass } from '@placeos/common';
+import { ExploreStateService } from '@placeos/explore';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({

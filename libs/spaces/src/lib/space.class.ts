@@ -1,5 +1,5 @@
-import { RoomConfiguration } from '@user-interfaces/common';
-import { BuildingLevel } from '@user-interfaces/organisation';
+import { RoomConfiguration } from '@placeos/common';
+import { BuildingLevel } from '@placeos/organisation';
 
 export type ResourceResponseStatus = 'needsAction' | 'declined' | 'tentative' | 'accepted';
 

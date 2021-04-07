@@ -1,4 +1,4 @@
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 
 let BLD_COUNT = 0;
 let LVL_COUNT = 0;

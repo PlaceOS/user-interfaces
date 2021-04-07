@@ -2,7 +2,7 @@ import { Component, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CateringOption } from '../catering.interfaces';
-import { DialogEvent, HashMap, unique } from '@user-interfaces/common';
+import { DialogEvent, HashMap, unique } from '@placeos/common';
 
 export interface CateringOptionsModalData {
     options: CateringOption[];

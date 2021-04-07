@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { downloadFile, jsonToCsv } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';

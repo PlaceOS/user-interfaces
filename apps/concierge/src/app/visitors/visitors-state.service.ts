@@ -4,9 +4,9 @@ import {
     notifyError,
     notifySuccess,
     unique,
-} from '@user-interfaces/common';
-import { CalendarEvent, checkinEventGuest, queryEvents } from '@user-interfaces/events';
-import { User } from '@user-interfaces/users';
+} from '@placeos/common';
+import { CalendarEvent, checkinEventGuest, queryEvents } from '@placeos/events';
+import { User } from '@placeos/users';
 import { endOfDay, endOfWeek, startOfDay, startOfWeek } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';

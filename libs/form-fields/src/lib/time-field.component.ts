@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
-import { BaseClass, Identity, timeFormatString } from '@user-interfaces/common';
+import { BaseClass, Identity, timeFormatString } from '@placeos/common';
 
 import * as dayjs from 'dayjs';
 

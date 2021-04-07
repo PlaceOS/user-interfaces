@@ -12,7 +12,7 @@ import {
     MAT_DATE_FORMATS,
     NativeDateAdapter,
 } from '@angular/material/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { format } from 'date-fns';
 
 import * as dayjs from 'dayjs';

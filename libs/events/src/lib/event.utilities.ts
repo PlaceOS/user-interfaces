@@ -13,7 +13,7 @@ import {
     setMinutes,
     addMinutes,
 } from 'date-fns';
-import { timePeriodsIntersect, unique } from '@user-interfaces/common';
+import { timePeriodsIntersect, unique } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { SpaceRuleOptions, SpaceRules, SpaceCheckOptions } from './event.interfaces';

@@ -12,9 +12,9 @@ import {
     isSameMinute,
 } from 'date-fns';
 
-import { BaseClass } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass } from '@placeos/common';
+import { Space } from '@placeos/spaces';
+import { CalendarEvent } from '@placeos/events';
 
 import { PanelStateService } from '../panel-state.service';
 

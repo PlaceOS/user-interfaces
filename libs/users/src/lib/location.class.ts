@@ -1,5 +1,5 @@
 import { Point } from '@placeos/svg-viewer';
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 export class MapLocation {
     /** Source that the location was generated */
     public type: 'desk' | 'wireless' | 'meeting' | 'other';

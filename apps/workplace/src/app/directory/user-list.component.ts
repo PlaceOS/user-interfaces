@@ -7,8 +7,8 @@ import {
     map,
 } from 'rxjs/operators';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { searchStaff, User } from '@user-interfaces/users';
+import { BaseClass, SettingsService } from '@placeos/common';
+import { searchStaff, User } from '@placeos/users';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');

@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogEvent } from '@user-interfaces/common';
+import { DialogEvent } from '@placeos/common';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
-} from '@user-interfaces/spaces';
+} from '@placeos/spaces';
 import { first, map } from 'rxjs/operators';
 
 @Component({

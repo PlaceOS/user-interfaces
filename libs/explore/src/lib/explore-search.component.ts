@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 import { ExploreSearchService } from './explore-search.service';
 

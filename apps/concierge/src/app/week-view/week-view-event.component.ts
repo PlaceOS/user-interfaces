@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { CalendarEvent } from '@user-interfaces/events';
+import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({

@@ -4,10 +4,10 @@ import { formatDuration } from 'date-fns';
 import { BookingRule, SpaceCheckOptions, SpaceRules, SpaceRuleOptions } from './booking.interfaces';
 
 import { CateringItem } from '../../../catering/src/lib/catering-item.class';
-import { HashMap, predictableRandomInt } from '@user-interfaces/common';
+import { HashMap, predictableRandomInt } from '@placeos/common';
 import { User } from '../../../users/src/lib/user.class';
 import { generateMockUser } from '../../../users/src/lib/user.utilities';
-import { CalendarEvent, getFreeBookingSlots } from '@user-interfaces/events';
+import { CalendarEvent, getFreeBookingSlots } from '@placeos/events';
 import { Space } from '../../../spaces/src/lib/space.class';
 
 import * as dayjs from 'dayjs';

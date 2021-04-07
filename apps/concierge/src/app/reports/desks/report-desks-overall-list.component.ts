@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Booking } from '@user-interfaces/bookings';
-import { downloadFile, jsonToCsv, timePeriodsIntersect } from '@user-interfaces/common';
+import { Booking } from '@placeos/bookings';
+import { downloadFile, jsonToCsv, timePeriodsIntersect } from '@placeos/common';
 import { addDays, endOfDay, format, isBefore, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';

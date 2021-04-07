@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({

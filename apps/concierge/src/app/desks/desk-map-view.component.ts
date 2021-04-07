@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import {
     ExploreDesksService,
     ExploreStateService,
-} from '@user-interfaces/explore';
+} from '@placeos/explore';
 
 import { DesksStateService } from './desks-state.service';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'desk-map-view',

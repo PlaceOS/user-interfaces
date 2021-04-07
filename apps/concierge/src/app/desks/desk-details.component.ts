@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Booking } from '@user-interfaces/bookings';
+import { Booking } from '@placeos/bookings';
 import { DesksStateService } from './desks-state.service';
 @Component({
     selector: 'desk-details',

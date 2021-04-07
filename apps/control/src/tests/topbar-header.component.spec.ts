@@ -1,6 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@user-interfaces/common';
-import { CustomTooltipComponent, IconComponent } from '@user-interfaces/components';
+import { SettingsService } from '@placeos/common';
+import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';

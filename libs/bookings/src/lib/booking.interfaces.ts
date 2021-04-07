@@ -1,6 +1,6 @@
-import { HashMap } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
-import { User } from '@user-interfaces/users';
+import { HashMap } from '@placeos/common';
+import { Space } from '@placeos/spaces';
+import { User } from '@placeos/users';
 
 export interface IBookingOptions {
     space: Space;

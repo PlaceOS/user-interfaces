@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { UnauthorisedComponent } from '@user-interfaces/components';
+import { UnauthorisedComponent } from '@placeos/components';
 import { CateringComponent } from './catering.component';
 
 const routes: Routes = [

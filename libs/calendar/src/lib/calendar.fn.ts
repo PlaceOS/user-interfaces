@@ -2,11 +2,11 @@ import { get } from '@placeos/ts-client';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { toQueryString } from '@user-interfaces/common';
+import { toQueryString } from '@placeos/common';
 
 import { Calendar } from './calendar.class';
 import { Space } from '../../../spaces/src/lib/space.class';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 
 const CALENDAR_ENDPOINT = '/api/staff/v1/calendars';

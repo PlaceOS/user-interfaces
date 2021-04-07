@@ -1,10 +1,17 @@
+const { guessProductionMode } = require('@ngneat/tailwind');
 
+process.env.TAILWIND_MODE = guessProductionMode() ? 'build' : 'watch';
 
 module.exports = {
+    prefix: '',
     mode: 'jit',
-    important: '#placeos',
-    darkMode: 'class',
-    purge: ['**/*.html', '**/*.ts'],
+    purge: {
+        content: [
+            './apps/**/*.{html,ts,css,scss,sass,less,styl}',
+            './libs/**/*.{html,ts,css,scss,sass,less,styl}',
+        ],
+    },
+    darkMode: 'class', // or 'media' or 'class'
     theme: {
         extend: {
             colors: {
@@ -18,10 +25,8 @@ module.exports = {
             },
         },
     },
-    plugins: [
-        require('@tailwindcss/line-clamp')
-    ],
-    corePlugins: {
-        preflight: false
-    }
+    variants: {
+        extend: {},
+    },
+    plugins: [],
 };

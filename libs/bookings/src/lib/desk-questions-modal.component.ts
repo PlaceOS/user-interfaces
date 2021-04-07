@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DialogEvent, notifyError } from '@user-interfaces/common';
+import { DialogEvent, notifyError } from '@placeos/common';
 
 @Component({
     selector: 'desk-flow-question',

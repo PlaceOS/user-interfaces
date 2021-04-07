@@ -1,4 +1,4 @@
-import { BaseDataClass, HashMap } from '@user-interfaces/common';
+import { BaseDataClass, HashMap } from '@placeos/common';
 import { addMinutes, endOfDay, format, isAfter, isSameDay } from 'date-fns';
 
 import * as dayjs from 'dayjs';

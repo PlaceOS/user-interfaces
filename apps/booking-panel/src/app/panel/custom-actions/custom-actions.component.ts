@@ -3,12 +3,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
-import { notifyError } from '@user-interfaces/common';
+import { notifyError } from '@placeos/common';
 import {
     ConfirmModalComponent,
     CONFIRM_METADATA,
     ConfirmModalData,
-} from '@user-interfaces/components';
+} from '@placeos/components';
 import { EmbeddedControlModalComponent } from '../../overlays/embedded-control-modal.component';
 import { PanelStateService } from '../panel-state.service';
 

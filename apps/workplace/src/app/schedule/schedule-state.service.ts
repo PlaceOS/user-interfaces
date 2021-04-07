@@ -6,8 +6,8 @@ import {
     queryBookings,
     removeBooking,
     showBooking,
-} from '@user-interfaces/bookings';
-import { CalendarService } from '@user-interfaces/calendar';
+} from '@placeos/bookings';
+import { CalendarService } from '@placeos/calendar';
 import {
     BaseClass,
     currentUser,
@@ -15,13 +15,13 @@ import {
     notifySuccess,
     openConfirmModal,
     timePeriodsIntersect,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import {
     CalendarEvent,
     queryEvents,
     removeEvent,
     showEvent,
-} from '@user-interfaces/events';
+} from '@placeos/events';
 import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
 import {
     BehaviorSubject,

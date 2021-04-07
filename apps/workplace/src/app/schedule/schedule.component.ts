@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { ScheduleStateService } from './schedule-state.service';
 
 @Component({

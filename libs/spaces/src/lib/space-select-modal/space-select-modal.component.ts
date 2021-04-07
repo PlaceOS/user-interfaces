@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass, currentUser, DialogEvent, HashMap, Identity, notifyError, SettingsService } from '@user-interfaces/common'
-import { Building, OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, currentUser, DialogEvent, HashMap, Identity, notifyError, SettingsService } from '@placeos/common'
+import { Building, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '../../../../calendar/src/lib/calendar.service';
 import { filterSpacesRules } from '../../../../bookings/src/lib/booking.utilities';
 import { Space } from '../space.class';

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'app-welcome',

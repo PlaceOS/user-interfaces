@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CateringRuleset, RULE_TYPES } from './catering.interfaces';
 
-import { DialogEvent, Identity } from '@user-interfaces/common';
+import { DialogEvent, Identity } from '@placeos/common';
 
 export interface CateringConfigModalData {
     /** List of catering rules */

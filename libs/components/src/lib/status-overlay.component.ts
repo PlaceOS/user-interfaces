@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ApplicationLink } from '@user-interfaces/common';
+import { ApplicationLink } from '@placeos/common';
 
 @Component({
     selector: 'status-overlay',

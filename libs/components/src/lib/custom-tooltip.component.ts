@@ -14,7 +14,7 @@ import {
     Type,
     ViewChild,
 } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 @Injectable()
 export class CustomTooltipData<T = any> {

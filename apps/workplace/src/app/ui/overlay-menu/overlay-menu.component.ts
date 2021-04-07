@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { logout } from '@placeos/ts-client';
-import { ApplicationLink, BaseClass, currentUser, SettingsService, VERSION } from '@user-interfaces/common';
+import { ApplicationLink, BaseClass, currentUser, SettingsService, VERSION } from '@placeos/common';
 
 import { format } from 'date-fns';
 

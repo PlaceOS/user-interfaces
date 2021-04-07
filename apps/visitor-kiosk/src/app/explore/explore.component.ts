@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
-import { BaseClass, log, SettingsService } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, log, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-explore',

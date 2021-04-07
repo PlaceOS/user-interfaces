@@ -1,4 +1,4 @@
-import { Identity } from '@user-interfaces/common';
+import { Identity } from '@placeos/common';
 
 // Event catering order interfaces
 export type CateringOrderStatus = 'accepted' | 'preparing' | 'ready' | 'delivered' | 'cancelled';

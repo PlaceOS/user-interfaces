@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { notifyError } from '@user-interfaces/common';
+import { notifyError } from '@placeos/common';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({

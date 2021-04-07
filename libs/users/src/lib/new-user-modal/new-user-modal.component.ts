@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseClass, DialogEvent } from '@user-interfaces/common';
+import { BaseClass, DialogEvent } from '@placeos/common';
 
 import { User } from '../user.class';
 import { generateUserForm } from '../user.utilities';

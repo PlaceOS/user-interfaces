@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
 import { ExploreStateService } from './explore-state.service';

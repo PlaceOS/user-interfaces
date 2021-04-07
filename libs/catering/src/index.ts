@@ -1,1 +1,1 @@
-export * from './lib/catering';
+export * from './lib/catering.module';

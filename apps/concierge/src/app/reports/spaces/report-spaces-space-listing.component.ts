@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
+import { downloadFile, jsonToCsv } from '@placeos/common';
+import { Space } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, take } from 'rxjs/operators';

@@ -2,9 +2,9 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { SpacesService } from '@user-interfaces/spaces';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { SpacesService } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
 
 const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {

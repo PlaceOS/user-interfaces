@@ -15,7 +15,7 @@ import { Organisation } from './organisation.class';
 import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Desk } from './desk.class';
-import { HashMap, notifyError, RoomConfiguration, SettingsService } from '@user-interfaces/common';
+import { HashMap, notifyError, RoomConfiguration, SettingsService } from '@placeos/common';
 import { Router } from '@angular/router';
 
 @Injectable({

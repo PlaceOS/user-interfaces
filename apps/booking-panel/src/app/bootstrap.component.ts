@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { Space, SpacesService } from '@user-interfaces/spaces';
+import { BaseClass } from '@placeos/common';
+import { Space, SpacesService } from '@placeos/spaces';
 
 @Component({
     selector: '[app-bootstrap]',

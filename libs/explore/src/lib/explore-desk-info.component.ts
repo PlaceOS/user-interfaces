@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 
-import { MAP_FEATURE_DATA } from '@user-interfaces/components';
+import { MAP_FEATURE_DATA } from '@placeos/components';
 
 export interface SpaceInfoData {
     map_id: string;

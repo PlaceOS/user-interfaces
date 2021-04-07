@@ -1,4 +1,4 @@
-import { HashMap, unique } from '@user-interfaces/common';
+import { HashMap, unique } from '@placeos/common';
 
 export interface EnvironmentSource {
     id?: string;

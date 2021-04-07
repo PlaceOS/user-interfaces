@@ -1,5 +1,5 @@
 import { Md5 } from 'ts-md5';
-import { HashMap, predictableRandomInt } from '@user-interfaces/common';
+import { HashMap, predictableRandomInt } from '@placeos/common';
 import { MOCK_LEVELS } from '../api/zone.data';
 import { MOCK_STAFF } from '../api/users.data';
 

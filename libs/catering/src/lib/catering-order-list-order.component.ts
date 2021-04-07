@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@user-interfaces/common';
+import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@placeos/common';
 
 import { CateringOrdersService } from './catering-orders.service';
 import { CateringOrder } from './catering-order.class';

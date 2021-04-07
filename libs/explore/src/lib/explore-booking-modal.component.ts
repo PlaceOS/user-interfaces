@@ -1,14 +1,14 @@
 import { Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@user-interfaces/common';
+import { notifyError, notifySuccess } from '@placeos/common';
 import {
     CalendarEvent,
     generateEventForm,
     saveEvent,
-} from '@user-interfaces/events';
-import { Space } from '@user-interfaces/spaces';
-import { CalendarService } from '@user-interfaces/calendar';
+} from '@placeos/events';
+import { Space } from '@placeos/spaces';
+import { CalendarService } from '@placeos/calendar';
 
 export interface ExploreBookingModalData {
     space: Space;

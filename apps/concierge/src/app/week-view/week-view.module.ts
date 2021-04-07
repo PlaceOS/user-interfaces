@@ -5,8 +5,8 @@ import { RouterModule, Route } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
-import { SharedSpacesModule } from '@user-interfaces/spaces';
-import { SharedUsersModule } from '@user-interfaces/users';
+import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedUsersModule } from '@placeos/users';
 
 import { WeekViewComponent } from './week-view.component';
 import { WeekViewTopbarComponent } from './week-view-topbar.component';

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass, HashMap } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass, HashMap } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 import { currentBooking } from '../panel/panel-state.service';
 
 @Component({

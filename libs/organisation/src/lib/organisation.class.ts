@@ -1,4 +1,4 @@
-import { BaseDataClass, getItemWithKeys, HashMap } from '@user-interfaces/common';
+import { BaseDataClass, getItemWithKeys, HashMap } from '@placeos/common';
 
 export class Organisation extends BaseDataClass {
     /** Description for the Organisation */

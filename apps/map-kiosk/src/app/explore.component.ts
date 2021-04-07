@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@user-interfaces/common';
+import { SettingsService } from '@placeos/common';
 import {
     ExploreDesksService,
     ExploreSpacesService,
     ExploreStateService,
     ExploreZonesService,
-} from '@user-interfaces/explore';
+} from '@placeos/explore';
 
 @Component({
     selector: '[app-explore]',

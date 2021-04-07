@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 
-import { BaseClass, timePeriodsIntersect } from '@user-interfaces/common';
+import { BaseClass, timePeriodsIntersect } from '@placeos/common';
 import { ScheduleStateService } from '../schedule-state.service';
 import {
     addDays,

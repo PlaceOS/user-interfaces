@@ -1,4 +1,4 @@
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 import { format } from 'date-fns';
 
 export function eventStatus(details: HashMap): 'confirmed' | 'tentative' | 'cancelled' {

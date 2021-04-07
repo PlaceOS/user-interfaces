@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 
 import { SpaceSelectItemComponent } from './space-select-modal/item/item.component';
 import { SpaceSelectModalComponent } from './space-select-modal/space-select-modal.component';

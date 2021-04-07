@@ -1,5 +1,5 @@
-import { predictableRandomInt } from '@user-interfaces/common';
-import { generateMockSpace } from '@user-interfaces/spaces';
+import { predictableRandomInt } from '@placeos/common';
+import { generateMockSpace } from '@placeos/spaces';
 
 const randomSpaceFeatures = () => {
     const f = ['Whiteboard', 'VidConf', 'Projector', 'Views'];

@@ -3,7 +3,7 @@ import { map } from 'rxjs/operators';
 import { isSameDay, isAfter, format } from 'date-fns';
 
 import { PanelStateService } from '../panel-state.service';
-import { getNextFreeBookingSlot } from '@user-interfaces/events';
+import { getNextFreeBookingSlot } from '@placeos/events';
 
 @Component({
     selector: 'panel-space-details',

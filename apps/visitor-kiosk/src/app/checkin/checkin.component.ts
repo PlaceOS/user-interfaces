@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@user-interfaces/common';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: '[app-checkin]',

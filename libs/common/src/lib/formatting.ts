@@ -1,7 +1,7 @@
 
 import { format } from 'date-fns';
 
-import { RecurrenceDetails } from '@user-interfaces/events';
+import { RecurrenceDetails } from '@placeos/events';
 
 export function formatRecurrence(details: RecurrenceDetails): string {
     let pattern: string = details.pattern || '';

@@ -5,8 +5,8 @@ import { startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
 
-import { BaseClass, notifyError } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, notifyError } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { CalendarEvent } from '../../../events/src/lib/event.class';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 import {

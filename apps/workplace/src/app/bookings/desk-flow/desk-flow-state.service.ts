@@ -5,15 +5,15 @@ import {
     checkinBooking,
     DesksService,
     queryBookings,
-} from '@user-interfaces/bookings';
+} from '@placeos/bookings';
 import {
     BaseClass,
     currentUser,
     SettingsService,
-} from '@user-interfaces/common';
-import { DEFAULT_COLOURS, ExploreStateService } from '@user-interfaces/explore';
-import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { User } from '@user-interfaces/users';
+} from '@placeos/common';
+import { DEFAULT_COLOURS, ExploreStateService } from '@placeos/explore';
+import { Desk, OrganisationService } from '@placeos/organisation';
+import { User } from '@placeos/users';
 import { endOfDay, startOfDay } from 'date-fns';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';

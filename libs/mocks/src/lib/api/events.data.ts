@@ -1,4 +1,4 @@
-import { predictableRandomInt, unique } from '@user-interfaces/common';
+import { predictableRandomInt, unique } from '@placeos/common';
 
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';

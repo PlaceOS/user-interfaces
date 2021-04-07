@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { DialogEvent, randomInt } from '@user-interfaces/common';
+import { DialogEvent, randomInt } from '@placeos/common';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOption } from './catering.interfaces';

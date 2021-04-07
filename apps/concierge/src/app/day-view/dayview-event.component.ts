@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
 
-import { CalendarEvent } from '@user-interfaces/events';
+import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 
 @Component({

@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
     BindingDirective,
     CustomTooltipData,
-} from '@user-interfaces/components';
+} from '@placeos/components';
 import { MockDirective } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';

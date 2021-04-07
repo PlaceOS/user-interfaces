@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { DeskFlowStateService } from './desk-flow-state.service';
 

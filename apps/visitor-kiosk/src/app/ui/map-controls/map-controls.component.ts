@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { Building, BuildingLevel, OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, SettingsService } from '@placeos/common';
+import { Building, BuildingLevel, OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'a-map-controls',

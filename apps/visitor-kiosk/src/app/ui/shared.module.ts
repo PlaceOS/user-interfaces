@@ -31,7 +31,7 @@ import { BookingFormComponent } from './forms/booking-form/booking-form.componen
 
 import { MapControlsComponent } from './map-controls/map-controls.component';
 import { TakePhotoComponent } from './take-photo/take-photo.component';
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 
 const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,

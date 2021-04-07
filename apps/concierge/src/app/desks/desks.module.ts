@@ -13,7 +13,7 @@ import { DeskDetailsComponent } from './desk-details.component';
 import { DesksTopbarComponent } from './desks-topbar.component';
 import { DeskListModalComponent } from './desk-list-modal.component';
 import { DeskMapViewComponent } from './desk-map-view.component';
-import { SharedExploreModule } from '@user-interfaces/explore';
+import { SharedExploreModule } from '@placeos/explore';
 
 const ROUTES: Route[] = [{ path: '', component: DesksComponent }];
 

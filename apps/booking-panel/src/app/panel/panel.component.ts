@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { status } from '@placeos/ts-client';
 import { format } from 'date-fns';
 
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
+import { Space } from '@placeos/spaces';
 
 import { PanelStateService } from './panel-state.service';
 

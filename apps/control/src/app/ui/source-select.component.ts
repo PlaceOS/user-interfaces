@@ -6,7 +6,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { unique } from '@user-interfaces/common';
+import { unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomInput } from '../control-state.service';

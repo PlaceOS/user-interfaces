@@ -6,11 +6,11 @@ import {
 } from '@angular/material/dialog';
 import { endOfDay, formatDuration } from 'date-fns';
 
-import { BaseClass, RoomConfiguration } from '@user-interfaces/common';
-import { CalendarEvent, saveEvent } from '@user-interfaces/events';
-import { CalendarService } from '@user-interfaces/calendar';
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, RoomConfiguration } from '@placeos/common';
+import { CalendarEvent, saveEvent } from '@placeos/events';
+import { CalendarService } from '@placeos/calendar';
+import { Space, SpacesService } from '@placeos/spaces';
+import { OrganisationService } from '@placeos/organisation';
 
 import { ViewCateringModalComponent } from '../../../overlays/view-catering-modal/view-catering-modal.component';
 import { ViewAttendeesModalComponent } from '../../../overlays/view-attendees-modal/view-attendees-modal.component';

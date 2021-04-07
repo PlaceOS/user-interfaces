@@ -4,8 +4,8 @@ import { updateMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, DialogEvent, flatten, unique } from '@user-interfaces/common';
-import { Building, OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, DialogEvent, flatten, unique } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { ConfirmModalComponent, ConfirmModalData, CONFIRM_METADATA } from '../../../components/src/lib/confirm-modal.component';
 
 import { CateringItemModalComponent, CateringItemModalData } from './catering-item-modal.component';

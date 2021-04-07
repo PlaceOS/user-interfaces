@@ -4,12 +4,12 @@ import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
 
-import { BaseClass, DialogEvent } from '@user-interfaces/common';
-import { StaffUser } from '@user-interfaces/users';
+import { BaseClass, DialogEvent } from '@placeos/common';
+import { StaffUser } from '@placeos/users';
 import { ITimelineEventGroup } from '../../ui/event-timeline/event-timeline.component';
 
 import * as dayjs from 'dayjs';
-import { queryEvents } from '@user-interfaces/events';
+import { queryEvents } from '@placeos/events';
 
 @Component({
     selector: 'app-user-availability-modal',

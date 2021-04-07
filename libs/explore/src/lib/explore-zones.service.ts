@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewerLabel, Point } from '@placeos/svg-viewer';
 
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
 import {
     BuildingLevel,
     OrganisationService,
-} from '@user-interfaces/organisation';
+} from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';

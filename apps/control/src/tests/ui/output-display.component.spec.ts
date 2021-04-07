@@ -1,7 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { BindingDirective, IconComponent } from '@user-interfaces/components';
+import { BindingDirective, IconComponent } from '@placeos/components';
 import { MockComponent, MockDirective } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';

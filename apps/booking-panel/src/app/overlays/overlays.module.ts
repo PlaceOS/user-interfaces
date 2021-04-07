@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { ComponentsModule } from '@user-interfaces/components';
-import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { ComponentsModule } from '@placeos/components';
+import { FormFieldsModule } from '@placeos/form-fields';
 import { EmbeddedControlModalComponent } from './embedded-control-modal.component';
 import { BookingModalComponent } from './booking-modal.component';
 

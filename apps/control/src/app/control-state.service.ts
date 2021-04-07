@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 
-import { BaseClass, HashMap } from '@user-interfaces/common';
+import { BaseClass, HashMap } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 import { map } from 'rxjs/operators';

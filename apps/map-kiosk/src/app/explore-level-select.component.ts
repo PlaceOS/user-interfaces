@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ExploreStateService } from '@user-interfaces/explore';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { ExploreStateService } from '@placeos/explore';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'explore-level-select',

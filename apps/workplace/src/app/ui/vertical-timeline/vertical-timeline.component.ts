@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { formatDuration } from 'date-fns';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 import { ITimelineEventGroup } from '../event-timeline/event-timeline.component';
 

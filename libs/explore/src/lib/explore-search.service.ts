@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, debounceTime, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { searchStaff, User } from '@user-interfaces/users';
+import { Space, SpacesService } from '@placeos/spaces';
+import { searchStaff, User } from '@placeos/users';
 import { getModule } from '@placeos/ts-client';
-import { unique } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { unique } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Injectable({
     providedIn: 'root',

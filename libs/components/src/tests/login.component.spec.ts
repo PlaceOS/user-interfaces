@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { SettingsService } from '@user-interfaces/common';
+import { SettingsService } from '@placeos/common';
 import { MockComponent, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
 

@@ -1,6 +1,6 @@
 import { showUser } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
-import { delay, map, retry, shareReplay } from 'rxjs/operators';
+import { delay, map, retry } from 'rxjs/operators';
 
 import { StaffUser } from '../../../users/src/lib/user.class';
 
@@ -11,7 +11,7 @@ export const current_user = _current_user.asObservable();
 declare let jest;
 
 setTimeout(() => {
-    if (jest) return;
+    if (window.jest) return;
     console.log('Loading logged in user details...');
     showUser('current')
         .pipe(

@@ -7,8 +7,8 @@ import { UIModule } from '../ui/ui.module';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
 import { ReportsComponent } from './reports.component';
-import { SharedSpacesModule } from '@user-interfaces/spaces';
-import { SharedUsersModule } from '@user-interfaces/users';
+import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedUsersModule } from '@placeos/users';
 import { ReportsOptionsComponent } from './reports-options.component';
 import { ReportSpacesComponent } from './spaces/report-spaces.component';
 import { ReportDesksComponent } from './desks/report-desks.component';

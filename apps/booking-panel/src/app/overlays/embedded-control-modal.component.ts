@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 export interface EmbeddedControlModalData {
     control_url: string;

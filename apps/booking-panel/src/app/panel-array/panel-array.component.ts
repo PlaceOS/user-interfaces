@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { delay, first } from 'rxjs/operators';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 import { format } from 'date-fns';
 
 @Component({

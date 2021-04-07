@@ -23,8 +23,8 @@ import {
     SettingsService,
     setupCache,
     setupPlace,
-} from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 import { SpacesService } from '../../../spaces/src/lib/spaces.service';
 import { setDefaultCreator } from '../../../events/src/lib/event.class';

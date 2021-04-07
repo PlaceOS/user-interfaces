@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CalendarEvent } from '@user-interfaces/events';
+import { CalendarEvent } from '@placeos/events';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({

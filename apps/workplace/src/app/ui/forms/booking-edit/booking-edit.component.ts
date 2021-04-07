@@ -2,8 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass, SettingsService } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 
 import {
     SpaceSelectModalComponent,

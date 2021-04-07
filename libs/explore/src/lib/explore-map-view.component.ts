@@ -7,14 +7,14 @@ import {
     BaseClass,
     notifyError,
     SettingsService,
-} from '@user-interfaces/common';
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { MapLocation, showStaff, User } from '@user-interfaces/users';
+} from '@placeos/common';
+import { Space, SpacesService } from '@placeos/spaces';
+import { MapLocation, showStaff, User } from '@placeos/users';
 import {
     MapPinComponent,
     MapRadiusComponent,
-} from '@user-interfaces/components';
-import { OrganisationService } from '@user-interfaces/organisation';
+} from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';

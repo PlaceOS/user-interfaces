@@ -2,13 +2,13 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { BaseClass, Identity, RoomConfiguration, SettingsService, unique } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { NewUserModalComponent } from '@user-interfaces/users';
+import { BaseClass, Identity, RoomConfiguration, SettingsService, unique } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { NewUserModalComponent } from '@placeos/users';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
-} from '@user-interfaces/spaces';
+} from '@placeos/spaces';
 
 @Component({
     selector: 'a-booking-form',

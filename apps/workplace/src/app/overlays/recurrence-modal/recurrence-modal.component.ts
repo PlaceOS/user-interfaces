@@ -2,8 +2,8 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BookingRecurrenceDetails } from '@user-interfaces/bookings';
-import { BaseClass, DialogEvent, Identity } from '@user-interfaces/common';
+import { BookingRecurrenceDetails } from '@placeos/bookings';
+import { BaseClass, DialogEvent, Identity } from '@placeos/common';
 
 
 export interface RecurrenceModalData {

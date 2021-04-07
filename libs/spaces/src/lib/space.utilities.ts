@@ -1,4 +1,4 @@
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 
 let SPACE_COUNT: number = 0;

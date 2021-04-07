@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'app-help',

@@ -1,5 +1,5 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
-import { predictableRandomInt } from '@user-interfaces/common';
+import { predictableRandomInt } from '@placeos/common';
 
 import { MOCK_EVENTS } from './events.data';
 import { ACTIVE_USER } from './users.data';

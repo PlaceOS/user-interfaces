@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { PanelStateService } from '../panel-state.service';
 
 export type SpaceStatus = 'pending' | 'available' | 'unavailable' | 'endable';

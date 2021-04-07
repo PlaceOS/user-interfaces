@@ -1,6 +1,6 @@
-import { Booking } from '@user-interfaces/bookings';
-import { HashMap } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { Booking } from '@placeos/bookings';
+import { HashMap } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 
 export function generateReportForDeskBookings(bookings: Booking[], util_period: number = 1, counts: HashMap<number> = {}) {
     console.log('Counts:', counts);

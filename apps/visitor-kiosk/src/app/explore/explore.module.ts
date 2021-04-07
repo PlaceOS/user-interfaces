@@ -8,8 +8,8 @@ import { ExploreComponent } from './explore.component';
 import { SharedContentModule } from '../ui/shared.module';
 import { FooterLegendComponent } from './footer-legend/footer-legend.component';
 import { FiltersComponent } from './filters/filters.component';
-import { ComponentsModule } from '@user-interfaces/components';
-import { SharedExploreModule } from '@user-interfaces/explore';
+import { ComponentsModule } from '@placeos/components';
+import { SharedExploreModule } from '@placeos/explore';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },

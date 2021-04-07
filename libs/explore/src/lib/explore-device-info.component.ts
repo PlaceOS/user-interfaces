@@ -9,7 +9,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
-import { MAP_FEATURE_DATA } from '@user-interfaces/components';
+import { MAP_FEATURE_DATA } from '@placeos/components';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 export interface DeviceInfoData {
     mac: string;

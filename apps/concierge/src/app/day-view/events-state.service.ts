@@ -24,16 +24,16 @@ import {
     flatten,
     timePeriodsIntersect,
     unique,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import {
     CalendarEvent,
     queryEvents,
     removeEvent,
     replaceBookings,
-} from '@user-interfaces/events';
-import { SpacesService } from '@user-interfaces/spaces';
+} from '@placeos/events';
+import { SpacesService } from '@placeos/spaces';
 import { BookingModalComponent } from './booking-modal.component';
-import { ConfirmModalComponent } from '@user-interfaces/components';
+import { ConfirmModalComponent } from '@placeos/components';
 
 export type BookingType =
     | 'internal'

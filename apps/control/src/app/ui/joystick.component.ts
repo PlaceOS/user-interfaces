@@ -8,7 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { Point } from '@placeos/svg-viewer';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 /**
  * Grab point details from mouse or touch event

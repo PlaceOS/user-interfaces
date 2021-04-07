@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { ControlStateService } from './control-state.service';
 
 @Component({

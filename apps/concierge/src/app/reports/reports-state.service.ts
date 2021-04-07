@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
-import { Booking, queryBookings } from '@user-interfaces/bookings';
+import { Booking, queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
     HashMap,
     jsonToCsv,
     notifyError,
-} from '@user-interfaces/common';
-import { CalendarEvent, queryEvents } from '@user-interfaces/events';
-import { OrganisationService } from '@user-interfaces/organisation';
+} from '@placeos/common';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays, endOfDay, format, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {

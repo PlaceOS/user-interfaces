@@ -9,7 +9,7 @@ import {
     addMinutes,
 } from 'date-fns';
 
-import { HashMap, Identity, unique } from '@user-interfaces/common';
+import { HashMap, Identity, unique } from '@placeos/common';
 import { CateringOrder } from '../../../catering/src/lib/catering-order.class';
 import { User } from '../../../users/src/lib/user.class';
 import { Space } from '../../../spaces/src/lib/space.class';
