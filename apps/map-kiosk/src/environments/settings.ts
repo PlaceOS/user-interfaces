@@ -2,6 +2,9 @@
 const general = {
 }
 
+const desks = {
+    hide_reason: true
+}
 
 const app = {
     name: 'MapKiosk',
@@ -16,7 +19,8 @@ const app = {
         type: 'img',
         src: 'assets/logo-dark.svg'
     },
-    general
+    general,
+    desks
 }
 
 /**

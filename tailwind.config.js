@@ -4,6 +4,7 @@ process.env.TAILWIND_MODE = guessProductionMode() ? 'build' : 'watch';
 
 module.exports = {
     prefix: '',
+    important: '#placeos',
     mode: 'jit',
     purge: {
         content: [
