@@ -67,11 +67,14 @@ import { MatDialog } from '@angular/material/dialog';
                     </mat-chip>
                 </mat-chip-list>
             </div>
-            <div class="flex items-center" *ngIf="!hide_actions">
+            <div
+                class="flex items-center border-t border-gray-300 divide-x divide-gray-300"
+                *ngIf="!hide_actions"
+            >
                 <button
                     mat-button
                     name="new-contact"
-                    class="flex-1 rounded-none border-none text-black underline"
+                    class="clear underline flex-1"
                     (click)="openNewUserModal()"
                     i18n="Add new external attendee"
                 >
@@ -79,7 +82,7 @@ import { MatDialog } from '@angular/material/dialog';
                 </button>
                 <button
                     mat-button
-                    class="relative flex-1 rounded-none border-t-0 border-b-0 border-l border-r border-gray-200 text-black underline"
+                    class="clear underline flex-1 relative"
                     name="upload-csv"
                     i18n="Upload attendee list from CSV file"
                 >
@@ -92,7 +95,7 @@ import { MatDialog } from '@angular/material/dialog';
                 </button>
                 <button
                     mat-button
-                    class="flex-1 rounded-none border-none text-black underline"
+                    class="clear underline flex-1"
                     name="download-template"
                     (click)="downloadCSVTemplate()"
                     i18n="Download template CSV file"

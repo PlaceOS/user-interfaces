@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { catchError, debounceTime, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
-import { Space, SpacesService } from '@placeos/spaces';
-import { searchStaff, User } from '@placeos/users';
+import { SpacesService } from '@placeos/spaces';
+import { searchStaff, StaffUser, User } from '@placeos/users';
 import { getModule } from '@placeos/ts-client';
 import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -21,12 +21,13 @@ export class ExploreSearchService {
 
     public readonly emergency_contacts = this._emergency_contacts.asObservable();
 
-    private _user_search = this._filter.pipe(
+    private _user_search: Observable<StaffUser[]> = this._filter.pipe(
         debounceTime(500),
-        switchMap((q) => (q?.length > 2 ? searchStaff(q) : of([]))),
-        catchError((_) => []),
+        switchMap((q) => (q?.length > 2 ? (this.search_fn || searchStaff)(q) : of([]))),
+        catchError(() => []),
         shareReplay(1)
     );
+
     private _space_search = combineLatest([this._filter, this._spaces.list]).pipe(
         map(
             ([f, spaces]) =>
@@ -85,17 +86,19 @@ export class ExploreSearchService {
     );
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
+    /** Function used to query for users */
+    public search_fn = (q: string) => searchStaff(q);
 
     constructor(
         private _spaces: SpacesService,
         private _org: OrganisationService
     ) {
         this._spaces.list.subscribe(() => this._filter.next(this._filter.getValue()));
-        this._filter.subscribe(_ => this._loading.next(true));
-        this.ngOnInit();
+        this._filter.subscribe(() => this._loading.next(true));
+        this.init();
     }
 
-    public async ngOnInit() {
+    public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const mod = getModule(
             this._org.organisation.bindings?.location_services,

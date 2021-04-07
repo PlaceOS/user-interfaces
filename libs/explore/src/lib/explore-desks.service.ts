@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { getModule, showMetadata } from '@placeos/ts-client';
+import { getModule, PlaceVariableBinding, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
@@ -39,7 +39,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
-    private _bindings: any[] = [];
+    private _bindings: PlaceVariableBinding[] = [];
     private _stats = new BehaviorSubject<DesksStats>({
         free: 0,
         occupied: 0,
@@ -51,7 +51,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._state.level,
         this._poll,
     ]).pipe(
-        switchMap(([lvl, _]) =>
+        switchMap(([lvl]) =>
             queryBookings({
                 period_start: getUnixTime(startOfDay(new Date())),
                 period_end: getUnixTime(endOfDay(new Date())),
@@ -64,10 +64,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public readonly desk_list = this._state.level.pipe(
         switchMap((lvl) =>
             showMetadata(lvl.id, { name: 'desks' }).pipe(
-                map((i) => i.details.map((j) => new Desk({ ...j, zone: lvl })))
+                map((i) => i.details.map((j: HashMap) => new Desk({ ...j, zone: lvl })))
             )
         ),
-        catchError((_) => [])
+        catchError(() => [])
     );
 
     constructor(
@@ -77,10 +77,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         private _desks_service: DesksService
     ) {
         super();
-        this.ngOnInit();
+        this.init();
     }
 
-    public async ngOnInit() {
+    public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.setOptions({
             enable_booking: this._settings.get('app.desks.enabled') !== false,
@@ -205,7 +205,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
-            if (!this._statuses.hasOwnProperty(desk_id)) continue;
+            if (!this._statuses[desk_id]) continue;
             style_map[`#${desk_id}`] = {
                 fill:
                     colours[`desk-${this._statuses[desk_id]}`] ||
@@ -260,9 +260,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 action: 'click',
                 callback: () =>
                     this._desks_service.bookDesk({
-                        desks: [desk as any],
+                        desks: [desk as Desk],
                         host: options.host,
-                        date: options.date as any,
+                        date: options.date as Date,
                     }),
             });
             actions.push({
@@ -270,9 +270,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 action: 'touchend',
                 callback: () =>
                     this._desks_service.bookDesk({
-                        desks: [desk as any],
+                        desks: [desk as Desk],
                         host: options.host,
-                        date: options.date as any,
+                        date: options.date as Date,
                     }),
             });
         }
