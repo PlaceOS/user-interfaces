@@ -7,6 +7,8 @@ import {
     Input,
     QueryList,
     SimpleChanges,
+    TemplateRef,
+    Type,
     ViewChild,
     ViewChildren,
 } from '@angular/core';
@@ -37,7 +39,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
             [diameter]="48"
         ></mat-spinner>
         <div hidden *ngIf="injectors?.length">
-            <ng-container *ngFor="let element of features; let i = index; trackBy: element?.location">
+            <ng-container *ngFor="let element of features; let i = index">
                 <div *ngIf="element">
                     <div
                         #feature
@@ -45,12 +47,27 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
                         [attr.el-id]="element.location"
                         [attr.view-id]="viewer"
                     >
-                        <ng-container
-                            *ngComponentOutlet="
-                                element.content;
-                                injector: injectors[i]
-                            "
-                        ></ng-container>
+                        <ng-container [ngSwitch]="featureType(element.content)">
+                            <ng-container *ngSwitchCase="'html'">
+                                <div [innerHtml]="element.content"></div>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'template'">
+                                <ng-container
+                                    *ngTemplateOutlet="
+                                        element.content;
+                                        context: { data: element.data }
+                                    "
+                                ></ng-container>
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>
+                                <ng-container
+                                    *ngComponentOutlet="
+                                        element.content;
+                                        injector: injectors[i]
+                                    "
+                                ></ng-container>
+                            </ng-container>
+                        </ng-container>
                     </div>
                 </div>
             </ng-container>
@@ -150,6 +167,17 @@ export class InteractiveMapComponent
 
     public ngAfterViewInit() {
         this.createView();
+    }
+
+    /** Get the type of the given content */
+    public featureType(content: TemplateRef<any> | Type<any> | string) {
+        if (typeof content === 'string') {
+            return 'html';
+        }
+        if (content instanceof TemplateRef) {
+            return 'template';
+        }
+        return 'component';
     }
 
     /** Update overlays, styles and actions of viewer */
