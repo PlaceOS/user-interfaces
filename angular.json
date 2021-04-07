@@ -75,6 +75,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -86,6 +88,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
                                     "with": "apps/workplace/src/environments/environment.prod.ts"
@@ -118,6 +124,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "workplace:build"
                     },
                     "configurations": {
@@ -220,6 +227,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -231,6 +240,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/concierge/src/environments/environment.ts",
                                     "with": "apps/concierge/src/environments/environment.prod.ts"
@@ -263,6 +276,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "concierge:build"
                     },
                     "configurations": {
@@ -365,6 +379,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -376,6 +392,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/control/src/environments/environment.ts",
                                     "with": "apps/control/src/environments/environment.prod.ts"
@@ -408,6 +428,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "control:build"
                     },
                     "configurations": {
@@ -510,6 +531,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -521,6 +544,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/booking-panel/src/environments/environment.ts",
                                     "with": "apps/booking-panel/src/environments/environment.prod.ts"
@@ -553,6 +580,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "booking-panel:build"
                     },
                     "configurations": {
@@ -657,6 +685,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -668,6 +698,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/map-kiosk/src/environments/environment.ts",
                                     "with": "apps/map-kiosk/src/environments/environment.prod.ts"
@@ -700,6 +734,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "map-kiosk:build"
                     },
                     "configurations": {
@@ -802,6 +837,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -813,6 +850,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/visitor-kiosk/src/environments/environment.ts",
                                     "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
@@ -845,6 +886,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "visitor-kiosk:build"
                     },
                     "configurations": {
@@ -949,6 +991,8 @@
                     },
                     "configurations": {
                         "staging": {
+                            "optimization": true,
+                            "buildOptimizer": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -960,6 +1004,10 @@
                         },
                         "production": {
                             "fileReplacements": [
+                                {
+                                    "replace": "libs/mocks/src/index.ts",
+                                    "with": "libs/mocks/src/empty.ts"
+                                },
                                 {
                                     "replace": "apps/caterer-ui/src/environments/environment.ts",
                                     "with": "apps/caterer-ui/src/environments/environment.prod.ts"
@@ -992,6 +1040,7 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
+                        "proxyConfig": "config/proxy.conf.js",
                         "browserTarget": "caterer-ui:build"
                     },
                     "configurations": {
