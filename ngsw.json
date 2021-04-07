@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1617093407267,
+  "timestamp": 1617792575469,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,14 +11,16 @@
         "ignoreVary": true
       },
       "urls": [
-        "./checkin-checkin-module.8d5701a317fed30f63c4.js",
-        "./explore-explore-module.64c13ec2740322271f5d.js",
+        "./checkin-checkin-module.js",
+        "./explore-explore-module.js",
         "./favicon.ico",
         "./index.html",
-        "./main.5054de0cf09d5336fcd5.js",
-        "./polyfills.ce1f4adb17ef839d932f.js",
-        "./runtime.c4aed08e3d1e924f216d.js",
-        "./styles.37773c0ea2fc92eee696.css"
+        "./main.js",
+        "./manifest.webmanifest",
+        "./polyfills.js",
+        "./runtime.js",
+        "./styles.css",
+        "./vendor.js"
       ],
       "patterns": []
     },
@@ -136,14 +138,16 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./checkin-checkin-module.8d5701a317fed30f63c4.js": "76c42174b69c56e9cb79767307b8f2b5d6d7139a",
-    "./explore-explore-module.64c13ec2740322271f5d.js": "e9a8735dd8ed388aa8dec49af07ac744c6cf3f2c",
+    "./checkin-checkin-module.js": "f87555bcf939565451e23c8ec30ae92b00c2d2c3",
+    "./explore-explore-module.js": "11bfb864a6fe8a03205e1c80f9e40a842474e8a8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "7faaf4d99c93dd49ad136a586c31ae24a4bf40f6",
-    "./main.5054de0cf09d5336fcd5.js": "fe680000149e219cd43fbd58c3c3376d8f1547d8",
-    "./polyfills.ce1f4adb17ef839d932f.js": "3e1da7bc17a4dbf5d45ea0bb0107a779005a1a1c",
-    "./runtime.c4aed08e3d1e924f216d.js": "12bd3fac30fd407164a95716b826b28402f08492",
-    "./styles.37773c0ea2fc92eee696.css": "750ef067f52fda35bc021d4cfab6d83e9c654370"
+    "./index.html": "49ee4e77bf4f8ac5cae2e6fcead72167e0c92b79",
+    "./main.js": "75cc7776cdc444287fd43fb4ce5474d976e76361",
+    "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
+    "./polyfills.js": "c3719ca98df83d9438e3d681268ea70db2fbd73c",
+    "./runtime.js": "288c6d185366429b13b16f48bbae0c234183d446",
+    "./styles.css": "86032f664e7a4470b24c28fe124ab4517e4d8796",
+    "./vendor.js": "ef9f7637318089ba962efe84f619fa27f2cd1245"
   },
   "navigationUrls": [
     {
