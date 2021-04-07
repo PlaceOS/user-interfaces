@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1617093387127,
+  "timestamp": 1617792596196,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,20 +11,22 @@
         "ignoreVary": true
       },
       "urls": [
-        "./bookings-bookings-module.8ce572ffdb9be6db08e1.js",
-        "./control-control-module.dae58bc0c80fd6872cd6.js",
-        "./dashboard-dashboard-module.3258e00fe98a3be9e750.js",
-        "./default~bookings-bookings-module~explore-explore-module.714015a87cf4589920f1.js",
-        "./directory-directory-module.7a3c33e659d02a9a6024.js",
-        "./explore-explore-module.fb3e0dd8794010672bf3.js",
+        "./bookings-bookings-module.js",
+        "./control-control-module.js",
+        "./dashboard-dashboard-module.js",
+        "./default~bookings-bookings-module~explore-explore-module.js",
+        "./directory-directory-module.js",
+        "./explore-explore-module.js",
         "./favicon.ico",
-        "./help-help-module.83268529a53847c24395.js",
+        "./help-help-module.js",
         "./index.html",
-        "./main.ac87de094cf4d99b5624.js",
-        "./polyfills.3c558801e44a4118fab0.js",
-        "./runtime.118763551f07d211985a.js",
-        "./schedule-schedule-module.dba85e41788ea8823b13.js",
-        "./styles.37773c0ea2fc92eee696.css"
+        "./main.js",
+        "./manifest.webmanifest",
+        "./polyfills.js",
+        "./runtime.js",
+        "./schedule-schedule-module.js",
+        "./styles.css",
+        "./vendor.js"
       ],
       "patterns": []
     },
@@ -182,20 +184,22 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./bookings-bookings-module.8ce572ffdb9be6db08e1.js": "5981e574d332ff0c3117dd9b88001cfef9aba032",
-    "./control-control-module.dae58bc0c80fd6872cd6.js": "3797c4dc2c252c558d7bb26afdf5b7aab8be2906",
-    "./dashboard-dashboard-module.3258e00fe98a3be9e750.js": "02c0e9b96723f040243732539a60fd312e6e786e",
-    "./default~bookings-bookings-module~explore-explore-module.714015a87cf4589920f1.js": "c2ae2b128fe5cdb23c6de79cd69926920b04d1d7",
-    "./directory-directory-module.7a3c33e659d02a9a6024.js": "9d488b00e5dafc66263789ca8f8a7706ddbf0c2b",
-    "./explore-explore-module.fb3e0dd8794010672bf3.js": "c9e6422ad9bbea947a1530ad0da48ee860aeec3b",
+    "./bookings-bookings-module.js": "8368a4380bdd3d0f754c1efa349c812f3a25dd11",
+    "./control-control-module.js": "43e5a4cf1ea1cc8c4193a13e22c756bd0f242ac6",
+    "./dashboard-dashboard-module.js": "840a5c89072a92a2ecb45c799c7a16012c0552d6",
+    "./default~bookings-bookings-module~explore-explore-module.js": "4e3da87ec6bd8a39e89dc94694b03234c37af256",
+    "./directory-directory-module.js": "c4ed1cb35395b7743f74506e448a6cc1c77bd1d5",
+    "./explore-explore-module.js": "8a342cb0d5275419b4df473224c001fb2a98f7db",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./help-help-module.83268529a53847c24395.js": "2581649836417236df474817fc54c298c524da49",
-    "./index.html": "223f538efecefffb46110bf38c09433befeafe3e",
-    "./main.ac87de094cf4d99b5624.js": "63859c104ad1c1258ef6f7ab93ec1a1544e74714",
-    "./polyfills.3c558801e44a4118fab0.js": "2d8d9d15fbc78d294b38e2729192123d2a9112b5",
-    "./runtime.118763551f07d211985a.js": "a0822a12abc4d9b22a22870ed2568925244c50c6",
-    "./schedule-schedule-module.dba85e41788ea8823b13.js": "856d96284d2804db1136ff791e76b26d05ec6cfa",
-    "./styles.37773c0ea2fc92eee696.css": "750ef067f52fda35bc021d4cfab6d83e9c654370"
+    "./help-help-module.js": "1bb140ab2d954a1303a2f2636f645901149a0448",
+    "./index.html": "b218c19db82615b93dd8fc12c709a4c712d21d7f",
+    "./main.js": "2fcc20863b0b54b6acde0042450f3df5b4990a6d",
+    "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
+    "./polyfills.js": "92db0ccf6ccb7f3a6fcea95cf6085b3324b6de6e",
+    "./runtime.js": "c7fd86d17b0471eff00f7c9c19405f5cefbc82c8",
+    "./schedule-schedule-module.js": "dab60f7a5efee460a9d18e533490514404f4be6f",
+    "./styles.css": "86032f664e7a4470b24c28fe124ab4517e4d8796",
+    "./vendor.js": "f6c0f48c8b7319b85a8f753460b163c0d794cd97"
   },
   "navigationUrls": [
     {
