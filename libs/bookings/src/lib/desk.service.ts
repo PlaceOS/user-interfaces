@@ -64,6 +64,7 @@ export class DesksService {
         ref.close();
         ref = this._dialog.open(DeskConfirmModalComponent, {
             data: {
+                host,
                 desks,
                 date: date ? new Date(date) : new Date(),
                 reason,
@@ -81,6 +82,7 @@ export class DesksService {
                 .toPromise(),
         ]);
         if (!success) return;
+        host = ref.componentInstance.host;
         date = ref.componentInstance.date;
         ref.componentInstance.loading =
             'Checking for existing desk bookings...';
@@ -143,7 +145,7 @@ export class DesksService {
             booking_type: 'desk',
             extension_data: {
                 groups: desk.groups,
-                for_user: for_user?.email
+                for_user: for_user?.email,
             },
         };
         return saveBooking(booking_data as any).toPromise();

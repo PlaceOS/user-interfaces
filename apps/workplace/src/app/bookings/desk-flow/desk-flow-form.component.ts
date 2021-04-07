@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -12,6 +12,13 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                 <h2 class="text-xl font-medium mb-4 text-center">
                     Request a desk
                 </h2>
+                <div class="flex flex-col" *ngIf="can_set_host">
+                    <label>Host</label>
+                    <a-user-search-field
+                        [ngModel]="host | async"
+                        (ngModelChange)="setHost($event)"
+                    ></a-user-search-field>
+                </div>
                 <mat-button-toggle-group
                     name="booking-type"
                     class="w-full mb-4"
@@ -19,7 +26,11 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                     [(ngModel)]="booking_type"
                     aria-label="Desk Booking Type"
                 >
-                    <mat-button-toggle class="flex-1" value="single" (click)="setAttendees([])">
+                    <mat-button-toggle
+                        class="flex-1"
+                        value="single"
+                        (click)="setAttendees([])"
+                    >
                         Single
                     </mat-button-toggle>
                     <mat-button-toggle class="flex-1" value="group">
@@ -55,7 +66,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
                         ></a-date-field>
                     </div>
                 </div>
-                <div class="flex flex-col">
+                <div class="flex flex-col" *ngIf="!hide_reason">
                     <label>Reason</label>
                     <mat-form-field overlay appearance="outline">
                         <input
@@ -84,7 +95,7 @@ import { DeskFlowStateService } from './desk-flow-state.service';
         `,
     ],
 })
-export class DeskFlowFormComponent {
+export class DeskFlowFormComponent implements OnInit {
     /** Whether to book for self or group of people */
     public booking_type: string = 'single';
     /** Reason for making the booking */
@@ -94,13 +105,26 @@ export class DeskFlowFormComponent {
 
     public readonly options = this._state.options;
 
+    public readonly host = this._state.host;
+
     public readonly setAttendees = (l) =>
         this._state.setOptions({ attendees: l });
     public readonly setOptions = (o) => this._state.setOptions(o);
+    public readonly setHost = (h) => this._state.setHost(h);
 
     /** Whether user is allow to book for a group of people */
     public get can_book_group() {
         return this._settings.get('app.desks.has_group_booking') !== false;
+    }
+
+    /** Whether to hide field to set a reason for booking */
+    public get hide_reason() {
+        return !!this._settings.get('app.desks.hide_reason');
+    }
+
+    /** Whether to user is allowed to set the host for the booking */
+    public get can_set_host() {
+        return !!this._settings.get('app.desks.can_set_host');
     }
 
     constructor(
