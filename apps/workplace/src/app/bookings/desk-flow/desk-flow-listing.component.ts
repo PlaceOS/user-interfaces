@@ -150,7 +150,6 @@ export class DeskFlowListingComponent extends BaseClass {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         await current_user.pipe(first((_) => !!_)).toPromise();
-        this._desks.setHost(currentUser());
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {

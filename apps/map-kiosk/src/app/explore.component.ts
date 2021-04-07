@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { Component, OnInit } from '@angular/core';
+import { current_user, SettingsService } from '@placeos/common';
 import {
     ExploreDesksService,
     ExploreSpacesService,
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
+import { OrganisationService } from '@placeos/organisation';
+import { DeskFlowStateService } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-state.service';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',
@@ -31,20 +34,24 @@ import {
         <explore-level-select
             class="absolute left-1 top-1/2 transform -translate-y-1/2 z-10"
         ></explore-level-select>
+        <explore-search class="absolute top-1 right-1"></explore-search>
+        <footer-menu class="absolute bottom-0 left-0 right-0"></footer-menu>
     `,
-    styles: [`
-        :host {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #f0f0f0;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #f0f0f0;
+            }
+        `,
+    ],
     providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
 })
-export class ExploreComponent {
+export class ExploreComponent implements OnInit {
     public get logo() {
         return this._settings.get('app.logo');
     }
@@ -68,6 +75,14 @@ export class ExploreComponent {
         private _s: ExploreSpacesService,
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _desk_state: DeskFlowStateService,
+        private _org: OrganisationService
     ) {}
+
+    public async ngOnInit() {
+        await current_user.pipe(first((_) => !!_)).toPromise();
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        setTimeout(() => this._desk_state.setHost(null), 1000);
+    }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { DeskFlowStateService } from './desk-flow-state.service';
@@ -136,5 +136,8 @@ export class DeskFlowFormComponent implements OnInit {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.setOptions({ zones: [this._org.building.id] });
+        if (!this.can_set_host) {
+            this._state.setHost(currentUser());
+        }
     }
 }

@@ -43,7 +43,6 @@ export class DesksService {
         if (this.error_on_host && !host) {
             return notifyError('You need to select a host to book a desk.');
         }
-        host = host || currentUser();
         reason = reason || '';
         const level = this._org.levelWithID(
             desks[0].zone instanceof Array ? desks[0].zone : [desks[0].zone?.id]
@@ -84,6 +83,10 @@ export class DesksService {
         if (!success) return;
         host = ref.componentInstance.host;
         date = ref.componentInstance.date;
+        if (!host) {
+            ref.close();
+            return notifyError('You need to select a host to book a desk.');
+        }
         ref.componentInstance.loading =
             'Checking for existing desk bookings...';
         const bookings = await queryBookings({

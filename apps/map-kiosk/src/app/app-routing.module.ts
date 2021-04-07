@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { UnauthorisedComponent } from '@placeos/components';
 import { BootstrapComponent } from './bootstrap.component';
+import { DeskBookingComponent } from './desk-booking.component';
 import { ExploreComponent } from './explore.component';
 
 const routes: Routes = [
@@ -11,6 +12,7 @@ const routes: Routes = [
     },
     { path: 'bootstrap', component: BootstrapComponent },
     { path: 'explore', component: ExploreComponent },
+    { path: 'desks', component: DeskBookingComponent },
     { path: '**', redirectTo: 'bootstrap' },
 ];
 
