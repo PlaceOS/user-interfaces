@@ -30,7 +30,6 @@ import {
 } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
-import { SearchbarComponent } from './searchbar.component';
 import { StatusOverlayComponent } from './status-overlay.component';
 import { FixedPipe } from './fixed.pipe';
 import { SafePipe } from './safe.pipe';
@@ -50,7 +49,6 @@ export * from './user-avatar.component';
 export * from './interactive-map.component';
 export * from './map-pin.component';
 export * from './map-radius.component';
-export * from './searchbar.component';
 export * from './misconfigured.component';
 export * from './status-overlay.component';
 export * from './custom-table.component';
@@ -92,7 +90,6 @@ const COMPONENTS: Type<any>[] = [
     InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
-    SearchbarComponent,
     StatusOverlayComponent,
     CustomTableComponent,
     CustomTooltipComponent,

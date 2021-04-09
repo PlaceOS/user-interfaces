@@ -9,11 +9,20 @@ import { Space, SpacesService } from '@placeos/spaces';
     selector: 'a-control-space-list',
     template: `
         <div class="w-full flex items-center justify-center p-2">
-            <a-searchbar
-                [(value)]="search_str"
-                [loading]="loading"
-                [autofocus]="true"
-            ></a-searchbar>
+            <mat-form-field overlay class="rounded" appearance="outline">
+                <app-icon class="text-xl" matPrefix>search</app-icon>
+                <input
+                    matInput
+                    [(ngModel)]="search_str"
+                    placeholder="Search..."
+                />
+                <mat-spinner
+                    matSuffix
+                    class="top-2"
+                    *ngIf="loading"
+                    [diameter]="32"
+                ></mat-spinner>
+            </mat-form-field>
         </div>
         <div
             class="flex flex-col flex-1 overflow-auto w-full"
@@ -44,6 +53,11 @@ import { Space, SpacesService } from '@placeos/spaces';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
+            }
+
+            mat-form-field {
+                width: 768px;
+                max-width: calc(100% - 2rem);
             }
         `,
     ],
