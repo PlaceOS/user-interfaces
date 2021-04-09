@@ -128,7 +128,6 @@ export class CustomTooltipComponent<T = any>
                 this._overlay_ref.backdropClick().subscribe(() => this.close())
             );
         }
-        console.log('Data:', this.data);
     }
 
     public close() {

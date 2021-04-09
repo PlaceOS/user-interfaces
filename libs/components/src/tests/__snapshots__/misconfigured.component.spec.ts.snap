@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MisconfiguredComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="rounded m-4 text-center bg-white text-black border border-gray-400 p-4 shadow"
+    content=""
+  >
+    <h3
+      class="text-2xl"
+    >
+       Application Misconfigured. 
+    </h3>
+    <p
+      class="py-4"
+    >
+       This application requires a zone of type org, building and level to operate. 
+    </p>
+    <p>
+       If this issue persists please contact your administrator. 
+    </p>
+  </div>
+</div>
+`;

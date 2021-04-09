@@ -11,7 +11,9 @@ export const current_user = _current_user.asObservable();
 declare let jest;
 
 setTimeout(() => {
-    if (window.jest) return;
+    try {
+        if (jest) return;
+    } catch {}
     console.log('Loading logged in user details...');
     showUser('current')
         .pipe(
