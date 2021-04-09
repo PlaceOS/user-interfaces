@@ -11,23 +11,24 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
             tabindex="0"
             (keydown.enter)="performAction()"
         >
-            <div class="flex-1 w-0 truncate" (click)="performAction()" [innerHTML]="placeholder | safe"></div>
-            <div class="text-xl" (click)="performAction()">
-                <app-icon
-                    [icon]="{
-                        type: 'icon',
-                        class: 'material-icons',
-                        content: show_tooltip ? 'arrow_drop_up' : 'arrow_drop_down'
-                    }"
-                ></app-icon>
-            </div>
+            <div
+                placeholder
+                class="flex-1 w-0 truncate"
+                (click)="performAction()"
+                [innerHTML]="placeholder | safe"
+            ></div>
+            <app-icon class="text-xl" (click)="performAction()">
+                arrow_drop_{{ show_tooltip ? 'up' : 'down' }}
+            </app-icon>
         </div>
     `,
-    styles: [`
-        :host > div:hover {
-            box-shadow: inset 0 0 0 1px #000;
-        }
-    `],
+    styles: [
+        `
+            :host > div:hover {
+                box-shadow: inset 0 0 0 1px #000;
+            }
+        `,
+    ],
 })
 export class ActionFieldComponent {
     /** Name of the field */
