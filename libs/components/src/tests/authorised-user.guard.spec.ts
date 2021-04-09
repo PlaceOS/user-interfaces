@@ -41,6 +41,7 @@ describe('AuthorisedUserGuard', () => {
         (common_lib as any).current_user = of({ groups: ['Admin'] });
         can_activate = await spectator.service.canActivate();
         expect(can_activate).toBeTruthy();
+        ACCESS.group = '';
     });
 
     it('should check if logged in user can load a route', async () => {
