@@ -13,26 +13,26 @@ export interface MapRadiusData {
 @Component({
     selector: '[map-radius]',
     template: `
-        <ng-container *ngIf="show">
-            <div
-                class="center border-4 rounded-full border-dashed"
-                [style.border-color]="stroke"
-                [style.background-color]="fill + '40'"
-                [style.width]="radius * 100 + '%'"
-                [style.height]="radius * 100 + '%'"
-            ></div>
-            <div
-                *ngIf="message && show_message"
-                name="message"
-                [style.top]="'-' + ((radius / 2) * 100 + 550) + '%'"
-                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
-            >
-                {{ message }}
-                <span *ngIf="last_seen" class="text-xs">
-                    Last updated: {{ last_seen_at }}
-                </span>
-            </div>
-        </ng-container>
+        <div
+            *ngIf="show"
+            name="radius"
+            class="center border-4 rounded-full border-dashed"
+            [style.border-color]="stroke"
+            [style.background-color]="fill + '40'"
+            [style.width]="radius * 100 + '%'"
+            [style.height]="radius * 100 + '%'"
+        ></div>
+        <div
+            *ngIf="message && show_message"
+            name="message"
+            [style.top]="'-' + ((radius / 2) * 100 + 550) + '%'"
+            class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
+        >
+            {{ message }}
+            <span *ngIf="last_seen" class="text-xs">
+                Last updated: {{ last_seen_at }}
+            </span>
+        </div>
     `,
     styles: [
         `
