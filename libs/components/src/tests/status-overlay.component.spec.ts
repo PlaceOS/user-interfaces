@@ -10,12 +10,42 @@ describe('StatusOverlayComponent', () => {
     const createComponent = createRoutingFactory({
         component: StatusOverlayComponent,
         declarations: [MockComponent(IconComponent)],
-        imports: [MatProgressSpinnerModule]
+        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should be able to show a success message', () => {
+        expect('[error]').not.toExist();
+        spectator.setInput({ error: 'Test Error' });
+        spectator.detectChanges();
+        expect('[error]').toExist();
+        expect('[error]').toContainText('Test Error');
+    });
+
+    it('should be able to show links', () => {
+        expect('a[button]').toHaveLength(0);
+        spectator.setInput({
+            links: [
+                { name: 'Test Link 1', route: '/one' },
+                { name: 'Test Link 2', route: '/two' },
+            ],
+        });
+        spectator.detectChanges();
+        expect('a[button]').toHaveLength(2);
+        expect('a[button]').toContainText('Test Link 1');
+        expect('a[button]').toContainText('Test Link 2');
+    });
+
+    it('should be able to show a loading state', () => {
+        expect('mat-spinner').not.toExist();
+        spectator.setInput({ loading: 'Test Loading...' });
+        spectator.detectChanges();
+        expect('mat-spinner').toExist();
+        expect('p').toContainText('Test Loading...');
     });
 });
