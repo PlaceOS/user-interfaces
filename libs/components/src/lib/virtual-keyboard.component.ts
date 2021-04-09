@@ -8,7 +8,6 @@ import {
     OnDestroy,
     ViewChild,
 } from '@angular/core';
-import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { BaseClass } from '@placeos/common';
 
 const DEFAULT_KEYS = [
@@ -20,7 +19,7 @@ const DEFAULT_KEYS = [
 ];
 
 @Component({
-    selector: 'input[keyboard]',
+    selector: 'input[keyboard],textarea[keyboard]',
     template: `
         <ng-content></ng-content>
         <ng-template cdk-portal>
@@ -29,12 +28,13 @@ const DEFAULT_KEYS = [
                 class="w-screen flex flex-col space-y-4 bg-gray-200 p-2 border-t border-gray-400"
             >
                 <div
+                    row
                     class="flex items-center justify-center space-x-2"
                     *ngFor="let row of keyset"
                 >
                     <ng-container *ngFor="let key of row">
                         <div
-                            key
+                            [attr.key]="key"
                             tabindex="0"
                             class="rounded-xl p-2 border border-gray-300 relative cursor-pointer bg-white"
                             [class.special]="key[0] === '{' && key.length > 1"
