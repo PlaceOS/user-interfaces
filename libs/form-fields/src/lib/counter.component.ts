@@ -5,7 +5,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     selector: 'a-counter',
     template: `
         <div
-            class="counter"
+            counter
+            class="flex items-center text-base"
             (window:keydown.shift)="shift_key = true"
             (window:keydown.control)="ctrl_key = true"
             (window:keydown.meta)="ctrl_key = true"
@@ -19,28 +20,23 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 [disabled]="!value || value === min"
                 (click)="remove()"
             >
-                <app-icon [icon]="{ class: 'material-icons', content: 'remove' }"></app-icon>
+                <app-icon>remove</app-icon>
             </button>
-            <div class="value">
-                {{ value || '0' }}
-            </div>
-            <button mat-icon-button name="add" [disabled]="value === max" (click)="add()">
-                <app-icon [icon]="{ class: 'material-icons', content: 'add' }"></app-icon>
+            <div value class="p-1 text-center">{{ value || '0' }}</div>
+            <button
+                mat-icon-button
+                name="add"
+                [disabled]="value === max"
+                (click)="add()"
+            >
+                <app-icon>add</app-icon>
             </button>
         </div>
     `,
     styles: [
         `
-            .counter {
-                display: flex;
-                align-items: center;
-                font-size: 1rem;
-            }
-
-            .value {
-                padding: 0.25em;
+            [value] {
                 min-width: 3em;
-                text-align: center;
             }
         `,
     ],
