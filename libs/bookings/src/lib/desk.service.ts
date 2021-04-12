@@ -137,9 +137,9 @@ export class DesksService {
             : [level?.parent_id];
         const booking_data = {
             booking_start: getUnixTime(startOfDay(date)),
-            user_id: host.id,
-            user_name: host.name,
-            user_email: host.email,
+            user_id: for_user?.id || host.id,
+            user_name: for_user?.name || host.name,
+            user_email: for_user?.email || host.email,
             booking_end: Math.floor(endOfDay(date).valueOf() / 1000),
             asset_id: desk.id,
             title: reason,
