@@ -25,7 +25,7 @@ export interface GuestsQueryParams {
  */
 export function searchGuests(q: string): Observable<GuestUser[]> {
     const query = toQueryString({ q });
-    return get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`).pipe(
+    return get(`${GUEST_ENDPOINT}${q ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new GuestUser(item)))
     );
 }
@@ -35,7 +35,7 @@ export function searchGuests(q: string): Observable<GuestUser[]> {
  * @param q Parameters to pass to the API request
  */
 export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
-    const query = toQueryString({ q });
+    const query = toQueryString({ ...q });
     return get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new GuestUser(item)))
     );
@@ -67,7 +67,9 @@ export function updateGuest(id: string, data: Partial<GuestUser>) {
  * @param id ID of the guest to remove
  */
 export function removeGuest(id: string) {
-    return del(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, { response_type: 'void' });
+    return del(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, {
+        response_type: 'void',
+    });
 }
 
 /**
