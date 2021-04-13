@@ -5,8 +5,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ComponentsModule } from '@placeos/components';
 
-import { NewUserModalComponent } from './new-user-modal/new-user-modal.component';
-import { UserFormComponent } from './user-form/user-form.component';
+import { NewUserModalComponent } from './new-user-modal.component';
+import { UserFormComponent } from './user-form.component';
 
 @NgModule({
     declarations: [NewUserModalComponent, UserFormComponent],
