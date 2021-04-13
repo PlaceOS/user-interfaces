@@ -12,14 +12,14 @@ import {
     MAT_DATE_FORMATS,
     NativeDateAdapter,
 } from '@angular/material/core';
-import { BaseClass } from '@placeos/common';
-import { format } from 'date-fns';
+import { BaseClass, HashMap } from '@placeos/common';
+import { format, formatISO } from 'date-fns';
 
 import * as dayjs from 'dayjs';
 
 @Injectable()
 class FieldDateAdapter extends NativeDateAdapter {
-    format(date: Date, displayFormat: Object): string {
+    format(date: Date, displayFormat: HashMap | string): string {
         if (displayFormat === 'input') {
             return format(date, 'MMMM d, yyyy');
         }
@@ -131,7 +131,7 @@ export class DateFieldComponent
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }
-        this.date = new Date(new_date).toISOString();
+        this.date = formatISO(new_date);
         if (this._onChange) {
             this._onChange(new_date);
         }
@@ -144,7 +144,8 @@ export class DateFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = new Date(value).toISOString();
+        this.date = formatISO(value);
+        console.log('Date:', this.date);
         this.show_tooltip = false;
     }
 
