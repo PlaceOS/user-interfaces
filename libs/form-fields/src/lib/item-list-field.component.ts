@@ -12,6 +12,7 @@ export function addChipItem(
     control: FormControl,
     event: MatChipInputEvent
 ): void {
+    console.log('Add Chip:', control, event);
     if (!control) {
         return;
     }
