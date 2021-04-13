@@ -1,4 +1,3 @@
-
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { predictableRandomInt, unique } from '../../../common/src/lib/general';
 
@@ -8,7 +7,7 @@ let USER_COUNT = 0;
 
 type HashMap<T = any> = Record<string, T>;
 
-export let USER_DOMAIN = 'acaprojects.com';
+export let USER_DOMAIN = 'place.tech';
 
 const USER_EMAILS: string[] = [];
 
@@ -18,7 +17,11 @@ const USER_EMAILS: string[] = [];
  * @param name Forced name for the user
  * @param external Whether user is external of the organisation
  */
-export function generateMockUser(id?: string, name?: string, external?: boolean): HashMap {
+export function generateMockUser(
+    id?: string,
+    name?: string,
+    external?: boolean
+): HashMap {
     if (!id) {
         id = `user-${USER_COUNT++}`;
     }
@@ -30,7 +33,10 @@ export function generateMockUser(id?: string, name?: string, external?: boolean)
     }
     const organisation = external ? `Fake Co.` : USER_DOMAIN.split('.')[0];
     let delegates: string[] = [];
-    const delegate_count = Math.min(predictableRandomInt(4) + 1, USER_EMAILS.length);
+    const delegate_count = Math.min(
+        predictableRandomInt(4) + 1,
+        USER_EMAILS.length
+    );
     for (let i = 0; i < delegate_count; i++) {
         delegates.push(USER_EMAILS[predictableRandomInt(USER_EMAILS.length)]);
     }
@@ -69,8 +75,14 @@ export function generateUserForm(user: User): FormGroup {
 
     const fields: HashMap<FormControl> = {
         name: new FormControl(user.name || ''),
-        email: new FormControl(user.email || '', [Validators.email, Validators.required]),
-        organisation: new FormControl(user.organisation || '', Validators.required),
+        email: new FormControl(user.email || '', [
+            Validators.email,
+            Validators.required,
+        ]),
+        organisation: new FormControl(
+            user.organisation || '',
+            Validators.required
+        ),
         phone: new FormControl(user.phone || ''),
         assistance_required: new FormControl(user.assistance_required || false),
         visit_expected: new FormControl(user.visit_expected ?? true),
@@ -81,11 +93,20 @@ export function generateUserForm(user: User): FormGroup {
     return form;
 }
 
-export function generateGuestForm(user: GuestUser, host: string = ''): FormGroup {
+export function generateGuestForm(
+    user: GuestUser,
+    host: string = ''
+): FormGroup {
     const fields: HashMap<FormControl> = {
         name: new FormControl(user.name || ''),
-        email: new FormControl(user.email || '', [Validators.email, Validators.required]),
-        organisation: new FormControl(user.organisation || '', Validators.required),
+        email: new FormControl(user.email || '', [
+            Validators.email,
+            Validators.required,
+        ]),
+        organisation: new FormControl(
+            user.organisation || '',
+            Validators.required
+        ),
         phone: new FormControl(user.phone || ''),
         host: new FormControl(host || '', [Validators.required]),
     };

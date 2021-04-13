@@ -366,6 +366,19 @@ mat-form-field {
     }
 }
 
+#placeos {
+    mat-chip {
+        &[color='internal'] {
+            color: var(--font-light);
+            background-color: var(--primary);
+        }
+        &[color='external'] {
+            color: var(--font-light);
+            background-color: var(--pending);
+        }
+    }
+}
+
 .mat-spinner {
     circle {
         stroke: var(--primary);

@@ -18,7 +18,7 @@ describe('CounterComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create spectator.component', () => {
+    it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 

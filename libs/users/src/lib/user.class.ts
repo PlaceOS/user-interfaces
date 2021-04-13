@@ -57,7 +57,9 @@ export class User extends BaseDataClass {
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;
-        this.is_external = !this.email.endsWith(USER_DOMAIN);
+        this.is_external =
+            (!this.email.includes(`@${USER_DOMAIN}`) && !!this.email) ||
+            this.visit_expected;
         this.assistance_required = !!this.extension_data?.assistance_required;
     }
 }
