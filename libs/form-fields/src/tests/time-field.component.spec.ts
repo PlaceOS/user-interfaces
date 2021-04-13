@@ -1,94 +1,83 @@
-import { async, ComponentFixture, TestBed, tick, fakeAsync, flush } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { SimpleChange } from '@angular/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { fakeAsync, flush } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { MockComponent } from 'ng-mocks';
+import { addMinutes, format, startOfDay } from 'date-fns';
 
-import { IconComponent } from '../../icon/icon.component';
-import { TimeFieldComponent } from './time-field.component';
+import { IconComponent } from '@placeos/components';
+import { TimeFieldComponent } from '../lib/time-field.component';
 
 import * as dayjs from 'dayjs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
 
 describe('TimeFieldComponent', () => {
-    let component: TimeFieldComponent;
-    let fixture: ComponentFixture<TimeFieldComponent>;
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [TimeFieldComponent, MockComponent(IconComponent)],
-            imports: [FormsModule, MatFormFieldModule, MatSelectModule, NoopAnimationsModule],
-        }).compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(TimeFieldComponent);
-        component = fixture.componentInstance;
-        component.no_past_times = false;
-        component.show_select = false;
-        fixture.detectChanges();
+    let spectator: Spectator<TimeFieldComponent>;
+    const createComponent = createComponentFactory({
+        component: TimeFieldComponent,
+        declarations: [MockComponent(IconComponent)],
+        imports: [MatSelectModule, MatFormFieldModule, FormsModule],
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
     it('should allow the user to select a time', fakeAsync(() => {
-        const el: HTMLElement = fixture.debugElement.nativeElement;
-        const icon_el = el.querySelector('.icon');
-        component.registerOnChange((_) => null);
-        icon_el.dispatchEvent(new Event('click'));
-        fixture.detectChanges();
-        tick(300);
-        fixture.detectChanges();
+        spectator.click('app-icon');
+        spectator.detectChanges();
+        spectator.tick(300);
+        spectator.detectChanges();
         const option_elements = document.querySelectorAll('mat-option');
         expect(option_elements.length).toBeGreaterThan(0);
         option_elements[0].dispatchEvent(new Event('click'));
-        fixture.detectChanges();
-        expect(component.time).toBe(`${component.time_options[0].id}`);
-        component.writeValue(dayjs().startOf('d').valueOf());
-        expect(component.time).toBe(`00:00`);
+        spectator.detectChanges();
+        expect(spectator.component.time).toBe(
+            `${spectator.component.time_options[0].id}`
+        );
+        spectator.component.writeValue(dayjs().startOf('d').valueOf());
+        expect(spectator.component.time).toBe(`00:00`);
         flush();
     }));
 
     it('should allow the user to manually input a time', () => {
-        const el: HTMLElement = fixture.debugElement.nativeElement;
-        fixture.detectChanges();
-        const input_el = el.querySelector('input');
-        expect(input_el).toBeTruthy();
+        spectator.setInput({ no_past_times: false });
+        spectator.detectChanges();
+        const input_el: HTMLInputElement = spectator.query('input');
+        expect('input').toExist();
         input_el.value = '00:00';
-        input_el.dispatchEvent(new Event('input'));
-        expect(component.time).toBe('00:00');
+        spectator.dispatchFakeEvent('input', 'input');
+        expect(spectator.component.time).toBe('00:00');
     });
 
     it('should allow customising the step between time options', () => {
-        component.step = 5;
-        component.ngOnChanges({ step: new SimpleChange(15, 5, false) });
-        fixture.detectChanges();
-        expect(component._time_options[1].id).toBe('00:05');
+        spectator.setInput({ step: 5, no_past_times: false });
+        spectator.detectChanges();
+        expect(spectator.component._time_options[1].id).toBe('00:05');
         const step = Math.floor(Math.random() * 4 + 1) * 5;
-        component.step = step;
-        component.ngOnChanges({ no_past_times: new SimpleChange(5, step, false) });
-        fixture.detectChanges();
-        expect(component._time_options[1].id).toBe(
-            dayjs().startOf('d').add(step, 'm').format('HH:mm')
+        spectator.setInput({ step });
+        spectator.detectChanges();
+        expect(spectator.component._time_options[1].id).toBe(
+            format(addMinutes(startOfDay(new Date()), step), 'HH:mm')
         );
     });
 
     it('should allow the current time as an option', () => {
-        let date = dayjs();
-        const date_str = date.format('HH:mm');
-        const option = component.time_options.find((block) => block.id === date_str);
+        const date_str = format(new Date(), 'HH:mm');
+        const option = spectator.component.time_options.find(
+            (block) => block.id === date_str
+        );
         expect(option).toBeTruthy();
     });
 
     it('should allow preventing past times from being selected', () => {
-        component.no_past_times = true;
-        component.ngOnChanges({ no_past_times: new SimpleChange(false, true, false) });
-        fixture.detectChanges();
-        const date = dayjs();
-        const date_str = date.format('HH:mm');
-        expect(date_str.localeCompare(`${component.time_options[0].id}`)).toBeLessThanOrEqual(0);
+        spectator.setInput({ no_past_times: true });
+        spectator.detectChanges();
+        const date_str = format(new Date(), 'HH:mm');
+        expect(
+            date_str.localeCompare(`${spectator.component.time_options[0].id}`)
+        ).toBeLessThanOrEqual(0);
     });
 });

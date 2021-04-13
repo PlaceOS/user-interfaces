@@ -10,8 +10,17 @@ import {
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
 import { BaseClass, Identity, timeFormatString } from '@placeos/common';
-
-import * as dayjs from 'dayjs';
+import {
+    addMinutes,
+    endOfDay,
+    format,
+    isAfter,
+    isSameDay,
+    roundToNearestMinutes,
+    set,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 
 @Component({
     selector: 'a-time-field',
@@ -103,15 +112,15 @@ export class TimeFieldComponent
     extends BaseClass
     implements OnInit, OnChanges, ControlValueAccessor {
     /** Time step between each allowed time option */
-    @Input() public step: number = 15;
+    @Input() public step = 15;
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Whether past times are allowed */
-    @Input() public no_past_times: boolean = true;
+    @Input() public no_past_times = true;
     /** String representing the currently set time */
-    public date: number = dayjs().valueOf();
+    public date: number = new Date().valueOf();
     /** String representing the currently set time */
-    public time: string = dayjs().format('HH:mm');
+    public time: string = format(new Date(), 'HH:mm');
     /** Available time blocks for the selected date */
     public _time_options: Identity[];
     /** Whether select field should be shown */
@@ -147,16 +156,16 @@ export class TimeFieldComponent
     /** Available time blocks for the selected date */
     public get time_options() {
         const time = (this.time || '00:00').split(':');
-        const date = dayjs(this.date)
-            .hour(+time[0])
-            .minute(+time[1]);
+        const date = set(this.date, { hours: +time[0], minutes: +time[1] });
         if (
-            date.minute() % 15 !== 0 &&
-            !this._time_options.find((time) => time.id === date.format('HH:mm'))
+            date.getMinutes() % 15 !== 0 &&
+            !this._time_options.find(
+                (time) => time.id === format(date, 'HH:mm')
+            )
         ) {
             this._time_options.push({
-                name: `${date.format(timeFormatString())}`,
-                id: date.format('HH:mm'),
+                name: `${format(date, timeFormatString())}`,
+                id: format(date, 'HH:mm'),
             });
             this._time_options.sort((a, b) =>
                 `${a.id}`.localeCompare(`${b.id}`)
@@ -170,13 +179,13 @@ export class TimeFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: string): void {
+        console.log('Set Value:', new_value);
         this.time = new_value;
         if (this._onChange) {
             const time = (this.time || '00:00').split(':');
-            const date = dayjs(this.date)
-                .hour(+time[0])
-                .minute(+time[1])
-                .startOf('m');
+            const date = startOfMinute(
+                set(this.date, { hours: +time[0], minutes: +time[1] })
+            );
             this._onChange(date.valueOf());
         }
     }
@@ -187,9 +196,9 @@ export class TimeFieldComponent
      */
     public writeValue(value: number) {
         this.date = value;
-        let date = dayjs(this.date).startOf('m');
-        date = date.minute(Math.ceil(date.minute() / 5) * 5);
-        this.time = date.format('HH:mm');
+        let date = startOfMinute(this.date);
+        date = roundToNearestMinutes(date, { nearestTo: 5 });
+        this.time = format(date, 'HH:mm');
         this._time_options = this.generateAvailableTimes(
             this.date,
             !this.no_past_times,
@@ -248,23 +257,23 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15
     ): Identity[] {
-        const now = dayjs();
-        let date = dayjs(datestamp);
+        const now = new Date();
+        let date = new Date(datestamp);
         const blocks = [];
-        if (show_past || date.isAfter(now, 'd')) {
-            date = date.startOf('d');
-        } else if (date.isAfter(now, 'm')) {
+        if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {
+            date = startOfDay(date);
+        } else if (isAfter(date, now)) {
             date = now;
         }
-        date = date.minute(Math.ceil(date.minute() / step) * step);
-        const end = date.endOf('d');
+        date = roundToNearestMinutes(date, { nearestTo: step });
+        const end = endOfDay(date);
         // Add options for the rest of the day
-        while (date.isBefore(end, 'm')) {
+        while (isAfter(end, date)) {
             blocks.push({
-                name: `${date.format(timeFormatString())}`,
-                id: date.format('HH:mm'),
+                name: `${format(date, timeFormatString())}`,
+                id: format(date, 'HH:mm'),
             });
-            date = date.add(step, 'm');
+            date = addMinutes(date, step);
         }
         return blocks;
     }
