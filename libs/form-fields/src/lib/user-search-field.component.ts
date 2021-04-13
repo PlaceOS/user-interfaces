@@ -27,12 +27,12 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                     [matAutocomplete]="auto"
                     (blur)="resetSearchString()"
                 />
-                <div class="prefix" matPrefix>
-                    <app-icon class="text-2xl relative">search</app-icon>
-                </div>
-                <div class="suffix" matSuffix *ngIf="loading">
-                    <mat-spinner diameter="16"></mat-spinner>
-                </div>
+                <app-icon matPrefix class="text-2xl relative">search</app-icon>
+                <mat-spinner
+                    *ngIf="loading"
+                    matSuffix
+                    diameter="16"
+                ></mat-spinner>
             </mat-form-field>
             <mat-autocomplete
                 #auto="matAutocomplete"
@@ -80,7 +80,7 @@ export class UserSearchFieldComponent
     /** Whether guests should also show when searching for users */
     @Input() public guests: boolean;
     /** Function for filtering the results of the user list */
-    @Input() public filter: (_: any) => boolean;
+    @Input() public filter: (_: any, s: string) => boolean;
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -101,11 +101,8 @@ export class UserSearchFieldComponent
                 ? of(this.options)
                 : query.length >= 3
                 ? !this.guests
-                    ? searchStaff(query.slice(0, 3))
-                    : forkJoin([
-                          searchStaff(query.slice(0, 3)),
-                          searchGuests(query.slice(0, 3)),
-                      ])
+                    ? searchStaff(query)
+                    : forkJoin([searchStaff(query), searchGuests(query)])
                 : of([]);
         }),
         catchError((_) => of([])),
@@ -114,10 +111,7 @@ export class UserSearchFieldComponent
             list = flatten(list);
             const search = this.search_str.toLowerCase();
             return list.filter(
-                (item) =>
-                    (!this.filter || this.filter(item)) &&
-                    (item.name?.toLowerCase().includes(search) ||
-                        item.email.toLowerCase().includes(search))
+                (item) => !this.filter || this.filter(item, search)
             );
         })
     );
