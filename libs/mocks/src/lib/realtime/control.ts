@@ -35,7 +35,7 @@ class RoomModule {
     public readonly name: string;
     public readonly connected: boolean;
     public readonly recording = true;
-    public power: boolean;
+    public active: boolean;
 
     public readonly input_list: HashMap<RoomInput>;
     public readonly output_list: HashMap<RoomOutput>;
@@ -50,7 +50,7 @@ class RoomModule {
     constructor(_data: Partial<RoomModule>) {
         this.name = _data.name || 'Test Module';
         this.connected = _data.connected ?? true;
-        this.power = _data.power || false;
+        this.active = _data.active || false;
         this.input_list = _data.input_list;
         this.output_list = _data.output_list;
         this.env_sources = _data.env_sources || [];
@@ -74,9 +74,9 @@ class RoomModule {
         );
     }
 
-    $power_on() {
+    $powerup() {
         console.log('Power On');
-        this.power = true;
+        this.active = true;
     }
     /**
      * Power off the space. End any active calls, disconnect signal routes, place
@@ -84,7 +84,7 @@ class RoomModule {
      * sensible defaults.
      **/
     $shutdown() {
-        this.power = false;
+        this.active = false;
     }
     /** Shares a signal source with the room and any connected remote participants. */
     $share() {}
@@ -156,21 +156,21 @@ class RoomModule {
      * where supported (e.g. microphone). If unspecified, default is to interact with a ‘primary’
      * output node.
      **/
-    $volume(source: string, value: number) {
+    $volume(value: number, source: string = 'all') {
         if (source === 'all') {
             this.volume = value;
         }
     }
     /** Interact with audio muting on supporting signal nodes within the space. */
-    $mute(source: string, state: boolean = true) {
+    $mute(state: boolean = true, source: string = 'all') {
         this.$updateState(source, { mute: state });
     }
     /**
      * Activates or deactivates a signal mute for the associated IO. If this is not possible,
      * (e.g. unsupported by the device) an error is returned.
      **/
-    $unmute(source: string) {
-        this.$mute(source, false);
+    $unmute(source: string = 'all') {
+        this.$mute(false, source);
     }
     /**
      * Wrapper for an arbitrary set of control points defined in system configuration.
@@ -181,7 +181,7 @@ class RoomModule {
      * System state provides the ability to introspect configured points for both control limits and current value.
      **/
     $environment(id: string, state: string | number) {
-        const source = this.env_sources.find(_ => _.id === id);
+        const source = this.env_sources.find((_) => _.id === id);
         if (source) {
             this[`${source.type}/${source.id}`] = { ...source, state };
         }
@@ -313,11 +313,18 @@ const env_sources: any[] = [
         state: 'Off',
     },
     {
-        id: 'blinds',
+        id: 'blind1',
         name: 'Blinds',
         type: 'blinds',
         states: ['Off', 'Presentation', 'Meeting'],
         state: 'Off',
+    },
+    {
+        id: 'screen1',
+        name: 'Screen',
+        type: 'screen',
+        states: ['Up', 'Down'],
+        state: 'Down',
     },
 ];
 

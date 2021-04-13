@@ -141,7 +141,7 @@ export class ControlStatusBarComponent extends BaseClass {
     public rec_status: string;
     public rec_title: string;
 
-    public readonly setVolume = (v) => this._state.setVolume('all', v);
+    public readonly setVolume = (v) => this._state.setVolume(v);
 
     public get id() {
         return this._state.id;

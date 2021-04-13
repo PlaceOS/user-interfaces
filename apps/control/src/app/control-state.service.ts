@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
+import { distinct, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
 import { BaseClass, HashMap } from '@placeos/common';
-import { MatDialog } from '@angular/material/dialog';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
-import { map } from 'rxjs/operators';
 
 export interface EnvironmentSource {
     name: string;
@@ -51,10 +51,12 @@ export class ControlStateService extends BaseClass {
     private _inputs = new BehaviorSubject<string[]>([]);
     private _outputs = new BehaviorSubject<string[]>([]);
     private _volume = new BehaviorSubject<number>(0);
+    private _mute = new BehaviorSubject<boolean>(false);
     private _input_data = new BehaviorSubject<RoomInput[]>([]);
     private _output_data = new BehaviorSubject<RoomOutput[]>([]);
     private _lights = new BehaviorSubject<string[]>([]);
     private _blinds = new BehaviorSubject<string[]>([]);
+    private _screens = new BehaviorSubject<string[]>([]);
 
     /** General data associated with the active system */
     public readonly system = this._system.asObservable();
@@ -64,9 +66,11 @@ export class ControlStateService extends BaseClass {
     public readonly output_list = this._output_data.asObservable();
     /** List of available light sources */
     public readonly lights = this._lights.asObservable();
-    /** List of available light sources */
+    /** List of available blind sources */
     public readonly blinds = this._blinds.asObservable();
+    public readonly screens = this._screens.asObservable();
     public readonly volume = this._volume.asObservable();
+    public readonly mute = this._mute.asObservable();
     /** List of available microphone input sources */
     public readonly mic_list = this._input_data.pipe(
         map((list) =>
@@ -80,8 +84,7 @@ export class ControlStateService extends BaseClass {
     public readonly camera_list = this._input_data.pipe(
         map((list) =>
             list?.filter(
-                (_) =>
-                    _.type === 'Camera' || _.module?.includes('Camera')
+                (_) => _.type === 'Camera' || _.module?.includes('Camera')
             )
         )
     );
@@ -92,7 +95,7 @@ export class ControlStateService extends BaseClass {
 
     constructor(private _dialog: MatDialog) {
         super();
-        this._id.subscribe((id) => this.bindToState(id));
+        this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
         this._inputs.subscribe((_) => this.bindSources('input', _ || []));
         this._outputs.subscribe((_) => this.bindSources('output', _ || []));
     }
@@ -103,35 +106,41 @@ export class ControlStateService extends BaseClass {
 
     /** Power on the active system */
     public powerOn() {
-        const mod = getModule(this._id.getValue(), 'System');
-        if (!mod) return;
-        return mod.execute('power_on');
+        return this.execute('powerup');
     }
 
     /** Power off the active system */
     public powerOff() {
-        const mod = getModule(this._id.getValue(), 'System');
-        if (!mod) return;
-        return mod.execute('shutdown');
+        return this.execute('shutdown');
     }
 
     /** Route input source to output */
     public setRoute(input: string, output: string) {
-        const mod = getModule(this._id.getValue(), 'System');
-        if (!mod) return;
-        return mod.execute('route', [input, output]);
+        return this.execute('route', [input, output]);
     }
 
-    public setMute(source: string = '', state: boolean = true) {
-        const mod = getModule(this._id.getValue(), 'System');
-        if (!mod) return;
-        return mod.execute('mute', [source, state]);
+    public setMute(state: boolean = true, source: string = '') {
+        if (!source) {
+            this._mute.next(state);
+        }
+        return this.execute('mute', source ? [state, source] : [state]);
     }
 
-    public setVolume(source: string = '', value: number = 0) {
-        const mod = getModule(this._id.getValue(), 'System');
+    public setVolume(value: number = 0, source: string = '') {
+        if (!source) {
+            this._volume.next(value);
+        }
+        return this.execute('volume', source ? [value, source] : [value]);
+    }
+
+    private execute(
+        name: string,
+        params: any[] = [],
+        mod_name: string = 'System'
+    ) {
+        const mod = getModule(this._id.getValue(), mod_name);
         if (!mod) return;
-        return mod.execute('volume', [source, value]);
+        return mod.execute(name, params);
     }
 
     public switchSource(output: string) {
@@ -143,13 +152,15 @@ export class ControlStateService extends BaseClass {
     private bindToState(id: string) {
         if (!id) return;
         this.bindTo(id, 'name');
-        this.bindTo(id, 'power');
+        this.bindTo(id, 'active');
         this.bindTo(id, 'connected');
         this.bindTo(id, 'recording');
+        this.bindTo(id, 'has_zoom');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'outputs', undefined, (l) => this._outputs.next(l));
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
         this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
+        this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));
     }
 
     /** Bind to changes on input or output sources */
@@ -200,6 +211,7 @@ export class ControlStateService extends BaseClass {
     private updateProperty(name: string, value: any) {
         const item = { ...this._system.getValue() };
         item[name] = value;
+        console.log('Update Property:', name, value);
         this._system.next(item);
     }
 }
