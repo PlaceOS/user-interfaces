@@ -1,5 +1,6 @@
 import { Point } from '@placeos/svg-viewer';
 import { HashMap } from '@placeos/common';
+import { getUnixTime } from 'date-fns';
 export class MapLocation {
     /** Source that the location was generated */
     public type: 'desk' | 'wireless' | 'meeting' | 'other';
@@ -16,18 +17,21 @@ export class MapLocation {
     /** Whether user is currently at the location if fixed */
     public at_location: boolean;
     /**  */
-    public coordinates_from: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+    public coordinates_from:
+        | 'top-left'
+        | 'top-right'
+        | 'bottom-left'
+        | 'bottom-right';
 
     constructor(_data: HashMap) {
         this.type = _data.type || _data.location || 'other';
         this.position = _data.position ||
             _data.map_id || {
-                x: _data.x / _data.map_width,
-                y: _data.y / _data.map_height,
+                x: _data.x / _data.map_width || 0,
+                y: _data.y / _data.map_height || 0,
             };
         this.variance = _data.variance || 0;
-        this.last_seen =
-            _data.last_seen || Math.floor(new Date().valueOf() / 1000);
+        this.last_seen = _data.last_seen || getUnixTime(new Date());
         this.level = _data.level;
         this.building = _data.building;
         this.at_location = !!_data.at_location;
