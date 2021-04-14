@@ -2,11 +2,12 @@ import { HashMap } from '@placeos/common';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 
 let SPACE_COUNT: number = 0;
-
+/* istanbul ignore next */
 export function generateMockSpace(overrides: HashMap = {}): HashMap {
     const id = `space-${SPACE_COUNT++}`;
     const name = `Test Space ${SPACE_COUNT}`;
-    const linked = Math.floor(Math.random() * 99999) % 2 === 0 && SPACE_COUNT > 1;
+    const linked =
+        Math.floor(Math.random() * 99999) % 2 === 0 && SPACE_COUNT > 1;
     const space = {
         id,
         name,
@@ -24,13 +25,17 @@ export function generateMockSpace(overrides: HashMap = {}): HashMap {
         zones: ['zone_lvl-0'],
         support_url: `/control/#/${id}`,
         bookings: [], //Array(10).fill(0).map(i => generateMockBooking()),
-        linked_rooms: linked ? [`space-${Math.floor(Math.random() * (SPACE_COUNT - 1))}`] : [],
+        linked_rooms: linked
+            ? [`space-${Math.floor(Math.random() * (SPACE_COUNT - 1))}`]
+            : [],
         image: '',
-        ...overrides
+        ...overrides,
     };
     if (space['configurations'] && space['configurations'].length > 0) {
-        space['configurations'].forEach(config =>
-            config.capacity = Math.floor(Math.random() * space.capacity) + 1
+        space['configurations'].forEach(
+            (config) =>
+                (config.capacity =
+                    Math.floor(Math.random() * space.capacity) + 1)
         );
         space['configurations'][0].capacity = space.capacity;
     }

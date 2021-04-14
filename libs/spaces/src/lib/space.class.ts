@@ -1,7 +1,11 @@
 import { RoomConfiguration } from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 
-export type ResourceResponseStatus = 'needsAction' | 'declined' | 'tentative' | 'accepted';
+export type ResourceResponseStatus =
+    | 'needsAction'
+    | 'declined'
+    | 'tentative'
+    | 'accepted';
 
 export class Space {
     /** ID of the space resource */
