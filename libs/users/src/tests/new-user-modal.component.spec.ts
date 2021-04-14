@@ -1,73 +1,51 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component } from '@angular/core';
-import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { NewUserModalComponent } from './new-user-modal.component';
-import { IconComponent } from 'src/app/ui/icon/icon.component';
-import { MockModule } from 'ng-mocks';
+import { IconComponent } from '@placeos/components';
 
-@Component({
-    selector: 'user-form',
-    template: '',
-    styles: [''],
-    inputs: ['form'],
-})
-class MockUserForm {}
+import { NewUserModalComponent } from '../lib/new-user-modal.component';
+import { MockComponent } from 'ng-mocks';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { UserFormComponent } from '../lib/user-form.component';
 
 describe('NewUserModalComponent', () => {
-    let component: NewUserModalComponent;
-    let fixture: ComponentFixture<NewUserModalComponent>;
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [NewUserModalComponent, IconComponent, MockUserForm],
-            providers: [
-                {
-                    provide: MatDialogRef,
-                    useValue: {
-                        close: jest.fn(),
-                    },
-                },
-                {
-                    provide: MAT_DIALOG_DATA,
-                    useValue: {
-                        user: {},
-                    },
-                },
-            ],
-            imports: [MatProgressSpinnerModule, MockModule(MatDialogModule)],
-        }).compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(NewUserModalComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    let spectator: Spectator<NewUserModalComponent>;
+    const createComponent = createComponentFactory({
+        component: NewUserModalComponent,
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(UserFormComponent),
+        ],
+        providers: [
+            {
+                provide: MAT_DIALOG_DATA,
+                useValue: {},
+            },
+        ],
+        imports: [MatProgressSpinnerModule],
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
     it('should show the form', () => {
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        expect(compiled.querySelector('user-form')).toBeTruthy();
+        expect('user-form').toExist();
     });
 
     it('should show the action buttons', () => {
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        expect(compiled.querySelectorAll('footer button').length).toBe(2);
+        expect('footer button').toHaveLength(2);
     });
 
     it('should emit user details on save', (done) => {
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const element = compiled.querySelectorAll('footer button')[1];
-        expect(element).toBeTruthy();
-        component.form.controls.name.setValue('support');
-        component.form.controls.organisation.setValue('placeOS');
-        component.form.controls.email.setValue('support@aca.im');
-        component.event.subscribe((event) => {
+        expect('footer button:not([mat-dialog-close])').toExist();
+        const form = spectator.component.form;
+        form.controls.name.setValue('support');
+        form.controls.organisation.setValue('placeOS');
+        form.controls.email.setValue('support@aca.im');
+        spectator.component.event.subscribe((event) => {
             if (event.reason === 'done') {
                 expect(event.metadata.name).toBe('support');
                 expect(event.metadata.organisation).toBe('placeOS');
@@ -75,6 +53,6 @@ describe('NewUserModalComponent', () => {
                 done();
             }
         });
-        element.dispatchEvent(new Event('click'));
+        spectator.click('footer button:not([mat-dialog-close])');
     });
 });

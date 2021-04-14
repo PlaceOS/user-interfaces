@@ -19,7 +19,7 @@ import { generateUserForm } from './user.utilities';
             </button>
         </header>
         <main
-            class="relative flex flex-col items-center w-full p-2"
+            class="flex flex-col items-center w-full p-2"
             *ngIf="!loading; else load_state"
         >
             <user-form [form]="form"></user-form>
@@ -32,13 +32,9 @@ import { generateUserForm } from './user.utilities';
             <button mat-button (click)="saveChanges()">Save</button>
         </footer>
         <ng-template #load_state>
-            <main class="relative flex flex-col items-center w-full p-2">
-                <div class="info-block">
-                    <div class="icon">
-                        <mat-spinner diameter="32"></mat-spinner>
-                    </div>
-                    <div class="text">Saving attendee...</div>
-                </div>
+            <main class="flex flex-col items-center w-full p-2 space-y-2">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>Saving attendee...</p>
             </main>
         </ng-template>
     `,
