@@ -47,5 +47,5 @@ describe('ActionIconComponent', () => {
         spectator.setInput({ loading: false });
         spectator.detectChanges();
         expect('mat-spinner').not.toExist();
-    })
+    });
 });
