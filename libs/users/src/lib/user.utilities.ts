@@ -10,7 +10,7 @@ type HashMap<T = any> = Record<string, T>;
 export let USER_DOMAIN = 'place.tech';
 
 const USER_EMAILS: string[] = [];
-
+/* istanbul ignore next */
 /**
  * Generate raw mock data for a user
  * @param id Forced ID for the mock

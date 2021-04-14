@@ -23,7 +23,7 @@ export class MapLocation {
         | 'bottom-left'
         | 'bottom-right';
 
-    constructor(_data: HashMap) {
+    constructor(_data: HashMap = {}) {
         this.type = _data.type || _data.location || 'other';
         this.position = _data.position ||
             _data.map_id || {
