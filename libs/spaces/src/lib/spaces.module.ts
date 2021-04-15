@@ -4,8 +4,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 
 import { ComponentsModule } from '@placeos/components';
 
-import { SpaceSelectItemComponent } from './space-select-modal/item/item.component';
-import { SpaceSelectModalComponent } from './space-select-modal/space-select-modal.component';
+import { SpaceSelectItemComponent } from './space-select-item.component';
+import { SpaceSelectModalComponent } from './space-select-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
@@ -14,12 +14,8 @@ const COMPONENTS: Type<any>[] = [
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [
-        CommonModule,
-        MatDialogModule,
-        ComponentsModule
-    ],
+    imports: [CommonModule, MatDialogModule, ComponentsModule],
     providers: [],
-    exports: [...COMPONENTS]
+    exports: [...COMPONENTS],
 })
 export class SharedSpacesModule {}
