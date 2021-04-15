@@ -1,23 +1,26 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { getModule, PlaceVariableBinding, showMetadata } from '@placeos/ts-client';
+import {
+    getModule,
+    PlaceVariableBinding,
+    showMetadata,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
+import { catchError, first, map, switchMap } from 'rxjs/operators';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
-
 import { DesksService, queryBookings } from '@placeos/bookings';
-
-import { ExploreStateService } from './explore-state.service';
-import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { StaffUser } from '@placeos/users';
 import {
     BuildingLevel,
     Desk,
     OrganisationService,
 } from '@placeos/organisation';
+
+import { ExploreStateService } from './explore-state.service';
+import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
-import { catchError, first, map, switchMap } from 'rxjs/operators';
-import { StaffUser } from '@placeos/users';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -33,18 +36,12 @@ export interface DesksStats {
 
 @Injectable()
 export class ExploreDesksService extends BaseClass implements OnDestroy {
-    private _level: BuildingLevel = null;
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
     private _bindings: PlaceVariableBinding[] = [];
-    private _stats = new BehaviorSubject<DesksStats>({
-        free: 0,
-        occupied: 0,
-        total: 0,
-    });
     private _poll = new BehaviorSubject<number>(0);
 
     private _desk_bookings = combineLatest([
@@ -64,7 +61,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public readonly desk_list = this._state.level.pipe(
         switchMap((lvl) =>
             showMetadata(lvl.id, { name: 'desks' }).pipe(
-                map((i) => i.details.map((j: HashMap) => new Desk({ ...j, zone: lvl })))
+                map((i) =>
+                    (i.details instanceof Array ? i.details : []).map(
+                        (j: HashMap) => new Desk({ ...j, zone: lvl })
+                    )
+                )
             )
         ),
         catchError(() => [])
@@ -86,12 +87,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             enable_booking: this._settings.get('app.desks.enabled') !== false,
         });
         this.subscription(
-            'spaces',
-            this._state.level.subscribe((level) => {
-                this.clearBindings();
-                this._level = level;
-                this.bindToDesks();
-            })
+            'level_change',
+            this._state.level.subscribe((level) => this.bindToDesks(level))
         );
         this.subscription(
             'changes',
@@ -114,12 +111,13 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                         : 'not-bookable';
                 }
                 this.processDesks(desks);
-                this.timeout('update', () => this.updateStatus(), 100);
             })
         );
         this.subscription(
             'desks',
-            this.desk_list.subscribe((desks) => this.processDesks(desks))
+            this.desk_list.subscribe((desks) => {
+                this.processDesks(desks);
+            })
         );
         this.subscription(
             'desks_in_use_bookings',
@@ -135,7 +133,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     }
 
     public startPolling(delay: number = 30 * 1000) {
-        this.interval('poll', () => this._poll.next(new Date().valueOf()), delay);
+        this.interval(
+            'poll',
+            () => this._poll.next(new Date().valueOf()),
+            delay
+        );
     }
 
     public stopPolling() {
@@ -156,10 +158,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._statuses = {};
     }
 
-    public bindToDesks() {
-        if (!this._level) return;
+    public bindToDesks(level: BuildingLevel) {
+        this.clearBindings();
+        if (!level) return;
         const building = this._org.buildings.find(
-            (bld) => bld.id === this._level.parent_id
+            (bld) => bld.id === level.parent_id
         );
         if (!building) return;
         const system_id =
@@ -169,29 +172,17 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             this.startPolling();
             return;
         }
-        let binding = getModule(system_id, 'AreaManagement').binding(
-            this._level.id
-        );
+        let binding = getModule(system_id, 'AreaManagement').binding(level.id);
         this.subscription(
             `desks_in_use`,
-            binding.listen().subscribe((d) => {
-                const devices = (d?.value || []).filter(
-                    (v) => v.location !== 'desk'
-                );
-                const desks = (d?.value || []).filter(
-                    (v) => v.location === 'desk' || (v.location === 'booking' && v.type === 'desk')
-                );
-                this._in_use.next(desks.map((v) => v.map_id));
-                this._reserved.next(
-                    desks.filter((v) => !v.at_location).map((v) => v.map_id)
-                );
-                this.processDevices(devices, system_id);
-            })
+            binding
+                .listen()
+                .subscribe((d) => this.processBindingChange(d, system_id))
         );
         binding.bind();
         this._bindings.push(binding);
         binding = getModule(system_id, 'AreaManagement').binding(
-            `${this._level.id}:desk_ids`
+            `${level.id}:desk_ids`
         );
         this.subscription(
             `desks_list`,
@@ -199,6 +190,21 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         );
         binding.bind();
         this._bindings.push(binding);
+    }
+
+    private processBindingChange(d, system_id) {
+        const devices = (d?.value || []).filter((v) => v.location !== 'desk');
+        const desks = (d?.value || []).filter(
+            (v) =>
+                v.location === 'desk' ||
+                (v.location === 'booking' && v.type === 'desk')
+        );
+        this._in_use.next(desks.map((v) => v.map_id));
+        this._reserved.next(
+            desks.filter((v) => !v.at_location).map((v) => v.map_id)
+        );
+        this.processDevices(devices, system_id);
+        this.timeout('update', () => this.updateStatus(), 100);
     }
 
     private updateStatus() {
@@ -281,5 +287,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             this._options.getValue().enable_booking ? actions : []
         );
         this._state.setFeatures('desks', list);
+        this.timeout('update', () => this.updateStatus(), 100);
     }
 }

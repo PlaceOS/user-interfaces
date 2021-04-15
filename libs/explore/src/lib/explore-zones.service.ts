@@ -3,10 +3,7 @@ import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewerLabel, Point } from '@placeos/svg-viewer';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
-import {
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -33,14 +30,19 @@ export class ExploreZonesService extends BaseClass {
     }
 
     public async init() {
-        await this._org.initialised.pipe(first(_ => _)).toPromise();
-        const zone_metadata = await Promise.all(this._org.levels.map(bld => showMetadata(bld.id, { name: 'map_regions' }).toPromise()));
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        const zone_metadata = await Promise.all(
+            this._org.levels.map((bld) =>
+                showMetadata(bld.id, { name: 'map_regions' }).toPromise()
+            )
+        );
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
             if (areas) {
                 for (const area of areas) {
                     this._capacity[area.id] = area.properties?.capacity || 100;
-                    this._location[area.id] = area.properties?.label_location || { x: .5, y: .5 };
+                    this._location[area.id] = area.properties
+                        ?.label_location || { x: 0.5, y: 0.5 };
                 }
             }
         }
@@ -57,7 +59,7 @@ export class ExploreZonesService extends BaseClass {
     public clearBindings() {
         if (!this._level) return;
         this.unsub('zones');
-        this._bindings.forEach(b => b.unbind());
+        this._bindings.forEach((b) => b.unbind());
         this._bindings = [];
         this._statuses = {};
     }
@@ -68,9 +70,13 @@ export class ExploreZonesService extends BaseClass {
             (bld) => bld.id === this._level.parent_id
         );
         if (!building) return;
-        const system_id = this._org.organisation.bindings.area_management;
+        const system_id =
+            building.bindings.area_management ||
+            this._org.organisation.bindings.area_management;
         if (!system_id) return;
-        const binding = getModule(system_id, 'AreaManagement').binding(`${this._level.id}:areas`);
+        const binding = getModule(system_id, 'AreaManagement').binding(
+            `${this._level.id}:areas`
+        );
         this.subscription(
             `zones`,
             binding.listen().subscribe((d) => this.parseData(d))
@@ -85,10 +91,12 @@ export class ExploreZonesService extends BaseClass {
         for (const zone of value) {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
-                filled < .4 ? 'free' : filled < .75 ? 'pending' : 'busy';
+                filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
-                content: `${zone.count} ${zone.count === 1 ? 'Device' : 'Devices'}`
+                content: `${zone.count} ${
+                    zone.count === 1 ? 'Device' : 'Devices'
+                }`,
             };
             labels.push(this._labels[zone.area_id]);
         }
@@ -98,8 +106,7 @@ export class ExploreZonesService extends BaseClass {
 
     private updateStatus() {
         const style_map = {};
-        const colours =
-            this._settings.get('app.explore.colors') || {};
+        const colours = this._settings.get('app.explore.colors') || {};
         for (const zone_id in this._statuses) {
             if (!this._statuses.hasOwnProperty(zone_id)) continue;
             style_map[`#${zone_id}`] = {
