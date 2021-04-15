@@ -2,33 +2,22 @@ import { Injectable } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 
 import { BaseClass } from './base.class';
+import { SettingsService } from './settings.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class VorlonService extends BaseClass {
-    /** Parent service */
-    public parent: any;
     /** DOM Element containing the Vorlon Script */
     private _script: HTMLScriptElement;
 
-    constructor() {
+    constructor(private _settings: SettingsService) {
         super();
-    }
-
-    /**
-     * Initailise service
-     */
-    public init() {
-        if (!this.parent || !this.parent.has_settings || !this.parent.Organisation.details) {
-            return this.timeout('init', () => this.init());
-        }
         this.load();
     }
 
     private async load() {
-        const org = this.parent.Organisation.details;
-        const system = org.setting('vorlon_system');
+        const system = this._settings.get('app.vorlon.system');
         if (system) {
             const module = getModule(system, 'Vorlon');
             if (module) {
@@ -37,7 +26,9 @@ export class VorlonService extends BaseClass {
                 this.subscription(
                     'binding_value',
                     binding.listen().subscribe((state) => {
-                        state ? this.injectVorlonScript() : this.removeVorlonScript();
+                        state
+                            ? this.injectVorlonScript()
+                            : this.removeVorlonScript();
                     })
                 );
             }
@@ -47,8 +38,7 @@ export class VorlonService extends BaseClass {
     private injectVorlonScript() {
         this.removeVorlonScript();
         this._script = document.createElement('script');
-        const org = this.parent.Organisation.details;
-        const url = org.setting('vorlon_url');
+        const url = this._settings.get('app.vorlon.url');
         this._script.src = url || `./assets/vorlon.js`;
         document.head.appendChild(this._script);
     }
