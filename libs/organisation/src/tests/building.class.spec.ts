@@ -1,7 +1,7 @@
-import { Building } from './building.class';
+import { HashMap } from '@placeos/common';
 
-import { HashMap } from '../common/types';
-import { generateMockBuilding } from './building.utilities';
+import { Building } from '../lib/building.class';
+import { generateMockBuilding } from '../lib/building.utilities';
 
 describe('Building', () => {
     let init_data: HashMap;
@@ -10,7 +10,7 @@ describe('Building', () => {
 
     beforeEach(() => {
         init_data = generateMockBuilding();
-        service = { get: jest.fn() }
+        service = { get: jest.fn() };
         bld = new Building(init_data);
     });
 

@@ -3,6 +3,7 @@ import { HashMap } from '@placeos/common';
 let BLD_COUNT = 0;
 let LVL_COUNT = 0;
 
+/* istanbul ignore next */
 /**
  * Generate raw mock data for creating a building
  * @param id Forced ID for the mock
@@ -13,7 +14,7 @@ export function generateMockBuilding(id?: string): HashMap {
     }
     const levels = Array(10)
         .fill(0)
-        .map(i => generateMockLevel());
+        .map((i) => generateMockLevel());
     const features: any = {};
     for (const lvl of levels) {
         const count = Math.floor(Math.random() * 3 + 2);
@@ -28,13 +29,10 @@ export function generateMockBuilding(id?: string): HashMap {
         extras: Array(10)
             .fill(0)
             .map((_, idx) => {
-                const name = `Property ${idx + 1}`
+                const name = `Property ${idx + 1}`;
                 return {
-                    extra_id: name
-                        .split(' ')
-                        .join('-')
-                        .toLowerCase(),
-                    extra_name: name
+                    extra_id: name.split(' ').join('-').toLowerCase(),
+                    extra_name: name,
                 };
             }),
         loan_items: Array(10)
@@ -42,35 +40,41 @@ export function generateMockBuilding(id?: string): HashMap {
             .map((_, idx) => {
                 const name = `Property ${idx + 1}`;
                 return {
-                    extra_id: name
-                        .split(' ')
-                        .join('-')
-                        .toLowerCase(),
-                    extra_name: name
+                    extra_id: name.split(' ').join('-').toLowerCase(),
+                    extra_name: name,
                 };
             }),
         levels,
         roles: {
             'first-aiders': Array(10)
                 .fill(0)
-                .map(i => ({ name: 'Test' }))
+                .map((i) => ({ name: 'Test' })),
         },
         neighbourhoods: features,
         settings: {
             test: {
                 nested: {
                     level2: true,
-                    org: false
-                }
-            }
+                    org: false,
+                },
+            },
         },
         room_configurations: [
-            { id: 'boardroom', name: 'Boardroom', description: 'A boardroom setting'},
-            { id: 'cocktail', name: 'Cocktail', description: 'A cocktail setting'},
-        ]
+            {
+                id: 'boardroom',
+                name: 'Boardroom',
+                description: 'A boardroom setting',
+            },
+            {
+                id: 'cocktail',
+                name: 'Cocktail',
+                description: 'A cocktail setting',
+            },
+        ],
     };
 }
 
+/* istanbul ignore next */
 /**
  * Generate raw mock data for a building level
  * @param id Forced ID for the mock
@@ -83,6 +87,6 @@ export function generateMockLevel(id?: string, map_url?: string): HashMap {
     return {
         level_id: id,
         level_name: `Level ${LVL_COUNT}`,
-        map_url
+        map_url,
     };
 }

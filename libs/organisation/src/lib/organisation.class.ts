@@ -1,5 +1,9 @@
 import { BaseDataClass, getItemWithKeys, HashMap } from '@placeos/common';
 
+export interface OrganisationComplete extends Organisation {
+    settings?: HashMap;
+}
+
 export class Organisation extends BaseDataClass {
     /** Description for the Organisation */
     public readonly description: string;
@@ -9,21 +13,19 @@ export class Organisation extends BaseDataClass {
     public readonly count: number;
     /** Capacity for the Organisation */
     public readonly capacity: number;
-    /** Parent ID for the Organisation */
-    public readonly _parent_id: string;
     /** PlaceOS bindings for applications */
     public readonly bindings: HashMap<string>;
     /** Map of custom settings for the building */
     private _settings: HashMap;
 
-    constructor(raw_data: Partial<Organisation> = {}) {
+    constructor(raw_data: Partial<OrganisationComplete> = {}) {
         super(raw_data);
         this.description = raw_data.description || '';
         this.tags = raw_data.tags || [];
         this.count = raw_data.count || 0;
         this.capacity = raw_data.capacity || 0;
         this.bindings = raw_data.bindings || {};
-        this._settings = (raw_data as any).settings || {};
+        this._settings = raw_data.settings || {};
     }
 
     /**
