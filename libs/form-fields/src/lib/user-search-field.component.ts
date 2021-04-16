@@ -1,4 +1,12 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+/* eslint-disable @typescript-eslint/member-ordering */
+import {
+    Component,
+    OnInit,
+    forwardRef,
+    Input,
+    ViewChild,
+    ElementRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Subject, Observable, of, forkJoin } from 'rxjs';
 import {
@@ -18,7 +26,9 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
         <div class="user-search-field text-black" form-field>
             <mat-form-field overlay appearance="outline">
                 <input
+                    #input
                     matInput
+                    keyboard
                     name="user-search"
                     [(ngModel)]="search_str"
                     (ngModelChange)="search$.next($event)"
@@ -26,6 +36,7 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                     [placeholder]="placeholder || 'Search for user...'"
                     [matAutocomplete]="auto"
                     (blur)="resetSearchString()"
+                    (focus)="cancelReset()"
                 />
                 <app-icon matPrefix class="text-2xl relative">search</app-icon>
                 <mat-spinner
@@ -38,7 +49,11 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                 #auto="matAutocomplete"
                 (optionSelected)="setValue($event.option.value)"
             >
-                <mat-option *ngFor="let option of user_list" [value]="option">
+                <mat-option
+                    *ngFor="let option of user_list"
+                    [value]="option"
+                    (click)="blurInput()"
+                >
                     <div class="leading-tight">{{ option.name }}</div>
                     <div class="text-xs text-black opacity-60">
                         {{ option.email }}
@@ -80,7 +95,10 @@ export class UserSearchFieldComponent
     /** Whether guests should also show when searching for users */
     @Input() public guests: boolean;
     /** Function for filtering the results of the user list */
-    @Input() public filter: (_: any, s: string) => boolean;
+    @Input() public filter: (_: any, s?: string) => boolean;
+
+    @Input() public query_fn: (_: string) => Observable<User[]> = (q) =>
+        searchStaff(q);
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -101,7 +119,7 @@ export class UserSearchFieldComponent
                 ? of(this.options)
                 : query.length >= 3
                 ? !this.guests
-                    ? searchStaff(query)
+                    ? this.query_fn(query)
                     : forkJoin([searchStaff(query), searchGuests(query)])
                 : of([]);
         }),
@@ -121,6 +139,16 @@ export class UserSearchFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: User) => void;
 
+    @ViewChild('input', { read: ElementRef })
+    private _input_el: ElementRef<HTMLInputElement>;
+
+    public cancelReset = () => this.clearTimeout('reset');
+
+    public blurInput = () => {
+        console.log('Blur', this._input_el);
+        this.timeout('blur', () => this._input_el?.nativeElement?.blur());
+    };
+
     public ngOnInit(): void {
         // Process API results
         this.subscription(
@@ -133,7 +161,11 @@ export class UserSearchFieldComponent
      * Reset the search string back to the name of the active user
      */
     public resetSearchString() {
-        this.search_str = this.active_user?.name || '';
+        this.timeout(
+            'reset',
+            () => (this.search_str = this.active_user?.name || ''),
+            50
+        );
     }
 
     /**
