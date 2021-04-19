@@ -3,17 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
-import {
-    BaseClass,
-    notifyError,
-    SettingsService,
-} from '@placeos/common';
+import { BaseClass, notifyError, SettingsService } from '@placeos/common';
 import { Space, SpacesService } from '@placeos/spaces';
 import { MapLocation, showStaff, User } from '@placeos/users';
-import {
-    MapPinComponent,
-    MapRadiusComponent,
-} from '@placeos/components';
+import { MapPinComponent, MapRadiusComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
@@ -26,8 +19,8 @@ import { ExploreDesksService } from './explore-desks.service';
     template: `
         <i-map
             [src]="url | async"
-            [zoom]="(positions | async).zoom"
-            [center]="(positions | async).center"
+            [zoom]="(positions | async)?.zoom"
+            [center]="(positions | async)?.center"
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
@@ -121,10 +114,17 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                         user = await showStaff(params.get('user')).toPromise();
                     }
                     if (!user)
-                        return notifyError(`Unable to user details for ${params.get('user')}`);
-                    this.locateUser(user instanceof Array ? user[0] : user).catch((_) => {
+                        return notifyError(
+                            `Unable to user details for ${params.get('user')}`
+                        );
+                    this.locateUser(
+                        user instanceof Array ? user[0] : user
+                    ).catch((_) => {
                         notifyError(`Unable to locate ${params.get('user')}`);
-                        this._router.navigate([], { relativeTo: this._route, queryParams: {} });
+                        this._router.navigate([], {
+                            relativeTo: this._route,
+                            queryParams: {},
+                        });
                     });
                 } else {
                     this.timeout('update_location', () => {
@@ -136,7 +136,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private locateSpace(space: Space) {
-        this._state.setLevel(this._org.levelWithID(space.zones).id);
+        this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             location: space.map_id,
             content: MapPinComponent,
@@ -144,13 +144,14 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 message: `${space.display_name || space.name} is here`,
             },
         };
-        this.timeout('update_location', () => {
-            this._state.setFeatures('_located', [feature]);
-        });
+        this.timeout('update_location', () =>
+            this._state.setFeatures('_located', [feature])
+        );
     }
 
     private async locateUser(user: User) {
-        let locate_details: any = this._org.organisation.bindings.location_services;
+        let locate_details: any = this._org.organisation.bindings
+            .location_services;
         if (!locate_details) return;
         if (typeof locate_details === 'string') {
             locate_details = {
@@ -164,20 +165,31 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         ).map((i) => new MapLocation(i));
         locations.sort(
             (a, b) =>
-                locate_details.priority.indexOf(a.type) - locate_details.priority.indexOf(b.type)
+                locate_details.priority.indexOf(a.type) -
+                locate_details.priority.indexOf(b.type)
         );
         if (!locations?.length) {
             throw 'No locations for the given user';
         }
-        this._state.setLevel(this._org.levelWithID([locations[0]?.level]).id);
+        this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos = locations[0].position;
         const { coordinates_from } = locations[0];
         const feature: any = {
-            location: location[0].type === 'wireless' ? {
-                x: coordinates_from?.includes('right') ? 1 - pos.x : pos.x,
-                y: coordinates_from?.includes('bottom') ? 1 - pos.y : pos.y,
-            } : pos,
-            content: locations[0].type === 'wireless' ? MapRadiusComponent : MapPinComponent,
+            location:
+                locations[0].type === 'wireless'
+                    ? {
+                          x: coordinates_from?.includes('right')
+                              ? 1 - pos.x
+                              : pos.x,
+                          y: coordinates_from?.includes('bottom')
+                              ? 1 - pos.y
+                              : pos.y,
+                      }
+                    : pos,
+            content:
+                locations[0].type === 'wireless'
+                    ? MapRadiusComponent
+                    : MapPinComponent,
             data: {
                 message: `${user.name} is here`,
                 radius: locations[0].variance,
