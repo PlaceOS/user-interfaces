@@ -35,14 +35,14 @@ export interface DeviceInfoData {
         <div
             name="dot"
             #dot
-            class="h-2 w-2 absolute center rounded-full pointer-events-auto"
+            class="h-2 w-2 absolute center rounded-full pointer-events-auto shadow"
             [style.background-color]="bg_color"
         ></div>
 
         <ng-template cdk-portal>
             <div
                 name="device-info"
-                class="rounded bg-white p-4 top-0 left-0 shadow pointer-events-none"
+                class="w-64 rounded bg-white p-4 top-0 left-0 shadow pointer-events-none"
                 (mouseleave)="close()"
             >
                 <div class="arrow"></div>
@@ -50,16 +50,18 @@ export interface DeviceInfoData {
                     <p><label>MAC:</label> {{ mac }}</p>
                     <p><label>Accuracy:</label> {{ variance }}m</p>
                     <p><label>Last Seen:</label> {{ last_seen }}</p>
-                    <p *ngIf="manufacturer">
+                    <p type *ngIf="manufacturer">
                         <label>Manufacturer:</label> {{ manufacturer }}
                     </p>
-                    <p *ngIf="os"><label>OS:</label> {{ os }}</p>
-                    <p *ngIf="ssid"><label>SSID:</label> {{ ssid }}</p>
-                    <p *ngIf="username">
+                    <p os *ngIf="os"><label>OS:</label> {{ os }}</p>
+                    <p ssid *ngIf="ssid"><label>SSID:</label> {{ ssid }}</p>
+                    <p username *ngIf="username">
                         <label>Username:</label>
                         {{ user?.name || user?.username || username }}
                     </p>
-                    <p *ngIf="user"><label>Type:</label> {{ user.type }}</p>
+                    <p user *ngIf="user">
+                        <label>Type:</label> {{ user.type }}
+                    </p>
                 </div>
             </div>
         </ng-template>
@@ -71,7 +73,6 @@ export interface DeviceInfoData {
             }
 
             :host > [name='dot'] {
-                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
                 background-color: #616161;
             }
 
@@ -82,11 +83,6 @@ export interface DeviceInfoData {
             [name='radius'] {
                 opacity: 0;
                 transition: opacity 200ms;
-                pointer-events: none;
-            }
-
-            [name='device-info'] {
-                width: 16rem;
                 pointer-events: none;
             }
         `,
@@ -106,7 +102,7 @@ export class ExploreDeviceInfoComponent implements OnInit {
     /** Mac Address of the device */
     public readonly ssid = this._details.ssid;
     /** Accuracy of the location data */
-    public readonly variance = this._details.variance.toFixed(2);
+    public readonly variance = this._details.variance?.toFixed(2);
     /** Diameter of the radius circle */
     public readonly diameter = this._details.variance * 100;
     /** Background color for the dot */
@@ -115,7 +111,7 @@ export class ExploreDeviceInfoComponent implements OnInit {
     public overlay_ref: OverlayRef = null;
     /** Time of the last update */
     public get last_seen() {
-        return formatDistanceToNow(new Date(this._details.last_seen * 1000), {
+        return formatDistanceToNow((this._details.last_seen || 0) * 1000, {
             addSuffix: true,
         });
     }
@@ -125,7 +121,10 @@ export class ExploreDeviceInfoComponent implements OnInit {
     public x_pos: 'end' | 'start';
     public get distance() {
         return Math.abs(
-            differenceInMinutes(this._details.last_seen * 1000, new Date())
+            differenceInMinutes(
+                (this._details.last_seen || 0) * 1000,
+                new Date()
+            )
         );
     }
 
@@ -137,13 +136,13 @@ export class ExploreDeviceInfoComponent implements OnInit {
             : '#e53935';
     }
 
+    @ViewChild(CdkPortal) private _portal: CdkPortal;
+    @ViewChild('dot') private _dot: ElementRef<HTMLDivElement>;
+
     @HostListener('mouseenter') public onEnter = () => this.loadUser();
     @HostListener('mouseleave') public onLeave = () => this.close();
     @HostListener('click') public onClick = () => this.loadUser();
     @HostListener('touchend') public onTouch = () => this.loadUser();
-
-    @ViewChild(CdkPortal) private _portal: CdkPortal;
-    @ViewChild('dot') private _dot: ElementRef<HTMLDivElement>;
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
@@ -197,6 +196,7 @@ export class ExploreDeviceInfoComponent implements OnInit {
                 ]),
         });
         this.overlay_ref.attach(this._portal);
+        console.log('Open');
     }
 
     public close() {
