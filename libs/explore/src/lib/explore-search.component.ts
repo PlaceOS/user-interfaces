@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 
@@ -14,25 +14,23 @@ export interface SearchResult {
 @Component({
     selector: 'explore-search',
     template: `
-        <div class="fixed inset-0 z-0" [class.hide]="!show" (click)="show = false"></div>
         <div
             role="search"
             tabindex="0"
             matRipple
-            class="bg-white m-2 flex items-center z-10 relative overflow-hidden"
+            class="bg-white m-2 flex items-center z-10 relative overflow-hidden outline-none"
             [class.show]="show || search_str"
         >
             <app-icon
-                class="text-2xl"
+                class="text-2xl outline-none"
                 tabindex="0"
                 (click)="show ? closeSearch($event) : showSearch()"
-
             >
                 {{ show || search_str ? 'close' : 'search' }}
             </app-icon>
             <input
                 #input
-                class="flex-1 text-base"
+                class="flex-1 text-base border-none outline-none"
                 [(ngModel)]="search_str"
                 (ngModelChange)="setItem($event)"
                 placeholder="Search for..."
@@ -40,10 +38,13 @@ export interface SearchResult {
                 [matAutocomplete]="auto"
                 [matAutocompleteConnectedTo]="origin"
             />
-            <mat-spinner *ngIf="loading | async" class="mr-2" [diameter]="32"></mat-spinner>
+            <mat-spinner
+                *ngIf="loading | async"
+                class="mr-2"
+                [diameter]="32"
+            ></mat-spinner>
             <div
-                name="anchor"
-                class="absolute bottom-0"
+                class="absolute bottom-0 left-8 right-8"
                 matAutocompleteOrigin
                 #origin="matAutocompleteOrigin"
             ></div>
@@ -55,7 +56,9 @@ export interface SearchResult {
                         <div class="truncate w-full">{{ option.name }}</div>
                         <div class="text-xs">{{ option.description }}</div>
                     </div>
-                    <div class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded">
+                    <div
+                        class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded"
+                    >
                         {{ option.type }}
                     </div>
                 </div>
@@ -73,33 +76,17 @@ export interface SearchResult {
                 width: 3.125rem;
                 border-radius: 1.5rem;
                 border: 1px solid #ccc;
-                outline: none;
                 transition: width 200ms;
             }
 
             app-icon {
-                outline: none;
-                margin: .55rem;
+                margin: 0.55rem;
             }
 
             [role='search'].show {
                 width: 32rem;
                 max-width: calc(100vw - 1rem);
                 border-color: #1e88e5;
-            }
-
-            [name='anchor'] {
-                left: 2rem;
-                right: 2rem;
-            }
-
-            input {
-                border: none;
-                outline: none;
-            }
-
-            .hide {
-                display: none;
             }
         `,
     ],
@@ -110,11 +97,24 @@ export class ExploreSearchComponent extends BaseClass {
     public readonly results = this._search.search_results;
     public readonly loading = this._search.loading;
     public readonly setFilter = (s) => this._search.setFilter(s);
-    public readonly setItem = (i) => (i instanceof Object ? this.select(i) : this.setFilter(i));
+    public readonly setItem = (i) =>
+        i instanceof Object ? this.select(i) : this.setFilter(i);
 
     @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
 
+    @HostListener('document:click', ['$event'])
+    public checkClick(event) {
+        if (!this._el?.nativeElement?.contains(event.target)) {
+            this.show = false;
+            this._input_el.nativeElement.blur();
+        }
+    }
+
+    @HostListener('document:touchstart', ['$event']) public onTouch = (e) =>
+        this.checkClick(e);
+
     constructor(
+        private _el: ElementRef<HTMLElement>,
         private _search: ExploreSearchService,
         private _router: Router,
         private _route: ActivatedRoute
@@ -125,7 +125,11 @@ export class ExploreSearchComponent extends BaseClass {
     public showSearch() {
         this.show = true;
         if (this._input_el?.nativeElement) {
-            this.timeout('focus', () => this._input_el.nativeElement.focus(), 200);
+            this.timeout(
+                'focus',
+                () => this._input_el.nativeElement.focus(),
+                200
+            );
         }
     }
 
@@ -141,8 +145,16 @@ export class ExploreSearchComponent extends BaseClass {
     public select(item: SearchResult) {
         this.search_str = item.name;
         const query: any = {};
-        const type = item.type === 'space' ? 'space' : item.type === 'feature' ? 'feature' : 'user';
+        const type =
+            item.type === 'space'
+                ? 'space'
+                : item.type === 'feature'
+                ? 'feature'
+                : 'user';
         query[type] = item.id;
-        this._router.navigate([], { relativeTo: this._route, queryParams: query });
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: query,
+        });
     }
 }
