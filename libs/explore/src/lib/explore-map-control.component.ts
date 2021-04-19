@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -12,6 +12,7 @@ import { ExploreStateService } from './explore-state.service';
         <div class="flex space-x-2">
             <mat-form-field
                 overlay
+                buildings
                 class="flex-1"
                 has-bld="true"
                 *ngIf="(buildings | async)?.length > 1"
@@ -32,6 +33,7 @@ import { ExploreStateService } from './explore-state.service';
             </mat-form-field>
             <mat-form-field
                 overlay
+                levels
                 class="flex-1"
                 [attr.has-bld]="(buildings | async)?.length > 1"
                 *ngIf="(levels | async)?.length"
@@ -62,7 +64,7 @@ import { ExploreStateService } from './explore-state.service';
                 min-width: 10rem;
             }
 
-            mat-form-field[has-bld="true"] {
+            mat-form-field[has-bld='true'] {
                 max-width: calc(50vw - 2.5rem);
             }
 
@@ -72,7 +74,7 @@ import { ExploreStateService } from './explore-state.service';
         `,
     ],
 })
-export class ExploreMapControlComponent extends BaseClass {
+export class ExploreMapControlComponent extends BaseClass implements OnInit {
     /** List of available buildings */
     public readonly buildings = this._org.building_list;
     /** Currently active building */
@@ -86,12 +88,11 @@ export class ExploreMapControlComponent extends BaseClass {
         this._state.setFeatures('_located', []);
         this.timeout(
             'set_level',
-            () => {
+            () =>
                 this._router.navigate([], {
                     relativeTo: this._route,
                     queryParams: { zone: lvl.id },
-                });
-            },
+                }),
             201
         );
     };
