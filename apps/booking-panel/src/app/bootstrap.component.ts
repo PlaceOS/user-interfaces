@@ -11,9 +11,13 @@ import { Space, SpacesService } from '@placeos/spaces';
         <div
             class="rounded shadow m-4 bg-white overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-primary text-white py-2 px-4 m-0 w-full text-2xl">Booking Panel Setup</h2>
+            <h2 class="bg-primary text-white py-2 px-4 m-0 w-full text-2xl">
+                Booking Panel Setup
+            </h2>
             <ng-container *ngIf="!loading; else load_state">
-                <p class="description py-4">Input the PlaceOS <em>System ID</em> to bootstrap</p>
+                <p class="description py-4">
+                    Input the PlaceOS <em>System ID</em> to bootstrap
+                </p>
                 <mat-form-field appearance="outline">
                     <mat-label>System ID</mat-label>
                     <input
@@ -25,14 +29,25 @@ import { Space, SpacesService } from '@placeos/spaces';
                     />
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let option of filtered_list" [value]="option.id">
+                    <mat-option
+                        *ngFor="let option of filtered_list"
+                        [value]="option.id"
+                    >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">{{ option.id }}</div>
+                            <div class="text-xs text-dark-fade">
+                                {{ option.id }}
+                            </div>
                         </div>
                     </mat-option>
                 </mat-autocomplete>
-                <button mat-button [disabled]="!system_id" (click)="bootstrap()">Submit</button>
+                <button
+                    mat-button
+                    [disabled]="!system_id"
+                    (click)="bootstrap()"
+                >
+                    Submit
+                </button>
             </ng-container>
         </div>
         <ng-template #load_state>
@@ -106,7 +121,8 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                     this.clearBootstrap();
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
-                    this.system_id = params.get('system_id') || params.get('sys_id');
+                    this.system_id =
+                        params.get('system_id') || params.get('sys_id');
                     this.bootstrap();
                 }
             })
@@ -142,7 +158,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         this.loading = true;
         if (localStorage) {
             localStorage.setItem('PLACEOS.BOOKINGS.system', system_id);
-            localStorage.setItem('trusted', 'true');
+            localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
         this._router.navigate(['panel', system_id]);
@@ -152,12 +168,15 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     /**
      * Remove any previously set bootstrapping details
      */
-    private readonly clearBootstrap = () => localStorage.removeItem('PLACEOS.BOOKINGS.system');
+    private readonly clearBootstrap = () =>
+        localStorage.removeItem('PLACEOS.BOOKINGS.system');
 
     public filter(search: string) {
         const s = search.toLowerCase();
         this.filtered_list = this.system_list
-            .filter((i) => i.name.toLowerCase().includes(s) || i.id.includes(search))
+            .filter(
+                (i) => i.name.toLowerCase().includes(s) || i.id.includes(search)
+            )
             .slice(0, 100);
     }
 }

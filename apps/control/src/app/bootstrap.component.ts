@@ -142,7 +142,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         this.loading = true;
         if (localStorage) {
             localStorage.setItem('PLACEOS.CONTROL.system', system_id);
-            localStorage.setItem('trusted', 'true');
+            localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
         this._router.navigate(['panel', system_id]);
