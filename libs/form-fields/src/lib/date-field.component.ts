@@ -131,7 +131,7 @@ export class DateFieldComponent
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }
-        this.date = formatISO(new_date);
+        this.date = formatISO(new_date || new Date());
         if (this._onChange) {
             this._onChange(new_date);
         }
@@ -144,7 +144,7 @@ export class DateFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = formatISO(value);
+        this.date = formatISO(value || new Date());
         console.log('Date:', this.date);
         this.show_tooltip = false;
     }

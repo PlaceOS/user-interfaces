@@ -69,7 +69,7 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
  * @param array List of items to remove duplicates from
  * @param key Key on array objects to compare for uniqueness
  */
-export function unique(array: any[], key: string = '') {
+export function unique<T = any>(array: T[] = [], key: string = ''): T[] {
     return array.filter(
         (el, pos, arr) =>
             arr.indexOf(
