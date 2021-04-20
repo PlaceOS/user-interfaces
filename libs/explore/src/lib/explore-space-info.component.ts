@@ -1,13 +1,19 @@
-import { Component, ElementRef, Inject } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
-import { getViewer, coordinatesForElement } from '@placeos/svg-viewer';
 
 export interface SpaceInfoData {
     space: Space;
     events: CalendarEvent[];
-    status: 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
+    status:
+        | 'free'
+        | 'busy'
+        | 'pending'
+        | 'reserved'
+        | 'not-bookable'
+        | 'unknown'
+        | '';
 }
 
 @Component({
@@ -27,27 +33,24 @@ export interface SpaceInfoData {
             <div class="arrow"></div>
             <div class="details">
                 <h4 class="m-0 mb-2">{{ space.display_name || space.name }}</h4>
-                <div class="text-sm" *ngIf="space.capacity >= 0">
+                <div capacity class="text-sm" *ngIf="space.capacity >= 0">
                     <span>Capacity: </span>{{ space.capacity }}
                     {{ space.capacity === 1 ? 'person' : 'people' }}
                 </div>
                 <div class="flex flex-wrap my-2 text-sm">
                     <div
-                        name="status"
+                        status
                         [class]="
                             'capitalize rounded p-1 px-2 text-light ' + status
                         "
                     >
                         {{ status }}
                     </div>
-                    <div
-                        name="available-until"
-                        *ngIf="status !== 'not-bookable'"
-                    >
+                    <div available-until *ngIf="status !== 'not-bookable'">
                         {{ available_until }}
                     </div>
                 </div>
-                <div class="features" *ngIf="space.features?.length > 0">
+                <div features *ngIf="space.features?.length > 0">
                     <h4 class="m-0 mb-2">Room Features</h4>
                     <ul class="pl-2">
                         <li
@@ -76,26 +79,26 @@ export interface SpaceInfoData {
                 width: 16rem;
             }
 
-            [name='status'] {
+            [status] {
                 background-color: #43a047;
                 font-weight: 500;
-            }
 
-            [name='status'].busy {
-                background-color: #e53935;
-            }
+                &.busy {
+                    background-color: #e53935;
+                }
 
-            [name='status'].pending {
-                background-color: #ffb300;
-            }
+                &.pending {
+                    background-color: #ffb300;
+                }
 
-            [name='status'].not-bookable {
-                background-color: #757575;
+                &.not-bookable {
+                    background-color: #757575;
+                }
             }
         `,
     ],
 })
-export class ExploreSpaceInfoComponent {
+export class ExploreSpaceInfoComponent implements OnInit {
     /** Space to display details for */
     public readonly space = this._details.space;
     /** List of upcoming events for space */
