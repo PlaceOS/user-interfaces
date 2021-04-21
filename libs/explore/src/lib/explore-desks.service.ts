@@ -1,9 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import {
-    getModule,
-    PlaceVariableBinding,
-    showMetadata,
-} from '@placeos/ts-client';
+import { getModule, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, first, map, switchMap } from 'rxjs/operators';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -11,11 +7,7 @@ import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
 import { DesksService, queryBookings } from '@placeos/bookings';
 import { StaffUser } from '@placeos/users';
-import {
-    BuildingLevel,
-    Desk,
-    OrganisationService,
-} from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -41,7 +33,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
-    private _bindings: PlaceVariableBinding[] = [];
     private _poll = new BehaviorSubject<number>(0);
 
     private _desk_bookings = combineLatest([
@@ -63,12 +54,74 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             showMetadata(lvl.id, { name: 'desks' }).pipe(
                 map((i) =>
                     (i.details instanceof Array ? i.details : []).map(
-                        (j: HashMap) => new Desk({ ...j, zone: lvl })
+                        (j: HashMap) => new Desk({ ...j, zone: lvl as any })
                     )
                 )
             )
         ),
-        catchError(() => [])
+        catchError((e) => [])
+    );
+
+    private _bind = this._state.level.pipe(
+        map((lvl) => {
+            this._statuses = {};
+            this.unsubWith('lvl');
+            if (!lvl) return;
+            const building = this._org.buildings.find(
+                (bld) => bld.id === lvl.parent_id
+            );
+            if (!building) return;
+            const system_id =
+                building.bindings?.area_management ||
+                this._org.organisation.bindings?.area_management;
+            if (!system_id) {
+                this.startPolling();
+                return;
+            }
+            let binding = getModule(system_id, 'AreaManagement').binding(
+                lvl.id
+            );
+            this.subscription(
+                `lvl-in_use`,
+                binding
+                    .listen()
+                    .subscribe((d) => this.processBindingChange(d, system_id))
+            );
+            this.subscription('lvl-in_use_bind', binding.bind());
+            binding = getModule(system_id, 'AreaManagement').binding(
+                `${lvl.id}:desk_ids`
+            );
+            this.subscription(
+                `lvl-desks_list`,
+                binding.listen().subscribe((d) => this._desks.next(d || []))
+            );
+            this.subscription('lvl-desk_list_bind', binding.bind());
+        })
+    );
+
+    private _state_change = combineLatest([
+        this.desk_list,
+        this._in_use,
+        this._reserved,
+        this._options,
+    ]).pipe(
+        // debounceTime(50),
+        map(([desks, in_use, reserved]) => {
+            this._statuses = {};
+            for (const { id, bookable } of desks) {
+                const is_used = in_use.some((i) => id === i);
+                const is_reserved = reserved.some((i) => id === i);
+                this._statuses[id] = bookable
+                    ? !is_used
+                        ? 'free'
+                        : is_reserved
+                        ? 'reserved'
+                        : 'busy'
+                    : 'not-bookable';
+            }
+            console.log('Statuses:', this._statuses);
+            this.processDesks(desks);
+        })
     );
 
     constructor(
@@ -86,53 +139,21 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.setOptions({
             enable_booking: this._settings.get('app.desks.enabled') !== false,
         });
-        this.subscription(
-            'level_change',
-            this._state.level.subscribe((level) => this.bindToDesks(level))
-        );
-        this.subscription(
-            'changes',
-            combineLatest([
-                this.desk_list,
-                this._in_use,
-                this._reserved,
-                this._options,
-            ]).subscribe(([desks, in_use, reserved]) => {
-                this._statuses = {};
-                for (const { id, bookable } of desks) {
-                    const is_used = in_use.some((i) => id === i);
-                    const is_reserved = reserved.some((i) => id === i);
-                    this._statuses[id] = bookable
-                        ? !is_used
-                            ? 'free'
-                            : is_reserved
-                            ? 'reserved'
-                            : 'busy'
-                        : 'not-bookable';
-                }
-                this.processDesks(desks);
-            })
-        );
+        this.subscription('bind', this._bind.subscribe());
+        this.subscription('changes', this._state_change.subscribe());
         this.subscription(
             'desks',
-            this.desk_list.subscribe((desks) => {
-                this.processDesks(desks);
-            })
+            this.desk_list.subscribe((desks) => this.processDesks(desks))
         );
+    }
+
+    public startPolling(delay: number = 30 * 1000) {
         this.subscription(
             'desks_in_use_bookings',
             this._desk_bookings.subscribe((_) =>
                 this._in_use.next(_.map((i) => i.asset_id))
             )
         );
-    }
-
-    public ngOnDestroy() {
-        super.ngOnDestroy();
-        this.clearBindings();
-    }
-
-    public startPolling(delay: number = 30 * 1000) {
         this.interval(
             'poll',
             () => this._poll.next(new Date().valueOf()),
@@ -148,66 +169,30 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public clearBindings() {
-        const bindings = ['desks_in_use', 'desk_list'];
-        for (const id of bindings) {
-            this.unsub(id);
-        }
-        this._bindings.forEach((b) => b.unbind());
-        this._bindings = [];
-        this._statuses = {};
-    }
-
-    public bindToDesks(level: BuildingLevel) {
-        this.clearBindings();
-        if (!level) return;
-        const building = this._org.buildings.find(
-            (bld) => bld.id === level.parent_id
+    public processBindingChange(
+        { value }: { value: any[] },
+        system_id: string
+    ) {
+        const devices = (value || []).filter(
+            (v) => !['desk', 'booking'].includes(v.location)
         );
-        if (!building) return;
-        const system_id =
-            this._org.building.bindings.area_management ||
-            this._org.organisation.bindings.area_management;
-        if (!system_id) {
-            this.startPolling();
-            return;
-        }
-        let binding = getModule(system_id, 'AreaManagement').binding(level.id);
-        this.subscription(
-            `desks_in_use`,
-            binding
-                .listen()
-                .subscribe((d) => this.processBindingChange(d, system_id))
-        );
-        binding.bind();
-        this._bindings.push(binding);
-        binding = getModule(system_id, 'AreaManagement').binding(
-            `${level.id}:desk_ids`
-        );
-        this.subscription(
-            `desks_list`,
-            binding.listen().subscribe((d) => this._desks.next(d || []))
-        );
-        binding.bind();
-        this._bindings.push(binding);
-    }
-
-    private processBindingChange(d, system_id) {
-        const devices = (d?.value || []).filter((v) => v.location !== 'desk');
-        const desks = (d?.value || []).filter(
+        const desks = (value || []).filter(
             (v) =>
                 v.location === 'desk' ||
                 (v.location === 'booking' && v.type === 'desk')
         );
-        this._in_use.next(desks.map((v) => v.map_id));
+        this._in_use.next(desks.map((v) => v.map_id || v.asset_id));
         this._reserved.next(
-            desks.filter((v) => !v.at_location).map((v) => v.map_id)
+            desks
+                .filter((v) => !v.at_location)
+                .map((v) => v.map_id || v.asset_id)
         );
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);
     }
 
     private updateStatus() {
+        console.log('Update Status', this._in_use.getValue());
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {
@@ -237,13 +222,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 data: { ...device, system: system_id },
             });
         }
-        list.sort((a, b) => {
-            const dist_a =
-                1 - Math.sqrt(Math.pow(a.x - 0.5, 2) + Math.pow(a.x - 0.5, 2));
-            const dist_b =
-                1 - Math.sqrt(Math.pow(b.x - 0.5, 2) + Math.pow(b.x - 0.5, 2));
-            return dist_a - dist_b;
-        });
         this._state.setFeatures('devices', list);
     }
 
@@ -261,25 +239,21 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     status: this._statuses[desk.map_id],
                 },
             });
+            const book_fn = () =>
+                this._desks_service.bookDesk({
+                    desks: [desk as Desk],
+                    host: options.host,
+                    date: options.date as Date,
+                });
             actions.push({
                 id: desk.id,
                 action: 'click',
-                callback: () =>
-                    this._desks_service.bookDesk({
-                        desks: [desk as Desk],
-                        host: options.host,
-                        date: options.date as Date,
-                    }),
+                callback: book_fn,
             });
             actions.push({
                 id: desk.id,
                 action: 'touchend',
-                callback: () =>
-                    this._desks_service.bookDesk({
-                        desks: [desk as Desk],
-                        host: options.host,
-                        date: options.date as Date,
-                    }),
+                callback: book_fn,
             });
         }
         this._state.setActions(

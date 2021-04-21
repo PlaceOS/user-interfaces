@@ -1,11 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {
-    currentUser,
-    DialogEvent,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
+import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { StaffUser, User } from '@placeos/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
