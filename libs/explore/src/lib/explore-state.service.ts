@@ -7,13 +7,10 @@ import {
     ViewerStyles,
 } from '@placeos/svg-viewer';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, filter, first, map } from 'rxjs/operators';
+import { debounceTime, filter, first, map, shareReplay } from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
-import {
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 
 export interface MapOptions {
@@ -72,8 +69,7 @@ export class ExploreStateService extends BaseClass {
         this._options,
     ]).pipe(
         debounceTime(200),
-        map((details) => {
-            const [features, options] = details;
+        map(([features, options]) => {
             let list = [];
             for (const key in features) {
                 switch (key) {
@@ -105,8 +101,7 @@ export class ExploreStateService extends BaseClass {
         this._options,
     ]).pipe(
         debounceTime(200),
-        map((details) => {
-            const [labels, options] = details;
+        map(([labels, options]) => {
             let list = [];
             for (const key in labels) {
                 if (key !== 'zones' || options.show_zones) {
@@ -122,8 +117,7 @@ export class ExploreStateService extends BaseClass {
         this._options,
     ]).pipe(
         debounceTime(200),
-        map((details) => {
-            const [styles, options] = details;
+        map(([styles, options]) => {
             const style_mappings = Object.keys(styles).reduce(
                 (a, h) => ({ ...a, ...styles[h] }),
                 {}
@@ -153,28 +147,22 @@ export class ExploreStateService extends BaseClass {
         private _settings: SettingsService
     ) {
         super();
-        this._org.initialised.pipe(first((_) => _)).subscribe(() => {
-            this.subscription(
-                'building',
-                this._org.active_building
-                    .pipe(filter((_) => !!_))
-                    .subscribe((bld) => {
-                        const level = this._level.getValue();
-                        const level_list = this._org.levelsForBuilding(bld);
-                        const has_level = level_list.find(
-                            (lvl) => level?.id === lvl.id
-                        );
-                        if (!has_level && level_list.length) {
-                            this.setLevel(level_list[0].id);
-                        }
-                        this.setOptions({
-                            show_devices:
-                                this._settings.get(
-                                    'app.explore.display_devices'
-                                ) !== false,
-                        });
-                    })
-            );
+        this.init();
+    }
+
+    public async init() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._org.active_building.pipe(filter((_) => !!_)).subscribe((bld) => {
+            const level = this._level.getValue();
+            const level_list = this._org.levelsForBuilding(bld);
+            const has_level = level_list.find((lvl) => level?.id === lvl.id);
+            if (!has_level && level_list.length) {
+                this.setLevel(level_list[0].id);
+            }
+            this.setOptions({
+                show_devices:
+                    this._settings.get('app.explore.display_devices') !== false,
+            });
         });
     }
 
