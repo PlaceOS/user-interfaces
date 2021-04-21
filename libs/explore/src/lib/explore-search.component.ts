@@ -2,14 +2,7 @@ import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 
-import { ExploreSearchService } from './explore-search.service';
-
-export interface SearchResult {
-    id: string;
-    type: 'feature' | 'space' | 'user';
-    name: string;
-    description: string;
-}
+import { ExploreSearchService, SearchResult } from './explore-search.service';
 
 @Component({
     selector: 'explore-search',
@@ -50,19 +43,30 @@ export interface SearchResult {
             ></div>
         </div>
         <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of results | async" [value]="option">
-                <div class="flex items-center leading-tight">
-                    <div class="flex-1 overflow-hidden">
-                        <div class="truncate w-full">{{ option.name }}</div>
-                        <div class="text-xs">{{ option.description }}</div>
+            <ng-container *ngIf="(loading | async) !== true">
+                <mat-option
+                    *ngIf="!(results | async)?.length"
+                    class="pointer-events-none"
+                >
+                    No matches found
+                </mat-option>
+                <mat-option
+                    *ngFor="let option of results | async"
+                    [value]="option"
+                >
+                    <div class="flex items-center leading-tight">
+                        <div class="flex-1 overflow-hidden">
+                            <div class="truncate w-full">{{ option.name }}</div>
+                            <div class="text-xs">{{ option.description }}</div>
+                        </div>
+                        <div
+                            class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded"
+                        >
+                            {{ option.type }}
+                        </div>
                     </div>
-                    <div
-                        class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded"
-                    >
-                        {{ option.type }}
-                    </div>
-                </div>
-            </mat-option>
+                </mat-option>
+            </ng-container>
         </mat-autocomplete>
     `,
     styles: [
@@ -92,8 +96,8 @@ export interface SearchResult {
     ],
 })
 export class ExploreSearchComponent extends BaseClass {
-    public show: boolean = false;
-    public search_str: string = '';
+    public show = false;
+    public search_str = '';
     public readonly results = this._search.search_results;
     public readonly loading = this._search.loading;
     public readonly setFilter = (s) => this._search.setFilter(s);

@@ -7,6 +7,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 
 import { SpacesService } from '@placeos/spaces';
@@ -19,7 +20,7 @@ export interface SearchResult {
     /** Unique ID of the result item */
     id: string;
     /** Type of the item being displayed */
-    type: 'space' | 'user' | 'contact';
+    type: 'space' | 'user' | 'contact' | 'feature';
     /** Main display string for the item */
     name: string;
     /** Secondary display string for the item. e.g. email, location, coordinates */
@@ -40,44 +41,36 @@ export class ExploreSearchService {
     public readonly emergency_contacts = this._emergency_contacts.asObservable();
 
     private _user_search: Observable<StaffUser[]> = this._filter.pipe(
-        debounceTime(500),
+        debounceTime(400),
+        tap(() => this._loading.next(true)),
         switchMap((q) => (q?.length > 2 ? this.search_fn(q) : of([]))),
-        catchError(() => []),
-        shareReplay(1)
-    );
-
-    private _space_search = combineLatest([
-        this._filter,
-        this._spaces.list,
-    ]).pipe(
-        map(([f, spaces]) =>
-            spaces.filter(
-                (_) =>
-                    _.email.toLowerCase().includes(f.toLowerCase()) ||
-                    _.name.toLowerCase().includes(f.toLowerCase()) ||
-                    _.display_name.toLowerCase().includes(f.toLowerCase())
-            )
-        ),
-        shareReplay(1)
+        catchError(() => [])
     );
 
     public readonly search_results: Observable<SearchResult[]> = combineLatest([
-        this._space_search,
+        this._spaces.list,
         this._user_search,
         this._emergency_contacts,
-        this._filter,
     ]).pipe(
-        debounceTime(500),
-        map(([spaces, users, contacts, filter]) => {
+        debounceTime(1000),
+        map(([spaces, users, contacts]) => {
+            const filter = this._filter.getValue();
             const search = filter.toLowerCase();
             const results = unique(
                 [
-                    ...spaces.map((s) => ({
-                        id: s.id,
-                        type: 'space',
-                        name: s.display_name || s.name,
-                        description: `Capacity: ${s.capacity} `,
-                    })),
+                    ...spaces
+                        .filter(
+                            (_) =>
+                                _.email.toLowerCase().includes(search) ||
+                                _.name.toLowerCase().includes(search) ||
+                                _.display_name.toLowerCase().includes(search)
+                        )
+                        .map((s) => ({
+                            id: s.id,
+                            type: 'space',
+                            name: s.display_name || s.name,
+                            description: `Capacity: ${s.capacity} `,
+                        })),
                     ...contacts
                         .map((u) => ({
                             id: u.email,
@@ -101,9 +94,10 @@ export class ExploreSearchService {
                 'id'
             );
             results.sort((a, b) => a.name.localeCompare(b.name));
-            this._loading.next(false);
             return results;
-        })
+        }),
+        tap(() => this._loading.next(false)),
+        shareReplay(1)
     );
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
@@ -114,10 +108,8 @@ export class ExploreSearchService {
         private _spaces: SpacesService,
         private _org: OrganisationService
     ) {
-        this._spaces.list.subscribe(() =>
-            this._filter.next(this._filter.getValue())
-        );
-        this._filter.subscribe(() => this._loading.next(true));
+        this._spaces.list.subscribe();
+        this.search_results.subscribe();
         this.init();
     }
 
@@ -130,7 +122,6 @@ export class ExploreSearchService {
         if (mod) {
             const binding = mod.binding('emergency_contacts');
             binding.listen().subscribe((contacts_map) => {
-                console.log('Contacts:', contacts_map);
                 const list = [];
                 for (const type in contacts_map) {
                     for (const user of contacts_map[type]) {
