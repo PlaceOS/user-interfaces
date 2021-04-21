@@ -1,14 +1,20 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
+import { map } from 'rxjs/operators';
 
-import { BaseClass, HashMap, notifyError, SettingsService } from '@placeos/common';
+import {
+    BaseClass,
+    HashMap,
+    notifyError,
+    SettingsService,
+} from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { CalendarEvent } from '@placeos/events';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
-import { MatDialog } from '@angular/material/dialog';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 
 export const DEFAULT_COLOURS = {
@@ -22,10 +28,42 @@ export const DEFAULT_COLOURS = {
 
 @Injectable()
 export class ExploreSpacesService extends BaseClass implements OnDestroy {
-    private _spaces: Space[] = [];
     private _bookings: HashMap<CalendarEvent[]> = {};
-    private _bindings: any[] = [];
     private _statuses: HashMap<string> = {};
+
+    private _bind = this._state.spaces.pipe(
+        map((list) => {
+            this.unsubWith('b-');
+            this.unsubWith('s-');
+            this._statuses = {};
+            if (!list?.length) return;
+            for (const space of list) {
+                const mod = getModule(space.id, 'Bookings');
+                let binding = mod.binding('bookings');
+                this.subscription(
+                    `b-${space.id}`,
+                    binding
+                        .listen()
+                        .subscribe((d) =>
+                            this.handleBookingsChange(list, space, d)
+                        )
+                );
+                this.subscription(`b-bind-${space.id}`, binding.bind());
+                binding = mod.binding('status');
+                this.subscription(
+                    `s-${space.id}`,
+                    binding
+                        .listen()
+                        .subscribe((d) =>
+                            this.handleStatusChange(list, space, d)
+                        )
+                );
+                this.subscription(`s-bind-${space.id}`, binding.bind());
+            }
+            this.updateActions(list);
+            this.updateHoverElements(list);
+        })
+    );
 
     constructor(
         private _state: ExploreStateService,
@@ -33,74 +71,37 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
         private _dialog: MatDialog
     ) {
         super();
-        this.subscription(
-            'spaces',
-            this._state.spaces.subscribe((list) => {
-                this.clearBindings();
-                this._spaces = list;
-                this.bindToSpaces();
-            })
-        );
-    }
-
-    public ngOnDestroy() {
-        super.ngOnDestroy();
-        this.clearBindings();
-    }
-
-    public clearBindings() {
-        if (!this._spaces) return;
-        for (const space of this._spaces) {
-            this.unsub(`bookings-${space.id}`);
-            this.unsub(`status-${space.id}`);
-        }
-        this._bindings.forEach((b) => b.unbind());
-        this._bindings = [];
-        this._statuses = {};
-    }
-
-    public bindToSpaces() {
-        if (!this._spaces) return;
-        for (const space of this._spaces) {
-            let binding = getModule(space.id, 'Bookings').binding('bookings');
-            this.subscription(
-                `bookings-${space.id}`,
-                binding
-                    .listen()
-                    .subscribe((d) => this.handleBookingsChange(space, d))
-            );
-            binding.bind();
-            this._bindings.push(binding);
-            binding = getModule(space.id, 'Bookings').binding('status');
-            this.subscription(
-                `status-${space.id}`,
-                binding
-                    .listen()
-                    .subscribe((d) => this.handleStatusChange(space, d))
-            );
-            binding.bind();
-            this._bindings.push(binding);
-        }
-        this.updateActions();
-        this.updateHoverElements();
+        this.subscription('spaces', this._bind.subscribe());
     }
 
     public bookSpace(space: Space) {
-        if (this._statuses[space.id] === 'busy') {
-            return notifyError(`${space.display_name || space.name} is unavailable at the current time`);
+        if (this._statuses[space.id] === 'busy' || !space.bookable) {
+            return notifyError(
+                `${
+                    space.display_name || space.name
+                } is unavailable at the current time`
+            );
         }
         this._dialog.open(ExploreBookingModalComponent, {
-            data: { space }
+            data: { space },
         });
     }
 
-    private handleBookingsChange(space: Space, bookings: HashMap[]) {
+    public handleBookingsChange(
+        spaces: Space[],
+        space: Space,
+        bookings: HashMap[]
+    ) {
         if (!bookings) return;
         this._bookings[space.id] = bookings.map((i) => new CalendarEvent(i));
-        this.timeout('update_hover_els', () => this.updateHoverElements(), 100);
+        this.timeout(
+            'update_hover_els',
+            () => this.updateHoverElements(spaces),
+            100
+        );
     }
 
-    private handleStatusChange(space: Space, status: string) {
+    public handleStatusChange(spaces: Space[], space: Space, status: string) {
         this._statuses[space.id] = space.bookable
             ? status || 'free'
             : 'not-bookable';
@@ -108,32 +109,32 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
             'update_statuses',
             () => {
                 this.clearTimeout('update_hover_els');
-                this.updateStatus();
-                this.updateHoverElements();
+                this.updateStatus(spaces);
+                this.updateHoverElements(spaces);
             },
             100
         );
     }
 
-    private updateStatus() {
+    private updateStatus(spaces: Space[]) {
         const style_map = {};
-        const colours =
-            this._settings.get('app.explore.colors') || {};
-        for (const space of this._spaces) {
+        const colours = this._settings.get('app.explore.colors') || {};
+        for (const space of spaces) {
+            const status = this._statuses[space.id] || 'not-bookable';
             style_map[`#${space.map_id}`] = {
                 fill:
-                    colours[`space-${this._statuses[space.id]}`] ||
-                    colours[`${this._statuses[space.id]}`] ||
-                    DEFAULT_COLOURS[`${this._statuses[space.id]}`],
+                    colours[`space-${status}`] ||
+                    colours[`${status}`] ||
+                    DEFAULT_COLOURS[`${status}`],
                 opacity: 0.6,
             };
         }
         this._state.setStyles('spaces', style_map);
     }
 
-    private updateHoverElements() {
+    private updateHoverElements(spaces: Space[]) {
         const features: ViewerFeature[] = [];
-        for (const space of this._spaces) {
+        for (const space of spaces) {
             features.push({
                 location: space.map_id,
                 hover: true,
@@ -148,9 +149,9 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
         this._state.setFeatures('spaces', features);
     }
 
-    private updateActions() {
+    private updateActions(spaces: Space[]) {
         const actions: ViewAction[] = [];
-        for (const space of this._spaces) {
+        for (const space of spaces) {
             actions.push({
                 id: space.map_id,
                 action: 'click',
