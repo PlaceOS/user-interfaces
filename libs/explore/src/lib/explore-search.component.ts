@@ -140,6 +140,7 @@ export class ExploreSearchComponent extends BaseClass {
     public closeSearch(e?: any) {
         this.show = false;
         this.search_str = '';
+        this.setFilter('');
         if (this._input_el?.nativeElement) {
             this._input_el.nativeElement.focus();
             this._input_el.nativeElement.blur();
