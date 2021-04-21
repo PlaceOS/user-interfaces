@@ -1,12 +1,30 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, debounceTime, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 import { SpacesService } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { getModule } from '@placeos/ts-client';
 import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+
+export interface SearchResult {
+    /** Unique ID of the result item */
+    id: string;
+    /** Type of the item being displayed */
+    type: 'space' | 'user' | 'contact';
+    /** Main display string for the item */
+    name: string;
+    /** Secondary display string for the item. e.g. email, location, coordinates */
+    description: string;
+}
 
 @Injectable({
     providedIn: 'root',
@@ -23,24 +41,27 @@ export class ExploreSearchService {
 
     private _user_search: Observable<StaffUser[]> = this._filter.pipe(
         debounceTime(500),
-        switchMap((q) => (q?.length > 2 ? (this.search_fn || searchStaff)(q) : of([]))),
+        switchMap((q) => (q?.length > 2 ? this.search_fn(q) : of([]))),
         catchError(() => []),
         shareReplay(1)
     );
 
-    private _space_search = combineLatest([this._filter, this._spaces.list]).pipe(
-        map(
-            ([f, spaces]) =>
-                spaces.filter((_) =>
+    private _space_search = combineLatest([
+        this._filter,
+        this._spaces.list,
+    ]).pipe(
+        map(([f, spaces]) =>
+            spaces.filter(
+                (_) =>
                     _.email.toLowerCase().includes(f.toLowerCase()) ||
                     _.name.toLowerCase().includes(f.toLowerCase()) ||
                     _.display_name.toLowerCase().includes(f.toLowerCase())
-                )
+            )
         ),
         shareReplay(1)
     );
 
-    public readonly search_results = combineLatest([
+    public readonly search_results: Observable<SearchResult[]> = combineLatest([
         this._space_search,
         this._user_search,
         this._emergency_contacts,
@@ -93,7 +114,9 @@ export class ExploreSearchService {
         private _spaces: SpacesService,
         private _org: OrganisationService
     ) {
-        this._spaces.list.subscribe(() => this._filter.next(this._filter.getValue()));
+        this._spaces.list.subscribe(() =>
+            this._filter.next(this._filter.getValue())
+        );
         this._filter.subscribe(() => this._loading.next(true));
         this.init();
     }
