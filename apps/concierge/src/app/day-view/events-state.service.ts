@@ -409,7 +409,7 @@ export class EventsStateService extends BaseClass {
             );
             const in_zone = !!bkn.resources
                 .map((r) => this._spaces.find(r.id))
-                .find((space) => fzones.find((z) => space.zones.includes(z)));
+                .find((space) => fzones.find((z) => space?.zones?.includes(z)));
             const has_space =
                 !filters.space_emails?.length ||
                 !!bkn.resources.find((space) =>
