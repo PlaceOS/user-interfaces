@@ -63,7 +63,7 @@ export interface ExploreBookingModalData {
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <div class="w-full h-64 flex flex-col items-center justify-center">
+            <div load class="h-64 flex flex-col items-center justify-center">
                 <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
@@ -73,6 +73,11 @@ export interface ExploreBookingModalData {
         `
             header {
                 max-width: calc(100vw + 100%);
+            }
+
+            [load] {
+                width: 32rem;
+                max-width: calc(100vw - 2rem);
             }
         `,
     ],

@@ -19,15 +19,17 @@ import { first } from 'rxjs/operators';
             <img class="w-32" [src]="logo?.src" />
         </div>
         <!-- <explore-map-stack class="z-0"></explore-map-stack> -->
-        <i-map
-            [src]="url | async"
-            [zoom]="(positions | async).zoom"
-            [center]="(positions | async).center"
-            [styles]="styles | async"
-            [features]="features | async"
-            [actions]="actions | async"
-            [labels]="labels | async"
-        ></i-map>
+        <div class="flex-1 h-1/2 w-full relative">
+            <i-map
+                [src]="url | async"
+                [zoom]="(positions | async).zoom"
+                [center]="(positions | async).center"
+                [styles]="styles | async"
+                [features]="features | async"
+                [actions]="actions | async"
+                [labels]="labels | async"
+            ></i-map>
+        </div>
         <explore-zoom-controls
             class="absolute top-1/2 transform -translate-y-1/2 right-0"
         ></explore-zoom-controls>
@@ -35,12 +37,14 @@ import { first } from 'rxjs/operators';
             class="absolute left-1 top-1/2 transform -translate-y-1/2 z-10"
         ></explore-level-select>
         <explore-search class="absolute top-1 right-1"></explore-search>
-        <footer-menu class="absolute bottom-0 left-0 right-0"></footer-menu>
+        <footer-menu class="w-full"></footer-menu>
     `,
     styles: [
         `
             :host {
                 position: absolute;
+                display: flex;
+                flex-direction: column;
                 top: 0;
                 left: 0;
                 right: 0;
