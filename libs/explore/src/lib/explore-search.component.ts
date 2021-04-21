@@ -37,13 +37,15 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 [diameter]="32"
             ></mat-spinner>
             <div
-                class="absolute bottom-0 left-8 right-8"
+                class="absolute bottom-0 left-8 right-8 min-w-[20rem]"
                 matAutocompleteOrigin
                 #origin="matAutocompleteOrigin"
             ></div>
         </div>
         <mat-autocomplete #auto="matAutocomplete">
-            <ng-container *ngIf="(loading | async) !== true">
+            <ng-container
+                *ngIf="(loading | async) !== true && (show || search_str)"
+            >
                 <mat-option
                     *ngIf="!(results | async)?.length"
                     class="pointer-events-none"
@@ -132,7 +134,7 @@ export class ExploreSearchComponent extends BaseClass {
             this.timeout(
                 'focus',
                 () => this._input_el.nativeElement.focus(),
-                200
+                300
             );
         }
     }
