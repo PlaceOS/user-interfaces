@@ -74,10 +74,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             const system_id =
                 building.bindings?.area_management ||
                 this._org.organisation.bindings?.area_management;
-            if (!system_id) {
-                this.startPolling();
-                return;
-            }
+            if (!system_id) return;
             let binding = getModule(system_id, 'AreaManagement').binding(
                 lvl.id
             );
@@ -119,7 +116,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                         : 'busy'
                     : 'not-bookable';
             }
-            console.log('Statuses:', this._statuses);
             this.processDesks(desks);
         })
     );
@@ -192,7 +188,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     }
 
     private updateStatus() {
-        console.log('Update Status', this._in_use.getValue());
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk_id in this._statuses) {

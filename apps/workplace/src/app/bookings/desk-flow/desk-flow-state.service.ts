@@ -275,8 +275,8 @@ export class DeskFlowStateService extends BaseClass {
                 });
             }
         }
-        this._state.setStyles('desks', style_map);
-        this._state.setActions('desks', actions);
+        // this._state.setStyles('desks', style_map);
+        // this._state.setActions('desks', actions);
     }
 
     private processDeskBookings(details) {

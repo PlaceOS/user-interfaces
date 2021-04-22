@@ -7,7 +7,7 @@ import {
     ViewerStyles,
 } from '@placeos/svg-viewer';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, filter, first, map, shareReplay } from 'rxjs/operators';
+import { debounceTime, filter, first, map } from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';

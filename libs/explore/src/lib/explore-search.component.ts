@@ -53,7 +53,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                     No matches found
                 </mat-option>
                 <mat-option
-                    *ngFor="let option of results | async"
+                    *ngFor="let option of results | async | slice: 0:5"
                     [value]="option"
                 >
                     <div class="flex items-center leading-tight">
