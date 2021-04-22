@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-    BaseClass,
-    notifyError,
-    notifySuccess,
-    unique,
-} from '@placeos/common';
+import { BaseClass, notifyError, notifySuccess, unique } from '@placeos/common';
 import { CalendarEvent, checkinEventGuest, queryEvents } from '@placeos/events';
 import { User } from '@placeos/users';
 import { endOfDay, endOfWeek, startOfDay, startOfWeek } from 'date-fns';
@@ -38,8 +33,14 @@ export class VisitorsStateService extends BaseClass {
             this._loading.next(true);
             const [filters] = details;
             const date = filters.date ? new Date(filters.date) : new Date();
-            const start = (filters.show_week ? startOfWeek(date) : startOfDay(date)).valueOf();
-            const end = (filters.show_week ? endOfWeek(date) : endOfDay(date)).valueOf();
+            const start = (filters.show_week
+                ? startOfWeek(date)
+                : startOfDay(date)
+            ).valueOf();
+            const end = (filters.show_week
+                ? endOfWeek(date)
+                : endOfDay(date)
+            ).valueOf();
             return queryEvents({
                 period_start: Math.floor(start / 1000),
                 period_end: Math.floor(end / 1000),
@@ -48,9 +49,12 @@ export class VisitorsStateService extends BaseClass {
         }),
         map((list) => {
             this._loading.next(false);
-            return this._filters.getValue().all_bookings ? list : list.filter(
-                (event) => event.has_visitors && event.attendees.length > 1
-            );
+            return this._filters.getValue().all_bookings
+                ? list
+                : list.filter(
+                      (event) =>
+                          event.has_visitors && event.attendees.length > 1
+                  );
         }),
         shareReplay()
     );
@@ -102,8 +106,9 @@ export class VisitorsStateService extends BaseClass {
 
     public async checkGuestIn(event: CalendarEvent, user: User) {
         const new_user = checkinEventGuest(event.id, user.id, true, {
-                system_id: event.system?.id || event.resources[0]?.id,
-            }).toPromise()
+            system_id: event.system?.id || event.resources[0]?.id,
+        })
+            .toPromise()
             .catch((e) => {
                 notifyError(
                     `Error checking in ${user.name} for ${event.organiser.name}'s meeting`
@@ -113,7 +118,10 @@ export class VisitorsStateService extends BaseClass {
         notifySuccess(
             `Successfully checked in ${user.name} for ${event.organiser.name}'s meeting`
         );
-        const new_attendees = unique([new_user, ...event.attendees], 'email');
+        const new_attendees: User[] = unique(
+            [new_user, ...event.attendees],
+            'email'
+        ) as any;
         new_attendees.sort((a, b) =>
             a.organizer ? -1 : a.email.localeCompare(b.email)
         );
@@ -125,8 +133,9 @@ export class VisitorsStateService extends BaseClass {
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
         const new_user = await checkinEventGuest(event.id, user.id, false, {
-                system_id: event.system?.id || event.resources[0]?.id
-            }).toPromise()
+            system_id: event.system?.id || event.resources[0]?.id,
+        })
+            .toPromise()
             .catch((e) => {
                 notifyError(
                     `Error checking out ${user.name} from ${event.organiser.name}'s meeting`
@@ -154,7 +163,8 @@ export class VisitorsStateService extends BaseClass {
         const attendees = await Promise.all(
             guests.map((user) =>
                 checkinEventGuest(event.id, user.id, true, {
-                    system_id: event.system?.id || event.resources[0]?.id }).toPromise()
+                    system_id: event.system?.id || event.resources[0]?.id,
+                }).toPromise()
             )
         ).catch((e) => {
             notifyError(
