@@ -22,8 +22,8 @@ import { first } from 'rxjs/operators';
         <div class="flex-1 h-1/2 w-full relative">
             <i-map
                 [src]="url | async"
-                [zoom]="(positions | async).zoom"
-                [center]="(positions | async).center"
+                [zoom]="(positions | async)?.zoom"
+                [center]="(positions | async)?.center"
                 [styles]="styles | async"
                 [features]="features | async"
                 [actions]="actions | async"

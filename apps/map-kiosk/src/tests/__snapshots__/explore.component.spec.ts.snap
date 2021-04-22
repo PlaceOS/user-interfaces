@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BootstrapComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="absolute top-0 left-0 bg-white rounded-br-xl p-2 z-10 shadow"
+  >
+    <img
+      class="w-32"
+      src=""
+    />
+  </div>
+  <div
+    class="flex-1 h-1/2 w-full relative"
+  >
+    <i-map />
+  </div>
+  <explore-zoom-controls
+    class="absolute top-1/2 transform -translate-y-1/2 right-0"
+  />
+  <explore-level-select
+    class="absolute left-1 top-1/2 transform -translate-y-1/2 z-10"
+  />
+  <explore-search
+    class="absolute top-1 right-1"
+  />
+</div>
+`;
