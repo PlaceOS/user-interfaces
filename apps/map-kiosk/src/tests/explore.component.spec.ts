@@ -17,7 +17,7 @@ import { of } from 'rxjs';
 import { ExploreComponent } from '../app/explore.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 
-describe('BootstrapComponent', () => {
+describe('ExploreComponent', () => {
     let spectator: Spectator<ExploreComponent>;
     const createComponent = createComponentFactory({
         component: ExploreComponent,
