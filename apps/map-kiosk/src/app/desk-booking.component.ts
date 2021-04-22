@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BaseClass, current_user, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
-import { DeskFlowStateService } from '../../../workplace/src/app/bookings/desk-flow/desk-flow-state.service';
+import { DeskFlowStateService } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-state.service';
 
 @Component({
     selector: '[desk-booking]',
@@ -40,7 +39,6 @@ export class DeskBookingComponent extends BaseClass implements OnInit {
 
     constructor(
         private _state: DeskFlowStateService,
-        private _org: OrganisationService,
         private _settings: SettingsService,
         private _router: Router
     ) {
@@ -49,7 +47,6 @@ export class DeskBookingComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         await current_user.pipe(first((_) => !!_)).toPromise();
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
         setTimeout(() => this._state.setHost(null), 1000);
         this.resetCountdown();
     }
