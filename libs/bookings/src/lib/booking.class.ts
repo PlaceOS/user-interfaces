@@ -1,22 +1,36 @@
-import { BaseDataClass, HashMap } from '@placeos/common';
-import { addMinutes, endOfDay, format, isAfter, isSameDay } from 'date-fns';
+import {
+    addHours,
+    addMinutes,
+    differenceInMinutes,
+    format,
+    getUnixTime,
+    isAfter,
+    isSameDay,
+    roundToNearestMinutes,
+} from 'date-fns';
 
-import * as dayjs from 'dayjs';
+export type BookingType = 'desk' | 'parking' | 'locker' | '';
 
 /** General purpose booking class */
-export class Booking extends BaseDataClass {
-    /** User Id */
+export class Booking {
+    /** Unique Identifier of the object */
+    public readonly id: string;
+    /** Unix epoch for the start time of the booking in seconds */
+    public readonly booking_start: number;
+    /** Unix epoch for the start time of the booking in seconds */
+    public readonly booking_end: number;
+    /** ID of the user who owns the booking */
     public readonly user_id: string;
-    /** User email */
+    /** Email of the user who owns the booking */
     public readonly user_email: string;
-    /** User name */
+    /** Display name of the user who owns the booking */
     public readonly user_name: string;
-    /** Desk asset id */
+    /** Identifier of the physical asset assocated with the booking */
     public readonly asset_id: string;
-    /** Zones */
+    /** Zones associated with the asset ID */
     public readonly zones: string[];
     /** Type of booking */
-    public readonly booking_type: 'desk' | null;
+    public readonly booking_type: BookingType;
     /** Start time of booking in ms */
     public readonly date: number;
     /** Duration of the event in minutes */
@@ -41,8 +55,8 @@ export class Booking extends BaseDataClass {
     public readonly approver_email: string;
     /** Name of the approver */
     public readonly approver_name: string;
-    /** Metadata */
-    public readonly extension_data: HashMap<any>;
+    /** Extra non-standard metadata associated with the booking */
+    public readonly extension_data: Record<string, any>;
     /** Default type */
     public readonly type: string;
     /** Default type */
@@ -51,24 +65,31 @@ export class Booking extends BaseDataClass {
     public readonly status: 'declined' | 'approved' | 'tentative';
 
     constructor(data: Partial<Booking> = {}) {
-        super(data);
-        this.asset_id = data.asset_id;
-        this.zones = data.zones;
-        this.booking_type = data.booking_type;
+        this.id = data.id || '';
+        this.asset_id = data.asset_id || '';
+        this.zones = data.zones || [];
+        this.booking_start =
+            data.booking_start ||
+            getUnixTime(
+                data.date ||
+                    roundToNearestMinutes(addMinutes(new Date(), 2), {
+                        nearestTo: 5,
+                    })
+            );
+        this.booking_end =
+            data.booking_end ||
+            getUnixTime(addMinutes(this.booking_start, data.duration || 60));
+        this.booking_type = data.booking_type || '';
         this.type = data.type || 'booking';
-        const time = (data as any).booking_start * 1000 || data.date;
-        const start = time
-            ? dayjs(time).valueOf()
-            : dayjs()
-                  .minute(Math.ceil(dayjs().minute() / 5) * 5)
-                  .startOf('m')
-                  .valueOf();
-        this.date = start;
+        this.date = data.date || this.booking_start * 1000;
         this.duration =
             data.duration ||
-            dayjs((data as any).booking_end * 1000).diff(start, 'm') ||
-            60;
-        this.timezone = data.timezone;
+            differenceInMinutes(
+                this.booking_start * 1000,
+                this.booking_end * 1000
+            );
+        this.timezone =
+            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.user_email = data.user_email;
         this.user_id = data.user_id;
         this.user_name = data.user_name;
@@ -90,24 +111,11 @@ export class Booking extends BaseDataClass {
             : 'tentative';
     }
 
-    public toJSON(this: Booking): HashMap<any> {
-        const data = super.toJSON();
-        data.booking_start = dayjs(this.date).unix();
-        if (this.all_day) {
-            data.booking_end = dayjs(this.date).endOf('d').unix();
-        } else {
-            data.booking_end = dayjs(this.date).add(this.duration, 'm').unix();
-        }
-        if (!data.timezone) {
-            data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        }
-        if (!this.id) {
-            delete data.id;
-        }
+    public toJSON(this: Booking): Partial<Booking> {
+        const data = { ...this };
+        if (!this.id) delete data.id;
         delete data.date;
         delete data.duration;
-        delete data.email;
-        delete data.name;
         return data;
     }
 
@@ -115,6 +123,7 @@ export class Booking extends BaseDataClass {
         return this.description;
     }
 
+    /** Whether the booking occurs today */
     public get is_today(): boolean {
         return isSameDay(this.date, new Date());
     }
@@ -123,7 +132,7 @@ export class Booking extends BaseDataClass {
     public get is_done(): boolean {
         const start = new Date();
         const end = this.all_day
-            ? endOfDay(this.date)
+            ? addHours(this.date, 24)
             : addMinutes(this.date, this.duration);
         return isAfter(start, end);
     }

@@ -1,4 +1,4 @@
-import { addDays, format, subDays } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 import { Booking } from '../lib/booking.class';
 
 describe('Booking class', () => {
@@ -20,8 +20,6 @@ describe('Booking class', () => {
         // Check unneeded properties removed
         expect(json.date).toBeUndefined();
         expect(json.duration).toBeUndefined();
-        expect(json.email).toBeUndefined();
-        expect(json.name).toBeUndefined();
     });
 
     it('should allow checking today', () => {
@@ -34,6 +32,7 @@ describe('Booking class', () => {
         expect(booking.is_done).toBeFalsy();
         booking = new Booking({
             date: subDays(new Date(), 2).valueOf(),
+            duration: 60,
             all_day: false,
         });
         expect(booking.is_done).toBeTruthy();
