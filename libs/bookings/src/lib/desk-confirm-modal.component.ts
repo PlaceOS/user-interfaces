@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 import { DialogEvent, SettingsService } from '@placeos/common';
 import { BuildingLevel, Desk } from '@placeos/organisation';
 import { User } from '@placeos/users';
@@ -25,13 +26,13 @@ export interface DeskConfirmModalData {
         </header>
         <ng-container *ngIf="!loading; else load_state">
             <main class="p-4">
-                <div class="flex flex-col" *ngIf="can_set_host">
+                <div host class="flex flex-col" *ngIf="can_set_host">
                     <label>Host</label>
                     <a-user-search-field
                         [(ngModel)]="host"
                     ></a-user-search-field>
                 </div>
-                <div class="mb-4">
+                <div date class="mb-4">
                     <label>Date</label>
                     <div *ngIf="!can_set_date">
                         {{ date | date: 'mediumDate' }}
@@ -41,7 +42,7 @@ export interface DeskConfirmModalData {
                         [(ngModel)]="date"
                     ></a-date-field>
                 </div>
-                <div class="mb-4" *ngIf="!hide_reason">
+                <div reason class="mb-4" *ngIf="!hide_reason">
                     <label>Reason</label>
                     <div>{{ reason || '~No set reason~' }}</div>
                 </div>
@@ -56,7 +57,7 @@ export interface DeskConfirmModalData {
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <main class="flex flex-col p-12 items-center justify-center">
+            <main load class="flex flex-col p-12 items-center justify-center">
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
@@ -71,7 +72,7 @@ export interface DeskConfirmModalData {
         `,
     ],
 })
-export class DeskConfirmModalComponent implements OnInit {
+export class DeskConfirmModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public readonly desks = this._data.desks || [];
@@ -79,7 +80,7 @@ export class DeskConfirmModalComponent implements OnInit {
     public date = this._data.date;
     public host = this._data.host;
 
-    public can_set_date: boolean;
+    public readonly can_set_date = this._data.can_set_date;
 
     public readonly reason = this._data.reason;
 
@@ -103,10 +104,6 @@ export class DeskConfirmModalComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) private _data: DeskConfirmModalData,
         private _settings: SettingsService
     ) {}
-
-    public ngOnInit() {
-        this.can_set_date = this._data.can_set_date;
-    }
 
     public confirm() {
         this.loading = 'Requesting desk booking...';
