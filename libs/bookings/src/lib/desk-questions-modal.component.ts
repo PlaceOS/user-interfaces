@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DialogEvent, notifyError } from '@placeos/common';
 
 @Component({
-    selector: 'desk-flow-question',
+    selector: 'desk-question-modal',
     template: `
         <div *ngIf="!failure; else fail_state" class="relative">
             <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
@@ -53,7 +53,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
             </button>
         </div>
         <ng-template #fail_state>
-            <main class="pt-8 relative">
+            <main failure class="pt-8 relative">
                 <p class="p-4">
                     Your request to work from the office has been rejected based
                     on your response to the compulsory Covid-19 questions.

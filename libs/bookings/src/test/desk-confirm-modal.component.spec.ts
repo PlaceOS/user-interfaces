@@ -9,6 +9,7 @@ import {
 } from '@placeos/form-fields';
 
 import { DeskConfirmModalComponent } from '../lib/desk-confirm-modal.component';
+import { FormsModule } from '@angular/forms';
 
 describe('DeskConfirmModalComponent', () => {
     let spectator: Spectator<DeskConfirmModalComponent>;
@@ -22,7 +23,7 @@ describe('DeskConfirmModalComponent', () => {
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: MAT_DIALOG_DATA, useValue: {} },
         ],
-        imports: [MatProgressSpinnerModule],
+        imports: [MatProgressSpinnerModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
