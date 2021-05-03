@@ -21,17 +21,18 @@ export interface MapRadiusData {
             [style.background-color]="fill + '40'"
             [style.width]="radius * 100 + '%'"
             [style.height]="radius * 100 + '%'"
-        ></div>
-        <div
-            *ngIf="message && show_message"
-            name="message"
-            [style.top]="'-' + ((radius / 2) * 100 + 550) + '%'"
-            class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
         >
-            {{ message }}
-            <span *ngIf="last_seen" class="text-xs">
-                Last updated: {{ last_seen_at }}
-            </span>
+            <div
+                *ngIf="message && show_message"
+                name="message"
+                [style.top]="'-' + (radius / 2) * 100 + '%'"
+                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
+            >
+                {{ message }}
+                <span *ngIf="last_seen" class="text-xs">
+                    Last updated: {{ last_seen_at }}
+                </span>
+            </div>
         </div>
     `,
     styles: [
@@ -43,7 +44,7 @@ export interface MapRadiusData {
             }
 
             [name="message"] {
-                transform: translateX(-50%);
+                transform: translate(-50%, -120%);
             }
 
             div {
@@ -53,11 +54,11 @@ export interface MapRadiusData {
             @keyframes fade-in-top {
                 0% {
                     opacity: 0;
-                    transform: translate(-50%, -100%)
+                    transform: translate(-50%, -220%)
                 }
                 100% {
                     opacity: 1;
-                    transform translate(-50%, 0%);
+                    transform translate(-50%, -120%);
                 }
             }
         `,
