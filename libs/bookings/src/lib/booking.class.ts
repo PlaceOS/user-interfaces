@@ -2,7 +2,6 @@ import {
     addHours,
     addMinutes,
     differenceInMinutes,
-    format,
     getUnixTime,
     isAfter,
     isSameDay,
@@ -90,18 +89,18 @@ export class Booking {
             );
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        this.user_email = data.user_email;
-        this.user_id = data.user_id;
-        this.user_name = data.user_name;
+        this.user_email = data.user_email || '';
+        this.user_id = data.user_id || '';
+        this.user_name = data.user_name || '';
         this.title = data.title || 'Desk booking';
-        this.description = data.description;
-        this.checked_in = data.checked_in;
+        this.description = data.description || '';
+        this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
         this.approved = !!data.approved;
-        this.approver_id = data.approver_id;
-        this.approver_email = data.approver_email;
-        this.approver_name = data.approver_name;
-        this.extension_data = data.extension_data;
+        this.approver_id = data.approver_id || '';
+        this.approver_email = data.approver_email || '';
+        this.approver_name = data.approver_name || '';
+        this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
         this.all_day = data.all_day ?? true;
         this.status = this.rejected

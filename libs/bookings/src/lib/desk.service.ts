@@ -14,8 +14,8 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
     providedIn: 'root',
 })
 export class DesksService {
-    public can_set_date: boolean = true;
-    public error_on_host: boolean = true;
+    public can_set_date = true;
+    public error_on_host = true;
 
     constructor(
         private _org: OrganisationService,
@@ -76,11 +76,11 @@ export class DesksService {
                 .toPromise(),
         ]);
         if (!success) return;
-        host = ref.componentInstance.host;
-        date = ref.componentInstance.date;
+        host = ref.componentInstance.host || host;
+        date = ref.componentInstance.date || date;
         if (!host) {
             ref.close();
-            return notifyError('You need to select a host to book a desk.');
+            return notifyError('You need to select a host to book a desk. ');
         }
         ref.componentInstance.loading =
             'Checking for existing desk bookings...';
