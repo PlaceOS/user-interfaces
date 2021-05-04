@@ -43,7 +43,9 @@ import { CalendarEvent } from '@placeos/events';
                             content: 'place'
                         }"
                     ></app-icon>
-                    <div class="truncate pl-1">{{ location || 'No location' }}</div>
+                    <div class="truncate pl-1">
+                        {{ location || 'No location' }}
+                    </div>
                 </div>
             </div>
         </a>
@@ -113,7 +115,7 @@ export class ScheduleEventListItemComponent {
         ) {
             return 'block';
         }
-        if (this.event instanceof CalendarEvent && this.event.has_visitors) {
+        if (this.event instanceof CalendarEvent && this.event.guests.length) {
             return 'external';
         }
         return 'book_room';

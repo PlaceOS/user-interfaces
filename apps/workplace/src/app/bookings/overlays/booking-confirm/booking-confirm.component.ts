@@ -78,7 +78,7 @@ export class BookingConfirmComponent extends BaseClass {
     }
 
     public get catering_items(): any[] {
-        const order = this.booking.catering[0];
+        const order = this.booking.ext('catering')[0];
         return order ? [...order.items] : [];
     }
     public get catering_items_total(): number {
@@ -115,9 +115,11 @@ export class BookingConfirmComponent extends BaseClass {
             this.checking_available = false;
 
             try {
-                await saveEvent(this.booking).toPromise().catch((e) => {
-                    throw new Error(e);
-                });
+                await saveEvent(this.booking)
+                    .toPromise()
+                    .catch((e) => {
+                        throw new Error(e);
+                    });
                 this.event.emit({ type: 'success' });
                 this._dialog.close();
                 // this._service.notifySuccess(

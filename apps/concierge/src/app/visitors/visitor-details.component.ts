@@ -5,11 +5,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import {
-    BaseClass,
-    notifyError,
-    SettingsService,
-} from '@placeos/common';
+import { BaseClass, notifyError, SettingsService } from '@placeos/common';
 import { CalendarEvent, saveEvent } from '@placeos/events';
 import { showGuest, User } from '@placeos/users';
 import { VisitorsStateService } from './visitors-state.service';
@@ -162,9 +158,9 @@ export class VisitorDetailsComponent extends BaseClass {
 
     public readonly toggleRemote = async () => {
         this.loading = 'remote';
-        const remote_list = this.event.remote.filter(
-            (e) => e !== this.visitor.email
-        );
+        const remote_list = this.event
+            .ext('remote')
+            .filter((e) => e !== this.visitor.email);
         if (!this.remote) {
             remote_list.push(this.visitor.email);
         }
@@ -194,16 +190,18 @@ export class VisitorDetailsComponent extends BaseClass {
         this.loading = '';
     };
 
-
     /** Open print dialog for user's QR code */
     public readonly printQRCode = () => {
         this.show_qr_code = true;
-        this.timeout('print', () => {
-            window.print();
-            this.show_qr_code = false;
-        }, 50);
-
-    }
+        this.timeout(
+            'print',
+            () => {
+                window.print();
+                this.show_qr_code = false;
+            },
+            50
+        );
+    };
 
     public get can_print(): boolean {
         return (
@@ -218,7 +216,9 @@ export class VisitorDetailsComponent extends BaseClass {
     }
 
     public get remote(): boolean {
-        return !!this.event?.remote.find((e) => e === this.visitor?.email);
+        return !!this.event
+            ?.ext('remote')
+            .find((e) => e === this.visitor?.email);
     }
 
     constructor(

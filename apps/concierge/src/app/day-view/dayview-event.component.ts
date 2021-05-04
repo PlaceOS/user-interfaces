@@ -9,7 +9,9 @@ import { EventsStateService } from './events-state.service';
     template: `
         <div
             *ngIf="(ui_options | async)?.show_overflow"
-            [class]="'overflow-block absolute rounded overflow-hidden w-full ' + type"
+            [class]="
+                'overflow-block absolute rounded overflow-hidden w-full ' + type
+            "
             [style.top]="overflow_top * 100 + '%'"
             [style.height]="overflow_height * 100 + '%'"
         ></div>
@@ -24,16 +26,27 @@ import { EventsStateService } from './events-state.service';
         >
             <div class="info">{{ event.organiser?.name }}</div>
             <div class="info flex items-center" *ngIf="event.duration > 30">
-                <app-icon class="mx-2" [icon]="{ class: 'material-icons', content: 'title' }"></app-icon>
+                <app-icon
+                    class="mx-2"
+                    [icon]="{ class: 'material-icons', content: 'title' }"
+                ></app-icon>
                 {{ event.title }}
             </div>
             <div class="info flex items-center" *ngIf="event.duration > 60">
-                <app-icon class="mx-2" [icon]="{ class: 'material-icons', content: 'schedule' }"></app-icon>
+                <app-icon
+                    class="mx-2"
+                    [icon]="{ class: 'material-icons', content: 'schedule' }"
+                ></app-icon>
                 {{ time }}
             </div>
             <div class="info flex items-center" *ngIf="event.duration > 90">
-                <app-icon class="mx-2" [icon]="{ class: 'material-icons', content: 'user' }"></app-icon>
-                {{ event.attendees.length }} Attendee{{ event.attendees.length === 1 ? '' : 's' }}
+                <app-icon
+                    class="mx-2"
+                    [icon]="{ class: 'material-icons', content: 'user' }"
+                ></app-icon>
+                {{ event.attendees.length }} Attendee{{
+                    event.attendees.length === 1 ? '' : 's'
+                }}
             </div>
         </div>
         <div
@@ -42,10 +55,29 @@ import { EventsStateService } from './events-state.service';
             [style.top]="overflow_top * 100 + '%'"
             [style.height]="overflow_height * 100 + '%'"
         >
-            <div [class]="'icon flex mr-2 text-3xl rounded ' + event.cleaning_status">
-                <app-icon [icon]="{ class: 'material-icons', content: event.cleaning_status === 'done' ? 'done' : 'warning' }"></app-icon>
+            <div
+                [class]="
+                    'icon flex mr-2 text-3xl rounded ' + event.cleaning_status
+                "
+            >
+                <app-icon
+                    [icon]="{
+                        class: 'material-icons',
+                        content:
+                            event.cleaning_status === 'done'
+                                ? 'done'
+                                : 'warning'
+                    }"
+                ></app-icon>
             </div>
-            <div class="text">{{ event.cleaning_status === 'done' ? 'Finished' : 'Scheduled to' }} clean at {{ event.cleaning_time }}</div>
+            <div class="text">
+                {{
+                    event.cleaning_status === 'done'
+                        ? 'Finished'
+                        : 'Scheduled to'
+                }}
+                clean at {{ event.cleaning_time }}
+            </div>
         </div>
     `,
     styles: [
@@ -62,14 +94,15 @@ import { EventsStateService } from './events-state.service';
             }
 
             [name='event']:hover {
-                box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+                box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.2),
+                    0 1px 1px 0 rgba(0, 0, 0, 0.14),
                     0 2px 1px -1px rgba(0, 0, 0, 0.12);
                 cursor: pointer;
                 z-index: 999;
             }
 
             .overflow-block {
-                opacity: .3;
+                opacity: 0.3;
                 width: 12rem;
             }
 
@@ -133,12 +166,14 @@ export class DayviewEventComponent implements OnChanges {
     public get time() {
         const date = new Date(this.event.date);
         return (
-            format(date, 'h:mm a') + ' - ' + format(addMinutes(date, this.event.duration), 'h:mm a')
+            format(date, 'h:mm a') +
+            ' - ' +
+            format(addMinutes(date, this.event.duration), 'h:mm a')
         );
     }
 
     public get type() {
-        return this.event.has_visitors
+        return this.event.guests.length
             ? 'external'
             : this.event.status === 'cancelled'
             ? 'cancelled'
@@ -153,9 +188,12 @@ export class DayviewEventComponent implements OnChanges {
             const diff = differenceInMinutes(new Date(this.event.date), start);
             this.top = diff / (24 * 60);
             this.height = this.event.duration / (24 * 60);
-            this.overflow_top = (diff - this.event.setup) / (24 * 60);
+            this.overflow_top = (diff - this.event.ext('setup')) / (24 * 60);
             this.overflow_height =
-                (this.event.duration + this.event.setup + this.event.breakdown) / (24 * 60);
+                (this.event.duration +
+                    this.event.ext('setup') +
+                    this.event.ext('breakdown')) /
+                (24 * 60);
         }
     }
 }

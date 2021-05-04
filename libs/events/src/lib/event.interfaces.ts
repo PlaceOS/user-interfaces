@@ -31,6 +31,8 @@ export interface EventExtensionData {
     visitor_type?: string;
     /** List of remote attendees */
     remote?: string[];
+    /** URL to a meeting/call associated with the booking */
+    meeting_link: string;
 }
 
 export interface RecurrenceDetails {

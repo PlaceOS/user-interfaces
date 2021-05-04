@@ -39,19 +39,30 @@ export function cateringItemAvailable(
                 const date = new Date(event.date);
                 switch (condition[0]) {
                     case 'after_hour':
-                        matches += isAfter(date, setHours(date, condition[1])) ? 1 : 0;
+                        matches += isAfter(date, setHours(date, condition[1]))
+                            ? 1
+                            : 0;
                         break;
                     case 'before_hour':
-                        matches += isBefore(date, setHours(date, condition[1])) ? 1 : 0;
+                        matches += isBefore(date, setHours(date, condition[1]))
+                            ? 1
+                            : 0;
                         break;
                     case 'min_length':
-                        matches += event.duration >= stringToMinutes(condition[1]) ? 1 : 0;
+                        matches +=
+                            event.duration >= stringToMinutes(condition[1])
+                                ? 1
+                                : 0;
                         break;
                     case 'max_length':
-                        matches += event.duration <= stringToMinutes(condition[1]) ? 1 : 0;
+                        matches +=
+                            event.duration <= stringToMinutes(condition[1])
+                                ? 1
+                                : 0;
                         break;
                     case 'visitor_type':
-                        matches += event.visitor_type === condition[1] ? 1 : 0;
+                        matches +=
+                            event.ext('visitor_type') === condition[1] ? 1 : 0;
                         break;
                     default:
                         matches++;
@@ -87,7 +98,9 @@ export class CateringOrderModalComponent extends BaseClass {
     public readonly menu_items$: Observable<HashMap<CateringItem[]>>;
     /** List of categories for the active menu */
     public get categories(): Observable<string[]> {
-        return this._data.menu.pipe(map((list) => unique(list.map((item) => item.category))));
+        return this._data.menu.pipe(
+            map((list) => unique(list.map((item) => item.category)))
+        );
     }
 
     constructor(
@@ -103,7 +116,11 @@ export class CateringOrderModalComponent extends BaseClass {
                     map[cat] = list.filter(
                         (item) =>
                             item.category === cat &&
-                            cateringItemAvailable(item, this.rules as any, this.order.event)
+                            cateringItemAvailable(
+                                item,
+                                this.rules as any,
+                                this.order.event
+                            )
                     );
                 }
                 return map;
@@ -111,12 +128,18 @@ export class CateringOrderModalComponent extends BaseClass {
         );
         this.order = new CateringOrder(this._data.order);
         this.form = new FormGroup({
-            charge_code: new FormControl(this.order.charge_code, [Validators.required]),
+            charge_code: new FormControl(this.order.charge_code, [
+                Validators.required,
+            ]),
         });
         this.subscription(
             'charge_code',
             this.form.controls.charge_code.valueChanges.subscribe(
-                (value) => (this.order = new CateringOrder({ ...this.order, charge_code: value }))
+                (value) =>
+                    (this.order = new CateringOrder({
+                        ...this.order,
+                        charge_code: value,
+                    }))
             )
         );
         this.subscription(
@@ -141,7 +164,11 @@ export class CateringOrderModalComponent extends BaseClass {
                 itm.id === item.id &&
                 itm.options.length ===
                     itm.options.reduce(
-                        (c, o) => c + (item.options.find((opt) => o.id === opt.id) ? 1 : 0),
+                        (c, o) =>
+                            c +
+                            (item.options.find((opt) => o.id === opt.id)
+                                ? 1
+                                : 0),
                         0
                     )
         );
@@ -154,13 +181,24 @@ export class CateringOrderModalComponent extends BaseClass {
             this.order = new CateringOrder({
                 ...this.order,
                 items: this.order.items
-                    .filter((i) => i !== old_item && i.options.length === old_item.options.length)
-                    .concat([new CateringItem({ ...item, quantity: old_item.quantity + 1 })]),
+                    .filter(
+                        (i) =>
+                            i !== old_item &&
+                            i.options.length === old_item.options.length
+                    )
+                    .concat([
+                        new CateringItem({
+                            ...item,
+                            quantity: old_item.quantity + 1,
+                        }),
+                    ]),
             });
         } else {
             this.order = new CateringOrder({
                 ...this.order,
-                items: this.order.items.concat([new CateringItem({ ...item, quantity: 1 })]),
+                items: this.order.items.concat([
+                    new CateringItem({ ...item, quantity: 1 }),
+                ]),
             });
         }
     }
@@ -171,7 +209,11 @@ export class CateringOrderModalComponent extends BaseClass {
                 itm.id === item.id &&
                 item.options.length ===
                     item.options.reduce(
-                        (c, o) => c + (itm.options.find((opt) => o.id === opt.id) ? 1 : 0),
+                        (c, o) =>
+                            c +
+                            (itm.options.find((opt) => o.id === opt.id)
+                                ? 1
+                                : 0),
                         0
                     )
         );
@@ -181,7 +223,9 @@ export class CateringOrderModalComponent extends BaseClass {
                 .filter((i) => i.id !== item.id)
                 .concat([new CateringItem({ ...item, quantity: amount })]);
         } else {
-            items = this.order.items.concat([new CateringItem({ ...item, quantity: amount })]);
+            items = this.order.items.concat([
+                new CateringItem({ ...item, quantity: amount }),
+            ]);
         }
         items.sort((a, b) => a.name.localeCompare(b.name));
         this.order = new CateringOrder({
@@ -197,7 +241,10 @@ export class CateringOrderModalComponent extends BaseClass {
     public saveOrder() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            this.event.emit({ reason: 'done', metadata: { order: this.order } });
+            this.event.emit({
+                reason: 'done',
+                metadata: { order: this.order },
+            });
         }
     }
 

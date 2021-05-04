@@ -420,7 +420,7 @@ export class EventsStateService extends BaseClass {
                 !!bkn.resources.find((space) =>
                     space.zones.find((zone) => filters.zone_ids.includes(zone))
                 );
-            const type = bkn.has_visitors
+            const type = bkn.guests.length
                 ? 'external'
                 : bkn.status === 'cancelled'
                 ? 'cancelled'

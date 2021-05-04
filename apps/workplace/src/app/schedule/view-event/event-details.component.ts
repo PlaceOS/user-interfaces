@@ -150,7 +150,7 @@ export class EventDetailsComponent extends BaseClass {
 
     public readonly deleteEvent = () => this._state.deleteEvent();
     public readonly duplicateEvent = () => this._state.duplicateEvent();
-    public readonly editEvent = () => this.editing = true;
+    public readonly editEvent = () => (this.editing = true);
 
     constructor(
         private _dialog: MatDialog,
@@ -194,10 +194,10 @@ export class EventDetailsComponent extends BaseClass {
 
     /** Display catering items */
     public get catering_items(): CateringItem[] {
-        if (!this.event.catering?.length) {
+        if (!this.event.ext('catering')?.length) {
             return;
         }
-        const order = this.event.catering[0];
+        const order = this.event.ext('catering')[0];
         return order ? [...order.items] : [];
     }
 
@@ -226,7 +226,7 @@ export class EventDetailsComponent extends BaseClass {
 
     /** Display string for meeting link */
     public get link(): string {
-        return this.event.meeting_link;
+        return this.event.ext('meeting_link');
     }
 
     /** Display string for notes */

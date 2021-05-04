@@ -21,12 +21,17 @@ export interface CateringOrderFilters {
     count: number;
 }
 
-function checkOrder(order: CateringOrder, filters: CateringOrderFilters): boolean {
+function checkOrder(
+    order: CateringOrder,
+    filters: CateringOrderFilters
+): boolean {
     const s = (filters.search || '').toLowerCase();
     return !!order.items.find(
         (item) =>
             item.name.toLowerCase().includes(s) ||
-            !!item.options.find((option) => option.name.toLowerCase().includes(s))
+            !!item.options.find((option) =>
+                option.name.toLowerCase().includes(s)
+            )
     );
 }
 
@@ -43,9 +48,12 @@ export class CateringOrdersService extends BaseClass {
         switchMap((filters) => {
             this._loading.next(true);
             const start = Math.floor(
-                startOfDay(new Date(filters.date || Date.now())).valueOf() / 1000
+                startOfDay(new Date(filters.date || Date.now())).valueOf() /
+                    1000
             );
-            const end = Math.floor(endOfDay(new Date(filters.date || Date.now())).valueOf() / 1000);
+            const end = Math.floor(
+                endOfDay(new Date(filters.date || Date.now())).valueOf() / 1000
+            );
             return queryEvents({
                 zone_ids: (filters.zones || []).join(','),
                 period_start: start,
@@ -53,7 +61,7 @@ export class CateringOrdersService extends BaseClass {
             });
         }),
         map((events) => {
-            return flatten(events.map((event) => event.catering));
+            return flatten(events.map((event) => event.ext('catering')));
         })
     );
     /** Observable for loading status of orders */
@@ -70,7 +78,9 @@ export class CateringOrdersService extends BaseClass {
     }
     /** Filtered list of catering orders */
     public readonly filtered = this._orders.pipe(
-        map((list) => list.filter((order) => checkOrder(order, this._filters.getValue())))
+        map((list) =>
+            list.filter((order) => checkOrder(order, this._filters.getValue()))
+        )
     );
 
     constructor() {
@@ -111,8 +121,8 @@ export class CateringOrdersService extends BaseClass {
         const event = new CalendarEvent({
             ...order.event,
             catering: [
-                ...order.event.catering.filter((o) => o.id !== order.id),
-                updated_order
+                ...order.event.ext('catering').filter((o) => o.id !== order.id),
+                updated_order,
             ].map((i) => new CateringOrder({ ...i })),
         });
         return saveEvent(event);

@@ -53,7 +53,7 @@ export class VisitorsStateService extends BaseClass {
                 ? list
                 : list.filter(
                       (event) =>
-                          event.has_visitors && event.attendees.length > 1
+                          event.guests.length && event.attendees.length > 1
                   );
         }),
         shareReplay()
