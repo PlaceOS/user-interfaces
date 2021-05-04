@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
-import { distinct, map } from 'rxjs/operators';
+import { distinct, map, shareReplay } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
 import { BaseClass, HashMap } from '@placeos/common';
@@ -17,23 +17,25 @@ export interface RoomInput {
     id?: string;
     name: string;
     type: string;
-    module: string;
+    mod: string;
     mute: boolean;
     locked: boolean;
     routes: string[];
     outputs: string[];
+    hidden?: boolean;
 }
 
 export interface RoomOutput {
     id?: string;
     name: string;
     type: string;
-    module: string;
+    mod: string;
     mute: boolean;
     locked: boolean;
     source: string;
     inputs: string[];
     following: string;
+    hidden?: boolean;
 }
 
 export interface SystemState {
@@ -61,9 +63,15 @@ export class ControlStateService extends BaseClass {
     /** General data associated with the active system */
     public readonly system = this._system.asObservable();
     /** List of available input sources */
-    public readonly input_list = this._input_data.asObservable();
+    public readonly input_list = this._input_data.pipe(
+        map((_) => _.filter((_) => !_.hidden)),
+        shareReplay(1)
+    );
     /** List of available output sources */
-    public readonly output_list = this._output_data.asObservable();
+    public readonly output_list = this._output_data.pipe(
+        map((_) => _.filter((_) => !_.hidden)),
+        shareReplay(1)
+    );
     /** List of available light sources */
     public readonly lights = this._lights.asObservable();
     /** List of available blind sources */
@@ -71,21 +79,26 @@ export class ControlStateService extends BaseClass {
     public readonly screens = this._screens.asObservable();
     public readonly volume = this._volume.asObservable();
     public readonly mute = this._mute.asObservable();
+    /** List of available capture output sources */
+    public readonly capture_list = this._output_data.pipe(
+        map((list) =>
+            list?.filter(
+                (_) => _.type === 'recording' || _.mod?.includes('Capture')
+            )
+        )
+    );
     /** List of available microphone input sources */
     public readonly mic_list = this._input_data.pipe(
         map((list) =>
             list?.filter(
-                (_) =>
-                    _.type === 'Microphone' || _.module?.includes('Microphone')
+                (_) => _.type === 'mic' || _.mod?.includes('Microphone')
             )
         )
     );
     /** List of available camera input sources */
     public readonly camera_list = this._input_data.pipe(
         map((list) =>
-            list?.filter(
-                (_) => _.type === 'Camera' || _.module?.includes('Camera')
-            )
+            list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera'))
         )
     );
 

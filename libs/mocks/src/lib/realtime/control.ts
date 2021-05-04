@@ -12,7 +12,7 @@ export interface RoomInput {
     id?: string;
     name: string;
     type: string;
-    module: string;
+    mod: string;
     mute: boolean;
     locked: boolean;
     routes: string[];
@@ -23,7 +23,7 @@ export interface RoomOutput {
     id?: string;
     name: string;
     type: string;
-    module: string;
+    mod: string;
     mute: boolean;
     locked: boolean;
     source: string;
@@ -34,7 +34,6 @@ export interface RoomOutput {
 class RoomModule {
     public readonly name: string;
     public readonly connected: boolean;
-    public readonly recording = true;
     public active: boolean;
 
     public readonly input_list: HashMap<RoomInput>;
@@ -210,17 +209,17 @@ const input_list: HashMap = {
     Mic1: {
         name: 'Lectern Mic',
         type: 'Microphone',
-        module: 'Microphone_1',
+        mod: 'Microphone_1',
     },
     Mic2: {
         name: 'Lapel Mic',
         type: 'Microphone',
-        module: 'Microphone_2',
+        mod: 'Microphone_2',
     },
     Mic3: {
         name: 'Handheld Mic',
         type: 'Microphone',
-        module: 'Microphone_3',
+        mod: 'Microphone_3',
     },
     PC1: {
         name: 'PC-1',
@@ -249,27 +248,27 @@ const input_list: HashMap = {
     Camera1: {
         name: 'Camera Rear',
         type: 'Camera',
-        module: 'Camera_1',
+        mod: 'Camera_1',
     },
     Camera2: {
         name: 'Camera Front',
         type: 'Camera',
-        module: 'Camera_2',
+        mod: 'Camera_2',
     },
     Camera3: {
         name: 'Camera Rear 2',
         type: 'Camera',
-        module: 'Camera_3',
+        mod: 'Camera_3',
     },
     Camera4: {
         name: 'Camera Front 2',
         type: 'Camera',
-        module: 'Camera_4',
+        mod: 'Camera_4',
     },
     TV1: {
         name: 'IPTV 1',
         type: 'TV',
-        module: 'IPTV_1',
+        mod: 'IPTV_1',
     },
 };
 
@@ -278,28 +277,28 @@ const output_list: HashMap = {
         name: 'Display 1',
         type: 'Display',
         source: 'PC1',
-        module: 'Display_1',
+        mod: 'Display_1',
     },
     Display2: {
         name: 'Display 2',
         type: 'Display',
-        module: 'Display_2',
+        mod: 'Display_2',
     },
     Display3: {
         name: 'Display 3',
         type: 'Display',
         source: 'PC2',
-        module: 'Display_3',
+        mod: 'Display_3',
     },
     Display4: {
         name: 'Display 4',
         type: 'Display',
-        module: 'Display_4',
+        mod: 'Display_4',
     },
     Display5: {
         name: 'Display 5',
         type: 'Display',
-        module: 'Display_5',
+        mod: 'Display_5',
         source: 'TV1',
     },
 };

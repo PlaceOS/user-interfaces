@@ -13,7 +13,10 @@ export enum ZoomDirection {
 @Component({
     selector: 'camera-tooltip',
     template: `
-        <div class="my-2 bg-white shadow rounded flex flex-col" *ngIf="(camera_list | async)?.length; else empty_state">
+        <div
+            class="my-2 bg-white shadow rounded flex flex-col"
+            *ngIf="(camera_list | async)?.length; else empty_state"
+        >
             <mat-form-field appearance="outline" class="m-4 h-12">
                 <mat-select
                     [(ngModel)]="active_camera"
@@ -73,7 +76,7 @@ export enum ZoomDirection {
                             </div>
 
                             <button
-                            zoom-out
+                                zoom-out
                                 mat-icon-button
                                 class="rounded"
                                 (mousedown)="startZoom('out', $event)"
@@ -93,12 +96,12 @@ export enum ZoomDirection {
                 </div>
             </div>
         </div>
-        <div hidden *ngIf="active_camera?.module">
+        <div hidden *ngIf="active_camera?.mod">
             <i
                 binding
                 [model]="zoom"
                 [sys]="id"
-                [mod]="active_camera.module"
+                [mod]="active_camera.mod"
                 bind="zoom"
                 exec="zoom"
             ></i>
@@ -106,7 +109,7 @@ export enum ZoomDirection {
                 binding
                 [model]="pan"
                 [sys]="id"
-                [mod]="active_camera.module"
+                [mod]="active_camera.mod"
                 bind="pan"
                 exec="pan"
             ></i>
@@ -114,7 +117,7 @@ export enum ZoomDirection {
                 binding
                 [model]="tilt"
                 [sys]="id"
-                [mod]="active_camera.module"
+                [mod]="active_camera.mod"
                 bind="tilt"
                 exec="tilt"
             ></i>
@@ -122,20 +125,22 @@ export enum ZoomDirection {
                 binding
                 [(model)]="presets"
                 [sys]="id"
-                [mod]="active_camera.module"
+                [mod]="active_camera.mod"
                 bind="presets"
             ></i>
             <i
                 binding
                 [(model)]="preset"
                 [sys]="id"
-                [mod]="active_camera.module"
+                [mod]="active_camera.mod"
                 bind="preset"
                 exec="recall"
             ></i>
         </div>
         <ng-template #empty_state>
-            <div  class="my-2 bg-white shadow rounded flex flex-col p-8 text-center">
+            <div
+                class="my-2 bg-white shadow rounded flex flex-col p-8 text-center"
+            >
                 <p>No cameras available for this system</p>
             </div>
         </ng-template>

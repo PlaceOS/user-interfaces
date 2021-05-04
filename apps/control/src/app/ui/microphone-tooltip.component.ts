@@ -38,11 +38,11 @@ import { ControlStateService } from '../control-state.service';
                             class="flex-1"
                         ></mat-slider>
                     </div>
-                    <div hidden *ngIf="mic?.module">
+                    <div hidden *ngIf="mic?.mod">
                         <i
                             binding
                             [sys]="id"
-                            [mod]="mic.module"
+                            [mod]="mic.mod"
                             bind="volume"
                             exec="volume"
                             [(model)]="volume[mic.id]"
@@ -50,7 +50,7 @@ import { ControlStateService } from '../control-state.service';
                         <i
                             binding
                             [sys]="id"
-                            [mod]="mic.module"
+                            [mod]="mic.mod"
                             bind="mute"
                             exec="mute"
                             [(model)]="mute[mic.id]"

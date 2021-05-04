@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { BaseClass } from '@placeos/common';
+import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 
 @Component({
@@ -7,7 +8,7 @@ import { ControlStateService } from './control-state.service';
     template: `
         <div
             recording
-            *ngIf="(system | async)?.recording"
+            *ngIf="!!(capture_mod | async)"
             class="text-xs divide-x divide-gray-100 text-white flex items-center"
         >
             <div hidden>
@@ -15,35 +16,35 @@ import { ControlStateService } from './control-state.service';
                     binding
                     [(model)]="rec_status"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="status"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_title"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="title"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_remaining"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="remaining"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_current"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="current"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_next"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="current"
                 ></i>
             </div>
@@ -136,6 +137,10 @@ export class ControlStatusBarComponent extends BaseClass {
     public readonly volume = this._state.volume;
     /** Details of the active system */
     public readonly system = this._state.system;
+
+    public readonly capture_mod = this._state.capture_list.pipe(
+        map((_) => _[0])
+    );
 
     public mute: boolean;
     public rec_status: string;
