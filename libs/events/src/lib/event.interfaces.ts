@@ -94,41 +94,25 @@ export interface EventNote {
     order_id?: string;
 }
 
-export interface SpaceRules {
-    auto_approve: boolean;
-    hide: boolean;
-    room_type?: 'client' | 'partner';
-    max_length?: number;
-    min_length?: number;
-}
-
-export interface SpaceCheckOptions {
-    user: User;
-    space: Space;
-    time?: number;
-    visitor_type?: string;
-    recurr_end?: number;
-    duration?: number;
-    rules: BookingRuleConditions;
-}
-
-export interface BookingRule {
+export interface BookingRuleset {
+    id?: string;
+    name?: string;
+    rules: BookingRules;
     conditions: BookingRuleConditions;
-    rules: {
-        book_ahead?: string;
-        book_length?: string;
-        auto_approve?: boolean;
-    };
 }
 
-export interface SpaceRuleOptions {
-    user: User;
+export interface BookingRules {
+    auto_approve?: boolean;
+    hidden?: boolean;
+}
+
+export type BookingRulesmap = Record<string, BookingRuleset>;
+
+export interface BookingRuleDetails {
     space: Space;
-    time?: number;
-    visitor_type?: string;
-    recurr_end?: number;
-    duration?: number;
-    rules?: HashMap<readonly BookingRule[]>;
+    date: number;
+    duration: number;
+    host: User;
 }
 
 export interface BookingRuleConditions {
@@ -144,4 +128,14 @@ export interface BookingRuleConditions {
     is_before?: string;
     /** How far in the future this bookings must be */
     is_after?: string;
+}
+
+export interface TimeBlock {
+    start: number;
+    end: number;
+}
+
+export interface TimePeriod extends HashMap {
+    date: number;
+    duration: number;
 }
