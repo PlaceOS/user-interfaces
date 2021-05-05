@@ -15,7 +15,7 @@ import { timePeriodsIntersect, unique } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
-import { getNextFreeBookingSlot } from './helpers';
+import { getNextFreeTimeSlot } from './helpers';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
@@ -84,7 +84,7 @@ export function statusFromBookings(
     date: number = getTime(new Date())
 ) {
     const now = new Date(date);
-    const next_free_slot = getNextFreeBookingSlot(bookings, date, 5);
+    const next_free_slot = getNextFreeTimeSlot(bookings, date, 5);
     const start = new Date(next_free_slot.start);
     const end = new Date(next_free_slot.end);
     const currently_free = timePeriodsIntersect(

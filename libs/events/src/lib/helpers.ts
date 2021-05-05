@@ -1,4 +1,5 @@
 import { HashMap } from '@placeos/common';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import {
     addSeconds,
     addMinutes,
@@ -162,6 +163,16 @@ export function stringToMinutes(str: string): number {
 
 export function addToDate(add: string, date: Date | number = new Date()) {
     return addMinutes(date, stringToMinutes(add));
+}
+
+export function filterSpacesFromRules(
+    spaces: Space[],
+    details: BookingRuleDetails,
+    rulemap: BookingRulesmap
+) {
+    return spaces.filter(
+        (_) => !rulesForSpace({ ...details, space: _ }, rulemap)?.hidden
+    );
 }
 
 export function rulesForSpace(

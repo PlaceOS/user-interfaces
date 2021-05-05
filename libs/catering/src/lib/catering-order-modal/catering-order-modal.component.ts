@@ -10,7 +10,7 @@ import { CateringOrder } from '../catering-order.class';
 import { CateringOption, CateringRuleset } from '../catering.interfaces';
 
 import { CalendarEvent } from '../../../../events/src/lib/event.class';
-import { stringToMinutes } from '../../../../events/src/lib/event.utilities';
+import { stringToMinutes } from '../../../../events/src/lib/helpers';
 import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
 
 export interface CateringOrderModalData {
@@ -83,7 +83,7 @@ export class CateringOrderModalComponent extends BaseClass {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
-    public loading: string = '';
+    public loading = '';
     /** Current order */
     public order: CateringOrder;
     /** Name of the active category */

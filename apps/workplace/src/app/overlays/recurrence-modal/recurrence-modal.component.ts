@@ -2,13 +2,12 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BookingRecurrenceDetails } from '@placeos/bookings';
+import { RecurrenceDetails } from '@placeos/events';
 import { BaseClass, DialogEvent, Identity } from '@placeos/common';
-
 
 export interface RecurrenceModalData {
     /** Current recurrence details */
-    details: BookingRecurrenceDetails;
+    details: RecurrenceDetails;
     /** Currently set date for the booking */
     date: number;
 }
@@ -39,7 +38,12 @@ export class RecurrenceModalComponent extends BaseClass implements OnInit {
         { id: '', name: 'None' },
         { id: 'daily', name: 'Daily', interval: 1, pattern: 'daily' },
         { id: 'weekly', name: 'Weekly', interval: 1, pattern: 'weekly' },
-        { id: 'monthly', name: 'Every 4 weeks', interval: 4, pattern: 'weekly' },
+        {
+            id: 'monthly',
+            name: 'Every 4 weeks',
+            interval: 4,
+            pattern: 'weekly',
+        },
     ];
     /** Selected pattern */
     public selected_pattern;
@@ -52,12 +56,16 @@ export class RecurrenceModalComponent extends BaseClass implements OnInit {
         this.date = this._data.date;
         const details = this._data.details;
         this.selected_pattern = this.patterns.find(
-            (i) => i.interval === details?.interval && i.pattern === details?.pattern
+            (i) =>
+                i.interval === details?.interval &&
+                i.pattern === details?.pattern
         );
         this.form = new FormGroup({
             pattern: new FormControl(details?.pattern),
             interval: new FormControl(details?.interval),
-            end: new FormControl(details?.end || this._data.date, [Validators.required]),
+            end: new FormControl(details?.end || this._data.date, [
+                Validators.required,
+            ]),
         });
     }
 

@@ -14,7 +14,7 @@ import {
 } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 
-import { filterSpacesRules } from 'libs/bookings/src/lib/booking.utilities';
+import { filterSpacesFromRules } from 'libs/events/src/lib/helpers';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 import { Space } from './space.class';
 
@@ -178,11 +178,10 @@ export class SpaceSelectModalComponent extends BaseClass {
 
     public readonly filtered_spaces = this.available_spaces.pipe(
         map((list) =>
-            filterSpacesRules(
+            filterSpacesFromRules(
                 list,
-                this._org.building_settings,
-                currentUser(),
-                { ...this._data }
+                { ...this._data, host: currentUser() } as any,
+                this._org.building.booking_rules
             )
         ),
         tap(() => (this.loading = false))
