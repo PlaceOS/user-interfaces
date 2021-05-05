@@ -3,7 +3,7 @@ import { map } from 'rxjs/operators';
 import { isSameDay, isAfter, format } from 'date-fns';
 
 import { PanelStateService } from '../panel-state.service';
-import { getNextFreeBookingSlot } from '@placeos/events';
+import { getNextFreeTimeSlot } from '@placeos/events';
 
 @Component({
     selector: 'panel-space-details',
@@ -37,13 +37,19 @@ export class PanelSpaceDetailsComponent {
 
     public readonly next_free = this._state.bookings.pipe(
         map((list) => {
-            const block = getNextFreeBookingSlot(list, undefined, 15);
+            const block = getNextFreeTimeSlot(list, undefined, 15);
             const now = new Date();
             const start = new Date(block.start);
             const end = new Date(block.end);
             return {
-                start: isSameDay(now, start) && isAfter(start, now) ? format(start, 'h:mm a') : '',
-                end: isSameDay(now, end) && isAfter(end, now) ? format(end, 'h:mm a') : '',
+                start:
+                    isSameDay(now, start) && isAfter(start, now)
+                        ? format(start, 'h:mm a')
+                        : '',
+                end:
+                    isSameDay(now, end) && isAfter(end, now)
+                        ? format(end, 'h:mm a')
+                        : '',
             };
         })
     );
