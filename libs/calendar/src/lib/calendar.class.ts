@@ -1,12 +1,10 @@
-
 import { differenceInMinutes } from 'date-fns';
 
-import { BaseDataClass } from '@placeos/common';
-import { Space } from '../../../spaces/src/lib/space.class';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 import { CalendarAvailability } from './calendar.interfaces';
 
-export class Calendar extends BaseDataClass {
+export class Calendar {
     /** ID of the calendar */
     public readonly id: string;
     /** Name of the calendar */
@@ -17,16 +15,19 @@ export class Calendar extends BaseDataClass {
     public readonly primary: boolean;
     /** Summary */
     public readonly summary: string;
-    /** Can edit */
+    /** Whether the user can edit events associated to this calendar */
     public readonly can_edit: boolean;
     /** Availability */
     public readonly availability: CalendarAvailability[];
+    /** Whether calendar should be hidden from the user */
+    public readonly hidden: boolean;
 
     constructor(data: Partial<Calendar> = {}) {
-        super(data);
-        this.primary = data.primary;
-        this.summary = data.summary;
-        this.can_edit = data.can_edit;
+        this.id = data.id || '';
+        this.name = data.name || '';
+        this.primary = !!data.primary;
+        this.summary = data.summary || '';
+        this.can_edit = !!data.can_edit;
         this.resource = new Space(data.resource || (data as any).system);
         this.availability = (data.availability || []).map((i: any) => {
             return {
@@ -38,5 +39,6 @@ export class Calendar extends BaseDataClass {
                 status: i.status,
             };
         });
+        this.hidden = !!data.hidden;
     }
 }
