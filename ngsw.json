@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1620094114385,
+  "timestamp": 1620271316504,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -78,23 +78,23 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./catering-catering-module.js": "c1f142fc025f65fb54cfddb22822fc1fa9741cfa",
-    "./day-view-day-view-module.js": "988f109d95867bbbd03aa402a79495eb858e892f",
+    "./catering-catering-module.js": "eef55d8ec5c9c62eeb755d7416afc031670a14d4",
+    "./day-view-day-view-module.js": "7d12eaccc1762086837da0240bf63cb487d6c104",
     "./default~desks-desks-module~facilities-facilities-module.js": "7ea1987a471c35d2e1faca95f5c8172e3bf2b7e1",
-    "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.js": "d101d9a3f2e10ffd0b4d2ecab1aea671ed2e74b5",
+    "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.js": "ffb305c425479b588837df769e77231b72b4b64a",
     "./desks-desks-module.js": "2f5a6adacb7f732d0dc1a8c4c711ddfc39e71a1b",
     "./facilities-facilities-module.js": "ffbd492b5b2cd60d638387601309ac3f3225da91",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "66f7759758f422eaff7b56f6fd1ad98bd6b42878",
-    "./main.js": "8276bf5698776791cff5cddcaa0fafb36d7146c7",
+    "./main.js": "08a80eddf73c04d9ec9e0a4f0a0c2018432b84b3",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "47c2b13113bded1fe7f9a2540c4ad6b9363c7204",
-    "./reports-reports-module.js": "19df3e3a6f5e4cdd2efa1cde0ff2aedb1cff3cb2",
+    "./reports-reports-module.js": "2ced23a8bcb82575e461461afc0a6e4a81c7a24f",
     "./runtime.js": "4fdcc4ad85dbf95f8b5ddf0f07b572a4aeca0387",
     "./staff-staff-module.js": "68cce29d96457e15dc1b5513349b5d23d15aaad8",
     "./styles.css": "af6f3e05fc01cffb86a4eeeac9d34a9b4ef1428c",
-    "./vendor.js": "a79f6a6e86d346c8430c2b06f12601da96a29c46",
-    "./visitors-visitors-module.js": "67bc56516e8a379b5174ee0ad712445c56fe146b",
+    "./vendor.js": "0f228df53ad48a062d7e404f27225924f6773f0e",
+    "./visitors-visitors-module.js": "e2c9de87ea6622b134a7757f37e5c2ae6df38f53",
     "./week-view-week-view-module.js": "c3530970d05b1c0936e1d91e598b748eb65d5f49"
   },
   "navigationUrls": [
