@@ -34,7 +34,7 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         body: new FormControl(event.body),
         private: new FormControl(event.private),
         date: new FormControl(event.date, [Validators.required]),
-        duration: new FormControl(event.duration),
+        duration: new FormControl(event.duration, [endInFuture]),
         all_day: new FormControl(event.all_day),
         recurring: new FormControl(event.recurring),
         recurrence: new FormControl(event.recurrence),
@@ -49,17 +49,14 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         needs_parking: new FormControl(event.ext('needs_parking') || false),
         system: new FormControl(event.system),
     });
-    form.controls.duration.setValidators([endInFuture(form)]);
-    form.controls.organiser.valueChanges.subscribe((o) => {
-        form.controls.host.setValue(o?.email);
-    });
+    form.controls.organiser.valueChanges.subscribe((o) =>
+        form.controls.host.setValue(o?.email)
+    );
     if (event.id) {
         form.controls.host.disable();
         form.controls.organiser.disable();
     }
-    if (event.state === 'started') {
-        form.controls.date.disable();
-    }
+    if (event.state === 'started') form.controls.date.disable();
     return form;
 }
 

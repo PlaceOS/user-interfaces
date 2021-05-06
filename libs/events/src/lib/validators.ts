@@ -1,14 +1,12 @@
-import { AbstractControl, FormGroup } from '@angular/forms';
+import { AbstractControl } from '@angular/forms';
+import { addMinutes, isAfter, isBefore } from 'date-fns';
 
-import isAfter from 'date-fns/isAfter';
-import isBefore from 'date-fns/isBefore';
-
-export const endInFuture = (form: FormGroup) => (control: AbstractControl) => {
+export const endInFuture = (control: AbstractControl) => {
     if (
-        form.controls.date &&
+        control.parent?.get('date') &&
         isAfter(
             new Date(),
-            form.controls.date.value + control.value * 60 * 1000
+            addMinutes(control.parent.get('date').value, control.value)
         )
     ) {
         return { duration: true };
@@ -21,6 +19,6 @@ export function isFuture(
     control: AbstractControl
 ): { [key: string]: boolean } | null {
     return control.value && isBefore(control.value, new Date())
-        ? { isFuture: true }
+        ? { is_future: true }
         : null;
 }
