@@ -9,6 +9,7 @@ import {
     getUnixTime,
     isAfter,
     format,
+    set,
 } from 'date-fns';
 
 import { HashMap, Identity, unique } from '@placeos/common';
@@ -204,7 +205,8 @@ export class CalendarEvent {
     public toJSON(): HashMap {
         const obj: HashMap = { ...this };
         const end = getUnixTime(addMinutes(this.date, this.duration));
-        obj.event_start = getUnixTime(this.date);
+        const date = this.all_day ? set(this.date, { hours: 12 }) : this.date;
+        obj.event_start = getUnixTime(date);
         obj.event_end = end;
         const attendees = this.attendees;
         if (this.recurring) {
