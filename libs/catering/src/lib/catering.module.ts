@@ -14,7 +14,7 @@ import { CateringMenuComponent } from './catering-menu.component';
 import { CateringItemOptionModalComponent } from './catering-option-modal.component';
 import { CateringOptionsModalComponent } from './catering-options-modal/catering-options-modal.component';
 import { CateringOrderListOrderItemComponent } from './catering-order-list-order-item.component';
-import { CateringOrderListOrderComponent } from './catering-order-list-order.component';
+import { CateringOrderComponent } from './catering-order.component';
 import { CateringOrderListComponent } from './catering-order-list.component';
 import { CateringOrderModalComponent } from './catering-order-modal/catering-order-modal.component';
 
@@ -27,8 +27,8 @@ const COMPONENTS: Type<any>[] = [
     CateringMenuItemComponent,
     CateringItemOptionModalComponent,
     CateringOrderListComponent,
-    CateringOrderListOrderComponent,
     CateringOrderListOrderItemComponent
+    CateringOrderComponent,
 ];
 
 @NgModule({
@@ -39,9 +39,9 @@ const COMPONENTS: Type<any>[] = [
         MatTabsModule,
         MatAutocompleteModule,
         MatDialogModule,
-        ComponentsModule
+        ComponentsModule,
     ],
     providers: [],
-    exports: [...COMPONENTS]
+    exports: [...COMPONENTS],
 })
 export class SharedCateringModule {}

@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { CateringOrderListOrderComponent } from '../lib/catering-order-list-order.component';
+import { CateringOrderComponent } from '../lib/catering-order.component';
 import { CateringOrderListComponent } from '../lib/catering-order-list.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
 
@@ -11,7 +11,7 @@ describe('CateringOrderListComponent', () => {
     let spectator: Spectator<CateringOrderListComponent>;
     const createComponent = createComponentFactory({
         component: CateringOrderListComponent,
-        declarations: [MockComponent(CateringOrderListOrderComponent)],
+        declarations: [MockComponent(CateringOrderComponent)],
         providers: [
             {
                 provide: CateringOrdersService,
@@ -55,18 +55,18 @@ describe('CateringOrderListComponent', () => {
     });
 
     it('should list orders', () => {
-        expect('catering-order-list-item').not.toExist();
+        expect('catering-order').not.toExist();
         const service = spectator.inject(CateringOrdersService);
         (service.filtered as any).next([{}]);
         spectator.detectChanges();
-        expect('catering-order-list-item').toExist();
-        expect('catering-order-list-item').toHaveLength(1);
+        expect('catering-order').toExist();
+        expect('catering-order').toHaveLength(1);
         (service.filtered as any).next([{}, {}]);
         spectator.detectChanges();
-        expect('catering-order-list-item').toExist();
-        expect('catering-order-list-item').toHaveLength(2);
+        expect('catering-order').toExist();
+        expect('catering-order').toHaveLength(2);
         (service.filtered as any).next([]);
         spectator.detectChanges();
-        expect('catering-order-list-item').not.toExist();
+        expect('catering-order').not.toExist();
     });
 });

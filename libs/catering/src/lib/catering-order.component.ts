@@ -7,11 +7,12 @@ import { CateringOrder } from './catering-order.class';
 import { CATERING_STATUSES } from './catering.vars';
 
 @Component({
-    selector: 'catering-order-list-item',
+    selector: 'catering-order',
     template: `
         <div
             class="w-full font-medium flex items-center py-2 bg-gray-100"
             [class.shown]="show_items"
+            *ngIf="order"
         >
             <div class="w-20 flex items-center justify-center">
                 <div
@@ -23,14 +24,22 @@ import { CATERING_STATUSES } from './catering.vars';
             <div class="w-24">{{ order.deliver_at | date: 'shortTime' }}</div>
             <div class="flex-1">
                 {{
-                    order.event?.space.display_name || order.event?.space.name || '~ No Location ~'
+                    order.event?.space.display_name ||
+                        order.event?.space.name ||
+                        '~ No Location ~'
                 }}
             </div>
             <div class="w-56">
-                {{ order.event?.organiser?.name || order.event?.host || '~ Unknown Host ~' }}
+                {{
+                    order.event?.organiser?.name ||
+                        order.event?.host ||
+                        '~ Unknown Host ~'
+                }}
             </div>
             <div class="w-24">{{ order.charge_code || '~ No Code ~' }}</div>
-            <div class="w-28">{{ order.invoice_number || '~ No Invoice ~' }}</div>
+            <div class="w-28">
+                {{ order.invoice_number || '~ No Invoice ~' }}
+            </div>
             <div class="w-36">
                 <button
                     name="status"
@@ -39,19 +48,24 @@ import { CATERING_STATUSES } from './catering.vars';
                     [style.background]="status?.colour"
                     [matMenuTriggerFor]="menu"
                 >
-                    <div class="flex text-center capitalize mx-2">{{ status?.name }}</div>
+                    <div class="flex text-center capitalize mx-2">
+                        {{ status?.name }}
+                    </div>
                     <app-icon class="pl-2">arrow_drop_down</app-icon>
                 </button>
             </div>
             <div class="w-12">
                 <button mat-icon-button (click)="show_items = !show_items">
                     <app-icon>{{
-                        show_items ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
+                        show_items
+                            ? 'keyboard_arrow_down'
+                            : 'keyboard_arrow_right'
                     }}</app-icon>
                 </button>
             </div>
         </div>
         <ul
+            *ngIf="order?.items.length"
             class="list-none p-0 m-0 w-full relative"
             [class.shown]="show_items"
             [@show]="show_items ? 'show' : 'hide'"
@@ -61,9 +75,8 @@ import { CATERING_STATUSES } from './catering.vars';
                 class="absolute top-0 bg-gray-300"
                 [style.height]="3.125 * order.items.length - 1 + 'rem'"
             ></div>
-
             <li
-                catering-order-list-order-item
+                catering-order-item
                 class="flex items-center"
                 *ngFor="let item of order.items; let i = index"
                 [item]="item"
@@ -80,7 +93,6 @@ import { CATERING_STATUSES } from './catering.vars';
                     class="rounded-full h-4 w-4 mr-2"
                     [style.background-color]="status.colour"
                 ></div>
-
                 <span class="mr-2 w-20">{{ status.name }}</span>
             </button>
         </mat-menu>
@@ -108,14 +120,15 @@ import { CATERING_STATUSES } from './catering.vars';
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class CateringOrderListOrderComponent {
+export class CateringOrderComponent {
     @Input() public order: CateringOrder;
     /** Whether to show the items in the catering order */
-    public show_items: boolean = false;
+    public show_items = false;
     /** List of status available to select */
     public readonly statuses = CATERING_STATUSES;
 
-    public readonly updateStatus = (s) => this._orders.updateStatus(this.order, s);
+    public readonly updateStatus = (s) =>
+        this._orders.updateStatus(this.order, s);
 
     public get status() {
         return this.statuses.find((i) => i.id === this.order.status);
