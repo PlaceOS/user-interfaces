@@ -34,7 +34,6 @@ describe('CateringOrder', () => {
             status: 'preparing',
             deliver_at: 1,
         });
-
         expect(order.id).toBe('first-order');
         expect(order.system_id).toBe('sys-1');
         expect(order.event_id).toBe('event-1');
