@@ -31,9 +31,12 @@ export class CateringOrder {
     constructor(data: Partial<CateringOrder> = {}) {
         this.id = data.id || `order-${randomInt(9_999_999, 1_000_000)}`;
         this.event_id = data.event_id || data.event?.id || '';
-        this.items = (data.items || []).map(i => new CateringItem(i));
-        this.system_id = data.system_id;
-        this.item_count = this.items.reduce((amount, item) => amount + item.quantity, 0);
+        this.items = (data.items || []).map((i) => new CateringItem(i));
+        this.system_id = data.system_id || '';
+        this.item_count = this.items.reduce(
+            (amount, item) => amount + item.quantity,
+            0
+        );
         this.total_cost = this.items.reduce(
             (amount, item) => amount + (item.total_cost || 0),
             0
@@ -42,6 +45,10 @@ export class CateringOrder {
         this.status = data.status || 'accepted';
         this.invoice_number = data.invoice_number || '';
         this.event = data.event || null;
-        this.deliver_at = data.deliver_at || (data as any).date || this.event?.date || new Date().getTime();
+        this.deliver_at =
+            data.deliver_at ||
+            (data as any).date ||
+            this.event?.date ||
+            new Date().getTime();
     }
 }
