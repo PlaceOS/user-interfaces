@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { CateringItem } from './catering-item.class';
 
 @Component({
-    selector: '[catering-order-list-order-item]',
+    selector: '[catering-order-item]',
     template: `
         <div class="w-20 text-right">
             <div name="item-bar" class="bg-gray-300"></div>
@@ -19,8 +19,8 @@ import { CateringItem } from './catering-item.class';
                 <app-icon>{{ active ? 'done' : 'local_pizza' }}</app-icon>
             </button>
         </div>
-        <div class="flex-1 border-none border-b border-gray-300 border-solid py-4">
-            {{ item.name }}
+        <div class="flex-1 border-b border-gray-300 border-solid py-4">
+            {{ item?.name }}
         </div>
     `,
     styles: [
@@ -38,8 +38,8 @@ import { CateringItem } from './catering-item.class';
         `,
     ],
 })
-export class CateringOrderListOrderItemComponent {
+export class CateringOrderItemComponent {
     @Input() public item: CateringItem;
 
-    public active: boolean = false;
+    public active = false;
 }

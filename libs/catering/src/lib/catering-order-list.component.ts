@@ -22,9 +22,7 @@ import { CateringOrdersService } from './catering-orders.service';
                 class="border-solid border-b border-gray-300"
                 *ngFor="let order of order_list | async"
             >
-                <catering-order-list-item
-                    [order]="order"
-                ></catering-order-list-item>
+                <catering-order [order]="order"></catering-order>
             </li>
             <div
                 empty
