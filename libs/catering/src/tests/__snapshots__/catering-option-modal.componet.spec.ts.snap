@@ -1,0 +1,429 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <header>
+    <h3
+      mat-dialog-title=""
+    >
+       Add Item Option 
+    </h3>
+    <button
+      mat-dialog-close=""
+      mat-icon-button=""
+    >
+      <app-icon>
+        close
+      </app-icon>
+    </button>
+    
+  </header>
+  <form
+    class="p-4 overflow-auto ng-untouched ng-pristine ng-invalid"
+    novalidate=""
+  >
+    <div
+      class="field"
+    >
+      <label
+        for="title"
+      >
+         Name
+        <span>
+          *
+        </span>
+        : 
+      </label>
+      <mat-form-field
+        appearance="outline"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid _mat-animation-noopable"
+      >
+        <div
+          class="mat-form-field-wrapper"
+        >
+          <div
+            class="mat-form-field-flex"
+          >
+            <div
+              class="mat-form-field-outline"
+            >
+              <div
+                class="mat-form-field-outline-start"
+              />
+              <div
+                class="mat-form-field-outline-gap"
+              />
+              <div
+                class="mat-form-field-outline-end"
+              />
+            </div>
+            <div
+              class="mat-form-field-outline mat-form-field-outline-thick"
+            >
+              <div
+                class="mat-form-field-outline-start"
+              />
+              <div
+                class="mat-form-field-outline-gap"
+              />
+              <div
+                class="mat-form-field-outline-end"
+              />
+            </div>
+            
+            
+            
+            <div
+              class="mat-form-field-infix"
+            >
+              <input
+                aria-invalid="false"
+                aria-required="false"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
+                data-placeholder="Item name"
+                formcontrolname="name"
+                matinput=""
+                name="name"
+                placeholder="Item name"
+              />
+              <span
+                class="mat-form-field-label-wrapper"
+              >
+                
+              </span>
+            </div>
+            
+          </div>
+          
+          <div
+            class="mat-form-field-subscript-wrapper"
+          >
+            
+            <div
+              class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+              style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+            >
+              
+              <div
+                class="mat-form-field-hint-spacer"
+              />
+            </div>
+            
+          </div>
+        </div>
+      </mat-form-field>
+    </div>
+    
+    <div
+      class="field"
+    >
+      <label
+        for="group"
+      >
+         Type
+        <span>
+          *
+        </span>
+        : 
+      </label>
+      <mat-form-field
+        appearance="outline"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid _mat-animation-noopable"
+      >
+        <div
+          class="mat-form-field-wrapper"
+        >
+          <div
+            class="mat-form-field-flex"
+          >
+            <div
+              class="mat-form-field-outline"
+            >
+              <div
+                class="mat-form-field-outline-start"
+              />
+              <div
+                class="mat-form-field-outline-gap"
+              />
+              <div
+                class="mat-form-field-outline-end"
+              />
+            </div>
+            <div
+              class="mat-form-field-outline mat-form-field-outline-thick"
+            >
+              <div
+                class="mat-form-field-outline-start"
+              />
+              <div
+                class="mat-form-field-outline-gap"
+              />
+              <div
+                class="mat-form-field-outline-end"
+              />
+            </div>
+            
+            
+            
+            <div
+              class="mat-form-field-infix"
+            >
+              <input
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-invalid="false"
+                aria-required="false"
+                autocomplete="off"
+                class="mat-autocomplete-trigger mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
+                data-placeholder="Type of option e.g. Number of sugars"
+                formcontrolname="group"
+                matinput=""
+                name="group"
+                placeholder="Type of option e.g. Number of sugars"
+                role="combobox"
+              />
+              
+              <span
+                class="mat-form-field-label-wrapper"
+              >
+                
+              </span>
+            </div>
+            
+          </div>
+          
+          <div
+            class="mat-form-field-subscript-wrapper"
+          >
+            
+            <div
+              class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+              style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+            >
+              
+              <div
+                class="mat-form-field-hint-spacer"
+              />
+            </div>
+            
+          </div>
+        </div>
+      </mat-form-field>
+    </div>
+    
+    <div
+      class="field"
+    >
+      <label
+        for="title"
+      >
+        Unit Price:
+      </label>
+      <mat-form-field
+        appearance="outline"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
+      >
+        <div
+          class="mat-form-field-wrapper"
+        >
+          <div
+            class="mat-form-field-flex"
+          >
+            <div
+              class="mat-form-field-outline"
+            >
+              <div
+                class="mat-form-field-outline-start"
+              />
+              <div
+                class="mat-form-field-outline-gap"
+              />
+              <div
+                class="mat-form-field-outline-end"
+              />
+            </div>
+            <div
+              class="mat-form-field-outline mat-form-field-outline-thick"
+            >
+              <div
+                class="mat-form-field-outline-start"
+              />
+              <div
+                class="mat-form-field-outline-gap"
+              />
+              <div
+                class="mat-form-field-outline-end"
+              />
+            </div>
+            
+            
+            
+            <div
+              class="mat-form-field-infix"
+            >
+              <input
+                aria-invalid="false"
+                aria-required="false"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-valid cdk-text-field-autofill-monitored"
+                data-placeholder="Unit Price"
+                formcontrolname="unit_price"
+                matinput=""
+                name="unit-price"
+                placeholder="Unit Price"
+                type="number"
+              />
+              <span
+                class="mat-form-field-label-wrapper"
+              >
+                
+              </span>
+            </div>
+            
+          </div>
+          
+          <div
+            class="mat-form-field-subscript-wrapper"
+          >
+            
+            <div
+              class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+              style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+            >
+              
+              <div
+                class="mat-form-field-hint-spacer"
+              />
+            </div>
+            
+          </div>
+        </div>
+      </mat-form-field>
+    </div>
+    
+    <div
+      class="field"
+    >
+      <mat-checkbox
+        class="mat-checkbox mat-accent _mat-animation-noopable ng-untouched ng-pristine ng-valid"
+        formcontrolname="multiple"
+        name="multiple"
+      >
+        <label
+          class="mat-checkbox-layout"
+          for="mat-checkbox-2-input"
+        >
+          <span
+            class="mat-checkbox-inner-container"
+          >
+            <input
+              aria-checked="false"
+              class="mat-checkbox-input cdk-visually-hidden"
+              id="mat-checkbox-2-input"
+              name="multiple"
+              tabindex="0"
+              type="checkbox"
+            />
+            <span
+              class="mat-ripple mat-checkbox-ripple mat-focus-indicator"
+              matripple=""
+            >
+              <span
+                class="mat-ripple-element mat-checkbox-persistent-ripple"
+              />
+            </span>
+            <span
+              class="mat-checkbox-frame"
+            />
+            <span
+              class="mat-checkbox-background"
+            >
+              <svg
+                class="mat-checkbox-checkmark"
+                focusable="false"
+                version="1.1"
+                viewBox="0 0 24 24"
+                xml:space="preserve"
+              >
+                <path
+                  class="mat-checkbox-checkmark-path"
+                  d="M4.1,12.7 9,17.6 20.3,6.3"
+                  fill="none"
+                  stroke="white"
+                />
+              </svg>
+              <span
+                class="mat-checkbox-mixedmark"
+              />
+            </span>
+          </span>
+          <span
+            class="mat-checkbox-label"
+          >
+            <span
+              style="display: none;"
+            >
+               
+            </span>
+             Can select multiple of type 
+          </span>
+        </label>
+      </mat-checkbox>
+    </div>
+    
+  </form>
+  
+  <footer
+    class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
+  >
+    <button
+      disabled=""
+      mat-button=""
+    >
+       Save 
+    </button>
+  </footer>
+  
+  
+  <mat-autocomplete
+    class="mat-autocomplete"
+  >
+    
+  </mat-autocomplete>
+</div>
+`;
+
+exports[`CateringItemOptionModalComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <header>
+    <h3
+      mat-dialog-title=""
+    >
+       Add Item Option 
+    </h3>
+    
+  </header>
+  <div
+    class="flex flex-col items-center p-8 space-y-2 w-64"
+  >
+    <mat-spinner
+      diameter="32"
+    />
+    <p>
+      Saving catering item...
+    </p>
+  </div>
+  
+  
+  
+  <mat-autocomplete
+    class="mat-autocomplete"
+  >
+    
+  </mat-autocomplete>
+</div>
+`;
