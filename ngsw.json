@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1620271316504,
+  "timestamp": 1620611011957,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -78,7 +78,7 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./catering-catering-module.js": "eef55d8ec5c9c62eeb755d7416afc031670a14d4",
+    "./catering-catering-module.js": "5e0a309fc9a2b5e8076e6172f9952a50cb8026cb",
     "./day-view-day-view-module.js": "7d12eaccc1762086837da0240bf63cb487d6c104",
     "./default~desks-desks-module~facilities-facilities-module.js": "7ea1987a471c35d2e1faca95f5c8172e3bf2b7e1",
     "./default~desks-desks-module~facilities-facilities-module~reports-reports-module~staff-staff-module.js": "ffb305c425479b588837df769e77231b72b4b64a",
@@ -86,14 +86,14 @@
     "./facilities-facilities-module.js": "ffbd492b5b2cd60d638387601309ac3f3225da91",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "66f7759758f422eaff7b56f6fd1ad98bd6b42878",
-    "./main.js": "08a80eddf73c04d9ec9e0a4f0a0c2018432b84b3",
+    "./main.js": "5eb6131b7b4d6c24db677f6352c7cabe32306e8d",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "47c2b13113bded1fe7f9a2540c4ad6b9363c7204",
     "./reports-reports-module.js": "2ced23a8bcb82575e461461afc0a6e4a81c7a24f",
     "./runtime.js": "4fdcc4ad85dbf95f8b5ddf0f07b572a4aeca0387",
     "./staff-staff-module.js": "68cce29d96457e15dc1b5513349b5d23d15aaad8",
-    "./styles.css": "af6f3e05fc01cffb86a4eeeac9d34a9b4ef1428c",
-    "./vendor.js": "0f228df53ad48a062d7e404f27225924f6773f0e",
+    "./styles.css": "8725cd462e097e287837898005ab01347775daeb",
+    "./vendor.js": "a187cc4775fb48a30c5dfc2b108124ca2d59b866",
     "./visitors-visitors-module.js": "e2c9de87ea6622b134a7757f37e5c2ae6df38f53",
     "./week-view-week-view-module.js": "c3530970d05b1c0936e1d91e598b748eb65d5f49"
   },
