@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map, switchMap, debounceTime } from 'rxjs/operators';
-import { startOfDay, endOfDay } from 'date-fns';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { map, switchMap, debounceTime, tap, shareReplay } from 'rxjs/operators';
+import { startOfDay, endOfDay, getUnixTime } from 'date-fns';
 
 import { BaseClass, flatten } from '@placeos/common';
-import { CalendarEvent } from '../../../events/src/lib/event.class';
-import { queryEvents, saveEvent } from '@placeos/events';
+import { queryEvents, saveEvent } from 'libs/events/src/lib/events.fn';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
@@ -17,8 +17,6 @@ export interface CateringOrderFilters {
     zones?: string[];
     /** Search string to filter orders on */
     search?: string;
-    /** Counter to force update the order listing */
-    count: number;
 }
 
 function checkOrder(
@@ -39,21 +37,21 @@ function checkOrder(
     providedIn: 'root',
 })
 export class CateringOrdersService extends BaseClass {
+    private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
     private _orders = new BehaviorSubject<CateringOrder[]>([]);
-    private _filters = new BehaviorSubject<CateringOrderFilters>({ count: 0 });
+    private _filters = new BehaviorSubject<CateringOrderFilters>({});
 
-    private _update: Observable<CateringOrder[]> = this._filters.pipe(
+    /** Observable for list of orders */
+    public readonly orders: Observable<CateringOrder[]> = combineLatest([
+        this._filters,
+        this._poll,
+    ]).pipe(
         debounceTime(500),
-        switchMap((filters) => {
+        switchMap(([filters]) => {
             this._loading.next(true);
-            const start = Math.floor(
-                startOfDay(new Date(filters.date || Date.now())).valueOf() /
-                    1000
-            );
-            const end = Math.floor(
-                endOfDay(new Date(filters.date || Date.now())).valueOf() / 1000
-            );
+            const start = getUnixTime(startOfDay(filters.date || Date.now()));
+            const end = getUnixTime(endOfDay(filters.date || Date.now()));
             return queryEvents({
                 zone_ids: (filters.zones || []).join(','),
                 period_start: start,
@@ -62,12 +60,12 @@ export class CateringOrdersService extends BaseClass {
         }),
         map((events) => {
             return flatten(events.map((event) => event.ext('catering')));
-        })
+        }),
+        tap(() => this._loading.next(false)),
+        shareReplay(1)
     );
     /** Observable for loading status of orders */
     public readonly loading = this._loading.asObservable();
-    /** Observable for list of orders */
-    public readonly orders = this._orders.asObservable();
     /** Order filters */
     public get filters() {
         return this._filters.getValue();
@@ -85,23 +83,14 @@ export class CateringOrdersService extends BaseClass {
 
     constructor() {
         super();
-        this.subscription(
-            'changes',
-            this._update.subscribe((orders) => {
-                this._loading.next(false);
-                this._orders.next(orders);
-            })
-        );
+        this.subscription('changes', this.orders.subscribe());
     }
 
     /** Start polling for catering orders */
     public startPolling(delay: number = 15 * 1000) {
         this.interval(
             'polling',
-            () => {
-                const filters = this._filters.getValue();
-                this._filters.next({ ...filters, count: filters.count + 1 });
-            },
+            () => this._poll.next(new Date().valueOf()),
             delay
         );
     }
