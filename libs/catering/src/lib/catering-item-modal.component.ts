@@ -19,9 +19,7 @@ export interface CateringItemModalData {
         <header>
             <h3 mat-dialog-title>{{ item.id ? 'Edit' : 'Add' }} Item</h3>
             <button mat-icon-button mat-dialog-close *ngIf="!loading">
-                <app-icon
-                    [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"
-                ></app-icon>
+                <app-icon>close</app-icon>
             </button>
         </header>
         <form
@@ -32,19 +30,29 @@ export interface CateringItemModalData {
             <div class="field" *ngIf="form.controls.name">
                 <label
                     for="title"
-                    [class.error]="form.controls.name.invalid && form.controls.name.touched"
+                    [class.error]="
+                        form.controls.name.invalid && form.controls.name.touched
+                    "
                 >
                     Name<span>*</span>:
                 </label>
                 <mat-form-field appearance="outline">
-                    <input matInput name="name" placeholder="Item name" formControlName="name" />
+                    <input
+                        matInput
+                        name="name"
+                        placeholder="Item name"
+                        formControlName="name"
+                    />
                     <mat-error>Name is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="field" *ngIf="form.controls.category">
                 <label
                     for="category"
-                    [class.error]="form.controls.category.invalid && form.controls.category.touched"
+                    [class.error]="
+                        form.controls.category.invalid &&
+                        form.controls.category.touched
+                    "
                 >
                     Category<span>*</span>:
                 </label>
@@ -62,7 +70,9 @@ export interface CateringItemModalData {
             <div class="field" *ngIf="form.controls.tags">
                 <label
                     for="tags"
-                    [class.error]="form.controls.tags.invalid && form.controls.tags.touched"
+                    [class.error]="
+                        form.controls.tags.invalid && form.controls.tags.touched
+                    "
                     i18n="@@tagsLabel"
                 >
                     Tags:
@@ -78,7 +88,10 @@ export interface CateringItemModalData {
                             {{ tag }}
                             <app-icon
                                 matChipRemove
-                                [icon]="{ class: 'material-icons', content: 'close' }"
+                                [icon]="{
+                                    class: 'material-icons',
+                                    content: 'close'
+                                }"
                             ></app-icon>
                         </mat-chip>
                         <input
@@ -108,7 +121,8 @@ export interface CateringItemModalData {
                 <label
                     for="title"
                     [class.error]="
-                        form.controls.unit_price.invalid && form.controls.unit_price.touched
+                        form.controls.unit_price.invalid &&
+                        form.controls.unit_price.touched
                     "
                 >
                     Unit Price<span>*</span>:
@@ -129,16 +143,14 @@ export interface CateringItemModalData {
             *ngIf="!loading"
             class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
         >
-            <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">Save</button>
+            <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">
+                Save
+            </button>
         </footer>
         <ng-template #load_state>
-            <div class="body">
-                <div class="info-block">
-                    <div class="icon">
-                        <mat-spinner diameter="32"></mat-spinner>
-                    </div>
-                    <div class="text">Saving catering item...</div>
-                </div>
+            <div class="flex flex-col items-center p-8 space-y-2 w-64">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>Saving catering item...</p>
             </div>
         </ng-template>
         <mat-autocomplete #auto="matAutocomplete">
@@ -180,14 +192,20 @@ export class CateringItemModalComponent {
         return this.form.controls.tags.value;
     }
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData) {}
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData
+    ) {}
 
     public ngOnInit(): void {
         this.form = new FormGroup({
             name: new FormControl(this.item.name || '', [Validators.required]),
             description: new FormControl(this.item.description || ''),
-            category: new FormControl(this.item.category || '', [Validators.required]),
-            unit_price: new FormControl(this.item.unit_price, [Validators.required]),
+            category: new FormControl(this.item.category || '', [
+                Validators.required,
+            ]),
+            unit_price: new FormControl(this.item.unit_price, [
+                Validators.required,
+            ]),
             tags: new FormControl(this.item.tags || []),
         });
     }
