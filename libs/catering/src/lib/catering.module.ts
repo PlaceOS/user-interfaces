@@ -12,14 +12,14 @@ import { CateringItemModalComponent } from './catering-item-modal.component';
 import { CateringMenuItemComponent } from './catering-menu-item.component';
 import { CateringMenuComponent } from './catering-menu.component';
 import { CateringItemOptionModalComponent } from './catering-option-modal.component';
-import { CateringOptionsModalComponent } from './catering-options-modal/catering-options-modal.component';
+import { CateringOrderOptionsModalComponent } from './catering-order-options-modal.component';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrderComponent } from './catering-order.component';
 import { CateringOrderListComponent } from './catering-order-list.component';
 import { CateringOrderModalComponent } from './catering-order-modal/catering-order-modal.component';
 
 const COMPONENTS: Type<any>[] = [
-    CateringOptionsModalComponent,
+    CateringOrderOptionsModalComponent,
     CateringOrderModalComponent,
     CateringConfigModalComponent,
     CateringItemModalComponent,
