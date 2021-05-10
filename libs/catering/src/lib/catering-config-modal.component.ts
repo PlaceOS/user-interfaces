@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { CateringRuleset, RULE_TYPES } from './catering.interfaces';
+import { DialogEvent, Identity } from 'libs/common/src/lib/types';
 
-import { DialogEvent, Identity } from '@placeos/common';
+import { CateringRuleset, RULE_TYPES } from './catering.interfaces';
 
 export interface CateringConfigModalData {
     /** List of catering rules */
@@ -22,7 +22,10 @@ export interface CateringConfigModalData {
             </button>
         </header>
         <main class="overflow-auto text-center">
-            <button mat-button (click)="rulesets.push({ id: new_id, rules: [] })">
+            <button
+                mat-button
+                (click)="rulesets.push({ id: new_id, rules: [] })"
+            >
                 New Ruleset
             </button>
             <div *ngFor="let set of rulesets" class="ruleset">
@@ -48,26 +51,39 @@ export interface CateringConfigModalData {
                         mat-icon-button
                         class="mb-6"
                         [disabled]="!set.rules.length"
-                        (click)="show_rules = show_rules !== set.id ? set.id : ''"
+                        (click)="
+                            show_rules = show_rules !== set.id ? set.id : ''
+                        "
                     >
                         <app-icon>{{
-                            show_rules === set.id ? 'expand_less' : 'expand_more'
+                            show_rules === set.id
+                                ? 'expand_less'
+                                : 'expand_more'
                         }}</app-icon>
                     </button>
                 </div>
                 <div
                     name="rules"
                     class="bg-gray-100 rounded overflow-hidden"
-                    [style.height]="(show_rules === set.id ? 3.5 * set.rules.length : 0) + 'em'"
+                    [style.height]="
+                        (show_rules === set.id ? 3.5 * set.rules.length : 0) +
+                        'em'
+                    "
                 >
-                    <div class="flex px-2 h-14 space-x-2" *ngFor="let rule of set.rules">
+                    <div
+                        class="flex px-2 h-14 space-x-2"
+                        *ngFor="let rule of set.rules"
+                    >
                         <mat-form-field class="flex-1" appearance="outline">
                             <mat-select
                                 name="booking-type"
                                 [(ngModel)]="rule[0]"
                                 placeholder="Select Rule"
                             >
-                                <mat-option *ngFor="let type of rule_types" [value]="type.id">
+                                <mat-option
+                                    *ngFor="let type of rule_types"
+                                    [value]="type.id"
+                                >
                                     {{ type.name }}
                                 </mat-option>
                             </mat-select>
@@ -86,7 +102,9 @@ export interface CateringConfigModalData {
                 </div>
             </div>
         </main>
-        <footer class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300">
+        <footer
+            class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
+        >
             <button mat-button (click)="saveChanges()">Save Changes</button>
         </footer>
     `,
@@ -112,7 +130,7 @@ export class CateringConfigModalComponent {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
-    public loading: boolean = false;
+    public loading = false;
     /** Whether to show rules for a ruleset */
     public show_rules: string;
 
@@ -124,14 +142,20 @@ export class CateringConfigModalComponent {
         return 'ruleset-' + Math.floor(Math.random() * 9999_9999);
     }
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: CateringConfigModalData) {
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: CateringConfigModalData
+    ) {
         this.rulesets = (_data.config || []).map((set) => {
-            set.rules = set.rules.map((i) => [i[0], JSON.stringify(i[1])]) as any;
+            set.rules = set.rules.map((i) => [
+                i[0],
+                JSON.stringify(i[1]),
+            ]) as any;
             return set;
         });
     }
 
     public saveChanges() {
+        this.loading = true;
         const rulesets = this.rulesets.map((set) => {
             return {
                 ...set,
