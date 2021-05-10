@@ -29,7 +29,7 @@ import { CateringOrder } from './catering-order.class';
 import {
     CateringOrderModalComponent,
     CateringOrderModalData,
-} from './catering-order-modal/catering-order-modal.component';
+} from './catering-order-modal.component';
 import { CateringOption, CateringRuleset } from './catering.interfaces';
 import {
     CateringOrderOptionsModalComponent,

@@ -1,5 +1,5 @@
 export * from './catering-order-options-modal.component';
-export * from './catering-order-modal/catering-order-modal.component';
+export * from './catering-order-modal.component';
 export * from './catering-config-modal.component';
 export * from './catering-item-modal.component';
 export * from './catering-item.class';

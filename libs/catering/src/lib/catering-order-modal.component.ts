@@ -1,17 +1,17 @@
-import { Component, Inject, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { isAfter, setHours, isBefore } from 'date-fns';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CateringItem } from '../catering-item.class';
-import { CateringOrder } from '../catering-order.class';
-import { CateringOption, CateringRuleset } from '../catering.interfaces';
-
-import { CalendarEvent } from '../../../../events/src/lib/event.class';
-import { stringToMinutes } from '../../../../events/src/lib/helpers';
 import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { stringToMinutes } from 'libs/events/src/lib/helpers';
+
+import { CateringItem } from './catering-item.class';
+import { CateringOrder } from './catering-order.class';
+import { CateringOption, CateringRuleset } from './catering.interfaces';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
@@ -74,12 +74,183 @@ export function cateringItemAvailable(
     return is_available;
 }
 
+// TODO: Split template into 2 children components. Order menu and Order Confirm;
+
 @Component({
     selector: 'app-catering-order-modal',
-    templateUrl: './catering-order-modal.component.html',
-    styleUrls: ['./catering-order-modal.component.scss'],
+    template: `
+        <div class="main min-w-[20rem]" *ngIf="!loading; else load_state">
+            <ng-container *ngIf="!show_order_details; else order_details">
+                <mat-tab-group>
+                    <ng-container *ngFor="let cat of categories | async">
+                        <mat-tab
+                            *ngIf="((menu_items$ | async) || {})[cat].length"
+                            [label]="cat"
+                        >
+                            <div class="list">
+                                <div
+                                    item
+                                    class="flex items-center p-2 border-b border-gray-50"
+                                    *ngFor="
+                                        let item of ((menu_items$ | async) ||
+                                            {})[cat]
+                                    "
+                                >
+                                    <div class="flex-1 w-1/2">
+                                        <div class="flex-1 w-1/2">
+                                            {{ item.name }}
+                                        </div>
+                                        <div
+                                            class="info no-underline"
+                                            *ngIf="item.options.length"
+                                        >
+                                            Options Available
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                                    >
+                                        {{ item.unit_price / 100 | currency }}
+                                    </div>
+                                    <button
+                                        mat-icon-button
+                                        (click)="addItem(item)"
+                                    >
+                                        <app-icon
+                                            [icon]="{
+                                                class: 'material-icons',
+                                                content: 'add'
+                                            }"
+                                        ></app-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </mat-tab>
+                    </ng-container>
+                </mat-tab-group>
+            </ng-container>
+        </div>
+        <footer *ngIf="!loading">
+            <ng-container *ngIf="!show_order_details; else order_actions">
+                <button mat-button class="inverse" mat-dialog-close>
+                    Cancel
+                </button>
+                <button
+                    confirm
+                    mat-button
+                    [disabled]="!order.item_count"
+                    [matBadge]="order.item_count"
+                    [matBadgeHidden]="!order.item_count"
+                    matBadgeColor="warn"
+                    (click)="show_order_details = true"
+                >
+                    Confirm
+                </button>
+            </ng-container>
+            <ng-template #order_actions>
+                <button
+                    mat-button
+                    class="inverse"
+                    (click)="show_order_details = false"
+                >
+                    Back
+                </button>
+                <button save mat-button (click)="saveOrder()">
+                    Save Order
+                </button>
+            </ng-template>
+        </footer>
+        <ng-template #load_state>
+            <div class="flex flex-col w-64 p-8 items-center space-y-2">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>{{ loading }}</p>
+            </div>
+        </ng-template>
+        <ng-template #order_details>
+            <header class="h-[3.25rem]">
+                <h3>Confirm Order</h3>
+            </header>
+            <div class="list">
+                <div
+                    item
+                    class="flex items-center p-2 border-b border-gray-50"
+                    *ngFor="let item of order.items"
+                >
+                    <div class="flex-1 w-1/2">
+                        <div class="flex-1 w-1/2">{{ item.name }}</div>
+                        <div
+                            class="text-xs underline"
+                            *ngIf="item.options.length"
+                            [matTooltip]="optionsFor(item)"
+                        >
+                            {{ item.options.length }} option{{
+                                item.options.length === 1 ? '' : 's'
+                            }}
+                            selected
+                        </div>
+                    </div>
+                    <div
+                        class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                    >
+                        {{ item.total_cost / 100 | currency }}
+                    </div>
+                    <a-counter
+                        [ngModel]="item.quantity"
+                        (ngModelChange)="updateItemQuantity(item, $event)"
+                    ></a-counter>
+                </div>
+            </div>
+            <div class="charge-code" [formGroup]="form">
+                <input
+                    formControlName="charge_code"
+                    [class.error]="
+                        form.controls.charge_code.touched &&
+                        form.controls.charge_code.invalid
+                    "
+                    placeholder="Charge Code*"
+                    required
+                />
+            </div>
+        </ng-template>
+    `,
+    styles: [
+        `
+            .list {
+                height: 24em;
+                min-width: 24em;
+                max-width: calc(100vw - 1em);
+            }
+
+            footer button {
+                min-width: 8em;
+            }
+
+            input {
+                position: relative;
+                width: 100%;
+                padding: 1em;
+                border: none;
+                border-radius: 0 !important;
+                border-top: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+                outline: none;
+                font-size: 1em;
+
+                &:focus {
+                    border: none;
+                    border-top: 2px solid var(--primary);
+                    border-bottom: 2px solid var(--primary);
+                    box-shadow: none;
+                }
+
+                &.error::placeholder {
+                    color: rgba(var(--error), 0.45);
+                }
+            }
+        `,
+    ],
 })
-export class CateringOrderModalComponent extends BaseClass {
+export class CateringOrderModalComponent extends BaseClass implements OnInit {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
@@ -154,7 +325,7 @@ export class CateringOrderModalComponent extends BaseClass {
 
     public async ngOnInit() {
         this.rules = await this._data.getCateringConfig(
-            this.order.event.space?.level?.parent_id
+            this.order.event?.space?.level?.parent_id
         );
     }
 
@@ -246,9 +417,5 @@ export class CateringOrderModalComponent extends BaseClass {
                 metadata: { order: this.order },
             });
         }
-    }
-
-    public confirmOrder() {
-        this.show_order_details = true;
     }
 }

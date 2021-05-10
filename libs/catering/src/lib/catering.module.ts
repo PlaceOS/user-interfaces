@@ -16,7 +16,7 @@ import { CateringOrderOptionsModalComponent } from './catering-order-options-mod
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrderComponent } from './catering-order.component';
 import { CateringOrderListComponent } from './catering-order-list.component';
-import { CateringOrderModalComponent } from './catering-order-modal/catering-order-modal.component';
+import { CateringOrderModalComponent } from './catering-order-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
