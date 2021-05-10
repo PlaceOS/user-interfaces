@@ -4,6 +4,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
@@ -30,6 +31,7 @@ describe('CateringItemOptionModalComponent', () => {
             MatCheckboxModule,
             MatFormFieldModule,
             MatInputModule,
+            MatProgressSpinnerModule,
             ReactiveFormsModule,
         ],
     });

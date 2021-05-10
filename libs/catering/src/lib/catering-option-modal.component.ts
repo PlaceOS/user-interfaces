@@ -99,7 +99,7 @@ export interface CateringItemOptionModalData {
         <ng-template #load_state>
             <div class="flex flex-col items-center p-8 space-y-2 w-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving catering item...</p>
+                <p>Saving catering item option...</p>
             </div>
         </ng-template>
         <mat-autocomplete #auto="matAutocomplete">
