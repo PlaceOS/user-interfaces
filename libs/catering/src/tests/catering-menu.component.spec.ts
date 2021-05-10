@@ -6,12 +6,16 @@ import { CateringMenuComponent } from '../lib/catering-menu.component';
 import { CateringMenuItemComponent } from '../lib/catering-menu-item.component';
 import { CateringStateService } from '../lib/catering-state.service';
 import { MatTabsModule } from '@angular/material/tabs';
+import { IconComponent } from '@placeos/components';
 
 describe('CateringMenuComponent', () => {
     let spectator: Spectator<CateringMenuComponent>;
     const createComponent = createComponentFactory({
         component: CateringMenuComponent,
-        declarations: [MockComponent(CateringMenuItemComponent)],
+        declarations: [
+            MockComponent(CateringMenuItemComponent),
+            MockComponent(IconComponent),
+        ],
         providers: [
             {
                 provide: CateringStateService,
