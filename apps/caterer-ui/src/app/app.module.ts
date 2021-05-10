@@ -22,6 +22,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
 
 import '@placeos/mocks';
 import * as Sentry from '@sentry/angular';
+import { MatRippleModule } from '@angular/material/core';
 
 @NgModule({
     declarations: [
@@ -43,6 +44,7 @@ import * as Sentry from '@sentry/angular';
         MatChipsModule,
         SharedCateringModule,
         ComponentsModule,
+        MatRippleModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

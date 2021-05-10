@@ -6,24 +6,35 @@ import { BaseClass } from '@placeos/common';
 @Component({
     selector: 'app-catering',
     template: `
-        <main class="relative w-full flex flex-col">
-            <catering-topbar *ngIf="page" class="relative z-10"></catering-topbar>
+        <main class="relative w-full flex flex-col bg-gray-200">
+            <catering-topbar
+                *ngIf="page"
+                class="relative z-10"
+            ></catering-topbar>
             <ng-container [ngSwitch]="page">
                 <catering-order-list
                     *ngSwitchCase="'orders'"
                     class="flex-1"
                 ></catering-order-list>
-                <catering-menu *ngSwitchCase="'menu'" class="flex-1"></catering-menu>
-                <div *ngSwitchDefault class="flex flex-1 items-center justify-center">
+                <catering-menu
+                    *ngSwitchCase="'menu'"
+                    class="flex-1"
+                ></catering-menu>
+                <div
+                    *ngSwitchDefault
+                    class="flex flex-1 items-center justify-center"
+                >
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-white shadow text-black"
+                        class="rounded flex flex-col items-center bg-white shadow text-black overflow-hidden"
                         [routerLink]="['/menu']"
                     >
                         <div
                             name="img"
                             class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="'rgba(0,0,0, .45) url(assets/img/menus.jpg)'"
+                            [style.background]="
+                                'rgba(0,0,0, .45) url(assets/img/menus.jpg)'
+                            "
                         >
                             Menus and Pricing
                         </div>
@@ -35,13 +46,15 @@ import { BaseClass } from '@placeos/common';
                     </a>
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-white shadow text-black"
+                        class="rounded flex flex-col items-center bg-white shadow text-black overflow-hidden"
                         [routerLink]="['/orders']"
                     >
                         <div
                             name="img"
                             class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="'rgba(0,0,0, .45) url(assets/img/orders.jpg)'"
+                            [style.background]="
+                                'rgba(0,0,0, .45) url(assets/img/orders.jpg)'
+                            "
                         >
                             Today's Orders
                         </div>
@@ -97,7 +110,8 @@ export class CateringComponent extends BaseClass {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(
-                (params) => (this.page = params.has('view') ? params.get('view') : '')
+                (params) =>
+                    (this.page = params.has('view') ? params.get('view') : '')
             )
         );
     }
