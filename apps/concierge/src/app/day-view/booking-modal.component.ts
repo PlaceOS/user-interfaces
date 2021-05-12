@@ -63,7 +63,6 @@ export class BookingModalComponent implements OnInit {
             new CalendarEvent(this._data.event || {})
         );
         this.form.get('host').setValue(null);
-        this.form.valueChanges.subscribe((v) => console.log('Form:', v));
     }
 
     public async save() {

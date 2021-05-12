@@ -153,7 +153,6 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        console.log('Add User:', user);
         const index = this.active_list.findIndex(
             (a_user) => a_user.email === user.email
         );
@@ -205,9 +204,7 @@ export class UserListFieldComponent
     private processCsvData(data: string) {
         const list = csvToJson(data) || [];
         const id = currentUser()?.staff_id || 'unknown';
-        console.log('List:', list);
         for (const el of list) {
-            console.log('Element:', el);
             el.name = el.name || `${el.first_name} ${el.last_name}`;
             const display = (
                 el.name || `${Math.floor(Math.random() * 9999_9999)}`
@@ -221,9 +218,7 @@ export class UserListFieldComponent
             }
             el.visit_expected = !el.email.endsWith('place.tech');
             this.addUser(new User(el));
-            console.log('List:', this.active_list);
         }
-        console.log('Finished processing CSV', this.active_list);
     }
 
     /* istanbul ignore next */

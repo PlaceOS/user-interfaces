@@ -225,7 +225,6 @@ export class EventsStateService extends BaseClass {
      * @param details
      */
     public setEvent(event: CalendarEvent) {
-        console.log('Set event:', event);
         this._event.next(event);
     }
 

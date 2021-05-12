@@ -206,11 +206,6 @@ export function checkRulesMatch(
         matches += 1;
     if (conditions.is_after && isAfter(date, addToDate(conditions.is_after)))
         matches += 1;
-    console.log(
-        stringToMinutes(conditions.min_length) <= duration,
-        stringToMinutes(conditions.min_length),
-        duration
-    );
     if (
         conditions.min_length &&
         stringToMinutes(conditions.min_length) <= duration

@@ -39,7 +39,6 @@ export class VisitorsStateService extends BaseClass {
     public readonly events = combineLatest([this._filters, this._poll]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
-            console.log('Filters:', filters);
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
             const start = filters.show_week

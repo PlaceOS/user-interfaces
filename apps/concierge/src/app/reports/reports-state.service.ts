@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 import { Booking, queryBookings } from '@placeos/bookings';
-import {
-    downloadFile,
-    HashMap,
-    jsonToCsv,
-    notifyError,
-} from '@placeos/common';
+import { downloadFile, HashMap, jsonToCsv, notifyError } from '@placeos/common';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays, endOfDay, format, startOfDay } from 'date-fns';
@@ -48,7 +43,6 @@ export class ReportsStateService {
     private _bookings_list = this._generate.pipe(
         debounceTime(500),
         switchMap((_) => {
-            console.log('Report:', _);
             const options = this._options.getValue();
             this._loading.next('Loading report details...');
             if (!options?.type && !options?.zones?.length) return of([]);

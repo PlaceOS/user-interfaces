@@ -179,7 +179,6 @@ export class TimeFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: string): void {
-        console.log('Set Value:', new_value);
         this.time = new_value;
         if (this._onChange) {
             const time = (this.time || '00:00').split(':');

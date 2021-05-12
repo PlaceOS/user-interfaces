@@ -144,7 +144,6 @@ export class DateFieldComponent
      */
     public writeValue(value: number) {
         this.date = formatISO(value || new Date());
-        console.log('Date:', this.date);
         this.show_tooltip = false;
     }
 

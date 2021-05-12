@@ -196,7 +196,6 @@ export class ExploreDeviceInfoComponent implements OnInit {
                 ]),
         });
         this.overlay_ref.attach(this._portal);
-        console.log('Open');
     }
 
     public close() {

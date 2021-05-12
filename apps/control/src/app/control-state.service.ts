@@ -224,7 +224,6 @@ export class ControlStateService extends BaseClass {
     private updateProperty(name: string, value: any) {
         const item = { ...this._system.getValue() };
         item[name] = value;
-        console.log('Update Property:', name, value);
         this._system.next(item);
     }
 }

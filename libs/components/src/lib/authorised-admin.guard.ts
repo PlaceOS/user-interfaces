@@ -34,11 +34,9 @@ export class AuthorisedAdminGuard implements CanActivate, CanLoad {
     }
 
     private async checkUser() {
-        console.log('Online State:', onlineState);
         await onlineState()
             .pipe(first((_) => _))
             .toPromise();
-        console.log('Current User:', current_user);
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const can_activate = user && user.groups.includes('placeos_admin');
         if (!can_activate) {

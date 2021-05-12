@@ -145,7 +145,6 @@ export class UserSearchFieldComponent
     public cancelReset = () => this.clearTimeout('reset');
 
     public blurInput = () => {
-        console.log('Blur', this._input_el);
         this.timeout('blur', () => this._input_el?.nativeElement?.blur());
     };
 

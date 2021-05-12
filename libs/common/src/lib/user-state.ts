@@ -14,7 +14,6 @@ setTimeout(() => {
     try {
         if (jest) return;
     } catch {}
-    console.log('Loading logged in user details...');
     showUser('current')
         .pipe(
             delay(1000),
