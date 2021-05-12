@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Integrations } from '@sentry/tracing';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import {
@@ -26,12 +27,11 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { SpacesService } from '../../../spaces/src/lib/spaces.service';
-import { setDefaultCreator } from '../../../events/src/lib/event.class';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
-import { Integrations } from '@sentry/tracing';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -59,7 +59,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
             </div>
         </div>
     `,
-    styles: [``]
+    styles: [``],
 })
 export class AppComponent extends BaseClass implements OnInit {
     private _loading = new BehaviorSubject<boolean>(false);
@@ -94,13 +94,11 @@ export class AppComponent extends BaseClass implements OnInit {
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
             navigator.clipboard?.readText().then((tkn) => {
                 const parts = tkn.split('|');
-                localStorage.setItem(`${clientId()}_access_token`, `${tkn[0]}`);
+                const id = clientId();
+                localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
+                localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
                 localStorage.setItem(
-                    `${clientId()}_refresh_token`,
-                    `${tkn[1]}`
-                );
-                localStorage.setItem(
-                    `${clientId()}_expires_at`,
+                    `${id}_expires_at`,
                     `${addHours(new Date(), 6).valueOf()}`
                 );
                 notifySuccess('Successfully pasted token.');
