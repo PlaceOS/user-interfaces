@@ -160,7 +160,7 @@ export class BookingConfirmComponent extends BaseClass {
             end = endOfDay(end).valueOf();
         }
         const available_spaces = await this._calendar
-            .availability({
+            .freeBusy({
                 system_ids: spaces.map((space) => space.id).join(','),
                 period_start: start,
                 period_end: Math.floor(end / 1000),
