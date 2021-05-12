@@ -12,14 +12,55 @@ const randomSpaceFeatures = () => {
 };
 
 export const MOCK_SPACES = [
-    { name: 'Meeting Room 1.01', map_id: 'area-1.01-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.02', map_id: 'area-1.02-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.03', map_id: 'area-1.03-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.04', map_id: 'area-1.04-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.05', map_id: 'area-1.05-status', zones: ['bld-01_lvl-01'], bookable: false },
-    { name: 'Meeting Room 1.06', map_id: 'area-1.06-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.07', map_id: 'area-1.07-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.08', map_id: 'area-1.08-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.09', map_id: 'area-1.01-status', zones: ['bld-01_lvl-01'] },
-    { name: 'Meeting Room 1.10', map_id: 'area-1.10-status', zones: ['bld-01_lvl-01'] },
-].map(d => generateMockSpace({ ...d, features: randomSpaceFeatures() }));
+    {
+        name: 'Meeting Room 1.01',
+        map_id: 'area-1.01-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.02',
+        map_id: 'area-1.02-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.03',
+        map_id: 'area-1.03-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.04',
+        map_id: 'area-1.04-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.05',
+        map_id: 'area-1.05-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+        bookable: false,
+    },
+    {
+        name: 'Meeting Room 1.06',
+        map_id: 'area-1.06-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.07',
+        map_id: 'area-1.07-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.08',
+        map_id: 'area-1.08-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.09',
+        map_id: 'area-1.01-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+    {
+        name: 'Meeting Room 1.10',
+        map_id: 'area-1.10-status',
+        zones: ['bld-01', 'bld-01_lvl-01'],
+    },
+].map((d) => generateMockSpace({ ...d, features: randomSpaceFeatures() }));

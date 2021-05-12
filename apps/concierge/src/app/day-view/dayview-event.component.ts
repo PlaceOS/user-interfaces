@@ -18,32 +18,26 @@ import { EventsStateService } from './events-state.service';
         <div
             name="event"
             matRipple
-            [class]="'absolute rounded overflow-hidden text-sm ' + type"
+            [class]="
+                'absolute rounded overflow-hidden text-sm border border-gray-200 shadow-sm ' +
+                type
+            "
             *ngIf="event"
             [style.top]="top * 100 + '%'"
             [style.height]="height * 100 + '%'"
             (click)="view(event)"
         >
-            <div class="info">{{ event.organiser?.name }}</div>
-            <div class="info flex items-center" *ngIf="event.duration > 30">
-                <app-icon
-                    class="mx-2"
-                    [icon]="{ class: 'material-icons', content: 'title' }"
-                ></app-icon>
+            <div class="px-2 py-1 font-medium">{{ event.organiser?.name }}</div>
+            <div class="py-1 flex items-center" *ngIf="event.duration > 30">
+                <app-icon class="mx-2">title</app-icon>
                 {{ event.title }}
             </div>
-            <div class="info flex items-center" *ngIf="event.duration > 60">
-                <app-icon
-                    class="mx-2"
-                    [icon]="{ class: 'material-icons', content: 'schedule' }"
-                ></app-icon>
+            <div class="py-1 flex items-center" *ngIf="event.duration > 60">
+                <app-icon class="mx-2">schedule</app-icon>
                 {{ time }}
             </div>
-            <div class="info flex items-center" *ngIf="event.duration > 90">
-                <app-icon
-                    class="mx-2"
-                    [icon]="{ class: 'material-icons', content: 'user' }"
-                ></app-icon>
+            <div class="py-1 flex items-center" *ngIf="event.duration > 90">
+                <app-icon class="mx-2">people</app-icon>
                 {{ event.attendees.length }} Attendee{{
                     event.attendees.length === 1 ? '' : 's'
                 }}
@@ -60,15 +54,9 @@ import { EventsStateService } from './events-state.service';
                     'icon flex mr-2 text-3xl rounded ' + event.cleaning_status
                 "
             >
-                <app-icon
-                    [icon]="{
-                        class: 'material-icons',
-                        content:
-                            event.cleaning_status === 'done'
-                                ? 'done'
-                                : 'warning'
-                    }"
-                ></app-icon>
+                <app-icon>{{
+                    event.cleaning_status === 'done' ? 'done' : 'warning'
+                }}</app-icon>
             </div>
             <div class="text">
                 {{
@@ -82,10 +70,6 @@ import { EventsStateService } from './events-state.service';
     `,
     styles: [
         `
-            :host {
-                border-right: 1px solid rgba(0, 0, 0, 0.1);
-            }
-
             [name='event'] {
                 background-color: #ccc;
                 width: 12rem;
@@ -96,7 +80,7 @@ import { EventsStateService } from './events-state.service';
             [name='event']:hover {
                 box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.2),
                     0 1px 1px 0 rgba(0, 0, 0, 0.14),
-                    0 2px 1px -1px rgba(0, 0, 0, 0.12);
+                    0 2px 1px -1px rgba(0, 0, 0, 0.12) !important;
                 cursor: pointer;
                 z-index: 999;
             }
@@ -113,7 +97,7 @@ import { EventsStateService } from './events-state.service';
             }
 
             .internal {
-                background-color: #00a4c7;
+                background-color: #1565c0;
                 color: #fff;
             }
 
@@ -129,20 +113,12 @@ import { EventsStateService } from './events-state.service';
             }
 
             .external {
-                background-color: #d85be0;
+                background-color: #ad1457;
                 color: #fff;
             }
 
             .cancelled {
                 background-color: #ccc;
-            }
-
-            .info:first-child {
-                padding: 0.75em 0.5em;
-            }
-
-            .info {
-                padding: 0.25em 0.5em;
             }
         `,
     ],
