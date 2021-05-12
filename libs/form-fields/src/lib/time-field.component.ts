@@ -195,7 +195,7 @@ export class TimeFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = value;
+        this.date = value || this.date;
         let date = startOfMinute(this.date);
         date = roundToNearestMinutes(date, { nearestTo: 5 });
         this.time = format(date, 'HH:mm');
