@@ -127,17 +127,17 @@ export class DayviewEventComponent implements OnChanges {
     /** Event to display */
     @Input() public event: CalendarEvent;
     /** Top position for the event */
-    public top: number = -999;
+    public top = -999;
     /** Height of the event on the calendar */
-    public height: number = 0;
+    public height = 0;
     /** Top position for the event */
-    public overflow_top: number = -999;
+    public overflow_top = -999;
     /** Height of the event on the calendar */
-    public overflow_height: number = 0;
-
-    public readonly view = (e) => this._state.setEvent(e);
+    public overflow_height = 0;
 
     public readonly ui_options = this._state.options;
+
+    public readonly view = (e) => this._state.setEvent(e);
 
     public get time() {
         const date = new Date(this.event.date);

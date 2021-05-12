@@ -1,4 +1,11 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -68,10 +75,10 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             *ngIf="loading | async"
             mode="indeterminate"
         ></mat-progress-bar>
-        <dayview-event-details
+        <view-event-details
             *ngIf="event | async"
             [event]="event | async"
-        ></dayview-event-details>
+        ></view-event-details>
     `,
     styles: [
         `
@@ -180,7 +187,9 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
         `,
     ],
 })
-export class DayviewTimelineComponent extends BaseClass {
+export class DayviewTimelineComponent
+    extends BaseClass
+    implements OnInit, OnDestroy, AfterViewInit {
     /** Time blocks to display */
     public readonly blocks: string[] = HOUR_BLOCKS;
     /** Current scroll position of the content */
@@ -199,7 +208,6 @@ export class DayviewTimelineComponent extends BaseClass {
     ]).pipe(
         map((details) => {
             const [bld, spaces, zones] = details;
-            console.log('Space:', spaces, bld, zones);
             return (
                 spaces.filter(
                     (space) =>
@@ -234,14 +242,13 @@ export class DayviewTimelineComponent extends BaseClass {
     }
 
     public onScroll(e) {
-        if (this._ref_el) {
-            requestAnimationFrame(
-                () =>
-                    (this.scroll = {
-                        x: e.srcElement.scrollLeft,
-                        y: e.srcElement.scrollTop,
-                    })
-            );
-        }
+        if (!this._ref_el) return;
+        requestAnimationFrame(
+            () =>
+                (this.scroll = {
+                    x: e.srcElement.scrollLeft,
+                    y: e.srcElement.scrollTop,
+                })
+        );
     }
 }
