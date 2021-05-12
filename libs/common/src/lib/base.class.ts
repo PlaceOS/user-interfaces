@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Subscription, BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
-export class BaseClass {
+export class BaseClass implements OnDestroy {
     /** Store for named timers */
     protected _timers: { [name: string]: number } = {};
     /** Store for named intervals */
@@ -29,17 +29,17 @@ export class BaseClass {
 
     protected destroy() {
         for (const key in this._timers) {
-            if (this._timers.hasOwnProperty(key)) {
+            if (key in this._timers) {
                 this.clearTimeout(key);
             }
         }
         for (const key in this._intervals) {
-            if (this._intervals.hasOwnProperty(key)) {
+            if (key in this._intervals) {
                 this.clearInterval(key);
             }
         }
         for (const key in this._subscriptions) {
-            if (this._subscriptions.hasOwnProperty(key)) {
+            if (key in this._subscriptions) {
                 this.unsub(key);
             }
         }
