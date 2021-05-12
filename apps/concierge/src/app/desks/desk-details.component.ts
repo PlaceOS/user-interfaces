@@ -13,10 +13,10 @@ import { DesksStateService } from './desks-state.service';
         </div>
         <div class="w-32 p-2">{{ desk?.approver_name }}</div>
         <div class="w-32 p-2">{{ desk?.checked_in ? 'Yes' : 'No' }}</div>
+        <div class="w-24 p-2">{{ desk?.access ? 'Yes' : 'No' }}</div>
         <div class="w-32 p-2 flex items-center">
             <action-icon
                 mat-icon-button
-
                 (click)="checkin()"
                 [loading]="loading === 'checkin'"
                 [state]="desk?.checked_in ? 'success' : ''"
@@ -24,7 +24,6 @@ import { DesksStateService } from './desks-state.service';
             ></action-icon>
             <action-icon
                 mat-icon-button
-
                 (click)="approve()"
                 [loading]="loading === 'approve'"
                 [state]="desk?.approved ? 'success' : ''"
@@ -32,7 +31,6 @@ import { DesksStateService } from './desks-state.service';
             ></action-icon>
             <action-icon
                 mat-icon-button
-
                 (click)="reject()"
                 [loading]="loading === 'reject'"
                 [state]="desk?.status === 'declined' ? 'success' : ''"
@@ -56,11 +54,11 @@ import { DesksStateService } from './desks-state.service';
             }
 
             .tentative {
-                color: #ffa000;
+                color: #ffa000 !important;
             }
 
             .approved {
-                color: #388e3c;
+                color: #388e3c !important;
             }
         `,
     ],
@@ -79,9 +77,7 @@ export class DeskDetailsComponent {
             this._state.approveDesk(this.desk)
         );
     public readonly reject = () =>
-        this.runMethod('reject', async () =>
-            this._state.rejectDesk(this.desk)
-        );
+        this.runMethod('reject', async () => this._state.rejectDesk(this.desk));
 
     constructor(private _state: DesksStateService) {}
 
