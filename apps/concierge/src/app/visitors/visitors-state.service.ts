@@ -1,10 +1,17 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    endOfDay,
+    endOfWeek,
+    startOfDay,
+    startOfWeek,
+    getUnixTime,
+} from 'date-fns';
+
 import { BaseClass, notifyError, notifySuccess, unique } from '@placeos/common';
 import { CalendarEvent, checkinEventGuest, queryEvents } from '@placeos/events';
 import { User } from '@placeos/users';
-import { endOfDay, endOfWeek, startOfDay, startOfWeek } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface VisitorFilters {
     date?: number;
@@ -17,6 +24,8 @@ export interface VisitorFilters {
     providedIn: 'root',
 })
 export class VisitorsStateService extends BaseClass {
+    private _poll = new BehaviorSubject<number>(0);
+
     private _filters = new BehaviorSubject<VisitorFilters>({});
 
     private _search = new BehaviorSubject<string>('');
@@ -27,23 +36,19 @@ export class VisitorsStateService extends BaseClass {
 
     public readonly filters = this._filters.asObservable();
 
-    public readonly events = combineLatest([this._filters]).pipe(
+    public readonly events = combineLatest([this._filters, this._poll]).pipe(
         debounceTime(500),
-        switchMap((details) => {
+        switchMap(([filters]) => {
+            console.log('Filters:', filters);
             this._loading.next(true);
-            const [filters] = details;
             const date = filters.date ? new Date(filters.date) : new Date();
-            const start = (filters.show_week
+            const start = filters.show_week
                 ? startOfWeek(date)
-                : startOfDay(date)
-            ).valueOf();
-            const end = (filters.show_week
-                ? endOfWeek(date)
-                : endOfDay(date)
-            ).valueOf();
+                : startOfDay(date);
+            const end = filters.show_week ? endOfWeek(date) : endOfDay(date);
             return queryEvents({
-                period_start: Math.floor(start / 1000),
-                period_end: Math.floor(end / 1000),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
                 zone_ids: (filters.zones || []).join(','),
             });
         }),
@@ -56,7 +61,7 @@ export class VisitorsStateService extends BaseClass {
                           event.guests.length && event.attendees.length > 1
                   );
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     public readonly filtered_events = combineLatest([
@@ -95,7 +100,7 @@ export class VisitorsStateService extends BaseClass {
     public startPolling(delay: number = 30 * 1000) {
         this.interval(
             'poll',
-            () => this.setFilters(this._filters.getValue()),
+            () => this._poll.next(new Date().valueOf()),
             delay
         );
     }

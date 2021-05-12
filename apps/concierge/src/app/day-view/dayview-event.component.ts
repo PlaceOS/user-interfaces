@@ -134,7 +134,7 @@ import { EventsStateService } from './events-state.service';
             }
 
             .cancelled {
-                background-color: #eee;
+                background-color: #ccc;
             }
 
             .info:first-child {

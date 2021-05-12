@@ -5,7 +5,7 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-listings',
     template: `
-        <div class="w-full flex-1 text-sm">
+        <div class="w-full flex flex-col flex-1 text-sm h-full">
             <div
                 class="w-full flex items-center bg-white border-b border-gray-500 p-2 font-medium"
             >
@@ -17,12 +17,15 @@ import { VisitorsStateService } from './visitors-state.service';
                 <div class="w-32 p-2">Actions</div>
                 <div class="w-16 p-2"></div>
             </div>
-            <div class="w-full flex-1 overflow-auto">
+            <div class="w-full flex-1 overflow-auto h-1/2">
                 <ng-container
                     *ngIf="(bookings | async)?.length; else empty_state"
                 >
                     <visitor-event
-                        *ngFor="let event of bookings | async; trackBy: trackByFn"
+                        *ngFor="
+                            let event of bookings | async;
+                            trackBy: trackByFn
+                        "
                         [event]="event"
                     ></visitor-event>
                 </ng-container>
@@ -41,7 +44,7 @@ import { VisitorsStateService } from './visitors-state.service';
 export class VisitorListingsComponent {
     public readonly bookings = this._state.filtered_events;
 
-    constructor(private _state: VisitorsStateService) { }
+    constructor(private _state: VisitorsStateService) {}
 
     /* istanbul ignore next */
     public trackByFn(index: number, event: CalendarEvent) {

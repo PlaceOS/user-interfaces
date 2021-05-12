@@ -2,12 +2,14 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
 import { BaseClass, notifyError, SettingsService } from '@placeos/common';
 import { CalendarEvent, saveEvent } from '@placeos/events';
 import { showGuest, User } from '@placeos/users';
+
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -138,7 +140,7 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
 })
-export class VisitorDetailsComponent extends BaseClass {
+export class VisitorDetailsComponent extends BaseClass implements OnChanges {
     @Input() public event: CalendarEvent;
     @Input() public visitor: User;
     @Output() public eventChange = new EventEmitter<CalendarEvent>();
@@ -160,7 +162,7 @@ export class VisitorDetailsComponent extends BaseClass {
         this.loading = 'remote';
         const remote_list = this.event
             .ext('remote')
-            .filter((e) => e !== this.visitor.email);
+            ?.filter((e) => e !== this.visitor.email);
         if (!this.remote) {
             remote_list.push(this.visitor.email);
         }
@@ -212,13 +214,13 @@ export class VisitorDetailsComponent extends BaseClass {
     }
 
     public get today(): number {
-        return Math.floor(new Date().valueOf() / 60 / 1000) * 60 * 1000;
+        return Date.now();
     }
 
     public get remote(): boolean {
         return !!this.event
             ?.ext('remote')
-            .find((e) => e === this.visitor?.email);
+            ?.find((e) => e === this.visitor?.email);
     }
 
     constructor(
@@ -229,9 +231,7 @@ export class VisitorDetailsComponent extends BaseClass {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.visitor) {
-            this.loadGuest();
-        }
+        if (changes.visitor) this.loadGuest();
     }
 
     public async loadGuest(tries: number = 0) {
@@ -243,11 +243,7 @@ export class VisitorDetailsComponent extends BaseClass {
                 .catch((_) => null);
             if (!guest?.extension_data?.qr?.code && tries < 5) {
                 this.timeout('load_guest', () => this.loadGuest(++tries), 1000);
-            } else {
-                this.loading = '';
-            }
-        } else {
-            this.loading = '';
-        }
+            } else this.loading = '';
+        } else this.loading = '';
     }
 }
