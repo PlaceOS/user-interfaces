@@ -1,4 +1,3 @@
-import { BaseDataClass } from 'libs/common/src/lib/base-api.class';
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 
@@ -14,7 +13,13 @@ export type EventResponseStatus =
     | 'accepted'
     | '';
 
-export class User extends BaseDataClass {
+export class User {
+    /** ID of the user */
+    public readonly id: string;
+    /** Display name of the user */
+    public readonly name: string;
+    /** Email address of the user */
+    public readonly email: string;
     /** First name of the user */
     public readonly first_name: string;
     /** Last name of the user */
@@ -45,7 +50,9 @@ export class User extends BaseDataClass {
     public readonly assistance_required: boolean;
 
     constructor(data: Partial<UserComplete> = {}) {
-        super(data);
+        this.id = data.id || '';
+        this.name = data.name || '';
+        this.email = data.email || '';
         this.first_name = data.first_name || data.name || '';
         this.last_name = data.last_name || '';
         this.phone = data.phone || '';

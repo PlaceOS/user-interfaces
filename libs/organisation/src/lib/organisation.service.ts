@@ -98,7 +98,7 @@ export class OrganisationService {
 
     /** Get building by id */
     public find(id: string) {
-        return this.buildings.find((i) => i.id === id || i.email === id);
+        return this.buildings.find((i) => i.id === id);
     }
 
     /** List of available levels */
@@ -197,7 +197,7 @@ export class OrganisationService {
         }
         const buildings = [];
         for (const bld of building_list) {
-            const bindings = (
+            const bindings: HashMap = (
                 await showMetadata(bld.id, { name: 'bindings' }).toPromise()
             )?.details;
             buildings.push(new Building({ ...bld, bindings }));

@@ -1,10 +1,5 @@
-import {
-    BaseDataClass,
-    HashMap,
-    Identity,
-    RoomConfiguration,
-} from '@placeos/common';
-import { BookingRulesmap } from '@placeos/events';
+import { HashMap, Identity, RoomConfiguration } from '@placeos/common';
+import { BookingRulesmap } from 'libs/events/src/lib/event.interfaces';
 
 import { BuildingLevel } from './level.class';
 
@@ -44,7 +39,20 @@ export interface BookingRuleDetails {
     readonly info?: string;
 }
 
-export class Building extends BaseDataClass {
+export interface BuildingComplete extends Building {
+    settings: HashMap;
+    locker_structure: HashMap;
+    roles: HashMap;
+    zone: string;
+    location: string;
+    neighbourhoods: HashMap;
+}
+
+export class Building {
+    /** PlaceOS zone id of the building */
+    public readonly id: string;
+    /** Name of the building zone */
+    public readonly name: string;
     /** Name to display */
     public readonly display_name: string;
     /** Engine Zone ID for the building */
@@ -97,8 +105,9 @@ export class Building extends BaseDataClass {
     /** Globe coordiates for the build */
     private _location: ICoordinates;
 
-    constructor(raw_data: HashMap = {}) {
-        super(raw_data);
+    constructor(raw_data: Partial<BuildingComplete> = {}) {
+        this.id = raw_data.id || '';
+        this.name = raw_data.name || '';
         const settings = raw_data.settings || {};
         this.display_name = raw_data.display_name;
         const disc_info = settings.discovery_info || settings;
@@ -207,9 +216,7 @@ export class Building extends BaseDataClass {
      * Get list of the names of available user role lists
      */
     public get role_names(): string[] {
-        return Object.keys(this._roles).filter((i) =>
-            this._roles.hasOwnProperty(i)
-        );
+        return Object.keys(this._roles).filter((i) => i in this._roles);
     }
     /** Map of the locker ID arrays */
     public get lockers(): LockerMap {

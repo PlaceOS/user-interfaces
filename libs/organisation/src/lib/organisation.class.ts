@@ -1,10 +1,14 @@
-import { BaseDataClass, getItemWithKeys, HashMap } from '@placeos/common';
+import { getItemWithKeys, HashMap } from '@placeos/common';
 
 export interface OrganisationComplete extends Organisation {
     settings?: HashMap;
 }
 
-export class Organisation extends BaseDataClass {
+export class Organisation {
+    /** PlaceOS zone id of the building */
+    public readonly id: string;
+    /** Name of the building zone */
+    public readonly name: string;
     /** Description for the Organisation */
     public readonly description: string;
     /** Tags for the Organisation */
@@ -19,7 +23,8 @@ export class Organisation extends BaseDataClass {
     private _settings: HashMap;
 
     constructor(raw_data: Partial<OrganisationComplete> = {}) {
-        super(raw_data);
+        this.id = raw_data.id || '';
+        this.name = raw_data.name || '';
         this.description = raw_data.description || '';
         this.tags = raw_data.tags || [];
         this.count = raw_data.count || 0;
