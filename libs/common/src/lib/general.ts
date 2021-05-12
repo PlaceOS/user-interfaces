@@ -11,6 +11,12 @@ import {
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
 
+declare global {
+    interface Window {
+        debug: boolean;
+    }
+}
+
 let _app_name = 'APP';
 
 export function setAppName(name: string) {

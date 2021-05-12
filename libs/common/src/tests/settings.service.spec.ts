@@ -1,6 +1,6 @@
-import { SettingsService } from './settings.service';
+import { SettingsService } from '../lib/settings.service';
 
-import * as SETTINGS from './settings';
+import * as SETTINGS from '../lib/settings';
 
 describe('SettingsService', () => {
     let service: SettingsService;
@@ -36,7 +36,9 @@ describe('SettingsService', () => {
         service.initialised.subscribe((state) => {
             if (state) {
                 expect(service.get('nest_test')).toBe(test_data.nest_test);
-                expect(service.get('nest_test.level_1')).toBe(test_data.nest_test.level_1);
+                expect(service.get('nest_test.level_1')).toBe(
+                    test_data.nest_test.level_1
+                );
                 expect(service.get('nest_test.level_1.level')).toBe(
                     test_data.nest_test.level_1.level
                 );

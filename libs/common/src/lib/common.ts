@@ -8,7 +8,6 @@ export { VERSION } from './version';
 export * from './angular-animations';
 export * from './api';
 export * from './application';
-export * from './base-api.class';
 export * from './formatting';
 export * from './general';
 export * from './notifications';
