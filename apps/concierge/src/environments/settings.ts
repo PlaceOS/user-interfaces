@@ -1,15 +1,37 @@
-
 const general = {
     menu: [
-        { route: 'day-view', name: 'Calendar', icon: { class: 'material-icons', content: 'event' } },
-        { route: 'facilities', name: 'Facilities', icon: { class: 'material-icons', content: 'plot' } },
-        { route: 'catering', name: 'Catering', icon: { class: 'material-icons', content: 'room_service' } },
-        { route: 'visitors', name: 'Visitors', icon: { class: 'material-icons', content: 'group' } },
-        { route: 'desks', name: 'Desks', icon: { class: 'material-icons', content: 'article' } },
-        { route: 'staff', name: 'Staff', icon: { class: 'material-icons', content: 'account_box' } }
-    ]
-}
-
+        {
+            route: 'day-view',
+            name: 'Calendar',
+            icon: { class: 'material-icons', content: 'event' },
+        },
+        {
+            route: 'facilities',
+            name: 'Facilities',
+            icon: { class: 'material-icons', content: 'meeting_room' },
+        },
+        {
+            route: 'catering',
+            name: 'Catering',
+            icon: { class: 'material-icons', content: 'room_service' },
+        },
+        {
+            route: 'visitors',
+            name: 'Visitors',
+            icon: { class: 'material-icons', content: 'group' },
+        },
+        {
+            route: 'desks',
+            name: 'Desks',
+            icon: { class: 'material-icons', content: 'article' },
+        },
+        {
+            route: 'staff',
+            name: 'Staff',
+            icon: { class: 'material-icons', content: 'account_box' },
+        },
+    ],
+};
 
 const app = {
     name: 'Concierge',
@@ -18,14 +40,14 @@ const app = {
     short_name: 'PlaceOS',
     logo_light: {
         type: 'img',
-        src: 'assets/logo-light.svg'
+        src: 'assets/logo-light.svg',
     },
     logo_dark: {
         type: 'img',
-        src: 'assets/logo-dark.svg'
+        src: 'assets/logo-dark.svg',
     },
-    general
-}
+    general,
+};
 
 /**
  * ROOT SETTIGNS
@@ -40,5 +62,5 @@ export const DEFAULT_SETTINGS = {
         use_domain: false,
         local_login: false,
     },
-    app
+    app,
 };
