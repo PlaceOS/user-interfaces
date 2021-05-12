@@ -20,6 +20,8 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
     const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
     const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld.id);
     const lvl = lvls[predictableRandomInt(lvls.length)];
+    const approved = predictableRandomInt(999999) % 4;
+    const approver = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
     return {
         id: `booking-${index}`,
         booking_start: nextEventTime(true),
@@ -27,12 +29,17 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
         user_id: user.id,
         user_name: user.name,
         user_email: user.email,
+        asset_id: `desk-${lvl?.id}-${index}`,
+        description: `Desk ${index}`,
         title: `${type} Booking ${index}`,
         type,
         checked_in: predictableRandomInt(999999) % 3 === 0,
         access: predictableRandomInt(999999) % 3 === 0,
-        approved: predictableRandomInt(999999) % 4 === 0,
-        rejected: predictableRandomInt(999999) % 4 === 0,
+        approved: approved === 0,
+        rejected: approved === 1,
+        approver_id: approved === 0 ? approver.id : '',
+        approver_name: approved === 0 ? approver.name : '',
+        approver_email: approved === 0 ? approver.email : '',
         zones: [bld.id, lvl?.id],
         extension_data: {},
     };

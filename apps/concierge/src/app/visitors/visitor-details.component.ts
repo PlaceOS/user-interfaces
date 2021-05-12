@@ -37,7 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </ng-template>
         </div>
         <div flex class="p-2 flex-1">{{ visitor?.name || visitor?.email }}</div>
-        <div class="w-48 p-2 flex items-center justify-end">
+        <div class="w-48 py-2 flex items-center justify-end">
             <action-icon
                 [matTooltip]="
                     remote
@@ -83,7 +83,7 @@ import { VisitorsStateService } from './visitors-state.service';
             >
             </action-icon>
         </div>
-        <div class="w-8 p-2"></div>
+        <div class="w-14 p-2"></div>
         <div
             qr-code
             *ngIf="show_qr_code"

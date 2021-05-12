@@ -43,7 +43,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
             <div flex class="p-2 flex-1">{{ event?.title }}</div>
             <div class="w-64 p-2 truncate">{{ event?.location }}</div>
-            <div class="w-32 p-2 flex items-center justify-end">
+            <div class="w-32 py-2 flex items-center">
                 <action-icon
                     matTooltip="Checkin All Guests"
                     [loading]="loading === 'checkin'"
