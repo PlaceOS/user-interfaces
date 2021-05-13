@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1620868179932,
+  "timestamp": 1620879843472,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,9 +11,9 @@
         "ignoreVary": true
       },
       "urls": [
-        "./checkin-checkin-module.js",
+        "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js",
+        "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js",
         "./common.js",
-        "./explore-explore-module.js",
         "./favicon.ico",
         "./index.html",
         "./main.js",
@@ -89,6 +89,8 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "6d95beefc798834ae2b8a227e960856efaecd432",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "3efe2d20625d135b8dd7b82b58ae9a5f7c70f8c5",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -139,17 +141,15 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./checkin-checkin-module.js": "cd3c7cae0b804a16686ac53ae7bc97efdb58488e",
-    "./common.js": "e322f410509c566fe3e4d8314c66a39f3810408c",
-    "./explore-explore-module.js": "7a234db67ffeb0d23ed2caf6533a6a7f661dfd6d",
+    "./common.js": "2049627afd9880e089826edb5a9a36e023a0a9dc",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "1feadcf5cab162ba66ca44c337b1a159669da436",
-    "./main.js": "e48560992f8992d9ecaa5967a421db7f66e6477e",
+    "./index.html": "e7baf8d71987a27c43d1b4a62c3d01c69a7cbc68",
+    "./main.js": "75d92f34df7a8f588fa140993f3d26bf23ed1a67",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
-    "./polyfills.js": "b6bf99a77c325ce908efc0ac1248174e47e2e145",
-    "./runtime.js": "fba905e3518c9cf0cd79c338610e6687f184eca7",
-    "./styles.css": "bdd447160c60c0fec8ed1c6648d34ba2372ddeea",
-    "./vendor.js": "cc2a6d1655d7b4adadbd031a8fabc53ecd5bf95e"
+    "./polyfills.js": "31fdd5ecd5a927640b2cbc6a9abb23c5004594ae",
+    "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
+    "./styles.css": "f48defb41fccdc1e013a29fd1dc91a46c643a832",
+    "./vendor.js": "287eac9793b1c0b956d5fc372ea077793091edd9"
   },
   "navigationUrls": [
     {
