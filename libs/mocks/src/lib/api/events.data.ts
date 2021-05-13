@@ -4,6 +4,7 @@ import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
 
 import * as dayjs from 'dayjs';
+import { generateCateringOrder } from './catering.data';
 
 let EVENT_TIME = dayjs().startOf('d').hour(7);
 
@@ -40,6 +41,9 @@ export const MOCK_EVENTS = new Array(100).fill(0).map((_, index) => {
     if (has_active_user) {
         attendees.push(ACTIVE_USER);
     }
+
+    const event_start = nextEventTime(true);
+    const event_end = nextEventTime();
     return {
         id: `cal-event-${index}`,
         status: randomStatus(),
@@ -50,8 +54,8 @@ export const MOCK_EVENTS = new Array(100).fill(0).map((_, index) => {
         title: `Some Meeting ${index}`,
         body: `A Description`,
         private: false,
-        event_start: nextEventTime(true),
-        event_end: nextEventTime(),
+        event_start,
+        event_end,
         timezone: 'Australia/Sydney',
         all_day: false,
         location: `${space.name}`,
@@ -59,7 +63,18 @@ export const MOCK_EVENTS = new Array(100).fill(0).map((_, index) => {
         recurrence: {},
         attachments: {},
         system: space,
-        extension_data: {},
+        extension_data: {
+            catering:
+                predictableRandomInt(99999) % 4 === 0
+                    ? [
+                          generateCateringOrder({
+                              id: `cal-event-${index}`,
+                              event_start,
+                              event_end,
+                          }),
+                      ]
+                    : [],
+        },
     };
 });
 

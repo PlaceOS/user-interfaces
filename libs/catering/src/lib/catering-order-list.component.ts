@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CateringOrder } from './catering-order.class';
 
 import { CateringOrdersService } from './catering-orders.service';
 
@@ -20,14 +21,14 @@ import { CateringOrdersService } from './catering-orders.service';
         <ul class="list-none p-0 m-0 w-full flex-1 overflow-auto">
             <li
                 class="border-solid border-b border-gray-300"
-                *ngFor="let order of order_list | async"
+                *ngFor="let order of order_list | async; trackBy: trackByFn"
             >
                 <catering-order [order]="order"></catering-order>
             </li>
             <div
                 empty
                 class="info-block text-dark-fade"
-                *ngIf="!(order_list | async).length"
+                *ngIf="!(order_list | async)?.length"
             >
                 <p>No Catering Orders</p>
             </div>
@@ -63,5 +64,10 @@ export class CateringOrderListComponent implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         this._orders.stopPolling();
+    }
+
+    /* istanbul ignore next */
+    public trackByFn(index: number, order: CateringOrder) {
+        return order ? order.id : undefined;
     }
 }

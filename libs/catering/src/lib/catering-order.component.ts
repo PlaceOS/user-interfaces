@@ -10,7 +10,7 @@ import { CATERING_STATUSES } from './catering.vars';
     selector: 'catering-order',
     template: `
         <div
-            class="w-full font-medium flex items-center py-2 bg-gray-100"
+            class="w-full flex items-center py-2 bg-gray-100"
             [class.shown]="show_items"
             *ngIf="order"
         >
@@ -43,7 +43,7 @@ import { CATERING_STATUSES } from './catering.vars';
             <div class="w-36">
                 <button
                     name="status"
-                    class="text-base border-none h-10 px-4 flex items-center text-white"
+                    class="text-base border-none h-10 px-4 flex items-center text-white w-36"
                     matRipple
                     [style.background]="status?.colour"
                     [matMenuTriggerFor]="menu"

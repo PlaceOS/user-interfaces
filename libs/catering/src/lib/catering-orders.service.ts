@@ -39,7 +39,6 @@ function checkOrder(
 export class CateringOrdersService extends BaseClass {
     private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
-    private _orders = new BehaviorSubject<CateringOrder[]>([]);
     private _filters = new BehaviorSubject<CateringOrderFilters>({});
 
     /** Observable for list of orders */
@@ -58,9 +57,7 @@ export class CateringOrdersService extends BaseClass {
                 period_end: end,
             });
         }),
-        map((events) => {
-            return flatten(events.map((event) => event.ext('catering')));
-        }),
+        map((events) => flatten(events.map((event) => event.ext('catering')))),
         tap(() => this._loading.next(false)),
         shareReplay(1)
     );
@@ -75,7 +72,7 @@ export class CateringOrdersService extends BaseClass {
         this._filters.next(filters);
     }
     /** Filtered list of catering orders */
-    public readonly filtered = this._orders.pipe(
+    public readonly filtered = this.orders.pipe(
         map((list) =>
             list.filter((order) => checkOrder(order, this._filters.getValue()))
         )
