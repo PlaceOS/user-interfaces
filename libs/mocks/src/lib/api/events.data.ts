@@ -27,10 +27,11 @@ const randomStatus = (): string => {
 };
 
 export const MOCK_EVENTS = new Array(100).fill(0).map((_, index) => {
-    let attendees: any[] = MOCK_STAFF.concat(MOCK_GUESTS).filter(
-        (_) => predictableRandomInt(9999) % 3 === 0
-    );
-    attendees.unshift(MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]);
+    const PEOPLE = MOCK_STAFF.concat(MOCK_GUESTS);
+    let attendees: any[] = new Array(predictableRandomInt(8, 1))
+        .fill(0)
+        .map((_) => PEOPLE[predictableRandomInt(PEOPLE.length)]);
+    attendees.unshift(ACTIVE_USER);
     attendees = unique(attendees, 'email');
     const space = MOCK_SPACES[predictableRandomInt(MOCK_SPACES.length)];
     attendees = attendees.concat({
