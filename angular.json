@@ -47,7 +47,6 @@
                         "main": "apps/workplace/src/main.ts",
                         "polyfills": "apps/workplace/src/polyfills.ts",
                         "tsConfig": "apps/workplace/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -77,7 +76,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {
@@ -213,7 +218,6 @@
                         "main": "apps/concierge/src/main.ts",
                         "polyfills": "apps/concierge/src/polyfills.ts",
                         "tsConfig": "apps/concierge/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -243,7 +247,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {
@@ -375,7 +385,6 @@
                         "main": "apps/control/src/main.ts",
                         "polyfills": "apps/control/src/polyfills.ts",
                         "tsConfig": "apps/control/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -405,7 +414,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {
@@ -541,7 +556,6 @@
                         "main": "apps/booking-panel/src/main.ts",
                         "polyfills": "apps/booking-panel/src/polyfills.ts",
                         "tsConfig": "apps/booking-panel/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -571,7 +585,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {
@@ -709,7 +729,6 @@
                         "main": "apps/map-kiosk/src/main.ts",
                         "polyfills": "apps/map-kiosk/src/polyfills.ts",
                         "tsConfig": "apps/map-kiosk/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -739,7 +758,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {
@@ -875,7 +900,6 @@
                         "main": "apps/visitor-kiosk/src/main.ts",
                         "polyfills": "apps/visitor-kiosk/src/polyfills.ts",
                         "tsConfig": "apps/visitor-kiosk/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -905,7 +929,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {
@@ -1043,7 +1073,6 @@
                         "main": "apps/caterer-ui/src/main.ts",
                         "polyfills": "apps/caterer-ui/src/polyfills.ts",
                         "tsConfig": "apps/caterer-ui/tsconfig.app.json",
-                        "aot": true,
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
@@ -1073,7 +1102,13 @@
                             "shared/styles/native-element.scss",
                             "shared/styles/utility.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "staging": {

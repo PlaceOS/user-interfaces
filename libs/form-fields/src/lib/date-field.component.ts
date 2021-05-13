@@ -14,8 +14,14 @@ import {
 } from '@angular/material/core';
 import { HashMap } from 'libs/common/src/lib/types';
 import { BaseClass } from 'libs/common/src/lib/base.class';
-import { addYears, endOfDay, format, formatISO, set } from 'date-fns';
-import startOfDay from 'date-fns/startOfDay';
+import {
+    addYears,
+    startOfDay,
+    endOfDay,
+    format,
+    formatISO,
+    set,
+} from 'date-fns';
 
 @Injectable()
 class FieldDateAdapter extends NativeDateAdapter {

@@ -43,7 +43,7 @@ export interface MapRadiusData {
                 width: 100%;
             }
 
-            [name="message"] {
+            [name='message'] {
                 transform: translate(-50%, -120%);
             }
 
@@ -54,11 +54,11 @@ export interface MapRadiusData {
             @keyframes fade-in-top {
                 0% {
                     opacity: 0;
-                    transform: translate(-50%, -220%)
+                    transform: translate(-50%, -220%);
                 }
                 100% {
                     opacity: 1;
-                    transform translate(-50%, -120%);
+                    transform: translate(-50%, -120%);
                 }
             }
         `,
