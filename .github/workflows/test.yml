@@ -10,7 +10,6 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
     install_deps:
         runs-on: ubuntu-latest
         steps:
@@ -22,17 +21,17 @@ jobs:
               id: cache
               uses: actions/cache@v2
               with:
-                path: node_modules
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-
-                    ${{ runner.os }}-build-
-                    ${{ runner.os }}-
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
 
             - name: Setup Node.js environment
               uses: actions/setup-node@v1.4.4
               with:
-                  node-version: '13'
+                  node-version: '14'
 
             - name: NPM install
               if: steps.cache.outputs.cache-hit != 'true'
@@ -51,22 +50,22 @@ jobs:
               shell: bash
               id: build_ext
               run: |
-                    if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
-                    then
-                        echo "::set-output name=configuration::production"
-                        echo "::set-output name=deploy_branch::prod"
-                    elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
-                    then
-                        echo "::set-output name=configuration::staging"
-                        echo "::set-output name=deploy_branch::uat"
-                    else
-                        echo "::set-output name=configuration::staging"
-                        echo "::set-output name=deploy_branch::dev"
-                    fi
+                  if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
+                  then
+                      echo "::set-output name=configuration::production"
+                      echo "::set-output name=deploy_branch::prod"
+                  elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                  then
+                      echo "::set-output name=configuration::staging"
+                      echo "::set-output name=deploy_branch::uat"
+                  else
+                      echo "::set-output name=configuration::staging"
+                      echo "::set-output name=deploy_branch::dev"
+                  fi
             - name: List affected applications
               id: affected_apps
               run: |
-                echo "::set-output name=affected_apps::$(node ./tools/get-affected.js ${{ github.ref }} test)"
+                  echo "::set-output name=affected_apps::$(node ./tools/get-affected.js ${{ github.ref }} test)"
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
@@ -74,15 +73,14 @@ jobs:
             deploy_branch: ${{ steps.build_ext.outputs.deploy_branch }}
             short_sha: ${{ steps.vars.outputs.short_sha }}
 
-
     # This workflow contains a single job called "build"
     test:
         runs-on: ubuntu-latest
         needs: install_deps
         if: ${{ fromJSON(needs.install_deps.outputs.affected_apps)[0] != null }}
         strategy:
-          matrix:
-            package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
+            matrix:
+                package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
         env:
             jobCount: ${{ fromJSON(needs.install_deps.outputs.affected_apps).length }}
             configuration: ${{ needs.install_deps.outputs.configuration }}
@@ -90,29 +88,28 @@ jobs:
             short_sha: ${{ needs.install_deps.outputs.short_sha }}
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
-
             - uses: actions/checkout@v2
 
             - name: Cache node modules
               id: cache
               uses: actions/cache@v2
               with:
-                path: node_modules
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-
-                    ${{ runner.os }}-build-
-                    ${{ runner.os }}-
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
 
             - name: Cache nx build cahce
               id: cache-nx
               uses: actions/cache@v2
               with:
-                path: node_modules/.cache/nx
-                key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-nx-${{matrix.package}}-
-                    ${{ runner.os }}-nx-
+                  path: node_modules/.cache/nx
+                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nx-${{matrix.package}}-
+                      ${{ runner.os }}-nx-
 
             - name: Setup version
               run: npm run postinstall
@@ -126,7 +123,7 @@ jobs:
 
             - name: Build affected applications
               run: |
-                npx nx test ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+                  npx nx test ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Update Pipeline Chat Status
               uses: fjogeleit/http-request-action@master
