@@ -2,7 +2,7 @@ import { registerMockEndpoint } from '@placeos/ts-client';
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 
 import { MOCK_EVENTS } from './events.data';
-import { ACTIVE_USER } from './users.data';
+import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
 registerMockEndpoint({
     path: '/api/staff/v1/events',
@@ -10,7 +10,7 @@ registerMockEndpoint({
     method: 'GET',
     callback: (_) => {
         let events = MOCK_EVENTS;
-        if (_.query_params.zone_ids) {
+        if (!_.query_params.zone_ids) {
             events = events.filter(
                 (event) =>
                     !!event.attendees.find(
@@ -41,11 +41,20 @@ registerMockEndpoint({
             ...request.body,
             id: `-cal-event-${predictableRandomInt(999)}`,
         };
+        new_event.attendees = [
+            MOCK_STAFF.find((_) => _.email === new_event.host),
+            ...(new_event.attendees || []),
+        ];
         new_event.attendees.forEach((user) => {
-            if (user.zones) {
-                user.resource = true;
-            }
+            if (user.zones) user.resource = true;
         });
+
+        if (new_event.system) {
+            new_event.attendees = [
+                ...(new_event.attendees || []),
+                { ...new_event.system, resource: true },
+            ];
+        }
         MOCK_EVENTS.push(new_event);
         return new_event;
     },

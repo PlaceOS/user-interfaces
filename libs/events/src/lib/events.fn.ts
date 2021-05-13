@@ -50,9 +50,11 @@ export function queryEvents(
  */
 export function showEvent(id: string, q: CalendarEventShowParams = {}) {
     const query = toQueryString(q);
-    return get(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? '?' + query : ''}`).pipe(
-        map((item) => new CalendarEvent(item))
-    );
+    return get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+            query ? '?' + query : ''
+        }`
+    ).pipe(map((item) => new CalendarEvent(item)));
 }
 
 /**
@@ -80,7 +82,9 @@ export function updateEvent(
 ) {
     const query = toQueryString(q);
     return (method === 'patch' ? patch : put)(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? '?' + query : ''}`,
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+            query ? '?' + query : ''
+        }`,
         data
     ).pipe(map((item) => new CalendarEvent(item)));
 }
@@ -102,9 +106,14 @@ export const saveEvent = (
  */
 export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
     const query = toQueryString(q);
-    return del(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? '?' + query : ''}`, {
-        response_type: 'void',
-    });
+    return del(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+            query ? '?' + query : ''
+        }`,
+        {
+            response_type: 'void',
+        }
+    );
 }
 
 /**
@@ -114,9 +123,9 @@ export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
  */
 export function approveEvent(id: string, system_id: string) {
     return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/approve?system_id=${encodeURIComponent(
-            system_id
-        )}`,
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/approve?system_id=${encodeURIComponent(system_id)}`,
         ''
     ).pipe(map((item) => new CalendarEvent(item)));
 }
@@ -128,9 +137,9 @@ export function approveEvent(id: string, system_id: string) {
  */
 export function rejectEvent(id: string, system_id: string) {
     return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/reject?system_id=${encodeURIComponent(
-            system_id
-        )}`,
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/reject?system_id=${encodeURIComponent(system_id)}`,
         ''
     ).pipe(map((item) => new CalendarEvent(item)));
 }
@@ -146,7 +155,9 @@ export function queryEventGuests(
 ): Observable<GuestUser[]> {
     const query = toQueryString(q);
     return get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${query ? '?' + query : ''}`
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
+            query ? '?' + query : ''
+        }`
     ).pipe(map((list) => list.map((item) => new GuestUser(item))));
 }
 
@@ -165,6 +176,8 @@ export function checkinEventGuest(
 ) {
     const query = toQueryString({ ...q, state });
     return get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests/${guest_id}${query ? '?' + query : ''}`
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests/${guest_id}${
+            query ? '?' + query : ''
+        }`
     ).pipe(map((item) => new GuestUser(item)));
 }

@@ -19,7 +19,7 @@ import { EventsStateService } from '../day-view/events-state.service';
         >
             <div class="p-4 overflow-auto flex-1">
                 <h3 class="mb-0 pl-6 mb-1">
-                    {{ event.organiser.name || event.host }}
+                    {{ event.organiser?.name || event.host }}
                 </h3>
                 <div class="text-bold mb-4 pl-6 text-dark-fade">
                     {{ event.date | date: 'fullDate' }}

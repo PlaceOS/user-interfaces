@@ -118,13 +118,13 @@ export interface SpaceSelectModalData {
                 </button>
             </footer>
             <ng-template #empty_state>
-                <div empty class="flex flex-col items-center space-y-2">
+                <div empty class="p-16 flex flex-col items-center space-y-2">
                     <app-icon class="text-3xl">close</app-icon>
                     <p>No spaces</p>
                 </div>
             </ng-template>
             <ng-template #load_state>
-                <div load class="flex flex-col items-center space-y-2">
+                <div load class="p-16 flex flex-col items-center space-y-2">
                     <mat-spinner diameter="48"></mat-spinner>
                     <p>Finding available spaces...</p>
                 </div>

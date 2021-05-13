@@ -24,7 +24,10 @@ export class MockBookingModule {
     status: 'pending' | 'busy' | 'free' | 'not-bookable' = 'free';
 }
 
-export function createBookingsModule(space: HashMap, overrides: Partial<MockBookingModule> = {}) {
+export function createBookingsModule(
+    space: HashMap,
+    overrides: Partial<MockBookingModule> = {}
+) {
     const mod = {
         ...new MockBookingModule(),
         ...overrides,
@@ -43,9 +46,10 @@ export function createBookingsModule(space: HashMap, overrides: Partial<MockBook
 }
 
 function updateBookings(space: HashMap, mod: HashMap) {
-    const bookings = MOCK_EVENTS.filter((event) =>
-        event.attendees.find((u) => u.email === space.email)
-    );
+    const bookings =
+        MOCK_EVENTS.filter((event) =>
+            event.attendees?.find((u) => u.email === space.email)
+        ) || [];
     bookings.sort((a, b) => a.event_start - b.event_start);
     mod.bookings = bookings;
     if (!space.bookable) {
