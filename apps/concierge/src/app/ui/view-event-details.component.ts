@@ -25,15 +25,15 @@ import { EventsStateService } from '../day-view/events-state.service';
                     {{ event.date | date: 'fullDate' }}
                 </div>
                 <div class="flex items-center mb-2">
-                    <app-icon>title</app-icon>
+                    <app-icon class="mr-1">title</app-icon>
                     <span class="text-dark-fade">{{ event.title }}</span>
                 </div>
                 <div class="flex items-center mb-2">
                     <app-icon class="mr-1">schedule</app-icon>
                     <span class="text-dark-fade">{{ time }}</span>
                 </div>
-                <div class="flex items-center">
-                    <app-icon class="mr-1">People</app-icon>
+                <div class="flex items-center mb-2">
+                    <app-icon class="mr-1">people</app-icon>
                     <span class="text-dark-fade"
                         >{{ event.attendees.length }} Attendee{{
                             event.attendees.length === 1 ? '' : 's'
@@ -42,16 +42,24 @@ import { EventsStateService } from '../day-view/events-state.service';
                 </div>
                 <div class="flex flex-col mb-2">
                     <div
-                        class="flex items-center pl-6 mb-1"
+                        class="flex items-center pl-6 mb-1 hover:bg-gray-100 rounded"
                         *ngFor="let user of event.attendees"
                     >
                         <a-user-avatar
                             class="text-sm pr-2"
                             [user]="user"
                         ></a-user-avatar>
-                        <span>{{
-                            user.name || user.first_name + ' ' + user.last_name
-                        }}</span>
+                        <div class="flex flex-col">
+                            <div class="text-sm opacity-80">
+                                {{
+                                    user.name ||
+                                        user.first_name + ' ' + user.last_name
+                                }}
+                            </div>
+                            <div class="text-xs opacity-50">
+                                {{ user.email }}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center mb-2">

@@ -11,7 +11,7 @@ import { User } from '../../../users/src/lib/user.class';
         >
             <div
                 initials
-                class="text-black text-opacity-30 uppercase"
+                class="text-black text-opacity-50 uppercase"
                 *ngIf="!user.photo; else image_state"
             >
                 {{ initials }}
@@ -24,10 +24,11 @@ import { User } from '../../../users/src/lib/user.class';
     styles: [
         `
             :host > div {
-                height: 2em;
-                width: 2em;
-                background-color: #f0f0f0;
+                height: 2.5em;
+                width: 2.5em;
+                background-color: #ccc;
                 overflow: hidden;
+                border: 2px solid white;
             }
 
             .initials {

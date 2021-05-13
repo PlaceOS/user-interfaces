@@ -74,6 +74,8 @@ export const MOCK_EVENTS = new Array(100).fill(0).map((_, index) => {
                           }),
                       ]
                     : [],
+            setup: predictableRandomInt(4) * 5,
+            breakdown: predictableRandomInt(4) * 5,
         },
     };
 });
