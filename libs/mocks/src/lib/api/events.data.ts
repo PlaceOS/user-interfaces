@@ -26,29 +26,25 @@ const randomStatus = (): string => {
         : event_status[1];
 };
 
-export const MOCK_EVENTS = new Array(100).fill(0).map((_, index) => {
+export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
     const PEOPLE = MOCK_STAFF.concat(MOCK_GUESTS);
     let attendees: any[] = new Array(predictableRandomInt(8, 1))
         .fill(0)
-        .map((_) => PEOPLE[predictableRandomInt(PEOPLE.length)]);
-    attendees.unshift(ACTIVE_USER);
-    attendees = unique(attendees, 'email');
+        .map(() => PEOPLE[predictableRandomInt(PEOPLE.length)]);
+    attendees.sort(
+        (a, b) => (a.visit_expected ? 0 : -1) - (b.visit_expected ? 0 : -1)
+    );
     const space = MOCK_SPACES[predictableRandomInt(MOCK_SPACES.length)];
-    attendees = attendees.concat({
-        ...space,
-        resource: true,
-    });
-    const has_active_user = predictableRandomInt(9999) % 2 === 0;
-    if (has_active_user) {
-        attendees.push(ACTIVE_USER);
-    }
-
+    attendees = attendees.concat({ ...space, resource: true });
+    if (predictableRandomInt(9999) % 2 === 0) attendees.unshift(ACTIVE_USER);
+    else attendees.unshift(MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]);
+    attendees = unique(attendees, 'email');
     const event_start = nextEventTime(true);
     const event_end = nextEventTime();
     return {
         id: `cal-event-${index}`,
         status: randomStatus(),
-        host: has_active_user ? ACTIVE_USER.email : attendees[0].email,
+        host: attendees[0].email,
         calendar: 'calendar_id',
         creator: 'optional@fake.com',
         attendees: unique(attendees, 'email'),

@@ -42,10 +42,10 @@ export class UserAvatarComponent {
     @Input() public user: User;
 
     public get initials(): string {
-        if (!this.user) {
-            return 'NA';
-        }
-        const parts = this.user.name.split(' ');
+        if (!this.user) return 'NA';
+        const parts = this.user.name
+            .replace(/[()[\]\-+=\\/]+/gi, '')
+            .split(' ');
         return parts.length > 1
             ? `${parts[0][0]}${parts[parts.length - 1][0]}`
             : this.user.name.slice(0, 2);
