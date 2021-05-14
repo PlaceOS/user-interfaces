@@ -19,19 +19,17 @@ import { UnauthorisedComponent } from '@placeos/components';
 
 import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
+import { AppComponent } from 'libs/components/src/lib/app.component';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { BookingPanelComponent } from './panel/panel.component';
-import { PanelTimelineComponent } from './panel/timeline/timeline.component';
-import { PanelSpaceDetailsComponent } from './panel/space-details/space-details.component';
-import { PanelBookingActionsComponent } from './panel/booking-actions/booking-actions.component';
-import { PanelCustomActionsComponent } from './panel/custom-actions/custom-actions.component';
 import { BookingPanelArrayComponent } from './panel-array/panel-array.component';
 import { BookingPanelSelectComponent } from './panel-select/panel-select.component';
+import { PanelTopbarComponent } from './panel/topbar.component';
+import { PanelDetailsComponent } from './panel/panel-details.component';
+import { PanelBookingListComponent } from './panel/panel-booking-list.component';
 
-import * as Sentry from "@sentry/angular";
-
+import * as Sentry from '@sentry/angular';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -45,10 +43,9 @@ const MAT_MODULES: any[] = [
         UnauthorisedComponent,
         BootstrapComponent,
         BookingPanelComponent,
-        PanelTimelineComponent,
-        PanelSpaceDetailsComponent,
-        PanelBookingActionsComponent,
-        PanelCustomActionsComponent,
+        PanelTopbarComponent,
+        PanelDetailsComponent,
+        PanelBookingListComponent,
         BookingPanelArrayComponent,
         BookingPanelSelectComponent,
     ],
