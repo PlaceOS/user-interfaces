@@ -33,6 +33,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
 
     private _bind = this._state.spaces.pipe(
         map((list) => {
+            console.log('Spaces:', list);
             this.unsubWith('b-');
             this.unsubWith('s-');
             this._statuses = {};

@@ -53,9 +53,10 @@ export class ExploreStateService extends BaseClass {
         this._level,
         this._spaces.list,
     ]).pipe(
-        map(([level, spaces]) =>
-            spaces.filter((space) => space.zones.includes(level.id))
-        )
+        map(([level, spaces]) => {
+            console.log('Level:', level, spaces);
+            return spaces.filter((space) => space.zones.includes(level.id));
+        })
     );
     /** Currently shown space's map URL */
     public readonly map_url = this._level.pipe(

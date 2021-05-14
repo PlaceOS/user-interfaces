@@ -82,7 +82,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 `lvl-in_use`,
                 binding
                     .listen()
-                    .subscribe((d) => this.processBindingChange(d, system_id))
+                    .subscribe((d) =>
+                        this.processBindingChange(d || {}, system_id)
+                    )
             );
             this.subscription('lvl-in_use_bind', binding.bind());
             binding = getModule(system_id, 'AreaManagement').binding(

@@ -176,6 +176,7 @@ export class OrganisationService {
             const bindings: HashMap = (
                 await showMetadata(org.id, { name: 'bindings' }).toPromise()
             )?.details;
+            console.log('Bindings:', bindings);
             this._organisation = new Organisation({ ...org, bindings });
         } else {
             this._router.navigate(['/misconfigured']);

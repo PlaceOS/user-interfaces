@@ -81,4 +81,5 @@ function updateBookings(space: HashMap, mod: HashMap) {
         : next && pending
         ? 'pending'
         : 'free';
+    console.log('Update Booking:', space.name, mod.status);
 }

@@ -1,4 +1,4 @@
-import { HashMap } from '@placeos/common';
+import { HashMap, predictableRandomInt } from '@placeos/common';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 
 let SPACE_COUNT: number = 0;
@@ -6,27 +6,26 @@ let SPACE_COUNT: number = 0;
 export function generateMockSpace(overrides: HashMap = {}): HashMap {
     const id = `space-${SPACE_COUNT++}`;
     const name = `Test Space ${SPACE_COUNT}`;
-    const linked =
-        Math.floor(Math.random() * 99999) % 2 === 0 && SPACE_COUNT > 1;
+    const linked = predictableRandomInt(99999) % 2 === 0 && SPACE_COUNT > 1;
     const space = {
         id,
         name,
         long_name: `${name} with an long name`,
         map_id: `${SPACE_COUNT}`,
-        capacity: Math.floor(Math.random() * 20 + 1) * 2,
+        capacity: predictableRandomInt(21, 1) * 2,
         email: `${name.toLowerCase().split(' ').join('.')}@${USER_DOMAIN}`,
         type: '',
-        searchable: Math.floor(Math.random() * 99999) % 2 === 0,
-        controlable: Math.floor(Math.random() * 99999) % 2 === 0,
-        bookable: Math.floor(Math.random() * 99999) % 2 === 0,
-        cost_hour: Math.floor(Math.random() * 300) * 100,
-        setup: Math.floor(Math.random() * 6) * 5,
-        breakdown: Math.floor(Math.random() * 6) * 5,
+        searchable: predictableRandomInt(99999) % 2 === 0,
+        controlable: predictableRandomInt(99999) % 2 === 0,
+        bookable: predictableRandomInt(99999) % 2 === 0,
+        cost_hour: predictableRandomInt(300) * 100,
+        setup: predictableRandomInt(6) * 5,
+        breakdown: predictableRandomInt(6) * 5,
         zones: ['zone_lvl-0'],
         support_url: `/control/#/${id}`,
         bookings: [], //Array(10).fill(0).map(i => generateMockBooking()),
         linked_rooms: linked
-            ? [`space-${Math.floor(Math.random() * (SPACE_COUNT - 1))}`]
+            ? [`space-${predictableRandomInt(SPACE_COUNT - 1)}`]
             : [],
         image: '',
         ...overrides,
@@ -34,8 +33,7 @@ export function generateMockSpace(overrides: HashMap = {}): HashMap {
     if (space['configurations'] && space['configurations'].length > 0) {
         space['configurations'].forEach(
             (config) =>
-                (config.capacity =
-                    Math.floor(Math.random() * space.capacity) + 1)
+                (config.capacity = predictableRandomInt(space.capacity) + 1)
         );
         space['configurations'][0].capacity = space.capacity;
     }

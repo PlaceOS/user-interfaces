@@ -82,18 +82,18 @@ export interface SpaceInfoData {
             [status] {
                 background-color: #43a047;
                 font-weight: 500;
+            }
 
-                &.busy {
-                    background-color: #e53935;
-                }
+            [status].busy {
+                background-color: #e53935;
+            }
 
-                &.pending {
-                    background-color: #ffb300;
-                }
+            [status].pending {
+                background-color: #ffb300;
+            }
 
-                &.not-bookable {
-                    background-color: #757575;
-                }
+            [status].not-bookable {
+                background-color: #757575;
             }
         `,
     ],

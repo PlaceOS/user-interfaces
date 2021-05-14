@@ -1,4 +1,6 @@
+import { predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
+import { MOCK_MENU } from './catering.data';
 import { MOCK_ORGS, MOCK_LEVELS, MOCK_BUILDINGS } from './zone.data';
 
 registerMockEndpoint({
@@ -17,54 +19,44 @@ registerMockEndpoint({
     },
 });
 
+function padString(str: string | number, length: number = 5) {
+    str = `${str}`;
+    while (str.length < length) str = `0${str}`;
+    return str;
+}
+
 registerMockEndpoint({
     path: '/api/engine/v2/metadata/:id',
     metadata: {},
     method: 'GET',
     callback: (request) => {
+        if (request.query_params.name === 'bindings') {
+            return {
+                bindings: {
+                    details: {
+                        area_management: 'space-0',
+                        location_services: 'space-0',
+                    },
+                },
+            };
+        }
         if (request.query_params.name === 'catering') {
-            return [];
+            return {
+                catering: {
+                    details: MOCK_MENU,
+                },
+            };
         }
         if (request.query_params.name === 'desks') {
             return {
-                details: [
-                    {
-                        id: 'table-01.001',
-                        name: '1.001',
-                        bookable: true,
+                desks: {
+                    details: new Array(19).fill(0).map((_, idx) => ({
+                        id: `table-10.${padString(idx + 1, 3)}`,
+                        name: `Desk 10.${padString(idx + 1, 3)}`,
+                        bookable: predictableRandomInt(9999) % 4 !== 0,
                         group: '',
-                    },
-                    {
-                        id: 'table-01.002',
-                        name: '1.002',
-                        bookable: true,
-                        group: '',
-                    },
-                    {
-                        id: 'table-01.003',
-                        name: '1.003',
-                        bookable: true,
-                        group: '',
-                    },
-                    {
-                        id: 'table-01.004',
-                        name: '1.004',
-                        bookable: true,
-                        group: '',
-                    },
-                    {
-                        id: 'table-01.005',
-                        name: '1.005',
-                        bookable: false,
-                        group: '',
-                    },
-                    {
-                        id: 'table-01.006',
-                        name: '1.006',
-                        bookable: true,
-                        group: '',
-                    },
-                ],
+                    })),
+                },
             };
         }
         return {};
@@ -80,7 +72,7 @@ registerMockEndpoint({
             {
                 zone: {
                     id: 'bld-01_lvl-01',
-                    name: 'Level 1'
+                    name: 'Level 1',
                 },
                 metadata: {
                     desks: {
