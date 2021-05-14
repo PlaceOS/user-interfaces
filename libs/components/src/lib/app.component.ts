@@ -111,7 +111,9 @@ export class AppComponent extends BaseClass implements OnInit {
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
-        settings.mock = !!this._settings.get('mock');
+        settings.mock =
+            !!this._settings.get('mock') ||
+            location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch(() => this.onInitError());
         this._loading.next(false);
