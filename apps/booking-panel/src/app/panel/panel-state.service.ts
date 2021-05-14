@@ -17,6 +17,8 @@ import { openBookingModal } from '../overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from '../overlays/embedded-control-modal.component';
 
 export interface PanelSettings {
+    /**  */
+    status?: string;
     /** Whether booking has a pending state */
     pending?: boolean;
     /** Unix epoch in ms of last activated booking */
@@ -137,7 +139,7 @@ export class PanelStateService extends BaseClass {
                         .sort((a, b) => a.date - b.date) || []
                 )
             );
-            const settings: any[] = ['interactive', 'last_active'];
+            const settings: any[] = ['interactive', 'last_active', 'status'];
             settings.forEach((k) => this.bindTo(id, k));
         });
     }

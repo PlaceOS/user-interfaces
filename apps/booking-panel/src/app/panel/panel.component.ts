@@ -13,17 +13,16 @@ import { PanelStateService } from './panel-state.service';
 @Component({
     selector: 'app-booking-panel',
     template: `
-        <div class="flex flex-col absolute inset-0">
+        <div class="flex flex-col absolute inset-0 bg-gray-50">
             <panel-topbar></panel-topbar>
-            <div
-                content
-                class="flex flex-1 items-center bg-gray-50 h-1/2 p-8 space-x-2"
-            >
+            <div content class="flex flex-1 items-center h-1/2 p-8 space-x-2">
                 <panel-details class="flex-1 h-full p-4"></panel-details>
                 <panel-booking-list
                     class="flex-1 h-full p-4"
                 ></panel-booking-list>
             </div>
+            <panel-status></panel-status>
+            <!-- <div class="w-full h-12"></div> -->
         </div>
     `,
     styles: [``],

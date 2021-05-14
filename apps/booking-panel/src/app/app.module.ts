@@ -30,6 +30,7 @@ import { PanelDetailsComponent } from './panel/panel-details.component';
 import { PanelBookingListComponent } from './panel/panel-booking-list.component';
 
 import * as Sentry from '@sentry/angular';
+import { PanelStatusComponent } from './panel/panel-status.component';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -45,6 +46,7 @@ const MAT_MODULES: any[] = [
         BookingPanelComponent,
         PanelTopbarComponent,
         PanelDetailsComponent,
+        PanelStatusComponent,
         PanelBookingListComponent,
         BookingPanelArrayComponent,
         BookingPanelSelectComponent,
