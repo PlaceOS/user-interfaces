@@ -26,7 +26,7 @@ export interface EmbeddedControlModalData {
             </div>
         </div>
         <div class="absolute top-0 left-0 flex items-center h-12">
-            <div class="text-2xl mx-2">{{ countdown }}</div>
+            <div countdown class="text-2xl mx-2">{{ countdown }}</div>
             <button
                 mat-icon-button
                 class="close"
