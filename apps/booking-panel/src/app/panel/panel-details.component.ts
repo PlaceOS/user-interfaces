@@ -15,19 +15,29 @@ import { PanelStateService } from './panel-state.service';
             class="flex flex-col items-center space-y-2"
             *ngIf="!(options | async)?.interactive; else empty_state"
         >
-            <button mat-button class="w-40" (click)="newEvent()">
+            <button
+                mat-button
+                class="w-48"
+                *ngIf="(space | async)?.bookable"
+                (click)="newEvent()"
+            >
                 <div class="flex items-center justify-center">
                     <app-icon class="text-xl">add_circle_outline</app-icon>
                     <span class="mx-2">New Event</span>
                 </div>
             </button>
-            <button mat-button class="w-40" (click)="viewControl()">
+            <button
+                mat-button
+                class="w-48"
+                *ngIf="(space | async)?.support_url"
+                (click)="viewControl()"
+            >
                 <div class="flex items-center justify-center">
                     <app-icon class="text-xl">settings_remote</app-icon>
                     <span class="mx-2">View Control</span>
                 </div>
             </button>
-            <button mat-button class="w-40" (click)="callWaiter()">
+            <button mat-button class="w-48" (click)="callWaiter()">
                 <div class="flex items-center justify-center">
                     <app-icon class="text-xl">room_service</app-icon>
                     <span class="mx-2">Call Waiter</span>

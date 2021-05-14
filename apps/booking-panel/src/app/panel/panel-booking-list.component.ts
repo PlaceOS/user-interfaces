@@ -15,28 +15,30 @@ import { PanelStateService } from './panel-state.service';
     template: `
         <h2 class="w-full px-4 py-2 mb-4 font-medium">
             Current
-            <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-gray-300"
-                *ngIf="!(started | async)"
-            >
-                Starting in {{ starting_in | async }}
-            </span>
-            <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-success text-white"
-                *ngIf="(started | async) && !(pending | async)"
-            >
-                In Progress
-            </span>
-            <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-pending text-white"
-                *ngIf="
-                    ((current | async)?.state === 'upcoming' ||
-                        (current | async)?.state === 'in_progress') &&
-                    (pending | async)
-                "
-            >
-                Waiting to start
-            </span>
+            <ng-container *ngIf="current | async">
+                <span
+                    class="text-xs shadow px-2 py-1 ml-8 rounded bg-gray-300"
+                    *ngIf="!(started | async)"
+                >
+                    Starting in {{ starting_in | async }}
+                </span>
+                <span
+                    class="text-xs shadow px-2 py-1 ml-8 rounded bg-error text-white"
+                    *ngIf="(started | async) && !(pending | async)"
+                >
+                    In Progress
+                </span>
+                <span
+                    class="text-xs shadow px-2 py-1 ml-8 rounded bg-pending text-white"
+                    *ngIf="
+                        ((current | async)?.state === 'upcoming' ||
+                            (current | async)?.state === 'in_progress') &&
+                        (pending | async)
+                    "
+                >
+                    Waiting to start
+                </span>
+            </ng-container>
         </h2>
         <div class="mb-4 w-full" *ngIf="current | async; else empty_state">
             <div
@@ -58,7 +60,12 @@ import { PanelStateService } from './panel-state.service';
                 </div>
             </div>
         </div>
-        <h2 class="w-full px-4 py-2 mb-4 font-medium">Upcoming</h2>
+        <h2
+            class="w-full px-4 py-2 mb-4 font-medium"
+            *ngIf="(upcoming | async)?.length"
+        >
+            Upcoming
+        </h2>
         <ul
             class="list-style-none p-0 m-0 bg-white rounded text-base shadow divide-y divide-gray-100 w-full border border-gray-100"
             *ngIf="(upcoming | async)?.length"

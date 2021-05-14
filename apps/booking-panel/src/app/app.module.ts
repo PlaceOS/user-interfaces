@@ -23,8 +23,8 @@ import { AppComponent } from 'libs/components/src/lib/app.component';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { BookingPanelComponent } from './panel/panel.component';
-import { BookingPanelArrayComponent } from './panel-array/panel-array.component';
-import { BookingPanelSelectComponent } from './panel-select/panel-select.component';
+import { BookingPanelArrayComponent } from './panel-array.component';
+import { BookingPanelSelectComponent } from './panel-select.component';
 import { PanelTopbarComponent } from './panel/topbar.component';
 import { PanelDetailsComponent } from './panel/panel-details.component';
 import { PanelBookingListComponent } from './panel/panel-booking-list.component';

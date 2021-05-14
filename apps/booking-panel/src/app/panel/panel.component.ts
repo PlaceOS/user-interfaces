@@ -5,6 +5,7 @@ import {
     OnInit,
     SimpleChanges,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { BaseClass } from '@placeos/common';
 
@@ -14,7 +15,7 @@ import { PanelStateService } from './panel-state.service';
     selector: 'app-booking-panel',
     template: `
         <div class="flex flex-col absolute inset-0 bg-gray-50">
-            <panel-topbar></panel-topbar>
+            <panel-topbar *ngIf="topbar"></panel-topbar>
             <div content class="flex flex-1 items-center h-1/2 p-8 space-x-2">
                 <panel-details class="flex-1 h-full p-4"></panel-details>
                 <panel-booking-list
@@ -35,12 +36,25 @@ export class BookingPanelComponent
         'PLACEOS.BOOKINGS.system'
     );
 
-    constructor(private _state: PanelStateService) {
+    @Input() public topbar = true;
+
+    constructor(
+        private _state: PanelStateService,
+        private _route: ActivatedRoute
+    ) {
         super();
     }
 
     public ngOnInit() {
         this._state.system = this.system_id || '';
+        this.subscription(
+            'route.params',
+            this._route.paramMap.subscribe((params) => {
+                if (params.has('system_id')) {
+                    this._state.system = params.get('system_id');
+                }
+            })
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
