@@ -81,8 +81,9 @@ const home: any = {
             name: 'Desks',
             route: '/book/desks',
             icon: {
-                type: 'img',
-                src: 'assets/img/desk.svg',
+                type: 'icon',
+                class: 'material-icons',
+                content: 'article',
             },
             query_params: { new: true },
         },
@@ -129,8 +130,9 @@ const home: any = {
             name: 'Desks',
             route: '/book/desks',
             icon: {
-                type: 'img',
-                src: 'assets/img/desk_dark.svg',
+                type: 'icon',
+                class: 'material-icons',
+                content: 'article',
             },
             query_params: { new: true },
         },
