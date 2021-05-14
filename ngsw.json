@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1620879886258,
+  "timestamp": 1620952718520,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -194,7 +194,7 @@
     "./default-apps_workplace_src_app_bookings_space-flow_space-flow_service_ts-libs_explore_src_index_ts.js": "a67289085c8f5d3748f987c345713a8cc1efdbc8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "7ae5fca6aeb34a9fca4b7c9f5f67f68d8934db38",
-    "./main.js": "ead5e7f06f7de1b90e465ce1e36d43f164556f24",
+    "./main.js": "c2aa17524684ec5ff7af2bfc1c2206df8361b096",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
