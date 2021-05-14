@@ -31,7 +31,7 @@ export const CONFIRM_METADATA = {
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="flex flex-col items-center space-y-2 px-2"
+            class="flex flex-col items-center justify-center space-y-2 px-6"
         >
             <app-icon [icon]="icon" class="text-5xl"></app-icon>
             <p content class="text-center text-sm" [innerHTML]="content"></p>
@@ -58,7 +58,11 @@ export const CONFIRM_METADATA = {
     `,
     styles: [
         `
-            mat-dialog-actions button {
+            main {
+                min-height: 10rem;
+            }
+
+            footer button {
                 min-width: 8em;
             }
         `,
@@ -74,7 +78,7 @@ export class ConfirmModalComponent {
     /** Body of the confirm modal */
     public readonly content: string = this._data.content || 'Are you sure?';
     /** Display text on the confirm button */
-    public readonly confirm_text: string = this._data.confirm_text || 'Ok';
+    public readonly confirm_text: string = this._data.confirm_text || 'Accept';
     /** Display text on the cancel button */
     public readonly cancel_text: string = this._data.cancel_text || 'Cancel';
     /** Display icon properties */

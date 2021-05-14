@@ -23,7 +23,7 @@ export function generateMockSpace(overrides: HashMap = {}): HashMap {
         setup: Math.floor(Math.random() * 6) * 5,
         breakdown: Math.floor(Math.random() * 6) * 5,
         zones: ['zone_lvl-0'],
-        support_url: `/control/#/${id}`,
+        support_url: `/control/#/panel/${id}`,
         bookings: [], //Array(10).fill(0).map(i => generateMockBooking()),
         linked_rooms: linked
             ? [`space-${Math.floor(Math.random() * (SPACE_COUNT - 1))}`]
