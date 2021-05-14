@@ -1,46 +1,38 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { delay, first } from 'rxjs/operators';
 
-import { BaseClass, SettingsService } from '@placeos/common';
-import { format } from 'date-fns';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'app-booking-panel-array',
     template: `
-        <div
-            class="absolute inset-0 flex items-center justify-center flex-wrap"
-        >
-            <ng-container *ngIf="systems && systems.length > 0; else none">
-                <div
-                    panel
-                    class="relative flex-1 border border-white"
-                    *ngFor="let id of systems | slice: 0:4; let i = index"
-                    [style.height]="systems.length >= 2 ? '50%' : '100%'"
-                >
-                    <app-booking-panel
-                        *ngIf="id; else empty_state"
-                        [system_id]="id"
-                        [topbar]="false"
-                    ></app-booking-panel>
-                </div>
-            </ng-container>
-            <ng-template #none>
-                <div class="info-block">
-                    <div class="text">
-                        No systems are set for displaying on the panel array
+        <div class="absolute inset-0 flex flex-col">
+            <panel-topbar class="w-full"></panel-topbar>
+            <div
+                class="flex items-center justify-center flex-wrap w-full flex-1 h-1/2"
+            >
+                <ng-container *ngIf="systems?.length > 0; else none">
+                    <div
+                        panel
+                        class="relative flex-1 border border-grey-300 overflow-hidden"
+                        *ngFor="let id of systems | slice: 0:4; let i = index"
+                        [style.height]="systems.length >= 2 ? '50%' : '100%'"
+                    >
+                        <app-booking-panel
+                            *ngIf="id"
+                            [system_id]="id"
+                            [topbar]="false"
+                            classs="transform scale-75"
+                        ></app-booking-panel>
                     </div>
-                </div>
-            </ng-template>
+                </ng-container>
+            </div>
         </div>
-        <ng-template #empty_state>
-            <div class="absolute inset-0 flex flex-col items-center text-white">
-                <div class="content center">
-                    <div class="mb-4" *ngIf="logo">
-                        <img [src]="logo" />
-                    </div>
-                    <div class="text-3xl">{{ time }}</div>
-                </div>
+        <ng-template #none>
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+            >
+                <p>No systems are set for displaying on the panel array</p>
             </div>
         </ng-template>
     `,
@@ -65,37 +57,22 @@ import { format } from 'date-fns';
 export class BookingPanelArrayComponent extends BaseClass implements OnInit {
     /** List of systems to show panels for */
     public systems: string[];
-    /** Application logo */
-    public logo: string;
 
-    /** Display value for the current time */
-    public get time(): string {
-        return format(new Date(), 'h:mm:ss a');
-    }
-
-    constructor(
-        private route: ActivatedRoute,
-        private _settings: SettingsService
-    ) {
+    constructor(private route: ActivatedRoute) {
         super();
     }
 
     public async ngOnInit() {
-        await this._settings.initialised
-            .pipe(
-                first((_) => _),
-                delay(1000)
-            )
-            .toPromise();
         this.subscription(
             'route.query',
             this.route.queryParamMap.subscribe((params) => {
+                console.log('Params');
                 if (params.has('system_ids')) {
-                    this.systems = (params.get('system_ids') || '').split(',');
+                    this.systems = (params.get('system_ids') || '')
+                        .split(',')
+                        .filter((_) => !!_);
                 }
             })
         );
-        const logo = this._settings.get('app.logo');
-        this.logo = (logo ? logo.inverse : null) || '';
     }
 }

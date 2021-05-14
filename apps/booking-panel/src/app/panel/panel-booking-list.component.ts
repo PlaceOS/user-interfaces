@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {
     differenceInMinutes,
+    differenceInSeconds,
     formatDuration,
     isAfter,
     isSameDay,
@@ -13,37 +14,35 @@ import { PanelStateService } from './panel-state.service';
 @Component({
     selector: 'panel-booking-list',
     template: `
-        <h2 class="w-full px-4 py-2 mb-4 font-medium">
+        <h2 class="w-full px-4 py-2 mb-2 font-medium" *ngIf="current | async">
             Current
-            <ng-container *ngIf="current | async">
-                <span
-                    class="text-xs shadow px-2 py-1 ml-8 rounded bg-gray-300"
-                    *ngIf="!(started | async)"
-                >
-                    Starting in {{ starting_in | async }}
-                </span>
-                <span
-                    class="text-xs shadow px-2 py-1 ml-8 rounded bg-error text-white"
-                    *ngIf="(started | async) && !(pending | async)"
-                >
-                    In Progress
-                </span>
-                <span
-                    class="text-xs shadow px-2 py-1 ml-8 rounded bg-pending text-white"
-                    *ngIf="
-                        ((current | async)?.state === 'upcoming' ||
-                            (current | async)?.state === 'in_progress') &&
-                        (pending | async)
-                    "
-                >
-                    Waiting to start
-                </span>
-            </ng-container>
+            <span
+                class="text-xs shadow px-2 py-1 ml-8 rounded bg-gray-300"
+                *ngIf="!(started | async) && (starting_in | async)"
+            >
+                Starting in {{ starting_in | async }}
+            </span>
+            <span
+                class="text-xs shadow px-2 py-1 ml-8 rounded bg-error text-white"
+                *ngIf="(started | async) && !(pending | async)"
+            >
+                In Progress
+            </span>
+            <span
+                class="text-xs shadow px-2 py-1 ml-8 rounded bg-pending text-white"
+                *ngIf="
+                    ((current | async)?.state === 'upcoming' ||
+                        (current | async)?.state === 'in_progress') &&
+                    (pending | async)
+                "
+            >
+                Waiting to start
+            </span>
         </h2>
         <div class="mb-4 w-full" *ngIf="current | async; else empty_state">
             <div
                 current
-                class="flex items-center bg-white rounded-lg px-4 py-8 text-lg shadow-md w-full border border-gray-100 relative"
+                class="flex items-center bg-white rounded-lg px-4 py-8 text-lg shadow-md w-full border border-gray-100 relative max-w-full"
                 [class.text-white]="started | async"
             >
                 <div
@@ -52,8 +51,24 @@ import { PanelStateService } from './panel-state.service';
                     [class.opacity-100]="started | async"
                     [class.opacity-0]="!(started | async)"
                 ></div>
-                <div class="relative opacity-60 w-24 text-base z-10">
+                <div
+                    class="relative opacity-60 w-24 text-base z-10"
+                    *ngIf="!(started | async)"
+                >
                     {{ (current | async)?.date | date: 'shortTime' }}
+                </div>
+                <div
+                    class="relative opacity-60 w-24 text-base z-10 flex flex-col"
+                    *ngIf="started | async"
+                >
+                    <div class="text-xs">Ends at:</div>
+                    <div>
+                        {{
+                            (current | async)?.date +
+                                (current | async)?.duration * 60 * 1000
+                                | date: 'shortTime'
+                        }}
+                    </div>
                 </div>
                 <div class="relative truncate z-10">
                     {{ (current | async)?.title || '&lt;Private Event&gt;' }}
@@ -61,13 +76,13 @@ import { PanelStateService } from './panel-state.service';
             </div>
         </div>
         <h2
-            class="w-full px-4 py-2 mb-4 font-medium"
+            class="w-full px-4 py-2 mb-2 font-medium"
             *ngIf="(upcoming | async)?.length"
         >
             Upcoming
         </h2>
         <ul
-            class="list-style-none p-0 m-0 bg-white rounded text-base shadow divide-y divide-gray-100 w-full border border-gray-100"
+            class="list-style-none p-0 m-0 bg-white rounded text-base shadow divide-y divide-gray-100 w-full border border-gray-100 max-w-full"
             *ngIf="(upcoming | async)?.length"
         >
             <li
@@ -136,13 +151,16 @@ export class PanelBookingListComponent {
         this.current,
         interval(600),
     ]).pipe(
-        map(([_]) =>
-            _
+        map(([_]) => {
+            const diff = _ ? differenceInSeconds(_.date, new Date()) : 0;
+            return diff && diff < 60 * 60
                 ? `${formatDuration({
-                      minutes: differenceInMinutes(_.date, new Date()),
+                      hours: Math.floor(diff / 60 / 60),
+                      minutes: Math.floor(diff / 60) % 60,
+                      seconds: diff < 60 ? diff : 0,
                   })}`
-                : ''
-        )
+                : '';
+        })
     );
 
     public readonly pending = combineLatest([

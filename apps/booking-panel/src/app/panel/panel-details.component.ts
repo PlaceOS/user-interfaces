@@ -6,7 +6,11 @@ import { PanelStateService } from './panel-state.service';
     selector: 'panel-details',
     template: `
         <h1 class="text-4xl font-medium mb-8">
-            {{ (space | async)?.name || '&lt;Unknown Space&gt;' }}
+            {{
+                (space | async)?.display_name ||
+                    (space | async)?.name ||
+                    '&lt;Unknown Space&gt;'
+            }}
         </h1>
         <p *ngIf="(space | async)?.description">
             {{ (space | async)?.description }}

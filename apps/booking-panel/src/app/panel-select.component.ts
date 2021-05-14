@@ -9,16 +9,19 @@ import { currentBooking } from './panel/panel-state.service';
     selector: 'app-booking-panel-select',
     template: `
         <div
-            class="absolute inset-0 flex items-center justify-center flex-wrap"
+            class="absolute inset-0 flex items-center justify-center flex-wrap bg-gray-600"
             (window:mousedown)="reset()"
             (window:touchstart)="reset()"
         >
-            <div class="panel-options">
+            <div
+                class="flex items-center justify-center flex-wrap w-full h-full p-8"
+            >
                 <ng-container *ngIf="systems && systems.length > 0; else none">
-                    <div
-                        class="item"
+                    <button
+                        matRipple
+                        class="item text-white flex flex-col items-center justify-center rounded m-2 p-2"
                         *ngFor="let id of systems | slice: 0:8; let i = index"
-                        (click)="system_name[id] ? showPanel(id) : ''"
+                        (click)="showPanel(id)"
                     >
                         <div class="bindings" *ngIf="id">
                             <i
@@ -39,13 +42,14 @@ import { currentBooking } from './panel/panel-state.service';
                                 binding
                                 [sys]="id"
                                 mod="Bookings"
-                                bind="today"
-                                (modelChange)="updateStatus(id, $event)"
+                                bind="status"
+                                (modelChange)="system_status[id] = $event"
                             ></i>
                         </div>
                         <div
+                            state
                             [class]="
-                                'icon' +
+                                'h-36 w-36 flex items-center justify-center text-6xl bg-white bg-opacity-10 rounded' +
                                 (system_status[id]
                                     ? ' ' + system_status[id]
                                     : '')
@@ -60,30 +64,35 @@ import { currentBooking } from './panel/panel-state.service';
                                 [diameter]="32"
                             ></mat-spinner>
                         </div>
-                        <div class="text">
+                        <div
+                            class="truncate text-sm p-3 text-white w-full text"
+                        >
                             {{ system_name[id] || id + ' connecting...' }}
                         </div>
-                    </div>
+                    </button>
                 </ng-container>
             </div>
-            <div class="panel-outlet" *ngIf="active_system">
+            <div
+                class="absolute inset-0 border border-white"
+                *ngIf="active_system"
+            >
                 <app-booking-panel
                     [system_id]="active_system"
                 ></app-booking-panel>
-                <div class="overlay">
+                <div
+                    class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center bg-white rounded-b p-2"
+                >
                     <button
-                        widget
+                        mat-icon-button
                         class="action close"
                         (click)="close()"
                         (contextmenu)="$event.preventDefault()"
                     >
-                        <div class="icon">
-                            <i class="material-icons">close</i>
-                        </div>
+                        <app-icon>close</app-icon>
                     </button>
                     <button
                         widget
-                        class="action countdown"
+                        class="action countdown w-12 h-10"
                         (contextmenu)="$event.preventDefault()"
                     >
                         {{ countdown }}
@@ -91,103 +100,37 @@ import { currentBooking } from './panel/panel-state.service';
                 </div>
             </div>
             <ng-template #none>
-                <div class="info-block">
-                    <div class="text">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <p>
                         No systems are set for displaying on the panel select
                         list
-                    </div>
+                    </p>
                 </div>
             </ng-template>
         </div>
     `,
     styles: [
         `
-            .panel-select {
-                flex-wrap: wrap;
-                background-color: #121212;
-            }
-
-            .panel-outlet {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                border: 1px solid #fff;
-            }
-
-            .panel-options {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-wrap: wrap;
-                width: 100%;
-                height: 100%;
-                padding: 2em;
-            }
-
             .item {
-                display: flex;
-                align-items: center;
-                flex-direction: column;
-                margin: 0.5em;
                 height: 11.5em;
                 width: 10em;
                 background-color: var(--bg-dark);
                 box-shadow: 0 1px 3px 0 rgba(#000, 0.2),
                     0 1px 1px 0 rgba(#000, 0.14),
                     0 2px 1px -1px rgba(#000, 0.12);
-                padding: 0.5em;
-                border-radius: 4px;
-
-                .icon {
-                    font-size: 7.5em;
-                    background-color: rgba(#fff, 0.05);
-                    border-radius: 8px;
-
-                    &.available {
-                        background-color: rgba(var(--success), 0.6);
-                    }
-
-                    &.unavailable {
-                        background-color: rgba(var(--error), 0.6);
-                    }
-
-                    a-spinner {
-                        font-size: 0.1em;
-                    }
-                }
             }
 
-            .icon {
-                height: 1.2em;
-                width: 1.2em;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                img {
-                    max-width: 1em;
-                    max-height: 1em;
-                }
+            .free {
+                background-color: rgba(var(--success), 0.6);
             }
 
-            .text {
-                font-size: 0.8em;
-                color: #fff;
-                padding: 0.75em;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                width: 100%;
+            .busy {
+                background-color: rgba(var(--error), 0.6);
             }
 
-            .overlay {
-                position: absolute;
-                top: 0.5em;
-                left: 1.25em;
-                display: flex;
-                align-items: center;
+            img {
+                max-width: 1em;
+                max-height: 1em;
             }
         `,
     ],
@@ -227,6 +170,7 @@ export class BookingPanelSelectComponent extends BaseClass implements OnInit {
      */
     public showPanel(id: string) {
         this.active_system = id;
+        console.log('Active:', id);
         this.reset();
     }
 
@@ -237,9 +181,9 @@ export class BookingPanelSelectComponent extends BaseClass implements OnInit {
      */
     public updateStatus(id: string, bookings: HashMap[]) {
         const current = currentBooking(
-            bookings.map((i) => new CalendarEvent(i))
+            (bookings || []).map((i) => new CalendarEvent(i))
         );
-        this.system_status[id] = current ? 'available' : 'unavailable';
+        this.system_status[id] = current ? 'unavailable' : 'available';
     }
 
     /**

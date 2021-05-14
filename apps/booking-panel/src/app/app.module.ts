@@ -31,6 +31,7 @@ import { PanelBookingListComponent } from './panel/panel-booking-list.component'
 
 import * as Sentry from '@sentry/angular';
 import { PanelStatusComponent } from './panel/panel-status.component';
+import { MatRippleModule } from '@angular/material/core';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -58,6 +59,7 @@ const MAT_MODULES: any[] = [
         HttpClientModule,
         FormsModule,
         MatSnackBarModule,
+        MatRippleModule,
         SharedOverlaysModule,
         ComponentsModule,
         ...MAT_MODULES,
