@@ -34,7 +34,6 @@ import { PanelStateService } from './panel-state.service';
                 ></panel-booking-list>
             </div>
             <panel-status></panel-status>
-            <!-- <div class="w-full h-12"></div> -->
         </div>
     `,
     styles: [``],
@@ -70,6 +69,7 @@ export class BookingPanelComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.system_id) {
+            console.log('System:', this.system_id);
             this._state.system = this.system_id;
         }
     }
