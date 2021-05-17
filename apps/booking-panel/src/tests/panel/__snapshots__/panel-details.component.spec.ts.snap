@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PanelDetailsComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <h1
+    class="text-4xl font-medium mb-8"
+  >
+     &lt;Unknown Space&gt; 
+  </h1>
+  
+  <div
+    class="flex flex-col items-center space-y-2"
+  >
+    
+    
+    
+  </div>
+  
+  
+</div>
+`;

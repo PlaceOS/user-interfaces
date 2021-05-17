@@ -33,6 +33,8 @@ export interface PanelSettings {
     cancel_timeout?: number;
     /** Whether user is allowed to interact with the interface */
     interactive?: boolean;
+    /** Whether user is able to call the catering service */
+    room_service?: boolean;
 }
 
 export function currentBooking(

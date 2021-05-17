@@ -20,6 +20,7 @@ import { PanelStateService } from './panel-state.service';
             *ngIf="!(options | async)?.interactive; else empty_state"
         >
             <button
+                event
                 mat-button
                 class="w-48"
                 *ngIf="(space | async)?.bookable"
@@ -31,6 +32,7 @@ import { PanelStateService } from './panel-state.service';
                 </div>
             </button>
             <button
+                control
                 mat-button
                 class="w-48"
                 *ngIf="(space | async)?.support_url"
@@ -41,7 +43,13 @@ import { PanelStateService } from './panel-state.service';
                     <span class="mx-2">View Control</span>
                 </div>
             </button>
-            <button mat-button class="w-48" (click)="callWaiter()">
+            <button
+                waiter
+                mat-button
+                class="w-48"
+                *ngIf="(options | async)?.room_service"
+                (click)="callWaiter()"
+            >
                 <div class="flex items-center justify-center">
                     <app-icon class="text-xl">room_service</app-icon>
                     <span class="mx-2">Call Waiter</span>
