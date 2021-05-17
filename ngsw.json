@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1620969941946,
+  "timestamp": 1621213549254,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -77,6 +77,9 @@
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_10.svg",
+        "./assets/maps/level_11.svg",
+        "./assets/maps/level_2.svg",
+        "./assets/maps/level_3.svg",
         "./assets/mock-qrcode.png",
         "./assets/not-supported.html",
         "./assets/support/chrome-logo.svg",
@@ -135,7 +138,10 @@
     "./assets/js/instascan.min.js": "8ac89054c1758a60574c5e2b2689d0da83ae6f5b",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
-    "./assets/maps/level_10.svg": "26f28c7a3bd3016379638cd42b8f6e853a5a5b95",
+    "./assets/maps/level_10.svg": "42bce54f5c369b4083cba411cac812131d4150f3",
+    "./assets/maps/level_11.svg": "f8d26e93d084287b9bf3e4409b94f7991e1f702e",
+    "./assets/maps/level_2.svg": "d685479d3c273b79a052a3c08f01d24aaf72a4d5",
+    "./assets/maps/level_3.svg": "ed81acfb532c5f93525cc472a35266ceb945cd75",
     "./assets/mock-qrcode.png": "85e8bae4363bf322273d9feae93016da65293769",
     "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
     "./assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
@@ -146,7 +152,7 @@
     "./common.js": "2049627afd9880e089826edb5a9a36e023a0a9dc",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "e7baf8d71987a27c43d1b4a62c3d01c69a7cbc68",
-    "./main.js": "70e0fd4108a9350624b107c0e52c02660eec8e42",
+    "./main.js": "9010b6f7327babb97782e57159465b95babdbf32",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./polyfills.js": "31fdd5ecd5a927640b2cbc6a9abb23c5004594ae",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
