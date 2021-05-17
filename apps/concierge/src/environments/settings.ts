@@ -30,6 +30,11 @@ const general = {
             name: 'Staff',
             icon: { class: 'material-icons', content: 'account_box' },
         },
+        {
+            route: 'reports',
+            name: 'Reports',
+            icon: { class: 'material-icons', content: 'analytics' },
+        },
     ],
 };
 
