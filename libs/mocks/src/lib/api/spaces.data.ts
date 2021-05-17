@@ -14,7 +14,7 @@ const randomSpaceFeatures = () => {
 export const MOCK_SPACES = [
     {
         name: 'Conference Room 10.01',
-        map_id: 'area-10.001-status',
+        map_id: 'area-10.01-status',
         zones: ['bld-01', 'bld-01_lvl-10'],
     },
     {
@@ -29,7 +29,7 @@ export const MOCK_SPACES = [
     },
     {
         name: 'Conference Room 11.01',
-        map_id: 'area-11.001-status',
+        map_id: 'area-11.01-status',
         zones: ['bld-01', 'bld-01_lvl-11'],
     },
     {
@@ -41,5 +41,30 @@ export const MOCK_SPACES = [
         name: 'Conference Room 11.03',
         map_id: 'area-11.03-status',
         zones: ['bld-01', 'bld-01_lvl-11'],
+    },
+    {
+        name: 'Conference Room 2.01',
+        map_id: 'area-2.01-status',
+        zones: ['bld-02', 'bld-02_lvl-2'],
+    },
+    {
+        name: 'Conference Room 2.02',
+        map_id: 'area-2.02-status',
+        zones: ['bld-02', 'bld-02_lvl-2'],
+    },
+    {
+        name: 'Conference Room 3.01',
+        map_id: 'area-3.01-status',
+        zones: ['bld-02', 'bld-02_lvl-3'],
+    },
+    {
+        name: 'Conference Room 3.02',
+        map_id: 'area-3.02-status',
+        zones: ['bld-02', 'bld-02_lvl-3'],
+    },
+    {
+        name: 'Conference Room 3.03',
+        map_id: 'area-3.03-status',
+        zones: ['bld-02', 'bld-02_lvl-3'],
     },
 ].map((d) => generateMockSpace({ ...d, features: randomSpaceFeatures() }));
