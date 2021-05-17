@@ -5,6 +5,7 @@ import { PanelStateService } from './panel-state.service';
     selector: 'panel-status',
     template: `
         <div
+            status
             class="h-12 w-[calc(100% - 2rem)] m-2 rounded shadow"
             [class.bg-gray-300]="(settings | async)?.status === 'not-bookable'"
             [class.bg-pending]="(settings | async)?.status === 'pending'"

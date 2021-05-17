@@ -69,7 +69,6 @@ export class BookingPanelComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.system_id) {
-            console.log('System:', this.system_id);
             this._state.system = this.system_id;
         }
     }
