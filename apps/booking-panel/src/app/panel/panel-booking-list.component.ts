@@ -42,7 +42,7 @@ import { PanelStateService } from './panel-state.service';
         <div class="mb-4 w-full" *ngIf="current | async; else empty_state">
             <div
                 current
-                class="flex items-center bg-white rounded-lg px-4 py-8 text-lg shadow-md w-full border border-gray-100 relative max-w-full"
+                class="flex items-center bg-white rounded-lg px-4 h-24 text-lg shadow-md w-full border border-gray-100 relative max-w-full"
                 [class.text-white]="started | async"
             >
                 <div
@@ -52,13 +52,20 @@ import { PanelStateService } from './panel-state.service';
                     [class.opacity-0]="!(started | async)"
                 ></div>
                 <div
-                    class="relative opacity-60 w-24 text-base z-10"
+                    class="relative opacity-80 w-24 text-base z-10"
                     *ngIf="!(started | async)"
                 >
-                    {{ (current | async)?.date | date: 'shortTime' }}
+                    <span [class.opacity-60]="started | async">{{
+                        (current | async)?.event_start * 1000
+                            | date: 'shortTime'
+                    }}</span
+                    ><br />
+                    <span [class.opacity-60]="!(started | async)">{{
+                        (current | async)?.event_end * 1000 | date: 'shortTime'
+                    }}</span>
                 </div>
                 <div
-                    class="relative opacity-60 w-24 text-base z-10 flex flex-col"
+                    class="relative opacity-80 w-24 text-base z-10 flex flex-col"
                     *ngIf="started | async"
                 >
                     <div class="text-xs">Ends at:</div>
