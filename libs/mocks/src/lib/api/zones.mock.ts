@@ -48,11 +48,16 @@ registerMockEndpoint({
             };
         }
         if (request.query_params.name === 'desks') {
+            const parts = request.route_params.id.split('-');
+            const id = parts[parts.length - 1];
             return {
                 desks: {
-                    details: new Array(19).fill(0).map((_, idx) => ({
-                        id: `table-10.${padString(idx + 1, 3)}`,
-                        name: `Desk 10.${padString(idx + 1, 3)}`,
+                    details: new Array(30).fill(0).map((_, idx) => ({
+                        id: `table-${padString(id, 2)}.${padString(
+                            idx + 1,
+                            3
+                        )}`,
+                        name: `Desk ${id}.${padString(idx + 1, 3)}`,
                         bookable: predictableRandomInt(9999) % 4 !== 0,
                         group: '',
                     })),
