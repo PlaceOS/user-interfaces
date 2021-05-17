@@ -96,10 +96,10 @@ export class PanelStateService extends BaseClass {
         this._bookings
     ).pipe(map(([_, bookings]) => currentBooking(bookings)));
     /** Upcoming booking */
-    public readonly next: Observable<CalendarEvent> = combineLatest(
+    public readonly next: Observable<CalendarEvent> = combineLatest([
         this._poll,
-        this._bookings
-    ).pipe(
+        this._bookings,
+    ]).pipe(
         map(([_, bookings]) => {
             const date = new Date().valueOf();
             return bookings.find((bkn) => bkn.date > date);
@@ -259,7 +259,7 @@ export class PanelStateService extends BaseClass {
             this._dialog
         );
         if (details.reason !== 'done') return;
-        this.startMeeting();
+        this.callWaiter();
     }
 
     /**
