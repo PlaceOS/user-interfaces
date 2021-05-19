@@ -12,6 +12,7 @@ import {
     currentUser,
     downloadFile,
     notifyError,
+    SettingsService,
 } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
@@ -144,7 +145,10 @@ export class UserListFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
-    constructor(private _dialog: MatDialog) {
+    constructor(
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -216,7 +220,12 @@ export class UserListFieldComponent
             if (!el.email) {
                 el.email = `${display}+${id}@guest.${USER_DOMAIN}`;
             }
-            el.visit_expected = !el.email.endsWith('place.tech');
+            const internal_emails = this._settings.get(
+                'app.booking.internal_emails'
+            ) || ['place.tech'];
+            el.visit_expected = !internal_emails.find((_) =>
+                el.email.endsWith(_)
+            );
             this.addUser(new User(el));
         }
     }
