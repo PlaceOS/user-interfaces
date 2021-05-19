@@ -34,6 +34,7 @@ import { PanelStateService } from './panel-state.service';
                 ></panel-booking-list>
             </div>
             <panel-status></panel-status>
+            <panel-timeline></panel-timeline>
         </div>
     `,
     styles: [``],
