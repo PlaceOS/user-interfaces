@@ -15,14 +15,13 @@ import {
 
 import { openBookingModal } from '../overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from '../overlays/embedded-control-modal.component';
+import { addSeconds } from 'date-fns';
 
 export interface PanelSettings {
     /**  */
     status?: string;
     /** Whether booking has a pending state */
     pending?: boolean;
-    /** Unix epoch in ms of last activated booking */
-    last_active?: number;
     /** Default title for Ad-hoc bookings */
     default_title?: string;
     /** Minimum duration for a booking */
@@ -30,11 +29,13 @@ export interface PanelSettings {
     /** Maximum duration for a booking */
     max_duration?: number;
     /** Duration in seconds after the start with which to cancel pending bookings */
-    cancel_timeout?: number;
+    pending_period?: number;
     /** Whether user is allowed to interact with the interface */
-    interactive?: boolean;
-    /** Whether user is able to call the catering service */
-    room_service?: boolean;
+    disable_book_now?: boolean;
+    /** URL to the control UI for this space */
+    control_ui?: string;
+    /** URI to the catering UI for this space */
+    catering_ui?: string;
 }
 
 export function currentBooking(
@@ -113,7 +114,11 @@ export class PanelStateService extends BaseClass {
     ]).pipe(
         map(([current, next, settings]) => {
             const booking: CalendarEvent = current || next;
-            const is_active = settings.last_active > booking?.date;
+            const is_active =
+                addSeconds(
+                    new Date(),
+                    settings.pending_period || 1440
+                ).valueOf() > booking?.date;
             switch (booking.state) {
                 case 'future':
                     return 'available';
@@ -141,7 +146,15 @@ export class PanelStateService extends BaseClass {
                         .sort((a, b) => a.date - b.date) || []
                 )
             );
-            const settings: any[] = ['interactive', 'last_active', 'status'];
+            const settings: any[] = [
+                'disable_book_now',
+                'pending',
+                'status',
+                'control_ui',
+                'catering_ui',
+                'pending_period',
+                'pending_before',
+            ];
             settings.forEach((k) => this.bindTo(id, k));
         });
     }
@@ -169,7 +182,7 @@ export class PanelStateService extends BaseClass {
             {
                 title: 'Do you wish to start your meeting?',
                 content: `If you don't start your meeting it will be cancelled ${
-                    this._settings.getValue().cancel_timeout / 60
+                    this._settings.getValue().pending_period / 60
                 } minutes after the start time.`,
                 icon: { class: 'material-icons', content: 'play_arrow' },
             },
@@ -238,8 +251,7 @@ export class PanelStateService extends BaseClass {
      * Open confirmation modal for calling waiter
      */
     public async viewControl() {
-        const control_url = (await this.space.pipe(take(1)).toPromise())
-            ?.support_url;
+        const control_url = this._settings.getValue().control_ui;
         if (!control_url) return;
         this._dialog.open(EmbeddedControlModalComponent, {
             data: { control_url },

@@ -4,16 +4,16 @@ import {
     MatDialogRef,
     MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { MockModule } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 
 import { EmbeddedControlModalComponent } from '../../app/overlays/embedded-control-modal.component';
-import { SafePipe } from '@placeos/components';
+import { IconComponent, SafePipe } from '@placeos/components';
 
 describe('EmbeddedControlModalComponent', () => {
     let spectator: Spectator<EmbeddedControlModalComponent>;
     const createComponent = createComponentFactory({
         component: EmbeddedControlModalComponent,
-        declarations: [SafePipe],
+        declarations: [SafePipe, MockComponent(IconComponent)],
         imports: [MockModule(MatDialogModule)],
         providers: [
             { provide: MAT_DIALOG_DATA, useValue: { control_url: '' } },

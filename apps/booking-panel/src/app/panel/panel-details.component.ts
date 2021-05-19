@@ -17,13 +17,13 @@ import { PanelStateService } from './panel-state.service';
         </p>
         <div
             class="flex flex-col items-center space-y-2"
-            *ngIf="!(options | async)?.interactive; else empty_state"
+            *ngIf="!(options | async)?.hide_actions; else empty_state"
         >
             <button
                 event
                 mat-button
                 class="w-48"
-                *ngIf="(space | async)?.bookable"
+                *ngIf="!(options | async)?.disable_book_now"
                 (click)="newEvent()"
             >
                 <div class="flex items-center justify-center">
@@ -35,7 +35,7 @@ import { PanelStateService } from './panel-state.service';
                 control
                 mat-button
                 class="w-48"
-                *ngIf="(space | async)?.support_url"
+                *ngIf="(options | async)?.control_ui"
                 (click)="viewControl()"
             >
                 <div class="flex items-center justify-center">
@@ -47,7 +47,7 @@ import { PanelStateService } from './panel-state.service';
                 waiter
                 mat-button
                 class="w-48"
-                *ngIf="(options | async)?.room_service"
+                *ngIf="(options | async)?.catering_ui"
                 (click)="callWaiter()"
             >
                 <div class="flex items-center justify-center">

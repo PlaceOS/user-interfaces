@@ -117,7 +117,6 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this.route.queryParamMap.subscribe((params) => {
-                console.log('Params');
                 if (params.has('clear') && !!params.get('clear')) {
                     this.clearBootstrap();
                 }

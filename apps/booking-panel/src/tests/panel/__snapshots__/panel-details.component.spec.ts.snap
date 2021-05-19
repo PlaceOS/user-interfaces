@@ -13,6 +13,26 @@ exports[`PanelDetailsComponent should match snapshot 1`] = `
   <div
     class="flex flex-col items-center space-y-2"
   >
+    <button
+      class="w-48"
+      event=""
+      mat-button=""
+    >
+      <div
+        class="flex items-center justify-center"
+      >
+        <app-icon
+          class="text-xl"
+        >
+          add_circle_outline
+        </app-icon>
+        <span
+          class="mx-2"
+        >
+          New Event
+        </span>
+      </div>
+    </button>
     
     
     

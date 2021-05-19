@@ -174,10 +174,7 @@ export class PanelBookingListComponent {
         this._state.settings,
         interval(600),
     ]).pipe(
-        map(
-            ([i, settings]) =>
-                i && settings.cancel_timeout && settings.last_active < i.date
-        )
+        map(([i, settings]) => i && settings.pending_period && settings.pending)
     );
     /** List of events excluding the current/next event */
     public readonly upcoming = this.bookings.pipe(

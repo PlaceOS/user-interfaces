@@ -7,7 +7,7 @@ import {
     format,
 } from 'date-fns';
 import { combineLatest, timer } from 'rxjs';
-import { map, shareReplay, startWith } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 
 import { PanelStateService } from './panel-state.service';
 

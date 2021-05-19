@@ -38,19 +38,19 @@ describe('PanelDetailsComponent', () => {
     });
 
     it('should allow for creating new events', () => {
-        expect('[event]').not.toExist();
         const service = spectator.inject(PanelStateService);
-        (service.space as any).next({ bookable: true });
-        spectator.detectChanges();
         expect('[event]').toExist();
         spectator.click('[event]');
         expect(service.newBooking).toHaveBeenCalled();
+        (service.settings as any).next({ disable_book_now: true });
+        spectator.detectChanges();
+        expect('[event]').not.toExist();
     });
 
     it('should allow for calling waiter', () => {
         expect('[waiter]').not.toExist();
         const service = spectator.inject(PanelStateService);
-        (service.settings as any).next({ room_service: true });
+        (service.settings as any).next({ catering_ui: true });
         spectator.detectChanges();
         expect('[waiter]').toExist();
         spectator.click('[waiter]');
@@ -60,7 +60,7 @@ describe('PanelDetailsComponent', () => {
     it('should allow for viewing control UI', () => {
         expect('[control]').not.toExist();
         const service = spectator.inject(PanelStateService);
-        (service.space as any).next({ support_url: 'here' });
+        (service.settings as any).next({ control_ui: 'here' });
         spectator.detectChanges();
         expect('[control]').toExist();
         spectator.click('[control]');

@@ -170,7 +170,6 @@ export class BookingPanelSelectComponent extends BaseClass implements OnInit {
      */
     public showPanel(id: string) {
         this.active_system = id;
-        console.log('Active:', id);
         this.reset();
     }
 
