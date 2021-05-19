@@ -1,26 +1,27 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { listen, getModule } from '@placeos/ts-client';
+import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
-import { map, first } from 'rxjs/operators';
+import { filter, map, shareReplay, take, tap } from 'rxjs/operators';
 
-import { CalendarEvent,  } from '@placeos/events';
+import { CalendarEvent } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
-import { BaseClass, notifyError, timePeriodsIntersect } from '@placeos/common';
 import {
-    ConfirmModalComponent,
-    ConfirmModalData,
-    CONFIRM_METADATA,
-} from '@placeos/components';
+    BaseClass,
+    notifyError,
+    openConfirmModal,
+    timePeriodsIntersect,
+} from '@placeos/common';
 
-import { SpaceStatus } from './booking-actions/booking-actions.component';
 import { openBookingModal } from '../overlays/booking-modal.component';
+import { EmbeddedControlModalComponent } from '../overlays/embedded-control-modal.component';
+import { addSeconds } from 'date-fns';
 
 export interface PanelSettings {
+    /**  */
+    status?: string;
     /** Whether booking has a pending state */
     pending?: boolean;
-    /** Unix epoch in ms of last activated booking */
-    last_active?: number;
     /** Default title for Ad-hoc bookings */
     default_title?: string;
     /** Minimum duration for a booking */
@@ -28,14 +29,34 @@ export interface PanelSettings {
     /** Maximum duration for a booking */
     max_duration?: number;
     /** Duration in seconds after the start with which to cancel pending bookings */
-    cancel_timeout?: number;
+    pending_period?: number;
+    /** Whether user is allowed to interact with the interface */
+    disable_book_now?: boolean;
+    /** URL to the control UI for this space */
+    control_ui?: string;
+    /** URI to the catering UI for this space */
+    catering_ui?: string;
 }
 
-export function currentBooking(list: CalendarEvent[], date: number = new Date().valueOf()) {
+export function currentBooking(
+    list: CalendarEvent[],
+    date: number = new Date().valueOf()
+) {
     return list.find((bkn) =>
-        timePeriodsIntersect(date, date, bkn.date, bkn.date + bkn.duration * 1000)
+        timePeriodsIntersect(
+            date,
+            date,
+            bkn.date,
+            bkn.date + bkn.duration * 1000
+        )
     );
 }
+
+export type CalendarEventStatus =
+    | 'available'
+    | 'pending'
+    | 'busy'
+    | 'not-bookable';
 
 @Injectable()
 export class PanelStateService extends BaseClass {
@@ -43,14 +64,22 @@ export class PanelStateService extends BaseClass {
     private _poll = interval(1000);
     /** List of current bookings for active system */
     private _bookings = new BehaviorSubject<CalendarEvent[]>([]);
-    /** List of current bookings for active system */
+    /** Mapping of current settings for the active system */
     private _settings = new BehaviorSubject<PanelSettings>({});
     /** Active system */
     private _system = new BehaviorSubject<string>('');
+    /** Mapping of current settings for the active system */
+    public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
     public readonly bookings = this._bookings.asObservable();
     /** List of current bookings for active system */
-    public readonly space = this._system.pipe(map((id) => this._spaces.find(id)));
+    public readonly space = combineLatest([
+        this._system,
+        this._spaces.list,
+    ]).pipe(
+        map(([id, list]) => list.find((_) => _.id === id)),
+        shareReplay(1)
+    );
     /** List of current bookings */
     public get booking_list() {
         return this._bookings.getValue();
@@ -66,53 +95,68 @@ export class PanelStateService extends BaseClass {
     public readonly current: Observable<CalendarEvent> = combineLatest(
         this._poll,
         this._bookings
-    ).pipe(map((details) => currentBooking(details[1])));
+    ).pipe(map(([_, bookings]) => currentBooking(bookings)));
     /** Upcoming booking */
-    public readonly next: Observable<CalendarEvent> = combineLatest(
+    public readonly next: Observable<CalendarEvent> = combineLatest([
         this._poll,
-        this._bookings
-    ).pipe(
-        map((details) => {
+        this._bookings,
+    ]).pipe(
+        map(([_, bookings]) => {
             const date = new Date().valueOf();
-            return details[1].find((bkn) => bkn.date > date);
+            return bookings.find((bkn) => bkn.date > date);
         })
     );
 
-    public readonly status: Observable<SpaceStatus> = combineLatest(
+    public readonly status: Observable<string> = combineLatest([
         this.current,
         this.next,
-        this._settings
-    ).pipe(
-        map((pair) => {
-            const [current, next, settings] = pair;
+        this._settings,
+    ]).pipe(
+        map(([current, next, settings]) => {
             const booking: CalendarEvent = current || next;
-            const is_active = settings.last_active > booking?.date;
+            const is_active =
+                addSeconds(
+                    new Date(),
+                    settings.pending_period || 1440
+                ).valueOf() > booking?.date;
             switch (booking.state) {
                 case 'future':
                     return 'available';
                 case 'upcoming':
-                    return settings.pending && !is_active ? 'pending' : 'available';
+                    return settings.pending && !is_active
+                        ? 'pending'
+                        : 'available';
                 case 'started':
-                    return settings.pending && !is_active ? 'pending' : 'unavailable';
+                    return settings.pending && !is_active ? 'pending' : 'busy';
                 case 'in_progress':
-                    return settings.pending && !is_active ? 'pending' : 'unavailable';
+                    return settings.pending && !is_active ? 'pending' : 'busy';
             }
             return 'available';
-        })
+        }),
+        shareReplay(1)
     );
 
     constructor(private _spaces: SpacesService, private _dialog: MatDialog) {
         super();
-        this._system.subscribe((id) =>
-            this.subscription(
-                'bookings',
-                listen({ sys: id, mod: 'Bookings', index: 1, name: 'today' }).subscribe((list) => {
-                    list = (list || []).map((i) => new CalendarEvent(i));
-                    list.sort((a, b) => (a.date = b.date));
-                    this._bookings.next(list);
-                })
-            )
-        );
+        this._system.pipe(filter((_) => !!_)).subscribe((id) => {
+            this.bindTo(id, 'bookings' as any, 'Bookings', (l) =>
+                this._bookings.next(
+                    l
+                        ?.map((i) => new CalendarEvent(i))
+                        .sort((a, b) => a.date - b.date) || []
+                )
+            );
+            const settings: any[] = [
+                'disable_book_now',
+                'pending',
+                'status',
+                'control_ui',
+                'catering_ui',
+                'pending_period',
+                'pending_before',
+            ];
+            settings.forEach((k) => this.bindTo(id, k));
+        });
     }
 
     /**
@@ -133,23 +177,19 @@ export class PanelStateService extends BaseClass {
     /**
      * Open confirmation modal for starting the meeting
      */
-    public confirmStart() {
-        const ref = this._dialog.open<ConfirmModalComponent, ConfirmModalData>(
-            ConfirmModalComponent,
+    public async confirmStart() {
+        const details = await openConfirmModal(
             {
-                ...CONFIRM_METADATA,
-                data: {
-                    title: 'Do you wish to start your meeting?',
-                    content: `If you don't start your meeting it will be cancelled ${
-                        this._settings.getValue().cancel_timeout / 60
-                    } minutes after the start time.`,
-                    icon: { class: 'material-icons', content: 'play_arrow' },
-                },
-            }
+                title: 'Do you wish to start your meeting?',
+                content: `If you don't start your meeting it will be cancelled ${
+                    this._settings.getValue().pending_period / 60
+                } minutes after the start time.`,
+                icon: { class: 'material-icons', content: 'play_arrow' },
+            },
+            this._dialog
         );
-        ref.componentInstance.event
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe(() => this.startMeeting());
+        if (details.reason !== 'done') return;
+        this.startMeeting();
     }
 
     /**
@@ -157,19 +197,14 @@ export class PanelStateService extends BaseClass {
      */
     public async startMeeting() {
         if (this.space && (await this.status.toPromise()) === 'pending') {
-            const meeting = (await this.current.toPromise()) || (await this.next.toPromise());
+            const meeting =
+                (await this.current.toPromise()) ||
+                (await this.next.toPromise());
             const module = getModule(this.system, 'Bookings');
             if (meeting && module) {
-                const date = new Date(meeting.date);
-                module.execute('start_meeting', [meeting.date]).then(
-                    (_) => {
-                        // this.service.Analytics.event('Checkin', 'checked-in', `${this.space.id} at ${date.format('DD MMM YYYY, h:mm A Z')}`);
-                    },
-                    (e) => {
-                        notifyError(`Error starting meeting. ${e}`);
-                        // this.service.Analytics.event('Checkin', 'checked-in-failed', `${this.space.id} at ${date.format('DD MMM YYYY, h:mm A Z')}`);
-                    }
-                );
+                await module
+                    .execute('start_meeting', [meeting.date])
+                    .catch((e) => notifyError(`Error starting meeting. ${e}`));
             }
         }
     }
@@ -177,39 +212,103 @@ export class PanelStateService extends BaseClass {
     /**
      * Open confirmation modal for ending the meeting
      */
-    public confirmEnd() {
-        const ref = this._dialog.open<ConfirmModalComponent, ConfirmModalData>(
-            ConfirmModalComponent,
+    public async confirmEnd() {
+        const details = await openConfirmModal(
             {
-                ...CONFIRM_METADATA,
-                data: {
-                    title: 'Are you sure want to end your meeting?',
-                    content: 'Ending your meeting early will free up this room for others to use',
-                    icon: { class: 'material-icons', content: 'stop' },
-                },
-            }
+                title: 'Are you sure want to end your meeting?',
+                content:
+                    'Ending your meeting early will free up this room for others to use',
+                icon: { class: 'material-icons', content: 'stop' },
+            },
+            this._dialog
         );
-        ref.componentInstance.event
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe(() => this.endCurrent());
+        if (details.reason !== 'done') return;
+        this.endCurrent();
     }
 
     /**
      * End the current meeting
      * @param reason Reason for ending the meeting early
      */
-    public endCurrent(reason: string = 'user_input') {
+    public async endCurrent(reason: string = 'user_input') {
         const now = new Date().valueOf();
         const current = this.booking_list.find((bkn) =>
-            timePeriodsIntersect(now, now, bkn.date, bkn.date + bkn.duration * 1000)
+            timePeriodsIntersect(
+                now,
+                now,
+                bkn.date,
+                bkn.date + bkn.duration * 1000
+            )
         );
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
-            const date = new Date(current.date);
-            module.execute('cancel_meeting', [current.date, reason]).then(
-                (_) => {},
-                (e) => notifyError(`Error starting meeting. ${e}`)
-            );
+            await module
+                .execute('cancel_meeting', [current.date, reason])
+                .catch((e) => notifyError(`Error starting meeting. ${e}`));
         }
+    }
+    /**
+     * Open confirmation modal for calling waiter
+     */
+    public async viewControl() {
+        const control_url = this._settings.getValue().control_ui;
+        if (!control_url) return;
+        this._dialog.open(EmbeddedControlModalComponent, {
+            data: { control_url },
+        });
+    }
+
+    /**
+     * Open confirmation modal for calling waiter
+     */
+    public async confirmWaiter() {
+        const details = await openConfirmModal(
+            {
+                title: 'Do you wish to call a waiter?',
+                content: `Note that it can take up to 15 minutes for them to turn up.`,
+                icon: { class: 'material-icons', content: 'room_service' },
+            },
+            this._dialog
+        );
+        if (details.reason !== 'done') return;
+        this.callWaiter();
+    }
+
+    /**
+     * Execute the logic on the engine driver to call waiting staff
+     */
+    public async callWaiter() {
+        const module = getModule(this.system, 'Bookings');
+        if (module) {
+            await module
+                .execute('waiter_call', [Date.now()])
+                .catch((e) => notifyError(`Error calling waiter. ${e}`));
+        }
+    }
+
+    /** List to binding */
+    private bindTo<K extends keyof PanelSettings>(
+        id: string,
+        name: K,
+        mod: string = 'Bookings',
+        on_change: (v: PanelSettings[K]) => void = (v) =>
+            this.updateProperty(name, v)
+    ) {
+        const binding = getModule(id, mod).binding(name);
+        this.subscription(
+            `listen:${name}`,
+            binding.listen().subscribe(on_change)
+        );
+        this.subscription(`bind:${name}`, binding.bind());
+    }
+
+    /** Update properties of the system data */
+    private updateProperty<K extends keyof PanelSettings>(
+        name: K,
+        value: PanelSettings[K]
+    ) {
+        const item = { ...this._settings.getValue() };
+        item[name] = value;
+        this._settings.next(item);
     }
 }

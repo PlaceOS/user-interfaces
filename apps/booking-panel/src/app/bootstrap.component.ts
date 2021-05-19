@@ -51,7 +51,7 @@ import { Space, SpacesService } from '@placeos/spaces';
             </ng-container>
         </div>
         <ng-template #load_state>
-            <div class="my-16 flex flex-col items-center">
+            <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div class="m-4">Loading system data...</div>
             </div>
@@ -117,7 +117,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this.route.queryParamMap.subscribe((params) => {
-                if (params.has('clear') && params.get('clear')) {
+                if (params.has('clear') && !!params.get('clear')) {
                     this.clearBootstrap();
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
