@@ -6,10 +6,15 @@ import { ScheduleStateService } from './schedule-state.service';
 @Component({
     selector: 'app-schedule',
     template: `
-        <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
-        <router-outlet></router-outlet>
-        <a-footer-menu class="w-full"></a-footer-menu>
-        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+        <topbar></topbar>
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+            <nav-menu class="relative z-10"></nav-menu>
+            <main
+                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+            >
+                <router-outlet></router-outlet>
+            </main>
+        </div>
     `,
     styles: [
         `

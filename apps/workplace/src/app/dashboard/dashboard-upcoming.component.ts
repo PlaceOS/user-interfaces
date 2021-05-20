@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@placeos/spaces';
 
@@ -6,7 +6,7 @@ import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
-    selector: 'dashboard-upcoming',
+    selector: 'a-dashboard-upcoming',
     template: `
         <h3 class="m-0 mb-4 font-medium text-xl">Today's Events</h3>
         <div
@@ -16,8 +16,12 @@ import { DashboardStateService } from './dashboard-state.service';
         >
             <div name="status" class="absolute rounded-lg"></div>
             <div name="details" class="flex-1 mr-2">
-                <div name="time" class="text-sm text-bold mb-2">{{ event.date | date:'shortTime' }}</div>
-                <div name="title" class="text-sm text-bold mb-2">{{ event.title }}</div>
+                <div name="time" class="text-sm text-bold mb-2">
+                    {{ event.date | date: 'shortTime' }}
+                </div>
+                <div name="title" class="text-sm text-bold mb-2">
+                    {{ event.title }}
+                </div>
                 <div name="space" class="text-xs flex items-center mb-2">
                     <app-icon
                         class="mr-2"
@@ -30,11 +34,15 @@ import { DashboardStateService } from './dashboard-state.service';
                         (click)="event.space ? locateSpace(event.space) : ''"
                     >
                         {{
-                            event.space?.display_name || event.space?.name || '&lt;No Location&gt;'
+                            event.space?.display_name ||
+                                event.space?.name ||
+                                '&lt;No Location&gt;'
                         }}
                         {{
-                            event.space?.level?.display_name || event.space?.level?.name
-                                ? ', ' + event.space.level.display_name || event.space.level.name
+                            event.space?.level?.display_name ||
+                            event.space?.level?.name
+                                ? ', ' + event.space.level.display_name ||
+                                  event.space.level.name
                                 : ''
                         }}
                     </a>
@@ -44,7 +52,9 @@ import { DashboardStateService } from './dashboard-state.service';
                         class="mr-2"
                         [icon]="{ class: 'material-icons', content: 'group' }"
                     ></app-icon>
-                    {{ event.guests.length }} Guest{{ event.guests.length === 1 ? '' : 's' }}
+                    {{ event.guests.length }} Guest{{
+                        event.guests.length === 1 ? '' : 's'
+                    }}
                 </div>
                 <div name="guests" class="flex space-x-2 text-sm">
                     <a-user-avatar
@@ -53,9 +63,19 @@ import { DashboardStateService } from './dashboard-state.service';
                     ></a-user-avatar>
                 </div>
             </div>
-            <a button mat-button *ngIf="event.meeting_link" class="uppercase h-12" [href]="event.meeting_link">Join Call</a>
+            <a
+                button
+                mat-button
+                *ngIf="event.meeting_link"
+                class="uppercase h-12"
+                [href]="event.meeting_link"
+                >Join Call</a
+            >
         </div>
-        <p *ngIf="!(upcoming_events | async).length" class="text-dark-fade text-center w-full">
+        <p
+            *ngIf="!(upcoming_events | async).length"
+            class="text-dark-fade text-center w-full"
+        >
             No upcoming events for today
         </p>
     `,
@@ -92,10 +112,13 @@ import { DashboardStateService } from './dashboard-state.service';
         `,
     ],
 })
-export class DashboardUpcomingComponent {
+export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly upcoming_events = this._state.upcoming_events;
 
-    constructor(private _state: DashboardStateService, private _dialog: MatDialog) {}
+    constructor(
+        private _state: DashboardStateService,
+        private _dialog: MatDialog
+    ) {}
 
     public ngOnInit() {
         this._state.pollUpcomingEvents();

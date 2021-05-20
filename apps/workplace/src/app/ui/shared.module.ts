@@ -2,6 +2,9 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { EditorModule } from '@tinymce/tinymce-angular';
+
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,33 +23,26 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
-import { EditorModule } from '@tinymce/tinymce-angular';
+
 import { SharedCateringModule } from '@placeos/catering';
 import { ComponentsModule } from '@placeos/components';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedBookingsModule } from '@placeos/bookings';
+
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
-import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
 import { BookingFormModalComponent } from './forms/booking-form-modal/booking-form-modal-component';
 import { BookingFormComponent } from './forms/booking-form/booking-form.component';
 import { InfiniteScrollComponent } from './infinite-scroll.component';
-import { MapControlsComponent } from './map-controls/map-controls.component';
-import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
-import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
-import { SharedBookingsModule } from '@placeos/bookings';
+import { NewSharedComponents } from '../components/shared.module';
 
 const COMPONENTS: Type<any>[] = [
-    TopbarHeaderComponent,
-    OverlayMenuComponent,
-    FooterMenuComponent,
     BookingFormComponent,
     BookingFormModalComponent,
     BookingEditComponent,
-    MapControlsComponent,
     InfiniteScrollComponent,
     EventTimelineComponent,
     VerticalTimelineComponent,
@@ -85,6 +81,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         EditorModule,
         ComponentsModule,
         FormFieldsModule,
+        NewSharedComponents,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,
     ],
@@ -96,6 +93,7 @@ const CDK_MODULES: any[] = [ScrollingModule];
         SharedCateringModule,
         SharedUsersModule,
         SharedBookingsModule,
+        NewSharedComponents,
         ...COMPONENTS,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,

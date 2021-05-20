@@ -5,16 +5,15 @@ import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 @Component({
     selector: 'app-explore',
     template: `
-        <header>
-            <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
-        </header>
-        <main class="flex flex-1 w-full relative">
-            <explore-map-view></explore-map-view>
-        </main>
-        <footer class="flex w-full">
-            <a-footer-menu class="w-full"></a-footer-menu>
-        </footer>
-        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+        <topbar></topbar>
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+            <nav-menu class="relative z-10"></nav-menu>
+            <main
+                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+            >
+                <explore-map-view></explore-map-view>
+            </main>
+        </div>
     `,
     styles: [
         `
@@ -32,8 +31,6 @@ import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
     ],
 })
 export class ExploreComponent implements OnInit {
-    public show_menu: boolean = false;
-
     constructor(private _desks: DesksService) {}
 
     public ngOnInit() {
