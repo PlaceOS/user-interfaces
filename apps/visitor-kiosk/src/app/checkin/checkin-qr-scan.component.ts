@@ -1,7 +1,7 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
-import { BrowserQRCodeReader } from '@zxing/library';
+import QrScanner from 'qr-scanner';
 
 import { CheckinStateService } from './checkin-state.service';
 
@@ -71,13 +71,13 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
 })
-export class CheckinQRScanComponent {
+export class CheckinQRScanComponent implements OnInit, OnDestroy {
     /** Email address of the visitor */
     public email: string;
     /** Video element to emit camera feed */
     @ViewChild('video') private _video_el: ElementRef<HTMLVideoElement>;
     /** QR Reader */
-    private _reader: BrowserQRCodeReader;
+    private _reader;
 
     constructor(
         private _checkin: CheckinStateService,
@@ -85,18 +85,16 @@ export class CheckinQRScanComponent {
     ) {}
 
     public ngOnInit() {
-        this._reader = new BrowserQRCodeReader();
         this.setupQRReader();
     }
 
     public ngOnDestroy() {
-        if (this._video_el?.nativeElement.srcObject) {
-            const track = (this._video_el.nativeElement
-                .srcObject as any).getTracks()[0];
-            if (track) {
-                track.stop();
-            }
+        if (this._video_el.nativeElement.srcObject) {
+            (this._video_el.nativeElement.srcObject as any)
+                .getTracks()
+                .forEach((track) => track?.stop());
         }
+        this._reader.stop();
     }
 
     public async checkQRCode(raw_text: string) {
@@ -126,16 +124,21 @@ export class CheckinQRScanComponent {
     }
 
     private setupQRReader() {
-        this._reader
-            .listVideoInputDevices()
-            .then((videoInputDevices) => {
-                const device = videoInputDevices[0].deviceId;
-                this._reader
-                    .decodeOnceFromVideoDevice(device, 'qr-stream')
-                    .then((result) => this.checkQRCode(result.getText()))
-                    .catch((err) => console.error(err));
-            })
-            .catch((err) => console.error(err));
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then(
+                    (stream) =>
+                        (this._video_el.nativeElement.srcObject = stream)
+                )
+                .catch((e) =>
+                    console.error('Unable to fetch media devices!', e)
+                );
+        }
+        this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
+            this.checkQRCode(r)
+        );
+        this._reader.start();
     }
 
     private handleError(message: string) {
