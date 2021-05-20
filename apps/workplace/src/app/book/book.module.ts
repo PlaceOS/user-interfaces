@@ -1,13 +1,15 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
-
-import { BookComponent } from './book.component';
-import { BookSpaceFlowComponent } from './space-flow.component';
-import { BookDeskFlowComponent } from './desk-flow.component';
-import { BookCodeFlowComponent } from './code-flow.component';
 import { SharedContentModule } from '../ui/shared.module';
+import { BookComponent } from './book.component';
+import { BookCodeFlowComponent } from './code-flow.component';
+import { BookDeskFlowComponent } from './desk-flow.component';
+import { BookSpaceFlowComponent } from './space-flow.component';
+import { DetailBookSpaceFormComponent } from './space-flow/detailed-form.component';
+import { SpaceFlowFormComponent } from './space-flow/form.component';
+
 
 const ROUTES: Route[] = [
     {
@@ -28,6 +30,8 @@ const ROUTES: Route[] = [
     declarations: [
         BookComponent,
         BookSpaceFlowComponent,
+        SpaceFlowFormComponent,
+        DetailBookSpaceFormComponent,
         BookDeskFlowComponent,
         BookCodeFlowComponent,
     ],

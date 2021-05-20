@@ -2,12 +2,13 @@ import {
     Component,
     forwardRef,
     Input,
-    ViewChild,
-    OnInit,
-    SimpleChanges,
-    OnChanges,
+
+
+
+    OnChanges, OnInit,
+    SimpleChanges, ViewChild
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
 import { BaseClass, Identity, timeFormatString } from '@placeos/common';
 import {
@@ -19,7 +20,7 @@ import {
     roundToNearestMinutes,
     set,
     startOfDay,
-    startOfMinute,
+    startOfMinute
 } from 'date-fns';
 
 @Component({
@@ -42,7 +43,7 @@ import {
                 [ngModel]="time"
                 (ngModelChange)="setValue($event)"
             />
-            <app-icon class="text-3xl" matRipple (click)="showSelect()">{{
+            <app-icon class="text-2xl text-black text-opacity-50" matRipple (click)="showSelect()">{{
                 show_select ? 'arrow_drop_up' : 'arrow_drop_down'
             }}</app-icon>
         </div>
@@ -66,13 +67,13 @@ import {
         `
             :host {
                 margin-bottom: 1em;
-                height: 2.75em;
+                height: 2.9em;
                 width: 100%;
             }
 
             :host > div {
                 width: 100%;
-                height: 2.75em;
+                height: 2.9em;
                 box-shadow: inset 0 0 0 1px #fff;
                 transition: border 200ms, box-shadow 200ms;
             }

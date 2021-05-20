@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { CalendarEvent } from './event.class';
+import { saveEvent } from './events.fn';
 import { generateEventForm } from './utilities';
 
 export type EventFlowView = 'form' | 'find' | 'catering' | 'confirm';
@@ -39,6 +40,7 @@ export class EventStateService {
     }
 
     public newForm(event: CalendarEvent = new CalendarEvent()) {
+        console.log('New form:', event);
         this._form.next(generateEventForm(event));
         this._event.next(event);
         this._options.next({});
@@ -51,6 +53,7 @@ export class EventStateService {
     }
 
     public clearForm() {
+        localStorage.removeItem('PLACEOS.event_form');
         this.newForm();
     }
 
@@ -66,5 +69,13 @@ export class EventStateService {
         this._form.getValue().patchValue({
             ...JSON.parse(localStorage.getItem('PLACEOS.event_form') || '{}'),
         });
+    }
+
+    public async postForm() {
+        if (!this._form.getValue()) throw 'No form for event';
+        if (!this._form.getValue().valid) throw 'Some form fields are invalid.';
+        const result = await saveEvent(this._form.getValue().value);
+        this.clearForm();
+        return result;
     }
 }
