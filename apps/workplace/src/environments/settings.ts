@@ -21,7 +21,7 @@ const general: any = {
         },
         {
             name: 'Scan',
-            route: '/book/qr',
+            route: '/book/code',
             icon: {
                 class: 'material-icons',
                 content: 'qr_code',
