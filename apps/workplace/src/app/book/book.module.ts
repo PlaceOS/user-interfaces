@@ -7,7 +7,10 @@ import { BookComponent } from './book.component';
 import { BookCodeFlowComponent } from './code-flow.component';
 import { BookDeskFlowComponent } from './desk-flow.component';
 import { BookSpaceFlowComponent } from './space-flow.component';
+import { SpaceFlowConfirmComponent } from './space-flow/confirm.component';
 import { DetailBookSpaceFormComponent } from './space-flow/detailed-form.component';
+import { SpaceFlowFindItemComponent } from './space-flow/find-item.component';
+import { SpaceFlowFindComponent } from './space-flow/find.component';
 import { SpaceFlowFormComponent } from './space-flow/form.component';
 
 
@@ -31,6 +34,9 @@ const ROUTES: Route[] = [
         BookComponent,
         BookSpaceFlowComponent,
         SpaceFlowFormComponent,
+        SpaceFlowFindComponent,
+        SpaceFlowFindItemComponent,
+        SpaceFlowConfirmComponent,
         DetailBookSpaceFormComponent,
         BookDeskFlowComponent,
         BookCodeFlowComponent,

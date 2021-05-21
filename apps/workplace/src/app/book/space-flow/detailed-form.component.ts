@@ -41,22 +41,23 @@ import { FormGroup } from '@angular/forms';
                     class="w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
                     <div class="flex flex-col">
-                        <label>Meeting Subject</label>
+                        <label>Meeting Subject <span>*</span></label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 formControlName="title"
                                 placeholder="Meeting title"
                             />
+                            <mat-error>Meeting Subject is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col resize-y">
                         <label>Notes</label>
                         <mat-form-field appearance="outline">
                             <textarea
                                 matInput
-                                formControlName="title"
-                                placeholder="Meeting title"
+                                formControlName="body"
+                                placeholder="Add meeting notes here..."
                             ></textarea>
                         </mat-form-field>
                     </div>

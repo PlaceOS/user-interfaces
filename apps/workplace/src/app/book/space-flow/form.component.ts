@@ -6,13 +6,13 @@ import { addDays, setHours } from 'date-fns';
     selector: 'space-flow-form',
     template: `
         <section quick class="text-white">
-            <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
+            <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto pb-2">
                 <h2 class="text-xl uppercase font-medium mb-2 mt-4">
                     Quick Book
                 </h2>
                 <div class="flex flex-col sm:flex-row space-x-0 sm:space-x-2">
                     <mat-form-field
-                        class="sm:flex-2"
+                        class="sm:flex-2 h-[3.25rem]"
                         overlay
                         appearance="outline"
                     >
@@ -26,7 +26,7 @@ import { addDays, setHours } from 'date-fns';
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="sm:flex-2"
+                        class="sm:flex-2 h-[3.25rem]"
                         overlay
                         appearance="outline"
                     >
@@ -39,15 +39,16 @@ import { addDays, setHours } from 'date-fns';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <button
-                        class="sm:flex-1 h-[2.75rem] sm:mt-1 mb-4"
+                    <a button
+                        class="sm:flex-1 h-[2.75rem] mt-1 mb-2"
+                        [routerLink]="['/book', 'spaces', 'find']"
                         mat-button
                     >
                         <div class="flex items-center justify-center">
                             <app-icon class="text-xl">search</app-icon>
-                            <span class="ml-2 mx-4">Search</span>
+                            <span class="ml-2 mx-4">Find Space</span>
                         </div>
-                    </button>
+</a>
                 </div>
             </div>
         </section>
