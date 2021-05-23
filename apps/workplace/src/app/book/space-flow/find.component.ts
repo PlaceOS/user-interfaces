@@ -121,7 +121,12 @@ import { filter, first, map, take } from 'rxjs/operators';
                 <div class="flex-1 underline" [matMenuTriggerFor]="menu">
                     {{ space_list.length }} space(s) selected
                 </div>
-                <button class="w-32" [disabled]="!space_list.length" mat-button (click)="confirmBooking()">
+                <button
+                    class="w-32"
+                    [disabled]="!space_list.length"
+                    mat-button
+                    (click)="confirmBooking()"
+                >
                     Book
                 </button>
             </div>
@@ -134,9 +139,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                     <div class="flex flex-col mr-4">
                         <div>{{ space.display_name || space.name }}</div>
                         <div class="text-xs opacity-70">
-                            {{
-                                space.level?.display_name || space.level?.name
-                            }}
+                            {{ space.level?.display_name || space.level?.name }}
                             ~ {{ space.capacity || '2+' }} People
                         </div>
                     </div>
@@ -245,9 +248,7 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get multiple() {
-        return (
-            true || (this._settings.get('app.booking.multiple_spaces') ?? true)
-        );
+        return this._settings.get('app.booking.multiple_spaces') ?? true;
     }
 
     constructor(
@@ -265,7 +266,7 @@ export class SpaceFlowFindComponent implements OnInit {
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
         console.log('Resources:', resources);
-        resources.forEach((_) => this.book_space[_.id] = true);
+        resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
 
