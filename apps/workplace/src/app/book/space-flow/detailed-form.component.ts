@@ -11,7 +11,9 @@ import { FormGroup } from '@angular/forms';
                 >
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
                         <label>Date</label>
-                        <a-date-field formControlName="date"></a-date-field>
+                        <a-date-field formControlName="date">
+                            Date and time must be in the future
+                        </a-date-field>
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
                         <label>Start Time</label>
@@ -22,7 +24,8 @@ import { FormGroup } from '@angular/forms';
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
-                        ></a-duration-field>
+                        >
+                    </a-duration-field>
                     </div>
                 </div>
             </section>

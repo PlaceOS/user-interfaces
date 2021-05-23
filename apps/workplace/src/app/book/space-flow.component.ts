@@ -14,6 +14,9 @@ import { EventStateService } from '@placeos/events';
                 <ng-container *ngSwitchCase="'confirm'">
                     <space-flow-confirm></space-flow-confirm>
                 </ng-container>
+                <ng-container *ngSwitchCase="'success'">
+                    <flow-success [calendar]="last_success?.host"></flow-success>
+                </ng-container>
                 <ng-container *ngSwitchDefault>
                     <space-flow-form></space-flow-form>
                 </ng-container>
@@ -33,6 +36,9 @@ export class BookSpaceFlowComponent extends BaseClass implements OnInit {
     public get view() {
         return this._state.view;
     }
+    public get last_success() {
+        return this._state.last_success;
+    }
 
     constructor(
         private _state: EventStateService,
@@ -49,6 +55,13 @@ export class BookSpaceFlowComponent extends BaseClass implements OnInit {
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
+            })
+        );
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((param) => {
+                if (param.has('success'))
+                    this._state.setView(param.get('success') as any);
             })
         );
     }

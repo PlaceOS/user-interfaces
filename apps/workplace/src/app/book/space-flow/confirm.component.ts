@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { notifyError } from '@placeos/common';
 import { EventStateService } from '@placeos/events';
 
 @Component({
@@ -75,7 +76,7 @@ import { EventStateService } from '@placeos/events';
                         class="clear bg-transparent border-none underline"
                         (click)="show_spaces = !show_spaces"
                     >
-                        {{ show_spaces ? 'Hide' : 'Show'}}
+                        {{ show_spaces ? 'Hide' : 'Show' }}
                     </button>
                     <a
                         mat-button
@@ -127,7 +128,7 @@ import { EventStateService } from '@placeos/events';
                         class="clear bg-transparent border-none underline"
                         (click)="show_people = !show_people"
                     >
-                        {{ show_people ? 'Hide' : 'Show'}}
+                        {{ show_people ? 'Hide' : 'Show' }}
                     </button>
                     <a
                         mat-button
@@ -149,13 +150,25 @@ import { EventStateService } from '@placeos/events';
                         class="flex items-center h-12 pl-12 space-x-2"
                         *ngFor="let user of form.get('attendees')?.value"
                     >
-                        <a-user-avatar class="text-sm" [user]="user"></a-user-avatar>
+                        <a-user-avatar
+                            class="text-sm"
+                            [user]="user"
+                        ></a-user-avatar>
                         <span>{{ user.name || user.email }}</span>
                     </div>
                 </div>
             </div>
-            <button mat-button class="w-32">Confirm</button>
+            <button
+                mat-button
+                class="w-32"
+                [disabled]="loading"
+                (click)="postForm()"
+            >
+                <span *ngIf="!loading">Confirm</span>
+                <mat-spinner class="mx-auto" [diameter]="24" *ngIf="loading"></mat-spinner>
+            </button>
         </div>
+        <
     `,
     styles: [
         `
@@ -177,9 +190,16 @@ import { EventStateService } from '@placeos/events';
     ],
 })
 export class SpaceFlowConfirmComponent {
-
     public show_spaces = false;
     public show_people = false;
+    public loading = false;
+
+    public readonly postForm = async () => {
+        this.loading = true;
+        console.log('Form:', this.form);
+        await this._state.postForm().catch((_) => notifyError(_));
+        this.loading = false;
+    };
 
     public get form() {
         return this._state.form;

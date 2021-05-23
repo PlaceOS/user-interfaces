@@ -2,11 +2,10 @@ import {
     Component,
     forwardRef,
     Input,
-
-
-
-    OnChanges, OnInit,
-    SimpleChanges, ViewChild
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    ViewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
@@ -26,27 +25,25 @@ import {
 @Component({
     selector: 'a-time-field',
     template: `
-        <div
-            class="relative flex items-center w-full rounded border border-gray-200 hover:border-black px-2 py-1 mt-1"
-            role="button"
+        <mat-form-field
+            appearance="outline"
             [style.display]="show_select ? 'none' : ''"
-            [attr.disabled]="disabled"
-            form-field
-            tabindex="0"
             (keydown.enter)="showSelect()"
         >
             <input
                 matInput
                 type="time"
-                class="flex-1 w-1/2"
                 [disabled]="disabled"
                 [ngModel]="time"
                 (ngModelChange)="setValue($event)"
             />
-            <app-icon class="text-2xl text-black text-opacity-50" matRipple (click)="showSelect()">{{
-                show_select ? 'arrow_drop_up' : 'arrow_drop_down'
-            }}</app-icon>
-        </div>
+            <button mat-icon-button matSuffix class="relative top-1 -right-1" (click)="showSelect()">
+                <app-icon class="text-2xl text-black text-opacity-50">
+                    arrow_drop_down
+                </app-icon>
+            </button>
+            <mat-error><ng-content></ng-content></mat-error>
+        </mat-form-field>
         <mat-form-field appearance="outline" *ngIf="show_select">
             <mat-select
                 #select
@@ -65,38 +62,7 @@ import {
     `,
     styles: [
         `
-            :host {
-                margin-bottom: 1em;
-                height: 2.9em;
-                width: 100%;
-            }
-
-            :host > div {
-                width: 100%;
-                height: 2.9em;
-                box-shadow: inset 0 0 0 1px #fff;
-                transition: border 200ms, box-shadow 200ms;
-            }
-
-            :host > div:hover {
-                box-shadow: inset 0 0 0 1px #464646;
-                border-color: #464646;
-            }
-
-            :host > div:focus {
-                box-shadow: inset 0 0 0 1px var(--primary);
-                border-color: var(--primary);
-                outline-color: var(--primary);
-            }
-
-            :host > div[disabled='true'] {
-                pointer-events: none;
-                border-color: #f0f0f0;
-                color: #ccc;
-            }
-
             mat-form-field {
-                margin-top: -0.25em;
                 width: 100%;
             }
         `,

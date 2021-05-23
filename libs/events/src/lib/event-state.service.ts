@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { Event, NavigationEnd, Router } from '@angular/router';
+import { BaseClass, getInvalidFields } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
@@ -8,6 +10,8 @@ import { filter, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
 import { generateEventForm } from './utilities';
+
+const BOOKING_URLS = ['book/spaces', 'schedule/view'];
 
 export type EventFlowView = 'form' | 'find' | 'catering' | 'confirm';
 
@@ -25,7 +29,7 @@ export interface EventFlowOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class EventStateService {
+export class EventStateService extends BaseClass {
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFlowOptions>({ zone_ids: [] });
     private _form = new BehaviorSubject<FormGroup>(null);
@@ -38,7 +42,7 @@ export class EventStateService {
         this._view,
         this._options,
         this._form,
-        this._org.initialised.pipe(filter(_ => _))
+        this._org.initialised.pipe(filter((_) => _)),
     ]).pipe(
         filter(([v]) => v === 'find'),
         switchMap(([_, options, form]) => {
@@ -50,7 +54,8 @@ export class EventStateService {
                 {
                     period_start: getUnixTime(start),
                     period_end: getUnixTime(end),
-                    zone_ids: options.zone_ids?.join(',') || this._org.building.id,
+                    zone_ids:
+                        options.zone_ids?.join(',') || this._org.building.id,
                     features: options.features?.join(','),
                     capacity: options.capacity ? options.capacity : undefined,
                 },
@@ -74,8 +79,20 @@ export class EventStateService {
         return this._event.getValue();
     }
 
-    constructor(private _org: OrganisationService) {
+    constructor(private _org: OrganisationService, private _router: Router) {
+        super();
         this.available_spaces.subscribe();
+        this.subscription(
+            'router.events',
+            this._router.events.subscribe((event: Event) => {
+                if (
+                    event instanceof NavigationEnd &&
+                    !BOOKING_URLS.find((_) => event.url.includes(_))
+                ) {
+                    this.clearForm();
+                }
+            })
+        );
     }
 
     public setView(value: EventFlowView) {
@@ -88,6 +105,10 @@ export class EventStateService {
 
     public newForm(event: CalendarEvent = new CalendarEvent()) {
         this._form.next(generateEventForm(event));
+        this.subscription(
+            'form_change',
+            this._form.getValue().valueChanges.subscribe(() => this.storeForm())
+        );
         this._event.next(event);
         this._options.next({});
     }
@@ -121,8 +142,27 @@ export class EventStateService {
     }
 
     public async postForm() {
-        if (!this._form.getValue()) throw 'No form for event';
-        if (!this._form.getValue().valid) throw 'Some form fields are invalid.';
+        const form = this._form.getValue();
+        if (!form) throw 'No form for event';
+        if (!form.valid)
+            throw `Some form fields are invalid. [${getInvalidFields(form).join(
+                ', '
+            )}]`;
+        const spaces = form.get('resources')?.value || [];
+        const space_list = spaces.length
+            ? await querySpaceFreeBusy({
+                  period_start: getUnixTime(form.get('date').value),
+                  period_end: getUnixTime(
+                      form.get('date').value +
+                          form.get('duration').value * 60 * 1000
+                  ),
+                  system_ids: spaces.map((_) => _.id).join(','),
+              }).toPromise()
+            : [];
+        if (space_list.length !== spaces.length)
+            throw `${
+                spaces.length - space_list.length
+            } space(s) are not available at the selected time`;
         const result = await saveEvent(this._form.getValue().value);
         this.clearForm();
         return result;

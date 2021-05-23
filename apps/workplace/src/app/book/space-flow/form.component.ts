@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { EventStateService } from '@placeos/events';
 import { addDays, setHours } from 'date-fns';
 
@@ -39,7 +40,8 @@ import { addDays, setHours } from 'date-fns';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <a button
+                    <a
+                        button
                         class="sm:flex-1 h-[2.75rem] mt-1 mb-2"
                         [routerLink]="['/book', 'spaces', 'find']"
                         mat-button
@@ -48,7 +50,7 @@ import { addDays, setHours } from 'date-fns';
                             <app-icon class="text-xl">search</app-icon>
                             <span class="ml-2 mx-4">Find Space</span>
                         </div>
-</a>
+                    </a>
                 </div>
             </div>
         </section>
@@ -79,6 +81,7 @@ import { addDays, setHours } from 'date-fns';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
+                    (click)="findSpace()"
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">search</app-icon>
@@ -88,6 +91,7 @@ import { addDays, setHours } from 'date-fns';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
+                    (click)="confirmBooking()"
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">event_available</app-icon>
@@ -134,5 +138,19 @@ export class SpaceFlowFormComponent {
         return this._state.form;
     }
 
-    constructor(private _state: EventStateService) {}
+    constructor(private _state: EventStateService, private _router: Router) {}
+
+    public findSpace() {
+        this.form.markAllAsTouched();
+
+        console.log('Form:', this.form);
+        if (!this.form.valid) return;
+        this._router.navigate(['/book', 'spaces', 'find']);
+    }
+
+    public confirmBooking() {
+        this.form.markAllAsTouched();
+        if (!this.form.valid) return;
+        this._router.navigate(['/book', 'spaces', 'confirm']);
+    }
 }

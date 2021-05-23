@@ -1,9 +1,9 @@
-import { Component, OnInit, forwardRef, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Identity } from '@placeos/common';
 import { formatDuration } from 'date-fns';
-
 import * as dayjs from 'dayjs';
+
 
 @Component({
     selector: 'a-duration-field',
@@ -20,6 +20,7 @@ import * as dayjs from 'dayjs';
                         {{ option.name }}
                     </mat-option>
                 </mat-select>
+                <mat-error><ng-content></ng-content></mat-error>
             </mat-form-field>
         </div>
     `,
@@ -44,11 +45,11 @@ import * as dayjs from 'dayjs';
 })
 export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAccessor {
     /** Maximum duration option available */
-    @Input() public max: number = 240;
+    @Input() public max = 240;
     /** Minimum duration option available */
-    @Input() public min: number = 30;
+    @Input() public min = 30;
     /** Step value between options */
-    @Input() public step: number = 15;
+    @Input() public step = 15;
     /** Reference time for displaying next to durations */
     @Input() public time: number;
     /** Whether form field is disabled */
@@ -56,7 +57,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     /** Special case prepopulation i.e. out of step options */
     @Input() public specialPreprops: Array<number> = [];
 
-    public duration: number = 60;
+    public duration = 60;
     /** List of available duration options */
     public duration_options: Identity[];
 
@@ -122,7 +123,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     private generateDurationOptions(max: number, min: number, step: number): Identity[] {
         const blocks: Identity[] = [];
         let time = min;
-        let date = this.time ? dayjs(this.time) : null;
+        const date = this.time ? dayjs(this.time) : null;
 
         // Add special case for 10min duration/prepropulation
         for (const option of this.specialPreprops) {

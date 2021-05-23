@@ -1,28 +1,37 @@
+import { HashMap, Identity, unique } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
-    differenceInMinutes,
-    isSameDay,
     add,
-    isBefore,
-    roundToNearestMinutes,
-    addMinutes,
+
+
+    addMinutes, differenceInMinutes,
+
+
+
+
+
     getUnixTime,
-    isAfter,
-    format,
-    set,
+    isAfter, isBefore, isSameDay,
+
+
+    roundToNearestMinutes,
+
+
+
+
+    set
 } from 'date-fns';
-
-import { HashMap, Identity, unique } from '@placeos/common';
-import { GuestUser, User } from 'libs/users/src/lib/user.class';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
-
-import { eventStatus } from './helpers';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { GuestUser, User } from 'libs/users/src/lib/user.class';
 import {
     EventExtensionData,
     FileDetails,
-    RecurrenceDetails,
+    RecurrenceDetails
 } from './event.interfaces';
+import { eventStatus } from './helpers';
+
+
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -112,7 +121,7 @@ export class CalendarEvent {
         this.calendar = data.calendar || '';
         this.creator =
             (data.creator || _default_user.email)?.toLowerCase() || '';
-        this.host = (data.host || this.creator || '').toLowerCase();
+        this.host = (data.host || this.creator  || _default_user.email || '').toLowerCase();
         const attendees: HashMap = data.attendees || [];
         this.attendees = attendees
             .filter((user: any) => !user.resource)
