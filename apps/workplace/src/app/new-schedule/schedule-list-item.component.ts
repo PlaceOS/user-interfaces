@@ -70,7 +70,6 @@ export class ScheduleListItemComponent {
 
     public get icon() {
         if (this.status === 'declined') return 'cancel';
-        console.log('Item:', this.item)
         if (this.item.asset_id) {
             switch ((this.item as Booking).type) {
                 case 'desk':

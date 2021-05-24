@@ -5,7 +5,7 @@ import {
     getUnixTime,
     isAfter,
     isSameDay,
-    roundToNearestMinutes,
+    roundToNearestMinutes
 } from 'date-fns';
 
 export type BookingType = 'desk' | 'parking' | 'locker' | '';
@@ -83,10 +83,10 @@ export class Booking {
         this.date = data.date || this.booking_start * 1000;
         this.duration =
             data.duration ||
-            differenceInMinutes(
+            Math.abs(differenceInMinutes(
                 this.booking_start * 1000,
                 this.booking_end * 1000
-            );
+            ));
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.user_email = data.user_email || '';
