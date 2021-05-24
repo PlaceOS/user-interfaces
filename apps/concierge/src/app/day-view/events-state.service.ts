@@ -408,7 +408,7 @@ export class EventsStateService extends BaseClass {
                 bkn.date + bkn.duration * 60 * 1000
             );
             const in_zone = !!bkn.resources
-                .map((r) => this._spaces.find(r.id))
+                .map((r) => this._spaces.find(r.id || r.email))
                 .find((space) => fzones.find((z) => space?.zones?.includes(z)));
             const has_space =
                 !filters.space_emails?.length ||
