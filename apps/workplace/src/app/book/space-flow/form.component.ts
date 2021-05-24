@@ -36,8 +36,8 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                         appearance="outline"
                     >
                         <mat-select
-                            [(ngModel)]="capacity"
                             name="capacity"
+                            [(ngModel)]="capacity"
                             placeholder="Any Capacity"
                         >
                             <mat-option
@@ -79,6 +79,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
                     mat-button
+                    (click)="clearForm()"
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">clear</app-icon>
@@ -138,6 +139,7 @@ export class SpaceFlowFormComponent {
     ];
 
     public readonly quick_capacities = [
+        { name: 'Any Capacity', value: 0 },
         { name: 'Small (1 - 4)', value: 1 },
         { name: 'Medium (5 - 12)', value: 5 },
         { name: 'Large (13 - 32)', value: 13 },
@@ -147,6 +149,11 @@ export class SpaceFlowFormComponent {
     public get form() {
         return this._state.form;
     }
+
+    public readonly clearForm = () => {
+        this.time = this.capacity = 0;
+        this._state.clearForm();
+    };
 
     constructor(private _state: EventStateService, private _router: Router) {}
 

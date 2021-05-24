@@ -67,14 +67,14 @@ const general: any = {
                 content: 'date_range',
             },
         },
-        {
-            name: 'Wellness',
-            route: '/schedule',
-            icon: {
-                class: 'material-icons',
-                content: 'mood',
-            },
-        },
+        // {
+        //     name: 'Wellness',
+        //     route: '/schedule',
+        //     icon: {
+        //         class: 'material-icons',
+        //         content: 'mood',
+        //     },
+        // },
     ],
     copyright: 'PlaceOS',
     position: 'right',
