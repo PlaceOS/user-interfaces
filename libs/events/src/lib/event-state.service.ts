@@ -36,7 +36,7 @@ export class EventStateService extends BaseClass {
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
 
-    public last_success: CalendarEvent = new CalendarEvent(JSON.parse(localStorage.getItem('PLACEOS.last_booked_event') || '{}'));
+    public last_success: CalendarEvent = new CalendarEvent(JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}'));
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly available_spaces = combineLatest([
@@ -124,12 +124,12 @@ export class EventStateService extends BaseClass {
     }
 
     public clearForm() {
-        localStorage.removeItem('PLACEOS.event_form');
+        sessionStorage.removeItem('PLACEOS.event_form');
         this.newForm();
     }
 
     public storeForm() {
-        localStorage.setItem(
+        sessionStorage.setItem(
             'PLACEOS.event_form',
             JSON.stringify(this._form.getValue()?.value || {})
         );
@@ -138,7 +138,7 @@ export class EventStateService extends BaseClass {
     public loadForm() {
         if (!this._form.getValue()) this.newForm();
         this._form.getValue().patchValue({
-            ...JSON.parse(localStorage.getItem('PLACEOS.event_form') || '{}'),
+            ...JSON.parse(sessionStorage.getItem('PLACEOS.event_form') || '{}'),
         });
     }
 
@@ -167,7 +167,7 @@ export class EventStateService extends BaseClass {
         const result = await saveEvent(this._form.getValue().value).toPromise();
         this.clearForm();
         this.last_success = result;
-        localStorage.setItem('PLACEOS.last_booked_event', JSON.stringify(result));
+        sessionStorage.setItem('PLACEOS.last_booked_event', JSON.stringify(result));
         this.setView('success');
         return result;
     }
