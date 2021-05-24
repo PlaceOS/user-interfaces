@@ -1,15 +1,15 @@
 import { HashMap } from '@placeos/common';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import {
-    addSeconds,
-    addMinutes,
+    addMinutes, addSeconds,
+
     differenceInMinutes,
     format,
     isAfter,
     isBefore,
     isSameMinute,
-    startOfMinute,
+    startOfMinute
 } from 'date-fns';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import {
     BookingRuleDetails,
     BookingRules,
@@ -17,15 +17,15 @@ import {
     BookingRulesmap,
     RecurrenceDetails,
     TimeBlock,
-    TimePeriod,
+    TimePeriod
 } from './event.interfaces';
 
 export function eventStatus(
     details: HashMap
-): 'confirmed' | 'tentative' | 'cancelled' {
+): 'approved' | 'tentative' | 'declined' {
     if (details.resources?.length) {
         if (details.resources.every((i) => i.response_status === 'accepted')) {
-            return 'confirmed';
+            return 'approved';
         } else if (
             details.resources.some(
                 (i) =>
@@ -35,9 +35,9 @@ export function eventStatus(
         ) {
             return 'tentative';
         }
-        return 'cancelled';
+        return 'declined';
     }
-    return 'confirmed';
+    return 'approved';
 }
 
 export function formatRecurrence({

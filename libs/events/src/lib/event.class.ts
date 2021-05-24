@@ -46,7 +46,7 @@ export class CalendarEvent {
     /** ID of the calendar event */
     public readonly id: string;
     /** Status of the event */
-    public readonly status: 'confirmed' | 'tentative' | 'cancelled' | 'none';
+    public readonly status: 'approved' | 'tentative' | 'declined' | 'none';
     /** Email address of the host */
     public readonly host: string;
     /** ID of the calendar associated with the event */
@@ -180,7 +180,7 @@ export class CalendarEvent {
         this.extension_data = data.extension_data || {};
         this.status = eventStatus(this) || 'none';
         this.type =
-            this.status === 'cancelled'
+            this.status === 'declined'
                 ? 'cancelled'
                 : this.attendees.find((_) => _.is_external)
                 ? 'external'

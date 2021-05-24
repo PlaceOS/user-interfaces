@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
+import { RouterModule, Routes } from '@angular/router';
 import {
-    UnauthorisedComponent,
     AuthorisedUserGuard,
-    MisconfiguredComponent,
+    MisconfiguredComponent, UnauthorisedComponent
 } from '@placeos/components';
+
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -54,7 +53,7 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
-            import('./schedule/schedule.module').then((m) => m.ScheduleModule),
+            import('./new-schedule/schedule.module').then((m) => m.AppScheduleModule),
     },
     {
         path: 'help',
