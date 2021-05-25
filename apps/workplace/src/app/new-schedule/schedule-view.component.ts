@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Booking, showBooking } from '@placeos/bookings';
-import { BaseClass, currentUser } from '@placeos/common';
-import { CalendarEvent, showEvent } from '@placeos/events';
+import { Booking, removeBooking, showBooking } from '@placeos/bookings';
+import { BaseClass, currentUser, notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
+import { CalendarEvent, EventStateService, removeEvent, showEvent } from '@placeos/events';
+import { Space } from '@placeos/spaces';
 import { isAfter } from 'date-fns';
+import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
 
 @Component({
     selector: 'schedule-view',
@@ -100,16 +103,28 @@ import { isAfter } from 'date-fns';
                             class="flex items-center h-10 pl-12"
                             *ngFor="let space of event.resources"
                         >
-                            <span
-                                >{{ space.display_name || space.name }} [{{
+                            <span class="flex-1 truncate">
+                                {{ space.display_name || space.name }} [{{
                                     space.level?.display_name ||
                                         space.level?.name
-                                }}]</span
-                            >
-
+                                }}]
+                            </span>
+                            <span
+                                class="h-2 w-2 rounded mr-2"
+                                [class.bg-success]="
+                                    space.response_status === 'accepted'
+                                "
+                                [class.bg-pending]="
+                                    space.response_status === 'tentative'
+                                "
+                                [class.bg-error]="
+                                    space.response_status === 'declined'
+                                "
+                            ></span>
                             <button
                                 mat-button
-                                class="bg-transparent border-none underline"
+                                class="bg-transparent border-none underline text-black"
+                                (click)="viewLocation(space)"
                             >
                                 Map
                             </button>
@@ -147,14 +162,28 @@ import { isAfter } from 'date-fns';
                         class="overflow-hidden"
                     >
                         <div
-                            class="flex items-center h-12 pl-12 space-x-2"
+                            class="flex items-center h-12 pl-12 pr-2 space-x-2"
                             *ngFor="let user of event.attendees"
                         >
                             <a-user-avatar
                                 class="text-sm"
                                 [user]="user"
                             ></a-user-avatar>
-                            <span>{{ user.name || user.email }}</span>
+                            <span class="flex-1 truncate">{{
+                                user.name || user.email
+                            }}</span>
+                            <span
+                                class="h-2 w-2 rounded mr-4"
+                                [class.bg-success]="
+                                    user.response_status === 'accepted'
+                                "
+                                [class.bg-pending]="
+                                    user.response_status === 'tentative'
+                                "
+                                [class.bg-error]="
+                                    user.response_status === 'declined'
+                                "
+                            ></span>
                         </div>
                     </div>
                 </div>
@@ -228,7 +257,12 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
         );
     }
 
-    constructor(private _route: ActivatedRoute, private _router: Router) {
+    constructor(
+        private _route: ActivatedRoute,
+        private _router: Router,
+        private _dialog: MatDialog,
+        private _events: EventStateService
+    ) {
         super();
     }
 
@@ -254,5 +288,40 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
             () => (!this.event ? this._router.navigate(['/schedule']) : ''),
             8 * 1000
         );
+    }
+
+    public viewLocation(space: Space) {
+        this._dialog.open(ViewRoomModalComponent, {
+            width: '32em',
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            data: { space },
+        });
+    }
+
+    public editEvent() {
+        if (this.event instanceof CalendarEvent) {
+            this._events.newForm(this.event);
+            this._router.navigate(['/book', 'spaces', 'form']);
+        }
+    }
+
+    public async confirmDelete() {
+        const details = await openConfirmModal({
+            title: `${this.is_host ? 'Delete' : 'Decline'} event`,
+            content: `Are you sure you wish to ${this.is_host ? 'delete' : 'decline'} this event?`,
+            icon: { content: this.is_host ? 'delete' : 'event_busy' }
+        }, this._dialog);
+        if (details.reason !== 'done') return;
+        details.loading('Removing event...');
+        const fn = this.event instanceof Booking ? removeBooking : removeEvent;
+        await fn(this.event.id).toPromise().catch((e) => {
+            details.loading('');
+            notifyError(`Error removing event. ${e}`);
+            throw e;
+        });
+        notifySuccess('Successfully removed event.');
+        this._router.navigate(['/schedule']);
+        details.close();
     }
 }
