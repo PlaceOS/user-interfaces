@@ -6,7 +6,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 @Component({
     selector: 'space-flow-form',
     template: `
-        <section quick class="text-white">
+        <section quick class="text-white" *ngIf="!is_edit">
             <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto pb-2">
                 <h2 class="text-xl uppercase font-medium mb-2 mt-4">
                     Quick Book
@@ -61,7 +61,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 </div>
             </div>
         </section>
-        <section class="bg-gray-300">
+        <section class="bg-gray-300" *ngIf="!is_edit">
             <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                 <h2 class="text-xl uppercase font-medium my-4">OR</h2>
             </div>
@@ -70,7 +70,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             <h2
                 class="text-xl uppercase font-medium mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
-                Detailed Booking
+                {{ is_edit ? 'Edit' : 'Detailed' }} Booking
             </h2>
             <detailed-book-space-form [form]="form"></detailed-book-space-form>
             <div
@@ -83,7 +83,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">clear</app-icon>
-                        <span class="ml-2 mx-4">Clear Form</span>
+                        <span class="ml-2 mx-4">{{ is_edit ? 'Cancel Edit' : 'Clear Form' }}</span>
                     </div>
                 </button>
                 <button
@@ -93,7 +93,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">search</app-icon>
-                        <span class="ml-2 mx-4">Find Space</span>
+                        <span class="ml-2 mx-4">{{ is_edit ? 'Update Spaces' : 'Find Space'}}</span>
                     </div>
                 </button>
                 <button
@@ -103,7 +103,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">event_available</app-icon>
-                        <span class="ml-2 mx-4">Book without Space</span>
+                        <span class="ml-2 mx-4">{{ is_edit ? 'Confirm changes' : 'Book without Space'}}</span>
                     </div>
                 </button>
             </div>
@@ -145,6 +145,10 @@ export class SpaceFlowFormComponent {
         { name: 'Large (13 - 32)', value: 13 },
         { name: 'Huge (32+)', value: 33 },
     ];
+
+    public get is_edit() {
+        return !!this.form?.get('id')?.value;
+    }
 
     public get form() {
         return this._state.form;

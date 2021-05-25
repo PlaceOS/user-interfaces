@@ -5,6 +5,7 @@ import { formatDuration } from 'date-fns';
 import * as dayjs from 'dayjs';
 
 
+
 @Component({
     selector: 'a-duration-field',
     template: `
@@ -14,6 +15,7 @@ import * as dayjs from 'dayjs';
                     #select
                     [value]="duration"
                     [disabled]="disabled"
+                    [placeholder]="duration + ' minutes'"
                     (valueChange)="setValue($event)"
                 >
                     <mat-option *ngFor="let option of duration_options" [value]="option.id">
