@@ -13,7 +13,12 @@ import { generateEventForm } from './utilities';
 
 const BOOKING_URLS = ['book/spaces', 'schedule/view'];
 
-export type EventFlowView = 'form' | 'find' | 'catering' | 'confirm' | 'success';
+export type EventFlowView =
+    | 'form'
+    | 'find'
+    | 'catering'
+    | 'confirm'
+    | 'success';
 
 export interface EventFlowOptions {
     /** Calendar to associate event with */
@@ -36,7 +41,9 @@ export class EventStateService extends BaseClass {
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
 
-    public last_success: CalendarEvent = new CalendarEvent(JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}'));
+    public last_success: CalendarEvent = new CalendarEvent(
+        JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}')
+    );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly available_spaces = combineLatest([
@@ -164,10 +171,15 @@ export class EventStateService extends BaseClass {
             throw `${
                 spaces.length - space_list.length
             } space(s) are not available at the selected time`;
-        const result = await saveEvent(this._form.getValue().value).toPromise();
+        const result = await saveEvent(
+            new CalendarEvent(this._form.getValue().value)
+        ).toPromise();
         this.clearForm();
         this.last_success = result;
-        sessionStorage.setItem('PLACEOS.last_booked_event', JSON.stringify(result));
+        sessionStorage.setItem(
+            'PLACEOS.last_booked_event',
+            JSON.stringify(result)
+        );
         this.setView('success');
         return result;
     }

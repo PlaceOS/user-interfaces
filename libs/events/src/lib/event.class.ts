@@ -2,23 +2,13 @@ import { HashMap, Identity, unique } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
-
-
-    addMinutes, differenceInMinutes,
-
-
-
-
-
+    addMinutes,
+    differenceInMinutes,
     getUnixTime,
-    isAfter, isBefore, isSameDay,
-
-
+    isAfter,
+    isBefore,
+    isSameDay,
     roundToNearestMinutes,
-
-
-
-
     set
 } from 'date-fns';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
@@ -30,8 +20,6 @@ import {
     RecurrenceDetails
 } from './event.interfaces';
 import { eventStatus } from './helpers';
-
-
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -121,7 +109,12 @@ export class CalendarEvent {
         this.calendar = data.calendar || '';
         this.creator =
             (data.creator || _default_user.email)?.toLowerCase() || '';
-        this.host = (data.host || this.creator  || _default_user.email || '').toLowerCase();
+        this.host = (
+            data.host ||
+            this.creator ||
+            _default_user.email ||
+            ''
+        ).toLowerCase();
         const attendees: HashMap = data.attendees || [];
         this.attendees = attendees
             .filter((user: any) => !user.resource)

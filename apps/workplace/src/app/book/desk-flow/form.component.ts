@@ -1,15 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EventStateService } from '@placeos/events';
-import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
+import { BookingStateService } from '@placeos/bookings';
+import { OrganisationService } from '@placeos/organisation';
+import { addDays, addMinutes, roundToNearestMinutes } from 'date-fns';
+import setHours from 'date-fns/setHours';
+import { first } from 'rxjs/operators';
 
 @Component({
-    selector: 'space-flow-form',
+    selector: 'desk-flow-form',
     template: `
-        <section quick class="text-white" *ngIf="!is_edit">
+        <section quick class="text-white">
             <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto pb-2">
                 <h2 class="text-xl uppercase font-medium mb-2 mt-4">
-                    Quick Book Space
+                    Quick Book Desk
                 </h2>
                 <div class="flex flex-col sm:flex-row space-x-0 sm:space-x-2">
                     <mat-form-field
@@ -36,15 +39,15 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                         appearance="outline"
                     >
                         <mat-select
-                            name="capacity"
-                            [(ngModel)]="capacity"
-                            placeholder="Any Capacity"
+                            name="level"
+                            [(ngModel)]="level"
+                            placeholder="Any Level"
                         >
                             <mat-option
-                                *ngFor="let item of quick_capacities"
-                                [value]="item.value"
+                                *ngFor="let item of levels"
+                                [value]="item.id"
                             >
-                                {{ item.name }}
+                                {{ item.display_name || item.name }}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -55,13 +58,13 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                     >
                         <div class="flex items-center justify-center">
                             <app-icon class="text-xl">search</app-icon>
-                            <span class="ml-2 mx-4">Find Space</span>
+                            <span class="ml-2 mx-4">Find Desk</span>
                         </div>
                     </button>
                 </div>
             </div>
         </section>
-        <section class="bg-gray-300" *ngIf="!is_edit">
+        <section class="bg-gray-300">
             <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                 <h2 class="text-xl uppercase font-medium my-4">OR</h2>
             </div>
@@ -72,7 +75,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             >
                 {{ is_edit ? 'Edit' : 'Detailed' }} Booking
             </h2>
-            <detailed-book-space-form [form]="form"></detailed-book-space-form>
+
             <div
                 class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
             >
@@ -83,27 +86,21 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">clear</app-icon>
-                        <span class="ml-2 mx-4">{{ is_edit ? 'Cancel Edit' : 'Clear Form' }}</span>
+                        <span class="ml-2 mx-4">{{
+                            is_edit ? 'Cancel Edit' : 'Clear Form'
+                        }}</span>
                     </div>
                 </button>
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
-                    (click)="findSpace()"
+                    (click)="findDesk()"
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">search</app-icon>
-                        <span class="ml-2 mx-4">{{ is_edit ? 'Update Spaces' : 'Find Space'}}</span>
-                    </div>
-                </button>
-                <button
-                    class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
-                    mat-button
-                    (click)="confirmBooking()"
-                >
-                    <div class="flex items-center justify-center">
-                        <app-icon class="text-xl">event_available</app-icon>
-                        <span class="ml-2 mx-4">{{ is_edit ? 'Confirm changes' : 'Book without Space'}}</span>
+                        <span class="ml-2 mx-4">{{
+                            is_edit ? 'Update Desk' : 'Find Desk'
+                        }}</span>
                     </div>
                 </button>
             </div>
@@ -125,26 +122,19 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
         `,
     ],
 })
-export class SpaceFlowFormComponent {
+export class DeskFlowFormComponent implements OnInit {
     public time = 0;
-    public capacity = 0;
+    public level = '';
 
     public readonly quick_times = [
         { name: 'Now', value: 0 },
-        { name: 'Later Today', value: 120 },
         {
             name: 'Tomorrow',
             value: setHours(addDays(new Date(), 1), 9).valueOf(),
         },
     ];
 
-    public readonly quick_capacities = [
-        { name: 'Any Capacity', value: 0 },
-        { name: 'Small (1 - 4)', value: 1 },
-        { name: 'Medium (5 - 12)', value: 5 },
-        { name: 'Large (13 - 32)', value: 13 },
-        { name: 'Huge (32+)', value: 33 },
-    ];
+    public levels = [];
 
     public get is_edit() {
         return !!this.form?.get('id')?.value;
@@ -155,11 +145,26 @@ export class SpaceFlowFormComponent {
     }
 
     public readonly clearForm = () => {
-        this.time = this.capacity = 0;
+        this.time = 0;
+        this.level = this._org.building.id;
         this._state.clearForm();
     };
 
-    constructor(private _state: EventStateService, private _router: Router) {}
+    constructor(
+        private _state: BookingStateService,
+        private _router: Router,
+        private _org: OrganisationService
+    ) {}
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _));
+        await this._org.active_levels.pipe(first((_) => _?.length > 0));
+        this.level = this._org.building.id;
+        this.levels = [
+            { id: this._org.building.id, name: 'Any Level' },
+            ...this._org.levelsForBuilding(this._org.building),
+        ];
+    }
 
     public quickBook() {
         this.form.patchValue({
@@ -170,21 +175,20 @@ export class SpaceFlowFormComponent {
                   )
                 : setHours(addDays(new Date(), 1), 8)
             ).valueOf(),
-            title: 'Ad-hoc Meeting',
+            title: 'Ad-hoc Desk Booking',
         });
-        this._state.setOptions({ capacity: this.capacity });
-        this._router.navigate(['/book', 'spaces', 'find']);
+        this.confirmBooking();
     }
 
-    public findSpace() {
+    public findDesk() {
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
-        this._router.navigate(['/book', 'spaces', 'find']);
+        this._router.navigate(['/book', 'desks', 'map']);
     }
 
     public confirmBooking() {
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
-        this._router.navigate(['/book', 'spaces', 'confirm']);
+        this._router.navigate(['/book', 'desks', 'confirm']);
     }
 }

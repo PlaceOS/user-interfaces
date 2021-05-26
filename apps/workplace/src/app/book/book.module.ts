@@ -6,6 +6,9 @@ import { SharedContentModule } from '../ui/shared.module';
 import { BookComponent } from './book.component';
 import { BookCodeFlowComponent } from './code-flow.component';
 import { BookDeskFlowComponent } from './desk-flow.component';
+import { DeskFlowConfirmComponent } from './desk-flow/confirm.component';
+import { DeskFlowFormComponent } from './desk-flow/form.component';
+import { DeskFlowMapComponent } from './desk-flow/map.component';
 import { FlowSuccessComponent } from './flow-success.component';
 import { BookSpaceFlowComponent } from './space-flow.component';
 import { SpaceFlowConfirmComponent } from './space-flow/confirm.component';
@@ -20,7 +23,8 @@ const ROUTES: Route[] = [
         component: BookComponent,
         children: [
             { path: 'code', component: BookCodeFlowComponent },
-            { path: 'desks', component: BookDeskFlowComponent },
+            { path: 'desks', redirectTo: 'desks/form' },
+            { path: 'desks/:step', component: BookDeskFlowComponent },
             { path: 'spaces', redirectTo: 'spaces/form' },
             { path: 'spaces/:step', component: BookSpaceFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
@@ -39,6 +43,9 @@ const ROUTES: Route[] = [
         SpaceFlowConfirmComponent,
         DetailBookSpaceFormComponent,
         BookDeskFlowComponent,
+        DeskFlowFormComponent,
+        DeskFlowMapComponent,
+        DeskFlowConfirmComponent,
         BookCodeFlowComponent,
         FlowSuccessComponent
     ],

@@ -19,6 +19,12 @@ export class Booking {
     /** Unix epoch for the start time of the booking in seconds */
     public readonly booking_end: number;
     /** ID of the user who owns the booking */
+    public readonly booked_by_id: string;
+    /** Email of the user who owns the booking */
+    public readonly booked_by_email: string;
+    /** Display name of the user who owns the booking */
+    public readonly booked_by_name: string;
+    /** ID of the user who owns the booking */
     public readonly user_id: string;
     /** Email of the user who owns the booking */
     public readonly user_email: string;
@@ -108,6 +114,12 @@ export class Booking {
             : this.approved
             ? 'approved'
             : 'tentative';
+        for (const key in data) {
+            if (!(key in this)) {
+                this.extension_data[key] =
+                    data[key] || this.extension_data[key];
+            }
+        }
     }
 
     public toJSON(this: Booking): Partial<Booking> {
