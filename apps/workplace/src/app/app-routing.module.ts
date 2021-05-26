@@ -53,7 +53,7 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
-            import('./new-schedule/schedule.module').then((m) => m.AppScheduleModule),
+            import('./schedule/schedule.module').then((m) => m.AppScheduleModule),
     },
     {
         path: 'help',
