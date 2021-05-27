@@ -22,7 +22,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             >
                 <app-icon>remove</app-icon>
             </button>
-            <div value class="p-1 text-center">{{ value || '0' }}</div>
+            <div value class="p-1 text-center">{{ (render_fn ? render_fn(value) : value) || '0' }}</div>
             <button
                 mat-icon-button
                 name="add"
@@ -51,11 +51,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */
-    @Input() public step: number = 1;
+    @Input() public step = 1;
     /** Maximum amount for the counter */
-    @Input() public max: number = 10;
+    @Input() public max = 10;
     /** Minimum amount for the counter */
-    @Input() public min: number = 0;
+    @Input() public min = 0;
+    /** Custom function for rendering the counter value */
+    @Input() public render_fn: (v: number) => string;
     /** Current value of the counter */
     public value: number;
     /** Whether shift key is being held by the user */
@@ -75,7 +77,7 @@ export class CounterComponent implements ControlValueAccessor {
         if (!this.value) {
             this.value = this.min || 0;
         }
-        const step = this.ctrl_key ? 100 : this.shift_key ? 10 : this.step || 1;
+        const step = this.ctrl_key ? 100 * this.step : this.shift_key ? 10 * this.step : this.step || 1;
         this.value += step;
         if (this.value > this.max) {
             this.value = this.max || 10;
@@ -88,7 +90,7 @@ export class CounterComponent implements ControlValueAccessor {
         if (!this.value) {
             this.value = this.min || 0;
         }
-        const step = this.ctrl_key ? 100 : this.shift_key ? 10 : this.step || 1;
+        const step = this.ctrl_key ? 100 * this.step : this.shift_key ? 10 * this.step : this.step || 1;
         this.value -= step;
         if (this.value < this.min) {
             this.value = this.min || 0;
