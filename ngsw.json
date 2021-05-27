@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1622085331604,
+  "timestamp": 1622115777117,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -15,12 +15,14 @@
         "./apps_concierge_src_app_day-view_day-view_module_ts.js",
         "./apps_concierge_src_app_desks_desks_module_ts.js",
         "./apps_concierge_src_app_facilities_facilities_module_ts.js",
+        "./apps_concierge_src_app_points_points_module_ts.js",
         "./apps_concierge_src_app_reports_reports_module_ts.js",
         "./apps_concierge_src_app_staff_staff_module_ts.js",
         "./apps_concierge_src_app_visitors_visitors_module_ts.js",
         "./apps_concierge_src_app_week-view_week-view_module_ts.js",
         "./default-libs_bookings_src_index_ts.js",
         "./default-libs_explore_src_index_ts.js",
+        "./default-node_modules_angular_material_fesm2015_tabs_js.js",
         "./favicon.ico",
         "./index.html",
         "./main.js",
@@ -68,10 +70,11 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_catering_catering_module_ts.js": "757003fc81b02cd75451d3cbadc375af7344a0a7",
+    "./apps_concierge_src_app_catering_catering_module_ts.js": "dfa43d5316db783a3338a4aa3461ceb32bf6c7b7",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "c51daffacac0f823d1f634c8dba65a789bf234d8",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "6b439c2432fd4bc72bbec071a1194a377d753ebb",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "4e2abf57e8bbfea118cf3d2c3b686b0268ca8df8",
+    "./apps_concierge_src_app_points_points_module_ts.js": "edfc9957ee26597f2ece92dc612273f366499386",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "a8622705bb09ca4a1114aacbbea693fdcb50ed03",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "66ed05d7acba3d8a03e6b385bf5b340681b37258",
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "ec64bbe52782287a0ca40d98c6f4ab6af2483f95",
@@ -98,16 +101,17 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./default-libs_bookings_src_index_ts.js": "87c039b2c0214d99d8e352573c1d67838eaebc33",
-    "./default-libs_explore_src_index_ts.js": "1568b68049fcc6543bc5c0048a168b722f47cccc",
+    "./default-libs_bookings_src_index_ts.js": "9d454f5560b280e9b76fc5c34c91d7e7c47ec60d",
+    "./default-libs_explore_src_index_ts.js": "92cfd60cf71c9550dec46c167b5a571bb9eaf46a",
+    "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1f81fa1823f08af819b169bab53add19f00a3dac",
-    "./main.js": "a24fd4bd0e74cc2ac0b8d86c3a0f3b4f1d18f5a7",
+    "./main.js": "0b76a51f4b77f15ef469e52b530b892521f7f91e",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "09a9a3e3da942b13a02f9e4f52075977ac379955",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
-    "./styles.css": "f945061d8ab7b49076e79a5449c9da65c9b547ab",
-    "./vendor.js": "1364874d5f912af7a5c62f589c6622814dee3721"
+    "./styles.css": "0daba25775b64aac9c9f319fb8860a3c734615b0",
+    "./vendor.js": "a847ef02062363df5b2484c53415b90bf577fd49"
   },
   "navigationUrls": [
     {
