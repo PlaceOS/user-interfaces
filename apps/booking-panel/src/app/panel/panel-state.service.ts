@@ -181,7 +181,7 @@ export class PanelStateService extends BaseClass {
      * Create new booking with the given details
      * @param details
      */
-    public async makeBooking(details: Partial<CalendarEvent>): void {
+    public async makeBooking(details: Partial<CalendarEvent>) {
         const module = getModule(this.system, 'Bookings');
         if (details && module) {
             await module
