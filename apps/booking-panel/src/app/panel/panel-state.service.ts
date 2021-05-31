@@ -173,7 +173,8 @@ export class PanelStateService extends BaseClass {
             this._dialog
         );
         if (details.reason !== 'done') return details.close();
-        return this.makeBooking(details.metadata);
+        await this.makeBooking(details.metadata);
+        details.close();
     }
 
     /**

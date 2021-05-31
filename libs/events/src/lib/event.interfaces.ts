@@ -106,7 +106,7 @@ export interface BookingRules {
     hidden?: boolean;
 }
 
-export type BookingRulesmap = Record<string, BookingRuleset>;
+export type BookingRulesmap = Record<string, BookingRuleset[]>;
 
 export interface BookingRuleDetails {
     space: Space;

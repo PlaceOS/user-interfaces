@@ -1,10 +1,11 @@
 import { del, get, patch, post, put } from '@placeos/ts-client';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { toQueryString } from 'libs/common/src/lib/api';
+import { GuestUser } from 'libs/users/src/lib/user.class';
 
 import { CalendarEvent } from './event.class';
-import { GuestUser } from '../../../users/src/lib/user.class';
-import { Observable } from 'rxjs';
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -175,9 +176,10 @@ export function checkinEventGuest(
     q: CalendarEventShowParams = {}
 ) {
     const query = toQueryString({ ...q, state });
-    return get(
+    return post(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests/${guest_id}${
             query ? '?' + query : ''
-        }`
+        }`,
+        ''
     ).pipe(map((item) => new GuestUser(item)));
 }

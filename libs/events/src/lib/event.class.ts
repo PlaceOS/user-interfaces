@@ -1,28 +1,25 @@
+import { HashMap, Identity, unique } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
-    differenceInMinutes,
-    isSameDay,
     add,
-    isBefore,
-    roundToNearestMinutes,
     addMinutes,
+    differenceInMinutes,
     getUnixTime,
     isAfter,
-    format,
+    isBefore,
+    isSameDay,
+    roundToNearestMinutes,
     set,
 } from 'date-fns';
-
-import { HashMap, Identity, unique } from '@placeos/common';
-import { GuestUser, User } from 'libs/users/src/lib/user.class';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
-
-import { eventStatus } from './helpers';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { GuestUser, User } from 'libs/users/src/lib/user.class';
 import {
     EventExtensionData,
     FileDetails,
     RecurrenceDetails,
 } from './event.interfaces';
+import { eventStatus } from './helpers';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -37,7 +34,7 @@ export class CalendarEvent {
     /** ID of the calendar event */
     public readonly id: string;
     /** Status of the event */
-    public readonly status: 'confirmed' | 'tentative' | 'cancelled' | 'none';
+    public readonly status: 'approved' | 'tentative' | 'declined' | 'none';
     /** Email address of the host */
     public readonly host: string;
     /** ID of the calendar associated with the event */
@@ -112,7 +109,12 @@ export class CalendarEvent {
         this.calendar = data.calendar || '';
         this.creator =
             (data.creator || _default_user.email)?.toLowerCase() || '';
-        this.host = (data.host || this.creator || '').toLowerCase();
+        this.host = (
+            data.host ||
+            this.creator ||
+            _default_user.email ||
+            ''
+        ).toLowerCase();
         const attendees: HashMap = data.attendees || [];
         this.attendees = attendees
             .filter((user: any) => !user.resource)
@@ -163,7 +165,10 @@ export class CalendarEvent {
             this.recurrence = {} as any;
         }
         this.system = data.system;
-        if (this.system?.email) {
+        if (
+            this.system?.email &&
+            !this.resources.find((_) => _.email === this.system.email)
+        ) {
             this.resources.push(new Space(this.system as any));
         }
         this.old_system = data.old_system || data.system;
@@ -171,7 +176,7 @@ export class CalendarEvent {
         this.extension_data = data.extension_data || {};
         this.status = eventStatus(this) || 'none';
         this.type =
-            this.status === 'cancelled'
+            this.status === 'declined'
                 ? 'cancelled'
                 : this.attendees.find((_) => _.is_external)
                 ? 'external'
