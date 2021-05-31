@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { CalendarEvent } from '@placeos/events';
 import { DialogEvent, HashMap, BaseClass } from '@placeos/common';
 import { Space } from '@placeos/spaces';
+import { first } from 'rxjs/operators';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -14,10 +15,20 @@ export interface BookingModalData extends HashMap {
     max_duration?: number;
 }
 
-export function openBookingModal(data: BookingModalData, dialog: MatDialog) {
-    dialog.open(BookingModalComponent, {
+export async function openBookingModal(
+    data: BookingModalData,
+    dialog: MatDialog
+) {
+    const ref = dialog.open(BookingModalComponent, {
         data,
     });
+    return {
+        ...(await Promise.race([
+            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')),
+            ref.afterClosed().toPromise(),
+        ])),
+        close: ref.close,
+    };
 }
 
 @Component({

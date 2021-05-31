@@ -77,7 +77,7 @@ export class Booking {
             );
         this.booking_end =
             data.booking_end ||
-            getUnixTime(addMinutes(this.booking_start, data.duration || 60));
+            getUnixTime(addMinutes(this.booking_start * 1000, data.duration || 60));
         this.booking_type = data.booking_type || '';
         this.type = data.type || 'booking';
         this.date = data.date || this.booking_start * 1000;

@@ -15,7 +15,7 @@ import {
 
 import { openBookingModal } from '../overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from '../overlays/embedded-control-modal.component';
-import { addSeconds } from 'date-fns';
+import { addSeconds, getUnixTime } from 'date-fns';
 
 export interface PanelSettings {
     /**  */
@@ -163,8 +163,8 @@ export class PanelStateService extends BaseClass {
      * Open modal to create new booking
      * @param date Start time of the new booking
      */
-    public newBooking(date: number = new Date().valueOf()) {
-        openBookingModal(
+    public async newBooking(date: number = new Date().valueOf()) {
+        const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
                 space: this._spaces.find(this.system),
@@ -172,6 +172,24 @@ export class PanelStateService extends BaseClass {
             },
             this._dialog
         );
+        if (details.reason !== 'done') return details.close();
+        return this.makeBooking(details.metadata);
+    }
+
+    /**
+     * Create new booking with the given details
+     * @param details
+     */
+    public async makeBooking(details: Partial<CalendarEvent>): void {
+        const module = getModule(this.system, 'Bookings');
+        if (details && module) {
+            await module
+                .execute('book_now', [
+                    details.duration,
+                    getUnixTime(details.date),
+                ])
+                .catch((e) => notifyError(`Error creating meeting. ${e}`));
+        }
     }
 
     /**
