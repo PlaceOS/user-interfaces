@@ -49,14 +49,17 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         needs_parking: new FormControl(event.ext('needs_parking') || false),
         system: new FormControl(event.system),
     });
-    form.controls.organiser.valueChanges.subscribe((o) =>
+    form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email)
     );
+    form.get('resources').valueChanges.subscribe((l) =>
+        form.controls.system.setValue(l.length ? l[0] : null)
+    );
     if (event.id) {
-        form.controls.host.disable();
-        form.controls.organiser.disable();
+        form.get('host').disable();
+        form.get('organiser').disable();
     }
-    if (event.state === 'started') form.controls.date.disable();
+    if (event.state === 'started') form.get('date').disable();
     return form;
 }
 
