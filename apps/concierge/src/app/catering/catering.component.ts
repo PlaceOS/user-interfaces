@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { BaseClass } from '@placeos/common';
 
-import { BaseClass } from '@user-interfaces/common';
 
 @Component({
     selector: '[app-catering]',
@@ -23,10 +23,11 @@ import { BaseClass } from '@user-interfaces/common';
                     >
                         <div
                             name="img"
-                            class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="'rgba(0,0,0, .45) url(assets/img/menus.jpg)'"
+                            class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
+                            [style.background-image]="'url(assets/menus.jpg)'"
                         >
-                            Menus and Pricing
+                            <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+                            <span class="z-10">Menus and Pricing</span>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
@@ -41,10 +42,11 @@ import { BaseClass } from '@user-interfaces/common';
                     >
                         <div
                             name="img"
-                            class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="'rgba(0,0,0, .45) url(assets/img/orders.jpg)'"
+                            class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
+                            [style.background-image]="'url(assets/orders.jpg)'"
                         >
-                            Today's Orders
+                            <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+                            <span class="z-10">Today's Orders</span>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
@@ -79,10 +81,6 @@ import { BaseClass } from '@user-interfaces/common';
 
             a:first-child {
                 margin: 0;
-            }
-
-            [name='img'] {
-                background: rgba(0, 0, 0, 0.45);
             }
         `,
     ],

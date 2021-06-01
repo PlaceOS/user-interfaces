@@ -5,7 +5,7 @@ import {
     BaseClass,
     HashMap,
     SettingsService,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 
 @Component({
     selector: 'a-help-option-list',

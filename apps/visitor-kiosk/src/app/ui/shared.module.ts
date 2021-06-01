@@ -23,8 +23,6 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 
-import { APipesModule } from '@acaprojects/ngx-pipes';
-
 import { TopbarHeaderComponent } from './topbar-header.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 
@@ -33,7 +31,7 @@ import { BookingFormComponent } from './forms/booking-form/booking-form.componen
 
 import { MapControlsComponent } from './map-controls/map-controls.component';
 import { TakePhotoComponent } from './take-photo/take-photo.component';
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 
 const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
@@ -76,7 +74,6 @@ const CDK_MODULES: any[] = [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        APipesModule,
         ComponentsModule,
         RouterModule,
         EditorModule,
@@ -84,7 +81,6 @@ const CDK_MODULES: any[] = [
         ...CDK_MODULES
     ],
     exports: [
-        APipesModule,
         ComponentsModule,
         ...COMPONENTS,
         ...MATERIAL_MODULES,

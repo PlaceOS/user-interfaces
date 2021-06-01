@@ -7,8 +7,8 @@ import {
     jsonToCsv,
     notifyError,
     notifySuccess,
-} from '@user-interfaces/common';
-import { Building, BuildingLevel, Desk } from '@user-interfaces/organisation';
+} from '@placeos/common';
+import { Building, BuildingLevel, Desk } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 

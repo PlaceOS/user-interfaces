@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Space } from '@user-interfaces/spaces';
+import { Space } from '@placeos/spaces';
 
 import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
 import { DashboardStateService } from './dashboard-state.service';

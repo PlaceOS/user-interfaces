@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 export interface EmbeddedControlModalData {
     control_url: string;
@@ -26,7 +26,7 @@ export interface EmbeddedControlModalData {
             </div>
         </div>
         <div class="absolute top-0 left-0 flex items-center h-12">
-            <div class="text-2xl mx-2">{{ countdown }}</div>
+            <div countdown class="text-2xl mx-2">{{ countdown }}</div>
             <button
                 mat-icon-button
                 class="close"

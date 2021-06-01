@@ -3,8 +3,6 @@ import {
     onlineState,
     queryZones,
     showMetadata,
-    updateMetadata,
-    listChildMetadata,
     authority,
     isMock,
 } from '@placeos/ts-client';
@@ -14,8 +12,12 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { Organisation } from './organisation.class';
 import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
-import { Desk } from './desk.class';
-import { HashMap, notifyError, RoomConfiguration, SettingsService } from '@user-interfaces/common';
+import {
+    HashMap,
+    notifyError,
+    RoomConfiguration,
+    SettingsService,
+} from '@placeos/common';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -27,7 +29,9 @@ export class OrganisationService {
     /** Observable of the initialised state of the object */
     public readonly initialised = this._initialised.asObservable();
     private readonly buildings_subject = new BehaviorSubject<Building[]>([]);
-    private readonly active_building_subject = new BehaviorSubject<Building>(null);
+    private readonly active_building_subject = new BehaviorSubject<Building>(
+        null
+    );
     private readonly levels_subject = new BehaviorSubject<BuildingLevel[]>([]);
 
     /** Observable for the list of buildings */
@@ -37,7 +41,10 @@ export class OrganisationService {
     /** Observable for the currently active building */
     public readonly active_building = this.active_building_subject.asObservable();
     /** Observable for the levels associated with the currently active building */
-    public readonly active_levels = combineLatest([this.level_list, this.active_building]).pipe(
+    public readonly active_levels = combineLatest([
+        this.level_list,
+        this.active_building,
+    ]).pipe(
         map((details) => (details[1] ? this.levelsForBuilding(details[1]) : []))
     );
     /** Organisation data for the application */
@@ -62,7 +69,9 @@ export class OrganisationService {
         if (!bld_id && this.building) {
             bld_id = this.building.id;
         }
-        return this._building_settings ? this._building_settings[bld_id] || {} : {};
+        return this._building_settings
+            ? this._building_settings[bld_id] || {}
+            : {};
     }
 
     /** Organisation data for the application */
@@ -85,12 +94,11 @@ export class OrganisationService {
             this._settings.details,
             this.buildingSettings(bld.id).details,
         ];
-
     }
 
     /** Get building by id */
     public find(id: string) {
-        return this.buildings.find((i) => i.id === id || i.email === id);
+        return this.buildings.find((i) => i.id === id);
     }
 
     /** List of available levels */
@@ -104,7 +112,10 @@ export class OrganisationService {
             .subscribe(() => setTimeout(() => this.init(), 1000));
         this.active_building.subscribe((bld) => {
             if (bld) {
-                this._service.overrides = [this._settings, this.buildingSettings(bld.id)];
+                this._service.overrides = [
+                    this._settings,
+                    this.buildingSettings(bld.id),
+                ];
             }
         });
     }
@@ -125,11 +136,11 @@ export class OrganisationService {
         return this.levels.filter((lvl) => lvl.parent_id === bld.id);
     }
 
-    private async init() {
+    private async init(tries: number = 0) {
         this._initialised.next(false);
         await this.load().catch((err) => {
             notifyError('Error loading organisation data. Retrying...');
-            setTimeout(() => this.init(), 300);
+            setTimeout(() => this.init(tries), Math.min(10_000, 300 * ++tries));
             throw err;
         });
         this._initialised.next(true);
@@ -153,14 +164,20 @@ export class OrganisationService {
      * Load organisation data for application
      */
     public async loadOrganisation(): Promise<void> {
-        const org_list = await queryZones({ tags: 'org' } as any)
+        const org_list = await queryZones({ tags: 'org' })
             .pipe(map((i) => i.data))
             .toPromise();
         if (org_list.length) {
             const auth = authority();
-            const org = org_list.find(list => isMock() || list.id === auth?.config?.org_zone) || org_list[0];
-            const bindings = (await showMetadata(org.id, { name: 'bindings' }).toPromise())?.details;
-            this._organisation = new Organisation({ ...org_list[0], bindings } as any);
+            const org =
+                org_list.find(
+                    (list) => isMock() || list.id === auth?.config?.org_zone
+                ) || org_list[0];
+            const bindings: HashMap = (
+                await showMetadata(org.id, { name: 'bindings' }).toPromise()
+            )?.details;
+            console.log('Bindings:', bindings);
+            this._organisation = new Organisation({ ...org, bindings });
         } else {
             this._router.navigate(['/misconfigured']);
         }
@@ -179,15 +196,19 @@ export class OrganisationService {
         if (!building_list?.length) {
             this._router.navigate(['/misconfigured']);
         }
-        const buildings = []
+        const buildings = [];
         for (const bld of building_list) {
-            const bindings = (await showMetadata(bld.id, { name: 'bindings' }).toPromise())?.details;
+            const bindings: HashMap = (
+                await showMetadata(bld.id, { name: 'bindings' }).toPromise()
+            )?.details;
             buildings.push(new Building({ ...bld, bindings }));
         }
         this.buildings_subject.next(buildings);
         const id = localStorage.getItem(`PLACEOS.building`);
         if (id && this.buildings.find((bld) => bld.id === id)) {
-            this.active_building_subject.next(this.buildings.find((bld) => bld.id === id));
+            this.active_building_subject.next(
+                this.buildings.find((bld) => bld.id === id)
+            );
         }
         if (!this.building && buildings && buildings.length > 0) {
             this.building = buildings[0];
@@ -198,7 +219,10 @@ export class OrganisationService {
      * Load levels data for the buildings
      */
     public async loadLevels(): Promise<void> {
-        const level_list = await queryZones({ tags: 'level', limit: 2500 } as any)
+        const level_list = await queryZones({
+            tags: 'level',
+            limit: 2500,
+        } as any)
             .pipe(map((i) => i.data))
             .toPromise();
         if (!level_list?.length) {
@@ -216,63 +240,13 @@ export class OrganisationService {
             .sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    /** Load metadata for the zone id */
-    public loadMetadata(zone_id: string, query?: HashMap) {
-        return showMetadata(zone_id, query);
-    }
-
-    /** Update Desks for zone */
-    public async updateDesks(zone_id: string, data: any) {
-        return updateMetadata(zone_id, {
-            name: 'desks',
-            description: 'desks',
-            details: data,
-        }).toPromise();
-    }
-
-    /** Load Desks zone */
-    public async loadZoneDesks(zone_id: string): Promise<Desk[]> {
-        const metadata: any = await this.loadMetadata(zone_id, { name: 'desks' }).toPromise();
-        const data = metadata.details;
-        if (!data) {
-            return [];
-        }
-        return data.map(
-            (i) =>
-                new Desk({
-                    ...i,
-                    parent_id: data.parent_id,
-                })
-        );
-    }
-
-    /** Load desks metadata for the parent zone_id */
-    public async loadDesks(zone_id): Promise<any[]> {
-        const levels = await listChildMetadata(zone_id, {
-            tags: 'level',
-            name: 'desks',
-        }).toPromise();
-        const desks = [];
-        levels.forEach((level) => {
-            if (level.metadata?.desks?.details) {
-                (level.metadata.desks.details as any).forEach((desk) => {
-                    desks.push(
-                        new Desk({
-                            ...desk,
-                            zone: level.zone,
-                        })
-                    );
-                });
-            }
-        });
-        return desks;
-    }
-
     public async loadSettings() {
         if (!this._organisation) return;
-        const app_name = `${(this._service.get('app.name') || 'workplace').toLowerCase()}_app`;
+        const app_name = `${(
+            this._service.get('app.name') || 'workplace'
+        ).toLowerCase()}_app`;
         this._settings = await showMetadata(this._organisation.id, {
-            name: app_name
+            name: app_name,
         }).toPromise();
         const buildings = this.buildings;
         for (const bld of buildings) {

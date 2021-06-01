@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 
-import { SettingsService } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { Space } from '@user-interfaces/spaces';
+import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 
 @Component({
     selector: 'a-control-space-list-item',

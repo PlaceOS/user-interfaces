@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { clearBookingFormData, clearDeskBookingFormData } from '@user-interfaces/bookings';
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
+import { clearBookingFormData, clearDeskBookingFormData } from '@placeos/bookings';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
 
 
 export interface BookingFlowEvent {

@@ -1,7 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 
 import { TopbarHeaderComponent } from './topbar-header.component';
 import { IconComponent } from '../icon/icon.component';
@@ -22,7 +21,7 @@ describe('TopbarHeaderComponent', () => {
                     useValue: generateMockAppService()
                 }
             ],
-            imports: [RouterTestingModule.withRoutes([]), APipesModule]
+            imports: [RouterTestingModule.withRoutes([])]
         }).compileComponents();
     }));
 

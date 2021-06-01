@@ -12,14 +12,20 @@ import {
     MAT_DATE_FORMATS,
     NativeDateAdapter,
 } from '@angular/material/core';
-import { BaseClass } from '@user-interfaces/common';
-import { format } from 'date-fns';
-
-import * as dayjs from 'dayjs';
+import { HashMap } from 'libs/common/src/lib/types';
+import { BaseClass } from 'libs/common/src/lib/base.class';
+import {
+    addYears,
+    startOfDay,
+    endOfDay,
+    format,
+    formatISO,
+    set,
+} from 'date-fns';
 
 @Injectable()
 class FieldDateAdapter extends NativeDateAdapter {
-    format(date: Date, displayFormat: Object): string {
+    format(date: Date, displayFormat: HashMap | string): string {
         if (displayFormat === 'input') {
             return format(date, 'MMMM d, yyyy');
         }
@@ -79,7 +85,7 @@ export class DateFieldComponent
     extends BaseClass
     implements OnInit, ControlValueAccessor {
     /** Earliest date available the user is allowed to pick */
-    @Input('from') public _from: number = dayjs().valueOf();
+    @Input('from') public _from: number = new Date().valueOf();
     /** Latest date available the user is allowed to pick */
     @Input('to') public _to: number;
     /** Position of the tooltip */
@@ -100,15 +106,15 @@ export class DateFieldComponent
 
     /** First allowed date on the calendar */
     public get from(): Date {
-        return new Date(this._from) || dayjs().startOf('d').toDate();
+        return new Date(this._from) || startOfDay(new Date());
     }
     /** Current date value */
     public get until(): Date {
-        return new Date(this._to) || dayjs().endOf('d').add(1, 'y').toDate();
+        return new Date(this._to) || addYears(endOfDay(new Date()), 1);
     }
     /** Display value for the current date */
     public get date_string(): string {
-        return dayjs(this.date).format('DD MMM YYYY');
+        return format(new Date(this.date), 'DD MMM YYYY');
     }
 
     public ngOnInit() {
@@ -121,17 +127,16 @@ export class DateFieldComponent
      */
     public setValue(new_value: number) {
         // Keep hours and minutes of the old date
-        const old_date = dayjs(this.date);
-        let new_date = dayjs(new_value)
-            .hour(old_date.hour())
-            .minute(old_date.minute())
-            .startOf('m')
-            .valueOf();
+        const old_date = new Date(this.date);
+        let new_date = set(new_value, {
+            hours: old_date.getHours(),
+            minutes: old_date.getMinutes(),
+        }).valueOf();
         // Check that new date is before from
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }
-        this.date = new Date(new_date).toISOString();
+        this.date = formatISO(new_date || new Date());
         if (this._onChange) {
             this._onChange(new_date);
         }
@@ -144,7 +149,7 @@ export class DateFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = new Date(value).toISOString();
+        this.date = formatISO(value || new Date());
         this.show_tooltip = false;
     }
 

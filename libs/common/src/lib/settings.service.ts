@@ -56,7 +56,9 @@ export class SettingsService extends BaseClass {
     }
 
     public value<T = any>(name: string): T {
-        return !this._observables[name] ? null : this._subjects[name].getValue();
+        return !this._observables[name]
+            ? null
+            : this._subjects[name].getValue();
     }
 
     /** Page title */
@@ -64,7 +66,9 @@ export class SettingsService extends BaseClass {
         return this._title.getTitle();
     }
     public set title(value: string) {
-        this._title.setTitle(`${value} | ${this.get('app.name') || this._app_name}`);
+        this._title.setTitle(
+            `${value} | ${this.get('app.name') || this._app_name}`
+        );
     }
 
     constructor(private _title: Title) {
@@ -114,7 +118,9 @@ export class SettingsService extends BaseClass {
         const override_settings = this._overrides.getValue();
         for (const override of override_settings) {
             const value = getItemWithKeys(keys.slice(1), override);
-            if (value != null) { return value; }
+            if (value != null) {
+                return value;
+            }
         }
         return getItemWithKeys(keys, DEFAULT_SETTINGS);
     }

@@ -1,9 +1,12 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DialogEvent } from '@user-interfaces/common';
-import { BuildingLevel, Desk } from '@user-interfaces/organisation';
+
+import { DialogEvent, SettingsService } from '@placeos/common';
+import { BuildingLevel, Desk } from '@placeos/organisation';
+import { User } from '@placeos/users';
 
 export interface DeskConfirmModalData {
+    host: User;
     desks: Desk[];
     date: number;
     reason: string;
@@ -23,17 +26,29 @@ export interface DeskConfirmModalData {
         </header>
         <ng-container *ngIf="!loading; else load_state">
             <main class="p-4">
-                <div class="mb-4">
-                    <label>Date</label>
-                    <div *ngIf="!can_set_date">{{ date | date: 'mediumDate' }}</div>
-                    <a-date-field *ngIf="can_set_date" [(ngModel)]="date"></a-date-field>
+                <div host class="flex flex-col" *ngIf="can_set_host">
+                    <label>Host</label>
+                    <a-user-search-field
+                        [(ngModel)]="host"
+                    ></a-user-search-field>
                 </div>
-                <div class="mb-4">
+                <div date class="mb-4">
+                    <label>Date</label>
+                    <div *ngIf="!can_set_date">
+                        {{ date | date: 'mediumDate' }}
+                    </div>
+                    <a-date-field
+                        *ngIf="can_set_date"
+                        [(ngModel)]="date"
+                    ></a-date-field>
+                </div>
+                <div reason class="mb-4" *ngIf="!hide_reason">
                     <label>Reason</label>
                     <div>{{ reason || '~No set reason~' }}</div>
                 </div>
                 <p>
-                    Your desk{{ desks.length === 1 ? '' : 's' }} will be {{ desk_list }} on
+                    Your desk{{ desks.length === 1 ? '' : 's' }} will be
+                    {{ desk_list }} on
                     {{ level?.display_name || level?.name }}
                 </p>
             </main>
@@ -42,7 +57,7 @@ export interface DeskConfirmModalData {
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <main class="flex flex-col p-12 items-center justify-center">
+            <main load class="flex flex-col p-12 items-center justify-center">
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
@@ -63,8 +78,9 @@ export class DeskConfirmModalComponent {
     public readonly desks = this._data.desks || [];
 
     public date = this._data.date;
+    public host = this._data.host;
 
-    public can_set_date: boolean;
+    public readonly can_set_date = this._data.can_set_date;
 
     public readonly reason = this._data.reason;
 
@@ -73,17 +89,21 @@ export class DeskConfirmModalComponent {
     public loading: string;
 
     public get desk_list() {
-        return this.desks.map(_ => _.name).join(', ');
+        return this.desks.map((_) => _.name).join(', ');
+    }
+
+    public get hide_reason() {
+        return !!this._settings.get('app.desks.hide_reason');
+    }
+
+    public get can_set_host() {
+        return !!this._settings.get('app.desks.can_set_host');
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: DeskConfirmModalData
-    ) {
-    }
-
-    public ngOnInit() {
-        this.can_set_date = this._data.can_set_date;
-    }
+        @Inject(MAT_DIALOG_DATA) private _data: DeskConfirmModalData,
+        private _settings: SettingsService
+    ) {}
 
     public confirm() {
         this.loading = 'Requesting desk booking...';

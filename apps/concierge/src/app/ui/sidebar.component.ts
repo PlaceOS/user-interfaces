@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { SettingsService, ApplicationLinkInternal, ApplicationIcon } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { SettingsService, ApplicationLinkInternal, ApplicationIcon } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'sidebar',

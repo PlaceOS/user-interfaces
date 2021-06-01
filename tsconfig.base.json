@@ -1,36 +1,33 @@
 {
-    "compileOnSave": false,
-    "compilerOptions": {
-        "rootDir": ".",
-        "sourceMap": true,
-        "declaration": false,
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "importHelpers": true,
-        "target": "es2015",
-        "module": "esnext",
-        "typeRoots": ["node_modules/@types"],
-        "lib": ["es2017", "dom"],
-        "skipLibCheck": true,
-        "skipDefaultLibCheck": true,
-        "baseUrl": ".",
-        "paths": {
-            "@user-interfaces/common": ["libs/common/src/index.ts"],
-            "@user-interfaces/bookings": ["libs/bookings/src/index.ts"],
-            "@user-interfaces/calendar": ["libs/calendar/src/index.ts"],
-            "@user-interfaces/catering": ["libs/catering/src/index.ts"],
-            "@user-interfaces/events": ["libs/events/src/index.ts"],
-            "@user-interfaces/explore": ["libs/explore/src/index.ts"],
-            "@user-interfaces/mocks": ["libs/mocks/src/index.ts"],
-            "@user-interfaces/organisation": ["libs/organisation/src/index.ts"],
-            "@user-interfaces/spaces": ["libs/spaces/src/index.ts"],
-            "@user-interfaces/users": ["libs/users/src/index.ts"],
-            "@user-interfaces/components": ["libs/components/src/index.ts"],
-            "@user-interfaces/forms": ["libs/forms/src/index.ts"],
-            "@user-interfaces/form-fields": ["libs/form-fields/src/index.ts"],
-            "@user-interfaces/types": ["libs/types/src/index.ts"]
-        }
-    },
-    "exclude": ["node_modules", "tmp"]
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@placeos/bookings": ["libs/bookings/src/index.ts"],
+      "@placeos/calendar": ["libs/calendar/src/index.ts"],
+      "@placeos/catering": ["libs/catering/src/index.ts"],
+      "@placeos/common": ["libs/common/src/index.ts"],
+      "@placeos/components": ["libs/components/src/index.ts"],
+      "@placeos/events": ["libs/events/src/index.ts"],
+      "@placeos/explore": ["libs/explore/src/index.ts"],
+      "@placeos/form-fields": ["libs/form-fields/src/index.ts"],
+      "@placeos/mocks": ["libs/mocks/src/index.ts"],
+      "@placeos/organisation": ["libs/organisation/src/index.ts"],
+      "@placeos/spaces": ["libs/spaces/src/index.ts"],
+      "@placeos/users": ["libs/users/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
 }

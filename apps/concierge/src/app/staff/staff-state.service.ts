@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { searchStaff, StaffUser } from '@user-interfaces/users';
+import { searchStaff, StaffUser } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
-import { Booking, checkinBooking, queryBookings, saveBooking } from '@user-interfaces/bookings';
+import { Booking, checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
-import { BaseClass, timePeriodsIntersect } from '@user-interfaces/common';
+import { BaseClass, timePeriodsIntersect } from '@placeos/common';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface StaffFilters {
     date?: number;

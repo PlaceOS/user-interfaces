@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ApplicationLink } from '@user-interfaces/common';
+import { ApplicationLink } from '@placeos/common';
 
 @Component({
     selector: 'status-overlay',
@@ -17,7 +17,7 @@ import { ApplicationLink } from '@user-interfaces/common';
                     <app-icon>{{ error ? 'close' : 'done' }}</app-icon>
                 </div>
                 <div class="text-center text-lg mb-4">
-                    <ng-container *ngIf="!error">
+                    <ng-container *ngIf="!error; else error_msg">
                         <ng-content></ng-content>
                     </ng-container>
                 </div>
@@ -34,9 +34,12 @@ import { ApplicationLink } from '@user-interfaces/common';
                 </div>
             </ng-container>
         </div>
+        <ng-template #error_msg
+            ><p error>{{ error }}</p></ng-template
+        >
         <ng-template #load_state>
             <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-            <p class="text-center text-lg">{{ loading }}</p>
+            <p loading class="text-center text-lg">{{ loading }}</p>
         </ng-template>
     `,
     styles: [``],

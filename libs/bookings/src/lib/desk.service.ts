@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {
-    currentUser,
-    DialogEvent,
-    notifyError,
-    notifySuccess,
-} from '@user-interfaces/common';
-import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { StaffUser, User } from '@user-interfaces/users';
+import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
+import { StaffUser, User } from '@placeos/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 
@@ -19,8 +14,8 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
     providedIn: 'root',
 })
 export class DesksService {
-    public can_set_date: boolean = true;
-    public error_on_host: boolean = true;
+    public can_set_date = true;
+    public error_on_host = true;
 
     constructor(
         private _org: OrganisationService,
@@ -43,7 +38,6 @@ export class DesksService {
         if (this.error_on_host && !host) {
             return notifyError('You need to select a host to book a desk.');
         }
-        host = host || currentUser();
         reason = reason || '';
         const level = this._org.levelWithID(
             desks[0].zone instanceof Array ? desks[0].zone : [desks[0].zone?.id]
@@ -64,6 +58,7 @@ export class DesksService {
         ref.close();
         ref = this._dialog.open(DeskConfirmModalComponent, {
             data: {
+                host,
                 desks,
                 date: date ? new Date(date) : new Date(),
                 reason,
@@ -81,7 +76,12 @@ export class DesksService {
                 .toPromise(),
         ]);
         if (!success) return;
-        date = ref.componentInstance.date;
+        host = ref.componentInstance.host || host;
+        date = ref.componentInstance.date || date;
+        if (!host) {
+            ref.close();
+            return notifyError('You need to select a host to book a desk. ');
+        }
         ref.componentInstance.loading =
             'Checking for existing desk bookings...';
         const bookings = await queryBookings({
@@ -99,7 +99,7 @@ export class DesksService {
             );
         }
         ref.componentInstance.loading = 'Booking desk...';
-        const users = [host, ...attendees];
+        const users = [host, ...(attendees || [])];
         await Promise.all([
             desks.map((desk, idx) =>
                 this.makeDeskBooking(
@@ -132,9 +132,9 @@ export class DesksService {
             : [level?.parent_id];
         const booking_data = {
             booking_start: getUnixTime(startOfDay(date)),
-            user_id: host.id,
-            user_name: host.name,
-            user_email: host.email,
+            user_id: for_user?.id || host.id,
+            user_name: for_user?.name || host.name,
+            user_email: for_user?.email || host.email,
             booking_end: Math.floor(endOfDay(date).valueOf() / 1000),
             asset_id: desk.id,
             title: reason,
@@ -143,7 +143,7 @@ export class DesksService {
             booking_type: 'desk',
             extension_data: {
                 groups: desk.groups,
-                for_user: for_user?.email
+                for_user: for_user?.email,
             },
         };
         return saveBooking(booking_data as any).toPromise();

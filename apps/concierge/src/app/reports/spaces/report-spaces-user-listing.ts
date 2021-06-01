@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@user-interfaces/common';
-import { User } from '@user-interfaces/users';
+import { downloadFile, jsonToCsv } from '@placeos/common';
+import { User } from '@placeos/users';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';

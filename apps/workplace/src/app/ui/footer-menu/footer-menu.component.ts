@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { ApplicationLink, BaseClass, SettingsService } from '@user-interfaces/common';
+import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
 
 
 @Component({

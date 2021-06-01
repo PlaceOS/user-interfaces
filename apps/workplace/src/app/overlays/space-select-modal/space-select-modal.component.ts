@@ -1,12 +1,18 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { rulesForSpace } from '@user-interfaces/bookings';
-import { CalendarService } from '@user-interfaces/calendar';
-import { BaseClass, currentUser, DialogEvent, HashMap, Identity, SettingsService } from '@user-interfaces/common';
-import { Building, OrganisationService } from '@user-interfaces/organisation';
-import { Space } from '@user-interfaces/spaces';
-
+import { rulesForSpace } from '@placeos/events';
+import { CalendarService } from '@placeos/calendar';
+import {
+    BaseClass,
+    currentUser,
+    DialogEvent,
+    HashMap,
+    Identity,
+    SettingsService,
+} from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 
 import * as dayjs from 'dayjs';
 
@@ -73,21 +79,27 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
 
     public ngOnInit(): void {
         this.building = this._org.building || this.buildings[0];
-        this.spaces = this._data.spaces && this._data.spaces.length ? [...this._data.spaces] : [];
+        this.spaces =
+            this._data.spaces && this._data.spaces.length
+                ? [...this._data.spaces]
+                : [];
         this.loadAvailableSpaces();
     }
 
     public async loadAvailableSpaces() {
         this.loading = true;
         const date = dayjs(this._data.date);
-        this.available_spaces = await this._calendar.freeBusy({
-            zone_ids: this.building.id,
-            period_start: date.unix(),
-            period_end: date.add(this._data.duration, 'm').unix(),
-        }).toPromise().catch((err) => {
-            // this._service.notifyError(`Error finding available spaces: ${err.message || err}`);
-            return [];
-        });
+        this.available_spaces = await this._calendar
+            .freeBusy({
+                zone_ids: this.building.id,
+                period_start: date.unix(),
+                period_end: date.add(this._data.duration, 'm').unix(),
+            })
+            .toPromise()
+            .catch((err) => {
+                // this._service.notifyError(`Error finding available spaces: ${err.message || err}`);
+                return [];
+            });
         this.filtered_spaces = this.filterSpaces(this.available_spaces);
         this.loading = false;
     }
@@ -96,21 +108,24 @@ export class SpaceSelectModalComponent extends BaseClass implements OnInit {
     public filterSpaces(list: Space[]): Space[] {
         let res: Space[];
         res = list.filter((space) => {
-            const booking_rules = this._org.buildingSettings(space.level.parent_id).details
-                ?.booking_rules;
+            const booking_rules = this._org.buildingSettings(
+                space.level.parent_id
+            ).details?.booking_rules;
             const { date, all_day, duration, visitor_type } = this._data;
-            const rules = rulesForSpace({
-                time: date,
-                duration: all_day ? 24 * 60 : duration,
-                visitor_type,
-                user: currentUser(),
-                rules: booking_rules,
-                space
-            });
+            const rules: any = rulesForSpace(
+                {
+                    date,
+                    duration: all_day ? 24 * 60 : duration,
+                    visitor_type,
+                    user: currentUser(),
+                    space,
+                } as any,
+                booking_rules
+            );
             if (visitor_type) {
-                return !rules.hide && rules.room_type === visitor_type;
+                return !rules.hidden && rules.room_type === visitor_type;
             } else {
-                return !rules.hide;
+                return !rules.hidden;
             }
         });
         return res;

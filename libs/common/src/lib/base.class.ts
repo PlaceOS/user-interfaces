@@ -1,17 +1,18 @@
-
-import { Injectable } from '@angular/core';
-import { Subscription, BehaviorSubject } from "rxjs";
+import { Injectable, OnDestroy } from '@angular/core';
+import { Subscription, BehaviorSubject } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
-export class BaseClass {
+export class BaseClass implements OnDestroy {
     /** Store for named timers */
     protected _timers: { [name: string]: number } = {};
     /** Store for named intervals */
     protected _intervals: { [name: string]: number } = {};
     /** Store for named subscription unsub callbacks */
-    protected _subscriptions: { [name: string]: (Subscription | (() => void)) } = {};
+    protected _subscriptions: {
+        [name: string]: Subscription | (() => void);
+    } = {};
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
     /** Observable of the initialised state of the object */
@@ -28,17 +29,17 @@ export class BaseClass {
 
     protected destroy() {
         for (const key in this._timers) {
-            if (this._timers.hasOwnProperty(key)) {
+            if (key in this._timers) {
                 this.clearTimeout(key);
             }
         }
         for (const key in this._intervals) {
-            if (this._intervals.hasOwnProperty(key)) {
+            if (key in this._intervals) {
                 this.clearInterval(key);
             }
         }
         for (const key in this._subscriptions) {
-            if (this._subscriptions.hasOwnProperty(key)) {
+            if (key in this._subscriptions) {
                 this.unsub(key);
             }
         }
@@ -59,7 +60,9 @@ export class BaseClass {
             }, delay);
         } else {
             throw new Error(
-                name ? 'Cannot create named timeout without a name' : 'Cannot create a timeout without a callback'
+                name
+                    ? 'Cannot create named timeout without a name'
+                    : 'Cannot create a timeout without a callback'
             );
         }
     }
@@ -87,7 +90,9 @@ export class BaseClass {
             this._intervals[name] = <any>setInterval(() => fn(), delay);
         } else {
             throw new Error(
-                name ? 'Cannot create named interval without a name' : 'Cannot create a interval without a callback'
+                name
+                    ? 'Cannot create named interval without a name'
+                    : 'Cannot create a interval without a callback'
             );
         }
     }
@@ -110,7 +115,7 @@ export class BaseClass {
      */
     protected subscription(name: string, unsub: Subscription | (() => void)) {
         this.unsub(name);
-        this._subscriptions[name] = unsub
+        this._subscriptions[name] = unsub;
     }
 
     /**
@@ -123,6 +128,16 @@ export class BaseClass {
                 ? (this._subscriptions[name] as Subscription).unsubscribe()
                 : (this._subscriptions[name] as any)();
             this._subscriptions[name] = null;
+        }
+    }
+
+    /** Unsubscribe to the items with names containing the given string */
+    protected unsubWith(contains: string) {
+        const subs = Object.keys(this._subscriptions).filter((k) =>
+            k.includes(contains)
+        );
+        for (const key of subs) {
+            this.unsub(key);
         }
     }
 }

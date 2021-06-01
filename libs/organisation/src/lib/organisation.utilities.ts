@@ -1,5 +1,5 @@
 
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 import { generateMockBuilding } from './building.utilities';
 
 let ORG_COUNT = 0;

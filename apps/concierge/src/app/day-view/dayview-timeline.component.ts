@@ -1,10 +1,17 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { SpacesService } from '@user-interfaces/spaces';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { SpacesService } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
 
 const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
@@ -16,9 +23,17 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     template: `
         <div class="time h-full overflow-hidden">
             <div class="headers relative">
-                <div class="white-space absolute inset-0" style="bottom: 1em"></div>
+                <div
+                    class="white-space absolute inset-0"
+                    style="bottom: 1em"
+                ></div>
             </div>
-            <div *ngFor="let time of blocks" name="change-transform" class="relative" [style.transform]="'translateY(-' + scroll.y + 'px)'">
+            <div
+                *ngFor="let time of blocks"
+                name="change-transform"
+                class="relative"
+                [style.transform]="'translateY(-' + scroll.y + 'px)'"
+            >
                 <div class="text absolute w-full text-xs">{{ time }}</div>
                 <div class="bar absolute"></div>
             </div>
@@ -33,7 +48,9 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     [style.transform]="'translateX(-' + scroll.x + 'px)'"
                 >
                     <div class="bar absolute"></div>
-                    <div class="name m-2 text-center">{{ space.display_name || space.name }}</div>
+                    <div class="name m-2 text-center">
+                        {{ space.display_name || space.name }}
+                    </div>
                 </div>
             </div>
             <div
@@ -54,8 +71,14 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                 ></div>
             </div>
         </div>
-        <mat-progress-bar *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
-        <dayview-event-details *ngIf="event | async" [event]="event | async"></dayview-event-details>
+        <mat-progress-bar
+            *ngIf="loading | async"
+            mode="indeterminate"
+        ></mat-progress-bar>
+        <view-event-details
+            *ngIf="event | async"
+            [event]="event | async"
+        ></view-event-details>
     `,
     styles: [
         `
@@ -158,13 +181,15 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                 bottom: 0;
             }
 
-            [name="change-transform"] {
+            [name='change-transform'] {
                 will-change: transform;
             }
         `,
     ],
 })
-export class DayviewTimelineComponent extends BaseClass {
+export class DayviewTimelineComponent
+    extends BaseClass
+    implements OnInit, OnDestroy, AfterViewInit {
     /** Time blocks to display */
     public readonly blocks: string[] = HOUR_BLOCKS;
     /** Current scroll position of the content */
@@ -187,7 +212,8 @@ export class DayviewTimelineComponent extends BaseClass {
                 spaces.filter(
                     (space) =>
                         space.zones.includes(bld.id) &&
-                        (!zones?.length || space.zones.find((z) => zones.includes(z)))
+                        (!zones?.length ||
+                            space.zones.find((z) => zones.includes(z)))
                 ) || []
             );
         })
@@ -216,13 +242,13 @@ export class DayviewTimelineComponent extends BaseClass {
     }
 
     public onScroll(e) {
-        if (this._ref_el) {
-            requestAnimationFrame(() =>
-                this.scroll = {
+        if (!this._ref_el) return;
+        requestAnimationFrame(
+            () =>
+                (this.scroll = {
                     x: e.srcElement.scrollLeft,
-                    y: e.srcElement.scrollTop
-                }
-            );
-        }
+                    y: e.srcElement.scrollTop,
+                })
+        );
     }
 }

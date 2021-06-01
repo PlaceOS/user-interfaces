@@ -1,4 +1,12 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+/* eslint-disable @typescript-eslint/member-ordering */
+import {
+    Component,
+    OnInit,
+    forwardRef,
+    Input,
+    ViewChild,
+    ElementRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Subject, Observable, of, forkJoin } from 'rxjs';
 import {
@@ -9,16 +17,18 @@ import {
     catchError,
 } from 'rxjs/operators';
 
-import { BaseClass, flatten } from '@user-interfaces/common';
-import { searchGuests, searchStaff, User } from '@user-interfaces/users';
+import { BaseClass, flatten } from '@placeos/common';
+import { searchGuests, searchStaff, User } from '@placeos/users';
 
 @Component({
     selector: 'a-user-search-field',
     template: `
-        <div class="user-search-field" form-field>
+        <div class="user-search-field text-black" form-field>
             <mat-form-field overlay appearance="outline">
                 <input
+                    #input
                     matInput
+                    keyboard
                     name="user-search"
                     [(ngModel)]="search_str"
                     (ngModelChange)="search$.next($event)"
@@ -26,19 +36,24 @@ import { searchGuests, searchStaff, User } from '@user-interfaces/users';
                     [placeholder]="placeholder || 'Search for user...'"
                     [matAutocomplete]="auto"
                     (blur)="resetSearchString()"
+                    (focus)="cancelReset()"
                 />
-                <div class="prefix" matPrefix>
-                    <app-icon class="text-2xl relative">search</app-icon>
-                </div>
-                <div class="suffix" matSuffix *ngIf="loading">
-                    <mat-spinner diameter="16"></mat-spinner>
-                </div>
+                <app-icon matPrefix class="text-2xl relative">search</app-icon>
+                <mat-spinner
+                    *ngIf="loading"
+                    matSuffix
+                    diameter="16"
+                ></mat-spinner>
             </mat-form-field>
             <mat-autocomplete
                 #auto="matAutocomplete"
                 (optionSelected)="setValue($event.option.value)"
             >
-                <mat-option *ngFor="let option of user_list" [value]="option">
+                <mat-option
+                    *ngFor="let option of user_list"
+                    [value]="option"
+                    (click)="blurInput()"
+                >
                     <div class="leading-tight">{{ option.name }}</div>
                     <div class="text-xs text-black opacity-60">
                         {{ option.email }}
@@ -80,7 +95,10 @@ export class UserSearchFieldComponent
     /** Whether guests should also show when searching for users */
     @Input() public guests: boolean;
     /** Function for filtering the results of the user list */
-    @Input() public filter: (_: any) => boolean;
+    @Input() public filter: (_: any, s?: string) => boolean;
+
+    @Input() public query_fn: (_: string) => Observable<User[]> = (q) =>
+        searchStaff(q);
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -101,11 +119,8 @@ export class UserSearchFieldComponent
                 ? of(this.options)
                 : query.length >= 3
                 ? !this.guests
-                    ? searchStaff(query.slice(0, 3))
-                    : forkJoin([
-                          searchStaff(query.slice(0, 3)),
-                          searchGuests(query.slice(0, 3)),
-                      ])
+                    ? this.query_fn(query)
+                    : forkJoin([searchStaff(query), searchGuests(query)])
                 : of([]);
         }),
         catchError((_) => of([])),
@@ -114,19 +129,24 @@ export class UserSearchFieldComponent
             list = flatten(list);
             const search = this.search_str.toLowerCase();
             return list.filter(
-                (item) =>
-                    (!this.filter || this.filter(item)) &&
-                    (item.name?.toLowerCase().includes(search) ||
-                        item.email.toLowerCase().includes(search))
+                (item) => !this.filter || this.filter(item, search)
             );
         })
     );
-
 
     /** Form control on change handler */
     private _onChange: (_: User) => void;
     /** Form control on touch handler */
     private _onTouch: (_: User) => void;
+
+    @ViewChild('input', { read: ElementRef })
+    private _input_el: ElementRef<HTMLInputElement>;
+
+    public cancelReset = () => this.clearTimeout('reset');
+
+    public blurInput = () => {
+        this.timeout('blur', () => this._input_el?.nativeElement?.blur());
+    };
 
     public ngOnInit(): void {
         // Process API results
@@ -140,7 +160,11 @@ export class UserSearchFieldComponent
      * Reset the search string back to the name of the active user
      */
     public resetSearchString() {
-        this.search_str = this.active_user?.name || '';
+        this.timeout(
+            'reset',
+            () => (this.search_str = this.active_user?.name || ''),
+            50
+        );
     }
 
     /**

@@ -1,4 +1,4 @@
-import { HashMap } from '@user-interfaces/common';
+import { HashMap } from '@placeos/common';
 
 export enum CameraTilt {
     Down,

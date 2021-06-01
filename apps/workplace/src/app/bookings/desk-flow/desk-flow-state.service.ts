@@ -5,17 +5,13 @@ import {
     checkinBooking,
     DesksService,
     queryBookings,
-} from '@user-interfaces/bookings';
-import {
-    BaseClass,
-    currentUser,
-    SettingsService,
-} from '@user-interfaces/common';
-import { DEFAULT_COLOURS, ExploreStateService } from '@user-interfaces/explore';
-import { Desk, OrganisationService } from '@user-interfaces/organisation';
-import { User } from '@user-interfaces/users';
+} from '@placeos/bookings';
+import { BaseClass, currentUser, SettingsService } from '@placeos/common';
+import { DEFAULT_COLOURS, ExploreStateService } from '@placeos/explore';
+import { Desk, OrganisationService } from '@placeos/organisation';
+import { StaffUser, User } from '@placeos/users';
 import { endOfDay, startOfDay } from 'date-fns';
-import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
+import { ExploreDeskInfoComponent } from '../../../../../../libs/explore/src/lib/explore-desk-info.component';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
 import {
     debounceTime,
@@ -34,7 +30,7 @@ export interface DeskFlowState {
 }
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class DeskFlowStateService extends BaseClass {
     private _options = new BehaviorSubject<DeskFlowState>({
@@ -156,7 +152,7 @@ export class DeskFlowStateService extends BaseClass {
             const active_bookings = bookings.filter(
                 (bkn) => bkn.status !== 'declined'
             );
-            const user_groups = currentUser().groups;
+            const user_groups = currentUser()?.groups || [];
             const bookable_desks = desks.filter(
                 (i) =>
                     i.bookable &&
@@ -197,6 +193,7 @@ export class DeskFlowStateService extends BaseClass {
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
         this._desks.can_set_date = true;
     }
 
@@ -228,14 +225,14 @@ export class DeskFlowStateService extends BaseClass {
         }).toPromise();
         const bkn = bookings.find((b) => b.asset_id === id);
         if (!bkn) return false;
-        const done = await checkinBooking(bkn.id, true).toPromise();
+        await checkinBooking(bkn.id, true).toPromise();
         return true;
     }
 
     public async bookDesk(desks: Desk | Desk[], reason: string = '') {
         return this._desks.bookDesk({
             desks: desks instanceof Desk ? [desks] : desks,
-            host: this._host.getValue() as any,
+            host: this._host.getValue() as StaffUser,
             attendees: this._options.getValue().attendees || [],
             reason,
             date: new Date(this._options.getValue().date),
@@ -245,7 +242,7 @@ export class DeskFlowStateService extends BaseClass {
     private handleDeskAvailability([available, desks]: [Desk[], Desk[]]) {
         const style_map = {};
         const actions = [];
-        const user_groups = currentUser().groups as any[];
+        const user_groups = currentUser()?.groups || [];
         const colours = this._settings.get('app.explore.colors') || {};
         for (const desk of desks) {
             const status =
@@ -278,8 +275,8 @@ export class DeskFlowStateService extends BaseClass {
                 });
             }
         }
-        this._state.setStyles('desks', style_map);
-        this._state.setActions('desks', actions);
+        // this._state.setStyles('desks', style_map);
+        // this._state.setActions('desks', actions);
     }
 
     private processDeskBookings(details) {

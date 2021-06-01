@@ -2,10 +2,20 @@ import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 import { HashMap } from './types';
 
-import { ConfirmModalComponent, ConfirmModalData, CONFIRM_METADATA } from '../../../components/src/lib/confirm-modal.component';
+import {
+    ConfirmModalComponent,
+    ConfirmModalData,
+    CONFIRM_METADATA,
+} from '../../../components/src/lib/confirm-modal.component';
 
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
+
+declare global {
+    interface Window {
+        debug: boolean;
+    }
+}
 
 let _app_name = 'APP';
 
@@ -30,9 +40,17 @@ export function log(
     app_name: string = _app_name
 ) {
     if (window.debug || force) {
-        const colors: string[] = ['color: #E91E63', 'color: #3F51B5', 'color: default'];
+        const colors: string[] = [
+            'color: #E91E63',
+            'color: #3F51B5',
+            'color: default',
+        ];
         if (args) {
-            console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors, args);
+            console[stream](
+                `%c[${app_name}]%c[${type}] %c${msg}`,
+                ...colors,
+                args
+            );
         } else {
             console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
         }
@@ -57,11 +75,14 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
  * @param array List of items to remove duplicates from
  * @param key Key on array objects to compare for uniqueness
  */
-export function unique(array: any[], key: string = '') {
+export function unique<T = any>(array: T[] = [], key: string = ''): T[] {
     return array.filter(
         (el, pos, arr) =>
-            arr.indexOf(key ? arr.find((i) => i[key] === el[key]) : arr.find((i) => i === el)) ===
-            pos
+            arr.indexOf(
+                key
+                    ? arr.find((i) => i[key] === el[key])
+                    : arr.find((i) => i === el)
+            ) === pos
     );
 }
 
@@ -74,14 +95,22 @@ export function randomInt(ceil: number, floor: number = 0) {
     return Math.floor(Math.random() * (ceil - floor)) + floor;
 }
 
-export async function openConfirmModal(data: ConfirmModalData, dialog: MatDialog) {
-    const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(ConfirmModalComponent, {
-        ...CONFIRM_METADATA,
-        data,
-    });
+export async function openConfirmModal(
+    data: ConfirmModalData,
+    dialog: MatDialog
+) {
+    const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(
+        ConfirmModalComponent,
+        {
+            ...CONFIRM_METADATA,
+            data,
+        }
+    );
     return {
         ...(await Promise.race([
-            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')).toPromise(),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
             ref.afterClosed().toPromise(),
         ])),
         loading: (s) => (ref.componentInstance.loading = s),
@@ -94,13 +123,19 @@ export async function openConfirmModal(data: ConfirmModalData, dialog: MatDialog
  * @param csv CSV data to parse
  */
 export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
-    const objPattern = new RegExp(("(\\,|\\r?\\n|\\r|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\\,\\r\\n]*))"),"gi");
-    let arrMatches = null, arrData = [[]];
-    while (arrMatches = objPattern.exec(csv)){
-        if (arrMatches[1].length && arrMatches[1] !== ",")arrData.push([]);
-        arrData[arrData.length - 1].push(arrMatches[2] ?
-            arrMatches[2].replace(new RegExp( "\"\"", "g" ), "\"") :
-            arrMatches[3]);
+    const objPattern = new RegExp(
+        '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
+        'gi'
+    );
+    let arrMatches = null,
+        arrData = [[]];
+    while ((arrMatches = objPattern.exec(csv))) {
+        if (arrMatches[1].length && arrMatches[1] !== ',') arrData.push([]);
+        arrData[arrData.length - 1].push(
+            arrMatches[2]
+                ? arrMatches[2].replace(new RegExp('""', 'g'), '"')
+                : arrMatches[3]
+        );
     }
     const headers: string[] = arrData.splice(0, 1)[0];
     const elements = arrData.map((row) => {
@@ -126,7 +161,9 @@ export function jsonToCsv(json: HashMap[]) {
         const keys = Object.keys(json[0]);
         const valid_keys = keys.filter((key) => json[0].hasOwnProperty(key));
         return `${valid_keys.join(',')}\n${json
-            .map((item) => valid_keys.map((key) => JSON.stringify(item[key])).join(','))
+            .map((item) =>
+                valid_keys.map((key) => JSON.stringify(item[key])).join(',')
+            )
             .join('\n')}`;
     }
     return '';
@@ -139,7 +176,10 @@ export function jsonToCsv(json: HashMap[]) {
  */
 export function downloadFile(filename: string, contents: string) {
     const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(contents));
+    element.setAttribute(
+        'href',
+        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents)
+    );
     element.setAttribute('download', filename);
 
     element.style.display = 'none';
@@ -212,7 +252,8 @@ export function predictableRandomInt(ceil: number = 100, floor: number = 0) {
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
 function xmur3(str) {
     for (var i = 0, h = 1779033703 ^ str.length; i < str.length; i++)
-        (h = Math.imul(h ^ str.charCodeAt(i), 3432918353)), (h = (h << 13) | (h >>> 19));
+        (h = Math.imul(h ^ str.charCodeAt(i), 3432918353)),
+            (h = (h << 13) | (h >>> 19));
     return function () {
         h = Math.imul(h ^ (h >>> 16), 2246822507);
         h = Math.imul(h ^ (h >>> 13), 3266489909);
@@ -239,7 +280,7 @@ function sfc32(a, b, c, d) {
 
 /** Get time format string for locale */
 export function timeFormatString(): string {
-    return is24HourTime() ? 'HH:mm' : 'hh:mm a';
+    return is24HourTime() ? 'HH:mm' : 'h:mm a';
 }
 
 /** Whether locale string is displayed in 24 hour time */
@@ -247,7 +288,8 @@ export function is24HourTime(): boolean {
     const date = new Date();
     const localeString = date
         .toLocaleTimeString(
-            document.querySelector('html').getAttribute('lang') || navigator.language
+            document.querySelector('html').getAttribute('lang') ||
+                navigator.language
         )
         .toLowerCase();
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;

@@ -1,5 +1,10 @@
-import { BaseDataClass } from '../../../common/src/lib/base-api.class';
+import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
+
+export interface UserComplete extends User {
+    sys_admin?: boolean;
+    support?: boolean;
+}
 
 export type EventResponseStatus =
     | 'needsAction'
@@ -8,7 +13,13 @@ export type EventResponseStatus =
     | 'accepted'
     | '';
 
-export class User extends BaseDataClass {
+export class User {
+    /** ID of the user */
+    public readonly id: string;
+    /** Display name of the user */
+    public readonly name: string;
+    /** Email address of the user */
+    public readonly email: string;
     /** First name of the user */
     public readonly first_name: string;
     /** Last name of the user */
@@ -38,8 +49,10 @@ export class User extends BaseDataClass {
     /** Whether user needs assistance when attending an event */
     public readonly assistance_required: boolean;
 
-    constructor(data: Partial<User> = {}) {
-        super(data);
+    constructor(data: Partial<UserComplete> = {}) {
+        this.id = data.id || '';
+        this.name = data.name || '';
+        this.email = data.email || '';
         this.first_name = data.first_name || data.name || '';
         this.last_name = data.last_name || '';
         this.phone = data.phone || '';
@@ -47,17 +60,19 @@ export class User extends BaseDataClass {
         this.notes = data.notes || '';
         this.photo = data.photo || '';
         this.organizer = !!data.organizer;
-        this.visit_expected = data.visit_expected;
-        this.checked_in = data.checked_in;
+        this.visit_expected = !!data.visit_expected;
+        this.checked_in = !!data.checked_in;
         this.response_status = data.response_status || '';
         const groups = (data.groups || []).map((i) => (i || '').toLowerCase());
-        if ((data as any).sys_admin) groups.push('placeos_admin');
-        if ((data as any).support) groups.push('placeos_support');
+        if (data.sys_admin) groups.push('placeos_admin');
+        if (data.support) groups.push('placeos_support');
         this.groups = groups;
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;
-        this.is_external = !this.email.endsWith(USER_DOMAIN);
+        this.is_external =
+            (!!this.email && !this.email.includes(`@${USER_DOMAIN}`)) ||
+            this.visit_expected;
         this.assistance_required = !!this.extension_data?.assistance_required;
     }
 }
@@ -78,17 +93,17 @@ export class GuestUser extends User {
 
 export class StaffUser extends User {
     /** Number associated with the user's access card */
-    public readonly card_number: number;
+    public readonly card_number: string;
     /** ID of the user */
     public readonly staff_id: string;
     /** Whether user is logged in */
     public readonly is_logged_in: boolean;
     /** Location of the user */
-    public readonly location: Record<string, any>;
+    public readonly location: Record<string, MapLocation>;
 
     constructor(data: Partial<StaffUser> = {}) {
         super(data);
-        this.card_number = data.card_number || 0;
+        this.card_number = data.card_number || '';
         this.staff_id = data.staff_id || '';
         this.location = data.location || {};
         this.is_logged_in = !!data.is_logged_in;

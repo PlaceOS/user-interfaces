@@ -7,7 +7,12 @@ import { CateringStateService } from './catering-state.service';
 @Component({
     selector: 'catering-menu',
     template: `
-        <mat-tab-group class="h-full" (selectedIndexChange)="shown_tab.next($event === 0 ? '' : categories[$event - 1])">
+        <mat-tab-group
+            class="h-full"
+            (selectedIndexChange)="
+                shown_tab.next($event === 0 ? '' : categories[$event - 1])
+            "
+        >
             <mat-tab label="All Items">
                 <ng-container *ngIf="(menu | async)?.length; else empty_state">
                     <ng-container *ngFor="let item of menu | async">
@@ -22,11 +27,9 @@ import { CateringStateService } from './catering-state.service';
             </mat-tab>
         </mat-tab-group>
         <ng-template #empty_state>
-            <div class="info-block">
-                <div class="icon">
-                    <app-icon [icon]="{ class: 'material-icons', content: 'close' }"></app-icon>
-                </div>
-                <div class="text">No items in menu</div>
+            <div class="flex flex-col items-center p-8 space-y-2">
+                <app-icon>close</app-icon>
+                <p>No items in menu</p>
             </div>
         </ng-template>
     `,
@@ -38,8 +41,8 @@ import { CateringStateService } from './catering-state.service';
                 height: 90%;
                 width: 100%;
             }
-        `
-    ]
+        `,
+    ],
 })
 export class CateringMenuComponent {
     /** Observable for the currently active menu */
@@ -47,13 +50,17 @@ export class CateringMenuComponent {
     /** Store for the currently selected tab */
     public readonly shown_tab = new BehaviorSubject<string>('');
     /** Observable for the menu list for the selected tab */
-    public readonly tab_menu = this.menu.pipe(map((menu) => {
-        const menu_map = {};
-        for (const group of this.categories) {
-            menu_map[group] = menu.filter(item => item.category === group);
-        }
-        return menu_map;
-    }));
+    public readonly tab_menu = this.menu.pipe(
+        map((menu) => {
+            const menu_map = {};
+            for (const group of this.categories) {
+                menu_map[group] = menu.filter(
+                    (item) => item.category === group
+                );
+            }
+            return menu_map;
+        })
+    );
 
     public get categories() {
         return this._catering.categories;

@@ -2,8 +2,8 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
-import { CateringItem } from '@user-interfaces/catering';
-import { BaseClass } from '@user-interfaces/common';
+import { CateringItem } from '@placeos/catering';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'view-catering-modal',

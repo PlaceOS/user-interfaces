@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { ScheduleStateService } from '../schedule-state.service';

@@ -6,6 +6,7 @@ import { ControlComponent } from './control.component';
 import { SharedContentModule } from '../ui/shared.module';
 import { ControlSpaceListComponent } from './space-list.component';
 import { ControlSpaceListItemComponent } from './list-item.component';
+import { FormsModule } from '@angular/forms';
 
 const ROUTES: Route[] = [{ path: '', component: ControlComponent }];
 
@@ -15,6 +16,11 @@ const ROUTES: Route[] = [{ path: '', component: ControlComponent }];
         ControlSpaceListComponent,
         ControlSpaceListItemComponent,
     ],
-    imports: [CommonModule, RouterModule.forChild(ROUTES), SharedContentModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule.forChild(ROUTES),
+        SharedContentModule,
+    ],
 })
 export class ControlModule {}

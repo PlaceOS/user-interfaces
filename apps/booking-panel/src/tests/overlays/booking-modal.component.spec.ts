@@ -1,13 +1,17 @@
+import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import {
+    DurationFieldComponent,
+    TimeFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-import { BookingModalComponent } from './booking-modal.component';
-import { UserSearchFieldComponent } from 'src/app/ui/user-search-field/user-search-field.component';
-import { TimeFieldComponent } from 'src/app/ui/time-field/time-field.component';
-import { DurationFieldComponent } from 'src/app/ui/duration-field/duration-field.component';
+import { BookingModalComponent } from '../../app/overlays/booking-modal.component';
 
 describe('BookingModalComponent', () => {
     let spectator: Spectator<BookingModalComponent>;
@@ -18,10 +22,14 @@ describe('BookingModalComponent', () => {
             MockComponent(UserSearchFieldComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
-            MockComponent(MatFormFieldModule),
-            MockComponent(MatInputModule)
         ],
-        imports: [MockModule(MatDialogModule)]
+        imports: [
+            MockModule(MatDialogModule),
+            MockModule(MatFormFieldModule),
+            MockModule(MatInputModule),
+            MatProgressSpinnerModule,
+            ReactiveFormsModule,
+        ],
     });
 
     beforeEach(() => {
@@ -34,17 +42,20 @@ describe('BookingModalComponent', () => {
 
     it('should show a form', () => {
         expect(spectator.component.form).toBeTruthy();
-        expect(spectator.query('.form')).toBeTruthy();
+        expect('form').toExist();
     });
 
     it('should allow for submitting the form', () => {
-        const button: HTMLButtonElement = spectator.query('button[name="save"]');
+        spectator.component.form.patchValue({ title: 'Test title' });
+        const button: HTMLButtonElement = spectator.query(
+            'button[name="save"]'
+        );
         expect(button).toBeTruthy();
         button.click();
         expect(spectator.component.loading).toBeTruthy();
         spectator.detectChanges();
-        expect(spectator.query('.form')).toBeFalsy();
-        expect(spectator.query('mat-spinner')).toBeTruthy();
+        expect('form').not.toExist();
+        expect('mat-spinner').toExist();
     });
 
     it('should be closable', () => {

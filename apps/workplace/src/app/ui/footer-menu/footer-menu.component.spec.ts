@@ -1,6 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule, Router } from '@angular/router';
-import { APipesModule } from '@acaprojects/ngx-pipes';
 import { MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -28,7 +27,7 @@ describe('FooterMenuComponent', () => {
                     },
                 },
             ],
-            imports: [MockModule(RouterModule.forRoot([])), APipesModule],
+            imports: [MockModule(RouterModule.forRoot([]))],
         }).compileComponents();
     }));
 

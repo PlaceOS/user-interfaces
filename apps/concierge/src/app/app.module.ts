@@ -9,14 +9,14 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
-import { UnauthorisedComponent } from '@user-interfaces/components';
+import { UnauthorisedComponent } from '@placeos/components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 
-import '@user-interfaces/mocks';
+import '@placeos/mocks';
 
 import * as Sentry from "@sentry/angular";
 

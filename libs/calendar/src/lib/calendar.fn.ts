@@ -2,11 +2,11 @@ import { get } from '@placeos/ts-client';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { toQueryString } from '@user-interfaces/common';
+import { toQueryString } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { Calendar } from './calendar.class';
-import { Space } from '../../../spaces/src/lib/space.class';
-import { OrganisationService } from '@user-interfaces/organisation';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 
 const CALENDAR_ENDPOINT = '/api/staff/v1/calendars';
@@ -14,7 +14,7 @@ const CALENDAR_ENDPOINT = '/api/staff/v1/calendars';
 /** List calendars associated with the logged in user */
 export function queryCalendars(): Observable<Calendar[]> {
     return get(CALENDAR_ENDPOINT).pipe(
-        map((i) => i.map((c) => new Calendar(i as any)))
+        map((i) => i.map((c) => new Calendar(c)))
     );
 }
 
@@ -25,7 +25,7 @@ export function queryCalendarAvailability(
     const query = toQueryString(q);
     return get(
         `${CALENDAR_ENDPOINT}/availability${query ? '?' + query : ''}`
-    ).pipe(map((i) => i.map((c) => new Calendar(c as any))));
+    ).pipe(map((i) => i.map((c) => new Calendar(c))));
 }
 
 const calendarsToSpaces = (org?) =>
@@ -58,5 +58,8 @@ export function querySpaceFreeBusy(
     const query = toQueryString(q);
     return get(
         `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`
-    ).pipe(map((i) => i.map((c) => new Calendar(c as any))), calendarsToSpaces(org));
+    ).pipe(
+        map((i) => i.map((c) => new Calendar(c))),
+        calendarsToSpaces(org)
+    );
 }

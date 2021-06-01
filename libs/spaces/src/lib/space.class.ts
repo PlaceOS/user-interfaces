@@ -1,7 +1,11 @@
-import { RoomConfiguration } from '@user-interfaces/common';
-import { BuildingLevel } from '@user-interfaces/organisation';
+import { RoomConfiguration } from '@placeos/common';
+import { BuildingLevel } from '@placeos/organisation';
 
-export type ResourceResponseStatus = 'needsAction' | 'declined' | 'tentative' | 'accepted';
+export type ResourceResponseStatus =
+    | 'needsAction'
+    | 'declined'
+    | 'tentative'
+    | 'accepted';
 
 export class Space {
     /** ID of the space resource */
@@ -33,7 +37,7 @@ export class Space {
     /** Level Assoicated with the space */
     public readonly level: BuildingLevel;
     /** List of features associated with the space */
-    public readonly features: string;
+    public readonly features: string[];
 
     constructor(data: Partial<Space> = {}) {
         this.id = data.id || '';
@@ -48,7 +52,7 @@ export class Space {
         this.map_id = data.map_id || '';
         this.image = data.image || '';
         this.configurations = data.configurations || [];
-        this.features = data.features || '';
+        this.features = data.features || [];
         this.response_status = data.response_status;
         this.level = data.level || new BuildingLevel();
     }

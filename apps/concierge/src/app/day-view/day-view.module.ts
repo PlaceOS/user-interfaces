@@ -13,8 +13,8 @@ import { DayviewEventComponent } from './dayview-event.component';
 
 import { BookingModalComponent } from './booking-modal.component';
 import { EventFormComponent } from './event-form.component';
-import { SharedSpacesModule } from '@user-interfaces/spaces';
-import { SharedUsersModule } from '@user-interfaces/users';
+import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedUsersModule } from '@placeos/users';
 
 const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 

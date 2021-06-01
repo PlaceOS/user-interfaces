@@ -1,4 +1,4 @@
-import { Identity } from '@user-interfaces/common';
+import { Identity } from '@placeos/common';
 
 export const CATERING_STATUSES: Identity[] = [
     { id: 'pending', name: 'Pending', icon: { class: 'custom-pending' }, colour: '#ccc' },

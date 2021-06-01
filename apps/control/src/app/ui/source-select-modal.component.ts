@@ -18,7 +18,7 @@ export class SourceSelectModalData {
                 <app-icon>close</app-icon>
             </button>
         </div>
-    `,
+    `
 })
 export class SourceSelectModalComponent {
     public readonly output = this._data.output;

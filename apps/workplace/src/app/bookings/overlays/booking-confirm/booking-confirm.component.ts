@@ -6,11 +6,11 @@ import {
 } from '@angular/material/dialog';
 import { endOfDay, formatDuration } from 'date-fns';
 
-import { BaseClass, RoomConfiguration } from '@user-interfaces/common';
-import { CalendarEvent, saveEvent } from '@user-interfaces/events';
-import { CalendarService } from '@user-interfaces/calendar';
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, RoomConfiguration } from '@placeos/common';
+import { CalendarEvent, saveEvent } from '@placeos/events';
+import { CalendarService } from '@placeos/calendar';
+import { Space, SpacesService } from '@placeos/spaces';
+import { OrganisationService } from '@placeos/organisation';
 
 import { ViewCateringModalComponent } from '../../../overlays/view-catering-modal/view-catering-modal.component';
 import { ViewAttendeesModalComponent } from '../../../overlays/view-attendees-modal/view-attendees-modal.component';
@@ -78,7 +78,7 @@ export class BookingConfirmComponent extends BaseClass {
     }
 
     public get catering_items(): any[] {
-        const order = this.booking.catering[0];
+        const order = this.booking.ext('catering')[0];
         return order ? [...order.items] : [];
     }
     public get catering_items_total(): number {
@@ -115,9 +115,11 @@ export class BookingConfirmComponent extends BaseClass {
             this.checking_available = false;
 
             try {
-                await saveEvent(this.booking).toPromise().catch((e) => {
-                    throw new Error(e);
-                });
+                await saveEvent(this.booking)
+                    .toPromise()
+                    .catch((e) => {
+                        throw new Error(e);
+                    });
                 this.event.emit({ type: 'success' });
                 this._dialog.close();
                 // this._service.notifySuccess(
@@ -158,7 +160,7 @@ export class BookingConfirmComponent extends BaseClass {
             end = endOfDay(end).valueOf();
         }
         const available_spaces = await this._calendar
-            .availability({
+            .freeBusy({
                 system_ids: spaces.map((space) => space.id).join(','),
                 period_start: start,
                 period_end: Math.floor(end / 1000),

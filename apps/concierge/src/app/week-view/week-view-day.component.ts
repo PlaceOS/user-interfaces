@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { timePeriodsIntersect } from '@user-interfaces/common';
+import { timePeriodsIntersect } from '@placeos/common';
 import { addDays, endOfDay, startOfWeek } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';

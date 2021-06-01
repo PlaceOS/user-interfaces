@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import '@user-interfaces/mocks';
+import '@placeos/mocks';
 
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 

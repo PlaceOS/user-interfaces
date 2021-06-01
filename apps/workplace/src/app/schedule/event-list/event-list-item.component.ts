@@ -2,8 +2,8 @@ import { Component, HostListener, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { addMinutes, format, isAfter, isBefore } from 'date-fns';
 
-import { Booking } from '@user-interfaces/bookings';
-import { CalendarEvent } from '@user-interfaces/events';
+import { Booking } from '@placeos/bookings';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'schedule-event-item',
@@ -43,7 +43,9 @@ import { CalendarEvent } from '@user-interfaces/events';
                             content: 'place'
                         }"
                     ></app-icon>
-                    <div class="truncate pl-1">{{ location || 'No location' }}</div>
+                    <div class="truncate pl-1">
+                        {{ location || 'No location' }}
+                    </div>
                 </div>
             </div>
         </a>
@@ -113,7 +115,7 @@ export class ScheduleEventListItemComponent {
         ) {
             return 'block';
         }
-        if (this.event instanceof CalendarEvent && this.event.has_visitors) {
+        if (this.event instanceof CalendarEvent && this.event.guests.length) {
             return 'external';
         }
         return 'book_room';

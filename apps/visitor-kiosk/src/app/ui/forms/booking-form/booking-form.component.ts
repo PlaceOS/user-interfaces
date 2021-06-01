@@ -2,8 +2,8 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { BaseClass, Identity, SettingsService, unique } from '@user-interfaces/common';
-import { NewUserModalComponent } from '@user-interfaces/users';
+import { BaseClass, Identity, SettingsService, unique } from '@placeos/common';
+import { NewUserModalComponent } from '@placeos/users';
 
 @Component({
     selector: 'a-booking-form',

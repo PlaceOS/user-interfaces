@@ -8,7 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { Point } from '@placeos/svg-viewer';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 /**
  * Grab point details from mouse or touch event
@@ -43,6 +43,7 @@ export enum JoystickPan {
     template: `
         <div
             #panning_control
+            joystick
             (mousedown)="startPan($event)"
             (touchstart)="startPan($event)"
             class="relative h-48 w-48 rounded-full bg-gray-600 text-white"

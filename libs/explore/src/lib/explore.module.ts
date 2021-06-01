@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 
-import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 import { ExploreMapControlComponent } from './explore-map-control.component';
 import { ExploreMapViewComponent } from './explore-map-view.component';

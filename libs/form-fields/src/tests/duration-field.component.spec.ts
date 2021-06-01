@@ -1,104 +1,98 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { timeFormatString } from '@placeos/common';
 
-import { DurationFieldComponent } from './duration-field.component';
+import { DurationFieldComponent } from '../lib/duration-field.component';
 
-import * as dayjs from 'dayjs';
-import { timeFormatString } from 'src/app/shared/utilities/general.utilities';
+import { addHours, addMinutes, format, startOfMinute } from 'date-fns';
 
 describe('DurationFieldComponent', () => {
-    let component: DurationFieldComponent;
-    let fixture: ComponentFixture<DurationFieldComponent>;
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [DurationFieldComponent],
-            imports: [MatSelectModule, NoopAnimationsModule],
-        }).compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(DurationFieldComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    let spectator: Spectator<DurationFieldComponent>;
+    const createComponent = createComponentFactory({
+        component: DurationFieldComponent,
+        imports: [MatFormFieldModule, MatSelectModule],
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
     it('should be able to be disabled', () => {
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const input_el: HTMLSelectElement = compiled.querySelector('.duration-field');
-        expect(input_el.hasAttribute('disabled')).toBeFalsy();
-        component.setDisabledState(true);
-        fixture.detectChanges();
-        expect(input_el.hasAttribute('disabled')).toBeTruthy();
+        expect('mat-select').toHaveAttribute('aria-disabled', 'false');
+        spectator.component.setDisabledState(true);
+        spectator.detectChanges();
+        expect('mat-select').toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should allow changing the min duration', () => {
-        component.min = 60;
-        component.ngOnChanges({ min: {} as any });
-        fixture.detectChanges();
-        expect(component.duration_options[0].id).toBe(60);
-        component.min = Math.floor(Math.random() * 10 + 2) * 15;
-        component.ngOnChanges({ min: {} as any });
-        fixture.detectChanges();
-        expect(component.duration_options[0].id).toBe(component.min);
+        spectator.setInput({ min: 60 });
+        spectator.detectChanges();
+        expect(spectator.component.duration_options[0].id).toBe(60);
+        spectator.setInput({ min: Math.floor(Math.random() * 10 + 2) * 15 });
+        spectator.detectChanges();
+        expect(spectator.component.duration_options[0].id).toBe(
+            spectator.component.min
+        );
     });
 
     it('should allow changing the max duration', () => {
-        component.max = 240;
-        component.ngOnChanges({ max: {} as any });
-        fixture.detectChanges();
-        expect(component.duration_options[component.duration_options.length - 2].id).toBe(240);
-        component.max = Math.floor(Math.random() * 10 + 10) * 15;
-        component.ngOnChanges({ max: {} as any });
-        fixture.detectChanges();
-        expect(component.duration_options[component.duration_options.length - 2].id).toBe(
-            component.max
-        );
+        spectator.setInput({ max: 240 });
+        spectator.detectChanges();
+        let options = spectator.component.duration_options;
+        expect(options[options.length - 1].id).toBe(240);
+        spectator.setInput({ max: Math.floor(Math.random() * 10 + 10) * 15 });
+        spectator.detectChanges();
+        options = spectator.component.duration_options;
+        expect(options[options.length - 1].id).toBe(spectator.component.max);
     });
 
     it('should allow changing the duration step', () => {
-        component.step = 10;
-        component.ngOnChanges({ step: {} as any });
-        fixture.detectChanges();
-        let diff = +component.duration_options[1].id - +component.duration_options[0].id;
+        spectator.setInput({ step: 10 });
+        spectator.detectChanges();
+        let diff =
+            +spectator.component.duration_options[1].id -
+            +spectator.component.duration_options[0].id;
         expect(diff).toBe(10);
-        component.step = Math.floor(Math.random() * 10 + 1) * 5;
-        component.ngOnChanges({ step: {} as any });
-        fixture.detectChanges();
-        diff = +component.duration_options[1].id - +component.duration_options[0].id;
-        expect(diff).toBe(component.step);
+        spectator.setInput({ step: Math.floor(Math.random() * 10 + 1) * 5 });
+        spectator.detectChanges();
+        diff =
+            +spectator.component.duration_options[1].id -
+            +spectator.component.duration_options[0].id;
+        expect(diff).toBe(spectator.component.step);
     });
 
     it('should allow changing the reference time', () => {
-        component.time = dayjs().startOf('m').valueOf();
-        component.ngOnChanges({ time: {} as any });
-        fixture.detectChanges();
-        expect(component.duration_options[0].name).toContain(
-            dayjs(component.time)
-                .add(+component.duration_options[0].id, 'm')
-                .format(timeFormatString())
+        spectator.setInput({ time: startOfMinute(new Date()).valueOf() });
+        spectator.detectChanges();
+        let options = spectator.component.duration_options;
+        expect(options[0].name).toContain(
+            format(
+                addMinutes(spectator.component.time, +options[0].id),
+                timeFormatString()
+            )
         );
-        component.time = dayjs().add(1, 'h').startOf('m').valueOf();
-        component.ngOnChanges({ time: {} as any });
-        fixture.detectChanges();
-        expect(component.duration_options[0].name).toContain(
-            dayjs(component.time)
-                .add(+component.duration_options[0].id, 'm')
-                .format(timeFormatString())
+        spectator.setInput({
+            time: addHours(startOfMinute(new Date()), 1).valueOf(),
+        });
+        spectator.detectChanges();
+        options = spectator.component.duration_options;
+        expect(options[0].name).toContain(
+            format(
+                addMinutes(spectator.component.time, +options[0].id),
+                timeFormatString()
+            )
         );
     });
 
     it('should allow setting the value', (done) => {
         const duration = 35;
-        component.registerOnChange((value) => {
+        spectator.component.registerOnChange((value) => {
             expect(value).toBe(35);
             done();
         });
-        component.setValue(duration);
+        spectator.component.setValue(duration);
     });
 });

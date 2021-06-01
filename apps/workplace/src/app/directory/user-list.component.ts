@@ -7,24 +7,32 @@ import {
     map,
 } from 'rxjs/operators';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { searchStaff, User } from '@user-interfaces/users';
+import { BaseClass, SettingsService } from '@placeos/common';
+import { searchStaff, User } from '@placeos/users';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
 @Component({
-    selector: 'a-directory-user-list',
+    selector: '[a-directory-user-list]',
     template: `
         <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
         <div class="w-full flex items-center justify-center p-2">
-            <a-searchbar
-                [(value)]="search_str"
-                (valueChange)="search$.next($event)"
-                [loading]="loading"
-                [autofocus]="true"
-                placeholder="Search for a person..."
-            ></a-searchbar>
+            <mat-form-field overlay class="rounded" appearance="outline">
+                <app-icon class="text-xl" matPrefix>search</app-icon>
+                <input
+                    matInput
+                    [(ngModel)]="search_str"
+                    (ngModelChange)="search$.next($event)"
+                    placeholder="Search for a person..."
+                />
+                <mat-spinner
+                    matSuffix
+                    class="top-2"
+                    *ngIf="loading"
+                    [diameter]="32"
+                ></mat-spinner>
+            </mat-form-field>
         </div>
         <main class="flex-1 h-1/2 w-full">
             <ng-container
@@ -67,6 +75,12 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background: #f0f0f0;
+            }
+
+            mat-form-field {
+                width: 768px;
+                max-width: calc(100% - 2rem);
             }
         `,
     ],
@@ -93,9 +107,7 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
         return typeof length === 'number' && length >= 0 ? length : 3;
     }
 
-    constructor(
-        private _settings: SettingsService
-    ) {
+    constructor(private _settings: SettingsService) {
         super();
     }
 

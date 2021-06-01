@@ -1,20 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
-import {
-    BaseClass,
-    notifyError,
-    SettingsService,
-} from '@user-interfaces/common';
-import { Space, SpacesService } from '@user-interfaces/spaces';
-import { MapLocation, showStaff, User } from '@user-interfaces/users';
-import {
-    MapPinComponent,
-    MapRadiusComponent,
-} from '@user-interfaces/components';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, notifyError, SettingsService } from '@placeos/common';
+import { Space, SpacesService } from '@placeos/spaces';
+import { MapLocation, showStaff, User } from '@placeos/users';
+import { MapPinComponent, MapRadiusComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
@@ -26,8 +19,8 @@ import { ExploreDesksService } from './explore-desks.service';
     template: `
         <i-map
             [src]="url | async"
-            [zoom]="(positions | async).zoom"
-            [center]="(positions | async).center"
+            [zoom]="(positions | async)?.zoom"
+            [center]="(positions | async)?.center"
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
@@ -82,6 +75,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     public readonly labels = this._state.map_labels;
     /** Observable for the active map */
     public readonly options = this._state.options;
+    /** Observable for user messages */
+    public readonly message = this._state.message;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
@@ -91,6 +86,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
         private _route: ActivatedRoute,
+        private _router: Router,
         private _spaces: SpacesService,
         private _org: OrganisationService,
         private _settings: SettingsService
@@ -121,7 +117,15 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                         return notifyError(
                             `Unable to user details for ${params.get('user')}`
                         );
-                    this.locateUser(user);
+                    this.locateUser(
+                        user instanceof Array ? user[0] : user
+                    ).catch((_) => {
+                        notifyError(`Unable to locate ${params.get('user')}`);
+                        this._router.navigate([], {
+                            relativeTo: this._route,
+                            queryParams: {},
+                        });
+                    });
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
@@ -132,7 +136,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private locateSpace(space: Space) {
-        this._state.setLevel(this._org.levelWithID(space.zones).id);
+        this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             location: space.map_id,
             content: MapPinComponent,
@@ -140,9 +144,9 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 message: `${space.display_name || space.name} is here`,
             },
         };
-        this.timeout('update_location', () => {
-            this._state.setFeatures('_located', [feature]);
-        });
+        this.timeout('update_location', () =>
+            this._state.setFeatures('_located', [feature])
+        );
     }
 
     private async locateUser(user: User) {
@@ -165,11 +169,23 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 locate_details.priority.indexOf(b.type)
         );
         if (!locations?.length) {
-            return notifyError(`Unable to locate ${user.name}`);
+            throw 'No locations for the given user';
         }
-        this._state.setLevel(this._org.levelWithID([locations[0]?.level]).id);
+        this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
+        const pos = locations[0].position;
+        const { coordinates_from } = locations[0];
         const feature: any = {
-            location: locations[0].position,
+            location:
+                locations[0].type === 'wireless'
+                    ? {
+                          x: coordinates_from?.includes('right')
+                              ? 1 - pos.x
+                              : pos.x,
+                          y: coordinates_from?.includes('bottom')
+                              ? 1 - pos.y
+                              : pos.y,
+                      }
+                    : pos,
             content:
                 locations[0].type === 'wireless'
                     ? MapRadiusComponent
@@ -177,6 +193,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
             data: {
                 message: `${user.name} is here`,
                 radius: locations[0].variance,
+                last_seen: locations[0].last_seen,
             },
         };
         this.timeout('update_location', () => {

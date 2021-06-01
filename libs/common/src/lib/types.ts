@@ -1,8 +1,5 @@
-
 /** Generic Dictionary type */
-export interface HashMap<T = any> {
-    [key: string]: T;
-}
+export type HashMap<T = any> = Record<string, T>;
 
 /** Generic data type with identification details */
 export interface Identity extends HashMap {
@@ -55,6 +52,6 @@ export interface ApplicationIcon {
 /** Generic event for dialog boxes */
 export interface DialogEvent<T = any> {
     /** Reason the event was called */
-    reason: 'action' | 'close' | 'reset' | 'loading' | 'done' | 'other',
+    reason: 'action' | 'close' | 'reset' | 'loading' | 'done' | 'other';
     metadata?: T;
 }

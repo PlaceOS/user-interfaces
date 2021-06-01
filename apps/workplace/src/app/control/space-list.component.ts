@@ -1,19 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import { Space, SpacesService } from '@user-interfaces/spaces';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { Space, SpacesService } from '@placeos/spaces';
 
 @Component({
     selector: 'a-control-space-list',
     template: `
         <div class="w-full flex items-center justify-center p-2">
-            <a-searchbar
-                [(value)]="search_str"
-                [loading]="loading"
-                [autofocus]="true"
-            ></a-searchbar>
+            <mat-form-field overlay class="rounded" appearance="outline">
+                <app-icon class="text-xl" matPrefix>search</app-icon>
+                <input
+                    matInput
+                    [(ngModel)]="search_str"
+                    placeholder="Search..."
+                />
+                <mat-spinner
+                    matSuffix
+                    class="top-2"
+                    *ngIf="loading"
+                    [diameter]="32"
+                ></mat-spinner>
+            </mat-form-field>
         </div>
         <div
             class="flex flex-col flex-1 overflow-auto w-full"
@@ -44,6 +53,11 @@ import { Space, SpacesService } from '@user-interfaces/spaces';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
+            }
+
+            mat-form-field {
+                width: 768px;
+                max-width: calc(100% - 2rem);
             }
         `,
     ],

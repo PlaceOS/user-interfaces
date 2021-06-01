@@ -60,11 +60,11 @@ const ICON_MAP = {
                 ></mat-slider>
             </div>
         </div>
-        <div *ngIf="item?.module">
+        <div *ngIf="item?.mod">
             <i
                 binding
                 [sys]="id"
-                [mod]="item.module"
+                [mod]="item.mod"
                 bind="volume"
                 exec="volume"
                 [(model)]="volume"
@@ -72,7 +72,7 @@ const ICON_MAP = {
             <i
                 binding
                 [sys]="id"
-                [mod]="item.module"
+                [mod]="item.mod"
                 bind="mute"
                 exec="mute"
                 [(model)]="mute"

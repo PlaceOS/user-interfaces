@@ -7,7 +7,7 @@
             "description": "Short name for the application"
         },
         "sentry_dsn": {
-            "type":"string",
+            "type": "string",
             "description": "Connector string for setting up Sentry"
         },
         "general": {
@@ -112,6 +112,14 @@
                 "has_group_booking": {
                     "type": "boolean",
                     "description": "Whether users are allowed make group desk bookings"
+                },
+                "hide_reason": {
+                    "type": "boolean",
+                    "description": "Whether to disable ability for user to set a reason for desk booking"
+                },
+                "can_set_host": {
+                    "type": "boolean",
+                    "description": "Whether user is allowed to make desk bookings for others"
                 }
             }
         },

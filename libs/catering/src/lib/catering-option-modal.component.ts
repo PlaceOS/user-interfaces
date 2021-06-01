@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { DialogEvent, randomInt } from '@user-interfaces/common';
+import { DialogEvent } from 'libs/common/src/lib/types';
+import { randomInt } from 'libs/common/src/lib/general';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOption } from './catering.interfaces';
@@ -17,11 +18,11 @@ export interface CateringItemOptionModalData {
     selector: 'catering-option-modal',
     template: `
         <header>
-            <h3 mat-dialog-title>{{ option.id ? 'Edit' : 'Add' }} Item Option</h3>
+            <h3 mat-dialog-title>
+                {{ option.id ? 'Edit' : 'Add' }} Item Option
+            </h3>
             <button mat-icon-button mat-dialog-close *ngIf="!loading">
-                <app-icon
-                    [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"
-                ></app-icon>
+                <app-icon>close</app-icon>
             </button>
         </header>
         <form
@@ -32,19 +33,29 @@ export interface CateringItemOptionModalData {
             <div class="field" *ngIf="form.controls.name">
                 <label
                     for="title"
-                    [class.error]="form.controls.name.invalid && form.controls.name.touched"
+                    [class.error]="
+                        form.controls.name.invalid && form.controls.name.touched
+                    "
                 >
                     Name<span>*</span>:
                 </label>
                 <mat-form-field appearance="outline">
-                    <input matInput name="name" placeholder="Item name" formControlName="name" />
+                    <input
+                        matInput
+                        name="name"
+                        placeholder="Item name"
+                        formControlName="name"
+                    />
                     <mat-error>Name is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="field" *ngIf="form.controls.group">
                 <label
                     for="group"
-                    [class.error]="form.controls.group.invalid && form.controls.group.touched"
+                    [class.error]="
+                        form.controls.group.invalid &&
+                        form.controls.group.touched
+                    "
                 >
                     Type<span>*</span>:
                 </label>
@@ -72,25 +83,23 @@ export interface CateringItemOptionModalData {
                 </mat-form-field>
             </div>
             <div class="field" *ngIf="form.controls.multiple">
-                <mat-checkbox name="multiple" formControlName="multiple"
-                    >Can select multiple of type</mat-checkbox
-                >
+                <mat-checkbox name="multiple" formControlName="multiple">
+                    Can select multiple of type
+                </mat-checkbox>
             </div>
         </form>
         <footer
             *ngIf="!loading"
             class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
         >
-            <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">Save</button>
+            <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">
+                Save
+            </button>
         </footer>
         <ng-template #load_state>
-            <div class="body">
-                <div class="info-block">
-                    <div class="icon">
-                        <mat-spinner diameter="32"></mat-spinner>
-                    </div>
-                    <div class="text">Saving catering item...</div>
-                </div>
+            <div class="flex flex-col items-center p-8 space-y-2 w-64">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>Saving catering item option...</p>
             </div>
         </ng-template>
         <mat-autocomplete #auto="matAutocomplete">
@@ -108,13 +117,13 @@ export interface CateringItemOptionModalData {
         `,
     ],
 })
-export class CateringItemOptionModalComponent {
+export class CateringItemOptionModalComponent implements OnInit {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for item */
     public form: FormGroup;
     /** Whether changes are being saved */
-    public loading: boolean = false;
+    public loading = false;
 
     /** Current item details */
     public get option(): CateringOption {
@@ -126,12 +135,18 @@ export class CateringItemOptionModalComponent {
         return this._data.types || [];
     }
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: CateringItemOptionModalData) {}
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: CateringItemOptionModalData
+    ) {}
 
     public ngOnInit(): void {
         this.form = new FormGroup({
-            name: new FormControl(this.option.name || '', [Validators.required]),
-            group: new FormControl(this.option.group || '', [Validators.required]),
+            name: new FormControl(this.option.name || '', [
+                Validators.required,
+            ]),
+            group: new FormControl(this.option.group || '', [
+                Validators.required,
+            ]),
             unit_price: new FormControl(this.option.unit_price),
             multiple: new FormControl(!!this.option.multiple, []),
         });

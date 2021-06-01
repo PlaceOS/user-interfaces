@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
-import { Identity } from '@user-interfaces/common';
+import { Identity } from '@placeos/common';
 
 @Component({
     selector: 'filter-list',

@@ -1,18 +1,23 @@
 import { Component, Input } from '@angular/core';
-import { ApplicationIcon } from '@user-interfaces/common';
+import { ApplicationIcon } from '@placeos/common';
 
 @Component({
     selector: 'action-icon',
     template: `
-        <button mat-icon-button class="relative flex items-center justify-center h-8 w-8" [class.success]="state === 'success'" [disabled]="loading || disabled">
-            <app-icon root [className]="className" [icon]="icon">{{content}}</app-icon>
+        <button
+            mat-icon-button
+            class="relative flex items-center justify-center h-8 w-8"
+            [class.success]="state === 'success'"
+            [disabled]="loading || disabled"
+        >
+            <app-icon root [className]="className" [icon]="icon">
+                {{ content }}
+                <ng-content></ng-content>
+            </app-icon>
             <div [class]="'state center ' + state" *ngIf="!loading && state">
-                <app-icon
-                    [icon]="{
-                        class: 'material-icons',
-                        content: state === 'success' ? 'done' : 'close'
-                    }"
-                ></app-icon>
+                <app-icon>
+                    {{ state === 'success' ? 'done' : 'close' }}
+                </app-icon>
             </div>
             <div class="loader center" *ngIf="loading">
                 <mat-spinner [diameter]="16"></mat-spinner>
@@ -21,7 +26,6 @@ import { ApplicationIcon } from '@user-interfaces/common';
     `,
     styles: [
         `
-
             .action-icon.fade > app-icon {
                 opacity: 0.35;
             }
@@ -38,7 +42,7 @@ import { ApplicationIcon } from '@user-interfaces/common';
             }
 
             .success app-icon[root] {
-                opacity: .2;
+                opacity: 0.2;
             }
 
             .state.success {
@@ -48,7 +52,6 @@ import { ApplicationIcon } from '@user-interfaces/common';
             .state.error {
                 color: #e53935;
             }
-
         `,
     ],
 })

@@ -4,8 +4,8 @@ import {
     ExploreSpacesService,
     ExploreStateService,
     ExploreZonesService,
-} from '@user-interfaces/explore';
-import { OrganisationService } from '@user-interfaces/organisation';
+} from '@placeos/explore';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'explore-map-stack',

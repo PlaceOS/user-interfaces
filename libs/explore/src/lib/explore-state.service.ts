@@ -9,12 +9,9 @@ import {
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
-import { BaseClass, HashMap, SettingsService } from '@user-interfaces/common';
-import {
-    BuildingLevel,
-    OrganisationService,
-} from '@user-interfaces/organisation';
-import { SpacesService } from '@user-interfaces/spaces';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import { SpacesService } from '@placeos/spaces';
 
 export interface MapOptions {
     show_zones?: boolean;
@@ -45,16 +42,21 @@ export class ExploreStateService extends BaseClass {
 
     private _options = new BehaviorSubject<MapOptions>({});
 
+    private _message = new BehaviorSubject<string>('');
+
     /** Currently active level */
     public readonly level = this._level.asObservable();
+    /** Currently active level */
+    public readonly message = this._message.asObservable();
     /** Spaces associated with the active level */
     public readonly spaces = combineLatest([
         this._level,
         this._spaces.list,
     ]).pipe(
-        map(([level, spaces]) =>
-            spaces.filter((space) => space.zones.includes(level.id))
-        )
+        map(([level, spaces]) => {
+            console.log('Level:', level, spaces);
+            return spaces.filter((space) => space.zones.includes(level.id));
+        })
     );
     /** Currently shown space's map URL */
     public readonly map_url = this._level.pipe(
@@ -67,9 +69,8 @@ export class ExploreStateService extends BaseClass {
         this._features,
         this._options,
     ]).pipe(
-        debounceTime(500),
-        map((details) => {
-            const [features, options] = details;
+        debounceTime(200),
+        map(([features, options]) => {
             let list = [];
             for (const key in features) {
                 switch (key) {
@@ -92,7 +93,7 @@ export class ExploreStateService extends BaseClass {
     );
     /** Currently center and zoom positions for map */
     public readonly map_actions = this._actions.pipe(
-        debounceTime(500),
+        debounceTime(200),
         map((i) => Object.values(i).reduce((list, a) => list.concat(a), []))
     );
     /** Currently center and zoom positions for map */
@@ -100,9 +101,8 @@ export class ExploreStateService extends BaseClass {
         this._labels,
         this._options,
     ]).pipe(
-        debounceTime(500),
-        map((details) => {
-            const [labels, options] = details;
+        debounceTime(200),
+        map(([labels, options]) => {
             let list = [];
             for (const key in labels) {
                 if (key !== 'zones' || options.show_zones) {
@@ -117,9 +117,8 @@ export class ExploreStateService extends BaseClass {
         this._styles,
         this._options,
     ]).pipe(
-        debounceTime(500),
-        map((details) => {
-            const [styles, options] = details;
+        debounceTime(200),
+        map(([styles, options]) => {
             const style_mappings = Object.keys(styles).reduce(
                 (a, h) => ({ ...a, ...styles[h] }),
                 {}
@@ -149,28 +148,22 @@ export class ExploreStateService extends BaseClass {
         private _settings: SettingsService
     ) {
         super();
-        this._org.initialised.pipe(first((_) => _)).subscribe(() => {
-            this.subscription(
-                'building',
-                this._org.active_building
-                    .pipe(filter((_) => !!_))
-                    .subscribe((bld) => {
-                        const level = this._level.getValue();
-                        const level_list = this._org.levelsForBuilding(bld);
-                        const has_level = level_list.find(
-                            (lvl) => level?.id === lvl.id
-                        );
-                        if (!has_level && level_list.length) {
-                            this.setLevel(level_list[0].id);
-                        }
-                        this.setOptions({
-                            show_devices:
-                                this._settings.get(
-                                    'app.explore.display_devices'
-                                ) !== false,
-                        });
-                    })
-            );
+        this.init();
+    }
+
+    public async init() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._org.active_building.pipe(filter((_) => !!_)).subscribe((bld) => {
+            const level = this._level.getValue();
+            const level_list = this._org.levelsForBuilding(bld);
+            const has_level = level_list.find((lvl) => level?.id === lvl.id);
+            if (!has_level && level_list.length) {
+                this.setLevel(level_list[0].id);
+            }
+            this.setOptions({
+                show_devices:
+                    this._settings.get('app.explore.display_devices') !== false,
+            });
         });
     }
 

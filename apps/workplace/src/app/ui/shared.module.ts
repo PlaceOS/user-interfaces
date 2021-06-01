@@ -1,4 +1,3 @@
-import { APipesModule } from '@acaprojects/ngx-pipes';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
@@ -23,11 +22,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { EditorModule } from '@tinymce/tinymce-angular';
-import { SharedCateringModule } from '@user-interfaces/catering';
-import { ComponentsModule } from '@user-interfaces/components';
-import { SharedSpacesModule } from '@user-interfaces/spaces';
-import { SharedUsersModule } from '@user-interfaces/users';
-import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { SharedCateringModule } from '@placeos/catering';
+import { ComponentsModule } from '@placeos/components';
+import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedUsersModule } from '@placeos/users';
+import { FormFieldsModule } from '@placeos/form-fields';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { FooterMenuComponent } from './footer-menu/footer-menu.component';
 import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
@@ -38,7 +37,7 @@ import { MapControlsComponent } from './map-controls/map-controls.component';
 import { OverlayMenuComponent } from './overlay-menu/overlay-menu.component';
 import { TopbarHeaderComponent } from './topbar-header/topbar-header.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
-import { SharedBookingsModule } from '@user-interfaces/bookings';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const COMPONENTS: Type<any>[] = [
     TopbarHeaderComponent,
@@ -82,7 +81,6 @@ const CDK_MODULES: any[] = [ScrollingModule];
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        APipesModule,
         RouterModule,
         EditorModule,
         ComponentsModule,
@@ -91,7 +89,6 @@ const CDK_MODULES: any[] = [ScrollingModule];
         ...CDK_MODULES,
     ],
     exports: [
-        APipesModule,
         EditorModule,
         ComponentsModule,
         FormFieldsModule,

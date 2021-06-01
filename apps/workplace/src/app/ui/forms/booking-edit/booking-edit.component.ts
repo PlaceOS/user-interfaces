@@ -2,8 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { BaseClass, SettingsService } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass, SettingsService } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 
 import {
     SpaceSelectModalComponent,
@@ -21,7 +21,10 @@ export class BookingEditComponent extends BaseClass implements OnInit {
     @Input() public form: FormGroup;
     @Input() public event: CalendarEvent;
 
-    constructor(private _dialog: MatDialog, private _settings: SettingsService) {
+    constructor(
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -49,11 +52,11 @@ export class BookingEditComponent extends BaseClass implements OnInit {
     }
 
     public get link() {
-        return this.event.meeting_link;
+        return this.event.ext('meeting_link');
     }
 
     public get catering_item_total() {
-        const order = this.event.catering[0];
+        const order = this.event.ext('catering')[0];
         return order ? order.item_count : 0;
     }
 
@@ -61,24 +64,26 @@ export class BookingEditComponent extends BaseClass implements OnInit {
      * Open modal to change the space details for the booking
      */
     public openSpacesModal(): void {
-        const ref = this._dialog.open<SpaceSelectModalComponent, SpaceSelectModalData>(
+        const ref = this._dialog.open<
             SpaceSelectModalComponent,
-            {
-                width: '32em',
-                maxWidth: '95vw',
-                maxHeight: '95vh',
-                data: {
-                    spaces: this.form.controls.space_list.value,
-                    date: this.form.controls.date.value,
-                    duration: this.form.controls.duration.value,
-                },
-            }
-        );
+            SpaceSelectModalData
+        >(SpaceSelectModalComponent, {
+            width: '32em',
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            data: {
+                spaces: this.form.controls.space_list.value,
+                date: this.form.controls.date.value,
+                duration: this.form.controls.duration.value,
+            },
+        });
         this.subscription(
             'change_spaces',
             ref.componentInstance.event.subscribe((event) => {
                 if (event.reason === 'done') {
-                    this.form.controls.space_list.setValue([...ref.componentInstance.spaces]);
+                    this.form.controls.space_list.setValue([
+                        ...ref.componentInstance.spaces,
+                    ]);
                     this.unsub('change_spaces');
                 }
                 ref.close();
@@ -96,7 +101,7 @@ export class BookingEditComponent extends BaseClass implements OnInit {
             width: '32em',
             maxWidth: '95vw',
             maxHeight: '95vh',
-            data: { catering: this.event.catering, catering_note: '' },
+            data: { catering: this.event.ext('catering'), catering_note: '' },
         });
     }
 

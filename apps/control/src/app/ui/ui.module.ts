@@ -8,7 +8,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 
-import { ComponentsModule } from '@user-interfaces/components';
+import { ComponentsModule } from '@placeos/components';
 import { LightingTooltipComponent } from './lighting-tooltip.component';
 import { PowerTooltipComponent } from './power-tooltip.component';
 import { HelpTooltipComponent } from './help-tooltip.component';

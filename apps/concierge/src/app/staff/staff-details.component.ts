@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { notifyError } from '@user-interfaces/common';
-import { StaffUser } from '@user-interfaces/users';
+import { notifyError } from '@placeos/common';
+import { StaffUser } from '@placeos/users';
 
 import { StaffStateService } from './staff-state.service';
 

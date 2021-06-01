@@ -5,7 +5,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     selector: 'a-counter',
     template: `
         <div
-            class="counter"
+            counter
+            class="flex items-center text-base"
             (window:keydown.shift)="shift_key = true"
             (window:keydown.control)="ctrl_key = true"
             (window:keydown.meta)="ctrl_key = true"
@@ -19,28 +20,23 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 [disabled]="!value || value === min"
                 (click)="remove()"
             >
-                <app-icon [icon]="{ class: 'material-icons', content: 'remove' }"></app-icon>
+                <app-icon>remove</app-icon>
             </button>
-            <div class="value">
-                {{ value || '0' }}
-            </div>
-            <button mat-icon-button name="add" [disabled]="value === max" (click)="add()">
-                <app-icon [icon]="{ class: 'material-icons', content: 'add' }"></app-icon>
+            <div value class="p-1 text-center">{{ (render_fn ? render_fn(value) : value) || '0' }}</div>
+            <button
+                mat-icon-button
+                name="add"
+                [disabled]="value === max"
+                (click)="add()"
+            >
+                <app-icon>add</app-icon>
             </button>
         </div>
     `,
     styles: [
         `
-            .counter {
-                display: flex;
-                align-items: center;
-                font-size: 1rem;
-            }
-
-            .value {
-                padding: 0.25em;
+            [value] {
                 min-width: 3em;
-                text-align: center;
             }
         `,
     ],
@@ -55,11 +51,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */
-    @Input() public step: number = 1;
+    @Input() public step = 1;
     /** Maximum amount for the counter */
-    @Input() public max: number = 10;
+    @Input() public max = 10;
     /** Minimum amount for the counter */
-    @Input() public min: number = 0;
+    @Input() public min = 0;
+    /** Custom function for rendering the counter value */
+    @Input() public render_fn: (v: number) => string;
     /** Current value of the counter */
     public value: number;
     /** Whether shift key is being held by the user */
@@ -79,7 +77,7 @@ export class CounterComponent implements ControlValueAccessor {
         if (!this.value) {
             this.value = this.min || 0;
         }
-        const step = this.ctrl_key ? 100 : this.shift_key ? 10 : this.step || 1;
+        const step = this.ctrl_key ? 100 * this.step : this.shift_key ? 10 * this.step : this.step || 1;
         this.value += step;
         if (this.value > this.max) {
             this.value = this.max || 10;
@@ -92,7 +90,7 @@ export class CounterComponent implements ControlValueAccessor {
         if (!this.value) {
             this.value = this.min || 0;
         }
-        const step = this.ctrl_key ? 100 : this.shift_key ? 10 : this.step || 1;
+        const step = this.ctrl_key ? 100 * this.step : this.shift_key ? 10 * this.step : this.step || 1;
         this.value -= step;
         if (this.value < this.min) {
             this.value = this.min || 0;

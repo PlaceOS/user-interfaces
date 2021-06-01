@@ -2,9 +2,10 @@ import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
-import { CalendarEvent } from '@user-interfaces/events';
-import { DialogEvent, HashMap, BaseClass } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
+import { CalendarEvent } from '@placeos/events';
+import { DialogEvent, HashMap, BaseClass } from '@placeos/common';
+import { Space } from '@placeos/spaces';
+import { first } from 'rxjs/operators';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -14,10 +15,20 @@ export interface BookingModalData extends HashMap {
     max_duration?: number;
 }
 
-export function openBookingModal(data: BookingModalData, dialog: MatDialog) {
-    dialog.open(BookingModalComponent, {
+export async function openBookingModal(
+    data: BookingModalData,
+    dialog: MatDialog
+) {
+    const ref = dialog.open(BookingModalComponent, {
         data,
     });
+    return {
+        ...(await Promise.race([
+            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')),
+            ref.afterClosed().toPromise(),
+        ])),
+        close: ref.close,
+    };
 }
 
 @Component({
@@ -67,11 +78,21 @@ export function openBookingModal(data: BookingModalData, dialog: MatDialog) {
                 </mat-form-field>
             </div>
         </form>
-        <footer *ngIf="!loading" class="flex items-center justify-center p-2 w-full border-t border-gray-200 space-x-2">
-            <button mat-button name="close" class="inverse w-32" mat-dialog-close>
+        <footer
+            *ngIf="!loading"
+            class="flex items-center justify-center p-2 w-full border-t border-gray-200 space-x-2"
+        >
+            <button
+                mat-button
+                name="close"
+                class="inverse w-32"
+                mat-dialog-close
+            >
                 Cancel
             </button>
-            <button mat-button name="save" class="w-32" (click)="save()">Save</button>
+            <button mat-button name="save" class="w-32" (click)="save()">
+                Save
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center p-8">
@@ -107,7 +128,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
     public ngOnInit(): void {
         this.form = new FormGroup({
             // organiser: new FormControl(null, [Validators.required]),
-            room_ids: new FormControl([this._data.space.email]),
+            room_ids: new FormControl([this._data.space?.email || '']),
             date: new FormControl(this._data.date || new Date().valueOf()),
             duration: new FormControl(30),
             title: new FormControl(this._data.title || '', [

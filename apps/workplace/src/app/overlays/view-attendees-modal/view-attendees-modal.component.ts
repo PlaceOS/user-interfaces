@@ -1,8 +1,8 @@
 import { Component, OnInit, OnChanges, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass } from '@user-interfaces/common';
-import { User } from '@user-interfaces/users';
+import { BaseClass } from '@placeos/common';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'schedule-view-attendees',

@@ -77,24 +77,25 @@ const home: any = {
             },
             query_params: { new: true },
         },
-        // {
-        //     name: 'Desks',
-        //     route: '/book/desks',
-        //     icon: {
-        //         type: 'img',
-        //         src: 'assets/img/desk.svg',
-        //     },
-        //     query_params: { new: true },
-        // },
-        // {
-        //     name: 'People',
-        //     route: '/directory',
-        //     icon: {
-        //         type: 'icon',
-        //         class: 'material-icons',
-        //         content: 'people',
-        //     },
-        // },
+        {
+            name: 'Desks',
+            route: '/book/desks',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'article',
+            },
+            query_params: { new: true },
+        },
+        {
+            name: 'People',
+            route: '/directory',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'people',
+            },
+        },
         {
             name: 'Spaces',
             route: '/explore',
@@ -104,15 +105,15 @@ const home: any = {
                 content: 'place',
             },
         },
-        // {
-        //     name: 'My Day',
-        //     route: '/schedule',
-        //     icon: {
-        //         type: 'icon',
-        //         class: 'material-icons',
-        //         content: 'today',
-        //     },
-        // },
+        {
+            name: 'My Day',
+            route: '/schedule',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'today',
+            },
+        },
     ],
     footer: [
         {
@@ -125,24 +126,25 @@ const home: any = {
             },
             query_params: { new: true },
         },
-        // {
-        //     name: 'Desks',
-        //     route: '/book/desks',
-        //     icon: {
-        //         type: 'img',
-        //         src: 'assets/img/desk_dark.svg',
-        //     },
-        //     query_params: { new: true },
-        // },
-        // {
-        //     name: 'People',
-        //     route: '/directory',
-        //     icon: {
-        //         type: 'icon',
-        //         class: 'material-icons',
-        //         content: 'people',
-        //     },
-        // },
+        {
+            name: 'Desks',
+            route: '/book/desks',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'article',
+            },
+            query_params: { new: true },
+        },
+        {
+            name: 'People',
+            route: '/directory',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'people',
+            },
+        },
         {
             name: 'Spaces',
             route: '/explore',
@@ -152,15 +154,15 @@ const home: any = {
                 content: 'place',
             },
         },
-        // {
-        //     name: 'My Day',
-        //     route: '/schedule',
-        //     icon: {
-        //         type: 'icon',
-        //         class: 'material-icons',
-        //         content: 'today',
-        //     },
-        // },
+        {
+            name: 'My Day',
+            route: '/schedule',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'today',
+            },
+        },
     ],
 };
 /**
@@ -326,11 +328,11 @@ const app: any = {
     short_name: 'STAFF',
     logo_light: {
         type: 'img',
-        src: 'assets/logo-light.svg'
+        src: 'assets/logo-light.svg',
     },
     logo_dark: {
         type: 'img',
-        src: 'assets/logo-dark.svg'
+        src: 'assets/logo-dark.svg',
     },
     general,
     home,

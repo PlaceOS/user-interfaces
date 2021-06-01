@@ -12,10 +12,11 @@ import {
     currentUser,
     downloadFile,
     notifyError,
-} from '@user-interfaces/common';
+    SettingsService,
+} from '@placeos/common';
 import { first } from 'rxjs/operators';
 
-import { NewUserModalComponent, User } from '@user-interfaces/users';
+import { NewUserModalComponent, User, USER_DOMAIN } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -42,36 +43,25 @@ import { MatDialog } from '@angular/material/dialog';
                     <mat-chip
                         *ngFor="let user of active_list"
                         [id]="user.email"
-                        [color]="
-                            user.visit_expected || user.is_external
-                                ? 'accent'
-                                : 'primary'
-                        "
-                        (click)="
-                            user.visit_expected || user.is_external
-                                ? new_user.emit(user)
-                                : null
+                        [attr.color]="
+                            !user.is_external ? 'internal' : 'external'
                         "
                         [removable]="true"
                         (removed)="removeUser(user)"
                     >
                         {{ user.name }}
-                        <app-icon
-                            matChipRemove
-                            [icon]="{
-                                type: 'icon',
-                                class: 'material-icons',
-                                content: 'close'
-                            }"
-                        ></app-icon>
+                        <app-icon matChipRemove>close</app-icon>
                     </mat-chip>
                 </mat-chip-list>
             </div>
-            <div class="flex items-center" *ngIf="!hide_actions">
+            <div
+                class="flex items-center border-t border-gray-300 divide-x divide-gray-300"
+                *ngIf="!hide_actions"
+            >
                 <button
                     mat-button
                     name="new-contact"
-                    class="flex-1 rounded-none border-none text-black underline"
+                    class="clear underline flex-1"
                     (click)="openNewUserModal()"
                     i18n="Add new external attendee"
                 >
@@ -79,7 +69,7 @@ import { MatDialog } from '@angular/material/dialog';
                 </button>
                 <button
                     mat-button
-                    class="relative flex-1 rounded-none border-t-0 border-b-0 border-l border-r border-gray-200 text-black underline"
+                    class="clear underline flex-1 relative"
                     name="upload-csv"
                     i18n="Upload attendee list from CSV file"
                 >
@@ -92,7 +82,7 @@ import { MatDialog } from '@angular/material/dialog';
                 </button>
                 <button
                     mat-button
-                    class="flex-1 rounded-none border-none text-black underline"
+                    class="clear underline flex-1"
                     name="download-template"
                     (click)="downloadCSVTemplate()"
                     i18n="Download template CSV file"
@@ -131,11 +121,11 @@ export class UserListFieldComponent
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Number of characters needed before a search will start */
-    @Input() public limit: number = 3;
+    @Input() public limit = 3;
     /** Whether guests should also show when searching for users */
-    @Input() public guests: boolean = false;
+    @Input() public guests = false;
     /** Whether optional actions should be shown */
-    @Input('hideActions') public hide_actions: boolean = false;
+    @Input('hideActions') public hide_actions = false;
     /** Function for filtering the results of the user list */
     @Input() public filter: (_: any) => boolean;
     /** Emitter for action to make a new user */
@@ -144,9 +134,9 @@ export class UserListFieldComponent
     public search_user: User;
 
     /** User list to display */
-    public user_list: User[];
+    public user_list: User[] = [];
     /** List of active selected users on the list */
-    public active_list: User[];
+    public active_list: User[] = [];
     /** Whether user list is loading */
     public loading: boolean;
 
@@ -155,7 +145,10 @@ export class UserListFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
-    constructor(private _dialog: MatDialog) {
+    constructor(
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -164,18 +157,13 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        /* istanbul ignore else */
-        if (!this.active_list) {
-            this.active_list = [];
-        }
         const index = this.active_list.findIndex(
             (a_user) => a_user.email === user.email
         );
+        let list = [...this.active_list];
         /* istanbul ignore else */
-        if (index < 0) {
-            this.active_list = [...this.active_list, user];
-        }
-        this.setValue(this.active_list);
+        if (index < 0) list = [...this.active_list, user];
+        this.setValue(list);
         this.search_user = null;
     }
 
@@ -184,10 +172,10 @@ export class UserListFieldComponent
      * @param user
      */
     public removeUser(user: User) {
-        this.active_list = this.active_list.filter(
+        const list = this.active_list.filter(
             (a_user) => a_user.email !== user.email
         );
-        this.setValue(this.active_list);
+        this.setValue(list);
     }
 
     /**
@@ -219,8 +207,8 @@ export class UserListFieldComponent
      */
     private processCsvData(data: string) {
         const list = csvToJson(data) || [];
-        const id = currentUser().staff_id;
-        list.forEach((el) => {
+        const id = currentUser()?.staff_id || 'unknown';
+        for (const el of list) {
             el.name = el.name || `${el.first_name} ${el.last_name}`;
             const display = (
                 el.name || `${Math.floor(Math.random() * 9999_9999)}`
@@ -230,11 +218,16 @@ export class UserListFieldComponent
                 .toLowerCase();
             /* istanbul ignore else */
             if (!el.email) {
-                el.email = `${display}+${id}@guest.com`;
+                el.email = `${display}+${id}@guest.${USER_DOMAIN}`;
             }
-            el.visit_expected = !el.email.endsWith('place.tech');
+            const internal_emails = this._settings.get(
+                'app.booking.internal_emails'
+            ) || ['place.tech'];
+            el.visit_expected = !internal_emails.find((_) =>
+                el.email.endsWith(_)
+            );
             this.addUser(new User(el));
-        });
+        }
     }
 
     /* istanbul ignore next */
@@ -302,7 +295,7 @@ export class UserListFieldComponent
                 data: {},
             }
         );
-        ref.componentInstance.event
+        ref.componentInstance?.event
             .pipe(first((_) => _.reason === 'done'))
             .subscribe((event) => {
                 this.addUser(event.metadata);

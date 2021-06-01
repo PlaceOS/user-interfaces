@@ -8,15 +8,19 @@ import {
     ElementRef,
     Renderer2,
     EventEmitter,
-    Output
+    Output,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { onlineState, authority, getModule } from '@placeos/ts-client';
 
+import { BaseClass } from '@placeos/common';
+import { first } from 'rxjs/operators';
+
 @Directive({
-    selector: 'i[bind], [binding], co-bind'
+    selector: 'i[bind], [binding], co-bind',
 })
-export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
+export class BindingDirective<T = any>
+    extends BaseClass
+    implements OnInit, OnChanges, OnDestroy {
     /** ID of the system to bind */
     @Input() public sys: string;
     /** Class name of the module to bind */
@@ -36,64 +40,38 @@ export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
     /** Emitter for changes to the value of the binding */
     @Output() public modelChange = new EventEmitter<T>();
 
-    /** Listener for event on host element */
-    private event_listener: () => void;
-    /** Listener for changes to the binding value */
-    private listener: Subscription;
-    /** Listener for initialisation state of composer */
-    private init_listener: Subscription;
-    /** Callback to unbind to the status variable */
-    private unbind: () => void;
-
     constructor(
         private _element: ElementRef<HTMLElement>,
         private _renderer: Renderer2
-    ) {}
-
-    public ngOnInit(): void {
-        this.init_listener = onlineState().subscribe(init => {
-            if (init) {
-                this.bindVariable();
-                if (this.init_listener) {
-                    this.init_listener.unsubscribe();
-                    this.init_listener = null;
-                }
-            }
-        });
+    ) {
+        super();
     }
 
-    public ngOnDestroy(): void {
-        if (this.listener) {
-            this.listener.unsubscribe();
-            this.listener = null;
-        }
-        if (this.unbind) {
-            this.unbind();
-            this.unbind = null;
-        }
-        if (this.event_listener) {
-            this.event_listener();
-            this.event_listener = null;
-        }
+    public ngOnInit(): void {
+        onlineState()
+            ?.pipe(first((_) => _))
+            .subscribe((_) => this.bindVariable());
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.sys || changes.mod || changes.bind) {
-            this.ngOnDestroy();
             this.bindVariable();
         }
-        if (changes.model && changes.model.previousValue !== this.model && this.model != null) {
+        if (
+            changes.model &&
+            changes.model.previousValue !== this.model &&
+            this.model != null
+        ) {
             this.execute();
         }
         if (changes.on_event && this.on_event) {
-            if (this.event_listener) {
-                this.event_listener();
-                this.event_listener = null;
-            }
-            this.event_listener = this._renderer.listen(
-                this._element.nativeElement,
-                this.on_event,
-                () => this.execute()
+            this.subscription(
+                'on_event',
+                this._renderer.listen(
+                    this._element.nativeElement,
+                    this.on_event,
+                    () => this.execute()
+                )
             );
         }
     }
@@ -103,11 +81,16 @@ export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
         if (authority() && this.bind && this.sys && this.mod) {
             const module = getModule(this.sys, this.mod, this.index);
             const binding = module.binding(this.bind);
-            this.unbind = binding.bind();
-            this.listener = binding.listen().subscribe(value => setTimeout(() => {
-                this.model = value;
-                this.modelChange.emit(this.model);
-            }, 10));
+            this.subscription('binding', binding.bind());
+            this.subscription(
+                'on_changes',
+                binding.listen().subscribe((value) =>
+                    setTimeout(() => {
+                        this.model = value;
+                        this.modelChange.emit(this.model);
+                    }, 10)
+                )
+            );
         }
     }
 
@@ -116,7 +99,7 @@ export class BindingDirective<T = any> implements OnInit, OnChanges, OnDestroy {
         if (authority() && this.exec && this.sys && this.mod) {
             const module = getModule(this.sys, this.mod, this.index);
             if (this.bind) this.params = [this.model];
-            module.execute(this.exec, this.params).then(result => {
+            module.execute(this.exec, this.params).then((result) => {
                 // Emit exec result if not bound to status variable
                 if (!this.bind) {
                     this.model = result;

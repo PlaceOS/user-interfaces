@@ -1,6 +1,52 @@
-import { HashMap } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
-import { User } from '@user-interfaces/users';
+import { HashMap } from '@placeos/common';
+import { Space } from '@placeos/spaces';
+import { User } from '@placeos/users';
+
+import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
+
+export interface FileDetails {
+    /** Name of the file */
+    name: string;
+
+    /** Blob contents of the file */
+    blob: Blob;
+}
+
+export interface EventExtensionData {
+    /** Setup in minutes */
+    setup?: number;
+    /** Breakdown in minutes */
+    breakdown?: number;
+    /** Whether event is cleaned */
+    cleaned?: boolean;
+    /** Catering */
+    catering?: CateringOrder[];
+    /** Parking */
+    needs_parking?: boolean;
+    /** Configuration */
+    configuration?: any;
+    /** Notes */
+    notes?: EventNote[];
+    /** Catergorisation of external attendees in the event */
+    visitor_type?: string;
+    /** List of remote attendees */
+    remote?: string[];
+    /** URL to a meeting/call associated with the booking */
+    meeting_link: string;
+}
+
+export interface RecurrenceDetails {
+    /** Start of the recurrence in unix ms */
+    start: number;
+    /** End of the recurrence in unix ms */
+    end: number;
+    /** Days of the week (or month) on which the event should be repeated */
+    days_of_week: number;
+    /** Frequency of the event */
+    pattern: 'daily' | 'weekly' | 'monthly';
+    /** Interval to be used with pattern */
+    interval: number;
+}
 
 export interface EventListQueryParams {
     /** Comma seperated list of zone ids to filter the events on */
@@ -48,41 +94,25 @@ export interface EventNote {
     order_id?: string;
 }
 
-export interface SpaceRules {
-    auto_approve: boolean;
-    hide: boolean;
-    room_type?: 'client' | 'partner';
-    max_length?: number;
-    min_length?: number;
-}
-
-export interface SpaceCheckOptions {
-    user: User;
-    space: Space;
-    time?: number;
-    visitor_type?: string;
-    recurr_end?: number;
-    duration?: number;
-    rules: BookingRuleConditions;
-}
-
-export interface BookingRule {
+export interface BookingRuleset {
+    id?: string;
+    name?: string;
+    rules: BookingRules;
     conditions: BookingRuleConditions;
-    rules: {
-        book_ahead?: string;
-        book_length?: string;
-        auto_approve?: boolean;
-    };
 }
 
-export interface SpaceRuleOptions {
-    user: User;
+export interface BookingRules {
+    auto_approve?: boolean;
+    hidden?: boolean;
+}
+
+export type BookingRulesmap = Record<string, BookingRuleset[]>;
+
+export interface BookingRuleDetails {
     space: Space;
-    time?: number;
-    visitor_type?: string;
-    recurr_end?: number;
-    duration?: number;
-    rules?: HashMap<readonly BookingRule[]>;
+    date: number;
+    duration: number;
+    host: User;
 }
 
 export interface BookingRuleConditions {
@@ -98,4 +128,14 @@ export interface BookingRuleConditions {
     is_before?: string;
     /** How far in the future this bookings must be */
     is_after?: string;
+}
+
+export interface TimeBlock {
+    start: number;
+    end: number;
+}
+
+export interface TimePeriod extends HashMap {
+    date: number;
+    duration: number;
 }

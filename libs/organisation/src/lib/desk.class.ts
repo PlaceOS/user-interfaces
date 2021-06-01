@@ -1,3 +1,4 @@
+import { PlaceZone } from '@placeos/ts-client';
 
 export class Desk {
     /** ID of the desk also map_id */
@@ -7,15 +8,15 @@ export class Desk {
     /** Whether desk is available / bookable */
     public readonly bookable: boolean;
     /** Zone/Level of the desk */
-    public readonly zone: any;
+    public readonly zone: PlaceZone;
     /** Group/Department allocated to the desk */
     public readonly groups: string[];
 
-    constructor(data) {
-        this.id = data.id;
-        this.name = data.name;
-        this.bookable = data.bookable;
-        this.zone = data.zone;
+    constructor(data: Partial<Desk> = {}) {
+        this.id = data.id || '';
+        this.name = data.name || '';
+        this.bookable = data.bookable ?? false;
+        this.zone = data.zone || new PlaceZone();
         this.groups = data.groups || [];
     }
 
@@ -28,4 +29,6 @@ export class Desk {
             groups,
         };
     }
+
+    public readonly toJSON = () => this.format();
 }

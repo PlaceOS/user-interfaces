@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { map } from 'rxjs/operators';
 
-import { CalendarEvent } from '@user-interfaces/events';
-import { Space } from '@user-interfaces/spaces';
+import { CalendarEvent } from '@placeos/events';
+import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
 
 @Component({

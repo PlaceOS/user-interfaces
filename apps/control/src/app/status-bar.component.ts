@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
+import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 
 @Component({
@@ -7,7 +8,7 @@ import { ControlStateService } from './control-state.service';
     template: `
         <div
             recording
-            *ngIf="(system | async)?.recording"
+            *ngIf="!!(capture_mod | async)"
             class="text-xs divide-x divide-gray-100 text-white flex items-center"
         >
             <div hidden>
@@ -15,35 +16,35 @@ import { ControlStateService } from './control-state.service';
                     binding
                     [(model)]="rec_status"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="status"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_title"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="title"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_remaining"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="remaining"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_current"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="current"
                 ></i>
                 <i
                     binding
                     [(model)]="rec_next"
                     [sys]="id"
-                    mod="Capture"
+                    [mod]="(capture_mod | async)?.mod"
                     bind="current"
                 ></i>
             </div>
@@ -53,12 +54,15 @@ import { ControlStateService } from './control-state.service';
                 {{ rec_title || '~Unnamed Recording~' }}
             </div>
             <div class="h-12 w-12 flex items-center justify-center">
-                <button mat-icon-button class="rounded-none">
+                <button mat-icon-button mute class="rounded-none">
                     <app-icon>fiber_manual_record</app-icon>
                 </button>
             </div>
             <div class="h-12 w-12 flex items-center justify-center">
                 <button
+                    [attr.place-action]="
+                        rec_status === 'playing' ? 'pause' : 'start'
+                    "
                     mat-icon-button
                     class="rounded-none"
                     binding
@@ -99,14 +103,19 @@ import { ControlStateService } from './control-state.service';
         </div>
         <div class="flex-1"></div>
         <div class="flex items-center space-x-2 w-64 py-2 px-4">
-            <button mat-icon-button><app-icon>volume_up</app-icon></button>
+            <button mat-icon-button (click)="mute = !mute">
+                <app-icon>{{
+                    mute
+                        ? 'volume_off'
+                        : (volume | async) > 0
+                        ? 'volume_up'
+                        : 'volume_mute'
+                }}</app-icon>
+            </button>
             <mat-slider
-                [min]="0"
-                [max]="100"
-                [step]="1"
-                [ngModel]="volume | async"
-                (ngModelChange)="setVolume($event)"
                 white
+                [ngModel]="!mute ? (volume | async) : 0"
+                (ngModelChange)="setVolume($event); mute = false"
                 class="flex-1"
             ></mat-slider>
         </div>
@@ -129,10 +138,15 @@ export class ControlStatusBarComponent extends BaseClass {
     /** Details of the active system */
     public readonly system = this._state.system;
 
+    public readonly capture_mod = this._state.capture_list.pipe(
+        map((_) => _[0])
+    );
+
+    public mute: boolean;
     public rec_status: string;
     public rec_title: string;
 
-    public readonly setVolume = (v) => this._state.setVolume('all', v);
+    public readonly setVolume = (v) => this._state.setVolume(v);
 
     public get id() {
         return this._state.id;

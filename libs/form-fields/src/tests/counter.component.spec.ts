@@ -1,95 +1,82 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { IconComponent, SafePipe } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
-import { CounterComponent } from './counter.component';
-import { IconComponent } from '../icon/icon.component';
+import { CounterComponent } from '../lib/counter.component';
 
 describe('CounterComponent', () => {
-    let component: CounterComponent;
-    let fixture: ComponentFixture<CounterComponent>;
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [CounterComponent, MockComponent(IconComponent)]
-        }).compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CounterComponent);
-        component = fixture.componentInstance;
-        component.value = 0;
-        component.registerOnChange(_ => null)
-        fixture.detectChanges();
+    let spectator: Spectator<CounterComponent>;
+    const createComponent = createComponentFactory({
+        component: CounterComponent,
+        declarations: [MockComponent(IconComponent), SafePipe],
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => {
+        spectator = createComponent();
+        spectator.component.value = 0;
+        spectator.component.registerOnChange((_) => null);
+        spectator.detectChanges();
+    });
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
     it('should allow adding to count', () => {
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const button_el: HTMLButtonElement = compiled.querySelector('button[name="add"]');
-        const value_el: HTMLButtonElement = compiled.querySelector('.value');
-        expect(button_el).toBeTruthy();
-        expect(value_el).toBeTruthy();
-        expect(value_el.textContent).toBe(' 0 ');
-        button_el.dispatchEvent(new Event('click'));
-        expect(component.value).toBe(1);
-        fixture.detectChanges();
-        expect(value_el.textContent).toBe(' 1 ');
+        expect('button[name="add"]').toExist();
+        expect('[value]').toExist();
+        expect('[value]').toHaveExactText('0');
+        spectator.click('button[name="add"]');
+        expect(spectator.component.value).toBe(1);
+        spectator.detectChanges();
+        expect('[value]').toHaveExactText('1');
     });
 
     it('should allow removing from count', () => {
-        component.value = 10;
-        fixture.detectChanges();
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const button_el: HTMLButtonElement = compiled.querySelector('button[name="remove"]');
-        const value_el: HTMLButtonElement = compiled.querySelector('.value');
-        expect(button_el).toBeTruthy();
-        expect(value_el).toBeTruthy();
-        expect(value_el.textContent).toBe(' 10 ');
-        button_el.dispatchEvent(new Event('click'));
-        expect(component.value).toBe(9);
-        fixture.detectChanges();
-        expect(value_el.textContent).toBe(' 9 ');
+        spectator.component.value = 10;
+        spectator.detectChanges();
+        expect('[value]').toExist();
+        expect('[value]').toHaveExactText('10');
+        spectator.click('button[name="remove"]');
+        expect(spectator.component.value).toBe(9);
+        spectator.detectChanges();
+        expect('[value]').toHaveExactText('9');
     });
 
     it('should not allow value to go out of range', () => {
-        component.remove();
-        expect(component.value).toBe(0);
-        component.value = component.max;
-        component.add();
-        expect(component.value).toBe(component.max);
+        spectator.component.remove();
+        expect(spectator.component.value).toBe(0);
+        spectator.component.value = spectator.component.max;
+        spectator.component.add();
+        expect(spectator.component.value).toBe(spectator.component.max);
     });
 
     it('should allow qualifiers to multiple added/removed value', () => {
-        component.max = 1000;
-        component.value = 5
-        component.shift_key = true;
-        component.add();
-        expect(component.value).toBe(15);
-        component.ctrl_key = true;
-        component.add();
-        expect(component.value).toBe(115);
-        component.remove();
-        expect(component.value).toBe(15);
-        component.ctrl_key = false;
-        component.remove();
-        expect(component.value).toBe(5);
-        component.shift_key = false;
-        component.remove();
-        expect(component.value).toBe(4);
+        spectator.component.max = 1000;
+        spectator.component.value = 5;
+        spectator.component.shift_key = true;
+        spectator.component.add();
+        expect(spectator.component.value).toBe(15);
+        spectator.component.ctrl_key = true;
+        spectator.component.add();
+        expect(spectator.component.value).toBe(115);
+        spectator.component.remove();
+        expect(spectator.component.value).toBe(15);
+        spectator.component.ctrl_key = false;
+        spectator.component.remove();
+        expect(spectator.component.value).toBe(5);
+        spectator.component.shift_key = false;
+        spectator.component.remove();
+        expect(spectator.component.value).toBe(4);
     });
 
     it('should allow writing to count', () => {
-        const compiled: HTMLElement = fixture.debugElement.nativeElement;
-        const button_el: HTMLButtonElement = compiled.querySelector('button[name="remove"]');
-        const value_el: HTMLButtonElement = compiled.querySelector('.value');
-        expect(button_el).toBeTruthy();
-        expect(value_el).toBeTruthy();
-        expect(value_el.textContent).toBe(' 0 ');
-        component.writeValue(10);
-        fixture.detectChanges();
-        expect(value_el.textContent).toBe(' 10 ');
+        expect('button[name="remove"]').toExist();
+        expect('[value]').toExist();
+        expect('[value]').toHaveExactText('0');
+        spectator.component.writeValue(10);
+        spectator.detectChanges();
+
+        expect('[value]').toHaveExactText('10');
     });
 });

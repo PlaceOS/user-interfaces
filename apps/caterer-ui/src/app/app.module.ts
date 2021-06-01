@@ -11,8 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 
-import { SharedCateringModule } from '@user-interfaces/catering';
-import { ComponentsModule, UnauthorisedComponent } from '@user-interfaces/components';
+import { SharedCateringModule } from '@placeos/catering';
+import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
@@ -20,8 +20,9 @@ import { environment } from '../environments/environment';
 import { CateringComponent } from './catering.component';
 import { CateringTopbarComponent } from './catering-topbar.component';
 
-import '@user-interfaces/mocks';
+import '@placeos/mocks';
 import * as Sentry from '@sentry/angular';
+import { MatRippleModule } from '@angular/material/core';
 
 @NgModule({
     declarations: [
@@ -43,6 +44,7 @@ import * as Sentry from '@sentry/angular';
         MatChipsModule,
         SharedCateringModule,
         ComponentsModule,
+        MatRippleModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

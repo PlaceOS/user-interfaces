@@ -1,6 +1,5 @@
-
-export * from './new-user-modal/new-user-modal.component';
-export * from './user-form/user-form.component';
+export * from './new-user-modal.component';
+export * from './user-form.component';
 export * from './location.class';
 export * from './user.class';
 export * from './user.utilities';

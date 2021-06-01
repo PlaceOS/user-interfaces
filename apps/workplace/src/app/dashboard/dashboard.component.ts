@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@user-interfaces/common';
+import { SettingsService } from '@placeos/common';
 import { format } from 'date-fns';
 
 

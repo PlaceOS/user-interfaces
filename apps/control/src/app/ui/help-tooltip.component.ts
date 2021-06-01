@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CustomTooltipData } from '@user-interfaces/components';
+import { CustomTooltipData } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
 
@@ -11,13 +11,13 @@ import { ControlStateService } from '../control-state.service';
         >
             <h3 class="mb-2 text-xl font-medium">Need help?</h3>
             <p>
-                Contact {{ support_contact || ' your administrator' }} if you
+                Contact <span contact>{{ support_contact || ' your administrator' }}</span> if you
                 require <br />assisatance at
-                <a class="underline" [href]="'mailto:' + (support_email || 'support@place.tech')">{{
+                <a email class="underline" [href]="'mailto:' + (support_email || 'support@place.tech')">{{
                     support_email || 'support@place.tech'
                 }}</a>
                 or phone
-                <a class="underline" [href]="'tel:' + (support_phone || '0412345678')">{{
+                <a phone class="underline" [href]="'tel:' + (support_phone || '0412345678')">{{
                     support_phone || '0412345678'
                 }}</a>
             </p>

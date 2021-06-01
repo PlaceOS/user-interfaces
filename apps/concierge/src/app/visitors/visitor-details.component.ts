@@ -2,16 +2,14 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
-import {
-    BaseClass,
-    notifyError,
-    SettingsService,
-} from '@user-interfaces/common';
-import { CalendarEvent, saveEvent } from '@user-interfaces/events';
-import { showGuest, User } from '@user-interfaces/users';
+import { BaseClass, notifyError, SettingsService } from '@placeos/common';
+import { CalendarEvent, saveEvent } from '@placeos/events';
+import { showGuest, User } from '@placeos/users';
+
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -39,7 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </ng-template>
         </div>
         <div flex class="p-2 flex-1">{{ visitor?.name || visitor?.email }}</div>
-        <div class="w-48 p-2 flex items-center justify-end">
+        <div class="w-48 py-2 flex items-center justify-end">
             <action-icon
                 [matTooltip]="
                     remote
@@ -85,7 +83,7 @@ import { VisitorsStateService } from './visitors-state.service';
             >
             </action-icon>
         </div>
-        <div class="w-8 p-2"></div>
+        <div class="w-14 p-2"></div>
         <div
             qr-code
             *ngIf="show_qr_code"
@@ -142,7 +140,7 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
 })
-export class VisitorDetailsComponent extends BaseClass {
+export class VisitorDetailsComponent extends BaseClass implements OnChanges {
     @Input() public event: CalendarEvent;
     @Input() public visitor: User;
     @Output() public eventChange = new EventEmitter<CalendarEvent>();
@@ -162,9 +160,9 @@ export class VisitorDetailsComponent extends BaseClass {
 
     public readonly toggleRemote = async () => {
         this.loading = 'remote';
-        const remote_list = this.event.remote.filter(
-            (e) => e !== this.visitor.email
-        );
+        const remote_list = this.event
+            .ext('remote')
+            ?.filter((e) => e !== this.visitor.email);
         if (!this.remote) {
             remote_list.push(this.visitor.email);
         }
@@ -194,16 +192,18 @@ export class VisitorDetailsComponent extends BaseClass {
         this.loading = '';
     };
 
-
     /** Open print dialog for user's QR code */
     public readonly printQRCode = () => {
         this.show_qr_code = true;
-        this.timeout('print', () => {
-            window.print();
-            this.show_qr_code = false;
-        }, 50);
-
-    }
+        this.timeout(
+            'print',
+            () => {
+                window.print();
+                this.show_qr_code = false;
+            },
+            50
+        );
+    };
 
     public get can_print(): boolean {
         return (
@@ -214,11 +214,13 @@ export class VisitorDetailsComponent extends BaseClass {
     }
 
     public get today(): number {
-        return Math.floor(new Date().valueOf() / 60 / 1000) * 60 * 1000;
+        return Date.now();
     }
 
     public get remote(): boolean {
-        return !!this.event?.remote.find((e) => e === this.visitor?.email);
+        return !!this.event
+            ?.ext('remote')
+            ?.find((e) => e === this.visitor?.email);
     }
 
     constructor(
@@ -229,9 +231,7 @@ export class VisitorDetailsComponent extends BaseClass {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.visitor) {
-            this.loadGuest();
-        }
+        if (changes.visitor) this.loadGuest();
     }
 
     public async loadGuest(tries: number = 0) {
@@ -243,11 +243,7 @@ export class VisitorDetailsComponent extends BaseClass {
                 .catch((_) => null);
             if (!guest?.extension_data?.qr?.code && tries < 5) {
                 this.timeout('load_guest', () => this.loadGuest(++tries), 1000);
-            } else {
-                this.loading = '';
-            }
-        } else {
-            this.loading = '';
-        }
+            } else this.loading = '';
+        } else this.loading = '';
     }
 }

@@ -6,7 +6,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { unique } from '@user-interfaces/common';
+import { unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomInput } from '../control-state.service';
@@ -16,25 +16,54 @@ import { ControlStateService, RoomInput } from '../control-state.service';
     template: `
         <div class="flex flex-col items-center text-black p-4">
             <h3 class="font-medium text-xl mb-2">
-                Select input source for {{ (details | async)?.name || '= No Name =' }}
+                Select input source for
+                {{ (details | async)?.name || '= No Name =' }}
             </h3>
-            <div class="flex divide divide-gray-200">
-                <div *ngFor="let type of input_types | async" class="flex flex-col p-2 space-y-2">
-                    <h4 class="text-center underline">{{ type }}</h4>
-                    <button
-                        mat-button
-                        class="w-48"
-                        [class.inverse]="input.id === (details | async)?.source"
-                        *ngFor="let input of (input_map | async)[type]"
-                        (click)="selectSource(input)"
+            <ng-container *ngIf="!loading; else load_state">
+                <div
+                    class="flex flex-wrap divide divide-gray-200"
+                    *ngIf="(input_types | async)?.length; else empty_state"
+                >
+                    <div
+                        group
+                        *ngFor="let type of input_types | async"
+                        class="flex flex-col p-2 space-y-2"
                     >
-                        <div class="truncate">{{ input.name }}</div>
-                    </button>
+                        <h4 class="text-center underline">{{ type }}</h4>
+                        <button
+                            mat-button
+                            source
+                            class="w-48"
+                            [class.inverse]="
+                                input.id === (details | async)?.source
+                            "
+                            *ngFor="let input of (input_map | async)[type]"
+                            (click)="selectSource(input)"
+                        >
+                            <div class="truncate">{{ input.name }}</div>
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </ng-container>
         </div>
-    `,
-    styles: [``],
+        <ng-template #empty_state>
+            <div class="flex flex-col items-center justify-center p-8 m-auto">
+                <p>
+                    No input sources available for the selected output({{
+                        details?.name || 'Unknown'
+                    }})
+                </p>
+            </div>
+        </ng-template>
+        <ng-template #load_state>
+            <div
+                class="flex flex-col items-center justify-center space-y-2 p-8 m-auto"
+            >
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p>Switching input source...</p>
+            </div>
+        </ng-template>
+    `
 })
 export class SourceSelectComponent implements OnChanges {
     // ID of the selected output
@@ -89,6 +118,5 @@ export class SourceSelectComponent implements OnChanges {
         await this._state.setRoute(input.id, this.output);
         this.loading = false;
         this.source.emit(input);
-        console.log('Input routed:', input, this.output);
     }
 }

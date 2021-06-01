@@ -4,13 +4,13 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: `explore-zoom-controls`,
     template: `
-        <button mat-icon-button class="bg-white" (click)="zoomIn()">
+        <button z-in mat-icon-button class="bg-white" (click)="zoomIn()">
             <app-icon>add</app-icon>
         </button>
-        <button mat-icon-button class="bg-white" (click)="zoomOut()">
+        <button z-out mat-icon-button class="bg-white" (click)="zoomOut()">
             <app-icon>remove</app-icon>
         </button>
-        <button mat-icon-button class="bg-white" (click)="reset()">
+        <button reset mat-icon-button class="bg-white" (click)="reset()">
             <app-icon>autorenew</app-icon>
         </button>
     `,
@@ -19,7 +19,7 @@ import { ExploreStateService } from './explore-state.service';
             :host {
                 display: flex;
                 flex-direction: column;
-                padding: .5rem;
+                padding: 0.5rem;
             }
 
             button {
@@ -50,7 +50,8 @@ export class ExploreZoomControlComponent {
             Math.max(1, this._state.positions.zoom * (1 / 1.2)),
             this._state.positions.center
         );
-    public readonly reset = () => this._state.setPositions(1, { x: 0.5, y: 0.5 });
+    public readonly reset = () =>
+        this._state.setPositions(1, { x: 0.5, y: 0.5 });
 
     constructor(private _state: ExploreStateService) {}
 }

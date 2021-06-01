@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Booking } from '@user-interfaces/bookings';
-import { BaseClass } from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
+import { Booking } from '@placeos/bookings';
+import { BaseClass } from '@placeos/common';
+import { Space } from '@placeos/spaces';
 import * as dayjs from 'dayjs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';

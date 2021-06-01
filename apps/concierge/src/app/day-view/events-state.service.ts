@@ -24,16 +24,16 @@ import {
     flatten,
     timePeriodsIntersect,
     unique,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import {
     CalendarEvent,
     queryEvents,
     removeEvent,
     replaceBookings,
-} from '@user-interfaces/events';
-import { SpacesService } from '@user-interfaces/spaces';
+} from '@placeos/events';
+import { SpacesService } from '@placeos/spaces';
 import { BookingModalComponent } from './booking-modal.component';
-import { ConfirmModalComponent } from '@user-interfaces/components';
+import { ConfirmModalComponent } from '@placeos/components';
 
 export type BookingType =
     | 'internal'
@@ -408,8 +408,8 @@ export class EventsStateService extends BaseClass {
                 bkn.date + bkn.duration * 60 * 1000
             );
             const in_zone = !!bkn.resources
-                .map((r) => this._spaces.find(r.id))
-                .find((space) => fzones.find((z) => space.zones.includes(z)));
+                .map((r) => this._spaces.find(r.id || r.email))
+                .find((space) => fzones.find((z) => space?.zones?.includes(z)));
             const has_space =
                 !filters.space_emails?.length ||
                 !!bkn.resources.find((space) =>
@@ -420,7 +420,7 @@ export class EventsStateService extends BaseClass {
                 !!bkn.resources.find((space) =>
                     space.zones.find((zone) => filters.zone_ids.includes(zone))
                 );
-            const type = bkn.has_visitors
+            const type = bkn.guests.length
                 ? 'external'
                 : bkn.status === 'cancelled'
                 ? 'cancelled'

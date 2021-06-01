@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ApplicationLink, BaseClass, SettingsService } from '@user-interfaces/common';
+import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'a-footer-menu',

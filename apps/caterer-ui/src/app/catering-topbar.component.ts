@@ -2,21 +2,21 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
-import {
-    CateringOrdersService,
-    CateringStateService,
-} from '@user-interfaces/catering';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 
 @Component({
     selector: 'catering-topbar',
     template: `
-        <a mat-button *ngIf="page" [routerLink]="['/']">
-            <div class="flex items-center space-x-2">
-                <app-icon>arrow_back</app-icon>
-                <p class="underline">Back</p>
-            </div>
+        <a
+            matRipple
+            *ngIf="page"
+            class="flex items-center space-x-2 pl-4 py-2 pr-8 rounded"
+            [routerLink]="['/']"
+        >
+            <app-icon>arrow_back</app-icon>
+            <p class="underline">Back</p>
         </a>
         <mat-form-field appearance="outline">
             <mat-select

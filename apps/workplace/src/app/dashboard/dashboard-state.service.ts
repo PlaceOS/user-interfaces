@@ -15,15 +15,15 @@ import {
     currentUser,
     HashMap,
     unique,
-} from '@user-interfaces/common';
-import { Space } from '@user-interfaces/spaces';
-import { CalendarEvent, queryEvents } from '@user-interfaces/events';
-import { searchStaff, User } from '@user-interfaces/users';
+} from '@placeos/common';
+import { Space } from '@placeos/spaces';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { searchStaff, User } from '@placeos/users';
 import {
     BuildingLevel,
     OrganisationService,
-} from '@user-interfaces/organisation';
-import { CalendarService } from '@user-interfaces/calendar';
+} from '@placeos/organisation';
+import { CalendarService } from '@placeos/calendar';
 
 export interface DashboardOptions {
     search?: string;

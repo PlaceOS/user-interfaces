@@ -1,8 +1,8 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 
-import { MAP_FEATURE_DATA } from '@user-interfaces/components';
+import { MAP_FEATURE_DATA } from '@placeos/components';
 
-export interface SpaceInfoData {
+export interface DeskInfoData {
     map_id: string;
     user: string;
     start?: number;
@@ -25,9 +25,9 @@ export interface SpaceInfoData {
         >
             <div class="arrow"></div>
             <div class="details">
-                <h4 class="m-0 font-medium">{{ map_id }}</h4>
-                <p class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
-                <p class="mt-1 text-sm" *ngIf="start">
+                <h4 map-id class="m-0 font-medium">{{ map_id }}</h4>
+                <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
+                <p start class="mt-1 text-sm" *ngIf="start">
                     {{ start | date: 'shortTime' }} &ndash;
                     {{ end | date: 'shortTime' }}
                 </p>
@@ -80,7 +80,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     public x_pos: 'left' | 'right';
 
     constructor(
-        @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
+        @Inject(MAP_FEATURE_DATA) private _details: DeskInfoData,
         private _element: ElementRef<HTMLElement>
     ) {}
 

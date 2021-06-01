@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseClass, SettingsService } from '@user-interfaces/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({
-    selector: 'app-control',
+    selector: '[app-control]',
     template: `
         <a-topbar-header class="w-full" [(menu)]="show_menu"></a-topbar-header>
         <main class="flex-1 h-1/2 w-full">
@@ -12,14 +12,17 @@ import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
         <a-footer-menu></a-footer-menu>
         <a-overlay-menu class="w-full" [(show)]="show_menu"></a-overlay-menu>
     `,
-    styles: [`
-        :host {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+                background: #f0f0f0;
+            }
+        `,
+    ],
 })
 export class ControlComponent extends BaseClass implements OnInit {
     /** Whether to show the overlay menu */

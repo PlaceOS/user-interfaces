@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass, currentUser, current_user, notifyError, notifySuccess } from '@user-interfaces/common';
-import { ExploreStateService } from '@user-interfaces/explore';
+import { BaseClass, currentUser, current_user, notifyError, notifySuccess } from '@placeos/common';
+import { ExploreStateService } from '@placeos/explore';
 import { first } from 'rxjs/operators';
 
 import { DeskFlowStateService } from './desk-flow-state.service';

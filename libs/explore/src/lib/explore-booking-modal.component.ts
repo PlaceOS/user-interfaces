@@ -1,14 +1,10 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@user-interfaces/common';
-import {
-    CalendarEvent,
-    generateEventForm,
-    saveEvent,
-} from '@user-interfaces/events';
-import { Space } from '@user-interfaces/spaces';
-import { CalendarService } from '@user-interfaces/calendar';
+import { notifyError, notifySuccess } from '@placeos/common';
+import { CalendarEvent, generateEventForm, saveEvent } from '@placeos/events';
+import { Space } from '@placeos/spaces';
+import { querySpaceAvailability } from '@placeos/calendar';
 
 export interface ExploreBookingModalData {
     space: Space;
@@ -25,12 +21,13 @@ export interface ExploreBookingModalData {
             </button>
         </header>
         <ng-container *ngIf="!loading; else load_state">
-            <main [formGroup]="form" class="p-4">
+            <main *ngIf="form" [formGroup]="form" class="p-4">
                 <div class="flex flex-col">
-                    <label>Title<span>*</span>:</label>
+                    <label for="title">Title<span>*</span>:</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
+                            name="title"
                             formControlName="title"
                             placeholder="Booking Title"
                         />
@@ -39,10 +36,10 @@ export interface ExploreBookingModalData {
                 </div>
                 <div class="flex flex-col">
                     <label>Space:</label>
-                    <div class="sm:mt-4 mb-4">
+                    <div name="space" class="sm:mt-4 mb-4">
                         {{
-                            form.controls.resources?.value[0].display_name ||
-                                form.controls.resources?.value[0].name
+                            form.controls.resources?.value[0]?.display_name ||
+                                form.controls.resources?.value[0]?.name
                         }}
                     </div>
                 </div>
@@ -66,7 +63,7 @@ export interface ExploreBookingModalData {
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <div class="w-full h-64 flex flex-col items-center justify-center">
+            <div load class="h-64 flex flex-col items-center justify-center">
                 <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
@@ -77,23 +74,27 @@ export interface ExploreBookingModalData {
             header {
                 max-width: calc(100vw + 100%);
             }
+
+            [load] {
+                width: 32rem;
+                max-width: calc(100vw - 2rem);
+            }
         `,
     ],
 })
-export class ExploreBookingModalComponent {
+export class ExploreBookingModalComponent implements OnInit {
     public booking: CalendarEvent;
     public form: FormGroup;
-    public loading: string;
+    public loading = '';
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
-        private _calendars: CalendarService,
         private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>
     ) {}
 
     public ngOnInit() {
         this.booking = new CalendarEvent({
-            attendees: [{ ...this._data.space, resource: true } as any],
+            attendees: [{ ...(this._data.space || {}), resource: true } as any],
         });
         this.form = generateEventForm(this.booking);
     }
@@ -112,22 +113,21 @@ export class ExploreBookingModalComponent {
                     list.push(key);
                 }
             }
-            return Promise.reject(
-                on_error(`Some form fields are not valid: [${list.join(', ')}]`)
+            throw on_error(
+                `Some form fields are not valid: [${list.join(', ')}]`
             );
         }
         this._dialog_ref.disableClose = true;
         this.loading = 'Checking space availability...';
-        const spaces = await this._calendars
-            .availability({
-                system_ids: this.form.controls.resources.value
-                    ?.map((s) => s.id)
-                    .join(','),
-                period_start: Math.floor(this.form.value.date / 1000),
-                period_end:
-                    Math.floor(this.form.value.date / 1000) +
-                    this.form.value.duration * 60,
-            })
+        const spaces = await querySpaceAvailability({
+            system_ids: this.form.controls.resources.value
+                ?.map((s) => s.id)
+                .join(','),
+            period_start: Math.floor(this.form.value.date / 1000),
+            period_end:
+                Math.floor(this.form.value.date / 1000) +
+                this.form.value.duration * 60,
+        })
             .toPromise()
             .catch((e) => {
                 on_error(

@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
+import { RouterModule, Routes } from '@angular/router';
 import {
     AuthorisedUserGuard,
-    UnauthorisedComponent,
-} from '@user-interfaces/components';
+    UnauthorisedComponent
+} from '@placeos/components';
+
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -63,6 +63,13 @@ const routes: Routes = [
         path: 'catering',
         loadChildren: () =>
             import('./catering/catering.module').then((m) => m.CateringModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
+        path: 'points',
+        loadChildren: () =>
+            import('./points/points.module').then((m) => m.PointsModule),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },

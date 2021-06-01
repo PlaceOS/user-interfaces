@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogEvent } from '@user-interfaces/common';
+import { DialogEvent } from '@placeos/common';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
-} from '@user-interfaces/spaces';
+} from '@placeos/spaces';
 import { first, map } from 'rxjs/operators';
 
 @Component({
@@ -33,7 +33,9 @@ import { first, map } from 'rxjs/operators';
                     <label for="start-time">Start Time<span>*</span>:</label>
                     <a-time-field
                         name="start-time"
-                        formControlName="date"
+                        [ngModel]="form.get('date').value"
+                        (ngModelChange)="form.patchValue({ date: $event })"
+                        [ngModelOptions]="{ standalone: true }"
                         style="margin-top: .3rem"
                     ></a-time-field>
                 </div>
@@ -106,7 +108,7 @@ export class EventFormComponent {
                 .toPromise(),
         ]);
         if (success) {
-            this.form.controls.resources.setValue(success.metadata);
+            this.form.get('resources')?.setValue(success.metadata);
         }
         ref.close();
     }

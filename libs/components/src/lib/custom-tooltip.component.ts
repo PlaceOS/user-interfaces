@@ -5,7 +5,6 @@ import {
     ElementRef,
     HostListener,
     Injectable,
-    InjectionToken,
     Injector,
     Input,
     OnChanges,
@@ -15,7 +14,8 @@ import {
     Type,
     ViewChild,
 } from '@angular/core';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
+import { first } from 'rxjs/operators';
 
 @Injectable()
 export class CustomTooltipData<T = any> {
@@ -35,12 +35,14 @@ export class CustomTooltipData<T = any> {
         <ng-template cdk-portal>
             <div custom-tooltip [ngSwitch]="type">
                 <ng-container *ngSwitchCase="'component'">
-                    <ng-container *ngComponentOutlet="content; injector: injector"></ng-container>
+                    <ng-container
+                        *ngComponentOutlet="content; injector: injector"
+                    ></ng-container>
                 </ng-container>
                 <ng-container *ngSwitchCase="'html'">
                     <div [innerHTML]="content | sanitize"></div>
                 </ng-container>
-                <ng-container *ngSwitchCaseDefault>
+                <ng-container *ngSwitchDefault>
                     <ng-container
                         *ngTemplateOutlet="content; context: data"
                     ></ng-container>
@@ -49,7 +51,9 @@ export class CustomTooltipData<T = any> {
         </ng-template>
     `,
 })
-export class CustomTooltipComponent<T = any> extends BaseClass implements OnChanges, OnDestroy {
+export class CustomTooltipComponent<T = any>
+    extends BaseClass
+    implements OnChanges, OnDestroy {
     /** Horizontal position of the rendered overlay */
     @Input('xPosition') public x_pos: 'start' | 'center' | 'end';
     /** Vertical position of the rendered overlay */
@@ -59,7 +63,7 @@ export class CustomTooltipComponent<T = any> extends BaseClass implements OnChan
     /** Data associated with the tooltip content */
     @Input() public data: T;
     /** Whether tooltip has a backdrop */
-    @Input() public backdrop: boolean = true;
+    @Input() public backdrop = true;
     /** Type of content to render */
     public type: 'template' | 'component' | 'html' = 'template';
 
@@ -106,7 +110,12 @@ export class CustomTooltipComponent<T = any> extends BaseClass implements OnChan
                 .withPositions([
                     {
                         originX: this.x_pos || 'end',
-                        originY: (this.y_pos === 'top' ? 'bottom' : this.y_pos == 'bottom' ? 'top' : this.y_pos) || 'bottom',
+                        originY:
+                            (this.y_pos === 'top'
+                                ? 'bottom'
+                                : this.y_pos == 'bottom'
+                                ? 'top'
+                                : this.y_pos) || 'bottom',
                         overlayX: this.x_pos || 'end',
                         overlayY: this.y_pos || 'top',
                     },
@@ -115,8 +124,8 @@ export class CustomTooltipComponent<T = any> extends BaseClass implements OnChan
         this._overlay_ref.attach(this._portal);
         if (this.backdrop) {
             this.subscription(
-                'backdrop-click',
-                this._overlay_ref.backdropClick().subscribe((_) => this.close())
+                'backdrop',
+                this._overlay_ref.backdropClick().subscribe(() => this.close())
             );
         }
     }
@@ -146,6 +155,6 @@ export class CustomTooltipComponent<T = any> extends BaseClass implements OnChan
                 },
             ],
             parent: this._injector,
-        })
+        });
     }
 }

@@ -20,7 +20,7 @@ import { ControlPageViewComponent } from './page-view.component';
 import { ControlStatusBarComponent } from './status-bar.component';
 import { ControlAdvancedViewComponent } from './advanced-view.component';
 
-import '@user-interfaces/mocks';
+import '@placeos/mocks';
 
 import * as Sentry from "@sentry/angular";
 

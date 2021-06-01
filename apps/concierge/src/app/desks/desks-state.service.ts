@@ -17,17 +17,17 @@ import {
     queryBookings,
     rejectBooking,
     saveBooking,
-} from '@user-interfaces/bookings';
+} from '@placeos/bookings';
 import {
     BaseClass,
     notifyError,
     notifyInfo,
     notifySuccess,
-} from '@user-interfaces/common';
+} from '@placeos/common';
 import { listChildMetadata, showMetadata } from '@placeos/ts-client';
-import { Desk, OrganisationService } from '@user-interfaces/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmModalComponent } from '@user-interfaces/components';
+import { ConfirmModalComponent } from '@placeos/components';
 import { DeskListModalComponent } from './desk-list-modal.component';
 
 export interface DeskFilters {

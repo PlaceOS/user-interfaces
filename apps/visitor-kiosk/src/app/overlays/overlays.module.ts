@@ -6,7 +6,7 @@ import { SharedContentModule } from '../ui/shared.module';
 
 import { ViewRoomModalComponent } from './view-room-modal/view-room-modal.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal/explore-booking-modal.component';
-import { SharedUsersModule } from '@user-interfaces/users';
+import { SharedUsersModule } from '@placeos/users';
 
 const OVERLAYS: Type<any>[] = [
     ViewRoomModalComponent

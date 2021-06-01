@@ -17,8 +17,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { CdkTableModule } from '@angular/cdk/table';
 import { PortalModule } from '@angular/cdk/portal';
 
-import { APipesModule } from '@acaprojects/ngx-pipes';
-
 import { BindingDirective } from './binding.directive';
 import { ActionIconComponent } from './action-icon.component';
 import { IconComponent } from './icon.component';
@@ -26,32 +24,42 @@ import { PopoutMenuComponent } from './popout-menu.component';
 import { UserAvatarComponent } from './user-avatar.component';
 
 import { ConfirmModalComponent } from './confirm-modal.component';
-import { InteractiveMapComponent, MAP_FEATURE_DATA } from './interactive-map.component';
+import {
+    InteractiveMapComponent,
+    MAP_FEATURE_DATA,
+} from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapRadiusComponent } from './map-radius.component';
-import { SearchbarComponent } from './searchbar.component';
 import { StatusOverlayComponent } from './status-overlay.component';
 import { FixedPipe } from './fixed.pipe';
+import { SafePipe } from './safe.pipe';
+import { SanitizePipe } from './sanitise.pipe';
 import { CustomTableComponent } from './custom-table.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
+import { VirtualKeyboardComponent } from './virtual-keyboard.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
 export * from './confirm-modal.component';
 export * from './icon.component';
-export * from './login/login.component';
+export * from './login.component';
 export * from './popout-menu.component';
 export * from './unauthorised.component';
 export * from './user-avatar.component';
 export * from './interactive-map.component';
 export * from './map-pin.component';
 export * from './map-radius.component';
-export * from './searchbar.component';
 export * from './misconfigured.component';
 export * from './status-overlay.component';
 export * from './custom-table.component';
 export * from './custom-tooltip.component';
 export * from './fixed.pipe';
+export * from './safe.pipe';
+export * from './sanitise.pipe';
+export * from './virtual-keyboard.component';
+
+export * from './authorised-admin.guard';
+export * from './authorised-user.guard';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -69,7 +77,7 @@ const MAT_MODULES: any[] = [
     MatChipsModule,
     MatPaginatorModule,
     CdkTableModule,
-    PortalModule
+    PortalModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -82,29 +90,25 @@ const COMPONENTS: Type<any>[] = [
     InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
-    SearchbarComponent,
     StatusOverlayComponent,
     CustomTableComponent,
     CustomTooltipComponent,
+    VirtualKeyboardComponent,
 
-    FixedPipe
+    FixedPipe,
+    SafePipe,
+    SanitizePipe,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        APipesModule,
-        ...MAT_MODULES,
-    ],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ...MAT_MODULES],
     providers: [
         { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
-        { provide: MAP_FEATURE_DATA, useValue: {} }
+        { provide: MAP_FEATURE_DATA, useValue: {} },
     ],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, APipesModule],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
 })
 export class ComponentsModule {}

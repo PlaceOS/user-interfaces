@@ -10,7 +10,8 @@ import { User } from '../../../users/src/lib/user.class';
             [attr.user-id]="user.id"
         >
             <div
-                class="text-black text-opacity-30 uppercase"
+                initials
+                class="text-black text-opacity-50 uppercase"
                 *ngIf="!user.photo; else image_state"
             >
                 {{ initials }}
@@ -23,10 +24,11 @@ import { User } from '../../../users/src/lib/user.class';
     styles: [
         `
             :host > div {
-                height: 2em;
-                width: 2em;
-                background-color: #f0f0f0;
+                height: 2.5em;
+                width: 2.5em;
+                background-color: #ccc;
                 overflow: hidden;
+                border: 2px solid white;
             }
 
             .initials {
@@ -40,10 +42,10 @@ export class UserAvatarComponent {
     @Input() public user: User;
 
     public get initials(): string {
-        if (!this.user) {
-            return 'NA';
-        }
-        const parts = this.user.name.split(' ');
+        if (!this.user) return 'NA';
+        const parts = this.user.name
+            .replace(/[()[\]\-+=\\/]+/gi, '')
+            .split(' ');
         return parts.length > 1
             ? `${parts[0][0]}${parts[parts.length - 1][0]}`
             : this.user.name.slice(0, 2);

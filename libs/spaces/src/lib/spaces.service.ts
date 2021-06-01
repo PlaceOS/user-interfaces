@@ -3,23 +3,25 @@ import { querySystems } from '@placeos/ts-client';
 import { first, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
+import { OrganisationService } from '@placeos/organisation';
+
 import { Space } from './space.class';
-import { OrganisationService } from '@user-interfaces/organisation';
 
 @Injectable({
     providedIn: 'root',
 })
 export class SpacesService {
+    /** Subject to store list of spaces */
+    private _list = new BehaviorSubject<Space[]>([]);
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
     /** Observable of the initialised state of the object */
     public readonly initialised = this._initialised.asObservable();
-    /** Subject to store list of spaces */
-    private _list = new BehaviorSubject<Space[]>([]);
-    /** Default predicate for filter method */
-    protected _compare = (space: Space) => space.zones.includes(this._org.building.id);
     /** Observable for list of spaces */
     public readonly list = this._list.asObservable();
+    /** Default predicate for filter method */
+    protected _compare = (space: Space) =>
+        space.zones.includes(this._org.building.id);
 
     /** List of available spaces */
     public get space_list(): Space[] {
@@ -27,7 +29,9 @@ export class SpacesService {
     }
 
     constructor(private _org: OrganisationService) {
-        this._org.initialised.pipe(first((_) => _)).subscribe(() => this.loadSpaces());
+        this._org.initialised
+            .pipe(first((_) => _))
+            .subscribe(() => this.loadSpaces());
     }
 
     /**
@@ -43,7 +47,9 @@ export class SpacesService {
      * @param id ID/Email address associated with the space
      */
     public find(id: string) {
-        return this._list.getValue().find((space) => space.id === id || space.email === id);
+        return this._list
+            .getValue()
+            .find((space) => space.id === id || space.email === id);
     }
 
     private async loadSpaces(): Promise<void> {
@@ -54,7 +60,11 @@ export class SpacesService {
             .pipe(map((i) => i.data))
             .toPromise();
         const space_list = systems.map(
-            (sys) => new Space({ ...(sys as any), level: this._org.levelWithID([...sys.zones]) })
+            (sys) =>
+                new Space({
+                    ...(sys as any),
+                    level: this._org.levelWithID([...sys.zones]),
+                })
         );
         // Remove spaces without a map ID
         const valid_spaces = space_list.filter((space) => space.map_id);

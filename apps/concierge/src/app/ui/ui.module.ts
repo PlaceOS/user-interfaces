@@ -18,14 +18,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
-import { APipesModule } from '@acaprojects/ngx-pipes';
-
 import { SidebarComponent } from './sidebar.component';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
-import { ComponentsModule } from '@user-interfaces/components';
-import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { ComponentsModule } from '@placeos/components';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
@@ -61,7 +59,6 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...ANGULAR_MODULES,
         ...MAT_MODULES,
         ComponentsModule,
-        APipesModule,
         RouterModule.forChild([]),
     ],
     exports: [
@@ -69,8 +66,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...MAT_MODULES,
         ...ANGULAR_MODULES,
         FormFieldsModule,
-        ComponentsModule,
-        APipesModule,
+        ComponentsModule
     ],
 })
 export class UIModule {}

@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {
-    ExploreDesksService,
-    ExploreStateService,
-} from '@user-interfaces/explore';
+import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
 
 import { DesksStateService } from './desks-state.service';
-import { BaseClass } from '@user-interfaces/common';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'desk-map-view',
@@ -81,7 +78,6 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
         this.subscription(
             'date',
             this._desk.filters.subscribe((opts) => {
-                console.log('Desk Options:', opts);
                 this._desks_state.setOptions({
                     date: opts.date ? new Date(opts.date) : new Date(),
                     zones: opts.zones,

@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 
-import { FormFieldsModule } from '@user-interfaces/form-fields';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';

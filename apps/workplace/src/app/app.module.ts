@@ -8,9 +8,9 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import '@user-interfaces/mocks';
+import '@placeos/mocks';
 
-import { MisconfiguredComponent, UnauthorisedComponent } from '@user-interfaces/components';
+import { MisconfiguredComponent, UnauthorisedComponent } from '@placeos/components';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
 import { AppRoutingModule } from './app-routing.module';

@@ -1,4 +1,4 @@
-import { HashMap, randomInt } from '@user-interfaces/common';
+import { HashMap, randomInt } from '@placeos/common';
 
 class MicrophoneModule {
     mute: boolean;

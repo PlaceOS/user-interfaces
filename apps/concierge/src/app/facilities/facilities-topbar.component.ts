@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, Identity } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, Identity } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({

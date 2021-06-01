@@ -5,10 +5,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { BookingsComponent } from './bookings.component';
 import { SharedContentModule } from '../ui/shared.module';
-import { SharedExploreModule } from '@user-interfaces/explore';
-import { SharedUsersModule } from '@user-interfaces/users';
+import { SharedExploreModule } from '@placeos/explore';
+import { SharedUsersModule } from '@placeos/users';
 
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { QrReaderComponent } from './qr-reader.component';
 
 import { SpaceFlowComponent } from './space-flow/space-flow.component';
@@ -17,11 +17,12 @@ import { SpaceFlowListingComponent } from './space-flow/space-flow-listing.compo
 import { SpaceFlowConfirmComponent } from './space-flow/space-flow-confirm.component';
 
 import { DeskFlowComponent } from './desk-flow/desk-flow.component';
-import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
+import { DeskFlowPageComponent } from './desk-flow/desk-flow-page.component';
 import { DeskFlowCheckinComponent } from './desk-flow/desk-flow-checkin.component';
 import { DeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
 
 import { BookingSuccessComponent } from './booking-success.component';
+import { DeskFlowListingComponent } from './desk-flow/desk-flow-listing.component';
 
 const ROUTES: Route[] = [
     { path: 'desk', component: DeskFlowCheckinComponent },
@@ -36,6 +37,7 @@ const ROUTES: Route[] = [
         BookingSuccessComponent,
 
         DeskFlowComponent,
+        DeskFlowPageComponent,
         DeskFlowListingComponent,
         DeskFlowCheckinComponent,
         DeskFlowFormComponent,
@@ -55,9 +57,7 @@ const ROUTES: Route[] = [
         SharedContentModule,
         SharedUsersModule,
         SharedExploreModule,
-        MatButtonToggleModule
-    ]
+        MatButtonToggleModule,
+    ],
 })
-export class BookingsModule {
-
-}
+export class BookingsModule {}

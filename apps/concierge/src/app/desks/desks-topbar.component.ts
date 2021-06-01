@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, take } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { DesksStateService } from './desks-state.service';
-import { showBooking } from '@user-interfaces/bookings';
+import { showBooking } from '@placeos/bookings';
 
 @Component({
     selector: 'desks-topbar',

@@ -1,6 +1,6 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 
-import { HashMap, predictableRandomInt } from '@user-interfaces/common';
+import { HashMap, predictableRandomInt } from '@placeos/common';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
 import { MOCK_LEVELS } from './zone.data';
 import { MOCK_SPACES } from './spaces.data';

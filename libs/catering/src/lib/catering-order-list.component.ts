@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CateringOrder } from './catering-order.class';
 
 import { CateringOrdersService } from './catering-orders.service';
 
@@ -6,7 +7,7 @@ import { CateringOrdersService } from './catering-orders.service';
     selector: 'catering-order-list',
     template: `
         <div
-            class="w-full text-sm font-medium flex items-center py-4 border-none border-solid border-b border-gray-300 bg-white"
+            class="w-full text-sm font-medium flex items-center py-4 border-solid border-b border-gray-300 bg-white"
         >
             <div class="w-20"></div>
             <div class="w-24">Time</div>
@@ -19,16 +20,24 @@ import { CateringOrdersService } from './catering-orders.service';
         </div>
         <ul class="list-none p-0 m-0 w-full flex-1 overflow-auto">
             <li
-                class="border-none border-solid border-b border-gray-300"
-                *ngFor="let order of order_list | async"
+                class="border-solid border-b border-gray-300"
+                *ngFor="let order of order_list | async; trackBy: trackByFn"
             >
-                <catering-order-list-item [order]="order"></catering-order-list-item>
+                <catering-order [order]="order"></catering-order>
             </li>
-            <div class="info-block text-dark-fade" *ngIf="!(order_list | async).length">
-                <div class="text">No Catering Orders</div>
+            <div
+                empty
+                class="info-block text-dark-fade"
+                *ngIf="!(order_list | async)?.length"
+            >
+                <p>No Catering Orders</p>
             </div>
         </ul>
-        <mat-progress-bar *ngIf="loading | async" class="w-full" mode="indeterminate"></mat-progress-bar>
+        <mat-progress-bar
+            *ngIf="loading | async"
+            class="w-full"
+            mode="indeterminate"
+        ></mat-progress-bar>
     `,
     styles: [
         `
@@ -55,5 +64,10 @@ export class CateringOrderListComponent implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         this._orders.stopPolling();
+    }
+
+    /* istanbul ignore next */
+    public trackByFn(index: number, order: CateringOrder) {
+        return order ? order.id : undefined;
     }
 }

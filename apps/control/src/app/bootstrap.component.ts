@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@user-interfaces/common';
-import { Space, SpacesService } from '@user-interfaces/spaces';
+import { BaseClass } from '@placeos/common';
+import { Space, SpacesService } from '@placeos/spaces';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -79,7 +79,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     /** Whether application data is loading */
     public loading: boolean;
     /** ID of the system to bootstrap */
-    public system_id: string;
+    public system_id: string = '';
     /** Selected system to bootstrap */
     public selected_system: Space = null;
     /** Whether input field is focused */
@@ -104,8 +104,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
             this.route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && params.get('clear')) {
                     this.clearBootstrap();
-                }
-                if (params.has('system_id') || params.has('sys_id')) {
+                } else if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id = params.get('system_id') || params.get('sys_id');
                     this.bootstrap();
                 }
@@ -143,7 +142,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         this.loading = true;
         if (localStorage) {
             localStorage.setItem('PLACEOS.CONTROL.system', system_id);
-            localStorage.setItem('trusted', 'true');
+            localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
         this._router.navigate(['panel', system_id]);

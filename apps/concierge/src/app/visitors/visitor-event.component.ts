@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
-import { BaseClass } from '@user-interfaces/common';
-import { CalendarEvent } from '@user-interfaces/events';
+import { BaseClass } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -9,22 +9,45 @@ import { VisitorsStateService } from './visitors-state.service';
     template: `
         <div class="flex items-center px-2 bg-gray-100">
             <div class="w-12 text-lg flex justify-center">
-                <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.status !== 'cancelled' && event?.state !== 'done'">event</i>
-                <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.status === 'cancelled'">close</i>
-                <i class="p-2 rounded-full material-icons bg-gray-400" *ngIf="event?.state === 'done' && event?.status !== 'cancelled'">done</i>
+                <i
+                    class="p-2 rounded-full material-icons bg-gray-400"
+                    *ngIf="
+                        event?.status !== 'cancelled' && event?.state !== 'done'
+                    "
+                    >event</i
+                >
+                <i
+                    class="p-2 rounded-full material-icons bg-gray-400"
+                    *ngIf="event?.status === 'cancelled'"
+                    >close</i
+                >
+                <i
+                    class="p-2 rounded-full material-icons bg-gray-400"
+                    *ngIf="
+                        event?.state === 'done' && event?.status !== 'cancelled'
+                    "
+                    >done</i
+                >
             </div>
-            <div class="w-24 p-2">{{ event?.date | date:(filters | async)?.show_week ? 'MMM d, h:mm a' : 'shortTime' }}</div>
+            <div class="w-24 p-2">
+                {{
+                    event?.date
+                        | date
+                            : ((filters | async)?.show_week
+                                  ? 'MMM d, h:mm a'
+                                  : 'shortTime')
+                }}
+            </div>
             <div class="w-48 p-2">
                 {{ event?.organiser?.name || event?.organiser?.email }}
             </div>
             <div flex class="p-2 flex-1">{{ event?.title }}</div>
             <div class="w-64 p-2 truncate">{{ event?.location }}</div>
-            <div class="w-32 p-2 flex items-center justify-end">
+            <div class="w-32 py-2 flex items-center">
                 <action-icon
                     matTooltip="Checkin All Guests"
                     [loading]="loading === 'checkin'"
                     [disabled]="guestCount <= 0"
-
                     content="event_available"
                     (click)="checkinGuests()"
                 >
@@ -33,7 +56,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     matTooltip="Checkout All Guests"
                     [loading]="loading === 'checkout'"
                     [disabled]="guestCount <= 0"
-
                     content="event_busy"
                     (click)="checkoutGuests()"
                 >
@@ -83,18 +105,20 @@ import { VisitorsStateService } from './visitors-state.service';
                     'rem + 1px)'
                 "
             ></div>
-            <div
-                visitor
-                class="relative w-full pl-12 bg-gray-200"
-                *ngFor="let user of event.attendees"
-            >
-                <div l-bar class="absolute bg-gray-400"></div>
-                <visitor-details
-                    [attr.disabled]="!matches[user.email]"
-                    [visitor]="user"
-                    [(event)]="event"
-                ></visitor-details>
-            </div>
+            <ng-container *ngIf="show_attendees || has_search">
+                <div
+                    visitor
+                    class="relative w-full pl-12 bg-gray-200"
+                    *ngFor="let user of event.attendees"
+                >
+                    <div l-bar class="absolute bg-gray-400"></div>
+                    <visitor-details
+                        [attr.disabled]="!matches[user.email]"
+                        [visitor]="user"
+                        [(event)]="event"
+                    ></visitor-details>
+                </div>
+            </ng-container>
         </div>
     `,
     styles: [
@@ -127,7 +151,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 width: 1rem;
             }
 
-            [disabled="true"] {
+            [disabled='true'] {
                 opacity: 0.35;
             }
         `,
@@ -157,7 +181,12 @@ export class VisitorEventComponent extends BaseClass implements OnInit {
     };
 
     public get guestCount() {
-        return this.event?.attendees.reduce((c, u) => c + (u.is_external && !u.organizer ? 1 : 0), 0) || 0;
+        return (
+            this.event?.attendees.reduce(
+                (c, u) => c + (u.is_external && !u.organizer ? 1 : 0),
+                0
+            ) || 0
+        );
     }
 
     public get has_search() {
@@ -169,7 +198,10 @@ export class VisitorEventComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.subscription('events', this._state.filtered_events.subscribe(() => this.updateMatches()));
+        this.subscription(
+            'events',
+            this._state.filtered_events.subscribe(() => this.updateMatches())
+        );
     }
 
     public updateMatches() {

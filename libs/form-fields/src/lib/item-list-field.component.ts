@@ -12,9 +12,7 @@ export function addChipItem(
     control: FormControl,
     event: MatChipInputEvent
 ): void {
-    if (!control) {
-        return;
-    }
+    if (!control) return;
     const input = event.input;
     const value = event.value;
     const item_list = control.value;

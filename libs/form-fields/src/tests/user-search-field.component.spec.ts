@@ -1,112 +1,94 @@
-import { async, ComponentFixture, TestBed, fakeAsync, discardPeriodicTasks } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { fakeAsync } from '@angular/core/testing';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { first } from 'rxjs/operators';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { UserSearchFieldComponent } from './user-search-field.component';
-import { User } from '../../users/user.class';
-import { IconComponent } from '../icon/icon.component';
-import { StaffService } from '../../users/staff.service';
-import { generateMockUser } from '../../users/user.utilities';
+import { IconComponent } from '@placeos/components';
+import { generateMockUser, User } from '@placeos/users';
+
+import * as users_fn from '@placeos/users';
+import * as guest_fn from '@placeos/users';
+
+import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 
 describe('UserSearchFieldComponent', () => {
-    let component: UserSearchFieldComponent;
-    let fixture: ComponentFixture<UserSearchFieldComponent>;
-    let users: any
-
-    beforeEach(async(() => {
-        users = { };
-        TestBed.configureTestingModule({
-            declarations: [UserSearchFieldComponent, MockComponent(IconComponent)],
-            providers: [
-                { provide: StaffService, useValue: users }
-            ],
-            imports: [
-                FormsModule,
-                MatProgressSpinnerModule,
-                MatInputModule,
-                MatAutocompleteModule,
-                NoopAnimationsModule
-            ]
-        }).compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(UserSearchFieldComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    let spectator: Spectator<UserSearchFieldComponent>;
+    const createComponent = createComponentFactory({
+        component: UserSearchFieldComponent,
+        declarations: [MockComponent(IconComponent)],
+        imports: [
+            MatFormFieldModule,
+            MatInputModule,
+            MatAutocompleteModule,
+            MatProgressSpinnerModule,
+            FormsModule,
+        ],
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should create component', () => {
+        expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow searching for users', done => {
+    it('should allow searching for users', fakeAsync(() => {
         const user_list = Array(20)
             .fill(1)
-            .map(_ => new User(generateMockUser()));
-        component.search_results$.pipe(first()).subscribe(_ => {
-            fixture.detectChanges();
-            fixture.whenStable().then(() => {
-                fixture.detectChanges();
-                const user_option: HTMLElement = document.querySelector('mat-option');
-                expect(user_option).toBeTruthy();
-                user_option.click();
-                fixture.detectChanges();
-                expect(
-                    component.user_list.find(user => component.active_user.email === user.email)
-                ).toBeTruthy();
-                done();
-            });
-        });
-        const el: HTMLElement = fixture.debugElement.nativeElement;
-        const input = el.querySelector('input');
-        input.dispatchEvent(new Event('focusin'));
-        input.value = user_list[0].name;
-        input.dispatchEvent(new Event('input'));
-    });
-
-    it('should allow limiting the selection of users', (done) => {
-        let user = new User(generateMockUser());
-        component.options = Array(4).fill(1).map((_) => user);
-        user = new User(generateMockUser());
-        const user_list = Array(20).fill(1).map((_) => user);
-        component.search_results$.pipe(first()).subscribe(async (list) => {
-            fixture.detectChanges();
-            await fixture.whenRenderingDone();
-            fixture.detectChanges();
-            const user_options = document.querySelectorAll('mat-option');
-            expect(user_options.length).toBe(component.options.length);
-            expect(user_options[0].querySelector('.name').textContent).toBe(component.options[0].name);
-            done();
-        });
-        const el: HTMLElement = fixture.debugElement.nativeElement;
-        const input = el.querySelector('input');
-        input.dispatchEvent(new Event('focusin'));
-        input.value = component.options[0].name;
-        input.dispatchEvent(new Event('input'));
-    });
-
-    it('should show the selected user\'s name in the input field', fakeAsync(() => {
-        const user = new User(generateMockUser());
-        component.writeValue(user);
-        fixture.detectChanges();
-        const el: HTMLElement = fixture.debugElement.nativeElement;
-        const input = el.querySelector('input');
-        expect(component.search_str).toBe(user.name);
-        input.dispatchEvent(new Event('focusin'));
-        input.value = 'Not user';
-        input.dispatchEvent(new Event('input'));
-        fixture.detectChanges();
-        expect(component.search_str).not.toBe(user.name);
-        input.blur();
-        input.dispatchEvent(new Event('blur'));
-        fixture.detectChanges();
-        expect(component.search_str).toBe(user.name);
-        discardPeriodicTasks();
+            .map(() => new User(generateMockUser()));
+        const staff_spy = jest.spyOn(users_fn, 'searchStaff');
+        const guest_spy = jest.spyOn(guest_fn, 'searchGuests');
+        staff_spy.mockImplementation((q) => of([...user_list] as any));
+        guest_spy.mockImplementation((q) => of([...user_list] as any));
+        spectator.dispatchFakeEvent('input', 'focusin');
+        (spectator.query('input') as HTMLInputElement).value =
+            user_list[0].name;
+        spectator.dispatchFakeEvent('input', 'input');
+        spectator.detectChanges();
+        spectator.tick(1000);
+        expect(document.querySelector('mat-option')).toBeTruthy();
+        spectator.tick(1000);
     }));
+
+    it('should allow limiting the selection of users', fakeAsync(() => {
+        const user_list = Array(20)
+            .fill(1)
+            .map(() => new User(generateMockUser()));
+        const staff_spy = jest.spyOn(users_fn, 'searchStaff');
+        const guest_spy = jest.spyOn(guest_fn, 'searchGuests');
+        staff_spy.mockImplementation((q) => of([...user_list] as any));
+        guest_spy.mockImplementation((q) => of([...user_list] as any));
+        spectator.component.options = user_list.slice(0, 4);
+        spectator.dispatchFakeEvent('input', 'focusin');
+        (spectator.query('input') as HTMLInputElement).value =
+            user_list[0].name;
+        spectator.dispatchFakeEvent('input', 'input');
+        spectator.detectChanges();
+        spectator.tick(1000);
+        expect(document.querySelector('mat-option')).toBeTruthy();
+        expect('mat-option').toHaveLength(4);
+        spectator.click('mat-option');
+        spectator.detectChanges();
+        expect('input').toHaveValue(user_list[0].name);
+        spectator.tick(1000);
+    }));
+
+    it("should show the selected user's name in the input field", () => {
+        const user = new User(generateMockUser());
+        spectator.component.writeValue(user);
+        spectator.detectChanges();
+        expect(spectator.component.search_str).toBe(user.name);
+        spectator.dispatchFakeEvent('input', 'focusin');
+        (spectator.query('input') as HTMLInputElement).value = 'Not User';
+        spectator.dispatchFakeEvent('input', 'input');
+        spectator.detectChanges();
+        expect(spectator.component.search_str).not.toBe(user.name);
+        spectator.blur('input');
+        spectator.detectChanges();
+        expect(spectator.component.search_str).toBe(user.name);
+    });
 });

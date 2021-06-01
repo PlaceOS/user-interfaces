@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ApplicationIcon } from '@user-interfaces/common';
+import { ApplicationIcon } from '@placeos/common';
 
 @Component({
     selector: 'app-icon',

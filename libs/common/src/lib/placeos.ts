@@ -25,8 +25,16 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
     const protocol = settings.protocol || location.protocol;
     const host = settings.domain || location.hostname;
     const port = settings.port || location.port;
-    const url = settings.use_domain ? `${protocol}//${host}:${port}` : location.origin;
+    const url = settings.use_domain
+        ? `${protocol}//${host}:${port}`
+        : location.origin;
     const route = (location.pathname + '/').replace('//', '/');
+    console.log(
+        'Mock:',
+        settings.mock,
+        location.href.includes('mock=true'),
+        localStorage.getItem('mock') === 'true'
+    );
     const mock =
         settings.mock ||
         location.href.includes('mock=true') ||
@@ -44,7 +52,10 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         mock,
     };
     if (localStorage) {
-        localStorage.setItem('mock', `${!!mock && !location.href.includes('mock=false')}`);
+        localStorage.setItem(
+            'mock',
+            `${!!mock && !location.href.includes('mock=false')}`
+        );
     }
     if (mock) {
         notifyInfo('Application in mock mode.');

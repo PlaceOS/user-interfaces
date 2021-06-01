@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { updateMetadata, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, DialogEvent, flatten, unique } from '@user-interfaces/common';
-import { Building, OrganisationService } from '@user-interfaces/organisation';
-import { ConfirmModalComponent, ConfirmModalData, CONFIRM_METADATA } from '../../../components/src/lib/confirm-modal.component';
+import { BaseClass, flatten, openConfirmModal, unique } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
 
-import { CateringItemModalComponent, CateringItemModalData } from './catering-item-modal.component';
+import {
+    CateringItemModalComponent,
+    CateringItemModalData,
+} from './catering-item-modal.component';
 import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
@@ -19,9 +21,15 @@ import {
 } from './catering-config-modal.component';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
-import { CateringOrderModalComponent, CateringOrderModalData } from './catering-order-modal/catering-order-modal.component';
+import {
+    CateringOrderModalComponent,
+    CateringOrderModalData,
+} from './catering-order-modal.component';
 import { CateringOption, CateringRuleset } from './catering.interfaces';
-import { CateringOptionsModalComponent, CateringOptionsModalData } from './catering-options-modal/catering-options-modal.component';
+import {
+    CateringOrderOptionsModalComponent,
+    CateringOrderOptionsModalData,
+} from './catering-order-options-modal.component';
 
 @Injectable({
     providedIn: 'root',
@@ -65,200 +73,201 @@ export class CateringStateService extends BaseClass {
      * Create/Edit catering order
      * @param order Order to manipulate
      */
-    public manageCateringOrder(order: CateringOrder) {
-        return new Promise<CateringOrder>((resolve) => {
-            let is_resolved = false;
-            const ref = this._dialog.open<CateringOrderModalComponent, CateringOrderModalData>(
-                CateringOrderModalComponent,
-                {
-                    data: {
-                        order,
-                        menu: this.menu,
-                        loading: this.loading,
-                        getCateringConfig: (_) => this.getCateringConfig(_),
-                        selectOptions: (_) => this.selectOptions(_),
-                    },
-                }
-            );
-            (ref.componentInstance.event as Observable<DialogEvent>)
-                .pipe(first((_) => _.reason === 'done'))
-                .subscribe((event) => {
-                    is_resolved = true;
-                    resolve(event.metadata.order);
-                    ref.close();
-                });
-            ref.afterClosed().subscribe(() => (is_resolved ? '' : resolve(order)));
+    public async manageCateringOrder(order: CateringOrder) {
+        const ref = this._dialog.open<
+            CateringOrderModalComponent,
+            CateringOrderModalData
+        >(CateringOrderModalComponent, {
+            data: {
+                order,
+                menu: this.menu,
+                loading: this.loading,
+                getCateringConfig: (_) => this.getCateringConfig(_),
+                selectOptions: (_) => this.selectOptions(_),
+            },
         });
+        const details = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        return details?.metadata?.order || order;
     }
 
-    public addItem(item: CateringItem = new CateringItem()) {
-        const ref = this._dialog.open<CateringItemModalComponent, CateringItemModalData>(
+    public async addItem(item: CateringItem = new CateringItem()) {
+        const ref = this._dialog.open<
             CateringItemModalComponent,
-            {
-                ...CONFIRM_METADATA,
-                data: {
-                    item,
-                    categories: this.categories,
-                },
-            }
+            CateringItemModalData
+        >(CateringItemModalComponent, {
+            data: {
+                item,
+                categories: this.categories,
+            },
+        });
+        const details = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (details?.reason !== 'done') return;
+        const menu = this._menu.getValue();
+        const index = menu.findIndex((itm) => itm.id === item.id);
+        if (index >= 0) {
+            menu.splice(index, 1, details.metadata.item);
+        } else {
+            menu.push(details.metadata.item);
+        }
+        this.updateMenu(this._org.building.id, menu).then(
+            () => {
+                this._menu.next([...menu]);
+                ref.close();
+            },
+            () => (ref.componentInstance.loading = false)
         );
-        (ref.componentInstance.event as Observable<DialogEvent>)
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe((event) => {
-                let menu = this._menu.getValue();
-                const index = menu.findIndex((itm) => itm.id === item.id);
-                if (index >= 0) {
-                    menu.splice(index, 1, event.metadata.item);
-                } else {
-                    menu.push(event.metadata.item);
-                }
-                this.updateMenu(this._org.building.id, menu).then(
-                    () => {
-                        this._menu.next([...menu]);
-                        ref.close();
-                    },
-                    () => (ref.componentInstance.loading = false)
-                );
-            });
     }
 
-    public addOption(item: CateringItem, option: CateringOption = {} as any) {
+    public async addOption(
+        item: CateringItem,
+        option: CateringOption = {} as any
+    ) {
         const types = unique(item.options.map((i) => i.group));
         const ref = this._dialog.open<
             CateringItemOptionModalComponent,
             CateringItemOptionModalData
         >(CateringItemOptionModalComponent, {
-            ...CONFIRM_METADATA,
             data: {
                 parent: item,
                 option,
                 types,
             },
         });
-        (ref.componentInstance.event as Observable<DialogEvent>)
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe((event) => {
-                let menu = this._menu.getValue();
-                const index = menu.findIndex((itm) => itm.id === item.id);
-                if (index >= 0) {
-                    menu.splice(index, 1, event.metadata.item);
-                } else {
-                    menu.push(event.metadata.item);
-                }
-                this.updateMenu(this._org.building.id, menu).then(
-                    () => {
-                        this._menu.next([...menu]);
-                        ref.close();
-                    },
-                    () => (ref.componentInstance.loading = false)
-                );
-            });
-    }
-
-    public selectOptions(options: CateringOption[]) {
-        return new Promise<CateringOption[]>((resolve, reject) => {
-            let is_resolved = false;
-            const ref = this._dialog.open<CateringOptionsModalComponent, CateringOptionsModalData>(
-                CateringOptionsModalComponent,
-                {
-                    ...CONFIRM_METADATA,
-                    data: {
-                        options,
-                    },
-                }
-            );
-            (ref.componentInstance.event as Observable<DialogEvent>)
+        const details = await Promise.race([
+            ref.componentInstance.event
                 .pipe(first((_) => _.reason === 'done'))
-                .subscribe((event) => {
-                    is_resolved = true;
-                    resolve(event.metadata.options);
-                    ref.close();
-                });
-            ref.afterClosed().subscribe(() => (is_resolved ? '' : reject()));
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (details?.reason !== 'done') return;
+        const menu = this._menu.getValue();
+        const index = menu.findIndex((itm) => itm.id === item.id);
+        if (index >= 0) {
+            menu.splice(index, 1, details.metadata.item);
+        } else {
+            menu.push(details.metadata.item);
+        }
+        this.updateMenu(this._org.building.id, menu).then(
+            () => {
+                this._menu.next([...menu]);
+                ref.close();
+            },
+            () => (ref.componentInstance.loading = false)
+        );
+    }
+
+    public async selectOptions(options: CateringOption[]) {
+        const ref = this._dialog.open<
+            CateringOrderOptionsModalComponent,
+            CateringOrderOptionsModalData
+        >(CateringOrderOptionsModalComponent, {
+            data: {
+                options,
+            },
         });
+        const details = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (details?.reason !== 'done') return [];
+        ref.close();
+        return details.metadata.options;
     }
 
-    public deleteItem(item: CateringItem) {
-        const ref = this._dialog.open<ConfirmModalComponent, ConfirmModalData>(
-            ConfirmModalComponent,
+    public async deleteItem(item: CateringItem) {
+        const details = await openConfirmModal(
             {
-                ...CONFIRM_METADATA,
-                data: {
-                    title: 'Delete Catering Item',
-                    content: `Are you sure you wish to remove the catering item ${item.name} from the menu?`,
-                    icon: { type: 'icon', class: 'material-icons', content: 'delete' },
+                title: 'Delete Catering Item',
+                content: `Are you sure you wish to remove the catering item ${item.name} from the menu?`,
+                icon: {
+                    type: 'icon',
+                    class: 'material-icons',
+                    content: 'delete',
                 },
-            }
+            },
+            this._dialog
         );
-        (ref.componentInstance.event as Observable<DialogEvent>)
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe(() => {
-                const menu = this._menu.getValue().filter((itm) => item.id !== itm.id);
-                this.updateMenu(this._org.building.id, menu).then(
-                    () => {
-                        this._menu.next([...menu]);
-                        ref.close();
-                    },
-                    () => (ref.componentInstance.loading = '')
-                );
-            });
+        if (details.reason !== 'done') return;
+        details.loading('Removing catering item...');
+        const menu = this._menu.getValue().filter((itm) => item.id !== itm.id);
+        this.updateMenu(this._org.building.id, menu).then(
+            () => {
+                this._menu.next([...menu]);
+                details.close();
+            },
+            () => details.loading('')
+        );
     }
 
-    public deleteOption(item: CateringItem, option: CateringOption) {
-        const ref = this._dialog.open<ConfirmModalComponent, ConfirmModalData>(
-            ConfirmModalComponent,
+    public async deleteOption(item: CateringItem, option: CateringOption) {
+        const details = await openConfirmModal(
             {
-                ...CONFIRM_METADATA,
-                data: {
-                    title: 'Delete Catering Item Option',
-                    content: `Are you sure you wish to remove the catering option "${option.name}" from "${item.name}"?`,
-                    icon: { type: 'icon', class: 'material-icons', content: 'delete' },
+                title: 'Delete Catering Item Option',
+                content: `Are you sure you wish to remove the catering option "${option.name}" from "${item.name}"?`,
+                icon: {
+                    type: 'icon',
+                    class: 'material-icons',
+                    content: 'delete',
                 },
-            }
+            },
+            this._dialog
         );
-        (ref.componentInstance.event as Observable<DialogEvent>)
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe(() => {
-                const menu = this._menu.getValue();
-                menu.splice(
-                    menu.findIndex((itm) => itm.id === item.id),
-                    1,
-                    new CateringItem({
-                        ...item,
-                        options: item.options.filter((opt) => opt.id !== option.id),
-                    })
-                );
-                this.updateMenu(this._org.building.id, menu).then(
-                    () => {
-                        this._menu.next([...menu]);
-                        ref.close();
-                    },
-                    () => (ref.componentInstance.loading = '')
-                );
-            });
+        if (details.reason !== 'done') return;
+        details.loading('Removing catering item option...');
+        const menu = this._menu.getValue();
+        menu.splice(
+            menu.findIndex((itm) => itm.id === item.id),
+            1,
+            new CateringItem({
+                ...item,
+                options: item.options.filter((opt) => opt.id !== option.id),
+            })
+        );
+        this.updateMenu(this._org.building.id, menu).then(
+            () => {
+                this._menu.next([...menu]);
+                details.close();
+            },
+            () => details.loading('')
+        );
     }
 
     public async editConfig() {
         const config = await this.getCateringConfig(this._org.building.id);
         const menu = this._menu.getValue();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
-        const ref = this._dialog.open<CateringConfigModalComponent, CateringConfigModalData>(
+        const ref = this._dialog.open<
             CateringConfigModalComponent,
-            {
-                data: {
-                    config,
-                    types,
-                },
-            }
+            CateringConfigModalData
+        >(CateringConfigModalComponent, {
+            data: {
+                config,
+                types,
+            },
+        });
+        const details = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (details?.reason !== 'done') return;
+        this.updateConfig(this._org.building.id, details.metadata).then(
+            () => ref.close(),
+            () => (ref.componentInstance.loading = false)
         );
-        (ref.componentInstance.event as Observable<DialogEvent>)
-            .pipe(first((_) => _.reason === 'done'))
-            .subscribe((event) => {
-                this.updateConfig(this._org.building.id, event.metadata).then(
-                    () => ref.close(),
-                    () => (ref.componentInstance.loading = false)
-                );
-            });
     }
 
     private updateMenu(zone_id: string, menu: CateringItem[]) {
@@ -271,15 +280,18 @@ export class CateringStateService extends BaseClass {
     }
 
     private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {
-        const menu = (await showMetadata(zone_id, { name: 'catering' }).toPromise()).details;
+        const menu = (
+            await showMetadata(zone_id, { name: 'catering' }).toPromise()
+        ).details;
         return menu instanceof Array ? menu : [];
     }
 
     public async getCateringConfig(
         zone_id: string = this._org.building.id
     ): Promise<CateringRuleset[]> {
-        const rules = (await showMetadata(zone_id, { name: 'catering_config' }).toPromise())
-            .details;
+        const rules = (
+            await showMetadata(zone_id, { name: 'catering_config' }).toPromise()
+        ).details;
         return rules instanceof Array ? (rules as any) : [];
     }
 
@@ -293,31 +305,30 @@ export class CateringStateService extends BaseClass {
     }
 
     public addItemToOrder(order: CateringOrder, new_item: CateringItem) {
-        let new_order;
-        if (order) {
-            let items = order.items;
-            const match = items.find(
-                (item) =>
-                    item.id === new_item.id &&
-                    new_item.options?.length ===
-                        item.options?.reduce(
-                            (c, o) => c + (new_item.options.find((opt) => o.id === opt.id) ? 1 : 0),
-                            0
-                        )
-            );
-            match
-                ? ((match as any).quantity += 1)
-                : (items = items.concat([new CateringItem({ ...new_item, quantity: 1 })]));
-            new_order = new CateringOrder({
-                ...order,
-                items,
-                event: null,
-            });
-        } else {
-            new_order = new CateringOrder({
-                items: [{ ...new_item, quantity: 1 }],
-            });
-        }
+        let items = order.items;
+        const match = items.find(
+            (item) =>
+                item.id === new_item.id &&
+                new_item.options?.length ===
+                    item.options?.reduce(
+                        (c, o) =>
+                            c +
+                            (new_item.options.find((opt) => o.id === opt.id)
+                                ? 1
+                                : 0),
+                        0
+                    )
+        );
+        match
+            ? ((match as any).quantity += 1)
+            : (items = items.concat([
+                  new CateringItem({ ...new_item, quantity: 1 }),
+              ]));
+        const new_order = new CateringOrder({
+            ...order,
+            items,
+            event: null,
+        });
         return new_order;
     }
 }

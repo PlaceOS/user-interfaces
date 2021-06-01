@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseClass, currentUser } from '@user-interfaces/common';
-import { Booking, queryBookings } from '@user-interfaces/bookings';
+import { BaseClass, currentUser } from '@placeos/common';
+import { Booking, queryBookings } from '@placeos/bookings';
 import { first } from 'rxjs/operators';
 
 import { DeskFlowStateService } from './desk-flow-state.service';

@@ -10,8 +10,8 @@ import {
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { BaseClass } from '@user-interfaces/common';
-import { CalendarEvent, generateEventForm } from '@user-interfaces/events';
+import { BaseClass } from '@placeos/common';
+import { CalendarEvent, generateEventForm } from '@placeos/events';
 import { BookingConfirmComponent } from '../../bookings/overlays/booking-confirm/booking-confirm.component';
 
 @Component({

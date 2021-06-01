@@ -1,5 +1,5 @@
-import { BaseDataClass, HashMap, Identity, RoomConfiguration } from '@user-interfaces/common';
-import { BookingRule } from '@user-interfaces/events';
+import { HashMap, Identity, RoomConfiguration } from '@placeos/common';
+import { BookingRulesmap } from 'libs/events/src/lib/event.interfaces';
 
 import { BuildingLevel } from './level.class';
 
@@ -39,7 +39,20 @@ export interface BookingRuleDetails {
     readonly info?: string;
 }
 
-export class Building extends BaseDataClass {
+export interface BuildingComplete extends Building {
+    settings: HashMap;
+    locker_structure: HashMap;
+    roles: HashMap;
+    zone: string;
+    location: string;
+    neighbourhoods: HashMap;
+}
+
+export class Building {
+    /** PlaceOS zone id of the building */
+    public readonly id: string;
+    /** Name of the building zone */
+    public readonly name: string;
     /** Name to display */
     public readonly display_name: string;
     /** Engine Zone ID for the building */
@@ -57,7 +70,7 @@ export class Building extends BaseDataClass {
     /** Details about the booking rules for the building */
     public readonly booking_details: BookingRuleDetails;
     /** Details about the booking rules for the building */
-    public readonly booking_rules: HashMap<readonly BookingRule[]>;
+    public readonly booking_rules: BookingRulesmap;
     /** Number of hour before a booking catering is restricted */
     public readonly catering_restricted_from: number;
     /** Currency code for the country assoicated with the building */
@@ -75,7 +88,7 @@ export class Building extends BaseDataClass {
     /** List of available room configurations for the building */
     public readonly room_configurations: readonly RoomConfiguration[];
     /** Start and end hours catering can be delivered */
-    public readonly catering_hours: { start: number, end: number };
+    public readonly catering_hours: { start: number; end: number };
     /** PlaceOS bindings for applications */
     public readonly bindings: HashMap<string>;
 
@@ -92,9 +105,9 @@ export class Building extends BaseDataClass {
     /** Globe coordiates for the build */
     private _location: ICoordinates;
 
-
-    constructor(raw_data: HashMap = {}) {
-        super(raw_data);
+    constructor(raw_data: Partial<BuildingComplete> = {}) {
+        this.id = raw_data.id || '';
+        this.name = raw_data.name || '';
         const settings = raw_data.settings || {};
         this.display_name = raw_data.display_name;
         const disc_info = settings.discovery_info || settings;
@@ -103,7 +116,11 @@ export class Building extends BaseDataClass {
             id: i.extra_id || i.id,
             name: i.extra_name || i.name,
         }));
-        this.loan_items = (raw_data.loan_items || disc_info.loan_items || []).map((i) => ({
+        this.loan_items = (
+            raw_data.loan_items ||
+            disc_info.loan_items ||
+            []
+        ).map((i) => ({
             id: i.extra_id || i.id,
             name: i.extra_name || i.name,
         }));
@@ -112,22 +129,25 @@ export class Building extends BaseDataClass {
         );
         this._roles = raw_data.roles || disc_info.roles || {};
         this._lockers =
-            raw_data.lockers || raw_data.locker_structure || disc_info.locker_structure || {};
+            raw_data.lockers ||
+            raw_data.locker_structure ||
+            disc_info.locker_structure ||
+            {};
         this._systems = raw_data.systems || disc_info.systems || {};
-        this._phone_numbers = raw_data.phone_numbers || disc_info.phone_numbers || {};
+        this._phone_numbers =
+            raw_data.phone_numbers || disc_info.phone_numbers || {};
         this._location = raw_data.location ||
             disc_info.location || { longitude: null, latitude: null };
         this.room_configurations =
             raw_data.room_configurations || disc_info.room_configurations || [];
-        this.attributes =
-            raw_data.attributes || disc_info.attributes || [];
+        this.attributes = raw_data.attributes || disc_info.attributes || [];
         const searchables = [];
         if (raw_data.neighbourhoods) {
             for (const lvl in raw_data.neighbourhoods) {
-                if (raw_data.neighbourhoods.hasOwnProperty(lvl)) {
+                if (lvl in raw_data.neighbourhoods) {
                     const lvl_features = raw_data.neighbourhoods[lvl] || {};
                     for (const feature in lvl_features) {
-                        if (lvl_features.hasOwnProperty(feature)) {
+                        if (feature in lvl_features) {
                             searchables.push({
                                 id: lvl_features[feature],
                                 name: feature,
@@ -140,26 +160,49 @@ export class Building extends BaseDataClass {
         }
         this.bindings = raw_data.bindings || {};
         this.searchables = searchables;
-        this.timezone = raw_data.timezone || disc_info.timezone || settings.timezone || '';
-        this.catering_hours = raw_data.catering_hours || disc_info.catering_hours || settings.catering_hours || { start: 7, end: 20 };
-        this.visitor_space = raw_data.visitor_space || disc_info.visitor_space || settings.visitor_space || '';
-        this.holding_bay = raw_data.holding_bay || disc_info.holding_bay || settings.holding_bay || '';
+        this.timezone =
+            raw_data.timezone || disc_info.timezone || settings.timezone || '';
+        this.catering_hours = raw_data.catering_hours ||
+            disc_info.catering_hours ||
+            settings.catering_hours || { start: 7, end: 20 };
+        this.visitor_space =
+            raw_data.visitor_space ||
+            disc_info.visitor_space ||
+            settings.visitor_space ||
+            '';
+        this.holding_bay =
+            raw_data.holding_bay ||
+            disc_info.holding_bay ||
+            settings.holding_bay ||
+            '';
         this.code = raw_data.code || disc_info.code || settings.code || '';
-        this.address = raw_data.address || disc_info.address || settings.address || '';
-        this.orientations = raw_data.orientations || disc_info.orientations || settings.orientations || {};
+        this.address =
+            raw_data.address || disc_info.address || settings.address || '';
+        this.orientations =
+            raw_data.orientations ||
+            disc_info.orientations ||
+            settings.orientations ||
+            {};
         this.booking_details =
             raw_data.booking_details ||
             disc_info.booking_details ||
             settings.booking_details ||
             null;
         this.booking_rules =
-            raw_data.booking_rules || disc_info.booking_rules || settings.booking_rules || {};
+            raw_data.booking_rules ||
+            disc_info.booking_rules ||
+            settings.booking_rules ||
+            {};
         this.catering_restricted_from =
             raw_data.catering_restricted_from ||
             disc_info.catering_restricted_from ||
             settings.catering_restricted_from ||
             -1440;
-        this.currency = raw_data.currency || disc_info.currency || settings.currency || 'USD';
+        this.currency =
+            raw_data.currency ||
+            disc_info.currency ||
+            settings.currency ||
+            'USD';
     }
 
     /**
@@ -173,7 +216,7 @@ export class Building extends BaseDataClass {
      * Get list of the names of available user role lists
      */
     public get role_names(): string[] {
-        return Object.keys(this._roles).filter((i) => this._roles.hasOwnProperty(i));
+        return Object.keys(this._roles).filter((i) => i in this._roles);
     }
     /** Map of the locker ID arrays */
     public get lockers(): LockerMap {

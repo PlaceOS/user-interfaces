@@ -1,18 +1,11 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { getUnixTime, addMinutes } from 'date-fns';
 
-import { CalendarService } from '@user-interfaces/calendar';
-import {
-    DialogEvent,
-    notifyError,
-    notifySuccess,
-} from '@user-interfaces/common';
-import {
-    CalendarEvent,
-    generateEventForm,
-    saveEvent,
-} from '@user-interfaces/events';
+import { CalendarService } from '@placeos/calendar';
+import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import { CalendarEvent, generateEventForm, saveEvent } from '@placeos/events';
 
 export interface BookingModalData {
     event?: CalendarEvent;
@@ -69,25 +62,20 @@ export class BookingModalComponent implements OnInit {
         this.form = generateEventForm(
             new CalendarEvent(this._data.event || {})
         );
-        this.form.controls.host.setValue(null);
+        this.form.get('host').setValue(null);
     }
 
     public async save() {
         this.form.markAllAsTouched();
-        if (
-            this.form.controls.organiser.value &&
-            !this.form.controls.host.value
-        ) {
-            this.form.controls.host.setValue(
-                this.form.controls.organiser.value.email
-            );
+        if (this.form.get('organiser').value && !this.form.get('host').value) {
+            this.form
+                .get('host')
+                .setValue(this.form.get('organiser').value.email);
         }
         if (!this.form.valid || !this.form.value.resources?.length) {
             const list = [];
             for (const key in this.form.controls) {
-                if (this.form.controls[key].invalid) {
-                    list.push(key);
-                }
+                if (this.form.controls[key].invalid) list.push(key);
             }
             return notifyError(
                 `Some form fields are not valid: [${list.join(', ')}]`
@@ -97,10 +85,10 @@ export class BookingModalComponent implements OnInit {
         this.loading = 'Check space availability...';
         const spaces = await this._calendar
             .availability({
-                period_start: Math.floor(new Date(value.date).valueOf() / 1000),
-                period_end:
-                    Math.floor(new Date(value.date).valueOf() / 1000) +
-                    value.duration * 60,
+                period_start: getUnixTime(new Date(value.date)),
+                period_end: getUnixTime(
+                    addMinutes(new Date(value.date), value.duration)
+                ),
                 system_ids: value.resources.map((space) => space.id).join(','),
             })
             .toPromise()

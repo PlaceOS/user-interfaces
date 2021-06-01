@@ -2,10 +2,10 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
-import { BaseClass } from '@user-interfaces/common';
-import { BuildingLevel } from '@user-interfaces/organisation';
-import { Space } from '@user-interfaces/spaces';
-import { MapPinComponent } from '@user-interfaces/components';
+import { BaseClass } from '@placeos/common';
+import { BuildingLevel } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { MapPinComponent } from '@placeos/components';
 
 @Component({
     selector: 'view-room-modal',

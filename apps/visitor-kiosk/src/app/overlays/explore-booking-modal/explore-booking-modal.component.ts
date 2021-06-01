@@ -3,10 +3,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
 import { format } from 'date-fns-tz';
 
-import { BaseClass, DialogEvent, notifyError, notifySuccess } from '@user-interfaces/common';
-import { CalendarEvent, saveEvent } from '@user-interfaces/events';
-import { Space } from '@user-interfaces/spaces';
-import { Building, OrganisationService } from '@user-interfaces/organisation';
+import { BaseClass, DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import { CalendarEvent, saveEvent } from '@placeos/events';
+import { Space } from '@placeos/spaces';
+import { Building, OrganisationService } from '@placeos/organisation';
 
 import * as dayjs from 'dayjs';
 
