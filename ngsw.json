@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1622512832582,
+  "timestamp": 1622515342152,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -120,7 +120,7 @@
   "hashTable": {
     "./apps_workplace_src_app_bookings_bookings_module_ts.js": "da5d8dab67134ad68bfc6598392fb7bf745ae3b6",
     "./apps_workplace_src_app_control_control_module_ts.js": "88f9c4fd852d8c275bd5802692dd0e1a27537335",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "afa2202162daef094be0108bad18f58a45f04b13",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "f21e9306c2a24d0e1a145899b6d258dcf8de4136",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "f05c1cb034ee366d770d6feec7301001cb4c8511",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "fefa870525385b3af2a3f77680cc922a415d3944",
     "./apps_workplace_src_app_help_help_module_ts.js": "4016b1fa22f9917b13d7404c4aa55c4a0cd9d5fd",
@@ -202,7 +202,7 @@
     "./default-apps_workplace_src_app_bookings_space-flow_space-flow_service_ts-libs_explore_src_index_ts.js": "2539565a4650af12918fd19113e2c4d9c9e73463",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "515d875be5115a18f5db42d9f41818cc6e8b025f",
-    "./main.js": "c449341cf1b4faefd524be71bc77eefefad6d432",
+    "./main.js": "b5885c36bd3d97b9de4416c23de3700eebe5ddfc",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
