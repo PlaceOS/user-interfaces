@@ -58,7 +58,7 @@ import { format } from 'date-fns';
             }
 
             .top {
-                background-color: #4a148c;
+                background-color: #0a0d2e;
             }
 
             a[button].tile {
