@@ -22,11 +22,11 @@ import { CalendarEvent } from '@placeos/events';
                 [class.done]="is_done"
             >
                 <div class="icon" [ngSwitch]="event.status">
-                    <app-icon *ngSwitchCase="'cancelled'">cancel</app-icon>
+                    <app-icon *ngSwitchCase="'declined'">cancel</app-icon>
                     <app-icon *ngSwitchDefault>forum</app-icon>
                 </div>
                 <div>{{ time }}</div>
-                <label *ngIf="event.status === 'cancelled'">(Cancelled)</label>
+                <label *ngIf="event.status === 'declined'">(Cancelled)</label>
             </div>
             <div
                 class="flex flex-col h-20 flex-1 w-1/2 bg-white p-2 justify-center"
