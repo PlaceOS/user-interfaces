@@ -1,7 +1,7 @@
 {
   "configVersion": 1,
-  "timestamp": 1616481148992,
-  "index": "/catering/index.html",
+  "timestamp": 1622507957357,
+  "index": "./index.html",
   "assetGroups": [
     {
       "name": "app",
@@ -11,12 +11,13 @@
         "ignoreVary": true
       },
       "urls": [
-        "/catering/favicon.ico",
-        "/catering/index.html",
-        "/catering/main.121ea01b403f1e470dbb.js",
-        "/catering/polyfills.826566046f172a27ba4c.js",
-        "/catering/runtime.acf0dec4155e77772545.js",
-        "/catering/styles.82f429f87f023e88393b.css"
+        "./favicon.ico",
+        "./index.html",
+        "./main.80a0de608d1e631c110b.js",
+        "./manifest.webmanifest",
+        "./polyfills.92429d47be5bb53787e4.js",
+        "./runtime.dbba8e4a65e683c5e980.js",
+        "./styles.b569a0850b744ea4dee6.css"
       ],
       "patterns": []
     },
@@ -28,34 +29,59 @@
         "ignoreVary": true
       },
       "urls": [
-        "/catering/assets/icons/icon-128x128.png",
-        "/catering/assets/icons/icon-144x144.png",
-        "/catering/assets/icons/icon-152x152.png",
-        "/catering/assets/icons/icon-192x192.png",
-        "/catering/assets/icons/icon-384x384.png",
-        "/catering/assets/icons/icon-512x512.png",
-        "/catering/assets/icons/icon-72x72.png",
-        "/catering/assets/icons/icon-96x96.png"
+        "./assets/icons/icon-128x128.png",
+        "./assets/icons/icon-144x144.png",
+        "./assets/icons/icon-152x152.png",
+        "./assets/icons/icon-192x192.png",
+        "./assets/icons/icon-384x384.png",
+        "./assets/icons/icon-512x512.png",
+        "./assets/icons/icon-72x72.png",
+        "./assets/icons/icon-96x96.png",
+        "./assets/logo-dark.svg",
+        "./assets/logo-light.svg",
+        "./assets/maps/level_10.svg",
+        "./assets/maps/level_11.svg",
+        "./assets/maps/level_2.svg",
+        "./assets/maps/level_3.svg",
+        "./assets/not-supported.html",
+        "./assets/support/chrome-logo.svg",
+        "./assets/support/edge-logo.svg",
+        "./assets/support/firefox-logo.svg",
+        "./assets/support/opera-logo.svg",
+        "./assets/support/safari-logo.svg"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "/catering/assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
-    "/catering/assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
-    "/catering/assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
-    "/catering/assets/icons/icon-192x192.png": "7730e4802e6050f7326310f08e5ef3145f7d30dc",
-    "/catering/assets/icons/icon-384x384.png": "8c570c687541e467485ed56bcd6feefaf7378946",
-    "/catering/assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
-    "/catering/assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
-    "/catering/assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
-    "/catering/favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "/catering/index.html": "a7eea38b6a35220540d54fcccc13910206c4966d",
-    "/catering/main.121ea01b403f1e470dbb.js": "2f983317e0d8721c13c9062df7b377a9f751c304",
-    "/catering/polyfills.826566046f172a27ba4c.js": "b43928058931728a0fde15125d4879e8ec6d8ee5",
-    "/catering/runtime.acf0dec4155e77772545.js": "a9aafcf49f49145093fc831efd9b8e2f6c71bb9c",
-    "/catering/styles.82f429f87f023e88393b.css": "9bd23cdd8a0ad47250e9b674dbb1d29ea1639505"
+    "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
+    "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
+    "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
+    "./assets/icons/icon-192x192.png": "7730e4802e6050f7326310f08e5ef3145f7d30dc",
+    "./assets/icons/icon-384x384.png": "8c570c687541e467485ed56bcd6feefaf7378946",
+    "./assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
+    "./assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
+    "./assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
+    "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
+    "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
+    "./assets/maps/level_10.svg": "42bce54f5c369b4083cba411cac812131d4150f3",
+    "./assets/maps/level_11.svg": "f8d26e93d084287b9bf3e4409b94f7991e1f702e",
+    "./assets/maps/level_2.svg": "9a6f3cf8a7cefa4c41187294cb8747b80db8e04d",
+    "./assets/maps/level_3.svg": "017bd15f1d17e947d3cde810ded6f09d26c27bd9",
+    "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
+    "./assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
+    "./assets/support/edge-logo.svg": "28d8691fd6c19223a3d99dd8732416d32a82d496",
+    "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
+    "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
+    "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
+    "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
+    "./index.html": "3ae65bf932fe291adeadb0e08b095788c72e385e",
+    "./main.80a0de608d1e631c110b.js": "ca1547533c3f7762682080e022e3ac6943ab44ea",
+    "./manifest.webmanifest": "b30b41151999cb79f3543fe06f73f6ab763c8a38",
+    "./polyfills.92429d47be5bb53787e4.js": "89fc243cf243e737984f4499c4c41d792745b9c0",
+    "./runtime.dbba8e4a65e683c5e980.js": "49bd962bd21fd99fa9beb8944741f06f9a698aa0",
+    "./styles.b569a0850b744ea4dee6.css": "22cf11393f9ea773832ac0730b908dddb092d7df"
   },
   "navigationUrls": [
     {
