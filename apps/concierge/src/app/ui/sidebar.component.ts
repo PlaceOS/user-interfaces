@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-
-import { SettingsService, ApplicationLinkInternal, ApplicationIcon } from '@placeos/common';
+import { ApplicationIcon, ApplicationLinkInternal, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+
 
 @Component({
     selector: 'sidebar',
@@ -46,7 +46,7 @@ import { OrganisationService } from '@placeos/organisation';
                 flex-direction: column;
                 width: 6em;
                 height: 100%;
-                background-color: #004b86;
+                background-color: var(--secondary);
                 border-right: 1px solid #ccc;
                 z-index: 10;
             }
