@@ -45,7 +45,7 @@ import { Observable } from 'rxjs';
                             <ng-container
                                 *ngTemplateOutlet="
                                     template[column];
-                                    context: { data: row[column] }
+                                    context: { data: row[column], row: row }
                                 "
                             ></ng-container>
                         </ng-template>
@@ -151,7 +151,7 @@ export class CustomTableComponent<T extends {} = any>
             this.data_source.filter = (this.filter || '').trim().toLowerCase();
         }
         if (changes.columns && this.columns) {
-            this.display_column = this.columns.map((_) =>
+            this.display_column = this.columns.map((_, idx) => this.display_column[idx] ||
                 _.split('_').join(' ')
             );
         }

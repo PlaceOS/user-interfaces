@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Route, RouterModule } from '@angular/router';
@@ -35,6 +35,7 @@ const ROUTES: Route[] = [
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         UIModule,
         MatTabsModule,
         MatChipsModule,

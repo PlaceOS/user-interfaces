@@ -2,12 +2,13 @@ import {
     Component,
     forwardRef,
     Input,
-    ViewChild,
-    OnInit,
-    SimpleChanges,
-    OnChanges,
+
+
+
+    OnChanges, OnInit,
+    SimpleChanges, ViewChild
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
 import { BaseClass, Identity, timeFormatString } from '@placeos/common';
 import {
@@ -19,7 +20,7 @@ import {
     roundToNearestMinutes,
     set,
     startOfDay,
-    startOfMinute,
+    startOfMinute
 } from 'date-fns';
 
 @Component({
@@ -113,6 +114,8 @@ export class TimeFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor {
     /** Time step between each allowed time option */
     @Input() public step = 15;
+    /** Time for deciding the past time */
+    @Input() public from: number = Date.now();
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Whether past times are allowed */
@@ -144,7 +147,7 @@ export class TimeFieldComponent
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.no_past_times || changes.step) {
+        if (changes.no_past_times || changes.step || changes.from) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
                 !this.no_past_times,
@@ -256,8 +259,8 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15
     ): Identity[] {
-        const now = new Date();
-        let date = new Date(datestamp);
+        const now = this.from || new Date();
+        let date: Date | number = new Date(datestamp);
         const blocks = [];
         if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {
             date = startOfDay(date);
