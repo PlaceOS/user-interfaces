@@ -3,10 +3,8 @@ import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-
-import { CateringItem } from './catering-item.class';
-
 import { DialogEvent, randomInt } from '@placeos/common';
+import { CateringItem } from './catering-item.class';
 
 export interface CateringItemModalData {
     item: CateringItem;
@@ -138,10 +136,27 @@ export interface CateringItemModalData {
                     <mat-error>Unit Price is required</mat-error>
                 </mat-form-field>
             </div>
+            <div class="flex items-center">
+                <label class="flex-none w-28 min-w-0">Accept Points?</label>
+                <mat-checkbox formControlName="accept_points">{{
+                    form.get('accept_points')?.value ? 'No' : 'Yes'
+                }}</mat-checkbox>
+            </div>
+            <div class="flex items-center">
+                <label class="flex-1 w-24 min-w-0">Discount Cap</label>
+                <a-counter
+                    class="border border-gray-200 rounded"
+                    formControlName="discount_cap"
+                    [min]="0"
+                    [max]="100"
+                    [step]="5"
+                    [render_fn]="renderPercent"
+                ></a-counter>
+            </div>
         </form>
         <footer
             *ngIf="!loading"
-            class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
+            class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
         >
             <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">
                 Save
@@ -172,15 +187,27 @@ export class CateringItemModalComponent {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for item */
-    public form: FormGroup;
+    public form: FormGroup = new FormGroup({
+        name: new FormControl(this.item.name || '', [Validators.required]),
+        description: new FormControl(this.item.description || ''),
+        category: new FormControl(this.item.category || '', [
+            Validators.required,
+        ]),
+        unit_price: new FormControl(this.item.unit_price, [
+            Validators.required,
+        ]),
+        tags: new FormControl(this.item.tags || []),
+        accept_points: new FormControl(this.item.accept_points || false),
+        discount_cap: new FormControl(this.item.discount_cap || 0),
+    });
     /** Whether changes are being saved */
-    public loading: boolean = false;
+    public loading = false;
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
     /** Current item details */
     public get item(): CateringItem {
-        return this._data.item;
+        return this._data.item || new CateringItem();
     }
 
     /** List of available categories */
@@ -192,22 +219,14 @@ export class CateringItemModalComponent {
         return this.form.controls.tags.value;
     }
 
+    public renderPercent(value: number = 0) {
+        return `${value}%`;
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData
-    ) {}
-
-    public ngOnInit(): void {
-        this.form = new FormGroup({
-            name: new FormControl(this.item.name || '', [Validators.required]),
-            description: new FormControl(this.item.description || ''),
-            category: new FormControl(this.item.category || '', [
-                Validators.required,
-            ]),
-            unit_price: new FormControl(this.item.unit_price, [
-                Validators.required,
-            ]),
-            tags: new FormControl(this.item.tags || []),
-        });
+    ) {
+        console.log('Form:', this.form);
     }
 
     /**

@@ -19,6 +19,10 @@ export class CateringItem {
     public readonly tags: string[];
     /** Total cost for the item */
     public readonly total_cost: number;
+    /** Whether catering items can be purchased using points */
+    public readonly accept_points: boolean;
+    /** Max percentage of the cost that can be covered using points */
+    public readonly discount_cap: number;
 
     constructor(data: Partial<CateringItem> = {}) {
         this.id = data.id || '';
@@ -27,10 +31,13 @@ export class CateringItem {
         this.unit_price = data.unit_price || 0;
         this.description = data.description || '';
         this.quantity = data.quantity || 0;
-        this.options = data.options || [];
+        this.accept_points = data.accept_points ?? false;
+        this.quantity = data.quantity || 0;
+        this.discount_cap = data.discount_cap || 0;
         this.tags = data.tags || [];
+        this.options = data.options || [];
         this.total_cost =
-            (this.unit_price + this.options.map((i) => i.unit_price || 0).reduce((c, a) => c + a, 0)) *
+            (this.unit_price + this.options?.map((i) => i.unit_price || 0).reduce((c, a) => c + a, 0)) *
             this.quantity;
     }
 }

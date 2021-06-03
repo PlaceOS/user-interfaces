@@ -1,4 +1,3 @@
-import { trigger } from '@angular/animations';
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 

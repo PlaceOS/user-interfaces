@@ -165,7 +165,10 @@ export class CalendarEvent {
             this.recurrence = {} as any;
         }
         this.system = data.system;
-        if (this.system?.email) {
+        if (
+            this.system?.email &&
+            !this.resources.find((_) => _.email === this.system.email)
+        ) {
             this.resources.push(new Space(this.system as any));
         }
         this.old_system = data.old_system || data.system;
@@ -234,6 +237,7 @@ export class CalendarEvent {
         delete obj.catering;
         delete obj.date;
         delete obj.duration;
+        delete obj.status
         return obj;
     }
 

@@ -5,7 +5,7 @@ import {
     OnChanges,
     SimpleChanges,
     TemplateRef,
-    ViewChild,
+    ViewChild
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -45,7 +45,7 @@ import { Observable } from 'rxjs';
                             <ng-container
                                 *ngTemplateOutlet="
                                     template[column];
-                                    context: { data: row[column] }
+                                    context: { data: row[column], row: row }
                                 "
                             ></ng-container>
                         </ng-template>
@@ -54,7 +54,7 @@ import { Observable } from 'rxjs';
             </ng-container>
 
             <cdk-header-row
-                class="flex items-center"
+                class="flex items-center bg-white"
                 *cdkHeaderRowDef="columns"
             ></cdk-header-row>
             <cdk-row
@@ -63,7 +63,7 @@ import { Observable } from 'rxjs';
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
             <ng-template cdkNoDataRow>
-                <p>{{ empty || 'No data to display' }}</p>
+                <p class="w-full p-4 text-center">{{ empty || 'No data to display' }}</p>
             </ng-template>
         </cdk-table>
         <div footer [hidden]="!pagination">
@@ -101,9 +101,9 @@ export class CustomTableComponent<T extends {} = any>
     /** Data source to render in the table */
     @Input() public dataSource: T[] | Observable<T[]>;
     /** Whether table should use pagination */
-    @Input() public pagination: boolean = false;
+    @Input() public pagination = false;
     /** Number of items to display on pagination pages */
-    @Input() public page_size: number = 7;
+    @Input() public page_size = 7;
     /** Filter string to apply to table listings */
     @Input() public filter: string;
     /** Values to display for column headers */
@@ -151,7 +151,7 @@ export class CustomTableComponent<T extends {} = any>
             this.data_source.filter = (this.filter || '').trim().toLowerCase();
         }
         if (changes.columns && this.columns) {
-            this.display_column = this.columns.map((_) =>
+            this.display_column = this.columns.map((_, idx) => this.display_column[idx] ||
                 _.split('_').join(' ')
             );
         }

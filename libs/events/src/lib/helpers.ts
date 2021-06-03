@@ -181,8 +181,11 @@ export function rulesForSpace(
 ): BookingRules {
     const { space } = details;
     for (const zone of space.zones) {
-        if (rulemap[zone] && checkRulesMatch(details, rulemap[zone])) {
-            return { ...DEFAULT_RULES, ...rulemap[zone].rules };
+        if (rulemap[zone]?.length) {
+            for (const ruleset of rulemap[zone]) {
+                if (ruleset && checkRulesMatch(details, ruleset))
+                    return { ...DEFAULT_RULES, ...ruleset.rules };
+            }
         }
     }
     return DEFAULT_RULES;
@@ -194,9 +197,10 @@ export function checkRulesMatch(
 ): boolean {
     let matches = 0;
     const { conditions } = ruleset;
+    if (!conditions) return true;
     if (
         conditions.groups instanceof Array &&
-        conditions.groups.every((_) => host.groups.includes(_))
+        conditions.groups.every((_) => host?.groups?.includes(_))
     )
         matches += 1;
     if (
@@ -216,6 +220,5 @@ export function checkRulesMatch(
         stringToMinutes(conditions.max_length) >= duration
     )
         matches += 1;
-
     return matches >= Object.keys(conditions).length;
 }
