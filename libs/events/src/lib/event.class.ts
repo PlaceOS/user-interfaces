@@ -9,7 +9,7 @@ import {
     isBefore,
     isSameDay,
     roundToNearestMinutes,
-    set,
+    set
 } from 'date-fns';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -17,7 +17,7 @@ import { GuestUser, User } from 'libs/users/src/lib/user.class';
 import {
     EventExtensionData,
     FileDetails,
-    RecurrenceDetails,
+    RecurrenceDetails
 } from './event.interfaces';
 import { eventStatus } from './helpers';
 
@@ -237,6 +237,7 @@ export class CalendarEvent {
         delete obj.catering;
         delete obj.date;
         delete obj.duration;
+        delete obj.status
         return obj;
     }
 
