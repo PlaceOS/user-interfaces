@@ -86,7 +86,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
 })
 export class ScheduleListComponent implements OnInit, OnDestroy {
     public readonly today = new Date();
-    public readonly max_date = addMonths(this.today, 6);
+    public readonly max_date = addMonths(this.today, 4);
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
 
@@ -149,7 +149,6 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
                 if (events[i].id === 'date' && events[i].duration > 0) position += 88 / 88;
                 else position += 1;
             }
-            console.log('Position:', position, position * 88);
             this._viewport.scrollTo({ top: Math.round(position * 88), behavior: 'smooth' });
         }
         this.setDate(date);

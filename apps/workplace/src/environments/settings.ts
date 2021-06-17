@@ -86,7 +86,7 @@ const help: any = {
     tiles: [
         {
             name: 'About Engine',
-            link: 'https://acaprojects.com/resources',
+            link: 'https://place.technology/resources',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -97,7 +97,7 @@ const help: any = {
         },
         {
             name: 'General Enquiries',
-            link: 'mailto:equiries@acaprojects.com?subject=Staff%20App%20Demo',
+            link: 'mailto:equiries@place.technology?subject=Staff%20App%20Demo',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -107,7 +107,7 @@ const help: any = {
         },
         {
             name: 'Contact PlaceOS',
-            link: 'https://acaprojects.com/contact-1',
+            link: 'https://place.technology/contact-1',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -118,7 +118,7 @@ const help: any = {
         },
         {
             name: 'About Us',
-            link: 'https://acaprojects.com/',
+            link: 'https://place.technology/',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
