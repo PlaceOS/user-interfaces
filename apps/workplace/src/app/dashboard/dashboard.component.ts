@@ -57,14 +57,7 @@ import { format } from 'date-fns';
             }
 
             .top {
-                background: transparent
-                    linear-gradient(
-                        89deg,
-                        #004a86 0%,
-                        #00a1d8 70%,
-                        #6eb95c 100%
-                    )
-                    0% 0% no-repeat padding-box;
+                background-color: #007ac8;
             }
 
             a[button].tile {
