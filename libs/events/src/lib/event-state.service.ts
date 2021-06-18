@@ -71,7 +71,6 @@ export class EventStateService extends BaseClass {
             );
         }),
         tap((_) => {
-            console.log('Spaces:', _);
             this._loading.next('');
         }),
         shareReplay(1)
