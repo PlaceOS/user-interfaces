@@ -17,6 +17,8 @@ import { TimeFieldComponent } from './time-field.component';
 import { UserListFieldComponent } from './user-list-field.component';
 import { UserSearchFieldComponent } from './user-search-field.component';
 import { ItemListFieldComponent } from './item-list-field.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export * from './action-field.component';
 export * from './counter.component';
@@ -34,7 +36,7 @@ const COMPONENTS: Type<any>[] = [
     TimeFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
-    ItemListFieldComponent
+    ItemListFieldComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],
@@ -46,7 +48,9 @@ const COMPONENTS: Type<any>[] = [
         MatInputModule,
         MatSelectModule,
         MatAutocompleteModule,
-        ComponentsModule
+        MatTooltipModule,
+        MatCheckboxModule,
+        ComponentsModule,
     ],
     exports: [...COMPONENTS],
 })

@@ -19,11 +19,16 @@ import { first } from 'rxjs/operators';
 import { NewUserModalComponent, User, USER_DOMAIN } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 
+function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
 @Component({
     selector: 'a-user-list-field',
     template: `
         <div
-            class="mb-4 border border-grey-200 rounded bg-white text-black"
+            class="mb-4bg-white text-black"
             form-field
             [attr.disabled]="disabled"
         >
@@ -32,34 +37,16 @@ import { MatDialog } from '@angular/material/dialog';
                     [(ngModel)]="search_user"
                     [guests]="guests"
                     [filter]="filter"
+                    error="Click on Add External to add an attendee."
+                    [empty_fn]="emptyClick"
+                    [validate]="validFn"
                     (ngModelChange)="addUser($event)"
                 ></a-user-search-field>
             </div>
-            <div class="p-2 -mt-2 border-b border-grey-200">
-                <mat-chip-list
-                    aria-label="User List"
-                    *ngIf="active_list && active_list.length; else empty_state"
-                >
-                    <mat-chip
-                        *ngFor="let user of active_list"
-                        [id]="user.email"
-                        [attr.color]="
-                            !user.is_external ? 'internal' : 'external'
-                        "
-                        [removable]="true"
-                        (removed)="removeUser(user)"
-                    >
-                        {{ user.name }}
-                        <app-icon matChipRemove>close</app-icon>
-                    </mat-chip>
-                </mat-chip-list>
-            </div>
-            <div
-                class="flex items-center border-t border-gray-300 divide-x divide-gray-300"
-                *ngIf="!hide_actions"
-            >
+            <div class="flex items-center" *ngIf="!hide_actions">
                 <button
                     mat-button
+                    type="button"
                     name="new-contact"
                     class="clear underline flex-1"
                     (click)="openNewUserModal()"
@@ -69,6 +56,7 @@ import { MatDialog } from '@angular/material/dialog';
                 </button>
                 <button
                     mat-button
+                    type="button"
                     class="clear underline flex-1 relative"
                     name="upload-csv"
                     i18n="Upload attendee list from CSV file"
@@ -82,6 +70,7 @@ import { MatDialog } from '@angular/material/dialog';
                 </button>
                 <button
                     mat-button
+                    type="button"
                     class="clear underline flex-1"
                     name="download-template"
                     (click)="downloadCSVTemplate()"
@@ -90,15 +79,94 @@ import { MatDialog } from '@angular/material/dialog';
                     CSV Template
                 </button>
             </div>
+            <div
+                class="flex flex-col py-2"
+                *ngIf="active_list?.length; else empty_state"
+            >
+                <div
+                    user
+                    *ngFor="let user of active_list"
+                    class="flex items-center space-x-2 p-2 hover:bg-black hover:bg-opacity-5 rounded"
+                    (click)="openNewUserModal(user)"
+                >
+                    <a-user-avatar
+                        [user]="user"
+                        [icon]="!user.is_external"
+                        [matTooltip]="
+                            user.is_external
+                                ? 'External Attendee'
+                                : 'Staff Attendee'
+                        "
+                        matTooltipPosition="right"
+                    >
+                        <div class="h-full w-full bg-success text-white">
+                            <app-icon>done</app-icon>
+                        </div>
+                    </a-user-avatar>
+                    <div class="flex-1">
+                        <div>{{ user.name }}</div>
+                        <div class="text-xs">{{ user.email }}</div>
+                    </div>
+                    <mat-checkbox
+                        class="mt-2 mx-4"
+                        [(ngModel)]="user.required"
+                        matTooltip="Required"
+                        matTooltipPosition="left"
+                        (click)="$event.stopPropagation()"
+                    ></mat-checkbox>
+                    <button
+                        mat-icon-button
+                        type="button"
+                        (click)="
+                            user.visit_expected = !user.visit_expected;
+                            $event.stopPropagation()
+                        "
+                        [class.bg-success]="user.visit_expected"
+                        [class.text-white]="user.visit_expected"
+                        matTooltip="Physical visit expected"
+                        matTooltipPosition="left"
+                    >
+                        <app-icon>meeting_room</app-icon>
+                    </button>
+                    <button
+                        mat-icon-button
+                        type="button"
+                        [disabled]="!user.is_external"
+                        (click)="
+                            user.assistance_required = !user.assistance_required;
+                            $event.stopPropagation()
+                        "
+                        [class.bg-success]="user.assistance_required"
+                        [class.text-white]="user.assistance_required"
+                        matTooltip="Assistance Required"
+                        matTooltipPosition="left"
+                    >
+                        <app-icon *ngIf="user.is_external"
+                            >contact_support</app-icon
+                        >
+                    </button>
+                    <button
+                        mat-icon-button
+                        type="button"
+                        (click)="removeUser(user); $event.stopPropagation()"
+                    >
+                        <app-icon>close</app-icon>
+                    </button>
+                </div>
+            </div>
         </div>
         <ng-template #empty_state>
-            <div class="m-2" i18n="Attendee empty state">No attendees</div>
+            <div class="m-2 opacity-50 text-center" i18n="Attendee empty state">
+                None
+            </div>
         </ng-template>
     `,
     styles: [
         `
             button {
                 background: transparent;
+                border-top: none !important;
+                border-bottom: none !important;
             }
 
             [search] {
@@ -145,6 +213,9 @@ export class UserListFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: User[]) => void;
 
+    public readonly validFn = (s) => validateEmail(s);
+    public readonly emptyClick = () => this.openNewUserModal(new User());
+
     constructor(
         private _dialog: MatDialog,
         private _settings: SettingsService
@@ -157,14 +228,10 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const index = this.active_list.findIndex(
-            (a_user) => a_user.email === user.email
-        );
-        let list = [...this.active_list];
-        /* istanbul ignore else */
-        if (index < 0) list = [...this.active_list, user];
-        this.setValue(list);
-        this.search_user = null;
+        console.log('Add user:', user);
+        const list = this.active_list.filter((_) => _.email !== user.email);
+        this.setValue([...list, user]);
+        this.timeout('clear_user', () => (this.search_user = null), 10);
     }
 
     /**
@@ -226,6 +293,10 @@ export class UserListFieldComponent
             el.visit_expected = !internal_emails.find((_) =>
                 el.email.endsWith(_)
             );
+
+            /** Convert phone to string. PWCME-544 */
+            el.phone = '' + el.phone;
+
             this.addUser(new User(el));
         }
     }
@@ -284,15 +355,16 @@ export class UserListFieldComponent
     }
 
     /**
-     * Open modal to change the recurrence details for the booking
+     * Open modal to add or update user details
      */
-    public openNewUserModal() {
+    public openNewUserModal(user: User = new User()) {
+        console.log('Open User Modal:', user);
         const ref = this._dialog.open<NewUserModalComponent>(
             NewUserModalComponent,
             {
                 width: 'auto',
                 height: 'auto',
-                data: {},
+                data: { user },
             }
         );
         ref.componentInstance?.event
