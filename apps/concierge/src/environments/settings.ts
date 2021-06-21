@@ -31,6 +31,11 @@ const general = {
             icon: { class: 'material-icons', content: 'account_box' },
         },
         {
+            route: 'points',
+            name: 'Points',
+            icon: { class: 'material-icons', content: 'loyalty' },
+        },
+        {
             route: 'reports',
             name: 'Reports',
             icon: { class: 'material-icons', content: 'analytics' },

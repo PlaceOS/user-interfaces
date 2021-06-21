@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
-import { PointsAssetModalComponent } from './asset-modal.component';
+import { PointsStateService } from './points-state.service';
 
 @Component({
     selector: 'placeos-points',
@@ -48,7 +47,9 @@ export class PointsComponent extends BaseClass implements OnInit {
     /** Page being displayed */
     public page: string;
 
-    constructor(private _dialog: MatDialog, private _router: Router) {
+    public readonly newAsset = () => this._state.newAsset();
+
+    constructor(private _state: PointsStateService, private _router: Router) {
         super();
     }
 
@@ -63,9 +64,5 @@ export class PointsComponent extends BaseClass implements OnInit {
         );
         const parts = this._router.url.split('/');
         this.page = parts[parts.length - 1];
-    }
-
-    public newAsset() {
-        this._dialog.open(PointsAssetModalComponent);
     }
 }

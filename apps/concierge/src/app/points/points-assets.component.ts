@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { PointsStateService } from './points-state.service';
 
 export interface CustomRate {
     rate: number;
@@ -26,21 +27,24 @@ export interface PointAsset {
                 'type',
                 'unit_price',
                 'accept_points',
-                'discount_cap'
+                'discount_cap',
+                'actions'
             ]"
             [display_column]="[
                 'Name',
                 'Type',
                 'Unit Price',
                 'Accepts Points',
-                'Discount %'
+                'Discount %',
+                ' '
             ]"
             [column_size]="['flex']"
             [template]="{
                 type: type_template,
                 unit_price: price_template,
                 accept_points: accept_template,
-                discount_cap: discount_template
+                discount_cap: discount_template,
+                actions: action_template
             }"
             empty="No priced assets"
         ></custom-table>
@@ -64,6 +68,12 @@ export interface PointAsset {
         <ng-template #discount_template let-data="data">
             <div class="text-right px-4">{{ data }}%</div>
         </ng-template>
+        <ng-template #action_template let-row="row">
+            <div class="h-6 flex items-center justify-end">
+                <button mat-icon-button (click)="edit(row)"><app-icon>edit</app-icon></button>
+                <button mat-icon-button (click)="remove(row)"><app-icon>delete</app-icon></button>
+            </div>
+        </ng-template>
     `,
     styles: [`
         :host {
@@ -75,24 +85,10 @@ export interface PointAsset {
     `],
 })
 export class PointsAssetsComponent {
-    public asset_list: PointAsset[] = [
-        {
-            id: '1',
-            name: 'Meeting Room 1.01',
-            type: 'space',
-            unit_price: 3000,
-            accept_points: false,
-            discount_cap: 99,
-            custom_rates: [],
-        },
-        {
-            id: '2',
-            name: 'Meeting Room 1.02',
-            type: 'space',
-            unit_price: 2800,
-            accept_points: true,
-            discount_cap: 30,
-            custom_rates: [],
-        },
-    ];
+    public asset_list = this._state.assets;
+
+    public readonly edit = (d) => this._state.newAsset(d);
+    public readonly remove = (d) => this._state.removeAsset(d?.id);
+
+    constructor(private _state: PointsStateService) {}
 }

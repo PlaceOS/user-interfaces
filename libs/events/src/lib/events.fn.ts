@@ -1,11 +1,11 @@
 import { del, get, patch, post, put } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 import { toQueryString } from 'libs/common/src/lib/api';
 import { GuestUser } from 'libs/users/src/lib/user.class';
-
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { CalendarEvent } from './event.class';
+
+
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -63,7 +63,7 @@ export function showEvent(id: string, q: CalendarEventShowParams = {}) {
  * @param data New calendar event fields
  */
 export function createEvent(data: Partial<CalendarEvent>) {
-    return post(`${EVENTS_ENDPOINT}`, data).pipe(
+    return post(`${EVENTS_ENDPOINT}`, new CalendarEvent(data).toJSON()).pipe(
         map((item) => new CalendarEvent(item))
     );
 }
@@ -86,7 +86,7 @@ export function updateEvent(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
             query ? '?' + query : ''
         }`,
-        data
+        new CalendarEvent(data).toJSON()
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 

@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-
-import { SettingsService, ApplicationLinkInternal, ApplicationIcon } from '@placeos/common';
+import {
+    ApplicationIcon,
+    ApplicationLinkInternal,
+    SettingsService
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -9,24 +12,27 @@ import { OrganisationService } from '@placeos/organisation';
         <div class="logo h-20 w-24 flex items-center justify-center">
             <img class="object-center object-contain" [src]="logo.src" />
         </div>
-        <ng-container *ngFor="let tile of links">
-            <a
-                class="flex flex-col justify-center items-center"
-                [routerLink]="['/' + tile.route]"
-                routerLinkActive="active"
-            >
-                <app-icon class="text-3xl mb-2" [icon]="tile.icon"></app-icon>
-                <div class="text-xs">{{ tile.name }}</div>
-            </a>
-        </ng-container>
+        <div class="flex-1 overflow-auto w-24">
+            <ng-container *ngFor="let tile of links">
+                <a
+                    class="flex flex-col justify-center items-center"
+                    [routerLink]="['/' + tile.route]"
+                    routerLinkActive="active"
+                >
+                    <app-icon class="text-3xl mb-2" [icon]="tile.icon"></app-icon>
+                    <div class="text-xs">{{ tile.name }}</div>
+                </a>
+            </ng-container>
+        </div>
         <button
             mat-icon-button
+            class="mx-auto my-4"
             *ngIf="(buildings | async).length > 1"
             [matTooltip]="(active_building | async).display_name || (active_building | async).name"
             matTooltipPosition="right"
             [matMenuTriggerFor]="menu"
         >
-            <app-icon [icon]="{ class: 'material-icons', content: 'business' }"></app-icon>
+            <app-icon>business</app-icon>
         </button>
         <mat-menu #menu="matMenu">
             <button
@@ -46,7 +52,7 @@ import { OrganisationService } from '@placeos/organisation';
                 flex-direction: column;
                 width: 6em;
                 height: 100%;
-                background-color: #004b86;
+                background-color: var(--secondary);
                 border-right: 1px solid #ccc;
                 z-index: 10;
             }
@@ -66,10 +72,6 @@ import { OrganisationService } from '@placeos/organisation';
             }
 
             button[mat-icon-button] {
-                position: absolute;
-                bottom: 1em;
-                left: 50%;
-                transform: translateX(-50%);
                 border: 1px solid #fff;
                 color: #fff;
                 border-radius: 0.25em;
@@ -89,5 +91,8 @@ export class SidebarComponent {
     public readonly active_building = this._org.active_building;
     public readonly setBuilding = (b) => (this._org.building = b);
 
-    constructor(private _settings: SettingsService, private _org: OrganisationService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService
+    ) {}
 }

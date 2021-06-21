@@ -422,7 +422,7 @@ export class EventsStateService extends BaseClass {
                 );
             const type = bkn.guests.length
                 ? 'external'
-                : bkn.status === 'cancelled'
+                : bkn.status === 'declined'
                 ? 'cancelled'
                 : 'internal';
             const show =

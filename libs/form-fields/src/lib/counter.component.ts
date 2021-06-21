@@ -17,6 +17,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             <button
                 mat-icon-button
                 name="remove"
+                type="button"
                 [disabled]="!value || value === min"
                 (click)="remove()"
             >
@@ -26,6 +27,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             <button
                 mat-icon-button
                 name="add"
+                type="button"
                 [disabled]="value === max"
                 (click)="add()"
             >
