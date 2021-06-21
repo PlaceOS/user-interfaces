@@ -43,7 +43,7 @@ export class DeskFlowStateService extends BaseClass {
 
     private _loading = new BehaviorSubject<boolean>(false);
 
-    private _host = new BehaviorSubject<User>(null);
+    private _host = new BehaviorSubject<User>(currentUser());
 
     public readonly host = this._host.asObservable();
     public readonly options = this._options.asObservable();
