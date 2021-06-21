@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1622681276873,
+  "timestamp": 1624266761919,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -118,7 +118,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_bookings_bookings_module_ts.js": "da5d8dab67134ad68bfc6598392fb7bf745ae3b6",
+    "./apps_workplace_src_app_bookings_bookings_module_ts.js": "de7d5a4b0d008b01baad89d6d46e83c2ba08ccf2",
     "./apps_workplace_src_app_control_control_module_ts.js": "88f9c4fd852d8c275bd5802692dd0e1a27537335",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "f21e9306c2a24d0e1a145899b6d258dcf8de4136",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "f05c1cb034ee366d770d6feec7301001cb4c8511",
@@ -201,8 +201,8 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_workplace_src_app_bookings_space-flow_space-flow_service_ts-libs_explore_src_index_ts.js": "db3bb85c23870aa86c11b50dc915e19cbd6d752f",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "328975c640dfb8a52376d95e912ad9840301d127",
-    "./main.js": "f5bd9ed822f291dc06471bb4f9b06cf1c270a116",
+    "./index.html": "dd41c0244716e9024ece295a1e4daf6e719458c6",
+    "./main.js": "fa0f24060ff05228cff67abe52b9312854940526",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
