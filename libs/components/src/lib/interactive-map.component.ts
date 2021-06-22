@@ -55,13 +55,27 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
                         class="pointer-events-none"
                         [attr.el-id]="element.location"
                         [attr.view-id]="viewer"
+                        [ngSwitch]="type(element.content)"
                     >
-                        <ng-container
-                            *ngComponentOutlet="
-                                element.content;
-                                injector: injectors[i]
-                            "
-                        ></ng-container>
+                        <ng-container *ngSwitchCase="'component'">
+                            <ng-container
+                                *ngComponentOutlet="
+                                    element.content;
+                                    injector: injectors[i]
+                                "
+                            ></ng-container>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'html'">
+                            <div [innerHTML]="element.content | sanitize"></div>
+                        </ng-container>
+                        <ng-container *ngSwitchDefault>
+                            <ng-container
+                                *ngTemplateOutlet="
+                                    element.content;
+                                    context: element.data
+                                "
+                            ></ng-container>
+                        </ng-container>
                     </div>
                 </div>
             </ng-container>
@@ -84,7 +98,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
 })
 export class InteractiveMapComponent
     extends BaseClass
-    implements AfterViewInit, OnChanges {
+    implements AfterViewInit, OnChanges, OnInit, OnDestroy {
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -115,6 +129,16 @@ export class InteractiveMapComponent
     @ViewChildren('feature') private _feature_list: QueryList<
         ElementRef<HTMLDivElement>
     >;
+
+    public type(
+        content: string | TemplateRef<any> | Type<any>
+    ): 'html' | 'template' | 'component' {
+        return typeof content === 'string'
+            ? 'html'
+            : content instanceof TemplateRef
+            ? 'template'
+            : 'component';
+    }
 
     public get feature_list() {
         return (this.features || [])
