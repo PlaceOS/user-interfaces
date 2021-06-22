@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Route, RouterModule } from '@angular/router';
 import { SharedContentModule } from '../ui/shared.module';
 import { BookComponent } from './book.component';
@@ -8,6 +9,7 @@ import { BookCodeFlowComponent } from './code-flow.component';
 import { BookDeskFlowComponent } from './desk-flow.component';
 import { DeskFlowConfirmComponent } from './desk-flow/confirm.component';
 import { DeskFlowFormComponent } from './desk-flow/form.component';
+import { DeskFlowDetailedFormComponent } from './desk-flow/detailed-form.component';
 import { DeskFlowMapComponent } from './desk-flow/map.component';
 import { FlowSuccessComponent } from './flow-success.component';
 import { BookSpaceFlowComponent } from './space-flow.component';
@@ -44,15 +46,17 @@ const ROUTES: Route[] = [
         DetailBookSpaceFormComponent,
         BookDeskFlowComponent,
         DeskFlowFormComponent,
+        DeskFlowDetailedFormComponent,
         DeskFlowMapComponent,
         DeskFlowConfirmComponent,
         BookCodeFlowComponent,
-        FlowSuccessComponent
+        FlowSuccessComponent,
     ],
     imports: [
         CommonModule,
         SharedContentModule,
         ReactiveFormsModule,
+        MatButtonToggleModule,
         FormsModule,
         RouterModule.forChild(ROUTES),
     ],

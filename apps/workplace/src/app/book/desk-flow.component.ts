@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingStateService } from '@placeos/bookings';
@@ -16,7 +15,11 @@ import { BaseClass } from '@placeos/common';
                     <desk-flow-confirm></desk-flow-confirm>
                 </ng-container>
                 <ng-container *ngSwitchCase="'success'">
-                    <flow-success [calendar]="last_success?.user_email"></flow-success>
+                    <flow-success
+                        type="desk"
+                        route="desks"
+                        [calendar]="last_success?.user_email"
+                    ></flow-success>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                     <desk-flow-form></desk-flow-form>

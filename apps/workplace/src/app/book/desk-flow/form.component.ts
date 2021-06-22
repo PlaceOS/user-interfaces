@@ -75,7 +75,7 @@ import { first } from 'rxjs/operators';
             >
                 {{ is_edit ? 'Edit' : 'Detailed' }} Booking
             </h2>
-
+            <detailed-book-desks-form [form]="form"></detailed-book-desks-form>
             <div
                 class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
             >
@@ -159,9 +159,9 @@ export class DeskFlowFormComponent implements OnInit {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _));
         await this._org.active_levels.pipe(first((_) => _?.length > 0));
-        this.level = this._org.building.id;
+        this.level = this._org.building?.id;
         this.levels = [
-            { id: this._org.building.id, name: 'Any Level' },
+            { id: this._org.building?.id, name: 'Any Level' },
             ...this._org.levelsForBuilding(this._org.building),
         ];
     }

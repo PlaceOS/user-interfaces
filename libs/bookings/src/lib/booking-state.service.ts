@@ -1,13 +1,25 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { BaseClass, getInvalidFields } from '@placeos/common';
-import { getUnixTime } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import {
+    BaseClass,
+    flatten,
+    getInvalidFields,
+    notifyError,
+    openConfirmModal,
+    unique,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { listChildMetadata, PlaceZone } from '@placeos/ts-client';
+import { format, getUnixTime } from 'date-fns';
+import addMinutes from 'date-fns/addMinutes';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Booking } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
+import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -16,14 +28,25 @@ const BOOKING_URLS = ['book/desks'];
 export interface BookingFlowOptions {
     /** Type of booking being made */
     type: 'desk' | 'parking';
-    /** Start time of booking */
-    start?: number;
-    /** End time of booking */
-    end?: number;
     /** Zone to check available */
     zone_id?: string;
     /** List of features that the asset should associate */
     features?: string[];
+    /** Whether booking is for a group */
+    group?: boolean;
+    /** Recurrence Pattern */
+    pattern?: 'none' | 'daily' | 'weekly' | 'monthly';
+    /** Recurrence ending */
+    recurr_end?: number;
+}
+
+export interface BookingAsset {
+    id: string;
+    map_id: string;
+    name: string;
+    bookable: boolean;
+    zone?: PlaceZone;
+    features: string[];
 }
 
 @Injectable({
@@ -31,16 +54,100 @@ export interface BookingFlowOptions {
 })
 export class BookingStateService extends BaseClass {
     private _view = new BehaviorSubject<BookingFlowView>('form');
-    private _options = new BehaviorSubject<BookingFlowOptions>({ type: 'desk' });
+    private _options = new BehaviorSubject<BookingFlowOptions>({
+        type: 'desk',
+    });
     private _form = new BehaviorSubject<FormGroup>(null);
     private _booking = new BehaviorSubject<Booking>(null);
     private _loading = new BehaviorSubject<string>('');
 
     public last_success: Booking = new Booking(
-        JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_booking') || '{}')
+        JSON.parse(
+            sessionStorage.getItem('PLACEOS.last_booked_booking') || '{}'
+        )
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
+
+    public readonly assets: Observable<BookingAsset[]> = combineLatest([
+        this.options,
+    ]).pipe(
+        switchMap(([{ type }]) => {
+            if (!this._org.building) return of([]);
+            switch (type) {
+                case 'desk':
+                    this._loading.next(`Loading desks...`);
+                    return listChildMetadata(this._org.building.id, {
+                        name: 'desks',
+                    }).pipe(
+                        map((data) =>
+                            flatten(
+                                data.map((_) =>
+                                    (
+                                        _.metadata.desks?.details || []
+                                    ).map((d) => ({ ...d, zone: _.zone }))
+                                )
+                            )
+                        )
+                    );
+            }
+            return of([]);
+        }),
+        tap((_) => {
+            console.log('Assets:', _);
+            this._loading.next(``);
+        }),
+        shareReplay(1)
+    );
+
+    public readonly features: Observable<string[]> = this.assets.pipe(
+        map((assets) => {
+            const list = [];
+            for (const asset of assets) {
+                asset.features?.forEach((_) => list.push(_));
+            }
+            return unique(list);
+        })
+    );
+
+    public readonly available_assets = combineLatest([
+        this.options,
+        this.assets,
+        this._form,
+    ]).pipe(
+        tap(([{ type }]) =>
+            this._loading.next(`Checking ${type} availability...`)
+        ),
+        switchMap(([options, assets, form]) =>
+            queryBookings({
+                period_start: getUnixTime(form.value.date),
+                period_end: getUnixTime(
+                    addMinutes(form.value.date, form.value.duration || 24 * 60)
+                ),
+                type: options.type,
+                zones: options.zone_id,
+            }).pipe(
+                map((bookings) =>
+                    assets.filter(
+                        (asset) =>
+                            asset.bookable !== false &&
+                            (!options.features ||
+                                options.features?.every((_) =>
+                                    asset.features.includes(_)
+                                )) &&
+                            (!options.zone_id ||
+                                options.zone_id?.includes(asset.zone?.id) ||
+                                options.zone_id?.includes(
+                                    asset.zone?.parent_id
+                                )) &&
+                            !bookings.find((bkn) => bkn.asset_id === asset.id)
+                    )
+                )
+            )
+        ),
+        tap(() => this._loading.next('')),
+        shareReplay(1)
+    );
 
     public get view() {
         return this._view.getValue();
@@ -64,8 +171,11 @@ export class BookingStateService extends BaseClass {
         this._options.next({ type: this._options.getValue().type });
     }
 
-
-    constructor(private _router: Router) {
+    constructor(
+        private _router: Router,
+        private _org: OrganisationService,
+        private _dialog: MatDialog
+    ) {
         super();
         this.subscription(
             'router.bookings',
@@ -78,6 +188,9 @@ export class BookingStateService extends BaseClass {
                 }
             })
         );
+        this._org.initialised
+            .pipe(first((_) => _))
+            .subscribe(() => this.setOptions({}));
     }
 
     public setView(value: BookingFlowView) {
@@ -91,9 +204,10 @@ export class BookingStateService extends BaseClass {
     public resetForm() {
         if (!this._form.getValue()) this.newForm();
         const booking = this._booking.getValue();
-        this._form
-            .getValue()
-            .patchValue({ ...(booking || {}), ...(booking?.extension_data || {}) });
+        this._form.getValue().patchValue({
+            ...(booking || {}),
+            ...(booking?.extension_data || {}),
+        });
         this._options.next({ type: this._options.getValue().type });
     }
 
@@ -112,8 +226,30 @@ export class BookingStateService extends BaseClass {
     public loadForm() {
         if (!this._form.getValue()) this.newForm();
         this._form.getValue().patchValue({
-            ...JSON.parse(sessionStorage.getItem('PLACEOS.booking_form') || '{}'),
+            ...JSON.parse(
+                sessionStorage.getItem('PLACEOS.booking_form') || '{}'
+            ),
         });
+    }
+
+    public async confirmPost() {
+        await this.checkQuestions();
+        const options = this._options.getValue();
+        const form = this._form.getValue();
+        const details = await openConfirmModal(
+            {
+                title: `Book ${options.type}`,
+                content: `Would you like to book the ${options.type} ${
+                    form.get('asset_id').value
+                } for ${format(form.get('date').value, 'dd MMM yyyy')}`,
+                icon: { content: 'event_available' },
+            },
+            this._dialog
+        );
+        if (details?.reason !== 'done') return;
+        details.loading('');
+        await this.postForm().catch((_) => notifyError(_));
+        details.close();
     }
 
     public async postForm() {
@@ -123,26 +259,42 @@ export class BookingStateService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
-        const spaces = form.get('resources')?.value || [];
-        const space_list = spaces.length
-            ? await queryBookings({
-                  period_start: getUnixTime(form.get('date').value),
-                  period_end: getUnixTime(
-                      form.get('date').value +
-                          form.get('duration').value * 60 * 1000
-                  ),
-                  type: this._options.getValue().type
-              }).toPromise()
-            : [];
-        if (space_list.length !== spaces.length)
-            throw `${
-                spaces.length - space_list.length
-            } space(s) are not available at the selected time`;
-        const result = await saveBooking(new Booking(this._form.getValue().value)).toPromise();
+        const asset_id = form.get('asset_id').value;
+        const bookings = await queryBookings({
+            period_start: getUnixTime(form.get('date').value),
+            period_end: getUnixTime(
+                form.get('date').value + form.get('duration').value * 60 * 1000
+            ),
+            type: this._options.getValue().type,
+        }).toPromise();
+        if (bookings.find((_) => _.asset_id === asset_id))
+            throw `${asset_id} is not available at the selected time`;
+        const result = await saveBooking(
+            new Booking(this._form.getValue().value)
+        ).toPromise();
         this.clearForm();
         this.last_success = result;
-        sessionStorage.setItem('PLACEOS.last_booked_booking', JSON.stringify(result));
+        sessionStorage.setItem(
+            'PLACEOS.last_booked_booking',
+            JSON.stringify(result)
+        );
         this.setView('success');
         return result;
+    }
+
+    private async checkQuestions() {
+        const ref = this._dialog.open(DeskQuestionsModalComponent);
+        const result = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (result?.reason !== 'done') throw 'User cancelled';
+        const form = ref.componentInstance.form.value;
+        for (const key in form) {
+            if (form[key]) throw 'User failed questionaire';
+        }
+        ref.close();
     }
 }
