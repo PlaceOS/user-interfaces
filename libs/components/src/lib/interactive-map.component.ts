@@ -6,8 +6,12 @@ import {
     Injector,
     Input,
     OnChanges,
+    OnDestroy,
+    OnInit,
     QueryList,
     SimpleChanges,
+    TemplateRef,
+    Type,
     ViewChild,
     ViewChildren,
 } from '@angular/core';
@@ -116,6 +120,8 @@ export class InteractiveMapComponent
 
     @Input() public options: any;
 
+    @Input() public focus: string;
+
     public loading: boolean;
 
     public injectors: Injector[] = [];
@@ -187,7 +193,9 @@ export class InteractiveMapComponent
             );
         }
         if (this.viewer) {
-            if (changes.zoom || changes.center) {
+            if (changes.focus && this.focus) {
+                this.focusOn(this.focus);
+            } else if (changes.zoom || changes.center) {
                 this.updateDisplay();
             }
             if (
@@ -263,5 +271,17 @@ export class InteractiveMapComponent
         ) {
             this.timeout('create_view', () => this.createView());
         }
+    }
+
+    private focusOn(id: string) {
+        const viewer: Viewer = getViewer(this.viewer);
+        if (!viewer) return;
+        const rect = viewer.mappings[id];
+        if (!rect) return;
+        this.center = {
+            x: 1 - (rect.x + rect.w / 2),
+            y: 1 - (rect.y + rect.h / 2),
+        };
+        this.updateDisplay();
     }
 }
