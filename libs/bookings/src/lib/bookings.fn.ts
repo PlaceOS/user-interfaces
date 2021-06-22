@@ -1,9 +1,9 @@
-import { del, get, patch, post, put } from "@placeos/ts-client";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { del, get, patch, post, put } from '@placeos/ts-client';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { toQueryString } from "libs/common/src/lib/api";
-import { Booking } from "./booking.class";
+import { toQueryString } from 'libs/common/src/lib/api';
+import { Booking } from './booking.class';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -76,9 +76,8 @@ export function updateBooking(
  * @param data State of the booking
  * @param q Parameters to pass to the API request
  */
-export const saveBooking = (
-    data: Partial<Booking>,
-) => (data.id ? updateBooking(data.id, data) : createBooking(data));
+export const saveBooking = (data: Partial<Booking>) =>
+    data.id ? updateBooking(data.id, data) : createBooking(data);
 
 /**
  * Remove booking from the database
