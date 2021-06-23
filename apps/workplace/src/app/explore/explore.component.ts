@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { DesksService } from '@placeos/bookings';
-import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({
     selector: 'app-explore',
@@ -35,6 +34,5 @@ export class ExploreComponent implements OnInit {
 
     public ngOnInit() {
         this._desks.error_on_host = false;
-        clearEventFormState();
     }
 }

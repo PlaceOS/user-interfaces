@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 @Component({
     selector: '[app-control]',
@@ -32,6 +31,5 @@ export class ControlComponent implements OnInit {
 
     public ngOnInit(): void {
         this._settings.title = 'Control';
-        clearEventFormState();
     }
 }

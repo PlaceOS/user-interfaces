@@ -9,7 +9,6 @@ import {
 
 import { BaseClass, SettingsService } from '@placeos/common';
 import { searchStaff, User } from '@placeos/users';
-import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
@@ -154,7 +153,6 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
             })
         );
         this.search$.next('');
-        clearEventFormState();
     }
 
     public get letters(): string[] {
