@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     BaseClass,
+    currentUser,
     flatten,
     getInvalidFields,
     notifyError,
@@ -155,6 +156,38 @@ export class BookingStateService extends BaseClass {
         ),
         tap(() => this._loading.next('')),
         shareReplay(1)
+    );
+
+    public readonly grouped_availability = combineLatest([
+        this.options,
+        this.available_assets,
+    ]).pipe(
+        map(([options, assets]) => {
+            const groups = [];
+            const asset_list = [...assets].sort((a, b) =>
+                a.zone?.id?.localeCompare(b.zone?.id)
+            );
+            const members = options.members?.length
+                ? options.members
+                : [currentUser()];
+            while (asset_list.length) {
+                const group = [];
+                let asset = asset_list.pop();
+                while (group.length < members.length) {
+                    if (
+                        group.length &&
+                        !group.find((_) => _.zone?.id === asset.zone?.id)
+                    ) {
+                        break;
+                    }
+                    group.push(asset);
+                    asset = asset_list.pop();
+                }
+                if (group.length < members.length) continue;
+                groups.push(group);
+            }
+            return groups;
+        })
     );
 
     public get view() {
