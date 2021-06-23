@@ -43,7 +43,7 @@ function validateEmail(email) {
                     (ngModelChange)="addUser($event)"
                 ></a-user-search-field>
             </div>
-            <div class="flex items-center" *ngIf="!hide_actions">
+            <div class="flex items-center" *ngIf="!hide_actions && !simple">
                 <button
                     mat-button
                     type="button"
@@ -113,6 +113,7 @@ function validateEmail(email) {
                         matTooltip="Required"
                         matTooltipPosition="left"
                         (click)="$event.stopPropagation()"
+                        *ngIf="!simple"
                     ></mat-checkbox>
                     <button
                         mat-icon-button
@@ -125,6 +126,7 @@ function validateEmail(email) {
                         [class.text-white]="user.visit_expected"
                         matTooltip="Physical visit expected"
                         matTooltipPosition="left"
+                        *ngIf="!simple"
                     >
                         <app-icon>meeting_room</app-icon>
                     </button>
@@ -140,6 +142,7 @@ function validateEmail(email) {
                         [class.text-white]="user.assistance_required"
                         matTooltip="Assistance Required"
                         matTooltipPosition="left"
+                        *ngIf="!simple"
                     >
                         <app-icon *ngIf="user.is_external"
                             >contact_support</app-icon
@@ -188,6 +191,8 @@ export class UserListFieldComponent
     implements ControlValueAccessor {
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
+    /** Whether form field should show simplifyed template */
+    @Input() public simple: boolean;
     /** Number of characters needed before a search will start */
     @Input() public limit = 3;
     /** Whether guests should also show when searching for users */

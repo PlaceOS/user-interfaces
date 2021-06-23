@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingStateService } from '@placeos/bookings';
 import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-book-desk-flow',
@@ -46,12 +48,14 @@ export class BookDeskFlowComponent extends BaseClass implements OnInit {
 
     constructor(
         private _state: BookingStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _org: OrganisationService
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._state.loadForm();
         if (!this._state.form) this._state.newForm();
         this.subscription(

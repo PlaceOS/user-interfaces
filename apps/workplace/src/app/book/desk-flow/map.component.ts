@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingStateService } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
+import { BaseClass, formatRecurrence } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { Desk } from '@placeos/organisation';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { format } from 'date-fns';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { debounceTime, map, startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-flow-map',
@@ -23,7 +24,23 @@ import { debounceTime } from 'rxjs/operators';
             </a>
         </div>
         <div class="flex flex-col flex-1 h-1/2 w-full ">
-            <h2 class="text-2xl p-4 text-center">Available Desks</h2>
+            <h2 class="text-2xl px-4 pt-4 text-center">Available Desks</h2>
+            <an-action-field
+                class="my-4 mx-auto w-[640px] max-w-[calc(100vw-2rem)]"
+                [matMenuTriggerFor]="menu"
+            >
+                {{ (option_details | async) || 'No Filters' }}
+            </an-action-field>
+            <mat-menu #menu="matMenu">
+                <div
+                    (click)="$event.stopPropagation(); ($event.preventDefault)"
+                    class="pt-4 max-h-[65vh] overflow-auto"
+                >
+                    <detailed-book-desks-form
+                        [form]="form"
+                    ></detailed-book-desks-form>
+                </div>
+            </mat-menu>
             <div listing class="flex flex-1 h-1/2 relative space-x-2">
                 <ul
                     class="list-style-none w-full sm:w-[20rem] bg-gray-100 p-2 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
@@ -35,12 +52,12 @@ import { debounceTime } from 'rxjs/operators';
                         matRipple
                         *ngFor="let desk of desks | async"
                         [attr.desk-id]="desk.id"
-                        class="flex items-center p-2 bg-white rounded shadow cursor-pointer space-x-2 h-16 border"
+                        class="flex items-center p-2 bg-white rounded shadow cursor-pointer space-x-2 min-h-[5rem] border"
                         [class.border-primary]="active_desk?.id === desk.id"
                         (click)="setActiveDesk(desk)"
                     >
                         <app-icon class="text-2xl">place</app-icon>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col w-1/2 flex-1">
                             <div name class="">{{ desk.name }}</div>
                             <div level class="text-xs">
                                 {{
@@ -49,12 +66,13 @@ import { debounceTime } from 'rxjs/operators';
                                         '&lt;No Level&gt;'
                                 }}
                             </div>
-                            <div features class="">
-                                <span
+                            <div features class="w-full flex flex-wrap">
+                                <div
                                     *ngFor="let feat of desk.features || []"
-                                    class="text-xs bg-secondary rounded-lg px-2 py-1"
-                                    >{{ feat }}</span
+                                    class="text-xs bg-primary text-white rounded-xl px-2 py-1 mt-1 mr-2"
                                 >
+                                    {{ feat }}
+                                </div>
                             </div>
                         </div>
                     </li>
@@ -157,6 +175,33 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
     public readonly desks = this._state.available_assets;
 
     public readonly loading = this._state.loading;
+
+    public readonly form = this._state.form;
+
+    public readonly option_details = combineLatest([
+        this._state.options,
+        this.form.valueChanges.pipe(startWith({})),
+    ]).pipe(
+        map(([options]) => {
+            const form = this._state.form;
+            const recurrence = formatRecurrence({
+                pattern: options.pattern as any,
+                end: options.recurr_end,
+                start: form.value.date,
+                interval: 1,
+                days_of_week: -1,
+            });
+            const details = `${format(form.value.date, 'dd MMM yyyy')}${
+                options.pattern && options.pattern !== 'none'
+                    ? ', ' + recurrence
+                    : ''
+            }${options.group ? ', ' + options.group : ''}, ${
+                options.features?.length || 'Any'
+            } Feature${(options.features?.length || 0) < 2 ? '' : 's'}`;
+            if (options.zone_id) this._explore.setLevel(options.zone_id);
+            return details;
+        })
+    );
 
     private _active_desk = new BehaviorSubject<Desk>(null);
 

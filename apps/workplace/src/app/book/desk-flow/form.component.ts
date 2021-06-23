@@ -76,6 +76,7 @@ import { first } from 'rxjs/operators';
                 {{ is_edit ? 'Edit' : 'Detailed' }} Booking
             </h2>
             <detailed-book-desks-form [form]="form"></detailed-book-desks-form>
+            <div class="mb-4 border-b border-gray-300 w-full"></div>
             <div
                 class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
             >
@@ -177,18 +178,12 @@ export class DeskFlowFormComponent implements OnInit {
             ).valueOf(),
             title: 'Ad-hoc Desk Booking',
         });
-        this.confirmBooking();
+        this.findDesk();
     }
 
     public findDesk() {
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
         this._router.navigate(['/book', 'desks', 'map']);
-    }
-
-    public confirmBooking() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) return;
-        this._router.navigate(['/book', 'desks', 'confirm']);
     }
 }

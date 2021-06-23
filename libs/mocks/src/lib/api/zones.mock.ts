@@ -56,6 +56,8 @@ registerMockEndpoint({
     },
 });
 
+const DESK_FEATURES = ['sit_to_stand', 'single_monitor', 'dual_monitor'];
+
 function generateMockDeskMetadata(id: string) {
     return {
         desks: {
@@ -64,6 +66,9 @@ function generateMockDeskMetadata(id: string) {
                 name: `Desk ${id}.${padString(idx + 1, 3)}`,
                 bookable: predictableRandomInt(9999) % 4 !== 0,
                 group: '',
+                features: DESK_FEATURES.filter(
+                    (_) => predictableRandomInt(99999) % 3 === 0
+                ),
             })),
         },
     };

@@ -12,10 +12,19 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { listChildMetadata, PlaceZone } from '@placeos/ts-client';
-import { format, getUnixTime } from 'date-fns';
-import addMinutes from 'date-fns/addMinutes';
+import { format, getUnixTime, addMinutes } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import {
+    debounceTime,
+    distinctUntilKeyChanged,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
+
+import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
@@ -38,6 +47,8 @@ export interface BookingFlowOptions {
     pattern?: 'none' | 'daily' | 'weekly' | 'monthly';
     /** Recurrence ending */
     recurr_end?: number;
+    /** List of group members to book for */
+    members?: User[];
 }
 
 export interface BookingAsset {
@@ -58,6 +69,7 @@ export class BookingStateService extends BaseClass {
         type: 'desk',
     });
     private _form = new BehaviorSubject<FormGroup>(null);
+    private _form_value = new BehaviorSubject<Partial<Booking>>({});
     private _booking = new BehaviorSubject<Booking>(null);
     private _loading = new BehaviorSubject<string>('');
 
@@ -69,10 +81,9 @@ export class BookingStateService extends BaseClass {
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
 
-    public readonly assets: Observable<BookingAsset[]> = combineLatest([
-        this.options,
-    ]).pipe(
-        switchMap(([{ type }]) => {
+    public readonly assets: Observable<BookingAsset[]> = this.options.pipe(
+        distinctUntilKeyChanged('zone_id'),
+        switchMap(({ type }) => {
             if (!this._org.building) return of([]);
             switch (type) {
                 case 'desk':
@@ -93,36 +104,35 @@ export class BookingStateService extends BaseClass {
             }
             return of([]);
         }),
-        tap((_) => {
-            console.log('Assets:', _);
-            this._loading.next(``);
-        }),
+        tap(() => this._loading.next(``)),
         shareReplay(1)
     );
 
     public readonly features: Observable<string[]> = this.assets.pipe(
         map((assets) => {
-            const list = [];
+            const list: string[] = [];
             for (const asset of assets) {
                 asset.features?.forEach((_) => list.push(_));
             }
-            return unique(list);
-        })
+            return unique(list).sort((a, b) => a.localeCompare(b));
+        }),
+        shareReplay(1)
     );
 
     public readonly available_assets = combineLatest([
         this.options,
         this.assets,
-        this._form,
+        this._form_value,
     ]).pipe(
+        debounceTime(500),
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
         ),
         switchMap(([options, assets, form]) =>
             queryBookings({
-                period_start: getUnixTime(form.value.date),
+                period_start: getUnixTime(form.date),
                 period_end: getUnixTime(
-                    addMinutes(form.value.date, form.value.duration || 24 * 60)
+                    addMinutes(form.date, form.duration || 24 * 60)
                 ),
                 type: options.type,
                 zones: options.zone_id,
@@ -136,10 +146,8 @@ export class BookingStateService extends BaseClass {
                                     asset.features.includes(_)
                                 )) &&
                             (!options.zone_id ||
-                                options.zone_id?.includes(asset.zone?.id) ||
-                                options.zone_id?.includes(
-                                    asset.zone?.parent_id
-                                )) &&
+                                options.zone_id === asset.zone?.id ||
+                                options.zone_id === asset.zone?.parent_id) &&
                             !bookings.find((bkn) => bkn.asset_id === asset.id)
                     )
                 )
@@ -226,6 +234,7 @@ export class BookingStateService extends BaseClass {
             'PLACEOS.booking_form_filters',
             JSON.stringify(this._options.getValue() || {})
         );
+        this._form_value.next(this._form.getValue()?.value || {});
     }
 
     public loadForm() {
@@ -235,11 +244,12 @@ export class BookingStateService extends BaseClass {
                 sessionStorage.getItem('PLACEOS.booking_form') || '{}'
             ),
         });
-        this.setOptions(
-            JSON.parse(
+        this.setOptions({
+            zone_id: this._org.building.id,
+            ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}'
-            )
-        );
+            ),
+        });
     }
 
     public async confirmPost() {
