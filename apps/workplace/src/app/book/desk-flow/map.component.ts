@@ -72,6 +72,15 @@ import { debounceTime } from 'rxjs/operators';
                         [labels]="labels | async"
                         [focus]="active_desk?.map_id || active_desk?.id"
                     ></i-map>
+                    <div
+                        class="absolute top-2 left-2 bg-white rounded-3xl h-10 px-3 flex items-center border border-gray-300"
+                        *ngIf="level | async"
+                    >
+                        {{
+                            (level | async)?.display_name ||
+                                (level | async)?.name
+                        }}
+                    </div>
                 </div>
                 <div
                     *ngIf="loading | async"
@@ -143,6 +152,7 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
     public readonly actions = this._explore.map_actions;
     /** Observable for the labels map */
     public readonly labels = this._explore.map_labels;
+    public readonly level = this._explore.level;
 
     public readonly desks = this._state.available_assets;
 
