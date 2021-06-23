@@ -64,11 +64,9 @@ import { first, map } from 'rxjs/operators';
             </div>
             <div class="flex flex-col flex-1">
                 <label for="space">Space<span>*</span>:</label>
-                <an-action-field
-                    name="space"
-                    [placeholder]="spaces"
-                    (onAction)="selectSpace()"
-                ></an-action-field>
+                <an-action-field name="space" (onAction)="selectSpace()">{{
+                    spaces
+                }}</an-action-field>
             </div>
         </form>
     `,
