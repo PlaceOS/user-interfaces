@@ -5,6 +5,7 @@ import {
     SettingsService,
     VERSION,
 } from '@placeos/common';
+import { logout } from '@placeos/ts-client';
 
 @Component({
     selector: 'topbar',
@@ -49,6 +50,12 @@ import {
                     </span>
                 </ng-container>
             </div>
+            <button mat-menu-item (click)="logout()">
+                <div class="flex items-center space-x-2">
+                    <app-icon class="text-xl">logout</app-icon>
+                    <div>Logout</div>
+                </div>
+            </button>
             <div
                 mat-menu-item
                 class="flex flex-col justify-center pointer-events-none leading-tight"
@@ -86,4 +93,9 @@ export class TopbarComponent {
     }
 
     constructor(private _settings: SettingsService) {}
+
+    public logout() {
+        logout();
+        location.href = '/logout';
+    }
 }
