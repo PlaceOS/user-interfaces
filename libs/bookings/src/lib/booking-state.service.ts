@@ -213,6 +213,7 @@ export class BookingStateService extends BaseClass {
 
     public clearForm() {
         sessionStorage.removeItem('PLACEOS.booking_form');
+        sessionStorage.removeItem('PLACEOS.booking_form_options');
         this.newForm();
     }
 
@@ -220,6 +221,10 @@ export class BookingStateService extends BaseClass {
         sessionStorage.setItem(
             'PLACEOS.booking_form',
             JSON.stringify(this._form.getValue()?.value || {})
+        );
+        sessionStorage.setItem(
+            'PLACEOS.booking_form_filters',
+            JSON.stringify(this._options.getValue() || {})
         );
     }
 
@@ -230,6 +235,11 @@ export class BookingStateService extends BaseClass {
                 sessionStorage.getItem('PLACEOS.booking_form') || '{}'
             ),
         });
+        this.setOptions(
+            JSON.parse(
+                sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}'
+            )
+        );
     }
 
     public async confirmPost() {
