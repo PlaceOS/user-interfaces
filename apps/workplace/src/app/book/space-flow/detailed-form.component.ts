@@ -25,7 +25,7 @@ import { FormGroup } from '@angular/forms';
                             formControlName="duration"
                             [time]="form.get('date')?.value"
                         >
-                    </a-duration-field>
+                        </a-duration-field>
                     </div>
                 </div>
             </section>
@@ -40,9 +40,7 @@ import { FormGroup } from '@angular/forms';
                 </div>
             </section>
             <section class="mb-4 border-b border-gray-300">
-                <div
-                    class="w-[640px] max-w-[calc(100%-2rem)] mx-auto"
-                >
+                <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                     <div class="flex flex-col">
                         <label>Meeting Subject <span>*</span></label>
                         <mat-form-field appearance="outline">

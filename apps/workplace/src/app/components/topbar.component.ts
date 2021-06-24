@@ -13,9 +13,14 @@ import { logout } from '@placeos/ts-client';
         <div
             class="flex items-center justify-between h-16 bg-secondary border-b border-gray-200 text-white"
         >
-            <div icon class="p-2 h-full flex items-center" *ngIf="logo">
+            <a
+                icon
+                class="p-2 h-full flex items-center"
+                [routerLink]="['/']"
+                *ngIf="logo"
+            >
                 <img class="h-10 sm:h-12" [src]="logo?.src" />
-            </div>
+            </a>
             <h2 *ngIf="title; else search">{{ title }}</h2>
             <a-user-avatar
                 class="m-3 text-lg"
@@ -70,7 +75,7 @@ import { logout } from '@placeos/ts-client';
             </div>
         </mat-menu>
         <ng-template #search>
-            <global-search class="flex-1 mx-2"></global-search>
+            <global-search class="flex-1 mx-2 max-w-[640px]"></global-search>
         </ng-template>
     `,
     styles: [``],

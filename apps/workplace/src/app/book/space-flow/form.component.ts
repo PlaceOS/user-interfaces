@@ -83,7 +83,9 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">clear</app-icon>
-                        <span class="ml-2 mx-4">{{ is_edit ? 'Cancel Edit' : 'Clear Form' }}</span>
+                        <span class="ml-2 mx-4">{{
+                            is_edit ? 'Cancel Edit' : 'Clear Form'
+                        }}</span>
                     </div>
                 </button>
                 <button
@@ -93,7 +95,9 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">search</app-icon>
-                        <span class="ml-2 mx-4">{{ is_edit ? 'Update Spaces' : 'Find Space'}}</span>
+                        <span class="ml-2 mx-4">{{
+                            is_edit ? 'Update Spaces' : 'Find Space'
+                        }}</span>
                     </div>
                 </button>
                 <button
@@ -103,7 +107,9 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">event_available</app-icon>
-                        <span class="ml-2 mx-4">{{ is_edit ? 'Confirm changes' : 'Book without Space'}}</span>
+                        <span class="ml-2 mx-4">{{
+                            is_edit ? 'Confirm changes' : 'Book without Space'
+                        }}</span>
                     </div>
                 </button>
             </div>

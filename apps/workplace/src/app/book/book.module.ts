@@ -56,9 +56,9 @@ const ROUTES: Route[] = [
     imports: [
         CommonModule,
         SharedComponentModule,
+        FormsModule,
         ReactiveFormsModule,
         MatButtonToggleModule,
-        FormsModule,
         RouterModule.forChild(ROUTES),
     ],
 })
