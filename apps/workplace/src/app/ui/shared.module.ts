@@ -35,7 +35,6 @@ import { EventTimelineComponent } from './event-timeline/event-timeline.componen
 import { BookingEditComponent } from './forms/booking-edit/booking-edit.component';
 import { BookingFormModalComponent } from './forms/booking-form-modal/booking-form-modal-component';
 import { BookingFormComponent } from './forms/booking-form/booking-form.component';
-import { InfiniteScrollComponent } from './infinite-scroll.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 import { NewSharedComponents } from '../components/shared.module';
 
@@ -43,7 +42,6 @@ const COMPONENTS: Type<any>[] = [
     BookingFormComponent,
     BookingFormModalComponent,
     BookingEditComponent,
-    InfiniteScrollComponent,
     EventTimelineComponent,
     VerticalTimelineComponent,
 ];
