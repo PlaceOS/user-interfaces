@@ -9,11 +9,17 @@ import { ComponentsModule } from '@placeos/components';
 import { GlobalSearchComponent } from './global-search.component';
 import { NavMenuComponent } from './nav-menu.component';
 import { TopbarComponent } from './topbar.component';
+import { BookingFormModalComponent } from './booking-form-modal.component';
+import { EventTimelineComponent } from './event-timeline/event-timeline.component';
+import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
     NavMenuComponent,
     GlobalSearchComponent,
+    BookingFormModalComponent,
+    VerticalTimelineComponent,
+    EventTimelineComponent,
 ];
 
 @NgModule({
@@ -28,4 +34,4 @@ const COMPONENTS: Type<any>[] = [
     ],
     exports: [...COMPONENTS, ComponentsModule],
 })
-export class NewSharedComponents {}
+export class SharedComponentModule {}

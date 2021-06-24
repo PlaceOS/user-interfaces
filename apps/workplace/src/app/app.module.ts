@@ -10,31 +10,33 @@ import { MatNativeDateModule } from '@angular/material/core';
 
 import '@placeos/mocks';
 
-import { MisconfiguredComponent, UnauthorisedComponent } from '@placeos/components';
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
+import {
+    MisconfiguredComponent,
+    UnauthorisedComponent,
+} from '@placeos/components';
+import { AppComponent } from 'libs/components/src/lib/app.component';
 
 import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
-import { SharedContentModule } from './ui/shared.module';
 
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
+
+import { SharedComponentModule } from './components/shared.module';
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        UnauthorisedComponent,
-        MisconfiguredComponent
-    ],
+    declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
         HttpClientModule,
         FormsModule,
         SharedOverlaysModule,
-        SharedContentModule,
+        SharedComponentModule,
         MatNativeDateModule,
         MatSnackBarModule,
     ],
@@ -50,6 +52,6 @@ import * as Sentry from "@sentry/angular";
             deps: [Router],
         },
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
