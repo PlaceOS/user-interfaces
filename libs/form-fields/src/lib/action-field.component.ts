@@ -15,8 +15,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
                 placeholder
                 class="flex-1 w-0 truncate"
                 (click)="performAction()"
-                [innerHTML]="placeholder | safe"
-            ></div>
+            >
+                <ng-content></ng-content>
+            </div>
             <app-icon class="text-xl" (click)="performAction()">
                 arrow_drop_{{ show_tooltip ? 'up' : 'down' }}
             </app-icon>
@@ -33,8 +34,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class ActionFieldComponent {
     /** Name of the field */
     @Input() public name: string;
-    /** Value to display on the field */
-    @Input() public placeholder: string;
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Emitter for user interaction events */

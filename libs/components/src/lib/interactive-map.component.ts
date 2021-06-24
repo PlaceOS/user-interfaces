@@ -6,8 +6,12 @@ import {
     Injector,
     Input,
     OnChanges,
+    OnDestroy,
+    OnInit,
     QueryList,
     SimpleChanges,
+    TemplateRef,
+    Type,
     ViewChild,
     ViewChildren,
 } from '@angular/core';
@@ -55,13 +59,27 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
                         class="pointer-events-none"
                         [attr.el-id]="element.location"
                         [attr.view-id]="viewer"
+                        [ngSwitch]="type(element.content)"
                     >
-                        <ng-container
-                            *ngComponentOutlet="
-                                element.content;
-                                injector: injectors[i]
-                            "
-                        ></ng-container>
+                        <ng-container *ngSwitchCase="'component'">
+                            <ng-container
+                                *ngComponentOutlet="
+                                    element.content;
+                                    injector: injectors[i]
+                                "
+                            ></ng-container>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'html'">
+                            <div [innerHTML]="element.content | sanitize"></div>
+                        </ng-container>
+                        <ng-container *ngSwitchDefault>
+                            <ng-container
+                                *ngTemplateOutlet="
+                                    element.content;
+                                    context: element.data
+                                "
+                            ></ng-container>
+                        </ng-container>
                     </div>
                 </div>
             </ng-container>
@@ -84,7 +102,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
 })
 export class InteractiveMapComponent
     extends BaseClass
-    implements AfterViewInit, OnChanges {
+    implements AfterViewInit, OnChanges, OnInit, OnDestroy {
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -102,6 +120,8 @@ export class InteractiveMapComponent
 
     @Input() public options: any;
 
+    @Input() public focus: string;
+
     public loading: boolean;
 
     public injectors: Injector[] = [];
@@ -115,6 +135,16 @@ export class InteractiveMapComponent
     @ViewChildren('feature') private _feature_list: QueryList<
         ElementRef<HTMLDivElement>
     >;
+
+    public type(
+        content: string | TemplateRef<any> | Type<any>
+    ): 'html' | 'template' | 'component' {
+        return typeof content === 'string'
+            ? 'html'
+            : content instanceof TemplateRef
+            ? 'template'
+            : 'component';
+    }
 
     public get feature_list() {
         return (this.features || [])
@@ -163,7 +193,9 @@ export class InteractiveMapComponent
             );
         }
         if (this.viewer) {
-            if (changes.zoom || changes.center) {
+            if (changes.focus && this.focus) {
+                this.focusOn(this.focus);
+            } else if (changes.zoom || changes.center) {
                 this.updateDisplay();
             }
             if (
@@ -239,5 +271,17 @@ export class InteractiveMapComponent
         ) {
             this.timeout('create_view', () => this.createView());
         }
+    }
+
+    private focusOn(id: string) {
+        const viewer: Viewer = getViewer(this.viewer);
+        if (!viewer) return;
+        const rect = viewer.mappings[id];
+        if (!rect) return;
+        this.center = {
+            x: 1 - (rect.x + rect.w / 2),
+            y: 1 - (rect.y + rect.h / 2),
+        };
+        this.updateDisplay();
     }
 }

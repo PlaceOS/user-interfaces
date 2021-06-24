@@ -2,168 +2,82 @@
  * GENERAL APPLICATION SETTINGS
  */
 const general: any = {
-    menu: {
-        items: [
-            {
-                name: 'Home',
-                route: '/home',
-                icon: {
-                    type: 'img',
-                    src: 'assets/img/home-burgermenu.svg',
-                },
+    menu_items: [
+        {
+            name: 'Home',
+            route: '/dashboard',
+            icon: {
+                class: 'material-icons',
+                content: 'home',
             },
-            {
-                name: 'Book',
-                route: '/book/spaces',
-            },
-            {
-                name: 'QR Scanner',
-                route: '/book/qr',
-                icon: {
-                    type: 'img',
-                    src: 'assets/img/qr-scan.svg',
-                },
-            },
-            {
-                name: 'Desk',
-                route: '/book/desks',
-            },
-            {
-                name: 'Spaces',
-                route: '/explore',
-            },
-            {
-                name: 'User Directory',
-                route: '/directory',
-            },
-            {
-                name: 'Help',
-                route: '/help',
-            },
-            {
-                name: 'My Day',
-                route: '/schedule',
-                icon: {
-                    type: 'img',
-                    src: 'assets/img/day.svg',
-                },
-            },
-            {
-                name: 'My Wellness',
-                route: '/schedule',
-                icon: {
-                    type: 'img',
-                    src: 'assets/img/smile.svg',
-                },
-            },
-        ],
-        copyright: 'PlaceOS',
-        position: 'right',
-    },
-};
-/**
- * HOME PAGE SETTINGS
- */
-const home: any = {
-    background: 'assets/img/skyline.jpg',
-    tiles: [
+        },
         {
             name: 'Book',
             route: '/book/spaces',
             icon: {
-                type: 'icon',
                 class: 'material-icons',
-                content: 'add_circle_outline',
+                content: 'book_online',
             },
-            query_params: { new: true },
         },
         {
-            name: 'Desks',
+            name: 'Scan',
+            route: '/book/code',
+            icon: {
+                class: 'material-icons',
+                content: 'qr_code',
+            },
+        },
+        {
+            name: 'Desk',
             route: '/book/desks',
             icon: {
-                type: 'icon',
                 class: 'material-icons',
-                content: 'article',
-            },
-            query_params: { new: true },
-        },
-        {
-            name: 'People',
-            route: '/directory',
-            icon: {
-                type: 'icon',
-                class: 'material-icons',
-                content: 'people',
+                content: 'auto_stories',
             },
         },
         {
             name: 'Spaces',
             route: '/explore',
             icon: {
-                type: 'icon',
                 class: 'material-icons',
                 content: 'place',
             },
-        },
-        {
-            name: 'My Day',
-            route: '/schedule',
-            icon: {
-                type: 'icon',
-                class: 'material-icons',
-                content: 'today',
-            },
-        },
-    ],
-    footer: [
-        {
-            name: 'Book',
-            route: '/book/spaces',
-            icon: {
-                type: 'icon',
-                class: 'material-icons',
-                content: 'add_circle_outline',
-            },
-            query_params: { new: true },
-        },
-        {
-            name: 'Desks',
-            route: '/book/desks',
-            icon: {
-                type: 'icon',
-                class: 'material-icons',
-                content: 'article',
-            },
-            query_params: { new: true },
         },
         {
             name: 'People',
             route: '/directory',
             icon: {
-                type: 'icon',
                 class: 'material-icons',
-                content: 'people',
+                content: 'person_search',
             },
         },
         {
-            name: 'Spaces',
-            route: '/explore',
+            name: 'Help',
+            route: '/help',
             icon: {
-                type: 'icon',
                 class: 'material-icons',
-                content: 'place',
+                content: 'help',
             },
         },
         {
             name: 'My Day',
             route: '/schedule',
             icon: {
-                type: 'icon',
                 class: 'material-icons',
-                content: 'today',
+                content: 'date_range',
             },
         },
+        // {
+        //     name: 'Wellness',
+        //     route: '/schedule',
+        //     icon: {
+        //         class: 'material-icons',
+        //         content: 'mood',
+        //     },
+        // },
     ],
+    copyright: 'PlaceOS',
+    position: 'right',
 };
 /**
  * HELP/SUPPORT SETTINGS
@@ -172,7 +86,7 @@ const help: any = {
     tiles: [
         {
             name: 'About Engine',
-            link: 'https://acaprojects.com/resources',
+            link: 'https://place.technology/resources',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -183,7 +97,7 @@ const help: any = {
         },
         {
             name: 'General Enquiries',
-            link: 'mailto:equiries@acaprojects.com?subject=Staff%20App%20Demo',
+            link: 'mailto:equiries@place.technology?subject=Staff%20App%20Demo',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -193,7 +107,7 @@ const help: any = {
         },
         {
             name: 'Contact PlaceOS',
-            link: 'https://acaprojects.com/contact-1',
+            link: 'https://place.technology/contact-1',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -204,7 +118,7 @@ const help: any = {
         },
         {
             name: 'About Us',
-            link: 'https://acaprojects.com/',
+            link: 'https://place.technology/',
             icon: {
                 type: 'icon',
                 class: 'material-icons',
@@ -335,7 +249,6 @@ const app: any = {
         src: 'assets/logo-dark.svg',
     },
     general,
-    home,
     help,
     booking,
     space_display,

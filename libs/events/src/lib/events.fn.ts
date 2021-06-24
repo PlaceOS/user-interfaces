@@ -1,11 +1,11 @@
 import { del, get, patch, post, put } from '@placeos/ts-client';
-import { toQueryString } from 'libs/common/src/lib/api';
-import { GuestUser } from 'libs/users/src/lib/user.class';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+import { toQueryString } from 'libs/common/src/lib/api';
+import { GuestUser } from 'libs/users/src/lib/user.class';
+
 import { CalendarEvent } from './event.class';
-
-
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -86,7 +86,7 @@ export function updateEvent(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
             query ? '?' + query : ''
         }`,
-        new CalendarEvent(data).toJSON()
+        method === 'patch' ? data : new CalendarEvent(data).toJSON()
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -98,7 +98,10 @@ export function updateEvent(
 export const saveEvent = (
     data: Partial<CalendarEvent>,
     q?: CalendarEventShowParams
-) => (data.id ? updateEvent(data.id, data, q) : createEvent(data));
+) => {
+    delete (data as any)?.status;
+    return data.id ? updateEvent(data.id, data, q) : createEvent(data);
+};
 
 /**
  * Remove calendar event from the database
@@ -177,9 +180,9 @@ export function checkinEventGuest(
 ) {
     const query = toQueryString({ ...q, state });
     return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests/${guest_id}${
-            query ? '?' + query : ''
-        }`,
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
         ''
     ).pipe(map((item) => new GuestUser(item)));
 }

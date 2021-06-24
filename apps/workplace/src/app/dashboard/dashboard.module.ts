@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Route } from '@angular/router';
 
-import { SharedContentModule } from '../ui/shared.module';
-
 import { DashboardComponent } from './dashboard.component';
 import { DashboardAvailabilityComponent } from './dashboard-availability.component';
 import { DashboardUpcomingComponent } from './dashboard-upcoming.component';
 import { DashboardContactsComponent } from './dashboard-contacts.component';
+import { NewSharedComponents } from '../components/shared.module';
 
 const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
 
@@ -17,8 +16,13 @@ const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
         DashboardComponent,
         DashboardAvailabilityComponent,
         DashboardUpcomingComponent,
-        DashboardContactsComponent
+        DashboardContactsComponent,
     ],
-    imports: [CommonModule, FormsModule, SharedContentModule, RouterModule.forChild(ROUTES)],
+    imports: [
+        CommonModule,
+        FormsModule,
+        NewSharedComponents,
+        RouterModule.forChild(ROUTES),
+    ],
 })
 export class DashboardModule {}

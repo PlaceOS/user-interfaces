@@ -9,7 +9,7 @@ import {
     isBefore,
     isSameDay,
     roundToNearestMinutes,
-    set
+    set,
 } from 'date-fns';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -17,7 +17,7 @@ import { GuestUser, User } from 'libs/users/src/lib/user.class';
 import {
     EventExtensionData,
     FileDetails,
-    RecurrenceDetails
+    RecurrenceDetails,
 } from './event.interfaces';
 import { eventStatus } from './helpers';
 
@@ -164,13 +164,14 @@ export class CalendarEvent {
         } else {
             this.recurrence = {} as any;
         }
-        this.system = data.system;
+        const system = data.system;
         if (
-            this.system?.email &&
-            !this.resources.find((_) => _.email === this.system.email)
+            system?.email &&
+            !this.resources.find((_) => _.email === system.email)
         ) {
-            this.resources.push(new Space(this.system as any));
+            this.resources.push(new Space(system as any));
         }
+        this.system = system || (this.resources[0] as any) || null;
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
@@ -237,7 +238,7 @@ export class CalendarEvent {
         delete obj.catering;
         delete obj.date;
         delete obj.duration;
-        delete obj.status
+        delete obj.status;
         return obj;
     }
 

@@ -1,24 +1,23 @@
 import { Injectable } from '@angular/core';
-import {
-    onlineState,
-    queryZones,
-    showMetadata,
-    authority,
-    isMock,
-} from '@placeos/ts-client';
-import { first, map } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-
-import { Organisation } from './organisation.class';
-import { Building } from './building.class';
-import { BuildingLevel } from './level.class';
+import { Router } from '@angular/router';
 import {
     HashMap,
     notifyError,
     RoomConfiguration,
-    SettingsService,
+    SettingsService
 } from '@placeos/common';
-import { Router } from '@angular/router';
+import {
+    authority,
+    isMock,
+    onlineState,
+    queryZones,
+    showMetadata
+} from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { first, map } from 'rxjs/operators';
+import { Building } from './building.class';
+import { BuildingLevel } from './level.class';
+import { Organisation } from './organisation.class';
 
 @Injectable({
     providedIn: 'root',
@@ -28,25 +27,21 @@ export class OrganisationService {
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
     /** Observable of the initialised state of the object */
     public readonly initialised = this._initialised.asObservable();
-    private readonly buildings_subject = new BehaviorSubject<Building[]>([]);
-    private readonly active_building_subject = new BehaviorSubject<Building>(
-        null
-    );
-    private readonly levels_subject = new BehaviorSubject<BuildingLevel[]>([]);
+    private readonly _buildings = new BehaviorSubject<Building[]>([]);
+    private readonly _active_building = new BehaviorSubject<Building>(null);
+    private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
 
     /** Observable for the list of buildings */
-    public readonly building_list = this.buildings_subject.asObservable();
+    public readonly building_list = this._buildings.asObservable();
     /** Observable for the list of levels */
-    public readonly level_list = this.levels_subject.asObservable();
+    public readonly level_list = this._levels.asObservable();
     /** Observable for the currently active building */
-    public readonly active_building = this.active_building_subject.asObservable();
+    public readonly active_building = this._active_building.asObservable();
     /** Observable for the levels associated with the currently active building */
     public readonly active_levels = combineLatest([
-        this.level_list,
-        this.active_building,
-    ]).pipe(
-        map((details) => (details[1] ? this.levelsForBuilding(details[1]) : []))
-    );
+        this._levels,
+        this._active_building,
+    ]).pipe(map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])));
     /** Organisation data for the application */
     private _organisation: Organisation;
     /** Mapping of organisation settings overrides */
@@ -81,15 +76,15 @@ export class OrganisationService {
 
     /** List of available buildings */
     public get buildings(): Building[] {
-        return this.buildings_subject.getValue();
+        return this._buildings.getValue();
     }
 
     /** Currently active building */
     public get building(): Building {
-        return this.active_building_subject.getValue();
+        return this._active_building.getValue();
     }
     public set building(bld: Building) {
-        this.active_building_subject.next(bld);
+        this._active_building.next(bld);
         this._service.overrides = [
             this._settings.details,
             this.buildingSettings(bld.id).details,
@@ -103,7 +98,7 @@ export class OrganisationService {
 
     /** List of available levels */
     public get levels(): BuildingLevel[] {
-        return this.levels_subject.getValue();
+        return this._levels.getValue();
     }
 
     constructor(private _service: SettingsService, private _router: Router) {
@@ -176,7 +171,6 @@ export class OrganisationService {
             const bindings: HashMap = (
                 await showMetadata(org.id, { name: 'bindings' }).toPromise()
             )?.details;
-            console.log('Bindings:', bindings);
             this._organisation = new Organisation({ ...org, bindings });
         } else {
             this._router.navigate(['/misconfigured']);
@@ -203,14 +197,14 @@ export class OrganisationService {
             )?.details;
             buildings.push(new Building({ ...bld, bindings }));
         }
-        this.buildings_subject.next(buildings);
+        this._buildings.next(buildings);
         const id = localStorage.getItem(`PLACEOS.building`);
         if (id && this.buildings.find((bld) => bld.id === id)) {
-            this.active_building_subject.next(
+            this._active_building.next(
                 this.buildings.find((bld) => bld.id === id)
             );
         }
-        if (!this.building && buildings && buildings.length > 0) {
+        if (!this.building?.id && buildings?.length > 0) {
             this.building = buildings[0];
         }
     }
@@ -230,7 +224,7 @@ export class OrganisationService {
         }
         const levels = level_list.map((lvl) => new BuildingLevel(lvl));
         levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        this.levels_subject.next(levels);
+        this._levels.next(levels);
     }
 
     public get available_room_configs(): RoomConfiguration[] {

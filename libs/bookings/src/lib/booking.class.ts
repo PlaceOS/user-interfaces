@@ -5,7 +5,7 @@ import {
     getUnixTime,
     isAfter,
     isSameDay,
-    roundToNearestMinutes,
+    roundToNearestMinutes
 } from 'date-fns';
 
 export type BookingType = 'desk' | 'parking' | 'locker' | '';
@@ -18,6 +18,12 @@ export class Booking {
     public readonly booking_start: number;
     /** Unix epoch for the start time of the booking in seconds */
     public readonly booking_end: number;
+    /** ID of the user who owns the booking */
+    public readonly booked_by_id: string;
+    /** Email of the user who owns the booking */
+    public readonly booked_by_email: string;
+    /** Display name of the user who owns the booking */
+    public readonly booked_by_name: string;
     /** ID of the user who owns the booking */
     public readonly user_id: string;
     /** Email of the user who owns the booking */
@@ -83,10 +89,10 @@ export class Booking {
         this.date = data.date || this.booking_start * 1000;
         this.duration =
             data.duration ||
-            differenceInMinutes(
+            Math.abs(differenceInMinutes(
                 this.booking_start * 1000,
                 this.booking_end * 1000
-            );
+            ));
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.user_email = data.user_email || '';
@@ -108,6 +114,12 @@ export class Booking {
             : this.approved
             ? 'approved'
             : 'tentative';
+        for (const key in data) {
+            if (!(key in this)) {
+                this.extension_data[key] =
+                    data[key] || this.extension_data[key];
+            }
+        }
     }
 
     public toJSON(this: Booking): Partial<Booking> {

@@ -140,6 +140,21 @@ mat-slide-toggle {
     }
 }
 
+#placeos {
+    mat-pseudo-checkbox.mat-pseudo-checkbox-checked {
+        background: var(--primary);
+    }
+
+    mat-checkbox {
+        .mat-checkbox-inner-container {
+            margin-left: 8px;
+        }
+        &.mat-checkbox-checked .mat-checkbox-background {
+            background-color: var(--primary);
+        }
+    }
+}
+
 [bg='white'] .mat-form-field-outline {
     background-color: #fff;
 }

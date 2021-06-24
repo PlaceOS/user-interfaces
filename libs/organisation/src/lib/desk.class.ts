@@ -3,6 +3,8 @@ import { PlaceZone } from '@placeos/ts-client';
 export class Desk {
     /** ID of the desk also map_id */
     public readonly id: string;
+    /** ID of the desk on the associated map */
+    public readonly map_id: string;
     /** Name of the desk */
     public readonly name: string;
     /** Whether desk is available / bookable */
@@ -14,6 +16,7 @@ export class Desk {
 
     constructor(data: Partial<Desk> = {}) {
         this.id = data.id || '';
+        this.map_id = data.map_id || data.id || '';
         this.name = data.name || '';
         this.bookable = data.bookable ?? false;
         this.zone = data.zone || new PlaceZone();

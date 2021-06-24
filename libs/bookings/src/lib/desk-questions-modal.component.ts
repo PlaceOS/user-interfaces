@@ -61,7 +61,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     change in a way that changes your answer to the questions.
                 </p>
                 <button close mat-icon-button mat-dialog-close>
-                    <app-icon>close</app-icon>
+                    <i class="material-icons">close</i>
                 </button>
             </main>
         </ng-template>

@@ -1,13 +1,13 @@
 import { HashMap } from '@placeos/common';
 import {
-    addMinutes,
-    addSeconds,
+    addMinutes, addSeconds,
+
     differenceInMinutes,
     format,
     isAfter,
     isBefore,
     isSameMinute,
-    startOfMinute,
+    startOfMinute
 } from 'date-fns';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import {
@@ -17,7 +17,7 @@ import {
     BookingRulesmap,
     RecurrenceDetails,
     TimeBlock,
-    TimePeriod,
+    TimePeriod
 } from './event.interfaces';
 
 export function eventStatus(

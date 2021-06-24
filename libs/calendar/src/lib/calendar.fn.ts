@@ -37,6 +37,7 @@ const calendarsToSpaces = (org?) =>
                     new Space({
                         ...cal.resource,
                         level: org?.levelWithID(cal.resource.zones),
+                        availability: cal.availability,
                     })
             )
             .filter((space) => space.bookable)

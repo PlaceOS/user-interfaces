@@ -9,7 +9,7 @@ import { Space, SpacesService } from '@placeos/spaces';
     selector: 'a-control-space-list',
     template: `
         <div class="w-full flex items-center justify-center p-2">
-            <mat-form-field overlay class="rounded" appearance="outline">
+            <mat-form-field overlay class="rounded h-12" appearance="outline">
                 <app-icon class="text-xl" matPrefix>search</app-icon>
                 <input
                     matInput

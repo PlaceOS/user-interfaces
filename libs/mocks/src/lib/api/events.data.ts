@@ -1,10 +1,8 @@
 import { predictableRandomInt, unique } from '@placeos/common';
-
-import { MOCK_SPACES } from './spaces.data';
-import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
-
 import * as dayjs from 'dayjs';
 import { generateCateringOrder } from './catering.data';
+import { MOCK_SPACES } from './spaces.data';
+import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
 
 let EVENT_TIME = dayjs().startOf('d').hour(7);
 
@@ -47,7 +45,15 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
         host: attendees[0].email,
         calendar: 'calendar_id',
         creator: 'optional@fake.com',
-        attendees: unique(attendees, 'email'),
+        attendees: unique(attendees, 'email').map((_) => ({
+            ..._,
+            response_status:
+                predictableRandomInt(99999) % 2 === 0
+                    ? 'accepted'
+                    : predictableRandomInt(99999) % 6 === 0
+                    ? 'declined'
+                    : 'tentative',
+        })),
         title: `Some Meeting ${index}`,
         body: `A Description`,
         private: false,
