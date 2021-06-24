@@ -4,6 +4,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
 @Component({
     selector: 'nav-menu',
     template: `
+        <div class="absolute hidden sm:w-[10rem]"></div>
         <div
             class="flex sm:flex-col bg-white overflow-auto text-black shadow divide-y divide-gray-100 w-full sm:w-auto h-auto sm:h-full border-t sm:border-t border-gray-300 relative p-2"
         >
