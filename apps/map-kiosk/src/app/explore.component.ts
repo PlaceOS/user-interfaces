@@ -7,7 +7,6 @@ import {
     ExploreZonesService,
 } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { DeskFlowStateService } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-state.service';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -80,13 +79,11 @@ export class ExploreComponent implements OnInit {
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
         private _settings: SettingsService,
-        private _desk_state: DeskFlowStateService,
         private _org: OrganisationService
     ) {}
 
     public async ngOnInit() {
         await current_user.pipe(first((_) => !!_)).toPromise();
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        setTimeout(() => this._desk_state.setHost(null), 1000);
     }
 }

@@ -16,7 +16,7 @@ import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
+import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { BootstrapComponent } from './bootstrap.component';
 import { ExploreComponent } from './explore.component';
@@ -24,10 +24,6 @@ import { ExploreLevelSelectComponent } from './explore-level-select.component';
 import { ExploreMapStackComponent } from './explore-map-stack.component';
 import { FooterMenuComponent } from './footer-menu.component';
 import { DeskBookingComponent } from './desk-booking.component';
-
-import { DeskFlowListingComponent } from '../../../workplace/src/app/bookings/desk-flow/desk-flow-listing.component';
-import { DeskFlowFormComponent } from '../../../workplace/src/app/bookings/desk-flow/desk-flow-form.component';
-import { BookingSuccessComponent } from '../../../workplace/src/app/bookings/booking-success.component';
 
 import '@placeos/mocks';
 
@@ -42,10 +38,7 @@ import * as Sentry from '@sentry/angular';
         ExploreLevelSelectComponent,
         ExploreMapStackComponent,
         DeskBookingComponent,
-        DeskFlowListingComponent,
-        DeskFlowFormComponent,
-        BookingSuccessComponent,
-        FooterMenuComponent
+        FooterMenuComponent,
     ],
     imports: [
         BrowserModule,

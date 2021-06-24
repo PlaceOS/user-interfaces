@@ -3,17 +3,9 @@ import { Router } from '@angular/router';
 import { BaseClass, current_user, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
-import { DeskFlowStateService } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-state.service';
-
 @Component({
     selector: '[desk-booking]',
-    template: `
-        <desk-flow-listing
-            (window:click)="resetCountdown()"
-            class="h-1/2 flex-1 overflow-hidden"
-        ></desk-flow-listing>
-        <footer-menu></footer-menu>
-    `,
+    template: ` <footer-menu></footer-menu> `,
     styles: [
         `
             :host {
@@ -37,17 +29,12 @@ export class DeskBookingComponent extends BaseClass implements OnInit {
         );
     }
 
-    constructor(
-        private _state: DeskFlowStateService,
-        private _settings: SettingsService,
-        private _router: Router
-    ) {
+    constructor(private _settings: SettingsService, private _router: Router) {
         super();
     }
 
     public async ngOnInit() {
         await current_user.pipe(first((_) => !!_)).toPromise();
-        setTimeout(() => this._state.setHost(null), 1000);
         this.resetCountdown();
     }
 
