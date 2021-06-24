@@ -7,23 +7,13 @@ import { format } from 'date-fns';
     selector: '[dashboard]',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-200">
             <nav-menu class="relative z-10"></nav-menu>
             <div
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
-                <div
-                    class="top relative flex flex-col justify-center text-white px-12 py-4"
-                >
-                    <div class="row location">
-                        {{ bld?.display_name || bld?.name || 'Sydney' }}
-                    </div>
-                    <div class="row text-2xl text-bold uppercase">
-                        {{ datetime }}
-                    </div>
-                </div>
                 <main
-                    class="flex flex-1 px-8 flex-wrap overflow-auto h-px sm:h-auto"
+                    class="flex flex-1 px-0 sm:px-8 flex-wrap overflow-auto h-px sm:h-auto"
                 >
                     <a-dashboard-availability
                         class="flex-1 min-w-64"
@@ -53,7 +43,6 @@ import { format } from 'date-fns';
 
             main {
                 min-height: 50%;
-                background: #f0f0f0;
             }
 
             .top {
