@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ApplicationLink, SettingsService } from '@placeos/common';
+import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'nav-menu',
@@ -7,16 +7,16 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
         <div class="absolute hidden sm:w-[10rem]"></div>
         <div
             class="flex sm:flex-col bg-white overflow-auto text-black shadow divide-y divide-gray-100 w-full sm:w-auto h-auto sm:h-full border-t sm:border-t border-gray-300 relative p-2"
+            (mouseenter)="hidden ? entered() : ''"
         >
             <a
                 mat-icon-button
-                class="h-16 w-16 rounded sm:mb-2 sm:hover:bg-gray-200"
+                class="h-16 w-16 sm:h-12 rounded sm:mb-2 sm:hover:bg-gray-200"
                 *ngFor="let item of menu_items"
                 [routerLink]="[item.route]"
-                [class.sm:h-12]="!hidden"
                 [class.sm:w-[10rem]]="!hidden"
+                [class.sm:w-12]="hidden"
                 routerLinkActive="active"
-                [matTooltip]="item.name"
             >
                 <div
                     class="flex flex-col items-center w-16 px-2"
@@ -27,6 +27,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         text
                         class="text-sm font-normal h-0 overflow-hidden opacity-0"
+                        [class.sm:hidden]="hidden"
                         [class.sm:opacity-100]="!hidden"
                         [class.sm:h-auto]="!hidden"
                         [class.sm:ml-2]="!hidden"
@@ -55,8 +56,13 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 transition: opacity 200ms, height 200ms;
             }
 
+            :host > div,
+            a {
+                transition: width 200ms, height 200ms;
+            }
+
             .active {
-                background-color: var(--primary);
+                background-color: var(--primary) !important;
                 color: #fff;
             }
 
@@ -68,18 +74,27 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
         `,
     ],
 })
-export class NavMenuComponent {
+export class NavMenuComponent extends BaseClass {
     public get hidden(): boolean {
         return this._settings.value('nav.small');
     }
 
     public set hidden(value: boolean) {
         this._settings.post('nav.small', value);
+        this.clearTimeout('entered');
     }
 
     public get menu_items(): ApplicationLink[] {
         return this._settings.get('app.general.menu_items') || [];
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(private _settings: SettingsService) {
+        super();
+        this.entered();
+    }
+
+    public entered() {
+        this.hidden = false;
+        this.timeout('entered', () => (this.hidden = true), 5 * 1000);
+    }
 }
