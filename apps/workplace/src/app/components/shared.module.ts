@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
@@ -28,6 +28,7 @@ const COMPONENTS: Type<any>[] = [
         CommonModule,
         RouterModule.forChild([]),
         FormsModule,
+        ReactiveFormsModule,
         ComponentsModule,
         MatAutocompleteModule,
         MatButtonModule,

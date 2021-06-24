@@ -7,7 +7,7 @@ import { DashboardComponent } from './dashboard.component';
 import { DashboardAvailabilityComponent } from './dashboard-availability.component';
 import { DashboardUpcomingComponent } from './dashboard-upcoming.component';
 import { DashboardContactsComponent } from './dashboard-contacts.component';
-import { NewSharedComponents } from '../components/shared.module';
+import { SharedComponentModule } from '../components/shared.module';
 
 const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
 
@@ -21,7 +21,7 @@ const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
     imports: [
         CommonModule,
         FormsModule,
-        NewSharedComponents,
+        SharedComponentModule,
         RouterModule.forChild(ROUTES),
     ],
 })

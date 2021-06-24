@@ -3,15 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Route } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { SharedContentModule } from '../ui/shared.module';
 import { ExploreComponent } from './explore.component';
 
 import { BookingModalComponent } from './overlays/booking-modal/booking-modal.component';
 import { SharedExploreModule } from '@placeos/explore';
 
-import {
-    MAP_FEATURE_DATA,
-} from '@placeos/components';
+import { MAP_FEATURE_DATA } from '@placeos/components';
+import { SharedComponentModule } from '../components/shared.module';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -19,15 +17,11 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [
-        ExploreComponent,
-
-        BookingModalComponent,
-    ],
+    declarations: [ExploreComponent, BookingModalComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),
-        SharedContentModule,
+        SharedComponentModule,
         SharedExploreModule,
         FormsModule,
     ],

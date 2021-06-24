@@ -2,7 +2,6 @@ import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { SharedContentModule } from '../ui/shared.module';
 import { ViewRoomModalComponent } from './view-room-modal.component';
 
 import { SpaceSelectModalComponent } from './space-select-modal/space-select-modal.component';
@@ -11,6 +10,7 @@ import { ViewAttendeesModalComponent } from './view-attendees-modal/view-attende
 import { ViewCateringModalComponent } from './view-catering-modal/view-catering-modal.component';
 import { RecurrenceModalComponent } from './recurrence-modal/recurrence-modal.component';
 import { UserAvailabilityModalComponent } from './user-availability-modal/user-availability.modal.component';
+import { SharedComponentModule } from '../components/shared.module';
 
 const OVERLAYS: Type<any>[] = [
     ViewRoomModalComponent,
@@ -26,7 +26,7 @@ const OVERLAYS: Type<any>[] = [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        SharedContentModule,
+        SharedComponentModule,
     ],
     exports: [...OVERLAYS],
 })

@@ -17,7 +17,6 @@ import { logout } from '@placeos/ts-client';
                 <img class="h-10 sm:h-12" [src]="logo?.src" />
             </div>
             <h2 *ngIf="title; else search">{{ title }}</h2>
-
             <a-user-avatar
                 class="m-3 text-lg"
                 [user]="user"

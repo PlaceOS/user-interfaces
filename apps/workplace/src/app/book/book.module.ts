@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Route, RouterModule } from '@angular/router';
-import { SharedContentModule } from '../ui/shared.module';
+
 import { BookComponent } from './book.component';
 import { BookCodeFlowComponent } from './code-flow.component';
 import { BookDeskFlowComponent } from './desk-flow.component';
@@ -18,6 +18,7 @@ import { DetailBookSpaceFormComponent } from './space-flow/detailed-form.compone
 import { SpaceFlowFindItemComponent } from './space-flow/find-item.component';
 import { SpaceFlowFindComponent } from './space-flow/find.component';
 import { SpaceFlowFormComponent } from './space-flow/form.component';
+import { SharedComponentModule } from '../components/shared.module';
 
 const ROUTES: Route[] = [
     {
@@ -54,7 +55,7 @@ const ROUTES: Route[] = [
     ],
     imports: [
         CommonModule,
-        SharedContentModule,
+        SharedComponentModule,
         ReactiveFormsModule,
         MatButtonToggleModule,
         FormsModule,

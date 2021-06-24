@@ -6,7 +6,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 
 import { BaseClass, DialogEvent } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
-import { ITimelineEventGroup } from '../../ui/event-timeline/event-timeline.component';
+import { ITimelineEventGroup } from '../../components/event-timeline/event-timeline.component';
 
 import * as dayjs from 'dayjs';
 import { queryEvents } from '@placeos/events';
@@ -34,9 +34,7 @@ export class UserAvailabilityModalComponent
     /** Date subject */
     public date$ = new BehaviorSubject(this.date);
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: any,
-    ) {
+    constructor(@Inject(MAT_DIALOG_DATA) private _data: any) {
         super();
     }
 
@@ -67,10 +65,10 @@ export class UserAvailabilityModalComponent
                 return {
                     name: user.name,
                     events: await queryEvents({
-                            period_start,
-                            period_end,
-                            calendars: user.email,
-                        })
+                        period_start,
+                        period_end,
+                        calendars: user.email,
+                    })
                         .toPromise()
                         .then((res) =>
                             res.map((i) => ({
