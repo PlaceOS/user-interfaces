@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1624266761919,
+  "timestamp": 1624505816759,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,14 +11,13 @@
         "ignoreVary": true
       },
       "urls": [
-        "./apps_workplace_src_app_bookings_bookings_module_ts.js",
+        "./apps_workplace_src_app_book_book_module_ts.js",
         "./apps_workplace_src_app_control_control_module_ts.js",
         "./apps_workplace_src_app_dashboard_dashboard_module_ts.js",
         "./apps_workplace_src_app_directory_directory_module_ts.js",
         "./apps_workplace_src_app_explore_explore_module_ts.js",
         "./apps_workplace_src_app_help_help_module_ts.js",
         "./apps_workplace_src_app_schedule_schedule_module_ts.js",
-        "./default-apps_workplace_src_app_bookings_space-flow_space-flow_service_ts-libs_explore_src_index_ts.js",
         "./favicon.ico",
         "./index.html",
         "./main.js",
@@ -118,13 +117,13 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_bookings_bookings_module_ts.js": "de7d5a4b0d008b01baad89d6d46e83c2ba08ccf2",
-    "./apps_workplace_src_app_control_control_module_ts.js": "88f9c4fd852d8c275bd5802692dd0e1a27537335",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "f21e9306c2a24d0e1a145899b6d258dcf8de4136",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "f05c1cb034ee366d770d6feec7301001cb4c8511",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "fefa870525385b3af2a3f77680cc922a415d3944",
-    "./apps_workplace_src_app_help_help_module_ts.js": "4016b1fa22f9917b13d7404c4aa55c4a0cd9d5fd",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "5e83b7633d798e259376ff75647ef50347ee3ec2",
+    "./apps_workplace_src_app_book_book_module_ts.js": "0e28a90e8d8e272c844db2d49f704f3e4880e6fa",
+    "./apps_workplace_src_app_control_control_module_ts.js": "b89adc0cc78d027e9e21308e1a5c24da5eed337b",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "f137051902feec68282716388aab1f0f8c121728",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "1bdb534a5c4eeb1235d164405e3c0eeff9efd9f2",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "9305768f02a8ced2b33c0a04474cc3d6f498e0b6",
+    "./apps_workplace_src_app_help_help_module_ts.js": "4b6f505621475bc39618f25cd241340c6504005f",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "e42dd73584a30717a301c487086a2d1b78bc16fe",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -199,15 +198,14 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./default-apps_workplace_src_app_bookings_space-flow_space-flow_service_ts-libs_explore_src_index_ts.js": "db3bb85c23870aa86c11b50dc915e19cbd6d752f",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "dd41c0244716e9024ece295a1e4daf6e719458c6",
-    "./main.js": "fa0f24060ff05228cff67abe52b9312854940526",
+    "./index.html": "6b72892f7395d05575ccfd9ecd073ecaa17e8e3c",
+    "./main.js": "52bff14f022281d54bc39972283728c5ab62e66b",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
-    "./styles.css": "1a74f9cca1f0cdc196a654f75af4fd6356e30f56",
-    "./vendor.js": "b5356b186648f0ab5d7f2d30363fa4c2834f2ca6"
+    "./styles.css": "109361d07fa1ccef7b89e2ff1b219e81058ae841",
+    "./vendor.js": "a328cc19e33c95836022f46108bb08e0cddf6306"
   },
   "navigationUrls": [
     {
