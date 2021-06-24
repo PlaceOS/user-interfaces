@@ -32,7 +32,7 @@ const general: any = {
             route: '/book/desks',
             icon: {
                 class: 'material-icons',
-                content: 'auto_stories',
+                content: 'dashboard_customize',
             },
         },
         {

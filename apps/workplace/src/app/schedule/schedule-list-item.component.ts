@@ -41,7 +41,9 @@ import { BookingLike } from './schedule-state.service';
                                     : (item?.date | date: 'shortTime')
                             }}
                         </div>
-                        <div class="capitalize text-xs font-medium">({{ status }})</div>
+                        <div class="capitalize text-xs font-medium">
+                            ({{ status }})
+                        </div>
                     </div>
                     <div class="flex-1 flex flex-col text-left p-2">
                         <div class="text-xl pl-1">
@@ -73,9 +75,9 @@ export class ScheduleListItemComponent {
         if (this.item.asset_id) {
             switch ((this.item as Booking).type) {
                 case 'desk':
-                    return 'menu_book'
+                    return 'view_quilt';
                 case 'parking':
-                    return 'local_parking'
+                    return 'local_parking';
             }
         }
         return 'event';
