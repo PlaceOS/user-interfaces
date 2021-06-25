@@ -19,17 +19,16 @@ import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
                 routerLinkActive="active"
             >
                 <div
-                    class="flex flex-col items-center w-16 px-2"
-                    [class.sm:flex-row]="!hidden"
+                    class="flex flex-col sm:flex-row items-center justify-start w-16 px-2"
                     [class.sm:w-[10rem]]="!hidden"
                 >
                     <app-icon [icon]="item.icon"></app-icon>
                     <div
                         text
-                        class="text-sm font-normal h-0 overflow-hidden opacity-0"
-                        [class.sm:hidden]="hidden"
+                        class="text-sm font-normal h-0 sm:h-auto overflow-hidden opacity-0 text-left"
+                        [class.sm:w-0]="hidden"
+                        [class.sm:w-32]="!hidden"
                         [class.sm:opacity-100]="!hidden"
-                        [class.sm:h-auto]="!hidden"
                         [class.sm:ml-2]="!hidden"
                     >
                         {{ item.name }}
@@ -53,7 +52,7 @@ import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
                 position: relative;
             }
             [text] {
-                transition: opacity 200ms, height 200ms;
+                transition: opacity 200ms, height 200ms, width 300ms;
             }
 
             :host > div,
@@ -68,7 +67,6 @@ import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
 
             .active [text],
             a:hover [text] {
-                height: 1.25rem !important;
                 opacity: 1 !important;
             }
         `,
