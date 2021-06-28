@@ -11,10 +11,11 @@ import { logout } from '@placeos/ts-client';
     selector: 'topbar',
     template: `
         <div
+            topbar
             class="flex items-center justify-between h-16 bg-secondary border-b border-gray-200 text-white"
         >
             <a
-                icon
+                logo
                 class="p-2 h-full flex items-center"
                 [routerLink]="['/']"
                 *ngIf="logo"
@@ -32,6 +33,7 @@ import { logout } from '@placeos/ts-client';
             <div
                 mat-menu-item
                 class="flex items-center pointer-events-none leading-tight pl-0"
+                *ngIf="user"
             >
                 <a-user-avatar
                     class="m-3 text-lg"
@@ -45,6 +47,7 @@ import { logout } from '@placeos/ts-client';
             <div
                 mat-menu-item
                 class="px-2 h-auto leading-loose pointer-events-none"
+                *ngIf="user"
             >
                 <ng-container *ngFor="let group of user.groups || []">
                     <span
