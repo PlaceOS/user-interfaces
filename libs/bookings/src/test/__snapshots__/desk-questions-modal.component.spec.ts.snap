@@ -378,9 +378,11 @@ exports[`DeskQuestionsModalComponent should show failure state 1`] = `
       mat-dialog-close=""
       mat-icon-button=""
     >
-      <app-icon>
+      <i
+        class="material-icons"
+      >
         close
-      </app-icon>
+      </i>
     </button>
   </main>
   

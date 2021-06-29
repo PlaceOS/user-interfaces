@@ -1,5 +1,5 @@
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { User } from '@placeos/users';
@@ -14,8 +14,8 @@ import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 describe('TopbarComponent', () => {
-    let spectator: Spectator<TopbarComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<TopbarComponent>;
+    const createComponent = createRoutingFactory({
         component: TopbarComponent,
         providers: [
             {

@@ -1,7 +1,9 @@
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { ExploreSearchService } from '@placeos/explore';
+import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
@@ -20,6 +22,7 @@ describe('GlobalSearchComponent', () => {
                 },
             },
         ],
+        declarations: [MockComponent(IconComponent)],
         imports: [MatAutocompleteModule, FormsModule],
     });
 

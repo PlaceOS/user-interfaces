@@ -5,7 +5,7 @@ exports[`CateringOrderComponent should show order details 1`] = `
   id="root1"
 >
   <div
-    class="w-full font-medium flex items-center py-2 bg-gray-100"
+    class="w-full flex items-center py-2 bg-gray-100"
   >
     <div
       class="w-20 flex items-center justify-center"
@@ -48,7 +48,7 @@ exports[`CateringOrderComponent should show order details 1`] = `
     >
       <button
         aria-haspopup="true"
-        class="mat-menu-trigger text-base border-none h-10 px-4 flex items-center text-white"
+        class="mat-menu-trigger text-base border-none h-10 px-4 flex items-center text-white w-36"
         matripple=""
         name="status"
         style="background: rgb(57, 150, 182);"
