@@ -66,7 +66,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 <h2 class="text-xl uppercase font-medium my-4">OR</h2>
             </div>
         </section>
-        <section class="flex-1 min-h-[50%]">
+        <section form class="flex-1 min-h-[50%]">
             <h2
                 class="text-xl uppercase font-medium mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
@@ -79,6 +79,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
                     mat-button
+                    clear
                     (click)="clearForm()"
                 >
                     <div class="flex items-center justify-center">
@@ -91,6 +92,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
+                    find-space
                     (click)="findSpace()"
                 >
                     <div class="flex items-center justify-center">
@@ -103,6 +105,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
+                    standalone
                     (click)="confirmBooking()"
                 >
                     <div class="flex items-center justify-center">
