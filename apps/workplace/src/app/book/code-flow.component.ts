@@ -155,21 +155,15 @@ export class BookCodeFlowComponent implements OnInit, OnDestroy {
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
-        this._qr_scanner.stop();
+        this._qr_scanner?.stop();
     }
 
     public ngOnInit(): void {
-        if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices
-                .getUserMedia({ video: true })
-                .then(
-                    (stream) =>
-                        (this._video_el.nativeElement.srcObject = stream)
-                )
-                .catch((e) =>
-                    console.error('Unable to fetch media devices!', e)
-                );
-        }
+        if (!navigator.mediaDevices?.getUserMedia) return;
+        navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => (this._video_el.nativeElement.srcObject = stream))
+            .catch((e) => console.error('Unable to fetch media devices!', e));
         this._qr_scanner = new QrScanner(this._video_el.nativeElement, (r) =>
             this.handleQrCode(r)
         );
