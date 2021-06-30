@@ -95,9 +95,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class BookingFormModalComponent extends BaseClass implements OnInit {
+export class BookingFormModalComponent extends BaseClass {
     @Input() public first_form: boolean;
     @Input() public form: FormGroup;
-
-    public ngOnInit() {}
 }
