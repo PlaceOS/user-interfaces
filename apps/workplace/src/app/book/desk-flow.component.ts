@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BookingStateService } from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -47,7 +47,7 @@ export class BookDeskFlowComponent extends BaseClass implements OnInit {
     }
 
     constructor(
-        private _state: BookingStateService,
+        private _state: BookingFormService,
         private _route: ActivatedRoute,
         private _org: OrganisationService
     ) {

@@ -2,8 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Booking, removeBooking, showBooking } from '@placeos/bookings';
-import { BaseClass, currentUser, notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
-import { CalendarEvent, EventStateService, removeEvent, showEvent } from '@placeos/events';
+import {
+    BaseClass,
+    currentUser,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+} from '@placeos/common';
+import {
+    CalendarEvent,
+    EventFormService,
+    removeEvent,
+    showEvent,
+} from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { isAfter } from 'date-fns';
 import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
@@ -261,7 +272,7 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _events: EventStateService
+        private _events: EventFormService
     ) {
         super();
     }
@@ -307,19 +318,26 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
     }
 
     public async confirmDelete() {
-        const details = await openConfirmModal({
-            title: `${this.is_host ? 'Delete' : 'Decline'} event`,
-            content: `Are you sure you wish to ${this.is_host ? 'delete' : 'decline'} this event?`,
-            icon: { content: this.is_host ? 'delete' : 'event_busy' }
-        }, this._dialog);
+        const details = await openConfirmModal(
+            {
+                title: `${this.is_host ? 'Delete' : 'Decline'} event`,
+                content: `Are you sure you wish to ${
+                    this.is_host ? 'delete' : 'decline'
+                } this event?`,
+                icon: { content: this.is_host ? 'delete' : 'event_busy' },
+            },
+            this._dialog
+        );
         if (details.reason !== 'done') return;
         details.loading('Removing event...');
         const fn = this.event instanceof Booking ? removeBooking : removeEvent;
-        await fn(this.event.id).toPromise().catch((e) => {
-            details.loading('');
-            notifyError(`Error removing event. ${e}`);
-            throw e;
-        });
+        await fn(this.event.id)
+            .toPromise()
+            .catch((e) => {
+                details.loading('');
+                notifyError(`Error removing event. ${e}`);
+                throw e;
+            });
         notifySuccess('Successfully removed event.');
         this._router.navigate(['/schedule']);
         details.close();

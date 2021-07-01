@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 
 @Component({
@@ -168,7 +168,7 @@ export class SpaceFlowFormComponent {
         this._state.clearForm();
     };
 
-    constructor(private _state: EventStateService, private _router: Router) {}
+    constructor(private _state: EventFormService, private _router: Router) {}
 
     public quickBook() {
         this.form.patchValue({

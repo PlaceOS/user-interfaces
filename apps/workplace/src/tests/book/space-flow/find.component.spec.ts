@@ -6,7 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { MockComponent } from 'ng-mocks';
@@ -21,7 +21,7 @@ describe('SpaceFlowFindComponent', () => {
         component: SpaceFlowFindComponent,
         providers: [
             {
-                provide: EventStateService,
+                provide: EventFormService,
                 useValue: {
                     options: new BehaviorSubject({}),
                 },

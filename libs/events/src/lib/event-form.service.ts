@@ -34,7 +34,7 @@ export interface EventFlowOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class EventStateService extends BaseClass {
+export class EventFormService extends BaseClass {
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFlowOptions>({ zone_ids: [] });
     private _form = new BehaviorSubject<FormGroup>(null);

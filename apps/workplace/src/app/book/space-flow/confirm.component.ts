@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { notifyError } from '@placeos/common';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 
 @Component({
     selector: 'space-flow-confirm',
@@ -209,5 +209,5 @@ export class SpaceFlowConfirmComponent {
         return this._state.form;
     }
 
-    constructor(private _state: EventStateService) {}
+    constructor(private _state: EventFormService) {}
 }

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { BookingStateService } from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -221,7 +221,7 @@ export class DeskFlowDetailedFormComponent {
     }
 
     constructor(
-        private _state: BookingStateService,
+        private _state: BookingFormService,
         private _org: OrganisationService,
         private _settings: SettingsService
     ) {}

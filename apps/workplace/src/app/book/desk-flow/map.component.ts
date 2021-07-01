@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BookingStateService } from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import { BaseClass, formatRecurrence } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { Desk } from '@placeos/organisation';
@@ -212,7 +212,7 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
     }
 
     constructor(
-        private _state: BookingStateService,
+        private _state: BookingFormService,
         private _explore: ExploreStateService
     ) {
         super();

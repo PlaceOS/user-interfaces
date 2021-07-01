@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@placeos/common';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 
 @Component({
     selector: 'placeos-book-space-flow',
@@ -15,7 +15,9 @@ import { EventStateService } from '@placeos/events';
                     <space-flow-confirm></space-flow-confirm>
                 </ng-container>
                 <ng-container *ngSwitchCase="'success'">
-                    <flow-success [calendar]="last_success?.host"></flow-success>
+                    <flow-success
+                        [calendar]="last_success?.host"
+                    ></flow-success>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                     <space-flow-form></space-flow-form>
@@ -41,7 +43,7 @@ export class BookSpaceFlowComponent extends BaseClass implements OnInit {
     }
 
     constructor(
-        private _state: EventStateService,
+        private _state: EventFormService,
         private _route: ActivatedRoute
     ) {
         super();

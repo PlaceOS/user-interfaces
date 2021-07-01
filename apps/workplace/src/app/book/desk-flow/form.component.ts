@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BookingStateService } from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, addMinutes, roundToNearestMinutes } from 'date-fns';
 import setHours from 'date-fns/setHours';
@@ -152,7 +152,7 @@ export class DeskFlowFormComponent implements OnInit {
     };
 
     constructor(
-        private _state: BookingStateService,
+        private _state: BookingFormService,
         private _router: Router,
         private _org: OrganisationService
     ) {}

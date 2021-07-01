@@ -2,7 +2,7 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import {
     CalendarEvent,
-    EventStateService,
+    EventFormService,
     generateEventForm,
 } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
@@ -21,7 +21,7 @@ describe('SpaceFlowConfirmComponent', () => {
         component: SpaceFlowConfirmComponent,
         providers: [
             {
-                provide: EventStateService,
+                provide: EventFormService,
                 useValue: {
                     postForm: jest.fn(async () => await timer(1).toPromise()),
                     form: generateEventForm(new CalendarEvent()),
@@ -38,7 +38,7 @@ describe('SpaceFlowConfirmComponent', () => {
     });
 
     it('should allow confirming the booking', async () => {
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         expect(service.postForm).not.toHaveBeenCalled();
         expect(spectator.component.loading).toBeFalsy();
         spectator.click('button[confirm]');
@@ -49,7 +49,7 @@ describe('SpaceFlowConfirmComponent', () => {
     });
 
     it('should notify user of booking errors', async () => {
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         service.postForm.mockImplementation(async () =>
             timer(1)
                 .pipe(switchMap(() => throwError('Error')))
@@ -67,7 +67,7 @@ describe('SpaceFlowConfirmComponent', () => {
     });
 
     it('should display booking details', () => {
-        const form = spectator.inject(EventStateService).form;
+        const form = spectator.inject(EventFormService).form;
         form.patchValue({
             date: 0,
         });

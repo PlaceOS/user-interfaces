@@ -1,5 +1,5 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 import { FlowSuccessComponent } from '../../app/book/flow-success.component';
 import { BookSpaceFlowComponent } from '../../app/book/space-flow.component';
@@ -13,7 +13,7 @@ describe('BookSpaceFlowComponent', () => {
         component: BookSpaceFlowComponent,
         providers: [
             {
-                provide: EventStateService,
+                provide: EventFormService,
                 useValue: {
                     loadForm: jest.fn(),
                     newForm: jest.fn(),
@@ -39,7 +39,7 @@ describe('BookSpaceFlowComponent', () => {
 
     it('should show form page', () => {
         expect('space-flow-form').toExist();
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         (service as any).view = 'confirm';
         spectator.detectChanges();
         expect('space-flow-form').not.toExist();
@@ -47,7 +47,7 @@ describe('BookSpaceFlowComponent', () => {
 
     it('should show find space page', () => {
         expect('space-flow-find').not.toExist();
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         (service as any).view = 'find';
         spectator.detectChanges();
         expect('space-flow-find').toExist();
@@ -55,7 +55,7 @@ describe('BookSpaceFlowComponent', () => {
 
     it('should show confirm page', () => {
         expect('space-flow-confirm').not.toExist();
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         (service as any).view = 'confirm';
         spectator.detectChanges();
         expect('space-flow-confirm').toExist();
@@ -63,7 +63,7 @@ describe('BookSpaceFlowComponent', () => {
 
     it('should show success page', () => {
         expect('flow-success').not.toExist();
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         (service as any).view = 'success';
         spectator.detectChanges();
         expect('flow-success').toExist();

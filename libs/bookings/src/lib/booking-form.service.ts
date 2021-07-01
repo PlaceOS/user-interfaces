@@ -64,7 +64,7 @@ export interface BookingAsset {
 @Injectable({
     providedIn: 'root',
 })
-export class BookingStateService extends BaseClass {
+export class BookingFormService extends BaseClass {
     private _view = new BehaviorSubject<BookingFlowView>('form');
     private _options = new BehaviorSubject<BookingFlowOptions>({
         type: 'desk',

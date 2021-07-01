@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
@@ -15,7 +15,7 @@ describe('SpaceFlowFormComponent', () => {
         component: SpaceFlowFormComponent,
         providers: [
             {
-                provide: EventStateService,
+                provide: EventFormService,
                 useValue: {
                     setOptions: jest.fn(),
                     clearForm: jest.fn(),
@@ -42,7 +42,7 @@ describe('SpaceFlowFormComponent', () => {
     });
 
     it('should allow for quick bookings', () => {
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         spectator.click('[quick] button');
         spectator.detectChanges();
         expect(service.form.patchValue).toHaveBeenCalledTimes(1);
@@ -62,7 +62,7 @@ describe('SpaceFlowFormComponent', () => {
         spectator.component.time = 1;
         spectator.component.capacity = 5;
         spectator.click('button[clear]');
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         expect(service.clearForm).toHaveBeenCalledTimes(1);
         expect(spectator.component.time).toBe(0);
         expect(spectator.component.capacity).toBe(0);
@@ -70,7 +70,7 @@ describe('SpaceFlowFormComponent', () => {
 
     it('should allow booking without a space', () => {
         spectator.click('button[standalone]');
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         expect(service.form.markAllAsTouched).toHaveBeenCalled();
         expect(spectator.router.navigate).toHaveBeenCalledWith([
             '/book',
@@ -81,7 +81,7 @@ describe('SpaceFlowFormComponent', () => {
 
     it('should allow finding a space', () => {
         spectator.click('button[find-space]');
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         expect(service.form.markAllAsTouched).toHaveBeenCalled();
         expect(spectator.router.navigate).toHaveBeenCalledWith([
             '/book',
@@ -91,7 +91,7 @@ describe('SpaceFlowFormComponent', () => {
     });
 
     it('should allow for edits', () => {
-        const service = spectator.inject(EventStateService);
+        const service = spectator.inject(EventFormService);
         expect('[quick]').toExist();
         expect('[form] h2').toContainText('Detailed Booking');
         (service.form.get as any).mockImplementation((_) => ({ value: true }));

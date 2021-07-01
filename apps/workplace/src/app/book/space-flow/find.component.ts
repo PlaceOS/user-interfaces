@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HashMap, SettingsService } from '@placeos/common';
-import { EventStateService } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { combineLatest } from 'rxjs';
@@ -248,13 +248,13 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get multiple() {
-        return this._settings.get('app.booking.multiple_spaces') ?? true;
+        return this._settings.get('app.booking.multiple_spaces') ?? false;
     }
 
     constructor(
         private _org: OrganisationService,
         private _spaces: SpacesService,
-        private _state: EventStateService,
+        private _state: EventFormService,
         private _settings: SettingsService,
         private _router: Router
     ) {}
