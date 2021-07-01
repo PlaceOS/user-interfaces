@@ -1,0 +1,131 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DirectoryUserListComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <topbar />
+  <div
+    class="flex-1 flex sm:flex-row flex-col-reverse h-1/2"
+  >
+    <nav-menu
+      class="relative z-10"
+    />
+    <div
+      class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+    >
+      <div
+        class="w-full flex items-center justify-center p-2"
+      >
+        <mat-form-field
+          appearance="outline"
+          class="mat-form-field rounded mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
+          overlay=""
+        >
+          <div
+            class="mat-form-field-wrapper"
+          >
+            <div
+              class="mat-form-field-flex"
+            >
+              <div
+                class="mat-form-field-outline"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              <div
+                class="mat-form-field-outline mat-form-field-outline-thick"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              
+              
+              <div
+                class="mat-form-field-prefix"
+              >
+                <app-icon
+                  class="text-xl"
+                  matprefix=""
+                >
+                  search
+                </app-icon>
+              </div>
+              
+              <div
+                class="mat-form-field-infix"
+              >
+                <input
+                  aria-invalid="false"
+                  aria-required="false"
+                  class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-valid cdk-text-field-autofill-monitored"
+                  data-placeholder="Search for a person..."
+                  matinput=""
+                  placeholder="Search for a person..."
+                />
+                <span
+                  class="mat-form-field-label-wrapper"
+                >
+                  
+                </span>
+              </div>
+              
+            </div>
+            
+            <div
+              class="mat-form-field-subscript-wrapper"
+            >
+              
+              <div
+                class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+                style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+              >
+                
+                <div
+                  class="mat-form-field-hint-spacer"
+                />
+              </div>
+              
+            </div>
+          </div>
+        </mat-form-field>
+      </div>
+      <main
+        class="flex-1 h-1/2 w-full"
+      >
+        <div
+          class="flex flex-col items-center p-8"
+        >
+          <app-icon
+            class="text-5xl"
+          >
+            arrow_upward
+          </app-icon>
+          <div
+            class="text"
+          >
+             Type above to search for users 
+          </div>
+        </div>
+        
+      </main>
+    </div>
+  </div>
+  
+</div>
+`;

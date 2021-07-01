@@ -99,12 +99,31 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
     ],
 })
 export class DirectoryUserListComponent extends BaseClass implements OnInit {
-    /** List of controllable spaces */
+    /** List of searchable users */
     public user_list: User[] = [];
     /** String  */
     public search_str: string;
     /** List of users from an API search */
-    public search_results$: Observable<User[]>;
+    public search_results$: Observable<User[]> = this.search$.pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        switchMap((query) => {
+            console.log('Here');
+            this.loading = true;
+            const retVal =
+                query.length >= this.min_search_length
+                    ? searchStaff(query)
+                          .toPromise()
+                          .catch(() => [])
+                    : Promise.resolve(this.user_list || []);
+            return retVal;
+        }),
+        map((list: User[]) => {
+            console.log('List:', list);
+            this.loading = false;
+            return list;
+        })
+    );
     /** Whether space list is being filtered */
     public loading: boolean;
     /** Subject holding the value of the search */
@@ -125,25 +144,6 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        // Listen for input changes
-        this.search_results$ = this.search$.pipe(
-            debounceTime(400),
-            distinctUntilChanged(),
-            switchMap((query) => {
-                this.loading = true;
-                const retVal =
-                    query.length >= this.min_search_length
-                        ? searchStaff(query)
-                              .toPromise()
-                              .catch(() => [])
-                        : Promise.resolve(this.user_list || []);
-                return retVal;
-            }),
-            map((list: User[]) => {
-                this.loading = false;
-                return list;
-            })
-        );
         // Process API results
         this.subscription(
             'search_results',
