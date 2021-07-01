@@ -29,13 +29,19 @@ import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component
             <div class="flex flex-col space-y-2 ml-2">
                 <button
                     mat-button
+                    book
                     [class.bg-pending]="book"
                     [class.border-pending]="book"
                     (click)="bookSpace()"
                 >
                     {{ multiple ? (book ? 'Remove' : 'Select') : 'Book' }}
                 </button>
-                <button mat-button class="inverse" (click)="viewLocation()">
+                <button
+                    locate
+                    mat-button
+                    class="inverse"
+                    (click)="viewLocation()"
+                >
                     Map
                 </button>
             </div>

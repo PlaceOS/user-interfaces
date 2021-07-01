@@ -265,7 +265,6 @@ export class SpaceFlowFindComponent implements OnInit {
         this.setBuilding(this._org.building);
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
-        console.log('Resources:', resources);
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
