@@ -161,11 +161,16 @@ import { EventStateService } from '@placeos/events';
             <button
                 mat-button
                 class="w-32"
+                confirm
                 [disabled]="loading"
                 (click)="postForm()"
             >
                 <span *ngIf="!loading">Confirm</span>
-                <mat-spinner class="mx-auto" [diameter]="24" *ngIf="loading"></mat-spinner>
+                <mat-spinner
+                    class="mx-auto"
+                    [diameter]="24"
+                    *ngIf="loading"
+                ></mat-spinner>
             </button>
         </div>
         <
@@ -196,7 +201,6 @@ export class SpaceFlowConfirmComponent {
 
     public readonly postForm = async () => {
         this.loading = true;
-        console.log('Form:', this.form);
         await this._state.postForm().catch((_) => notifyError(_));
         this.loading = false;
     };
