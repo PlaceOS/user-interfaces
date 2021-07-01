@@ -269,7 +269,7 @@ export class SpaceFlowFindComponent implements OnInit {
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
 
-    public handleBookEvent(space: Space, book: boolean) {
+    public handleBookEvent(space: Space, book: boolean = true) {
         if (this.multiple) {
             this.book_space[space.id] = book;
         } else {

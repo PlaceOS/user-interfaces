@@ -14,6 +14,9 @@ import { BehaviorSubject, of } from 'rxjs';
 
 import { SpaceFlowFindItemComponent } from 'apps/workplace/src/app/book/space-flow/find-item.component';
 import { SpaceFlowFindComponent } from 'apps/workplace/src/app/book/space-flow/find.component';
+import { Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
 
 describe('SpaceFlowFindComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowFindComponent>;
@@ -24,6 +27,10 @@ describe('SpaceFlowFindComponent', () => {
                 provide: EventFormService,
                 useValue: {
                     options: new BehaviorSubject({}),
+                    loading: new BehaviorSubject(''),
+                    setOptions: jest.fn(),
+                    available_spaces: new BehaviorSubject([]),
+                    form: { get: jest.fn(), patchValue: jest.fn() },
                 },
             },
             {
@@ -61,7 +68,51 @@ describe('SpaceFlowFindComponent', () => {
 
     it.todo('should handle changing filters');
 
-    it.todo('should list available spaces');
+    it('should list available spaces', () => {
+        expect('space-flow-find-item').toHaveLength(0);
+        expect('p').toContainText(
+            'No available spaces for selected time, capacity or level(s)'
+        );
+        const service = spectator.inject(EventFormService);
+        (service.available_spaces as any).next([{ id: 1 }, { id: 2 }]);
+        spectator.detectChanges();
+        expect('space-flow-find-item').toHaveLength(2);
+        expect('p').not.toContainText(
+            'No available spaces for selected time, capacity or level(s)'
+        );
+    });
 
-    it.todo('should allow selecting multiple spaces');
+    it('should allow booking spaces', () => {
+        const service = spectator.inject(EventFormService);
+        (service.available_spaces as any).next([{ id: 1 }, { id: 2 }]);
+        spectator.detectChanges();
+        spectator.triggerEventHandler(
+            'space-flow-find-item',
+            'bookChange',
+            true
+        );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/book',
+            'spaces',
+            'confirm',
+        ]);
+    });
+
+    it('should allow selecting multiple spaces', () => {
+        const spaces = [{ id: '1' }, { id: '2' }];
+        expect.assertions(3);
+        expect(spectator.component.space_list).toHaveLength(0);
+        const settings = spectator.inject(SettingsService);
+        const space_service = spectator.inject(SpacesService);
+        space_service.filter.mockImplementation((_) => spaces.filter(_));
+        settings.get.mockImplementation(() => true);
+        const service = spectator.inject(EventFormService);
+        (service.available_spaces as any).next(spaces);
+        spectator.detectChanges();
+        const elements = spectator.queryAll('space-flow-find-item');
+        for (let i = 0; i < elements.length; i++) {
+            spectator.dispatchFakeEvent(elements[i], 'bookChange');
+            expect(spectator.component.space_list).toHaveLength(i + 1);
+        }
+    });
 });

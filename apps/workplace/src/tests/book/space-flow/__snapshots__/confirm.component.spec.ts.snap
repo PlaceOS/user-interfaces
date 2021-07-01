@@ -49,7 +49,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
       <div
         class="flex-1 truncate"
       >
-         July 1, 2021 at 12:25 PM ~ 12:55 PM 
+         July 1, 2021 at 1:15 PM ~ 1:45 PM 
       </div>
       <a
         class="clear underline"
@@ -225,7 +225,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
       <div
         class="flex-1 truncate"
       >
-         July 1, 2021 at 12:25 PM ~ 12:55 PM 
+         July 1, 2021 at 1:15 PM ~ 1:45 PM 
       </div>
       <a
         class="clear underline"
