@@ -2,7 +2,7 @@
 
 exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
 <div
-  id="root0"
+  id="root4"
 >
   <div
     topbar=""
@@ -178,7 +178,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
 
 exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
 <div
-  id="root0"
+  id="root4"
 >
   <div
     topbar=""
