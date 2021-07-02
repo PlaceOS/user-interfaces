@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { addDays } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
@@ -20,8 +20,8 @@ import { ScheduleListComponent } from '../../app/schedule/schedule-list.componen
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleListComponent', () => {
-    let spectator: SpectatorRouting<ScheduleListComponent>;
-    const createComponent = createRoutingFactory({
+    let spectator: Spectator<ScheduleListComponent>;
+    const createComponent = createComponentFactory({
         component: ScheduleListComponent,
         providers: [
             {
