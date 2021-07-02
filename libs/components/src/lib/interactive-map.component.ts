@@ -215,10 +215,10 @@ export class InteractiveMapComponent
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
+        if (!getViewer(this.viewer) || this.loading) {
+            return this.timeout('update_view', () => this.updateView());
+        }
         try {
-            if (!getViewer(this.viewer) || this.loading) {
-                return this.timeout('update_view', () => this.updateView());
-            }
             updateViewer(this.viewer, {
                 styles: this.styles,
                 features: this.feature_list,
@@ -226,9 +226,7 @@ export class InteractiveMapComponent
                 actions: this.actions,
                 options: this.options,
             });
-        } catch (e) {
-            this.timeout('update_view', () => this.updateView());
-        }
+        } catch (e) {}
     }
 
     /** Update zoom and center position of viewer */
