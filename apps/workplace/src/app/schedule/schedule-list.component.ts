@@ -12,8 +12,8 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
             class="w-full h-16 flex items-center justify-between bg-white border-b border-gray-300 shadow p-2"
         >
             <mat-form-field appearance="outline" class="h-[3.25rem]">
-                <mat-select [placeholder]="user.name">
-                    <mat-option>{{ user.name }}</mat-option>
+                <mat-select [placeholder]="user?.name">
+                    <mat-option>{{ user?.name }}</mat-option>
                 </mat-select>
             </mat-form-field>
             <div class="flex items-center space-x-2">
@@ -46,9 +46,17 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
             </div>
         </div>
         <div class="w-full flex-1 overflow-hidden bg-gray-100">
-            <cdk-virtual-scroll-viewport itemSize="88" class="h-full w-full" (scrolledIndexChange)="updateDate($event)">
-                <div schedule-list-item
-                    *cdkVirtualFor="let item of event_list | async; trackBy: trackByFn"
+            <cdk-virtual-scroll-viewport
+                itemSize="88"
+                class="h-full w-full"
+                (scrolledIndexChange)="updateDate($event)"
+            >
+                <div
+                    schedule-list-item
+                    *cdkVirtualFor="
+                        let item of event_list | async;
+                        trackBy: trackByFn
+                    "
                     [item]="item"
                 ></div>
             </cdk-virtual-scroll-viewport>
@@ -101,7 +109,11 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
                 items = found.length
                     ? [
                           ...items,
-                          { id: 'date', date: start.valueOf(), duration: found.length },
+                          {
+                              id: 'date',
+                              date: start.valueOf(),
+                              duration: found.length,
+                          },
                           ...found,
                       ]
                     : [
@@ -118,7 +130,8 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
         return currentUser();
     }
 
-    @ViewChild(CdkVirtualScrollViewport) private _viewport: CdkVirtualScrollViewport;
+    @ViewChild(CdkVirtualScrollViewport, { static: true })
+    private _viewport: CdkVirtualScrollViewport;
 
     constructor(private _state: ScheduleStateService) {}
 
@@ -142,18 +155,23 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
 
     public async scrollTo(date: Date) {
         const events = await this.event_list.pipe(take(1)).toPromise();
-        const index = events.findIndex(_ => _.id === 'date' && isSameDay(_.date, date));
+        const index = events.findIndex(
+            (_) => _.id === 'date' && isSameDay(_.date, date)
+        );
         if (index >= 0 && this._viewport) {
             let position = 0;
             for (let i = 0; i < events.length && i < index; i++) {
-                if (events[i].id === 'date' && events[i].duration > 0) position += 88 / 88;
+                if (events[i].id === 'date' && events[i].duration > 0)
+                    position += 88 / 88;
                 else position += 1;
             }
-            this._viewport.scrollTo({ top: Math.round(position * 88), behavior: 'smooth' });
+            this._viewport.scrollTo({
+                top: Math.round(position * 88),
+                behavior: 'smooth',
+            });
         }
         this.setDate(date);
     }
-
 
     /* istanbul ignore next */
     public trackByFn(idx: number, event: BookingLike) {
