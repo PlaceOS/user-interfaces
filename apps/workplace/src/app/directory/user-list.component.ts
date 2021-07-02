@@ -103,12 +103,19 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
     public user_list: User[] = [];
     /** String  */
     public search_str: string;
+    /** Whether space list is being filtered */
+    public loading: boolean;
+    /** Whether to show menu */
+    public show_menu: boolean;
+
+    public groupedUsers: { [id: string]: User[] } = {};
+    /** Subject holding the value of the search */
+    public readonly search$ = new Subject<string>();
     /** List of users from an API search */
     public search_results$: Observable<User[]> = this.search$.pipe(
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((query) => {
-            console.log('Here');
             this.loading = true;
             const retVal =
                 query.length >= this.min_search_length
@@ -119,19 +126,10 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
             return retVal;
         }),
         map((list: User[]) => {
-            console.log('List:', list);
             this.loading = false;
             return list;
         })
     );
-    /** Whether space list is being filtered */
-    public loading: boolean;
-    /** Subject holding the value of the search */
-    public readonly search$ = new Subject<string>();
-    /** Whether to show menu */
-    public show_menu: boolean;
-
-    public groupedUsers: { [id: string]: User[] } = {};
 
     /** Minimum length of the search string needed to initial a search */
     public get min_search_length(): number {

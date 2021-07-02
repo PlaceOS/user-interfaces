@@ -51,18 +51,19 @@ describe('DirectoryUserListComponent', () => {
 
     it('should list spaces', async () => {
         expect('a-cdirectory-user-list-item').toHaveLength(0);
-        spectator.component.search$.next('User 1');
+        spectator.component.search$.next('User');
         await timer(401).toPromise();
         spectator.detectChanges();
         expect('a-directory-user-list-item').toHaveLength(2);
     });
 
     it('should allow user to filter spaces', async () => {
-        spectator.component.search$.next('User 2');
+        spectator.component.search$.next('Use');
         await timer(401).toPromise();
         spectator.detectChanges();
         expect('a-directory-user-list-item').toHaveLength(2);
-        spectator.typeInElement('1', 'input');
+        spectator.typeInElement('User 2', 'input');
+        await timer(401).toPromise();
         spectator.detectChanges();
         expect('a-directory-user-list-item').toHaveLength(1);
     });
