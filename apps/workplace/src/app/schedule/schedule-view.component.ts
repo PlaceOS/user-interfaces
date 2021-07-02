@@ -17,7 +17,7 @@ import {
 } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { isAfter } from 'date-fns';
-import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
+import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 
 @Component({
     selector: 'schedule-view',
@@ -302,11 +302,11 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
     }
 
     public viewLocation(space: Space) {
-        this._dialog.open(ViewRoomModalComponent, {
+        this._dialog.open(MapLocateModalComponent, {
             width: '32em',
             maxWidth: '95vw',
             maxHeight: '95vh',
-            data: { space },
+            data: { item: space },
         });
     }
 

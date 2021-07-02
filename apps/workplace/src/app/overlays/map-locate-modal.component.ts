@@ -7,14 +7,25 @@ import { BuildingLevel } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { MapPinComponent } from '@placeos/components';
 
+export interface Locatable {
+    id: string;
+    name: string;
+    map_id: string;
+    level: BuildingLevel;
+}
+
 @Component({
-    selector: 'view-room-modal',
+    selector: 'map-locate-modal',
     template: `
         <header class="h-12 px-2">
             <app-icon>place</app-icon>
-            <h1 class="ml-2">{{ space.name }}</h1>
+            <h1 class="ml-2">{{ item.name }}</h1>
         </header>
-        <div body class="relative overflow-hidden pointer-events-none" *ngIf="level">
+        <div
+            body
+            class="relative overflow-hidden pointer-events-none"
+            *ngIf="level"
+        >
             <i-map
                 [src]="level.map_id"
                 [styles]="style_map"
@@ -22,10 +33,18 @@ import { MapPinComponent } from '@placeos/components';
             >
                 <mat-spinner diameter="64"></mat-spinner>
             </i-map>
-            <div class="absolute top-2 right-2 py-2 px-4 bg-white rounded-3xl shadow">{{ level?.name }}</div>
+            <div
+                class="absolute top-2 right-2 py-2 px-4 bg-white rounded-3xl shadow"
+            >
+                {{ level?.name }}
+            </div>
         </div>
-        <footer class="w-full border-t border-gray-200 flex items-center justify-center p-2">
-            <button mat-button class="inverse w-32" mat-dialog-close>Close</button>
+        <footer
+            class="w-full border-t border-gray-200 flex items-center justify-center p-2"
+        >
+            <button mat-button class="inverse w-32" mat-dialog-close>
+                Close
+            </button>
         </footer>
     `,
     styles: [
@@ -37,36 +56,32 @@ import { MapPinComponent } from '@placeos/components';
         `,
     ],
 })
-export class ViewRoomModalComponent extends BaseClass implements OnInit {
+export class MapLocateModalComponent extends BaseClass implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter();
     /** Space to show the location of on the map */
-    public space: Space;
+    public item: Locatable = this._data.item;
     /** Features of the map */
     public features: ViewerFeature[];
     /** Mapping of elements to CSS styles */
     public style_map: ViewerStyles = {};
 
     public get level(): BuildingLevel {
-        return this.space.level;
+        return this.item.level;
     }
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: { space: Space }) {
+    constructor(@Inject(MAT_DIALOG_DATA) private _data: { item: Locatable }) {
         super();
     }
 
     public ngOnInit(): void {
-        const data = this._data;
-        if (data) {
-            this.space = data.space;
-            this.processFeature();
-            this.processStyles();
-        }
+        this.processFeature();
+        this.processStyles();
     }
 
     public processStyles(): void {
         const styles: ViewerStyles = {};
-        if (this.space.map_id) {
+        if (this.item?.map_id) {
             styles[`#zones`] = { display: 'none' };
             styles[`#Zones`] = { display: 'none' };
         }
@@ -75,14 +90,12 @@ export class ViewRoomModalComponent extends BaseClass implements OnInit {
 
     /** Point on map to focus on */
     public processFeature(): void {
-        if (!this.space) {
-            return null;
-        }
+        if (!this.item) return null;
         const focus = {
-            location: this.space.map_id,
+            location: this.item.map_id,
             content: MapPinComponent,
             data: {
-                name: this.space.name,
+                name: this.item.name,
             },
             zoom: 100,
         };

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@placeos/spaces';
 
-import { ViewRoomModalComponent } from '../overlays/view-room-modal.component';
+import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
@@ -129,6 +129,6 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     }
 
     public locateSpace(space: Space) {
-        this._dialog.open(ViewRoomModalComponent, { data: { space } });
+        this._dialog.open(MapLocateModalComponent, { data: { item: space } });
     }
 }

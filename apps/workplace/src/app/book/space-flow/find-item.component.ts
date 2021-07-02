@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@placeos/spaces';
-import { ViewRoomModalComponent } from '../../overlays/view-room-modal.component';
+import { MapLocateModalComponent } from '../../overlays/map-locate-modal.component';
 
 @Component({
     selector: 'space-flow-find-item',
@@ -73,11 +73,11 @@ export class SpaceFlowFindItemComponent {
     }
 
     public viewLocation() {
-        this._dialog.open(ViewRoomModalComponent, {
+        this._dialog.open(MapLocateModalComponent, {
             width: '32em',
             maxWidth: '95vw',
             maxHeight: '95vh',
-            data: { space: this.space },
+            data: { item: this.space },
         });
     }
 }
