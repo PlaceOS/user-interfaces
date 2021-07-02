@@ -69,13 +69,15 @@ describe('SpaceFlowConfirmComponent', () => {
     it('should display booking details', () => {
         const form = spectator.inject(EventFormService).form;
         form.patchValue({
-            date: 0,
+            date: 2,
         });
+        spectator.detectChanges();
         expect(spectator.element).toMatchSnapshot();
         form.patchValue({
             attendees: [{ name: 'Jim', email: 'jim@jones.com' }],
             resources: [{ name: 'Space 1', email: 'space-1@jones.com' }],
         });
+        spectator.detectChanges();
         expect(spectator.element).toMatchSnapshot();
     });
 });
