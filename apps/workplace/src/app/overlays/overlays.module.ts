@@ -8,7 +8,7 @@ import { SpaceSelectModalComponent } from './space-select-modal/space-select-mod
 import { ItemComponent } from './space-select-modal/item/item.component';
 import { ViewAttendeesModalComponent } from './view-attendees-modal/view-attendees-modal.component';
 import { ViewCateringModalComponent } from './view-catering-modal/view-catering-modal.component';
-import { RecurrenceModalComponent } from './recurrence-modal/recurrence-modal.component';
+import { RecurrenceModalComponent } from './recurrence-modal.component';
 import { UserAvailabilityModalComponent } from './user-availability-modal/user-availability.modal.component';
 import { SharedComponentModule } from '../components/shared.module';
 
