@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { ExploreComponent } from './explore.component';
 
-import { BookingModalComponent } from './overlays/booking-modal/booking-modal.component';
 import { SharedExploreModule } from '@placeos/explore';
 
 import { MAP_FEATURE_DATA } from '@placeos/components';
@@ -17,7 +16,7 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [ExploreComponent, BookingModalComponent],
+    declarations: [ExploreComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),
