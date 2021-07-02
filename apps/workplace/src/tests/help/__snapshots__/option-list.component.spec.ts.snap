@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HelpOptionListComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="flex items-center flex-wrap h-full w-full bg-gray-200 bg-cover bg-center p-2 overflow-auto"
+    style="background-image: url(null);"
+  >
+    
+  </div>
+</div>
+`;

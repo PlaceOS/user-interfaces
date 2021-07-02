@@ -6,7 +6,7 @@ import { TopbarComponent } from '../../app/components/topbar.component';
 import { HelpComponent } from '../../app/help/help.component';
 import { HelpOptionListComponent } from '../../app/help/option-list.component';
 
-describe('ExploreComponent', () => {
+describe('HelpComponent', () => {
     let spectator: Spectator<HelpComponent>;
     const createComponent = createComponentFactory({
         component: HelpComponent,
