@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DeskFlowConfirmComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    topbar=""
+  >
+    <a
+      button=""
+      class="clear h-[2.75rem] text-white"
+      mat-button=""
+    >
+      <div
+        class="flex items-center justify-center h-full"
+      >
+        <app-icon
+          class="text-xl"
+        >
+          arrow_back
+        </app-icon>
+        <span
+          class="ml-2 mx-4"
+        >
+          Back
+        </span>
+      </div>
+    </a>
+  </div>
+</div>
+`;
