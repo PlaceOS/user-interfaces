@@ -134,6 +134,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                             ></span>
                             <button
                                 mat-button
+                                locate
                                 class="bg-transparent border-none underline text-black"
                                 (click)="viewLocation(space)"
                             >
@@ -151,7 +152,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                             <app-icon>group</app-icon>
                         </div>
                         <div class="flex-1 truncate">
-                            {{ event.attendees.length || 0 }}
+                            {{ event.attendees?.length || 0 }}
                             Attendee(s)
                         </div>
                         <button
@@ -204,6 +205,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                 >
                     <button
                         mat-button
+                        edit
                         class="w-32"
                         [disabled]="loading"
                         (click)="editEvent()"
@@ -213,6 +215,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                     </button>
                     <button
                         mat-button
+                        remove
                         class="w-32 error inverse"
                         [disabled]="loading"
                         (click)="confirmDelete()"
@@ -257,7 +260,7 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
         return (
             this.event &&
             ((this.event as CalendarEvent).host ||
-                (this.event as Booking).user_email) === currentUser().email
+                (this.event as Booking).user_email) === currentUser()?.email
         );
     }
 
@@ -311,7 +314,7 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
     }
 
     public editEvent() {
-        if (this.event instanceof CalendarEvent) {
+        if ('event_start' in this.event) {
             this._events.newForm(this.event);
             this._router.navigate(['/book', 'spaces', 'form']);
         }
