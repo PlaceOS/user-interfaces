@@ -4,7 +4,14 @@ import { BaseClass, timePeriodsIntersect, unique } from '@placeos/common';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    map,
+    mergeMap,
+    shareReplay,
+    tap,
+} from 'rxjs/operators';
 
 export type BookingLike = CalendarEvent & Booking;
 
