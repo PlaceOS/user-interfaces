@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
-import { addDays, addMinutes, roundToNearestMinutes } from 'date-fns';
-import setHours from 'date-fns/setHours';
+import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
 import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-flow-form',
     template: `
-        <section quick class="text-white">
+        <section quick class="text-white" *ngIf="!is_edit">
             <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto pb-2">
                 <h2 class="text-xl uppercase font-medium mb-2 mt-4">
                     Quick Book Desk
@@ -69,7 +68,7 @@ import { first } from 'rxjs/operators';
                 <h2 class="text-xl uppercase font-medium my-4">OR</h2>
             </div>
         </section>
-        <section class="flex-1 min-h-[50%]">
+        <section form class="flex-1 min-h-[50%]">
             <h2
                 class="text-xl uppercase font-medium mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
@@ -83,6 +82,7 @@ import { first } from 'rxjs/operators';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
                     mat-button
+                    clear
                     (click)="clearForm()"
                 >
                     <div class="flex items-center justify-center">
@@ -94,6 +94,7 @@ import { first } from 'rxjs/operators';
                 </button>
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
+                    find
                     mat-button
                     (click)="findDesk()"
                 >
