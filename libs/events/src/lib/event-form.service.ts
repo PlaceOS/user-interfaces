@@ -52,7 +52,7 @@ export class EventFormService extends BaseClass {
         this._form,
         this._org.initialised.pipe(filter((_) => _)),
     ]).pipe(
-        filter(([v]) => v === 'find'),
+        filter(([view, _, form]) => view === 'find' && !!form),
         switchMap(([_, options, form]) => {
             this._loading.next('Retrieving available spaces...');
             const start = form.get('date').value;
@@ -65,7 +65,7 @@ export class EventFormService extends BaseClass {
                     zone_ids:
                         options.zone_ids?.join(',') || this._org.building.id,
                     features: options.features?.join(','),
-                    capacity: options.capacity ? options.capacity : undefined,
+                    capacity: options.capacity,
                 },
                 this._org
             );
@@ -94,7 +94,7 @@ export class EventFormService extends BaseClass {
             this._router.events.subscribe((event: Event) => {
                 if (
                     event instanceof NavigationEnd &&
-                    !BOOKING_URLS.find((_) => event.url.includes(_))
+                    !BOOKING_URLS.some((_) => event.url.includes(_))
                 ) {
                     this.clearForm();
                 }

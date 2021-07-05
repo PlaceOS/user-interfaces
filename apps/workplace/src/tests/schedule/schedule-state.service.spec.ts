@@ -10,7 +10,7 @@ jest.mock('@placeos/bookings');
 import * as booking_mod from '@placeos/bookings';
 import * as event_mod from '@placeos/events';
 
-describe('AuthService', () => {
+describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;
     const createService = createServiceFactory({
         service: ScheduleStateService,
