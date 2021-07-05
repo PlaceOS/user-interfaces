@@ -4,8 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MapLocateModalComponent } from './map-locate-modal.component';
 
-import { SpaceSelectModalComponent } from './space-select-modal/space-select-modal.component';
-import { ItemComponent } from './space-select-modal/item/item.component';
 import { ViewAttendeesModalComponent } from './view-attendees-modal/view-attendees-modal.component';
 import { ViewCateringModalComponent } from './view-catering-modal/view-catering-modal.component';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
@@ -21,7 +19,7 @@ const OVERLAYS: Type<any>[] = [
 ];
 
 @NgModule({
-    declarations: [...OVERLAYS, SpaceSelectModalComponent, ItemComponent],
+    declarations: [...OVERLAYS],
     imports: [
         CommonModule,
         FormsModule,

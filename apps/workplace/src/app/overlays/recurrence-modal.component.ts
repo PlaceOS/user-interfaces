@@ -90,7 +90,7 @@ export const RECURRENCE_METADATA = {
             </main>
         </ng-template>
     `,
-    styleUrls: ['./recurrence-modal.component.scss'],
+    styles: [``],
 })
 export class RecurrenceModalComponent extends BaseClass implements OnInit {
     /** Emitter for user action on the modal */
