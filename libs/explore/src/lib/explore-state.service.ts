@@ -178,10 +178,9 @@ export class ExploreStateService extends BaseClass {
             if (!has_level && level_list.length) {
                 this.setLevel(level_list[0].id);
             }
-            this.setOptions({
-                show_devices:
-                    this._settings.get('app.explore.display_devices') !== false,
-            });
+            if (this._settings.get('app.explore.display_devices') !== false) {
+                this.setOptions({ disable: ['devices'] });
+            }
         });
     }
 
