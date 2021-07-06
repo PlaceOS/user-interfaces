@@ -62,7 +62,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                             <div level class="text-xs">
                                 {{
                                     desk.zone?.display_name ||
-                                        desk.zone.name ||
+                                        desk.zone?.name ||
                                         '&lt;No Level&gt;'
                                 }}
                             </div>
