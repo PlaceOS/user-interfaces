@@ -14,10 +14,16 @@ import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 
 export interface MapOptions {
-    show_zones?: boolean;
-    show_devices?: boolean;
-    show_contacts?: boolean;
-    show_levels?: boolean;
+    /** List of keys to ignore for any map resource */
+    disable?: string[];
+    /** List of keys to ignore for map labels */
+    disable_labels?: string[];
+    /** List of keys to ignore for map actions */
+    disable_actions?: string[];
+    /** List of keys to ignore for map features */
+    disable_features?: string[];
+    /** List of keys to ignore for map styles */
+    disable_styles?: string[];
 }
 
 @Injectable({
@@ -53,10 +59,9 @@ export class ExploreStateService extends BaseClass {
         this._level,
         this._spaces.list,
     ]).pipe(
-        map(([level, spaces]) => {
-            console.log('Level:', level, spaces);
-            return spaces.filter((space) => space.zones.includes(level.id));
-        })
+        map(([level, spaces]) =>
+            spaces.filter((space) => space.zones.includes(level.id))
+        )
     );
     /** Currently shown space's map URL */
     public readonly map_url = this._level.pipe(
@@ -73,28 +78,34 @@ export class ExploreStateService extends BaseClass {
         map(([features, options]) => {
             let list = [];
             for (const key in features) {
-                switch (key) {
-                    case 'devices':
-                        options.show_zones && options.show_devices
-                            ? (list = list.concat(features[key]))
-                            : '';
-                        break;
-                    case 'contacts':
-                        options.show_contacts
-                            ? (list = list.concat(features[key]))
-                            : '';
-                        break;
-                    default:
-                        list = list.concat(features[key]);
-                }
+                if (
+                    options.disable?.includes(key) ||
+                    options.disable_features?.includes(key)
+                )
+                    continue;
+                list = list.concat(features[key]);
             }
             return list;
         })
     );
     /** Currently center and zoom positions for map */
-    public readonly map_actions = this._actions.pipe(
+    public readonly map_actions = combineLatest([
+        this._actions,
+        this._options,
+    ]).pipe(
         debounceTime(200),
-        map((i) => Object.values(i).reduce((list, a) => list.concat(a), []))
+        map(([actions, options]) => {
+            let list = [];
+            for (const key in actions) {
+                if (
+                    options.disable?.includes(key) ||
+                    options.disable_actions?.includes(key)
+                )
+                    continue;
+                list = list.concat(actions[key]);
+            }
+            return list;
+        })
     );
     /** Currently center and zoom positions for map */
     public readonly map_labels = combineLatest([
@@ -105,9 +116,12 @@ export class ExploreStateService extends BaseClass {
         map(([labels, options]) => {
             let list = [];
             for (const key in labels) {
-                if (key !== 'zones' || options.show_zones) {
-                    list = list.concat(labels[key]);
-                }
+                if (
+                    options.disable?.includes(key) ||
+                    options.disable_labels?.includes(key)
+                )
+                    continue;
+                list = list.concat(labels[key]);
             }
             return list;
         })
@@ -119,15 +133,19 @@ export class ExploreStateService extends BaseClass {
     ]).pipe(
         debounceTime(200),
         map(([styles, options]) => {
-            const style_mappings = Object.keys(styles).reduce(
-                (a, h) => ({ ...a, ...styles[h] }),
-                {}
-            );
-            if (!options.show_zones) {
+            let style_mappings = { text: { display: 'none' } };
+            for (const key in styles) {
+                if (
+                    options.disable?.includes(key) ||
+                    options.disable_styles?.includes(key)
+                )
+                    continue;
+                style_mappings = { ...style_mappings, ...styles[key] };
+            }
+            if (!options.disable?.includes('zones')) {
                 style_mappings['#zones'] = { display: 'none' };
                 style_mappings['#Zones'] = { display: 'none' };
             }
-            style_mappings['text'] = { display: 'none' };
             return style_mappings;
         })
     );
