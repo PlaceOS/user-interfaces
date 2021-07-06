@@ -1,7 +1,4 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { format } from 'date-fns';
 
 @Component({
     selector: '[dashboard]',
@@ -64,24 +61,4 @@ import { format } from 'date-fns';
         `,
     ],
 })
-export class DashboardComponent {
-    /** Whether to show overlay menu */
-    public show_menu: boolean;
-
-    public get bld() {
-        return this._org.building;
-    }
-
-    public get tiles() {
-        return this._settings.get('app.home.tiles') || [];
-    }
-
-    public get datetime() {
-        return format(new Date(), 'EEEE, h:mma');
-    }
-
-    constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService
-    ) {}
-}
+export class DashboardComponent {}
