@@ -1,27 +1,27 @@
 import {
     Component,
-    OnInit,
+
     forwardRef,
-    Input,
-    Injectable,
+
+    Injectable, Input, OnInit
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
     DateAdapter,
     MatDateFormats,
     MAT_DATE_FORMATS,
-    NativeDateAdapter,
+    NativeDateAdapter
 } from '@angular/material/core';
-import { HashMap } from 'libs/common/src/lib/types';
-import { BaseClass } from 'libs/common/src/lib/base.class';
 import {
     addYears,
-    startOfDay,
+
     endOfDay,
     format,
     formatISO,
-    set,
+    set, startOfDay
 } from 'date-fns';
+import { BaseClass } from 'libs/common/src/lib/base.class';
+import { HashMap } from 'libs/common/src/lib/types';
 
 @Injectable()
 class FieldDateAdapter extends NativeDateAdapter {
@@ -62,6 +62,7 @@ const FIELD_DATE_FORMATS: MatDateFormats = {
                 [for]="picker"
             ></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
+            <mat-error><ng-content></ng-content></mat-error>
         </mat-form-field>
     `,
     styles: [

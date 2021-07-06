@@ -1,15 +1,17 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
-import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
-    selector: 'app-schedule',
+    selector: 'schedule',
     template: `
-        <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
-        <router-outlet></router-outlet>
-        <a-footer-menu class="w-full"></a-footer-menu>
-        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+        <topbar></topbar>
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+            <nav-menu class="relative z-10"></nav-menu>
+            <main
+                class="relative flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+            >
+                <router-outlet></router-outlet>
+            </main>
+        </div>
     `,
     styles: [
         `
@@ -22,27 +24,4 @@ import { ScheduleStateService } from './schedule-state.service';
         `,
     ],
 })
-export class ScheduleComponent extends BaseClass {
-    /** Name of the page to render */
-    public page: string;
-    /** Whether to show menu */
-    public show_menu = false;
-
-    constructor(
-        private _route: ActivatedRoute,
-        private _state: ScheduleStateService
-    ) {
-        super();
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('email')) {
-                    this._state.setOptions({ calendar: params.get('email') });
-                }
-            })
-        );
-    }
-}
+export class ScheduleComponent {}

@@ -1,6 +1,8 @@
 import { RoomConfiguration } from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 
+import { CalendarAvailability } from 'libs/calendar/src/lib/calendar.interfaces';
+
 export type ResourceResponseStatus =
     | 'needsAction'
     | 'declined'
@@ -39,6 +41,8 @@ export class Space {
     /** List of features associated with the space */
     public readonly features: string[];
 
+    public readonly availability: CalendarAvailability[];
+
     constructor(data: Partial<Space> = {}) {
         this.id = data.id || '';
         this.name = data.name || '';
@@ -55,5 +59,6 @@ export class Space {
         this.features = data.features || [];
         this.response_status = data.response_status;
         this.level = data.level || new BuildingLevel();
+        this.availability = data.availability || [];
     }
 }

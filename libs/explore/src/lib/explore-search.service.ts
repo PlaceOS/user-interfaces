@@ -54,7 +54,7 @@ export class ExploreSearchService {
     ]).pipe(
         debounceTime(1000),
         map(([spaces, users, contacts]) => {
-            const filter = this._filter.getValue();
+            const filter = this._filter.getValue() || '';
             const search = filter.toLowerCase();
             const results = unique(
                 [

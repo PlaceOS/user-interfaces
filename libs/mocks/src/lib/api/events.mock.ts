@@ -1,8 +1,8 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
-
+import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_EVENTS } from './events.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
+
 
 registerMockEndpoint({
     path: '/api/staff/v1/events',
@@ -70,6 +70,27 @@ registerMockEndpoint({
         );
         if (item) {
             return item;
+        }
+        throw { status: 404, message: 'Event not found' };
+    },
+});
+
+registerMockEndpoint({
+    path: '/api/staff/v1/events/:id',
+    metadata: {},
+    method: 'DELETE',
+    callback: (request) => {
+        const index = MOCK_EVENTS.findIndex(
+            (event) => event.id === request.route_params.id
+        );
+        if (index > 0) {
+            if (MOCK_EVENTS[index].host === ACTIVE_USER.email) {
+                MOCK_EVENTS.splice(index, 1);
+            } else {
+                const user = MOCK_EVENTS[index].attendees.find((_) => _.email === ACTIVE_USER.email);
+                user.response_status = 'declined';
+            }
+            return;
         }
         throw { status: 404, message: 'Event not found' };
     },

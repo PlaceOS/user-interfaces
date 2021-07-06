@@ -9,47 +9,61 @@ import {
 
 import { BaseClass, SettingsService } from '@placeos/common';
 import { searchStaff, User } from '@placeos/users';
-import { clearEventFormState } from '../bookings/space-flow/space-flow.service';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
 
 @Component({
     selector: '[a-directory-user-list]',
     template: `
-        <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
-        <div class="w-full flex items-center justify-center p-2">
-            <mat-form-field overlay class="rounded" appearance="outline">
-                <app-icon class="text-xl" matPrefix>search</app-icon>
-                <input
-                    matInput
-                    [(ngModel)]="search_str"
-                    (ngModelChange)="search$.next($event)"
-                    placeholder="Search for a person..."
-                />
-                <mat-spinner
-                    matSuffix
-                    class="top-2"
-                    *ngIf="loading"
-                    [diameter]="32"
-                ></mat-spinner>
-            </mat-form-field>
-        </div>
-        <main class="flex-1 h-1/2 w-full">
-            <ng-container
-                *ngIf="groupedUsers && user_list.length; else empty_state"
+        <topbar></topbar>
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+            <nav-menu class="relative z-10"></nav-menu>
+            <div
+                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
-                <ng-container *ngFor="let letter of letters">
-                    <ng-container *ngIf="groupedUsers[letter].length">
-                        <div class="py-2 px-4 font-medium">{{ letter }}</div>
-                        <a-directory-user-list-item
-                            *ngFor="let user of groupedUsers[letter]"
-                            [user]="user"
-                        ></a-directory-user-list-item>
+                <div class="w-full flex items-center justify-center p-2">
+                    <mat-form-field
+                        overlay
+                        class="rounded"
+                        appearance="outline"
+                    >
+                        <app-icon class="text-xl" matPrefix>search</app-icon>
+                        <input
+                            matInput
+                            [(ngModel)]="search_str"
+                            (ngModelChange)="search$.next($event)"
+                            placeholder="Search for a person..."
+                        />
+                        <mat-spinner
+                            matSuffix
+                            class="top-2"
+                            *ngIf="loading"
+                            [diameter]="32"
+                        ></mat-spinner>
+                    </mat-form-field>
+                </div>
+                <main class="flex-1 h-1/2 w-full">
+                    <ng-container
+                        *ngIf="
+                            groupedUsers && user_list.length;
+                            else empty_state
+                        "
+                    >
+                        <ng-container *ngFor="let letter of letters">
+                            <ng-container *ngIf="groupedUsers[letter].length">
+                                <div class="py-2 px-4 font-medium">
+                                    {{ letter }}
+                                </div>
+                                <a-directory-user-list-item
+                                    *ngFor="let user of groupedUsers[letter]"
+                                    [user]="user"
+                                ></a-directory-user-list-item>
+                            </ng-container>
+                        </ng-container>
                     </ng-container>
-                </ng-container>
-            </ng-container>
-        </main>
-        <a-footer-menu></a-footer-menu>
+                </main>
+            </div>
+        </div>
         <ng-template #empty_state>
             <div class="flex flex-col items-center p-8">
                 <app-icon class="text-5xl">{{
@@ -66,7 +80,6 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                 </div>
             </div>
         </ng-template>
-        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
     `,
     styles: [
         `
@@ -86,20 +99,37 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
     ],
 })
 export class DirectoryUserListComponent extends BaseClass implements OnInit {
-    /** List of controllable spaces */
+    /** List of searchable users */
     public user_list: User[] = [];
     /** String  */
     public search_str: string;
-    /** List of users from an API search */
-    public search_results$: Observable<User[]>;
     /** Whether space list is being filtered */
     public loading: boolean;
-    /** Subject holding the value of the search */
-    public readonly search$ = new Subject<string>();
     /** Whether to show menu */
     public show_menu: boolean;
 
     public groupedUsers: { [id: string]: User[] } = {};
+    /** Subject holding the value of the search */
+    public readonly search$ = new Subject<string>();
+    /** List of users from an API search */
+    public search_results$: Observable<User[]> = this.search$.pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        switchMap((query) => {
+            this.loading = true;
+            const retVal =
+                query.length >= this.min_search_length
+                    ? searchStaff(query)
+                          .toPromise()
+                          .catch(() => [])
+                    : Promise.resolve(this.user_list || []);
+            return retVal;
+        }),
+        map((list: User[]) => {
+            this.loading = false;
+            return list;
+        })
+    );
 
     /** Minimum length of the search string needed to initial a search */
     public get min_search_length(): number {
@@ -112,25 +142,6 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        // Listen for input changes
-        this.search_results$ = this.search$.pipe(
-            debounceTime(400),
-            distinctUntilChanged(),
-            switchMap((query) => {
-                this.loading = true;
-                const retVal =
-                    query.length >= this.min_search_length
-                        ? searchStaff(query)
-                              .toPromise()
-                              .catch(() => [])
-                        : Promise.resolve(this.user_list || []);
-                return retVal;
-            }),
-            map((list: User[]) => {
-                this.loading = false;
-                return list;
-            })
-        );
         // Process API results
         this.subscription(
             'search_results',
@@ -140,7 +151,6 @@ export class DirectoryUserListComponent extends BaseClass implements OnInit {
             })
         );
         this.search$.next('');
-        clearEventFormState();
     }
 
     public get letters(): string[] {

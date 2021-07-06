@@ -73,14 +73,14 @@ import {
         `,
     ],
 })
-export class HelpOptionListComponent extends BaseClass implements OnInit {
+export class HelpOptionListComponent extends BaseClass {
     /** Settings for the help page */
     public settings: HashMap;
     /** Whether to show the overlay menu */
     public show_menu: boolean;
     /** Tiles to display on the help page */
     public get tiles(): ApplicationLink[] {
-        return (this.settings || { tiles: [] }).tiles || [];
+        return this._settings.get('app.help.tiles') || [];
     }
 
     /** Min width of a tile */
@@ -105,9 +105,5 @@ export class HelpOptionListComponent extends BaseClass implements OnInit {
 
     constructor(private _settings: SettingsService) {
         super();
-    }
-
-    public ngOnInit(): void {
-        this.settings = this._settings.get('app.help') || {};
     }
 }

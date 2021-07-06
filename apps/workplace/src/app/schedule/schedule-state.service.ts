@@ -1,198 +1,95 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import {
-    Booking,
-    queryBookings,
-    removeBooking,
-    showBooking,
-} from '@placeos/bookings';
-import { CalendarService } from '@placeos/calendar';
-import {
-    BaseClass,
-    currentUser,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-    timePeriodsIntersect,
-} from '@placeos/common';
-import {
-    CalendarEvent,
-    queryEvents,
-    removeEvent,
-    showEvent,
-} from '@placeos/events';
-import { addDays, endOfDay, isToday, startOfDay } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    Observable,
-    of,
-    throwError,
-} from 'rxjs';
+import { Booking, queryBookings } from '@placeos/bookings';
+import { BaseClass, timePeriodsIntersect, unique } from '@placeos/common';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
 import {
     catchError,
     debounceTime,
-    first,
     map,
+    mergeMap,
     shareReplay,
-    switchMap,
+    tap,
 } from 'rxjs/operators';
 
+export type BookingLike = CalendarEvent & Booking;
+
 export interface ScheduleOptions {
-    date: number;
     calendar?: string;
+    start: number;
 }
 
 @Injectable({
     providedIn: 'root',
 })
 export class ScheduleStateService extends BaseClass {
-    private _loading = new BehaviorSubject<string>('');
-    private _poll = new BehaviorSubject<boolean>(false);
-
-    private _active_item = new BehaviorSubject<string>('');
-
+    private _poll = new BehaviorSubject(0);
     private _options = new BehaviorSubject<ScheduleOptions>({
-        date: new Date().valueOf(),
+        start: Date.now(),
     });
+    private _loading = new BehaviorSubject<string>('');
+    private _schedule = new BehaviorSubject<BookingLike[]>([]);
 
-    private _item: CalendarEvent | Booking;
-
-    public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
-    public readonly calendars = this._calendars.calendar_list;
+    public readonly loading = this._loading.asObservable();
+    public readonly schedule = this._loading.asObservable();
 
-    public readonly events: Observable<
-        (CalendarEvent | Booking)[]
-    > = combineLatest([this._options, this._poll]).pipe(
+    public readonly events: Observable<BookingLike[]> = combineLatest([
+        this._options,
+        this._poll,
+    ]).pipe(
         debounceTime(1000),
-        switchMap(([options]) => {
-            this._loading.next(' ');
-            const start = startOfDay(options.date).valueOf();
-            let duration = isToday(start) ? 6 : 4;
-            const end = endOfDay(addDays(start, duration)).valueOf();
-            return options.calendar === 'desks'
-                ? queryBookings({
-                      period_start: Math.floor(start / 1000),
-                      period_end: Math.floor(end / 1000),
-                      type: 'desk',
-                  })
-                : queryEvents({
-                      period_start: Math.floor(start / 1000),
-                      period_end: Math.floor(end / 1000),
-                      calendars: options.calendar,
-                  });
+        mergeMap(([options]) => {
+            this._loading.next('Loading schedule...');
+            const query: any = {
+                period_start: getUnixTime(startOfDay(options.start)),
+                period_end: getUnixTime(addDays(endOfDay(options.start), 6)),
+            };
+            if (options.calendar) {
+                query.calendar = options.calendar;
+            }
+            this._schedule.next(
+                this._schedule
+                    .getValue()
+                    .filter(
+                        (_) =>
+                            !timePeriodsIntersect(
+                                query.period_start * 1000,
+                                query.period_end * 1000,
+                                _.date,
+                                _.date + _.duration * 60 * 1000
+                            )
+                    )
+            );
+            return forkJoin([
+                queryEvents({ ...query }),
+                queryBookings({ ...query, type: 'desk' }),
+            ]);
+        }),
+        map(([events, bookings]) => {
+            const list = [
+                ...this._schedule.getValue(),
+                ...events,
+                ...bookings,
+            ].sort((a, b) => a.date - b.date);
+            this._schedule.next(unique(list, 'id') as any);
+            return list;
         }),
         catchError((_) => []),
+        tap((_) => this._loading.next('')),
         shareReplay(1)
     );
 
-    public readonly active_item = this._active_item.pipe(
-        debounceTime(500),
-        switchMap((id) => {
-            return id
-                ? showEvent(id, {
-                      calendar:
-                          this._options.getValue().calendar ||
-                          currentUser().email,
-                  })
-                : throwError('No ID');
-        }),
-        catchError((_) =>
-            this._active_item.getValue()
-                ? showBooking(this._active_item.getValue())
-                : of(null)
-        ),
-        catchError((_) => of(null)),
-        map((_: CalendarEvent | Booking | null) => {
-            this._item = _;
-            return _;
-        }),
-        shareReplay()
-    );
-
-    public get date() {
-        return this._options.getValue().date;
-    }
-
-    constructor(
-        private _calendars: CalendarService,
-        private _dialog: MatDialog,
-        private _router: Router
-    ) {
-        super();
-        this.calendars
-            .pipe(first((_) => _?.length > 0))
-            .subscribe((_) => this.setOptions({ calendar: _[0].id }));
-    }
-
-    public setOptions(options: Partial<ScheduleOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
-    }
-
-    public setItem(id: string) {
-        this._active_item.next(id);
-    }
-
     public startPolling(delay: number = 15 * 1000) {
-        this._poll.next(!this._poll.getValue());
-        this.interval(
-            'poll',
-            () => this._poll.next(!this._poll.getValue()),
-            delay
-        );
+        this.interval('poll', () => this._poll.next(Date.now()), delay);
     }
 
     public stopPolling() {
         this.clearInterval('poll');
     }
 
-    public duplicateEvent() {
-        if (sessionStorage) {
-            const booking = new CalendarEvent({
-                ...(this._item as any),
-                id: '',
-            });
-            sessionStorage.setItem(
-                'STAFF.booking_form',
-                JSON.stringify(booking)
-            );
-        }
-        this._router.navigate(['/book']);
-    }
-
-    public async deleteEvent() {
-        if (!this._item) return;
-        const details = await openConfirmModal(
-            {
-                title: 'Cancel Meeting',
-                content: `Are you sure you want to cancel this meeting: ${this._item.title}`,
-                icon: { content: 'delete' },
-            },
-            this._dialog
-        );
-        if (!details) return;
-        const is_event = this._item instanceof CalendarEvent;
-        details.loading(
-            `Cancelling ${is_event ? 'meeting' : 'desk booking'}...`
-        );
-        const method = is_event
-            ? removeEvent(this._item.id).toPromise()
-            : removeBooking(this._item.id).toPromise();
-        const err = await method.catch((_) => _);
-        details.close();
-        if (err)
-            return notifyError(
-                `Error unable to cancel ${
-                    is_event ? 'meeting' : 'desk booking'
-                }. Error: ${err.statusText || err.message || err}`
-            );
-        notifySuccess(
-            `Successfully cancelled ${is_event ? 'meeting' : 'desk booking'}.`
-        );
-        this._router.navigate(['/schedule', 'listing'], {
-            queryParamsHandling: 'preserve',
-        });
+    public setOptions(options: Partial<ScheduleOptions>) {
+        this._options.next({ ...this._options.getValue(), ...options });
     }
 }

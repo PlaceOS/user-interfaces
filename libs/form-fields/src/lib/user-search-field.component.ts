@@ -35,6 +35,11 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                     [disabled]="disabled"
                     [placeholder]="placeholder || 'Search for user...'"
                     [matAutocomplete]="auto"
+                    (keyup.enter)="
+                        validate && validate(search_str)
+                            ? setValue(search_str)
+                            : ''
+                    "
                     (blur)="resetSearchString()"
                     (focus)="cancelReset()"
                 />
@@ -58,6 +63,19 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                     <div class="text-xs text-black opacity-60">
                         {{ option.email }}
                     </div>
+                </mat-option>
+                <mat-option
+                    *ngIf="search_str && validate && validate(search_str)"
+                    [value]="search_str"
+                >
+                    Add external attendee "{{ search_str }}"
+                </mat-option>
+                <mat-option
+                    *ngIf="!user_list?.length && (search_str || error)"
+                    [disabled]="!empty_fn"
+                    (click)="empty_fn()"
+                >
+                    {{ search_str ? 'No users found.' : '' }} {{ error }}
                 </mat-option>
             </mat-autocomplete>
         </div>
@@ -94,6 +112,12 @@ export class UserSearchFieldComponent
     @Input() public options: User[];
     /** Whether guests should also show when searching for users */
     @Input() public guests: boolean;
+    /** Message to display when no user matches have been found */
+    @Input() public error = '';
+    /** Function to validate the search string */
+    @Input() public validate: (s: string) => boolean;
+    /** Function to call when empty list option is clicked */
+    @Input() public empty_fn: () => void;
     /** Function for filtering the results of the user list */
     @Input() public filter: (_: any, s?: string) => boolean;
 
@@ -127,7 +151,7 @@ export class UserSearchFieldComponent
         map((list: User[]) => {
             this.loading = false;
             list = flatten(list);
-            const search = this.search_str.toLowerCase();
+            const search = (this.search_str || '').toLowerCase();
             return list.filter(
                 (item) => !this.filter || this.filter(item, search)
             );
@@ -163,7 +187,7 @@ export class UserSearchFieldComponent
         this.timeout(
             'reset',
             () => (this.search_str = this.active_user?.name || ''),
-            50
+            150
         );
     }
 
@@ -171,7 +195,17 @@ export class UserSearchFieldComponent
      * Update the form field value
      * @param new_value New value to set on the form field
      */
-    public setValue(new_value: User): void {
+    public setValue(new_value: User | string, email?: string): void {
+        if (
+            typeof new_value === 'string' &&
+            (new_value as any) === this.search_str
+        ) {
+            new_value = new User({
+                name: (this.search_str || email || '').split('@')[0],
+                email: this.search_str || email || '',
+            });
+        }
+        if (!(new_value instanceof User)) return;
         this.active_user = new_value;
         if (this._onChange) {
             this._onChange(new_value);

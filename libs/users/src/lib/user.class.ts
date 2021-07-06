@@ -24,6 +24,8 @@ export class User {
     public readonly first_name: string;
     /** Last name of the user */
     public readonly last_name: string;
+    /** Username of the user */
+    public readonly username: string;
     /** Phone number of the user */
     public readonly phone: string;
     /** Organisation associated with the user */
@@ -32,6 +34,8 @@ export class User {
     public readonly notes: string;
     /** URL to the user's photo */
     public readonly photo: string;
+    /** Whether user attendance is required */
+    public readonly required: boolean;
     /** Whether user is the event organiser */
     public readonly organizer: boolean;
     /** Whether the users is expected for an event */
@@ -59,20 +63,21 @@ export class User {
         this.organisation = data.organisation || '';
         this.notes = data.notes || '';
         this.photo = data.photo || '';
+        this.username = data.username || '';
         this.organizer = !!data.organizer;
-        this.visit_expected = !!data.visit_expected;
+        this.groups = data.groups || [];
         this.checked_in = !!data.checked_in;
+        this.required = data.required ?? true;
         this.response_status = data.response_status || '';
-        const groups = (data.groups || []).map((i) => (i || '').toLowerCase());
+        const groups = data.groups || [];
         if (data.sys_admin) groups.push('placeos_admin');
         if (data.support) groups.push('placeos_support');
         this.groups = groups;
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =
             data.assistance_required || this.extension_data.assistance_required;
-        this.is_external =
-            (!!this.email && !this.email.includes(`@${USER_DOMAIN}`)) ||
-            this.visit_expected;
+        this.is_external = !this.email?.endsWith(`${USER_DOMAIN}`);
+        this.visit_expected = data.visit_expected ?? true;
         this.assistance_required = !!this.extension_data?.assistance_required;
     }
 }

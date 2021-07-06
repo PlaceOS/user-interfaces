@@ -9,7 +9,7 @@ import { Space, SpacesService } from '@placeos/spaces';
     selector: 'a-control-space-list',
     template: `
         <div class="w-full flex items-center justify-center p-2">
-            <mat-form-field overlay class="rounded" appearance="outline">
+            <mat-form-field overlay class="rounded h-12" appearance="outline">
                 <app-icon class="text-xl" matPrefix>search</app-icon>
                 <input
                     matInput
@@ -77,39 +77,10 @@ export class ControlSpaceListComponent extends BaseClass implements OnInit {
         super();
     }
 
-    public ngOnInit(): void {
-        this._spaces.initialised.pipe(first((_) => _)).subscribe(() => {
-            this.space_list = this._spaces.filter(
-                (space) => !!space.support_url
-            );
-            this.space_list.sort((a, b) => {
-                const bld_a = this._org.buildings.find(
-                    (building) => building.id === a.level.parent_id
-                );
-                const space_a_name = (a.name || '').toLowerCase();
-                const level_a_name = (
-                    (a.level ? a.level.name : '') || ''
-                ).toLowerCase();
-                const bld_a_name = (
-                    (bld_a ? bld_a.name : '') || ''
-                ).toLowerCase();
-                const bld_b = this._org.buildings.find(
-                    (building) => building.id === b.level.parent_id
-                );
-                const space_b_name = (b.name || '').toLowerCase();
-                const level_b_name = (
-                    (b.level ? b.level.name : '') || ''
-                ).toLowerCase();
-                const bld_b_name = (
-                    (bld_b ? bld_b.name : '') || ''
-                ).toLowerCase();
-                return (
-                    bld_a_name.localeCompare(bld_b_name) ||
-                    level_a_name.localeCompare(level_b_name) ||
-                    space_a_name.localeCompare(space_b_name)
-                );
-            });
-        });
+    public async ngOnInit() {
+        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        this.space_list = this._spaces.filter((space) => !!space.support_url);
+        this.space_list.sort((a, b) => this.sortSpaces(a, b));
     }
 
     /** List of spaces filtered using the search string */
@@ -130,5 +101,29 @@ export class ControlSpaceListComponent extends BaseClass implements OnInit {
                 (bld_name && bld_name.indexOf(search) >= 0)
             );
         });
+    }
+
+    private sortSpaces(first: Space, second: Space) {
+        const bld_a = this._org.buildings.find(
+            (building) => building.id === first.level?.parent_id
+        );
+        const space_a_name = (first.name || '').toLowerCase();
+        const level_a_name = (
+            (first.level ? first.level.name : '') || ''
+        ).toLowerCase();
+        const bld_a_name = (bld_a?.name || '').toLowerCase();
+        const bld_b = this._org.buildings.find(
+            (building) => building.id === second.level?.parent_id
+        );
+        const space_b_name = (second.name || '').toLowerCase();
+        const level_b_name = (
+            (second.level ? second.level.name : '') || ''
+        ).toLowerCase();
+        const bld_b_name = (bld_b?.name || '').toLowerCase();
+        return (
+            bld_a_name.localeCompare(bld_b_name) ||
+            level_a_name.localeCompare(level_b_name) ||
+            space_a_name.localeCompare(space_b_name)
+        );
     }
 }

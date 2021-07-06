@@ -50,78 +50,50 @@ registerMockEndpoint({
         if (request.query_params.name === 'desks') {
             const parts = request.route_params.id.split('-');
             const id = parts[parts.length - 1];
-            return {
-                desks: {
-                    details: new Array(30).fill(0).map((_, idx) => ({
-                        id: `table-${padString(id, 2)}.${padString(
-                            idx + 1,
-                            3
-                        )}`,
-                        name: `Desk ${id}.${padString(idx + 1, 3)}`,
-                        bookable: predictableRandomInt(9999) % 4 !== 0,
-                        group: '',
-                    })),
-                },
-            };
+            return generateMockDeskMetadata(id);
         }
         return {};
     },
 });
+
+const DESK_FEATURES = ['sit_to_stand', 'single_monitor', 'dual_monitor'];
+
+function generateMockDeskMetadata(id: string) {
+    return {
+        desks: {
+            details: new Array(30).fill(0).map((_, idx) => ({
+                id: `table-${padString(id, 2)}.${padString(idx + 1, 3)}`,
+                name: `Desk ${id}.${padString(idx + 1, 3)}`,
+                bookable: predictableRandomInt(9999) % 4 !== 0,
+                group: '',
+                features: DESK_FEATURES.filter(
+                    (_) => predictableRandomInt(99999) % 3 === 0
+                ),
+            })),
+        },
+    };
+}
 
 registerMockEndpoint({
     path: '/api/engine/v2/metadata/:id/children',
     metadata: {},
     method: 'GET',
     callback: (request) => {
-        return [
-            {
-                zone: {
-                    id: 'bld-01_lvl-01',
-                    name: 'Level 1',
-                },
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'table-01.001',
-                                name: '1.001',
-                                bookable: true,
-                                group: '',
-                            },
-                            {
-                                id: 'table-01.002',
-                                name: '1.002',
-                                bookable: true,
-                                group: '',
-                            },
-                            {
-                                id: 'table-01.003',
-                                name: '1.003',
-                                bookable: true,
-                                group: '',
-                            },
-                            {
-                                id: 'table-01.004',
-                                name: '1.004',
-                                bookable: true,
-                                group: '',
-                            },
-                            {
-                                id: 'table-01.005',
-                                name: '1.005',
-                                bookable: false,
-                                group: '',
-                            },
-                            {
-                                id: 'table-01.006',
-                                name: '1.006',
-                                bookable: true,
-                                group: '',
-                            },
-                        ],
-                    },
-                },
-            },
-        ];
+        const zone = MOCK_BUILDINGS.find(
+            (_) => _.id === request.route_params.id
+        );
+        if (!zone)
+            throw {
+                status: 404,
+                message: `Unable to find zone with id "${request.route_params.id}"`,
+            };
+        return MOCK_LEVELS.filter((_) => _.parent_id === zone.id).map((lvl) => {
+            const parts = lvl.id.split('-');
+            const id = parts[parts.length - 1];
+            return {
+                zone: lvl,
+                metadata: generateMockDeskMetadata(id),
+            };
+        });
     },
 });

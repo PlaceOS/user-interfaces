@@ -5,7 +5,7 @@ import { User } from '../../../users/src/lib/user.class';
     selector: 'a-user-avatar',
     template: `
         <div
-            class="flex items-center justify-center rounded-full overflow-hidden"
+            class="flex items-center justify-center rounded-full overflow-hidden border-2 border-white"
             *ngIf="user"
             [attr.user-id]="user.id"
         >

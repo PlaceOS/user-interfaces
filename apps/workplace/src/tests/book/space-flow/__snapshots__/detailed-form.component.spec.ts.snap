@@ -1,0 +1,259 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DetailBookSpaceFormComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  
+</div>
+`;
+
+exports[`DetailBookSpaceFormComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <form
+    class="ng-untouched ng-pristine ng-invalid"
+    novalidate=""
+  >
+    <section
+      class="mb-4 border-b border-gray-300"
+    >
+      <div
+        class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+      >
+        <div
+          class="flex flex-col flex-1 w-full sm:w-1/3"
+        >
+          <label>
+            Date
+          </label>
+          <a-date-field
+            class="ng-untouched ng-pristine ng-valid"
+            formcontrolname="date"
+          >
+             Date and time must be in the future 
+          </a-date-field>
+        </div>
+        <div
+          class="flex flex-col flex-1 w-full sm:w-1/3"
+        >
+          <label>
+            Start Time
+          </label>
+          <a-time-field
+            class="ng-untouched ng-pristine ng-valid"
+            formcontrolname="date"
+          />
+        </div>
+        <div
+          class="flex flex-col flex-1 w-full sm:w-1/3"
+        >
+          <label>
+            End Time
+          </label>
+          <a-duration-field
+            class="ng-untouched ng-pristine ng-valid"
+            formcontrolname="duration"
+          />
+        </div>
+      </div>
+    </section>
+    <section
+      class="mb-4 border-b border-gray-300"
+    >
+      <div
+        class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+      >
+        <label>
+          Attendees
+        </label>
+        <a-user-list-field
+          class="ng-untouched ng-pristine ng-valid"
+          formcontrolname="attendees"
+        />
+      </div>
+    </section>
+    <section
+      class="mb-4 border-b border-gray-300"
+    >
+      <div
+        class="w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+      >
+        <div
+          class="flex flex-col"
+        >
+          <label>
+            Meeting Subject 
+            <span>
+              *
+            </span>
+          </label>
+          <mat-form-field
+            appearance="outline"
+            class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid _mat-animation-noopable"
+          >
+            <div
+              class="mat-form-field-wrapper"
+            >
+              <div
+                class="mat-form-field-flex"
+              >
+                <div
+                  class="mat-form-field-outline"
+                >
+                  <div
+                    class="mat-form-field-outline-start"
+                  />
+                  <div
+                    class="mat-form-field-outline-gap"
+                  />
+                  <div
+                    class="mat-form-field-outline-end"
+                  />
+                </div>
+                <div
+                  class="mat-form-field-outline mat-form-field-outline-thick"
+                >
+                  <div
+                    class="mat-form-field-outline-start"
+                  />
+                  <div
+                    class="mat-form-field-outline-gap"
+                  />
+                  <div
+                    class="mat-form-field-outline-end"
+                  />
+                </div>
+                
+                
+                
+                <div
+                  class="mat-form-field-infix"
+                >
+                  <input
+                    aria-invalid="false"
+                    aria-required="false"
+                    class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
+                    data-placeholder="Meeting title"
+                    formcontrolname="title"
+                    matinput=""
+                    placeholder="Meeting title"
+                  />
+                  <span
+                    class="mat-form-field-label-wrapper"
+                  >
+                    
+                  </span>
+                </div>
+                
+              </div>
+              
+              <div
+                class="mat-form-field-subscript-wrapper"
+              >
+                
+                <div
+                  class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+                  style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+                >
+                  
+                  <div
+                    class="mat-form-field-hint-spacer"
+                  />
+                </div>
+                
+              </div>
+            </div>
+          </mat-form-field>
+        </div>
+        <div
+          class="flex flex-col resize-y"
+        >
+          <label>
+            Notes
+          </label>
+          <mat-form-field
+            appearance="outline"
+            class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
+          >
+            <div
+              class="mat-form-field-wrapper"
+            >
+              <div
+                class="mat-form-field-flex"
+              >
+                <div
+                  class="mat-form-field-outline"
+                >
+                  <div
+                    class="mat-form-field-outline-start"
+                  />
+                  <div
+                    class="mat-form-field-outline-gap"
+                  />
+                  <div
+                    class="mat-form-field-outline-end"
+                  />
+                </div>
+                <div
+                  class="mat-form-field-outline mat-form-field-outline-thick"
+                >
+                  <div
+                    class="mat-form-field-outline-start"
+                  />
+                  <div
+                    class="mat-form-field-outline-gap"
+                  />
+                  <div
+                    class="mat-form-field-outline-end"
+                  />
+                </div>
+                
+                
+                
+                <div
+                  class="mat-form-field-infix"
+                >
+                  <textarea
+                    aria-invalid="false"
+                    aria-required="false"
+                    class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-valid cdk-text-field-autofill-monitored"
+                    data-placeholder="Add meeting notes here..."
+                    formcontrolname="body"
+                    matinput=""
+                    placeholder="Add meeting notes here..."
+                  />
+                  <span
+                    class="mat-form-field-label-wrapper"
+                  >
+                    
+                  </span>
+                </div>
+                
+              </div>
+              
+              <div
+                class="mat-form-field-subscript-wrapper"
+              >
+                
+                <div
+                  class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+                  style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+                >
+                  
+                  <div
+                    class="mat-form-field-hint-spacer"
+                  />
+                </div>
+                
+              </div>
+            </div>
+          </mat-form-field>
+        </div>
+      </div>
+    </section>
+  </form>
+  
+</div>
+`;

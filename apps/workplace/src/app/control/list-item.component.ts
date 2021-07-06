@@ -28,6 +28,7 @@ import { Space } from '@placeos/spaces';
                 <a
                     mat-button
                     button
+                    control
                     class="w-32 flex-1 sm:flex-none"
                     [href]="space.support_url | safe: 'url'"
                 >
@@ -36,6 +37,7 @@ import { Space } from '@placeos/spaces';
                 <a
                     mat-button
                     button
+                    locate
                     class="w-32 flex-1 sm:flex-none inverse"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.id }"
@@ -65,7 +67,7 @@ export class ControlSpaceListItemComponent {
             (building) => building.id === level.parent_id
         );
         return `${bld ? (bld.display_name || bld.name) + ', ' : ''}${
-            level.display_name || level.name
+            level?.display_name || level?.name || '<No Level>'
         }`;
     }
 

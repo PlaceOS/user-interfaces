@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
+import {
+    AuthorisedUserGuard,
+    MisconfiguredComponent, UnauthorisedComponent
+} from '@placeos/components';
 
-import { UnauthorisedComponent, AuthorisedUserGuard, MisconfiguredComponent } from '@placeos/components';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -10,43 +13,54 @@ const routes: Routes = [
         path: 'dashboard',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardModule),
+        loadChildren: () =>
+            import('./dashboard/dashboard.module').then(
+                (m) => m.DashboardModule
+            ),
     },
     {
         path: 'book',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./bookings/bookings.module').then((m) => m.BookingsModule),
+        loadChildren: () =>
+            import('./book/book.module').then((m) => m.BookModule),
     },
     {
         path: 'explore',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./explore/explore.module').then((m) => m.ExploreModule),
+        loadChildren: () =>
+            import('./explore/explore.module').then((m) => m.ExploreModule),
     },
     {
         path: 'control',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./control/control.module').then((m) => m.ControlModule),
+        loadChildren: () =>
+            import('./control/control.module').then((m) => m.ControlModule),
     },
     {
         path: 'directory',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./directory/directory.module').then((m) => m.DirectoryModule),
+        loadChildren: () =>
+            import('./directory/directory.module').then(
+                (m) => m.DirectoryModule
+            ),
     },
     {
         path: 'schedule',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./schedule/schedule.module').then((m) => m.ScheduleModule),
+        loadChildren: () =>
+            import('./schedule/schedule.module').then((m) => m.AppScheduleModule),
     },
     {
         path: 'help',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
-        loadChildren: () => import('./help/help.module').then((m) => m.HelpModule),
+        loadChildren: () =>
+            import('./help/help.module').then((m) => m.HelpModule),
     },
     { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];

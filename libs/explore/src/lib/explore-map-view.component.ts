@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
-import { BaseClass, notifyError, SettingsService } from '@placeos/common';
+import {
+    BaseClass,
+    notifyError,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { Space, SpacesService } from '@placeos/spaces';
 import { MapLocation, showStaff, User } from '@placeos/users';
 import { MapPinComponent, MapRadiusComponent } from '@placeos/components';
@@ -40,8 +45,8 @@ import { ExploreDesksService } from './explore-desks.service';
             Zones
             <mat-slide-toggle
                 class="ml-2"
-                [ngModel]="(options | async)?.show_zones"
-                (ngModelChange)="setOptions({ show_zones: $event })"
+                [ngModel]="(options | async)?.disable?.includes('zones')"
+                (ngModelChange)="toggleZones($event)"
             ></mat-slide-toggle>
         </div>
     `,
@@ -80,6 +85,15 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
+    public readonly toggleZones = async (e) => {
+        const options = await this.options.pipe(take(1)).toPromise();
+        const disable = [...(options.disable || [])].filter(
+            (_) => _ !== 'zones'
+        );
+        if (e) disable.push('zones');
+        this.setOptions({ disable });
+    };
+
     constructor(
         private _state: ExploreStateService,
         private _s: ExploreSpacesService,
@@ -96,6 +110,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        this.toggleZones(false);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {

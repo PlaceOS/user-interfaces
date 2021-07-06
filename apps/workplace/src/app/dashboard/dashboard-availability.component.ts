@@ -1,13 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { getModule } from '@placeos/ts-client';
-import { BaseClass } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { first } from 'rxjs/operators';
 
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
-    selector: 'dashboard-availability',
+    selector: 'a-dashboard-availability',
     template: `
         <h3 class="m-0 font-medium text-xl">Available Now</h3>
         <div class="flex flex-col items-center p-2 bg-white my-4 rounded-lg">
@@ -23,7 +19,7 @@ import { DashboardStateService } from './dashboard-state.service';
                     button
                     mat-button
                     class="w-full"
-                    *ngFor="let lvl of levels_free | async | slice:0:2"
+                    *ngFor="let lvl of levels_free | async | slice: 0:2"
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
@@ -31,7 +27,10 @@ import { DashboardStateService } from './dashboard-state.service';
                 </a>
             </div>
         </div>
-        <div free-spaces class="flex items-center flex-col rounded-lg bg-white my-4 p-2">
+        <div
+            free-spaces
+            class="flex items-center flex-col rounded-lg bg-white my-4 p-2"
+        >
             <div class="flex items-center w-full mb-2">
                 <app-icon
                     class="bg-darken rounded-lg mr-2 text-2xl"
@@ -49,7 +48,11 @@ import { DashboardStateService } from './dashboard-state.service';
                     [queryParams]="{ space: space.id }"
                     >{{ space.display_name || space.name }}
                 </a>
-                <span *ngIf="!(space_list | async).length" class="text-dark-fade text-sm mb-2">No free spaces</span>
+                <span
+                    *ngIf="!(space_list | async).length"
+                    class="text-dark-fade text-sm mb-2"
+                    >No free spaces</span
+                >
             </div>
         </div>
     `,
@@ -66,11 +69,10 @@ export class DashboardAvailabilityComponent implements OnInit, OnDestroy {
     public readonly space_list = this._state.free_spaces;
     public readonly levels_free = this._state.level_occupancy;
 
-    constructor(private _state: DashboardStateService) { }
+    constructor(private _state: DashboardStateService) {}
 
     public async ngOnInit() {
         this._state.pollFreeSpaces();
-
     }
 
     public ngOnDestroy() {

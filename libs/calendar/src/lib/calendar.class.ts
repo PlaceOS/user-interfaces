@@ -29,16 +29,16 @@ export class Calendar {
         this.summary = data.summary || '';
         this.can_edit = !!data.can_edit;
         this.resource = new Space(data.resource || (data as any).system);
-        this.availability = (data.availability || []).map((i: any) => {
-            return {
-                date: new Date(i.starts_at.dateTime).valueOf(),
-                duration: differenceInMinutes(
-                    new Date(i.ends_at.dateTime),
-                    new Date(i.starts_at.dateTime)
-                ),
-                status: i.status,
-            };
-        });
+        this.availability = (data.availability || []).map(
+            ({ starts_at, ends_at, date, duration, status }: any) => {
+                return {
+                    date: new Date(date, starts_at).valueOf(),
+                    duration:
+                        duration || differenceInMinutes(ends_at, starts_at),
+                    status: status,
+                };
+            }
+        );
         this.hidden = !!data.hidden;
     }
 }

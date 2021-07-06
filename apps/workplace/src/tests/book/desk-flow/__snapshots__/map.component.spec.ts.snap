@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DeskFlowMapComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    topbar=""
+  >
+    <a
+      button=""
+      class="clear h-[2.75rem] text-white"
+      mat-button=""
+    >
+      <div
+        class="flex items-center justify-center h-full"
+      >
+        <app-icon
+          class="text-xl"
+        >
+          arrow_back
+        </app-icon>
+        <span
+          class="ml-2 mx-4"
+        >
+          Back
+        </span>
+      </div>
+    </a>
+  </div>
+  <div
+    class="flex flex-col flex-1 h-1/2 w-full"
+  >
+    <h2
+      class="text-2xl px-4 pt-4 text-center"
+    >
+      Available Desks
+    </h2>
+    <an-action-field
+      aria-haspopup="true"
+      class="mat-menu-trigger my-4 mx-auto w-[640px] max-w-[calc(100vw-2rem)]"
+    >
+       No Filters 
+    </an-action-field>
+    
+    <mat-menu>
+      
+    </mat-menu>
+    <div
+      class="flex flex-1 h-1/2 relative space-x-2"
+      listing=""
+    >
+      <ul
+        class="list-style-none w-full sm:w-[20rem] bg-gray-100 p-2 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+      >
+        <div
+          class="px-2 sticky top-0 bg-gray-100 w-full z-10"
+        >
+           0 matches available 
+        </div>
+        
+      </ul>
+      <div
+        class="hidden sm:block flex-1 bg-gray-200 rounded-tl-lg border-l border-t border-gray-300 relative overflow-hidden h-full"
+      >
+        <i-map />
+        
+      </div>
+      
+      
+    </div>
+  </div>
+</div>
+`;

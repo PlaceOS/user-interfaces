@@ -1,0 +1,183 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RecurrenceModalComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <header>
+    <div
+      class="heading"
+      mat-dialog-title=""
+    >
+      Booking Recurrence
+    </div>
+    <button
+      mat-dialog-close=""
+      mat-icon-button=""
+    >
+      <app-icon>
+        close
+      </app-icon>
+    </button>
+  </header>
+  <main
+    class="p-4"
+  >
+    <form
+      class="ng-untouched ng-pristine ng-valid"
+      novalidate=""
+    >
+      <div
+        class="flex flex-col"
+      >
+        <label
+          for="period"
+        >
+          Period: 
+        </label>
+        <mat-form-field
+          appearance="outline"
+          class="mat-form-field w-full mat-primary mat-form-field-type-mat-select mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
+        >
+          <div
+            class="mat-form-field-wrapper"
+          >
+            <div
+              class="mat-form-field-flex"
+            >
+              <div
+                class="mat-form-field-outline"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              <div
+                class="mat-form-field-outline mat-form-field-outline-thick"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              
+              
+              
+              <div
+                class="mat-form-field-infix"
+              >
+                <mat-select
+                  aria-autocomplete="none"
+                  aria-disabled="false"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-invalid="false"
+                  aria-required="false"
+                  class="mat-select mat-select-empty ng-untouched ng-pristine ng-valid"
+                  name="interval"
+                  placeholder="None"
+                  role="combobox"
+                  tabindex="0"
+                >
+                  <div
+                    cdk-overlay-origin=""
+                    class="mat-select-trigger"
+                  >
+                    <div
+                      class="mat-select-value"
+                    >
+                      <span
+                        class="mat-select-placeholder mat-select-min-line"
+                      >
+                        None
+                      </span>
+                      
+                      
+                    </div>
+                    <div
+                      class="mat-select-arrow-wrapper"
+                    >
+                      <div
+                        class="mat-select-arrow"
+                      />
+                    </div>
+                  </div>
+                  
+                </mat-select>
+                <span
+                  class="mat-form-field-label-wrapper"
+                >
+                  
+                </span>
+              </div>
+              
+            </div>
+            
+            <div
+              class="mat-form-field-subscript-wrapper"
+            >
+              
+              <div
+                class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+                style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+              >
+                
+                <div
+                  class="mat-form-field-hint-spacer"
+                />
+              </div>
+              
+            </div>
+          </div>
+        </mat-form-field>
+      </div>
+      
+      <div
+        class="flex flex-col"
+      >
+        <label
+          class="mb"
+          for="end"
+        >
+           End Date
+          <span>
+            *
+          </span>
+          : 
+        </label>
+        <a-date-field
+          class="w-full ng-untouched ng-pristine ng-valid"
+          formcontrolname="end"
+          name="end"
+        >
+           End date needs to be in the future 
+        </a-date-field>
+      </div>
+      
+    </form>
+    
+  </main>
+  
+  <footer>
+    <button
+      class="w-32"
+      mat-button=""
+    >
+       Add to Booking 
+    </button>
+  </footer>
+  
+  
+</div>
+`;

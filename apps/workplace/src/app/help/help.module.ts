@@ -3,19 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Route } from '@angular/router';
 
 import { HelpComponent } from './help.component';
-import { SharedContentModule } from '../ui/shared.module';
 import { HelpOptionListComponent } from './option-list.component';
+import { SharedComponentModule } from '../components/shared.module';
 
-const ROUTES: Route[] = [
-    { path: '', component: HelpComponent }
-];
+const ROUTES: Route[] = [{ path: '', component: HelpComponent }];
 
 @NgModule({
     declarations: [HelpComponent, HelpOptionListComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),
-        SharedContentModule
-    ]
+        SharedComponentModule,
+    ],
 })
 export class HelpModule {}

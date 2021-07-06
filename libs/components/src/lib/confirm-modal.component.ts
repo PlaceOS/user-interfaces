@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { ApplicationIcon, DialogEvent } from '../../../common/src/lib/types';
+import { ApplicationIcon, DialogEvent } from 'libs/common/src/lib/types';
 
 export interface ConfirmModalData {
     /** Title of the modal */
@@ -31,19 +31,23 @@ export const CONFIRM_METADATA = {
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="flex flex-col items-center justify-center space-y-2 px-6"
+            class="flex flex-col items-center space-y-2 p-4"
         >
             <app-icon [icon]="icon" class="text-5xl"></app-icon>
-            <p content class="text-center text-sm" [innerHTML]="content"></p>
+            <p
+                content
+                class="text-center text-sm w-[22rem]"
+                [innerHTML]="content"
+            ></p>
         </main>
         <footer
             class="flex items-center justify-center p-2 space-x-2"
             *ngIf="!loading"
         >
-            <button mat-button class="inverse" mat-dialog-close>
+            <button mat-button class="inverse w-32" mat-dialog-close>
                 {{ cancel_text }}
             </button>
-            <button mat-button name="accept" (click)="onConfirm()">
+            <button mat-button name="accept" class="w-32" (click)="onConfirm()">
                 {{ confirm_text }}
             </button>
         </footer>
@@ -56,17 +60,7 @@ export const CONFIRM_METADATA = {
             </main>
         </ng-template>
     `,
-    styles: [
-        `
-            main {
-                min-height: 10rem;
-            }
-
-            footer button {
-                min-width: 8em;
-            }
-        `,
-    ],
+    styles: [``],
 })
 export class ConfirmModalComponent {
     /** Loading state */

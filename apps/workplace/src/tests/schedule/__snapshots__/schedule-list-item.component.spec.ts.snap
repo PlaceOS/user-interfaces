@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ScheduleListItemComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  
+  <a
+    class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white border border-gray-200 hover:shadow p-0 opacity-50"
+    mat-button=""
+  >
+    <div
+      class="flex items-center"
+    >
+      <div
+        class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight bg-error"
+        status=""
+      >
+        <app-icon
+          class="text-2xl"
+        >
+          cancel
+        </app-icon>
+        <div
+          class="font-normal"
+        >
+            
+        </div>
+        <div
+          class="capitalize text-xs font-medium"
+        >
+           (declined) 
+        </div>
+      </div>
+      <div
+        class="flex-1 flex flex-col text-left p-2"
+      >
+        <div
+          class="text-xl pl-1"
+        >
+           Untitled Event 
+        </div>
+        <div
+          class="flex items-center font-normal"
+        >
+          <app-icon
+            class="text-lg mr-1"
+          >
+            place
+          </app-icon>
+          <span>
+            
+          </span>
+        </div>
+      </div>
+    </div>
+  </a>
+  
+  
+</div>
+`;
+
+exports[`ScheduleListItemComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  
+  <a
+    class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white border border-gray-200 hover:shadow p-0"
+    mat-button=""
+  >
+    <div
+      class="flex items-center"
+    >
+      <div
+        class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight bg-success"
+        status=""
+      >
+        <app-icon
+          class="text-2xl"
+        >
+          event
+        </app-icon>
+        <div
+          class="font-normal"
+        >
+           3:30 PM 
+        </div>
+        <div
+          class="capitalize text-xs font-medium"
+        >
+           (approved) 
+        </div>
+      </div>
+      <div
+        class="flex-1 flex flex-col text-left p-2"
+      >
+        <div
+          class="text-xl pl-1"
+        >
+           Untitled Event 
+        </div>
+        <div
+          class="flex items-center font-normal"
+        >
+          <app-icon
+            class="text-lg mr-1"
+          >
+            place
+          </app-icon>
+          <span>
+            
+          </span>
+        </div>
+      </div>
+    </div>
+  </a>
+  
+  
+</div>
+`;
+
+exports[`ScheduleListItemComponent should match snapshot 3`] = `
+<div
+  id="root1"
+>
+  <div>
+    <div
+      class="mx-4 w-full h-12 text-xl flex items-center"
+    >
+       January 1, 1970 (0) 
+    </div>
+    <div
+      class="mx-4 w-full h-10 text-lg text-center font-normal opacity-60"
+    >
+       No events for January 1, 1970 
+    </div>
+    
+  </div>
+  
+  
+  
+</div>
+`;

@@ -122,6 +122,7 @@ export class AppComponent extends BaseClass implements OnInit {
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
         setDefaultCreator(currentUser());
+
         initSentry(this._settings.get('app.sentry_dsn'));
     }
 

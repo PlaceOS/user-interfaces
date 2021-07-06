@@ -1,0 +1,374 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
+<div
+  id="root4"
+>
+  <div
+    topbar=""
+  >
+    <a
+      button=""
+      class="clear h-[2.75rem] text-white"
+      mat-button=""
+    >
+      <div
+        class="flex items-center justify-center h-full"
+      >
+        <app-icon
+          class="text-xl"
+        >
+          arrow_back
+        </app-icon>
+        <span
+          class="ml-2 mx-4"
+        >
+          Back
+        </span>
+      </div>
+    </a>
+  </div>
+  <div
+    class="flex flex-col items-center space-y-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+  >
+    <h2
+      class="text-xl uppercase font-medium w-full my-4"
+    >
+       Your meeting details 
+    </h2>
+    <div
+      class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+    >
+      <div
+        class="p-2 rounded-full bg-gray-300 mr-2"
+      >
+        <app-icon>
+          event
+        </app-icon>
+      </div>
+      <div
+        class="flex-1 truncate"
+      >
+         January 1, 1970 at 10:00 AM ~ 10:30 AM 
+      </div>
+      <a
+        class="clear underline"
+        mat-button=""
+      >
+        Edit
+      </a>
+    </div>
+    <div
+      class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+    >
+      <div
+        class="p-2 rounded-full bg-gray-300 mr-2"
+      >
+        <app-icon>
+          schedule
+        </app-icon>
+      </div>
+      <div
+        class="flex-1 truncate"
+      >
+         30 minutes 
+      </div>
+      <a
+        class="clear underline"
+        mat-button=""
+      >
+        Edit
+      </a>
+    </div>
+    <div
+      class="border-b border-gray-200 w-full"
+    >
+      <div
+        class="flex items-center py-2 space-x-2"
+      >
+        <div
+          class="p-2 rounded-full bg-gray-300 mr-2"
+        >
+          <app-icon>
+            place
+          </app-icon>
+        </div>
+        <div
+          class="flex-1 truncate"
+        >
+           0 Space(s) 
+        </div>
+        <button
+          class="clear bg-transparent border-none underline"
+          disabled=""
+          mat-button=""
+        >
+           Show 
+        </button>
+        <a
+          class="clear underline"
+          mat-button=""
+        >
+          Edit
+        </a>
+      </div>
+      <div
+        class="overflow-hidden"
+        list=""
+        style="height: 0px;"
+      >
+        
+      </div>
+    </div>
+    <div
+      class="border-b border-gray-200 w-full"
+    >
+      <div
+        class="flex items-center py-2 space-x-2"
+      >
+        <div
+          class="p-2 rounded-full bg-gray-300 mr-2"
+        >
+          <app-icon>
+            group
+          </app-icon>
+        </div>
+        <div
+          class="flex-1 truncate"
+        >
+           0 Attendee(s) 
+        </div>
+        <button
+          class="clear bg-transparent border-none underline"
+          disabled=""
+          mat-button=""
+        >
+           Show 
+        </button>
+        <a
+          class="clear underline"
+          mat-button=""
+        >
+          Edit
+        </a>
+      </div>
+      <div
+        class="overflow-hidden"
+        list=""
+        style="height: 0px;"
+      >
+        
+      </div>
+    </div>
+    <button
+      class="w-32"
+      confirm=""
+      mat-button=""
+    >
+      <span>
+        Confirm
+      </span>
+      
+      
+    </button>
+  </div>
+   &lt; 
+</div>
+`;
+
+exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
+<div
+  id="root4"
+>
+  <div
+    topbar=""
+  >
+    <a
+      button=""
+      class="clear h-[2.75rem] text-white"
+      mat-button=""
+    >
+      <div
+        class="flex items-center justify-center h-full"
+      >
+        <app-icon
+          class="text-xl"
+        >
+          arrow_back
+        </app-icon>
+        <span
+          class="ml-2 mx-4"
+        >
+          Back
+        </span>
+      </div>
+    </a>
+  </div>
+  <div
+    class="flex flex-col items-center space-y-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+  >
+    <h2
+      class="text-xl uppercase font-medium w-full my-4"
+    >
+       Your meeting details 
+    </h2>
+    <div
+      class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+    >
+      <div
+        class="p-2 rounded-full bg-gray-300 mr-2"
+      >
+        <app-icon>
+          event
+        </app-icon>
+      </div>
+      <div
+        class="flex-1 truncate"
+      >
+         January 1, 1970 at 10:00 AM ~ 10:30 AM 
+      </div>
+      <a
+        class="clear underline"
+        mat-button=""
+      >
+        Edit
+      </a>
+    </div>
+    <div
+      class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+    >
+      <div
+        class="p-2 rounded-full bg-gray-300 mr-2"
+      >
+        <app-icon>
+          schedule
+        </app-icon>
+      </div>
+      <div
+        class="flex-1 truncate"
+      >
+         30 minutes 
+      </div>
+      <a
+        class="clear underline"
+        mat-button=""
+      >
+        Edit
+      </a>
+    </div>
+    <div
+      class="border-b border-gray-200 w-full"
+    >
+      <div
+        class="flex items-center py-2 space-x-2"
+      >
+        <div
+          class="p-2 rounded-full bg-gray-300 mr-2"
+        >
+          <app-icon>
+            place
+          </app-icon>
+        </div>
+        <div
+          class="flex-1 truncate"
+        >
+           1 Space(s) 
+        </div>
+        <button
+          class="clear bg-transparent border-none underline"
+          mat-button=""
+        >
+           Show 
+        </button>
+        <a
+          class="clear underline"
+          mat-button=""
+        >
+          Edit
+        </a>
+      </div>
+      <div
+        class="overflow-hidden"
+        list=""
+        style="height: 0px;"
+      >
+        <div
+          class="flex items-center h-10 pl-12"
+        >
+          <span>
+            Space 1 []
+          </span>
+          <button
+            class="bg-transparent border-none underline"
+            mat-button=""
+          >
+             Map 
+          </button>
+        </div>
+        
+      </div>
+    </div>
+    <div
+      class="border-b border-gray-200 w-full"
+    >
+      <div
+        class="flex items-center py-2 space-x-2"
+      >
+        <div
+          class="p-2 rounded-full bg-gray-300 mr-2"
+        >
+          <app-icon>
+            group
+          </app-icon>
+        </div>
+        <div
+          class="flex-1 truncate"
+        >
+           1 Attendee(s) 
+        </div>
+        <button
+          class="clear bg-transparent border-none underline"
+          mat-button=""
+        >
+           Show 
+        </button>
+        <a
+          class="clear underline"
+          mat-button=""
+        >
+          Edit
+        </a>
+      </div>
+      <div
+        class="overflow-hidden"
+        list=""
+        style="height: 0px;"
+      >
+        <div
+          class="flex items-center h-12 pl-12 space-x-2"
+        >
+          <a-user-avatar
+            class="text-sm"
+          />
+          <span>
+            Jim
+          </span>
+        </div>
+        
+      </div>
+    </div>
+    <button
+      class="w-32"
+      confirm=""
+      mat-button=""
+    >
+      <span>
+        Confirm
+      </span>
+      
+      
+    </button>
+  </div>
+   &lt; 
+</div>
+`;

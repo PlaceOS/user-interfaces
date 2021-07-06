@@ -29,7 +29,7 @@ import { User } from '@placeos/users';
                     mat-button
                     button
                     class="w-32 flex-1 sm:flex-none"
-                    name="locate"
+                    locate
                     [routerLink]="['/explore']"
                     [queryParams]="{ user: user.email }"
                     (click)="sendLocateEvent()"
@@ -40,7 +40,7 @@ import { User } from '@placeos/users';
                     mat-button
                     button
                     class="w-32 flex-1 sm:flex-nones"
-                    name="call"
+                    call
                     *ngIf="user.phone"
                     [href]="'tel:' + user.phone | safe: 'url'"
                     (click)="sendCallEvent()"
@@ -50,10 +50,7 @@ import { User } from '@placeos/users';
             </div>
         </div>
     `,
-    styles: [
-        `
-        `,
-    ],
+    styles: [``],
 })
 export class DirectoryUserListItemComponent {
     /** Space to display */

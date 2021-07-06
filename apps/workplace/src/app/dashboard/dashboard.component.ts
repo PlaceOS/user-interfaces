@@ -1,43 +1,29 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { format } from 'date-fns';
 
 @Component({
-    selector: 'dashboard',
+    selector: '[dashboard]',
     template: `
-        <header>
-            <a-topbar-header [(menu)]="show_menu"></a-topbar-header>
+        <topbar></topbar>
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-200">
+            <nav-menu class="relative z-10"></nav-menu>
             <div
-                class="top relative flex flex-col justify-center text-white px-12 py-4"
+                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
-                <div class="row location">Sydney</div>
-                <div class="row text-2xl text-bold uppercase">
-                    {{ datetime }}
-                </div>
+                <main
+                    class="flex flex-1 px-0 sm:px-8 flex-wrap overflow-auto h-px sm:h-auto"
+                >
+                    <a-dashboard-availability
+                        class="flex-1 min-w-64"
+                    ></a-dashboard-availability>
+                    <a-dashboard-upcoming
+                        class="flex-1 min-w-64"
+                    ></a-dashboard-upcoming>
+                    <a-dashboard-contacts
+                        class="flex-1 min-w-64"
+                    ></a-dashboard-contacts>
+                </main>
             </div>
-        </header>
-        <main class="flex flex-1 px-8 flex-wrap overflow-auto">
-            <dashboard-availability
-                class="flex-1 min-w-64"
-            ></dashboard-availability>
-            <dashboard-upcoming class="flex-1 min-w-64"></dashboard-upcoming>
-            <dashboard-contacts class="flex-1 min-w-64"></dashboard-contacts>
-        </main>
-        <footer class="flex">
-            <a
-                button
-                mat-button
-                class="tile text-2xl"
-                *ngFor="let tile of tiles"
-                [routerLink]="tile.route"
-            >
-                <div class="flex flex-col items-center">
-                    <app-icon [icon]="tile.icon"></app-icon>
-                    <span class="text-lg">{{ tile.name }}</span>
-                </div>
-            </a>
-        </footer>
-        <a-overlay-menu [(show)]="show_menu"></a-overlay-menu>
+        </div>
     `,
     styles: [
         `
@@ -54,11 +40,10 @@ import { format } from 'date-fns';
 
             main {
                 min-height: 50%;
-                background: #f0f0f0;
             }
 
             .top {
-                background-color: #0a0d2e;
+                background-color: #007ac8;
             }
 
             a[button].tile {
@@ -76,17 +61,4 @@ import { format } from 'date-fns';
         `,
     ],
 })
-export class DashboardComponent {
-    /** Whether to show overlay menu */
-    public show_menu: boolean;
-
-    public get tiles() {
-        return this._settings.get('app.home.tiles') || [];
-    }
-
-    public get datetime() {
-        return format(new Date(), 'EEEE, h:mma');
-    }
-
-    constructor(private _settings: SettingsService) {}
-}
+export class DashboardComponent {}
