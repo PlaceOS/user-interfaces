@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1625544949375,
+  "timestamp": 1625809381541,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -103,12 +103,12 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "280ef989620b72bc396305ee1bc22a86418178ab",
-    "./default-libs_bookings_src_index_ts.js": "b7f37fb8fcfa3be0a23f4626a67fb4fc5dfd5b20",
+    "./default-libs_bookings_src_index_ts.js": "77e9f3bf7c6a6d6a230a32c18a6c6d1dc8b1ba19",
     "./default-libs_explore_src_index_ts.js": "0887243b8b8ec5cade1b2d220c06b1832be5cfd3",
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "8c9d258e8bfd8da1f64b87493f9acc0139859b8c",
-    "./main.js": "60f63ece94dc4e96b0834feeb5bbfcd5b0bee382",
+    "./main.js": "20a62e0949c1e0b15715ca56130ed487f6a3f739",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "09a9a3e3da942b13a02f9e4f52075977ac379955",
     "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
