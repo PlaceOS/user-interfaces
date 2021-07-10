@@ -26,6 +26,7 @@ import {
     setupPlace,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
@@ -122,7 +123,10 @@ export class AppComponent extends BaseClass implements OnInit {
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
         setDefaultCreator(currentUser());
-
+        setInternalUserDomain(
+            this._settings.get('app.general.internal_user_domain') ||
+                currentUser()?.email?.split('@')[1]
+        );
         initSentry(this._settings.get('app.sentry_dsn'));
     }
 

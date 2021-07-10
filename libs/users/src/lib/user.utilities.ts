@@ -9,6 +9,10 @@ type HashMap<T = any> = Record<string, T>;
 
 export let USER_DOMAIN = 'place.tech';
 
+export function setInternalUserDomain(domain: string) {
+    USER_DOMAIN = domain;
+}
+
 const USER_EMAILS: string[] = [];
 /* istanbul ignore next */
 /**
