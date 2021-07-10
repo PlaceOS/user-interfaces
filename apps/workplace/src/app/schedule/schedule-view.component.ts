@@ -16,7 +16,7 @@ import {
     showEvent,
 } from '@placeos/events';
 import { Space } from '@placeos/spaces';
-import { isAfter } from 'date-fns';
+import { formatDuration, isAfter } from 'date-fns';
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 
 @Component({
@@ -66,9 +66,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                     <div class="p-2 rounded-full bg-gray-300 mr-2">
                         <app-icon>schedule</app-icon>
                     </div>
-                    <div class="flex-1 truncate">
-                        {{ event.duration }} minutes
-                    </div>
+                    <div class="flex-1 truncate">{{ duration }}</div>
                 </div>
                 <div
                     class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
@@ -262,6 +260,13 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
             ((this.event as CalendarEvent).host ||
                 (this.event as Booking).user_email) === currentUser()?.email
         );
+    }
+
+    public get duration() {
+        return formatDuration({
+            hours: Math.floor(this.event?.duration / 60),
+            minutes: this.event?.duration % 60,
+        });
     }
 
     public get has_ended() {

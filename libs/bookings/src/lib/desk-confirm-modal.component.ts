@@ -42,9 +42,15 @@ export interface DeskConfirmModalData {
                         [(ngModel)]="date"
                     ></a-date-field>
                 </div>
-                <div reason class="mb-4" *ngIf="!hide_reason">
+                <div reason class="flex flex-col mb-4" *ngIf="!hide_reason">
                     <label>Reason</label>
-                    <div>{{ reason || '~No set reason~' }}</div>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [(ngModel)]="reason"
+                            placeholder="Reason"
+                        />
+                    </mat-form-field>
                 </div>
                 <p>
                     Your desk{{ desks.length === 1 ? '' : 's' }} will be
@@ -82,7 +88,7 @@ export class DeskConfirmModalComponent {
 
     public readonly can_set_date = this._data.can_set_date;
 
-    public readonly reason = this._data.reason;
+    public reason = this._data.reason;
 
     public readonly level = this._data.level;
 

@@ -21,11 +21,11 @@ import { BookingLike } from './schedule-state.service';
             <a
                 mat-button
                 *ngSwitchDefault
-                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white border border-gray-200 hover:shadow p-0"
+                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
                 [class.opacity-50]="has_ended"
                 [routerLink]="['/schedule', 'view', item?.id]"
             >
-                <div class=" flex items-center">
+                <div class="flex items-center border border-gray-200 ">
                     <div
                         status
                         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"
@@ -73,7 +73,7 @@ export class ScheduleListItemComponent {
     public get icon() {
         if (this.status === 'declined') return 'cancel';
         if (this.item.asset_id) {
-            switch ((this.item as Booking).type) {
+            switch ((this.item as Booking).booking_type) {
                 case 'desk':
                     return 'view_quilt';
                 case 'parking':

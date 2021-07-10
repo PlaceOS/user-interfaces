@@ -281,6 +281,10 @@
                                 {
                                     "replace": "apps/concierge/src/environments/environment.ts",
                                     "with": "apps/concierge/src/environments/environment.prod.ts"
+                                },
+                                {
+                                    "replace": "libs/common/src/lib/settings.ts",
+                                    "with": "apps/concierge/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
