@@ -58,6 +58,7 @@ export class BookDeskFlowComponent extends BaseClass implements OnInit {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._state.loadForm();
         if (!this._state.form) this._state.newForm();
+        this._state.form.patchValue({ booking_type: 'desk' });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
