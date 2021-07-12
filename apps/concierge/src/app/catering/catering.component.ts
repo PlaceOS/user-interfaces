@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@placeos/common';
-
 
 @Component({
     selector: '[app-catering]',
@@ -14,8 +13,14 @@ import { BaseClass } from '@placeos/common';
                     *ngSwitchCase="'orders'"
                     class="flex-1"
                 ></catering-order-list>
-                <catering-menu *ngSwitchCase="'menu'" class="flex-1"></catering-menu>
-                <div *ngSwitchDefault class="flex flex-1 items-center justify-center">
+                <catering-menu
+                    *ngSwitchCase="'menu'"
+                    class="flex-1"
+                ></catering-menu>
+                <div
+                    *ngSwitchDefault
+                    class="flex flex-1 items-center justify-center"
+                >
                     <a
                         matRipple
                         class="rounded flex flex-col items-center bg-white shadow text-black"
@@ -26,7 +31,9 @@ import { BaseClass } from '@placeos/common';
                             class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
                             [style.background-image]="'url(assets/menus.jpg)'"
                         >
-                            <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+                            <div
+                                class="absolute inset-0 bg-black opacity-60 z-0"
+                            ></div>
                             <span class="z-10">Menus and Pricing</span>
                         </div>
                         <div
@@ -45,7 +52,9 @@ import { BaseClass } from '@placeos/common';
                             class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
                             [style.background-image]="'url(assets/orders.jpg)'"
                         >
-                            <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
+                            <div
+                                class="absolute inset-0 bg-black opacity-60 z-0"
+                            ></div>
                             <span class="z-10">Today's Orders</span>
                         </div>
                         <div
@@ -85,7 +94,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class CateringComponent extends BaseClass {
+export class CateringComponent extends BaseClass implements OnInit {
     /** Page being displayed */
     public page: string;
 
@@ -97,7 +106,8 @@ export class CateringComponent extends BaseClass {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(
-                (params) => (this.page = params.has('view') ? params.get('view') : '')
+                (params) =>
+                    (this.page = params.has('view') ? params.get('view') : '')
             )
         );
     }
