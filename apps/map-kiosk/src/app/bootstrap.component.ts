@@ -7,6 +7,7 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: '[bootstrap]',
@@ -173,7 +174,8 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         super();
     }
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -181,6 +183,13 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                     localStorage.removeItem('KIOSK.building');
                     localStorage.removeItem('KIOSK.level');
                     localStorage.removeItem('KIOSK.orientation');
+                }
+                if (params.has('level')) {
+                    const level = this._org.levelWithID([params.get('level')]);
+                    if (level) {
+                        this.active_level = level;
+                        this.bootstrapKiosk();
+                    }
                 }
             })
         );
@@ -210,9 +219,12 @@ export class BootstrapComponent extends BaseClass implements OnInit {
      */
     public bootstrapKiosk() {
         this.loading = 'Bootstrapping application...';
-        if (this.active_building && this.active_level) {
+        if (this.active_level) {
             if (localStorage) {
-                localStorage.setItem('KIOSK.building', this.active_building.id);
+                localStorage.setItem(
+                    'KIOSK.building',
+                    this.active_building?.id || this.active_level.parent_id
+                );
                 localStorage.setItem('KIOSK.level', this.active_level.id);
                 if (this.active_rotation) {
                     localStorage.setItem(
