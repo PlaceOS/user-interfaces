@@ -202,12 +202,7 @@ export class BookingFormService extends BaseClass {
         return this._booking.getValue();
     }
 
-    public newForm(
-        booking: Booking = new Booking({
-            user_id: currentUser()?.id,
-            user_email: currentUser()?.email,
-        })
-    ) {
+    public newForm(booking: Booking = new Booking()) {
         this._form.next(generateBookingForm(booking));
         this.subscription(
             'form_change',

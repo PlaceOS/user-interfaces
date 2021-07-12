@@ -14,14 +14,25 @@ export function generateBookingForm(booking: Booking) {
         asset_id: new FormControl(booking.asset_id),
         user: new FormControl(currentUser()),
         user_id: new FormControl(booking.user_id),
+        user_email: new FormControl(booking.user_email),
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),
+        booked_by_email: new FormControl(booking.booked_by_email),
     });
-    form.get('user')?.valueChanges.subscribe((u) =>
-        u ? form.get('user_id')?.setValue(u.id) : ''
-    );
-    form.get('booked_by')?.valueChanges.subscribe((u) =>
-        u ? form.get('booked_by')?.setValue(u.id) : ''
-    );
+    form.valueChanges.subscribe((v) => {
+        const user = v.user;
+        const booker = v.booked_by;
+        booker || user
+            ? form.patchValue(
+                  {
+                      user_id: user.id || booker.id,
+                      user_email: user.email || booker.id,
+                      booked_by_id: booker.id,
+                      booked_by_email: booker.email,
+                  },
+                  { emitEvent: false }
+              )
+            : '';
+    });
     return form;
 }
