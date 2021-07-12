@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { BaseClass, Identity } from '@placeos/common';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import {
     Building,
     BuildingLevel,
@@ -191,6 +192,10 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                         this.bootstrapKiosk();
                     }
                 }
+                if (params.has('osk')) {
+                    const osk_enabled = params.get('osk') === 'true';
+                    localStorage.set('OSK.enabled', `${osk_enabled}`);
+                }
             })
         );
         this.timeout('check', () => this.checkBootstrap(), 1000);
@@ -256,6 +261,8 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                 this._router.navigate(['/explore']);
             }
         }
+        VirtualKeyboardComponent.enabled =
+            localStorage.getItem('OSK.enabled') === 'true';
         this.loading = null;
     }
 }
