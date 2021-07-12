@@ -300,8 +300,12 @@ export class BookingFormService extends BaseClass {
             this._dialog
         );
         if (details?.reason !== 'done') return;
-        details.loading('');
-        await this.postForm().catch((_) => notifyError(_));
+        details.loading('Performing booking request...');
+        await this.postForm().catch((_) => {
+            notifyError(_);
+            details.close();
+            throw _;
+        });
         details.close();
     }
 
