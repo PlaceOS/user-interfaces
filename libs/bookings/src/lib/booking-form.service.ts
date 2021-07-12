@@ -202,7 +202,12 @@ export class BookingFormService extends BaseClass {
         return this._booking.getValue();
     }
 
-    public newForm(booking: Booking = new Booking()) {
+    public newForm(
+        booking: Booking = new Booking({
+            user_id: currentUser()?.id,
+            user_email: currentUser()?.email,
+        })
+    ) {
         this._form.next(generateBookingForm(booking));
         this.subscription(
             'form_change',
@@ -322,9 +327,15 @@ export class BookingFormService extends BaseClass {
         }).toPromise();
         if (bookings.find((_) => _.asset_id === asset_id))
             throw `${asset_id} is not available at the selected time`;
-        const result = await saveBooking(
-            new Booking(this._form.getValue().value)
-        ).toPromise();
+        if (
+            bookings.find(
+                (_) =>
+                    _.user_email ===
+                    (form.value.user_email || currentUser()?.email)
+            )
+        )
+            throw `You already have a desk booked`;
+        const result = await saveBooking(new Booking(form.value)).toPromise();
         this.clearForm();
         this.last_success = result;
         sessionStorage.setItem(
