@@ -16,7 +16,7 @@ import {
     showEvent,
 } from '@placeos/events';
 import { Space } from '@placeos/spaces';
-import { formatDuration, isAfter } from 'date-fns';
+import { addMinutes, formatDuration, isAfter } from 'date-fns';
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 
 @Component({
@@ -272,7 +272,10 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
     public get has_ended() {
         return (
             this.event &&
-            isAfter(new Date(), this.event.date + this.event.duration)
+            isAfter(
+                new Date(),
+                addMinutes(this.event.date, this.event.duration)
+            )
         );
     }
 
