@@ -36,7 +36,6 @@ import { first, map } from 'rxjs/operators';
                         [ngModel]="form.get('date').value"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        style="margin-top: .3rem"
                     ></a-time-field>
                 </div>
                 <div class="flex flex-col flex-1">

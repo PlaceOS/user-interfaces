@@ -3,8 +3,10 @@ import { Component } from '@angular/core';
 @Component({
     selector: '[app-dayview]',
     template: `
-        <sidebar></sidebar>
-        <main class="relative overflow-hidden">
+        <sidebar class="h-full"></sidebar>
+        <main
+            class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full"
+        >
             <dayview-topbar></dayview-topbar>
             <dayview-timeline></dayview-timeline>
         </main>
@@ -17,19 +19,7 @@ import { Component } from '@angular/core';
                 width: 100%;
                 background: var(--bg);
             }
-
-            sidebar {
-                height: 100%;
-            }
-
-            main {
-                display: flex;
-                flex-direction: column;
-                flex: 1;
-                min-width: 50%;
-                height: 100%;
-            }
-        `
+        `,
     ],
 })
 export class DayViewComponent {}
