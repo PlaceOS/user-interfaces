@@ -9,13 +9,13 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
 @Component({
     selector: 'dayview-topbar',
     template: `
-        <button mat-button class="w-12 xl:w-auto" (click)="newBooking()">
+        <button mat-button new class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
                 <app-icon
                     class="mr-2"
                     [icon]="{ class: 'material-icons', content: 'add' }"
                 ></app-icon>
-                <div class="hidden xl:block">New Booking</div>
+                <div class="hidden lg:block">New Booking</div>
             </div>
         </button>
         <mat-form-field appearance="outline">
@@ -25,7 +25,10 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 (ngModelChange)="updateZones($event)"
                 placeholder="All Levels"
             >
-                <mat-option *ngFor="let level of levels | async" [value]="level.id">
+                <mat-option
+                    *ngFor="let level of levels | async"
+                    [value]="level.id"
+                >
                     {{ level.display_name || level.name }}
                 </mat-option>
             </mat-select>
@@ -71,7 +74,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
 
             button {
                 min-width: 0;
-                padding: 0 .85rem;
+                padding: 0 0.85rem;
             }
 
             mat-form-field {
@@ -83,7 +86,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             mat-slide-toggle div {
                 width: 5.5em;
                 white-space: initial;
-                line-height: 1.2em
+                line-height: 1.2em;
             }
         `,
     ],
@@ -99,14 +102,14 @@ export class DayviewTopbarComponent extends BaseClass {
     ];
     /** List of selected types */
     public type_list: string[] = this.types.map((i) => `${i.id}`);
-    /** Set filtered date */
-    public readonly setDate = (d) => this._state.setDate(d);
-    /**  */
-    public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */
     public readonly ui_options = this._state.options;
+    /** Set filtered date */
+    public readonly setDate = (d) => this._state.setDate(d);
+    /**  */
+    public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {
@@ -145,14 +148,12 @@ export class DayviewTopbarComponent extends BaseClass {
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
+                        this.zones = zones;
                         const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
+                        if (!level) return;
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
-                        this.zones = zones;
                     }
                 }
             })
@@ -160,7 +161,9 @@ export class DayviewTopbarComponent extends BaseClass {
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) => levels.find((lvl) => lvl.id === zone));
+                this.zones = this.zones.filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone)
+                );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }

@@ -1,20 +1,21 @@
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { CateringOrdersService, CateringStateService } from '@placeos/catering';
+import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
+import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.component';
+import { EventsStateService } from '../../app/day-view/events-state.service';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
 
-describe('CateringTopbarComponent', () => {
-    let spectator: SpectatorRouting<CateringTopbarComponent>;
+describe('DayviewTopbarComponent', () => {
+    let spectator: SpectatorRouting<DayviewTopbarComponent>;
     const createComponent = createRoutingFactory({
-        component: CateringTopbarComponent,
+        component: DayviewTopbarComponent,
         providers: [
             {
                 provide: OrganisationService,
@@ -24,18 +25,36 @@ describe('CateringTopbarComponent', () => {
                     levelWithID: jest.fn(),
                 },
             },
-            { provide: CateringStateService, useValue: {} },
-            { provide: CateringOrdersService, useValue: {} },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            {
+                provide: EventsStateService,
+                useValue: {
+                    setFilters: jest.fn(),
+                    setDate: jest.fn(),
+                    setZones: jest.fn(),
+                    newBooking: jest.fn(),
+                },
+            },
         ],
-        declarations: [MockComponent(DateOptionsComponent)],
-        imports: [MatFormFieldModule, MatSelectModule, FormsModule],
+        declarations: [
+            MockComponent(DateOptionsComponent),
+            MockComponent(IconComponent),
+        ],
+        imports: [
+            MatFormFieldModule,
+            MatSelectModule,
+            MatSlideToggleModule,
+            FormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should match snapshot', () => {
+        expect(spectator.element).toMatchSnapshot();
     });
 
     it('should handle query parameters', () => {
@@ -45,10 +64,10 @@ describe('CateringTopbarComponent', () => {
         expect(spectator.component.zones).toEqual(['zone-1234', 'zone-2345']);
     });
 
-    it('should handle route parameters', () => {
-        expect(spectator.component.page).toBeFalsy();
-        spectator.setRouteParam('view', 'orders');
-        spectator.detectChanges();
-        expect(spectator.component.page).toBe('orders');
+    it('should allow user to make new bookings', () => {
+        spectator.click('button[new]');
+        expect(
+            spectator.inject(EventsStateService).newBooking
+        ).toHaveBeenCalled();
     });
 });
