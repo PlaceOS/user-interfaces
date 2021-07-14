@@ -37,6 +37,7 @@ import { SanitizePipe } from './sanitise.pipe';
 import { CustomTableComponent } from './custom-table.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { VirtualKeyboardComponent } from './virtual-keyboard.component';
+import { GlobalLoadingComponent } from './global-loading.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -57,6 +58,7 @@ export * from './fixed.pipe';
 export * from './safe.pipe';
 export * from './sanitise.pipe';
 export * from './virtual-keyboard.component';
+export * from './global-loading.component';
 
 export * from './authorised-admin.guard';
 export * from './authorised-user.guard';
@@ -94,6 +96,7 @@ const COMPONENTS: Type<any>[] = [
     CustomTableComponent,
     CustomTooltipComponent,
     VirtualKeyboardComponent,
+    GlobalLoadingComponent,
 
     FixedPipe,
     SafePipe,

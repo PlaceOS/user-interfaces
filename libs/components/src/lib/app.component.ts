@@ -52,21 +52,11 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     selector: 'app-root',
     template: `
         <router-outlet></router-outlet>
-        <div *ngIf="loading | async" class="loading-block">
-            <div class="info-block center">
-                <div class="icon">
-                    <mat-spinner [diameter]="64"></mat-spinner>
-                </div>
-            </div>
-        </div>
+        <global-loading></global-loading>
     `,
     styles: [``],
 })
 export class AppComponent extends BaseClass implements OnInit {
-    private _loading = new BehaviorSubject<boolean>(false);
-    /** Observable for whether the application is initialising */
-    public readonly loading = this._loading.asObservable();
-
     constructor(
         private _tracing: Sentry.TraceService,
         private _settings: SettingsService,
@@ -107,7 +97,6 @@ export class AppComponent extends BaseClass implements OnInit {
             });
         });
         setNotifyOutlet(this._snackbar);
-        this._loading.next(true);
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         setAppName(this._settings.get('app.short_name'));
@@ -117,7 +106,6 @@ export class AppComponent extends BaseClass implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch(() => this.onInitError());
-        this._loading.next(false);
         setupCache(this._cache);
         this.timeout('wait_for_user', () => this.onInitError(), 5 * 1000);
         await current_user.pipe(first((_) => !!_)).toPromise();
