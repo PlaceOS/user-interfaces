@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventFormComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  
+</div>
+`;

@@ -31,7 +31,10 @@ export interface BookingModalData {
             <button mat-button (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
-            <main class="h-64 flex flex-col items-center justify-center">
+            <main
+                loading
+                class="h-64 flex flex-col items-center justify-center"
+            >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ loading | async }}</p>
             </main>
