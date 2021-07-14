@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { DayviewSpaceComponent } from '../../app/day-view/dayview-space.component';
 import { DayviewTimelineComponent } from '../../app/day-view/dayview-timeline.component';
