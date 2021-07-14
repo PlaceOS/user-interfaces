@@ -50,6 +50,7 @@ describe('EventFormComponent', () => {
             get: jest.fn(() => ({})),
             patchValue: jest.fn(),
         } as any;
+        spectator.setInput({ form });
         spectator.detectChanges();
         expect(spectator.element).toMatchSnapshot();
     });
