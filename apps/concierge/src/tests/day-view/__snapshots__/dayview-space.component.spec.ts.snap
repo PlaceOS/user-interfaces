@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DayviewTimelineComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  
+</div>
+`;
+
+exports[`DayviewTimelineComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <dayview-event />
+  
+  
+  
+</div>
+`;
