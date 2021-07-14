@@ -67,7 +67,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     <dayview-space
                         *ngFor="let space of space_list | async"
                         [space]="space"
-                        class="w-48 min-w-[12rem]"
+                        class="w-48 min-w-[12rem] h-[96rem]"
                     ></dayview-space>
                     <div
                         *ngFor="let time of blocks; let i = index"

@@ -6,7 +6,7 @@ import { DayviewEventComponent } from '../../app/day-view/dayview-event.componen
 import { DayviewSpaceComponent } from '../../app/day-view/dayview-space.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
-describe('DayviewTimelineComponent', () => {
+describe('DayviewSpaceComponent', () => {
     let spectator: Spectator<DayviewSpaceComponent>;
     const createComponent = createComponentFactory({
         component: DayviewSpaceComponent,
@@ -16,8 +16,6 @@ describe('DayviewTimelineComponent', () => {
                 provide: EventsStateService,
                 useValue: {
                     filtered: new BehaviorSubject([]),
-                    startPolling: jest.fn(),
-                    stopPolling: jest.fn(),
                 },
             },
         ],
