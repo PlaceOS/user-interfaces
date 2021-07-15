@@ -2,6 +2,7 @@ import {
     AfterViewInit,
     Component,
     ElementRef,
+    HostListener,
     InjectionToken,
     Injector,
     Input,
@@ -135,6 +136,12 @@ export class InteractiveMapComponent
     @ViewChildren('feature') private _feature_list: QueryList<
         ElementRef<HTMLDivElement>
     >;
+
+    @HostListener('window:resize') public onResize() {
+        this.zoom = 1;
+        this.center = { x: 0.5, y: 0.5 };
+        this.updateDisplay();
+    }
 
     public type(
         content: string | TemplateRef<any> | Type<any>
