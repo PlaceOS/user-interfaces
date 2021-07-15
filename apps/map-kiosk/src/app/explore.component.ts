@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { current_user, SettingsService } from '@placeos/common';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { BaseClass, current_user, SettingsService } from '@placeos/common';
 import {
     ExploreDesksService,
     ExploreSpacesService,
@@ -54,7 +54,7 @@ import { first } from 'rxjs/operators';
     ],
     providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
 })
-export class ExploreComponent implements OnInit {
+export class ExploreComponent extends BaseClass implements OnInit {
     public get logo() {
         return this._settings.get('app.logo');
     }
@@ -73,6 +73,11 @@ export class ExploreComponent implements OnInit {
     /** Observable for the active map */
     public readonly options = this._state.options;
 
+    @HostListener('window:mousedown') public onMouse = () =>
+        this.timeout('reset', () => this.resetKiosk(), 60 * 1000);
+    @HostListener('window:touchstart') public onTouch = () =>
+        this.timeout('reset', () => this.resetKiosk(), 60 * 1000);
+
     constructor(
         private _state: ExploreStateService,
         private _s: ExploreSpacesService,
@@ -80,10 +85,20 @@ export class ExploreComponent implements OnInit {
         private _zones: ExploreZonesService,
         private _settings: SettingsService,
         private _org: OrganisationService
-    ) {}
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         await current_user.pipe(first((_) => !!_)).toPromise();
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.resetKiosk();
+    }
+
+    public resetKiosk() {
+        if ((document.activeElement as any)?.blur)
+            (document.activeElement as any)?.blur();
+        const level = localStorage.getItem('KIOSK.level');
+        if (level) this._state.setLevel(level);
     }
 }
