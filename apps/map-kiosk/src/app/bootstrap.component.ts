@@ -180,6 +180,10 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('osk')) {
+                    const osk_enabled = params.get('osk') === 'true';
+                    localStorage.setItem('OSK.enabled', `${osk_enabled}`);
+                }
                 if (params.has('clear') && params.get('clear') === 'true') {
                     localStorage.removeItem('KIOSK.building');
                     localStorage.removeItem('KIOSK.level');
@@ -191,10 +195,6 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                         this.active_level = level;
                         this.bootstrapKiosk();
                     }
-                }
-                if (params.has('osk')) {
-                    const osk_enabled = params.get('osk') === 'true';
-                    localStorage.set('OSK.enabled', `${osk_enabled}`);
                 }
             })
         );

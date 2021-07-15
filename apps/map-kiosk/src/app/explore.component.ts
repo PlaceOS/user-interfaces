@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { BaseClass, current_user, SettingsService } from '@placeos/common';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import {
     ExploreDesksService,
     ExploreSpacesService,
@@ -93,6 +94,8 @@ export class ExploreComponent extends BaseClass implements OnInit {
         await current_user.pipe(first((_) => !!_)).toPromise();
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.resetKiosk();
+        VirtualKeyboardComponent.enabled =
+            localStorage.getItem('OSK.enabled') === 'true';
     }
 
     public resetKiosk() {

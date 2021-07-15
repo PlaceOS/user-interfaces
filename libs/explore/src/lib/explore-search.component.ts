@@ -23,6 +23,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             </app-icon>
             <input
                 #input
+                keyboard
                 class="flex-1 text-base border-none outline-none"
                 [(ngModel)]="search_str"
                 (ngModelChange)="setItem($event)"
