@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1626322679615,
+  "timestamp": 1626417488883,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -22,6 +22,8 @@
         "./index.html",
         "./main.js",
         "./manifest.webmanifest",
+        "./node_modules_node-fetch_browser_js.js",
+        "./node_modules_websocket_lib_browser_js.js",
         "./polyfills.js",
         "./runtime.js",
         "./styles.css",
@@ -117,13 +119,13 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "6b798829a5e4492b10dad13718c224faf0a609a8",
+    "./apps_workplace_src_app_book_book_module_ts.js": "c5e72b3f07c6a0d15ddeef05540b8a87083904c8",
     "./apps_workplace_src_app_control_control_module_ts.js": "b5d44f232cfe321a7ff83e98d87fd17153eadc43",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "6ad3f7fa5bc988bc709dbab3353ac774788aeda5",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "170ce9bacc33fbdc55e942242385ba2ca8e9de06",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "df5b1ff9d76fc3c160ff6bc6f669cfd2720c6ad1",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "21c278c780beed0e7cf68f03e54a622648fd6f55",
     "./apps_workplace_src_app_help_help_module_ts.js": "f23584cef7761612cc0931fb26097ac7eb93f59b",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "18c8818226ee85bc3a803392eebf990656b66ba0",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "f52d83ee99c667ce4e9cee9e179503e364f3bdf6",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -200,12 +202,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "6b72892f7395d05575ccfd9ecd073ecaa17e8e3c",
-    "./main.js": "d4f8c7e9f8198e1b0551b1fc448fe1bfa89e4a96",
+    "./main.js": "320500a455de5046c0463efc1562b237eab36203",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
+    "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
+    "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
-    "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
-    "./styles.css": "3d575f5a0c3494464341abed23af868e359e2171",
-    "./vendor.js": "2c962c95155faa76267f9d6746bf8bec7eaf9cc0"
+    "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
+    "./styles.css": "fd814242103be04df7dd528947310b3d21c42835",
+    "./vendor.js": "81fd13eb17718baff0125aab7856d173177b9b21"
   },
   "navigationUrls": [
     {
