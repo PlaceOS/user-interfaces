@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1626322723432,
+  "timestamp": 1626417523078,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -18,6 +18,8 @@
         "./index.html",
         "./main.js",
         "./manifest.webmanifest",
+        "./node_modules_node-fetch_browser_js.js",
+        "./node_modules_websocket_lib_browser_js.js",
         "./polyfills.js",
         "./runtime.js",
         "./styles.css",
@@ -93,8 +95,8 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "8e75b39422ea02888db1cff310e4622b0412ba64",
-    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "3a10e06d71244beb9c886dce2a1db41e6d3437ea",
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "04cfec2b5052055740fde350c1f5bb53446e9d0a",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "bd9384fdb28b9bb20b2a0466d8aab49b00554c96",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -149,15 +151,17 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "58d45ecfb9e2d8b66e19afa2ef32351034e56881",
+    "./common.js": "ba6bdd10456b19006b642aa26a95ce6c38490dca",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "4aff6064a8c7a87ad630b94f03895198e4e1ed38",
-    "./main.js": "22350008507b0a01ffab72ab1dd93ec21310fe1d",
+    "./main.js": "4f06a3ac3a79cc3818e884b965a88fea8bbf2700",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
+    "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
+    "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "31fdd5ecd5a927640b2cbc6a9abb23c5004594ae",
-    "./runtime.js": "078cd7f610e8f816bd63034de71374f08fa8c3a5",
-    "./styles.css": "3d575f5a0c3494464341abed23af868e359e2171",
-    "./vendor.js": "5ba6f91c8eb903eb18888ca1fecb518a15423443"
+    "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
+    "./styles.css": "fd814242103be04df7dd528947310b3d21c42835",
+    "./vendor.js": "b96af730ac67754b845be5878eda784495e8b9c4"
   },
   "navigationUrls": [
     {
