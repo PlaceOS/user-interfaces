@@ -92,6 +92,7 @@ export class CateringStateService extends BaseClass {
                 .toPromise(),
             ref.afterClosed().toPromise(),
         ]);
+        ref.close();
         return details?.metadata?.order || order;
     }
 

@@ -10,14 +10,14 @@ export const MOCK_MENU = [
         options: [
             { id: 'opt-1', name: 'Cappacino', group: 'type' },
             { id: 'opt-2', name: 'Latte', group: 'type' },
-            { id: 'opt-1', name: '1 Sugar', group: 'sugars', unit_price: 20 },
-            { id: 'opt-1', name: '2 Sugar', group: 'sugars', unit_price: 20 },
-            { id: 'opt-1', name: '3 Sugar', group: 'sugars', unit_price: 20 },
-            { id: 'opt-1', name: '4 Sugar', group: 'sugars', unit_price: 20 },
+            { id: 'opt-3', name: '1 Sugar', group: 'sugars', unit_price: 20 },
+            { id: 'opt-4', name: '2 Sugar', group: 'sugars', unit_price: 20 },
+            { id: 'opt-5', name: '3 Sugar', group: 'sugars', unit_price: 20 },
+            { id: 'opt-6', name: '4 Sugar', group: 'sugars', unit_price: 20 },
         ],
     },
     {
-        id: 'item-1',
+        id: 'item-2',
         name: 'Soda',
         unit_price: 160,
         category: 'Drinks',
@@ -28,9 +28,9 @@ export const MOCK_MENU = [
             { id: 'opt-4', name: 'Dr Pepper', group: 'type' },
         ],
     },
-    { id: 'item-1', name: 'Water', unit_price: 100, category: 'Drinks' },
+    { id: 'item-3', name: 'Water', unit_price: 100, category: 'Drinks' },
     {
-        id: 'item-1',
+        id: 'item-4',
         name: 'Muffin',
         unit_price: 160,
         category: 'Snacks',
@@ -41,7 +41,7 @@ export const MOCK_MENU = [
         ],
     },
     {
-        id: 'item-1',
+        id: 'item-5',
         name: 'Cookies',
         unit_price: 400,
         category: 'Snacks',
@@ -52,7 +52,7 @@ export const MOCK_MENU = [
         ],
     },
     {
-        id: 'item-1',
+        id: 'item-6',
         name: 'Fish & Chips',
         unit_price: 250,
         category: 'Simple Meals',
@@ -79,7 +79,7 @@ export const MOCK_MENU = [
         ],
     },
     {
-        id: 'item-1',
+        id: 'item-7',
         name: 'Sandwich',
         unit_price: 300,
         category: 'Simple Meals',

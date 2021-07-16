@@ -6,6 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatRadioModule } from '@angular/material/radio';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { CateringConfigModalComponent } from './catering-config-modal.component';
@@ -18,7 +19,7 @@ import { CateringOrderListComponent } from './catering-order-list.component';
 import { CateringOrderModalComponent } from './catering-order-modal.component';
 import { CateringOrderOptionsModalComponent } from './catering-order-options-modal.component';
 import { CateringOrderComponent } from './catering-order.component';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
@@ -42,10 +43,12 @@ const COMPONENTS: Type<any>[] = [
         MatAutocompleteModule,
         MatDialogModule,
         MatCheckboxModule,
+        MatRadioModule,
+        MatTooltipModule,
         FormsModule,
         ReactiveFormsModule,
         ComponentsModule,
-        FormFieldsModule
+        FormFieldsModule,
     ],
     providers: [],
     exports: [...COMPONENTS],
