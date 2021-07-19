@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { BaseClass, Identity } from '@placeos/common';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: '[bootstrap]',
@@ -173,14 +175,26 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         super();
     }
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('osk')) {
+                    const osk_enabled = params.get('osk') === 'true';
+                    localStorage.setItem('OSK.enabled', `${osk_enabled}`);
+                }
                 if (params.has('clear') && params.get('clear') === 'true') {
                     localStorage.removeItem('KIOSK.building');
                     localStorage.removeItem('KIOSK.level');
                     localStorage.removeItem('KIOSK.orientation');
+                }
+                if (params.has('level')) {
+                    const level = this._org.levelWithID([params.get('level')]);
+                    if (level) {
+                        this.active_level = level;
+                        this.bootstrapKiosk();
+                    }
                 }
             })
         );
@@ -210,9 +224,12 @@ export class BootstrapComponent extends BaseClass implements OnInit {
      */
     public bootstrapKiosk() {
         this.loading = 'Bootstrapping application...';
-        if (this.active_building && this.active_level) {
+        if (this.active_level) {
             if (localStorage) {
-                localStorage.setItem('KIOSK.building', this.active_building.id);
+                localStorage.setItem(
+                    'KIOSK.building',
+                    this.active_building?.id || this.active_level.parent_id
+                );
                 localStorage.setItem('KIOSK.level', this.active_level.id);
                 if (this.active_rotation) {
                     localStorage.setItem(
@@ -244,6 +261,8 @@ export class BootstrapComponent extends BaseClass implements OnInit {
                 this._router.navigate(['/explore']);
             }
         }
+        VirtualKeyboardComponent.enabled =
+            localStorage.getItem('OSK.enabled') === 'true';
         this.loading = null;
     }
 }

@@ -148,8 +148,8 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
     }
 
     public async updateDate(index) {
-        const events = await this.event_list.pipe(take(1)).toPromise();
-        const event = events[index];
+        const events = (await this.event_list.pipe(take(1)).toPromise()) || [];
+        const event = events[index] || {};
         if (event) this.setDate(event.date);
     }
 

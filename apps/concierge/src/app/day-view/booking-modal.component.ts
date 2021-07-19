@@ -1,11 +1,8 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { getUnixTime, addMinutes } from 'date-fns';
 
-import { CalendarService } from '@placeos/calendar';
 import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
-import { CalendarEvent, generateEventForm, saveEvent } from '@placeos/events';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 
 export interface BookingModalData {
     event?: CalendarEvent;
@@ -21,19 +18,25 @@ export interface BookingModalData {
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main *ngIf="!loading; else load_state" class="overflow-auto p-4">
+        <main
+            *ngIf="!(loading | async); else load_state"
+            class="overflow-auto p-4"
+        >
             <event-form [form]="form"></event-form>
         </main>
         <footer
-            *ngIf="!loading"
+            *ngIf="!(loading | async)"
             class="flex justify-center items-center p-2 border-t border-gray-200"
         >
             <button mat-button (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
-            <main class="h-64 flex flex-col items-center justify-center">
+            <main
+                loading
+                class="h-64 flex flex-col items-center justify-center"
+            >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading | async }}</p>
             </main>
         </ng-template>
     `,
@@ -49,69 +52,30 @@ export interface BookingModalData {
 })
 export class BookingModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
-    public form: FormGroup;
-    public loading: string;
+    /** Observable for the loading state of the form */
+    public readonly loading = this._service.loading;
+
+    public get form() {
+        return this._service.form;
+    }
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
-        private _calendar: CalendarService,
+        private _service: EventFormService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>
     ) {}
 
-    public ngOnInit() {
-        this.form = generateEventForm(
-            new CalendarEvent(this._data.event || {})
-        );
-        this.form.get('host').setValue(null);
+    public ngOnInit(): void {
+        this._service.newForm(this._data.event);
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        if (this.form.get('organiser').value && !this.form.get('host').value) {
-            this.form
-                .get('host')
-                .setValue(this.form.get('organiser').value.email);
-        }
-        if (!this.form.valid || !this.form.value.resources?.length) {
-            const list = [];
-            for (const key in this.form.controls) {
-                if (this.form.controls[key].invalid) list.push(key);
-            }
-            return notifyError(
-                `Some form fields are not valid: [${list.join(', ')}]`
-            );
-        }
-        const value = this.form.value;
-        this.loading = 'Check space availability...';
-        const spaces = await this._calendar
-            .availability({
-                period_start: getUnixTime(new Date(value.date)),
-                period_end: getUnixTime(
-                    addMinutes(new Date(value.date), value.duration)
-                ),
-                system_ids: value.resources.map((space) => space.id).join(','),
-            })
-            .toPromise()
-            .catch((_) => []);
-        if (spaces.length < value.resources.length) {
-            this.loading = '';
-            return notifyError(
-                'Some of the selected spaces are not available for the selected time and duration'
-            );
-        }
-        this.loading = 'Creating calendar event...';
-        value.system = value.resources[0];
-        const booking = await saveEvent(new CalendarEvent(value).toJSON(), {
-            calendar: value.calendar,
-        })
-            .toPromise()
-            .catch((_) => null);
-        this.loading = '';
-        if (!booking) {
-            return notifyError('Error creating booking.');
-        }
-        this.event.emit({ reason: 'done', metadata: booking });
-        notifySuccess('Successfully created booking.');
+        const event = await this._service.postForm().catch((_) => {
+            notifyError(_);
+            throw _;
+        });
+        this.event.emit({ reason: 'done', metadata: event });
+        notifySuccess('Successfully created booking');
         this._dialog_ref.close();
     }
 }

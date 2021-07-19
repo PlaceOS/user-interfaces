@@ -37,6 +37,8 @@ import { SanitizePipe } from './sanitise.pipe';
 import { CustomTableComponent } from './custom-table.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { VirtualKeyboardComponent } from './virtual-keyboard.component';
+import { GlobalLoadingComponent } from './global-loading.component';
+import { MatSortModule } from '@angular/material/sort';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -57,6 +59,7 @@ export * from './fixed.pipe';
 export * from './safe.pipe';
 export * from './sanitise.pipe';
 export * from './virtual-keyboard.component';
+export * from './global-loading.component';
 
 export * from './authorised-admin.guard';
 export * from './authorised-user.guard';
@@ -78,6 +81,7 @@ const MAT_MODULES: any[] = [
     MatPaginatorModule,
     CdkTableModule,
     PortalModule,
+    MatSortModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -94,6 +98,7 @@ const COMPONENTS: Type<any>[] = [
     CustomTableComponent,
     CustomTooltipComponent,
     VirtualKeyboardComponent,
+    GlobalLoadingComponent,
 
     FixedPipe,
     SafePipe,

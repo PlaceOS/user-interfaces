@@ -4,7 +4,11 @@ import { Space } from './space.class';
 @Component({
     selector: 'a-space-select-item',
     template: `
-        <div space class="w-full flex items-center p-2 space-x-2" *ngIf="space">
+        <div
+            space
+            class="w-full flex items-center p-2 space-x-2 border-b border-gray-100"
+            *ngIf="space"
+        >
             <div class="flex-1 w-1/2">
                 <div class="text-base truncate">{{ space.name }}</div>
                 <div class="text-xs">
@@ -26,7 +30,7 @@ import { Space } from './space.class';
             </button>
         </div>
         <ng-template #single_button>
-            <button mat-button [class.request]="space.by_request">
+            <button mat-button class="w-32" [class.request]="space.by_request">
                 {{ space.by_request ? 'Request' : 'Book' }}
             </button>
         </ng-template>

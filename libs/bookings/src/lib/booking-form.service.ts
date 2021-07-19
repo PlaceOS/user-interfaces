@@ -300,8 +300,12 @@ export class BookingFormService extends BaseClass {
             this._dialog
         );
         if (details?.reason !== 'done') return;
-        details.loading('');
-        await this.postForm().catch((_) => notifyError(_));
+        details.loading('Performing booking request...');
+        await this.postForm().catch((_) => {
+            notifyError(_);
+            details.close();
+            throw _;
+        });
         details.close();
     }
 
@@ -322,9 +326,15 @@ export class BookingFormService extends BaseClass {
         }).toPromise();
         if (bookings.find((_) => _.asset_id === asset_id))
             throw `${asset_id} is not available at the selected time`;
-        const result = await saveBooking(
-            new Booking(this._form.getValue().value)
-        ).toPromise();
+        if (
+            bookings.find(
+                (_) =>
+                    _.user_email ===
+                    (form.value.user_email || currentUser()?.email)
+            )
+        )
+            throw `You already have a desk booked`;
+        const result = await saveBooking(new Booking(form.value)).toPromise();
         this.clearForm();
         this.last_success = result;
         sessionStorage.setItem(

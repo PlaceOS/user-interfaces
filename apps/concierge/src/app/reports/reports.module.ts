@@ -18,6 +18,10 @@ import { ReportsMenuComponent } from './reports-menu.component';
 import { ReportSpacesOverallComponent } from './spaces/report-spaces-overall.component';
 import { ReportSpacesSpaceListing } from './spaces/report-spaces-space-listing.component';
 import { ReportSpacesUserListing } from './spaces/report-spaces-user-listing';
+import { CateringReportComponent } from './catering/catering-report.component';
+import { CateringReportOverallComponent } from './catering/catering-report-overall.component';
+import { CateringReportOrdersComponent } from './catering/catering-report-orders.component';
+import { CateringReportItemsComponent } from './catering/catering-report-items.component';
 
 const ROUTES: Route[] = [
     {
@@ -27,6 +31,7 @@ const ROUTES: Route[] = [
             { path: '' },
             { path: 'spaces', component: ReportSpacesComponent },
             { path: 'desks', component: ReportDesksComponent },
+            { path: 'catering', component: CateringReportComponent },
             { path: '**', redirectTo: 'desks' },
         ],
     },
@@ -45,7 +50,12 @@ const ROUTES: Route[] = [
         ReportDesksComponent,
         ReportDesksOverallListComponent,
         ReportDesksLevelListComponent,
-        ReportsMenuComponent
+        ReportsMenuComponent,
+
+        CateringReportComponent,
+        CateringReportOverallComponent,
+        CateringReportOrdersComponent,
+        CateringReportItemsComponent,
     ],
     imports: [
         CommonModule,

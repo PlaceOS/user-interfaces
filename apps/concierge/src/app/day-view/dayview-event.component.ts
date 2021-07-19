@@ -4,6 +4,8 @@ import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 
+const DAY_IN_MINUTES = 24 * 60;
+
 @Component({
     selector: 'dayview-event',
     template: `
@@ -16,10 +18,10 @@ import { EventsStateService } from './events-state.service';
             [style.height]="overflow_height * 100 + '%'"
         ></div>
         <div
-            name="event"
+            event
             matRipple
             [class]="
-                'absolute rounded overflow-hidden text-sm border border-gray-200 shadow-sm ' +
+                'absolute rounded overflow-hidden text-sm border border-gray-200 shadow-sm z-10 hover:z-30 ' +
                 type
             "
             *ngIf="event"
@@ -44,56 +46,55 @@ import { EventsStateService } from './events-state.service';
             </div>
         </div>
         <div
-            *ngIf="(ui_options | async)?.show_cleaning"
-            class="catering-block absolute rounded overflow-hidden flex w-full shadow p-2"
-            [style.top]="overflow_top * 100 + '%'"
-            [style.height]="overflow_height * 100 + '%'"
+            *ngIf="event && (ui_options | async)?.show_cleaning"
+            cleaning
+            class="absolute rounded overflow-hidden flex w-full shadow p-2 bg-white z-20"
+            [style.top]="top * 100 + '%'"
+            [style.height]="height * 100 + '%'"
         >
             <div
                 [class]="
-                    'icon flex mr-2 text-3xl rounded ' + event.cleaning_status
+                    'icon flex items-center justify-center mr-2 text-3xl rounded h-12 w-12 text-pending ' +
+                    event.ext('cleaning_status')
                 "
             >
                 <app-icon>{{
-                    event.cleaning_status === 'done' ? 'done' : 'warning'
+                    event.ext('cleaning_status') === 'done' ? 'done' : 'warning'
                 }}</app-icon>
             </div>
-            <div class="text">
+            <div class="flex-1 w-1/2">
                 {{
-                    event.cleaning_status === 'done'
+                    event.ext('cleaning_status') === 'done'
                         ? 'Finished'
                         : 'Scheduled to'
                 }}
-                clean at {{ event.cleaning_time }}
+                clean at
+                {{
+                    event.ext('cleaning_time') || event.event_end * 1000
+                        | date: 'shortTime'
+                }}
             </div>
         </div>
     `,
     styles: [
         `
-            [name='event'] {
+            [event] {
                 background-color: #ccc;
                 width: 12rem;
                 z-index: 100;
                 transition: box-shadow 200ms;
             }
 
-            [name='event']:hover {
+            [event]:hover {
                 box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.2),
                     0 1px 1px 0 rgba(0, 0, 0, 0.14),
                     0 2px 1px -1px rgba(0, 0, 0, 0.12) !important;
                 cursor: pointer;
-                z-index: 999;
             }
 
             .overflow-block {
                 opacity: 0.3;
                 width: 12rem;
-            }
-
-            .catering-block {
-                background-color: #fff;
-                width: 12rem;
-                z-index: 999;
             }
 
             .internal {
@@ -102,9 +103,6 @@ import { EventsStateService } from './events-state.service';
             }
 
             .icon {
-                height: 1.5em;
-                width: 1.5em;
-                color: #ffbf1f;
                 background-color: #f0f0f0;
             }
 
@@ -162,14 +160,15 @@ export class DayviewEventComponent implements OnChanges {
         if (changes.event && this.event) {
             const start = startOfDay(new Date(this.event.date));
             const diff = differenceInMinutes(new Date(this.event.date), start);
-            this.top = diff / (24 * 60);
-            this.height = this.event.duration / (24 * 60);
-            this.overflow_top = (diff - this.event.ext('setup')) / (24 * 60);
+            this.top = diff / DAY_IN_MINUTES;
+            this.height = this.event.duration / DAY_IN_MINUTES;
+            this.overflow_top =
+                (diff - this.event.ext('setup')) / DAY_IN_MINUTES;
             this.overflow_height =
                 (this.event.duration +
                     this.event.ext('setup') +
                     this.event.ext('breakdown')) /
-                (24 * 60);
+                DAY_IN_MINUTES;
         }
     }
 }

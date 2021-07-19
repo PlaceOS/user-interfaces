@@ -4,8 +4,18 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, first, map, switchMap } from 'rxjs/operators';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
-import { BaseClass, HashMap, SettingsService } from '@placeos/common';
-import { DesksService, queryBookings } from '@placeos/bookings';
+import {
+    BaseClass,
+    currentUser,
+    HashMap,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
+import {
+    BookingFormService,
+    DesksService,
+    queryBookings,
+} from '@placeos/bookings';
 import { StaffUser } from '@placeos/users';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
@@ -126,7 +136,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         private _state: ExploreStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _desks_service: DesksService
+        private _bookings: BookingFormService
     ) {
         super();
         this.init();
@@ -236,12 +246,18 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     status: this._statuses[desk.map_id],
                 },
             });
-            const book_fn = () =>
-                this._desks_service.bookDesk({
-                    desks: [desk as Desk],
-                    host: options.host,
-                    date: options.date as Date,
+            const book_fn = async () => {
+                this._bookings.newForm();
+                this._bookings.form.patchValue({
+                    asset_id: desk.id,
+                    user: options.host || currentUser(),
+                    booking_type: 'desk',
                 });
+                await this._bookings.confirmPost();
+                notifySuccess(
+                    `Successfull booked desk ${desk.name || desk.id}`
+                );
+            };
             actions.push({
                 id: desk.id,
                 action: 'click',

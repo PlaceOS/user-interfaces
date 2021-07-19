@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import {
+    currentUser,
+    DialogEvent,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { StaffUser, User } from '@placeos/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -37,6 +42,8 @@ export class DesksService {
     }) {
         if (this.error_on_host && !host) {
             return notifyError('You need to select a host to book a desk.');
+        } else {
+            host = host || currentUser();
         }
         reason = reason || '';
         const level = this._org.levelWithID(
@@ -78,6 +85,7 @@ export class DesksService {
         if (!success) return;
         host = ref.componentInstance.host || host;
         date = ref.componentInstance.date || date;
+        reason = ref.componentInstance.reason || reason;
         if (!host) {
             ref.close();
             return notifyError('You need to select a host to book a desk. ');

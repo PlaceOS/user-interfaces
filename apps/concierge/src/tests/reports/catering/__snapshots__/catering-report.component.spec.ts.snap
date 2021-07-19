@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CateringReportComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="h-full w-full flex flex-col items-center p-8"
+  >
+    <mat-spinner
+      class="mb-4"
+    />
+    <p
+      simple=""
+    >
+      Loading report data...
+    </p>
+  </div>
+  
+  
+  
+</div>
+`;
+
+exports[`CateringReportComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <div
+    class="h-full w-full flex flex-col items-center p-8"
+  >
+    <p
+      simple=""
+    >
+       Select levels and time period to generate a report. 
+    </p>
+  </div>
+  
+  
+  
+  
+  
+</div>
+`;
+
+exports[`CateringReportComponent should match snapshot 3`] = `
+<div
+  id="root1"
+>
+  <div
+    class="h-full w-full"
+  >
+    <catering-report-overall />
+    <catering-report-orders />
+    <catering-report-items />
+  </div>
+  
+  
+  
+  
+  
+</div>
+`;

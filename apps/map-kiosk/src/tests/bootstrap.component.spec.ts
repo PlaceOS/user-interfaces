@@ -9,6 +9,7 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
+import { of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
@@ -28,6 +29,8 @@ describe('BootstrapComponent', () => {
                         new BuildingLevel({ id: '1' }),
                         new BuildingLevel({ id: '2' }),
                     ],
+                    levelWithID: () => new BuildingLevel({ id: '1' }),
+                    initialised: of(true),
                 },
             },
         ],

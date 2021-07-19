@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CateringReportOrdersComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-white shadow mx-auto my-2"
+  >
+    <div
+      class="border-b border-gray-200 flex items-center justify-between px-4"
+    >
+      <h2
+        class="py-2 text-xl font-medium"
+      >
+        Orders
+      </h2>
+      <button
+        mat-button-icon=""
+        mattooltip="Download list"
+      >
+        <app-icon>
+          download
+        </app-icon>
+      </button>
+    </div>
+    <custom-table
+      class="w-full h-full"
+      empty="No orders for selected period"
+    />
+    
+    
+  </div>
+</div>
+`;

@@ -1,15 +1,21 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'dayview-space',
     template: `
-        <dayview-event *ngFor="let event of events | async" [event]="event"></dayview-event>
-        `,
+        <ng-container *ngIf="space">
+            <dayview-event
+                *ngFor="let event of events | async"
+                [event]="event"
+            ></dayview-event>
+        </ng-container>
+    `,
     styles: [
         `
             :host {
@@ -19,7 +25,7 @@ import { EventsStateService } from './events-state.service';
         `,
     ],
 })
-export class DayviewSpaceComponent {
+export class DayviewSpaceComponent extends BaseClass implements OnInit {
     /** Space to display events for */
     @Input() public space: Space;
 
@@ -33,11 +39,11 @@ export class DayviewSpaceComponent {
         )
     );
 
-    constructor(private _state: EventsStateService) {}
+    constructor(private _state: EventsStateService) {
+        super();
+    }
 
-    ngOnInit() {
-        this._state.filtered.subscribe((events) => {
-
-        });
+    public ngOnInit(): void {
+        this.subscription('events', this._state.filtered.subscribe());
     }
 }

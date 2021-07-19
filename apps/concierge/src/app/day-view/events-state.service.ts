@@ -81,12 +81,12 @@ export class EventsStateService extends BaseClass {
     /** Whether booking data is being loaded */
     private _loading = new BehaviorSubject<boolean>(false);
     /** Observable for filter and booking list changes */
-    private _state = combineLatest(
+    private _state = combineLatest([
         this._bookings,
         this._filters,
         this._date,
-        this._zones
-    );
+        this._zones,
+    ]);
     /** Event currently being viewed */
     private _event = new BehaviorSubject<CalendarEvent>(null);
 
@@ -241,7 +241,7 @@ export class EventsStateService extends BaseClass {
      * Start polling to update bookings
      * @param delay Duration between polling events in milliseconds
      */
-    public startPolling(delay: number = 10 * 1000) {
+    public startPolling(delay: number = 30 * 1000) {
         this._poll.next(true);
         this.interval('polling', () => this._poll.next(true), delay);
     }
@@ -250,7 +250,7 @@ export class EventsStateService extends BaseClass {
      * Start polling to update bookings
      * @param delay Duration between polling events in milliseconds
      */
-    public startPollingWeek(delay: number = 30 * 1000) {
+    public startPollingWeek(delay: number = 150 * 1000) {
         this._long_poll.next('week');
         this.interval(
             'polling_long',
@@ -325,16 +325,6 @@ export class EventsStateService extends BaseClass {
             this.remove(event);
             ref.close();
         }
-    }
-
-    /**
-     * Add booking to bookings listing
-     * @param booking
-     */
-    public add(booking: CalendarEvent) {
-        const bookings = this._bookings.getValue();
-        const new_bookings = bookings.concat([booking]);
-        this._bookings.next(new_bookings);
     }
 
     /**

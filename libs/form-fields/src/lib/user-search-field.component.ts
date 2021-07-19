@@ -31,7 +31,7 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                     keyboard
                     name="user-search"
                     [(ngModel)]="search_str"
-                    (ngModelChange)="search$.next($event)"
+                    (ngModelChange)="search$.next($event || '')"
                     [disabled]="disabled"
                     [placeholder]="placeholder || 'Search for user...'"
                     [matAutocomplete]="auto"
@@ -56,8 +56,7 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
             >
                 <mat-option
                     *ngFor="let option of user_list"
-                    [value]="option"
-                    (click)="blurInput()"
+                    (click)="setValue(option); blurInput()"
                 >
                     <div class="leading-tight">{{ option.name }}</div>
                     <div class="text-xs text-black opacity-60">
@@ -66,9 +65,26 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
                 </mat-option>
                 <mat-option
                     *ngIf="search_str && validate && validate(search_str)"
-                    [value]="search_str"
+                    class="relative pointer-events-none"
                 >
-                    Add external attendee "{{ search_str }}"
+                    <div
+                        class="absolute inset-0 px-4 pointer-events-auto"
+                        (mousedown)="
+                            $event.stopPropagation(); $event.preventDefault()
+                        "
+                        (touchstart)="
+                            $event.stopPropagation(); $event.preventDefault()
+                        "
+                        (click)="
+                            setValue(search_str);
+                            $event.stopPropagation();
+                            $event.preventDefault()
+                        "
+                    >
+                        <div class="pointer-events-none">
+                            Add external attendee "{{ search_str }}"
+                        </div>
+                    </div>
                 </mat-option>
                 <mat-option
                     *ngIf="!user_list?.length && (search_str || error)"
@@ -187,7 +203,7 @@ export class UserSearchFieldComponent
         this.timeout(
             'reset',
             () => (this.search_str = this.active_user?.name || ''),
-            150
+            100
         );
     }
 

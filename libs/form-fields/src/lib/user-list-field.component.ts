@@ -43,7 +43,7 @@ function validateEmail(email) {
                     (ngModelChange)="addUser($event)"
                 ></a-user-search-field>
             </div>
-            <div class="flex items-center" *ngIf="!hide_actions && !simple">
+            <div class="flex items-center" *ngIf="!hide_actions">
                 <button
                     mat-button
                     type="button"
@@ -87,7 +87,7 @@ function validateEmail(email) {
                     user
                     *ngFor="let user of active_list"
                     class="flex items-center space-x-2 p-2 hover:bg-black hover:bg-opacity-5 rounded"
-                    (click)="openNewUserModal(user)"
+                    (click)="user.is_external ? openNewUserModal(user) : ''"
                 >
                     <a-user-avatar
                         [user]="user"
@@ -103,30 +103,44 @@ function validateEmail(email) {
                             <app-icon>done</app-icon>
                         </div>
                     </a-user-avatar>
-                    <div class="flex-1">
-                        <div>{{ user.name }}</div>
-                        <div class="text-xs">{{ user.email }}</div>
+                    <div class="flex-1 w-1/4">
+                        <div class="truncate">{{ user.name }}</div>
+                        <div class="text-xs truncate">{{ user.email }}</div>
                     </div>
-                    <mat-checkbox
-                        class="mt-2 mx-4"
-                        [(ngModel)]="user.required"
-                        matTooltip="Required"
-                        matTooltipPosition="left"
-                        (click)="$event.stopPropagation()"
-                        *ngIf="!simple"
-                    ></mat-checkbox>
                     <button
                         mat-icon-button
                         type="button"
                         (click)="
-                            user.visit_expected = !user.visit_expected;
-                            $event.stopPropagation()
+                            user.required = !user.required;
+                            $event.stopPropagation();
+                            setValue(active_list)
                         "
-                        [class.bg-success]="user.visit_expected"
-                        [class.text-white]="user.visit_expected"
+                        [class.bg-success]="user.required"
+                        [class.text-white]="user.required"
+                        matTooltip="Required"
+                        matTooltipPosition="left"
+                    >
+                        <app-icon>{{
+                            user.required ? 'person' : 'person_outline'
+                        }}</app-icon>
+                    </button>
+                    <button
+                        mat-icon-button
+                        type="button"
+                        [disabled]="!user.is_external"
+                        (click)="
+                            user.visit_expected = !user.visit_expected;
+                            $event.stopPropagation();
+                            setValue(active_list)
+                        "
+                        [class.bg-success]="
+                            user.is_external && user.visit_expected
+                        "
+                        [class.text-white]="
+                            user.is_external && user.visit_expected
+                        "
                         matTooltip="Physical visit expected"
                         matTooltipPosition="left"
-                        *ngIf="!simple"
                     >
                         <app-icon>meeting_room</app-icon>
                     </button>
@@ -136,13 +150,13 @@ function validateEmail(email) {
                         [disabled]="!user.is_external"
                         (click)="
                             user.assistance_required = !user.assistance_required;
-                            $event.stopPropagation()
+                            $event.stopPropagation();
+                            setValue(active_list)
                         "
                         [class.bg-success]="user.assistance_required"
                         [class.text-white]="user.assistance_required"
                         matTooltip="Assistance Required"
                         matTooltipPosition="left"
-                        *ngIf="!simple"
                     >
                         <app-icon *ngIf="user.is_external"
                             >contact_support</app-icon
@@ -191,8 +205,6 @@ export class UserListFieldComponent
     implements ControlValueAccessor {
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
-    /** Whether form field should show simplifyed template */
-    @Input() public simple: boolean;
     /** Number of characters needed before a search will start */
     @Input() public limit = 3;
     /** Whether guests should also show when searching for users */
@@ -235,7 +247,17 @@ export class UserListFieldComponent
     public addUser(user: User) {
         console.log('Add user:', user);
         const list = this.active_list.filter((_) => _.email !== user.email);
-        this.setValue([...list, user]);
+        this.setValue([
+            ...list,
+            new User({
+                ...user,
+                id: user.id || user.email,
+                visit_expected:
+                    (!user.id && user.is_external !== true
+                        ? user.visit_expected
+                        : null) ?? true,
+            }),
+        ]);
         this.timeout('clear_user', () => (this.search_user = null), 10);
     }
 
@@ -295,9 +317,9 @@ export class UserListFieldComponent
             const internal_emails = this._settings.get(
                 'app.booking.internal_emails'
             ) || ['place.tech'];
-            el.visit_expected = !internal_emails.find((_) =>
-                el.email.endsWith(_)
-            );
+            el.visit_expected =
+                el.visit_expected ??
+                !internal_emails.find((_) => el.email.endsWith(_));
 
             /** Convert phone to string. PWCME-544 */
             el.phone = '' + el.phone;
@@ -309,7 +331,7 @@ export class UserListFieldComponent
     /* istanbul ignore next */
     /** Download template CSV file */
     public downloadCSVTemplate() {
-        const template = `Organisation,First Name,Last Name,Email,Phone,Assistance Required\nFake Org,John,Smith,john.smith@example.com,01234567898, yes`;
+        const template = `Organisation,First Name,Last Name,Email,Phone,Assistance Required,Visit Expected\nFake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
         downloadFile('template.csv', template);
     }
 

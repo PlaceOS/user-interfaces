@@ -36,14 +36,13 @@ import { first, map } from 'rxjs/operators';
                         [ngModel]="form.get('date').value"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        style="margin-top: .3rem"
                     ></a-time-field>
                 </div>
                 <div class="flex flex-col flex-1">
                     <label for="duration">Duration<span>*</span>:</label>
                     <a-duration-field
                         name="duration"
-                        [time]="form.controls.date.value"
+                        [time]="form.controls?.date?.value"
                         formControlName="duration"
                     ></a-duration-field>
                 </div>
@@ -77,7 +76,7 @@ export class EventFormComponent {
 
     public get spaces() {
         return (
-            this.form.controls.resources?.value
+            this.form.controls?.resources?.value
                 ?.map((i) => i.display_name || i.name)
                 .join(', ') || 'Select a space'
         );
@@ -91,22 +90,19 @@ export class EventFormComponent {
             SpaceSelectModalData
         >(SpaceSelectModalComponent, {
             data: {
-                spaces: this.form.controls.resources.value,
-                date: this.form.controls.date.value,
-                duration: this.form.controls.duration.value,
+                spaces: this.form.controls?.resources?.value,
+                date: this.form.controls?.date?.value,
+                duration: this.form.controls?.duration?.value,
             },
         });
         const success = await Promise.race([
             ref.componentInstance.event
                 .pipe(first((_: DialogEvent) => _.reason === 'done'))
                 .toPromise(),
-            ref
-                .afterClosed()
-                .pipe(map((_) => null))
-                .toPromise(),
+            ref.afterClosed().toPromise(),
         ]);
-        if (success) {
-            this.form.get('resources')?.setValue(success.metadata);
+        if (success?.reason === 'done') {
+            this.form.patchValue({ resources: success.metadata });
         }
         ref.close();
     }

@@ -82,26 +82,23 @@ export function cateringItemAvailable(
         <div class="main min-w-[20rem]" *ngIf="!loading; else load_state">
             <ng-container *ngIf="!show_order_details; else order_details">
                 <mat-tab-group>
-                    <ng-container *ngFor="let cat of categories | async">
+                    <ng-container *ngFor="let cat of categories">
                         <mat-tab
-                            *ngIf="((menu_items$ | async) || {})[cat].length"
+                            *ngIf="(menu_items || {})[cat].length"
                             [label]="cat"
                         >
                             <div class="list">
                                 <div
                                     item
-                                    class="flex items-center p-2 border-b border-gray-50"
-                                    *ngFor="
-                                        let item of ((menu_items$ | async) ||
-                                            {})[cat]
-                                    "
+                                    class="flex items-center p-2 border-b border-gray-200"
+                                    *ngFor="let item of (menu_items || {})[cat]"
                                 >
                                     <div class="flex-1 w-1/2">
                                         <div class="flex-1 w-1/2">
                                             {{ item.name }}
                                         </div>
                                         <div
-                                            class="info no-underline"
+                                            class="text-xs no-underline"
                                             *ngIf="item.options.length"
                                         >
                                             Options Available
@@ -112,17 +109,44 @@ export function cateringItemAvailable(
                                     >
                                         {{ item.unit_price / 100 | currency }}
                                     </div>
-                                    <button
-                                        mat-icon-button
-                                        (click)="addItem(item)"
+                                    <a-counter
+                                        ngDefaultControl
+                                        [ngModel]="item.quantity"
+                                        (ngModelChange)="
+                                            updateItemQuantity(item, $event)
+                                        "
+                                        *ngIf="!item.options.length"
+                                    ></a-counter>
+                                    <div
+                                        class="flex items-center"
+                                        *ngIf="item.options.length"
                                     >
-                                        <app-icon
-                                            [icon]="{
-                                                class: 'material-icons',
-                                                content: 'add'
-                                            }"
-                                        ></app-icon>
-                                    </button>
+                                        <div
+                                            [matTooltip]="
+                                                item.quantity
+                                                    ? 'Items with options must be removed from order confirmation page'
+                                                    : ''
+                                            "
+                                        >
+                                            <button
+                                                mat-icon-button
+                                                [disabled]="true"
+                                            >
+                                                <app-icon>remove</app-icon>
+                                            </button>
+                                        </div>
+                                        <div
+                                            class="count h-12 w-12 flex items-center justify-center"
+                                        >
+                                            {{ item.quantity }}
+                                        </div>
+                                        <button
+                                            mat-icon-button
+                                            (click)="addItem(item)"
+                                        >
+                                            <app-icon>add</app-icon>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </mat-tab>
@@ -130,7 +154,10 @@ export function cateringItemAvailable(
                 </mat-tab-group>
             </ng-container>
         </div>
-        <footer *ngIf="!loading">
+        <footer
+            *ngIf="!loading"
+            class="flex items-center justify-center space-x-2 p-2 border-t border-gray-200"
+        >
             <ng-container *ngIf="!show_order_details; else order_actions">
                 <button mat-button class="inverse" mat-dialog-close>
                     Cancel
@@ -200,7 +227,7 @@ export function cateringItemAvailable(
                     ></a-counter>
                 </div>
             </div>
-            <div class="charge-code" [formGroup]="form">
+            <!-- <div class="charge-code" [formGroup]="form">
                 <input
                     formControlName="charge_code"
                     [class.error]="
@@ -210,19 +237,19 @@ export function cateringItemAvailable(
                     placeholder="Charge Code*"
                     required
                 />
-            </div>
+            </div> -->
         </ng-template>
     `,
     styles: [
         `
             .list {
                 height: 24em;
-                min-width: 24em;
+                min-width: 32em;
                 max-width: calc(100vw - 1em);
             }
 
             footer button {
-                min-width: 8em;
+                min-width: 12em;
             }
 
             input {
@@ -266,67 +293,44 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
     /**  */
     public readonly form: FormGroup;
     /** List of menu items to show */
-    public readonly menu_items$: Observable<HashMap<CateringItem[]>>;
+    public menu_items: HashMap<CateringItem[]> = {};
     /** List of categories for the active menu */
-    public get categories(): Observable<string[]> {
-        return this._data.menu.pipe(
-            map((list) => unique(list.map((item) => item.category)))
-        );
-    }
+    public categories: string[] = [];
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData
     ) {
         super();
         this.loading = 'Loading menu...';
-        this.menu_items$ = this._data.menu.pipe(
-            map((list) => {
-                const categories = unique(list.map((item) => item.category));
-                const map = {};
-                for (const cat of categories) {
-                    map[cat] = list.filter(
-                        (item) =>
-                            item.category === cat &&
-                            cateringItemAvailable(
-                                item,
-                                this.rules as any,
-                                this.order.event
-                            )
-                    );
-                }
-                return map;
-            })
-        );
-        this.order = new CateringOrder(this._data.order);
-        this.form = new FormGroup({
-            charge_code: new FormControl(this.order.charge_code, [
-                Validators.required,
-            ]),
-        });
-        this.subscription(
-            'charge_code',
-            this.form.controls.charge_code.valueChanges.subscribe(
-                (value) =>
-                    (this.order = new CateringOrder({
-                        ...this.order,
-                        charge_code: value,
-                    }))
-            )
-        );
-        this.subscription(
-            'loading',
-            this._data.loading.subscribe(
-                (state) => (this.loading = state ? 'Loading menu...' : '')
-            )
-        );
-        this.loading = 'Loading menu...';
-        this.timeout('loading', () => (this.loading = ''), 1000);
     }
 
     public async ngOnInit() {
+        this.loading = 'Loading menu...';
+        this.order = new CateringOrder(this._data.order);
         this.rules = await this._data.getCateringConfig(
             this.order.event?.space?.level?.parent_id
         );
+        this._data.menu.subscribe((list) => {
+            this.loading = 'Loading menu...';
+            const categories = unique(list.map((item) => item.category));
+            const map = {};
+            for (const cat of categories) {
+                map[cat] = list.filter((item) => {
+                    return (
+                        item.category === cat &&
+                        cateringItemAvailable(
+                            item,
+                            this.rules as any,
+                            this.order.event
+                        )
+                    );
+                });
+            }
+            this.categories = categories;
+            this.menu_items = map;
+            this.updateMenuQuantities();
+            this.timeout('clear_loading', () => (this.loading = ''), 1000);
+        });
     }
 
     public addItem(item: CateringItem, choose_options: boolean = true) {
@@ -354,8 +358,10 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
                 items: this.order.items
                     .filter(
                         (i) =>
-                            i !== old_item &&
-                            i.options.length === old_item.options.length
+                            !(
+                                i.id === item.id &&
+                                i.options_string === item.options_string
+                            )
                     )
                     .concat([
                         new CateringItem({
@@ -372,26 +378,35 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
                 ]),
             });
         }
+        this.updateMenuQuantities();
+    }
+
+    public removeItem(item: CateringItem) {
+        this.order = new CateringOrder({
+            ...this.order,
+            items: this.order.items.filter(
+                (_) =>
+                    _.id !== item.id && _.options_string === item.options_string
+            ),
+        });
+        this.updateMenuQuantities();
     }
 
     public updateItemQuantity(item: CateringItem, amount: number) {
         const old_item = this.order.items.find(
             (itm) =>
-                itm.id === item.id &&
-                item.options.length ===
-                    item.options.reduce(
-                        (c, o) =>
-                            c +
-                            (itm.options.find((opt) => o.id === opt.id)
-                                ? 1
-                                : 0),
-                        0
-                    )
+                itm.id === item.id && itm.options_string === item.options_string
         );
         let items = [...this.order.items];
         if (old_item) {
             items = this.order.items
-                .filter((i) => i.id !== item.id)
+                .filter(
+                    (i) =>
+                        !(
+                            i.id === item.id &&
+                            i.options_string === item.options_string
+                        )
+                )
                 .concat([new CateringItem({ ...item, quantity: amount })]);
         } else {
             items = this.order.items.concat([
@@ -403,6 +418,18 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
             ...this.order,
             items,
         });
+        this.updateMenuQuantities();
+    }
+
+    public updateMenuQuantities() {
+        for (const cat in this.menu_items) {
+            for (const item of this.menu_items[cat]) {
+                (item as any).quantity = this.order.items.reduce(
+                    (c, i) => (i.id === item.id ? c + i.quantity : c),
+                    0
+                );
+            }
+        }
     }
 
     public optionsFor(item: CateringItem) {
@@ -410,12 +437,13 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
     }
 
     public saveOrder() {
-        this.form.markAllAsTouched();
-        if (this.form.valid) {
-            this.event.emit({
-                reason: 'done',
-                metadata: { order: this.order },
-            });
-        }
+        this.event.emit({
+            reason: 'done',
+            metadata: { order: this.order },
+        });
+    }
+
+    public confirmOrder() {
+        this.show_order_details = true;
     }
 }

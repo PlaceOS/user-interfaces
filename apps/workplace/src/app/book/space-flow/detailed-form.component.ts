@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { CateringOrder, CateringStateService } from '@placeos/catering';
 
 @Component({
     selector: 'detailed-book-space-form',
@@ -62,6 +63,32 @@ import { FormGroup } from '@angular/forms';
                             ></textarea>
                         </mat-form-field>
                     </div>
+                    <div class="flex flex-col mb-4">
+                        <label>Catering</label>
+                        <an-action-field (onAction)="editCatering()">
+                            <div
+                                class="opacity-40"
+                                *ngIf="!form?.value.catering?.length"
+                            >
+                                Add catering
+                            </div>
+                            <div
+                                class="flex items-center"
+                                *ngIf="form?.value.catering?.length"
+                            >
+                                <div class="flex-1 w-1/2">
+                                    {{ form?.value.catering[0].item_count }}
+                                    item(s)
+                                </div>
+                                <div class="text-xs opacity-60 px-4">
+                                    {{
+                                        form?.value.catering[0].total_cost / 100
+                                            | currency
+                                    }}
+                                </div>
+                            </div>
+                        </an-action-field>
+                    </div>
                 </div>
             </section>
         </form>
@@ -70,4 +97,17 @@ import { FormGroup } from '@angular/forms';
 })
 export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;
+
+    public readonly editCatering = async () =>
+        this.form.patchValue({
+            catering: [
+                await this._catering.manageCateringOrder(
+                    (this.form.value.catering
+                        ? this.form.value.catering[0]
+                        : null) || new CateringOrder()
+                ),
+            ],
+        });
+
+    constructor(private _catering: CateringStateService) {}
 }

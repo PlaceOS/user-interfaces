@@ -31,7 +31,7 @@ interface CateringOptionGroup {
                 *ngFor="let group of groups"
                 [attr.group]="group.name"
             >
-                <div class="font-medium p-2">{{ group.name }}</div>
+                <div class="font-medium p-2 capitalize">{{ group.name }}</div>
                 <div class="flex flex-col pl-6">
                     <ng-container *ngIf="!group.multiple; else multi_options">
                         <mat-radio-group
@@ -41,7 +41,7 @@ interface CateringOptionGroup {
                             (ngModelChange)="updateGroupOption(group, $event)"
                         >
                             <mat-radio-button class="my-1 mx-0" value="">
-                                None
+                                <span class="font-medium p-2">None</span>
                             </mat-radio-button>
                             <mat-radio-button
                                 class="my-1 mx-0"
@@ -83,14 +83,18 @@ interface CateringOptionGroup {
                 </div>
             </div>
         </main>
-        <footer>
-            <button mat-button (click)="saveOptions()">Save</button>
+        <footer class="p-2">
+            <button mat-button class="w-32" (click)="saveOptions()">
+                Save
+            </button>
         </footer>
     `,
     styles: [
         `
             main {
                 min-height: 24em;
+                width: 24rem;
+                max-width: calc(100vw - 2rem);
             }
         `,
     ],

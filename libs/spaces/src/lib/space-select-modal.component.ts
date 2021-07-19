@@ -142,6 +142,8 @@ export interface SpaceSelectModalData {
             .body {
                 min-width: 20rem;
                 max-width: calc(100vw - 2rem);
+                max-height: 65vh;
+                overflow: auto;
             }
         `,
     ],

@@ -53,7 +53,9 @@ export const CONFIRM_METADATA = {
         </footer>
         <ng-template #load_state>
             <main loading>
-                <div class="h-48 w-64 flex flex-col items-center space-y-2">
+                <div
+                    class="w-full h-48 flex flex-col items-center justify-center space-y-2"
+                >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ loading }}</p>
                 </div>
@@ -92,7 +94,6 @@ export class ConfirmModalComponent {
 
     /** User confirmation of the content of the modal */
     public onConfirm() {
-        this._dialog_ref.close('done');
         this.event.emit({ reason: 'done' });
     }
 }

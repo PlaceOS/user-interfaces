@@ -4,14 +4,14 @@ import {
     HashMap,
     notifyError,
     RoomConfiguration,
-    SettingsService
+    SettingsService,
 } from '@placeos/common';
 import {
     authority,
     isMock,
     onlineState,
     queryZones,
-    showMetadata
+    showMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -171,6 +171,10 @@ export class OrganisationService {
             const bindings: HashMap = (
                 await showMetadata(org.id, { name: 'bindings' }).toPromise()
             )?.details;
+            const settings: HashMap = (
+                await showMetadata(org.id, { name: 'settings' }).toPromise()
+            )?.details;
+            this._settings = { ...this._settings, ...settings };
             this._organisation = new Organisation({ ...org, bindings });
         } else {
             this._router.navigate(['/misconfigured']);

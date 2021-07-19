@@ -5,7 +5,6 @@ import { FormGroup } from '@angular/forms';
 import { NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { BookingFormService } from '../lib/booking-form.service';
 
 jest.mock('@placeos/ts-client');
@@ -98,7 +97,7 @@ describe('BookingFormService', () => {
     it('should allow posting booking details', async () => {
         (booking_mod as any).saveBooking = jest.fn(() => of({}));
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ asset_id: 'desk-1' }])
+            of([{ asset_id: 'desk-1', user_email: 'jim@1.com' }])
         );
         console.log(spectator.service.form);
         await expect(spectator.service.postForm()).rejects.toBe(
