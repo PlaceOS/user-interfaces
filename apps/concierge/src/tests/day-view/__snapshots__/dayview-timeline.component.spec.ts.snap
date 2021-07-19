@@ -374,99 +374,99 @@ exports[`DayviewTimelineComponent should match snapshot 1`] = `
       >
         
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 0rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 4rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 8rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 12rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 16rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 20rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 24rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 28rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 32rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 36rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 40rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 44rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 48rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 52rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 56rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 60rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 64rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 68rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 72rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 76rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 80rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 84rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 88rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 0rem; top: 92rem;"
         />
         
@@ -870,99 +870,99 @@ exports[`DayviewTimelineComponent should match snapshot 2`] = `
         />
         
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 0rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 4rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 8rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 12rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 16rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 20rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 24rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 28rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 32rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 36rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 40rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 44rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 48rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 52rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 56rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 60rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 64rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 68rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 72rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 76rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 80rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 84rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 88rem;"
         />
         <div
-          class="absolute bg-gray-300 h-px w-full left-0"
+          class="absolute bg-gray-300 h-px min-w-full left-0"
           style="width: 12rem; top: 92rem;"
         />
         

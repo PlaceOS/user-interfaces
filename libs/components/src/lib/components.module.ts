@@ -38,6 +38,7 @@ import { CustomTableComponent } from './custom-table.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { VirtualKeyboardComponent } from './virtual-keyboard.component';
 import { GlobalLoadingComponent } from './global-loading.component';
+import { MatSortModule } from '@angular/material/sort';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -80,6 +81,7 @@ const MAT_MODULES: any[] = [
     MatPaginatorModule,
     CdkTableModule,
     PortalModule,
+    MatSortModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
