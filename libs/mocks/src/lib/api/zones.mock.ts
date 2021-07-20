@@ -3,6 +3,31 @@ import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_MENU } from './catering.data';
 import { MOCK_ORGS, MOCK_LEVELS, MOCK_BUILDINGS } from './zone.data';
 
+const MOCK_METADATA = {
+    current: {
+        contacts: {
+            name: 'contacts',
+            description: '',
+            details: [
+                {
+                    id: 'user-1',
+                    name: 'Jonathan McFarlane (PlaceOS)',
+                    email: 'jon@place.tech',
+                    first_name: 'Jonathan',
+                    last_name: 'McFarlane',
+                },
+                {
+                    id: 'user-1',
+                    name: 'Alex Sorafumo (PlaceOS)',
+                    email: 'alex@place.tech',
+                    first_name: 'Alex',
+                    last_name: 'Sorafumo',
+                },
+            ],
+        },
+    },
+};
+
 registerMockEndpoint({
     path: '/api/engine/v2/zones',
     metadata: {},
@@ -52,7 +77,30 @@ registerMockEndpoint({
             const id = parts[parts.length - 1];
             return generateMockDeskMetadata(id);
         }
+        if (
+            MOCK_METADATA[request.route_params.id] &&
+            MOCK_METADATA[request.route_params.id][request.query_params.name]
+        ) {
+            return MOCK_METADATA[request.route_params.id];
+        } else if (
+            MOCK_METADATA[request.route_params.id] &&
+            !request.query_params.name
+        ) {
+            return MOCK_METADATA[request.route_params.id] || {};
+        }
         return {};
+    },
+});
+
+registerMockEndpoint({
+    path: '/api/engine/v2/metadata/:id',
+    metadata: {},
+    method: 'PATCH',
+    callback: (request) => {
+        if (!MOCK_METADATA[request.route_params.id])
+            MOCK_METADATA[request.route_params.id] = {};
+        MOCK_METADATA[request.route_params.id][request.body.name] =
+            request.body;
     },
 });
 
