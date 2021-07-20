@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1626678133956,
+  "timestamp": 1626756081606,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -75,7 +75,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_catering_catering_module_ts.js": "de8c46dc41e1b837a70888b8c468f06ae5e34b13",
+    "./apps_concierge_src_app_catering_catering_module_ts.js": "bf45f5db043ff1ef2317c679f1a3d0e827ad1970",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "37017a71333717a39698491a1c0205bb4b7183c7",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "aa15d1b882c2aa388b82e574addbd0fd72394b67",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "7b023052cb8ae139738669c65e195d6ec7a5f9b5",
@@ -108,19 +108,19 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "e7e73ebc72caf12e68bfad33d5ed3a0b1637dcf6",
     "./default-libs_bookings_src_index_ts.js": "bcb927cfdb712c93370984d89d3bff74694916e1",
-    "./default-libs_catering_src_index_ts.js": "762856452831f89472cbd860a4af17f9ec9e85e4",
+    "./default-libs_catering_src_index_ts.js": "d6682ef8bcbcb7c19c8a58fa34d9b3d1764b958c",
     "./default-libs_explore_src_index_ts.js": "aaa3e426e33af8fb20b2dac451eb6f2723d69d71",
     "./default-node_modules_angular_material_fesm2015_radio_js.js": "17e10b5cd4398eefb256820e6f74827093f3c42a",
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "8c9d258e8bfd8da1f64b87493f9acc0139859b8c",
-    "./main.js": "b889cdbb0d35925873ffc08a4869d41256a884c8",
+    "./main.js": "bd685e40c3fb728ec346644dd3fb343fa40594ce",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "09a9a3e3da942b13a02f9e4f52075977ac379955",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "7b94aaaeaf1d51985587758a37ddf584c77253a9",
+    "./styles.css": "8ae912ca22400249180673e240e6aed763757f32",
     "./vendor.js": "5125a070cbb0b798f929b5de3dbbfa0be7eb485b"
   },
   "navigationUrls": [
