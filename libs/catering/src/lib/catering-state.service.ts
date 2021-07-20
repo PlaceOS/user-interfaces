@@ -4,7 +4,14 @@ import { updateMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, flatten, openConfirmModal, unique } from '@placeos/common';
+import {
+    BaseClass,
+    flatten,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+    unique,
+} from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 
 import {
@@ -30,6 +37,7 @@ import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
+import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 
 @Injectable({
     providedIn: 'root',
@@ -269,6 +277,30 @@ export class CateringStateService extends BaseClass {
             () => ref.close(),
             () => (ref.componentInstance.loading = false)
         );
+    }
+
+    public async importMenu() {
+        const ref = this._dialog.open(CateringImportMenuModalComponent);
+        const details = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (details?.reason !== 'done') return;
+        ref.componentInstance.loading = 'Updating menu...';
+        const menu = this._menu.getValue();
+        const bld = this._org.building;
+        const updated_menu = unique(details.metadata.concat(menu), 'id');
+        await this.updateMenu(bld.id, updated_menu).catch((_) => {
+            notifyError('Error importing catering menu');
+            ref.close();
+            throw _;
+        });
+        notifySuccess(
+            `Successfully imported catering menu. ${details.metadata.length} item(s) added.`
+        );
+        ref.close();
     }
 
     private updateMenu(zone_id: string, menu: CateringItem[]) {

@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CateringImportMenuModalComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <header
+    class="h-12 bg-primary flex items-center justify-between px-4"
+  >
+    <h2>
+      Import Catering Menu
+    </h2>
+    <button
+      mat-dialog-close=""
+      mat-icon-button=""
+    >
+      <app-icon>
+        close
+      </app-icon>
+    </button>
+    
+  </header>
+  <main>
+    <div
+      class="relative flex flex-col items-center justify-center space-y-2 h-[24rem] w-[24rem] border-4 border-gray-200 border-dashed rounded-xl hover:bg-gray-100 m-4 p-4 cursor-pointer"
+    >
+      <app-icon
+        class="text-4xl"
+      >
+        upload
+      </app-icon>
+      <p>
+        Click to select file or Drag and drop files
+      </p>
+      <input
+        class="absolute inset-0 opacity-0"
+        type="file"
+      />
+    </div>
+    <div
+      class="flex items-center justify-center px-4 pb-4"
+    >
+      <button
+        class="clear underline w-48"
+        mat-button=""
+      >
+         Download Template 
+      </button>
+    </div>
+  </main>
+  
+  
+</div>
+`;

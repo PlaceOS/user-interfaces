@@ -7,8 +7,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
+
 import { CateringConfigModalComponent } from './catering-config-modal.component';
 import { CateringItemModalComponent } from './catering-item-modal.component';
 import { CateringMenuItemComponent } from './catering-menu-item.component';
@@ -19,7 +22,7 @@ import { CateringOrderListComponent } from './catering-order-list.component';
 import { CateringOrderModalComponent } from './catering-order-modal.component';
 import { CateringOrderOptionsModalComponent } from './catering-order-options-modal.component';
 import { CateringOrderComponent } from './catering-order.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
@@ -32,6 +35,7 @@ const COMPONENTS: Type<any>[] = [
     CateringOrderListComponent,
     CateringOrderComponent,
     CateringOrderItemComponent,
+    CateringImportMenuModalComponent,
 ];
 
 @NgModule({

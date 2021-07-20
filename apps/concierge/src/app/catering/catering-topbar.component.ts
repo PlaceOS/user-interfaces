@@ -30,6 +30,9 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
         <button *ngIf="page === 'menu'" mat-button (click)="editConfig()">
             Edit Config
         </button>
+        <button *ngIf="page === 'menu'" mat-button (click)="importMenu()">
+            Import Menu
+        </button>
         <div class="flex-1 w-2"></div>
         <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
@@ -77,6 +80,7 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
 
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
+    public readonly importMenu = () => this._catering.importMenu();
 
     constructor(
         private _orders: CateringOrdersService,

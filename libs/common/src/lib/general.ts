@@ -4,10 +4,9 @@ import { first } from 'rxjs/operators';
 import {
     ConfirmModalComponent,
     ConfirmModalData,
-    CONFIRM_METADATA
+    CONFIRM_METADATA,
 } from '../../../components/src/lib/confirm-modal.component';
 import { HashMap } from './types';
-
 
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
@@ -128,8 +127,8 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
         'gi'
     );
-    let arrMatches = null,
-        arrData = [[]];
+    let arrMatches = null;
+    const arrData = [[]];
     while ((arrMatches = objPattern.exec(csv))) {
         if (arrMatches[1].length && arrMatches[1] !== ',') arrData.push([]);
         arrData[arrData.length - 1].push(
@@ -142,10 +141,11 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
     const elements = arrData.map((row) => {
         const element = {};
         for (let i = 0; i < row.length; i++) {
+            const key = headers[i].split(' ').join('_').toLowerCase();
             try {
-                element[headers[i]] = JSON.parse(row[i]);
+                element[key] = JSON.parse(row[i]);
             } catch (e) {
-                element[headers[i]] = row[i] || '';
+                element[key] = row[i] || '';
             }
         }
         return element;
@@ -160,7 +160,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
 export function jsonToCsv(json: HashMap[]) {
     if (json instanceof Array && json.length > 0) {
         const keys = Object.keys(json[0]);
-        const valid_keys = keys.filter((key) => json[0].hasOwnProperty(key));
+        const valid_keys = keys.filter((key) => key in json[0]);
         return `${valid_keys.join(',')}\n${json
             .map((item) =>
                 valid_keys.map((key) => JSON.stringify(item[key])).join(',')
@@ -252,7 +252,8 @@ export function predictableRandomInt(ceil: number = 100, floor: number = 0) {
 
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
 function xmur3(str) {
-    for (var i = 0, h = 1779033703 ^ str.length; i < str.length; i++)
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++)
         (h = Math.imul(h ^ str.charCodeAt(i), 3432918353)),
             (h = (h << 13) | (h >>> 19));
     return function () {
@@ -300,7 +301,7 @@ export function getInvalidFields(form: FormGroup) {
     const invalid = [];
     for (const key in form.controls) {
         if (!form.controls[key].valid) {
-            invalid.push(key)
+            invalid.push(key);
         }
     }
     return invalid;
