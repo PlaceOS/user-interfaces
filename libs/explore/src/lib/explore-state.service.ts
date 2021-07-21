@@ -181,6 +181,34 @@ export class ExploreStateService extends BaseClass {
             if (this._settings.get('app.explore.display_devices') !== false) {
                 this.setOptions({ disable: ['devices'] });
             }
+            if (this._settings.get('app.explore.disable_actions')) {
+                this.setOptions({
+                    disable_actions: this._settings.get(
+                        'app.explore.disable_actions'
+                    ),
+                });
+            }
+            if (this._settings.get('app.explore.disable_labels')) {
+                this.setOptions({
+                    disable_labels: this._settings.get(
+                        'app.explore.disable_labels'
+                    ),
+                });
+            }
+            if (this._settings.get('app.explore.disable_features')) {
+                this.setOptions({
+                    disable_features: this._settings.get(
+                        'app.explore.disable_features'
+                    ),
+                });
+            }
+            if (this._settings.get('app.explore.disable_styles')) {
+                this.setOptions({
+                    disable_styles: this._settings.get(
+                        'app.explore.disable_styles'
+                    ),
+                });
+            }
         });
     }
 
