@@ -52,3 +52,7 @@ There are 7 available frontends for this client
 -   [`kiosk`](./apps/map-kiosk/README.md) | Internal building location kiosk UI
 -   [`visitors`](./apps/visitor-kiosk/README.md) | Internal building location kiosk UI
 -   [`workplace`](./apps/workplace/README.md) | Staff Application
+
+# Settings
+
+* [Workplace App](https://github.com/PlaceOS/user-interfaces/blob/master/apps/workplace/src/environments/settings.ts)
