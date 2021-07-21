@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { BaseClass, current_user, SettingsService } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import {
@@ -56,6 +57,7 @@ import { first } from 'rxjs/operators';
     providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
 })
 export class ExploreComponent extends BaseClass implements OnInit {
+    public reset_delay = 180;
     public get logo() {
         return this._settings.get('app.logo');
     }
@@ -75,9 +77,9 @@ export class ExploreComponent extends BaseClass implements OnInit {
     public readonly options = this._state.options;
 
     @HostListener('window:mousedown') public onMouse = () =>
-        this.timeout('reset', () => this.resetKiosk(), 60 * 1000);
+        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
     @HostListener('window:touchstart') public onTouch = () =>
-        this.timeout('reset', () => this.resetKiosk(), 60 * 1000);
+        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
 
     constructor(
         private _state: ExploreStateService,
@@ -85,7 +87,8 @@ export class ExploreComponent extends BaseClass implements OnInit {
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -93,6 +96,8 @@ export class ExploreComponent extends BaseClass implements OnInit {
     public async ngOnInit() {
         await current_user.pipe(first((_) => !!_)).toPromise();
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.reset_delay =
+            this._settings.get('app.inactivity_timeout_secs') || 180;
         this.resetKiosk();
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
@@ -102,6 +107,8 @@ export class ExploreComponent extends BaseClass implements OnInit {
         if ((document.activeElement as any)?.blur)
             (document.activeElement as any)?.blur();
         const level = localStorage.getItem('KIOSK.level');
+        this._state.setPositions(1, { x: 0.5, y: 0.5 });
         if (level) this._state.setLevel(level);
+        this._dialog.closeAll();
     }
 }
