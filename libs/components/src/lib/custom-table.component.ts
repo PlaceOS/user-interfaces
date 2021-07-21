@@ -5,7 +5,7 @@ import {
     OnChanges,
     SimpleChanges,
     TemplateRef,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -31,7 +31,7 @@ import { Observable } from 'rxjs';
                     </div>
                     <div
                         cdk-cell
-                        class="p-2 truncate"
+                        class="p-2 truncate flex items-center"
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
                         *cdkCellDef="let row"
@@ -45,7 +45,11 @@ import { Observable } from 'rxjs';
                             <ng-container
                                 *ngTemplateOutlet="
                                     template[column];
-                                    context: { data: row[column], row: row }
+                                    context: {
+                                        data: row[column],
+                                        row: row,
+                                        key: column
+                                    }
                                 "
                             ></ng-container>
                         </ng-template>
@@ -54,16 +58,18 @@ import { Observable } from 'rxjs';
             </ng-container>
 
             <cdk-header-row
-                class="flex items-center bg-white"
+                class="flex items-center bg-white sticky top-0 z-10"
                 *cdkHeaderRowDef="columns"
             ></cdk-header-row>
             <cdk-row
                 row
-                class="flex"
+                class="flex z-0 relative"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
             <ng-template cdkNoDataRow>
-                <p class="w-full p-4 text-center">{{ empty || 'No data to display' }}</p>
+                <p class="w-full p-4 text-center">
+                    {{ empty || 'No data to display' }}
+                </p>
             </ng-template>
         </cdk-table>
         <div footer [hidden]="!pagination">
@@ -127,6 +133,19 @@ export class CustomTableComponent<T extends {} = any>
     public ngAfterViewInit() {
         this.data_source.sort = this._sort;
         this.data_source.paginator = this.pagination ? this._paginator : null;
+        this.data_source.filterPredicate = (i: any, s) => {
+            for (const key in i) {
+                if (
+                    typeof i[key] === 'string' &&
+                    i[key].toLowerCase().includes(s.toLowerCase())
+                ) {
+                    return true;
+                } else if (i[key] === s) {
+                    return true;
+                }
+            }
+            return false;
+        };
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -151,8 +170,8 @@ export class CustomTableComponent<T extends {} = any>
             this.data_source.filter = (this.filter || '').trim().toLowerCase();
         }
         if (changes.columns && this.columns) {
-            this.display_column = this.columns.map((_, idx) => this.display_column[idx] ||
-                _.split('_').join(' ')
+            this.display_column = this.columns.map(
+                (_, idx) => this.display_column[idx] || _.split('_').join(' ')
             );
         }
         if (!this.column_size) {
