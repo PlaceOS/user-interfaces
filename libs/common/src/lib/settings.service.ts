@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { format, isSameDay } from 'date-fns';
 
-import { log, getItemWithKeys } from './general';
+import { log, getItemWithKeys, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
 import { BaseClass } from './base.class';
@@ -93,6 +93,9 @@ export class SettingsService extends BaseClass {
         if (this.get('app')?.name) {
             this._app_name = this.get('app').name;
         }
+        this._app_name =
+            location.pathname.slice(1).split('/').join('-') || this._app_name;
+        setAppName(this._app_name.split('-').join('_').toUpperCase());
         log('Settings', 'Successfully loaded settings');
         this._initialised.next(true);
         if (window.debug) {
