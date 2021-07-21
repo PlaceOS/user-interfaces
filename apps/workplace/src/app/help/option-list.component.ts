@@ -41,6 +41,7 @@ import {
                             [icon]="item?.icon"
                         ></app-icon>
                         <p class="relative text-2xl z-10">{{ item?.name }}</p>
+                        <p class="relative z-10">{{ item?.description }}</p>
                     </div>
                 </a>
             </ng-container>
