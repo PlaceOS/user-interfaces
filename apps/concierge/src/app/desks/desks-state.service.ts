@@ -30,10 +30,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmModalComponent } from '@placeos/components';
 import { DeskListModalComponent } from './desk-list-modal.component';
 
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
+
 export interface DeskFilters {
     date?: number;
     zones?: string[];
     show_map?: boolean;
+    search?: string;
 }
 
 @Injectable({
@@ -52,7 +55,7 @@ export class DesksStateService extends BaseClass {
     public readonly desks: Observable<Desk[]> = this._filters.pipe(
         debounceTime(500),
         switchMap((filters) => {
-            const zones = filters.zones || []
+            const zones = filters.zones || [];
             return !zones.includes('All')
                 ? showMetadata(zones[0], {
                       name: 'desks',
@@ -71,7 +74,17 @@ export class DesksStateService extends BaseClass {
         map((list) => {
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name.localeCompare(b.name));
-            this._desks = list.map((i) => new Desk(i));
+            this._desks = list.map(
+                (i) =>
+                    new Desk({
+                        ...i,
+                        qr_code: generateQRCode(
+                            `/workplace/#/book/code?checkin=${encodeURIComponent(
+                                i.id
+                            )}`
+                        ),
+                    })
+            );
             return this._desks;
         }),
         shareReplay()
@@ -83,7 +96,7 @@ export class DesksStateService extends BaseClass {
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
             let zones = (filters.zones || []).filter(
-                (z: any) => z !== -1 && z !== '-1'  && z !== 'All'
+                (z: any) => z !== -1 && z !== '-1' && z !== 'All'
             );
             if (!zones?.length) {
                 zones = this._org
@@ -99,7 +112,20 @@ export class DesksStateService extends BaseClass {
         }),
         map((list) => {
             list.sort((a, b) => a.date - b.date);
-            this._desk_bookings = list;
+            this._desk_bookings = list.map(
+                (_) =>
+                    new Booking({
+                        ..._,
+                        extension_data: {
+                            ..._.extension_data,
+                            checkin_qr_code: generateQRCode(
+                                `/workplace/#/book/code?checkin=${encodeURIComponent(
+                                    _.asset_id
+                                )}`
+                            ),
+                        },
+                    })
+            );
             this._loading.next(false);
             return list;
         }),
@@ -124,7 +150,7 @@ export class DesksStateService extends BaseClass {
         ) {
             filters.zones = [];
         }
-        console.warn('Zones:', filters.zones);
+        console.warn('Filters:', filters);
         this._filters.next({ ...this._filters.getValue(), ...filters });
     }
 
@@ -155,7 +181,12 @@ export class DesksStateService extends BaseClass {
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error approving in desk booking')
-            : notifySuccess(`Approved desk booking for ${desk.user_name} on ${format(desk.date, 'MMM Do')}.`);
+            : notifySuccess(
+                  `Approved desk booking for ${desk.user_name} on ${format(
+                      desk.date,
+                      'MMM Do'
+                  )}.`
+              );
     }
 
     public async rejectDesk(desk: Booking) {
@@ -164,7 +195,12 @@ export class DesksStateService extends BaseClass {
             .catch((_) => 'failed');
         success === 'failed'
             ? notifyError('Error rejecting in desk booking')
-            : notifySuccess(`Rejected desk booking for ${desk.user_name} on ${format(desk.date, 'MMM Do')}.`);
+            : notifySuccess(
+                  `Rejected desk booking for ${desk.user_name} on ${format(
+                      desk.date,
+                      'MMM Do'
+                  )}.`
+              );
     }
 
     public async giveAccess(desk: Booking) {

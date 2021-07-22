@@ -26,21 +26,12 @@ import { showBooking } from '@placeos/bookings';
                 </mat-option>
             </mat-select>
         </mat-form-field>
-        <a
-            button
-            mat-button
-            *ngIf="(filters | async).zones?.length === 1"
-            [routerLink]="['/desks']"
-            [queryParams]="{ show_map: !(filters | async)?.show_map }"
-            queryParamsHandling="merge"
-            (click)="toggleMapShow()"
-        >
-            {{
-                (filters | async)?.show_map ? 'Show List View' : 'Show Map View'
-            }}
-        </a>
         <div class="flex-1 w-2"></div>
-        <!-- <searchbar class="mr-2"></searchbar> -->
+        <searchbar
+            class="mr-2"
+            [model]="(filters | async)?.search"
+            (modelChange)="setFilters({ search: $event })"
+        ></searchbar>
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
     styles: [
@@ -77,6 +68,7 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
     };
     /** Set filtered date */
     public readonly setDate = (date) => this._desks.setFilters({ date });
+    public readonly setFilters = (o) => this._desks.setFilters(o);
     /** Update active zones for desks */
     public readonly updateZones = (zones) => {
         this._router.navigate([], {
@@ -133,9 +125,12 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
             'levels',
             this._org.active_levels.subscribe(async (levels) => {
                 const filters = await this.filters.pipe(take(1)).toPromise();
-                const zones = filters.zones?.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone) || zone === 'All'
-                ) || [];
+                const zones =
+                    filters.zones?.filter(
+                        (zone) =>
+                            levels.find((lvl) => lvl.id === zone) ||
+                            zone === 'All'
+                    ) || [];
                 if (!zones.length && levels.length) {
                     zones.push(levels[0].id);
                 }

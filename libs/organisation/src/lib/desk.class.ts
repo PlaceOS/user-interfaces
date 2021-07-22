@@ -13,6 +13,8 @@ export class Desk {
     public readonly zone: PlaceZone;
     /** Group/Department allocated to the desk */
     public readonly groups: string[];
+    /** QR code image data */
+    public readonly qr_code: string;
 
     constructor(data: Partial<Desk> = {}) {
         this.id = data.id || '';
@@ -21,6 +23,7 @@ export class Desk {
         this.bookable = data.bookable ?? false;
         this.zone = data.zone || new PlaceZone();
         this.groups = data.groups || [];
+        this.qr_code = data.qr_code || '';
     }
 
     public format() {
