@@ -28,7 +28,6 @@ import { listChildMetadata, showMetadata } from '@placeos/ts-client';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmModalComponent } from '@placeos/components';
-import { DeskListModalComponent } from './desk-list-modal.component';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
@@ -232,7 +231,7 @@ export class DesksStateService extends BaseClass {
                     },
                 },
             });
-            return new Promise(async (resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 let success = false;
                 ref.componentInstance.event
                     .pipe(first((_) => _.reason === 'done'))
@@ -251,27 +250,14 @@ export class DesksStateService extends BaseClass {
                         );
                         ref.close();
                     });
-                await ref.afterClosed().toPromise();
-                if (!success) {
-                    reject();
-                }
+                ref.afterClosed()
+                    .toPromise()
+                    .then(() => {
+                        if (!success) reject();
+                    });
             });
         } else {
             notifyInfo('No desks to reject for the selected date');
         }
-    }
-
-    public async updateDesks() {
-        const ref = this._dialog.open(DeskListModalComponent, {
-            data: {
-                level:
-                    this._org.levelWithID(this._filters.getValue().zones) ||
-                    this._org.level_list[0],
-                building: this._org.building,
-                desks: this._desks,
-            },
-        });
-        await ref.afterClosed().toPromise();
-        this._desks = ref.componentInstance.desks$.getValue();
     }
 }

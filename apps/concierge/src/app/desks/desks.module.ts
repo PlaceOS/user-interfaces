@@ -12,7 +12,6 @@ import { UIModule } from '../ui/ui.module';
 import { DesksComponent } from './desks.component';
 import { DeskBookingsComponent } from './desk-bookings.component';
 import { DesksTopbarComponent } from './desks-topbar.component';
-import { DeskListModalComponent } from './desk-list-modal.component';
 import { DeskMapViewComponent } from './desk-map-view.component';
 import { DesksManageComponent } from './desks-manage.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,7 +37,6 @@ const ROUTES: Route[] = [
         DesksComponent,
         DeskBookingsComponent,
         DesksTopbarComponent,
-        DeskListModalComponent,
         DeskMapViewComponent,
         DesksManageComponent,
     ],

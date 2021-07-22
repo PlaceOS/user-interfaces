@@ -62,11 +62,6 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
     /** List of levels for the active building */
     public readonly filters = this._desks.filters;
     /** Set filtered date */
-    public readonly toggleMapShow = () => {
-        this._desks.setFilters({ show_map: !this.show_map });
-        this.show_map = !this.show_map;
-    };
-    /** Set filtered date */
     public readonly setDate = (date) => this._desks.setFilters({ date });
     public readonly setFilters = (o) => this._desks.setFilters(o);
     /** Update active zones for desks */
@@ -78,8 +73,6 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
         });
         this._desks.setFilters({ zones });
     };
-
-    public show_map: boolean;
 
     constructor(
         private _desks: DesksStateService,
@@ -116,9 +109,6 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 } else if (params.has('reject')) {
                     this.reject(params.get('reject'));
                 }
-                this.show_map =
-                    params.has('show_map') && params.get('show_map') === 'true';
-                this._desks.setFilters({ show_map: this.show_map });
             })
         );
         this.subscription(
