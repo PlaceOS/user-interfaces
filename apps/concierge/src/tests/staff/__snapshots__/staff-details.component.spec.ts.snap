@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StaffDetailsComponent should match snapshot 1`] = `
+<div
+  id="root0"
+>
+  
+</div>
+`;
+
+exports[`StaffDetailsComponent should match snapshot 2`] = `
+<div
+  id="root0"
+>
+  <div
+    class="w-full flex items-center px-4 py-2 bg-white border-b border-gray-200"
+  >
+    <a-user-avatar />
+    <div
+      class="flex flex-col flex-1"
+    >
+      <div
+        class="px-2"
+      >
+        Jim
+      </div>
+      <div
+        class="px-2 text-xs text-opacity-50"
+      >
+         jim@test.com 
+      </div>
+    </div>
+    
+    <div
+      class="flex items-center"
+    >
+      <action-icon />
+      <a
+        href="mailto:jim@test.com"
+        mat-icon-button=""
+        mattooltip="Email Staff"
+      >
+        <app-icon>
+          email
+        </app-icon>
+      </a>
+      <a
+        href="tel:"
+        mat-icon-button=""
+        mattooltip="Phone Staff"
+      >
+        <app-icon>
+          call
+        </app-icon>
+      </a>
+    </div>
+  </div>
+  
+</div>
+`;

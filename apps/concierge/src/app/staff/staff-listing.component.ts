@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { BaseClass } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
@@ -44,15 +44,24 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                             "
                             [id]="'letter-' + group + '-' + i"
                             [user]="user"
-                            [onsite]="(events | async) ? (events | async)[user.email]: false"
+                            [onsite]="
+                                (events | async)
+                                    ? (events | async)[user.email]
+                                    : false
+                            "
                         ></staff-details>
                     </ng-container>
                 </ng-container>
             </ng-container>
         </div>
-        <mat-progress-bar *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
+        <mat-progress-bar
+            *ngIf="loading | async"
+            mode="indeterminate"
+        ></mat-progress-bar>
         <ng-template #empty_state>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+            >
                 <p>No matching staff members</p>
             </div>
         </ng-template>
@@ -124,7 +133,9 @@ export class StaffListingComponent extends BaseClass {
     public onScroll(_) {
         const scroll_top = this._el.nativeElement.scrollTop;
         for (const group of CHARS) {
-            const el: HTMLDivElement = document.querySelector(`#letter-${group === '#' ? '0' : group}`);
+            const el: HTMLDivElement = document.querySelector(
+                `#letter-${group === '#' ? '0' : group}`
+            );
             if (el) {
                 if (el.offsetTop - scroll_top > 0) {
                     break;

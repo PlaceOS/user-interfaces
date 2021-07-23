@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
     selector: 'points-overview',
@@ -78,7 +78,7 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class PointsOverviewComponent {
+export class PointsOverviewComponent implements OnInit {
     public points = {
         value: 0.1,
         desk_checkin: 2,
