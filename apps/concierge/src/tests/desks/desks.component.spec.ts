@@ -37,5 +37,5 @@ describe('DesksComponent', () => {
         expect(spectator.element).toMatchSnapshot();
     });
 
-    it('should handle routing events', () => {});
+    it.todo('should handle routing events');
 });

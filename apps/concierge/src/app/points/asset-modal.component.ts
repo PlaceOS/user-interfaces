@@ -227,7 +227,6 @@ export class PointsAssetModalComponent {
     ]).pipe(
         map(([{ type, name }, spaces, desks]) => {
             this.loading = true;
-            console.log('Details:', type, name, spaces, desks);
             const search = (name || '').toLowerCase();
             return !type
                 ? []

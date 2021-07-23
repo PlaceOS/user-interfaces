@@ -9,7 +9,13 @@ import { PointsStateService } from './points-state.service';
         <sidebar></sidebar>
         <main class="relative w-full flex flex-col">
             <points-topbar class="relative z-10">
-                <button *ngIf="page === 'assets'" mat-button (click)="newAsset()">New Asset</button>
+                <button
+                    *ngIf="page === 'assets'"
+                    mat-button
+                    (click)="newAsset()"
+                >
+                    New Asset
+                </button>
             </points-topbar>
             <nav mat-tab-nav-bar>
                 <a
@@ -57,12 +63,11 @@ export class PointsComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.params',
             this._router.events.subscribe(() => {
-                const parts = this._router.url.split('/');
-                this.page = parts[parts.length - 1];
-                console.log('URL:', this.page);
+                const url_parts = this._router.url?.split('/') || [''];
+                this.page = url_parts[url_parts.length - 1];
             })
         );
-        const parts = this._router.url.split('/');
+        const parts = this._router.url?.split('/') || [''];
         this.page = parts[parts.length - 1];
     }
 }

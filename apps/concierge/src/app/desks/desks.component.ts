@@ -70,12 +70,12 @@ export class DesksComponent extends BaseClass implements OnInit, OnDestroy {
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) {
-                    const url_parts = this._router.url.split('/');
+                    const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
             })
         );
-        const parts = this._router.url.split('/');
+        const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];
     }
 
