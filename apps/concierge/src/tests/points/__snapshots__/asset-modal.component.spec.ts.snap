@@ -1,0 +1,395 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PointsAssetModalComponent should match snapshot 1`] = `
+<div
+  id="root0"
+>
+  <header>
+    <h2
+      class="text-lg"
+    >
+       New Points Asset 
+    </h2>
+  </header>
+  <main
+    class="min-w-[24rem] overflow-hidden"
+  >
+    <section
+      class="p-2"
+    >
+      <div
+        class="flex items-center"
+      >
+        <label
+          class="w-24"
+        >
+          Asset Type
+        </label>
+        <mat-form-field
+          appearance="outline"
+          class="mat-form-field flex-1 h-[3.25rem] mat-primary mat-form-field-type-mat-select mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        >
+          <div
+            class="mat-form-field-wrapper"
+          >
+            <div
+              class="mat-form-field-flex"
+            >
+              <div
+                class="mat-form-field-outline"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              <div
+                class="mat-form-field-outline mat-form-field-outline-thick"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              
+              
+              
+              <div
+                class="mat-form-field-infix"
+              >
+                <mat-select
+                  aria-autocomplete="none"
+                  aria-disabled="false"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-invalid="false"
+                  aria-required="false"
+                  class="mat-select mat-select-empty"
+                  formcontrolname="type"
+                  placeholder="Select asset type"
+                  role="combobox"
+                  tabindex="0"
+                >
+                  <div
+                    cdk-overlay-origin=""
+                    class="mat-select-trigger"
+                  >
+                    <div
+                      class="mat-select-value"
+                    >
+                      <span
+                        class="mat-select-placeholder mat-select-min-line"
+                      >
+                        Select asset type
+                      </span>
+                      
+                      
+                    </div>
+                    <div
+                      class="mat-select-arrow-wrapper"
+                    >
+                      <div
+                        class="mat-select-arrow"
+                      />
+                    </div>
+                  </div>
+                  
+                </mat-select>
+                <span
+                  class="mat-form-field-label-wrapper"
+                >
+                  
+                </span>
+              </div>
+              
+            </div>
+            
+            <div
+              class="mat-form-field-subscript-wrapper"
+            >
+              
+              <div
+                class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+                style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+              >
+                
+                <div
+                  class="mat-form-field-hint-spacer"
+                />
+              </div>
+              
+            </div>
+          </div>
+        </mat-form-field>
+      </div>
+      <div
+        class="flex items-center"
+      >
+        <label
+          class="w-24"
+        >
+          Asset
+        </label>
+        <mat-form-field
+          appearance="outline"
+          class="mat-form-field flex-1 h-[3.25rem] mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float mat-form-field-disabled _mat-animation-noopable"
+        >
+          <div
+            class="mat-form-field-wrapper"
+          >
+            <div
+              class="mat-form-field-flex"
+            >
+              <div
+                class="mat-form-field-outline"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              <div
+                class="mat-form-field-outline mat-form-field-outline-thick"
+              >
+                <div
+                  class="mat-form-field-outline-start"
+                />
+                <div
+                  class="mat-form-field-outline-gap"
+                />
+                <div
+                  class="mat-form-field-outline-end"
+                />
+              </div>
+              
+              
+              <div
+                class="mat-form-field-prefix"
+              >
+                <app-icon
+                  class="text-2xl opacity-30"
+                  matprefix=""
+                >
+                  search
+                </app-icon>
+              </div>
+              
+              <div
+                class="mat-form-field-infix"
+              >
+                <input
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-invalid="false"
+                  aria-required="false"
+                  autocomplete="off"
+                  class="mat-input-element mat-form-field-autofill-control mat-autocomplete-trigger cdk-text-field-autofill-monitored"
+                  data-placeholder="Search for asset..."
+                  disabled=""
+                  formcontrolname="name"
+                  matinput=""
+                  placeholder="Search for asset..."
+                  role="combobox"
+                />
+                
+                <span
+                  class="mat-form-field-label-wrapper"
+                >
+                  
+                </span>
+              </div>
+              
+            </div>
+            
+            <div
+              class="mat-form-field-subscript-wrapper"
+            >
+              
+              <div
+                class="mat-form-field-hint-wrapper ng-trigger ng-trigger-transitionMessages"
+                style="opacity:1;transform:translateY(0%);0:opacity;1:transform;"
+              >
+                
+                <div
+                  class="mat-form-field-hint-spacer"
+                />
+              </div>
+              
+            </div>
+          </div>
+        </mat-form-field>
+        <mat-autocomplete
+          class="mat-autocomplete"
+        >
+          
+        </mat-autocomplete>
+      </div>
+    </section>
+    <section
+      class="border-t border-gray-200 p-2"
+    >
+      <div
+        class="flex items-center"
+      >
+        <label
+          class="flex-1"
+        >
+          Standard hourly rate
+        </label>
+        <a-counter
+          class="border border-gray-200 rounded"
+          formcontrolname="unit_price"
+        />
+      </div>
+      <div>
+        <h2>
+          Rate Rules
+        </h2>
+        <div>
+          
+        </div>
+        <button
+          class="clear w-full"
+          mat-button=""
+        >
+          <div
+            class="flex items-center justify-center w-full"
+          >
+            <app-icon
+              class="text-lg"
+            >
+              add
+            </app-icon>
+            <span
+              class="underline"
+            >
+              Add new rule
+            </span>
+          </div>
+        </button>
+      </div>
+    </section>
+    <section
+      class="border-t border-gray-200 p-2"
+    >
+      <div
+        class="flex items-center"
+      >
+        <label>
+          Accept Points?
+        </label>
+        <mat-checkbox
+          class="mat-checkbox mat-accent _mat-animation-noopable"
+          formcontrolname="accept_points"
+        >
+          <label
+            class="mat-checkbox-layout"
+            for="mat-checkbox-1-input"
+          >
+            <span
+              class="mat-checkbox-inner-container mat-checkbox-inner-container-no-side-margin"
+            >
+              <input
+                aria-checked="false"
+                class="mat-checkbox-input cdk-visually-hidden"
+                id="mat-checkbox-1-input"
+                tabindex="0"
+                type="checkbox"
+              />
+              <span
+                class="mat-ripple mat-checkbox-ripple mat-focus-indicator"
+                matripple=""
+              >
+                <span
+                  class="mat-ripple-element mat-checkbox-persistent-ripple"
+                />
+              </span>
+              <span
+                class="mat-checkbox-frame"
+              />
+              <span
+                class="mat-checkbox-background"
+              >
+                <svg
+                  class="mat-checkbox-checkmark"
+                  focusable="false"
+                  version="1.1"
+                  viewBox="0 0 24 24"
+                  xml:space="preserve"
+                >
+                  <path
+                    class="mat-checkbox-checkmark-path"
+                    d="M4.1,12.7 9,17.6 20.3,6.3"
+                    fill="none"
+                    stroke="white"
+                  />
+                </svg>
+                <span
+                  class="mat-checkbox-mixedmark"
+                />
+              </span>
+            </span>
+            <span
+              class="mat-checkbox-label"
+            >
+              <span
+                style="display: none;"
+              >
+                 
+              </span>
+            </span>
+          </label>
+        </mat-checkbox>
+      </div>
+      <div
+        class="flex items-center"
+      >
+        <label
+          class="flex-1"
+        >
+          Discount Cap
+        </label>
+        <a-counter
+          class="border border-gray-200 rounded"
+          formcontrolname="discount_cap"
+        />
+      </div>
+    </section>
+  </main>
+  
+  <footer
+    class="flex items-center justify-center p-2 space-x-2 border-t border-gray-200"
+  >
+    <button
+      class="inverse flex-1"
+      mat-button=""
+      mat-dialog-close=""
+    >
+       Cancel 
+    </button>
+    <button
+      class="flex-1"
+      disabled=""
+      mat-button=""
+    >
+       Save 
+    </button>
+  </footer>
+</div>
+`;
