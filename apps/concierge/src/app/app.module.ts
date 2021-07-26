@@ -16,9 +16,7 @@ import { AppComponent } from '../../../../libs/components/src/lib/app.component'
 import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 
-import '@placeos/mocks';
-
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent],
@@ -29,7 +27,9 @@ import * as Sentry from "@sentry/angular";
         BrowserAnimationsModule,
         HttpClientModule,
         UIModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
     ],
     providers: [
         {

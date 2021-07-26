@@ -25,8 +25,6 @@ import { ExploreMapStackComponent } from './explore-map-stack.component';
 import { FooterMenuComponent } from './footer-menu.component';
 import { DeskBookingComponent } from './desk-booking.component';
 
-import '@placeos/mocks';
-
 import * as Sentry from '@sentry/angular';
 
 @NgModule({

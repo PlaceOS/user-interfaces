@@ -8,8 +8,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import '@placeos/mocks';
-
 import {
     MisconfiguredComponent,
     UnauthorisedComponent,

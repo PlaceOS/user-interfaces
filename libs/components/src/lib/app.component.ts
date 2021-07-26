@@ -33,6 +33,7 @@ import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
+import * as MOCKS from '@placeos/mocks';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -71,6 +72,7 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
+        console.log('MOCKS:', MOCKS);
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
             localStorage.setItem(
                 'mock',

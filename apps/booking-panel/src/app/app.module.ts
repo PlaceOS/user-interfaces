@@ -11,8 +11,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import '@placeos/mocks';
-
 import { AppRoutingModule } from './app-routing.module';
 import { ComponentsModule } from '@placeos/components';
 import { UnauthorisedComponent } from '@placeos/components';

@@ -6,8 +6,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import '@placeos/mocks';
-
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -17,14 +15,16 @@ import { BootstrapComponent } from './bootstrap/bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
 
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
 @NgModule({
     declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production,
+        }),
         HttpClientModule,
         FormsModule,
         SharedOverlaysModule,

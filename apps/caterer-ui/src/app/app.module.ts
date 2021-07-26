@@ -20,7 +20,6 @@ import { environment } from '../environments/environment';
 import { CateringComponent } from './catering.component';
 import { CateringTopbarComponent } from './catering-topbar.component';
 
-import '@placeos/mocks';
 import * as Sentry from '@sentry/angular';
 import { MatRippleModule } from '@angular/material/core';
 

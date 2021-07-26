@@ -20,9 +20,7 @@ import { ControlPageViewComponent } from './page-view.component';
 import { ControlStatusBarComponent } from './status-bar.component';
 import { ControlAdvancedViewComponent } from './advanced-view.component';
 
-import '@placeos/mocks';
-
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
     declarations: [
@@ -32,7 +30,7 @@ import * as Sentry from "@sentry/angular";
         TopbarHeaderComponent,
         ControlPageViewComponent,
         ControlStatusBarComponent,
-        ControlAdvancedViewComponent
+        ControlAdvancedViewComponent,
     ],
     imports: [
         BrowserModule,
