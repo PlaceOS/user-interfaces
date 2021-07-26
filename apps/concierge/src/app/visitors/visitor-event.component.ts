@@ -7,7 +7,7 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-event',
     template: `
-        <div class="flex items-center px-2 bg-gray-100">
+        <div class="flex items-center px-2 bg-gray-100" *ngIf="event">
             <div class="w-12 text-lg flex justify-center">
                 <i
                     class="p-2 rounded-full material-icons bg-gray-400"
@@ -93,7 +93,7 @@ import { VisitorsStateService } from './visitors-state.service';
             [style.height]="
                 !show_attendees && !has_search
                     ? '0rem'
-                    : event.attendees.length * 3.5 + 'rem'
+                    : event?.attendees.length * 3.5 + 'rem'
             "
         >
             <div
@@ -101,7 +101,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 class="absolute top-0 bg-gray-400 z-10"
                 [style.height]="
                     'calc(' +
-                    ((event.attendees.length - 1) * 3.5 + 1.75) +
+                    ((event?.attendees.length - 1) * 3.5 + 1.75) +
                     'rem + 1px)'
                 "
             ></div>
@@ -109,7 +109,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 <div
                     visitor
                     class="relative w-full pl-12 bg-gray-200"
-                    *ngFor="let user of event.attendees"
+                    *ngFor="let user of event?.attendees || []"
                 >
                     <div l-bar class="absolute bg-gray-400"></div>
                     <visitor-details
@@ -205,9 +205,10 @@ export class VisitorEventComponent extends BaseClass implements OnInit {
     }
 
     public updateMatches() {
+        if (!this.event) return;
         this.matches = {};
         const filter = (this._state.search || '').toLowerCase();
-        for (const user of this.event.attendees) {
+        for (const user of this.event?.attendees || []) {
             this.matches[user.email] =
                 !filter ||
                 user.email.toLowerCase().includes(filter) ||

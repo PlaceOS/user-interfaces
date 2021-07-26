@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VisitorListingComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="w-full flex flex-col flex-1 text-sm h-full"
+  >
+    <div
+      class="w-full flex items-center bg-white border-b border-gray-500 p-2 font-medium"
+    >
+      <div
+        class="w-12 p-2"
+      />
+      <div
+        class="w-24 p-2"
+      >
+        Time
+      </div>
+      <div
+        class="w-48 p-2"
+      >
+        Host
+      </div>
+      <div
+        class="p-2 flex-1"
+        flex=""
+      >
+        Title
+      </div>
+      <div
+        class="w-64 p-2"
+      >
+        Location
+      </div>
+      <div
+        class="w-32 p-2"
+      >
+        Actions
+      </div>
+      <div
+        class="w-16 p-2"
+      />
+    </div>
+    <div
+      class="w-full flex-1 overflow-auto h-1/2"
+    >
+      <div
+        class="h-full w-full flex items-center justify-center"
+      >
+        <p
+          class="p-8"
+        >
+           There are no visitors for the currently selected date. 
+        </p>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+`;

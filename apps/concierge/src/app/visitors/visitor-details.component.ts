@@ -16,7 +16,7 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'visitor-details',
     template: `
         <div class="w-12 text-lg flex justify-center">
-            <ng-container *ngIf="!visitor.organizer; else host_state">
+            <ng-container *ngIf="!visitor?.organizer; else host_state">
                 <i
                     *ngIf="!visitor?.checked_in; else checkin_state"
                     class="p-2 rounded-full material-icons border-2 border-dotted border-gray-600"
