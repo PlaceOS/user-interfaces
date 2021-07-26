@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1627017050357,
+  "timestamp": 1627281257281,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -77,12 +77,12 @@
   "hashTable": {
     "./apps_concierge_src_app_catering_catering_module_ts.js": "bf45f5db043ff1ef2317c679f1a3d0e827ad1970",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "37017a71333717a39698491a1c0205bb4b7183c7",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "27e335e87a0034611d15e0d57b721a7e5cc38e4d",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "5ba68455ad95cbddf949ad917c96f6492dc2749c",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "7b023052cb8ae139738669c65e195d6ec7a5f9b5",
     "./apps_concierge_src_app_points_points_module_ts.js": "dd16f73145d5971c41e3b7832cf18259534a0b6e",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "88a3e129f14da104d2e6ca35480810ea28caa31c",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "8c46cecec94aac1227d316aa3ccb4d50b664d491",
-    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "6ee486de414b5f30ba270ff9f82018955239e4f8",
+    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "0178d4d89b59ec2df2865868d81ea720f0618973",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "fb22b9a6f08084008041db6d5efa8d715a126d55",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
@@ -114,7 +114,7 @@
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "c9a9b9e6e8f7daee51abc98cd4743a30c2583daa",
-    "./main.js": "6cc5ead8476490393a9cf0c21c69953cbf6136fb",
+    "./main.js": "35f84eb4c93be92a040b73b70d6ea9a646b82877",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
