@@ -189,7 +189,11 @@ export class OrganisationService {
             tags: 'building',
             limit: 500,
         } as any)
-            .pipe(map((i) => i.data))
+            .pipe(
+                map((i) =>
+                    i.data.filter((_) => _.parent_id === this._organisation.id)
+                )
+            )
             .toPromise();
         if (!building_list?.length) {
             this._router.navigate(['/misconfigured']);
