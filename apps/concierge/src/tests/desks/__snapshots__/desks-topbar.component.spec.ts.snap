@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DesksTopbarComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <mat-form-field
+    appearance="outline"
+  >
+    <mat-select
+      multiple=""
+      placeholder="All Levels"
+    >
+      <mat-option
+        value="All"
+      >
+        All Levels
+      </mat-option>
+      
+    </mat-select>
+  </mat-form-field>
+  <div
+    class="flex-1 w-2"
+  />
+  <searchbar
+    class="mr-2"
+  />
+  <date-options />
+</div>
+`;

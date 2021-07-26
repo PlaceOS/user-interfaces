@@ -1,3 +1,4 @@
+import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
@@ -14,7 +15,7 @@ describe('PointsOverviewComponent', () => {
             MockComponent(CounterComponent),
             MockComponent(IconComponent),
         ],
-        imports: [],
+        imports: [FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

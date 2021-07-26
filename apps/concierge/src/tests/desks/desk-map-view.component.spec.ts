@@ -6,6 +6,7 @@ import {
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
+import { OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskMapViewComponent } from '../../app/desks/desk-map-view.component';
@@ -25,12 +26,6 @@ describe('DeskMapViewComponent', () => {
                 },
             },
             {
-                provide: ExploreDesksService,
-                useValue: {
-                    setOptions: jest.fn(),
-                },
-            },
-            {
                 provide: ExploreStateService,
                 useValue: {
                     map_url: of(''),
@@ -38,6 +33,14 @@ describe('DeskMapViewComponent', () => {
                     map_positions: of({ zoom: 1, center: { x: 0.5, y: 0.5 } }),
                     map_actions: of([]),
                     map_features: of([]),
+                },
+            },
+        ],
+        componentProviders: [
+            {
+                provide: ExploreDesksService,
+                useValue: {
+                    setOptions: jest.fn(),
                 },
             },
         ],

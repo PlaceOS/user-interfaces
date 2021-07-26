@@ -2,7 +2,7 @@
 
 exports[`PointsAssetModalComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <header>
     <h2
@@ -300,7 +300,7 @@ exports[`PointsAssetModalComponent should match snapshot 1`] = `
         >
           <label
             class="mat-checkbox-layout"
-            for="mat-checkbox-1-input"
+            for="mat-checkbox-2-input"
           >
             <span
               class="mat-checkbox-inner-container mat-checkbox-inner-container-no-side-margin"
@@ -308,7 +308,7 @@ exports[`PointsAssetModalComponent should match snapshot 1`] = `
               <input
                 aria-checked="false"
                 class="mat-checkbox-input cdk-visually-hidden"
-                id="mat-checkbox-1-input"
+                id="mat-checkbox-2-input"
                 tabindex="0"
                 type="checkbox"
               />

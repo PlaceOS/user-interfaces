@@ -2,7 +2,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
@@ -21,6 +21,7 @@ describe('DesksTopbarComponent', () => {
             {
                 provide: DesksStateService,
                 useValue: {
+                    filters: new BehaviorSubject({}),
                     setFilters: jest.fn(),
                 },
             },

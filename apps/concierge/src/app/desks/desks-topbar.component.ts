@@ -116,7 +116,7 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
             this._org.active_levels.subscribe(async (levels) => {
                 const filters = await this.filters.pipe(take(1)).toPromise();
                 const zones =
-                    filters.zones?.filter(
+                    filters?.zones?.filter(
                         (zone) =>
                             levels.find((lvl) => lvl.id === zone) ||
                             zone === 'All'
