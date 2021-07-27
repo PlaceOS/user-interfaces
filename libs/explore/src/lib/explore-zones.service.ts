@@ -16,6 +16,10 @@ export interface ZoneData {
     area_id: string;
     /** Number of devices in the zone */
     count: number;
+
+    ambient_temp: number;
+    people_count: number;
+    humidity: number;
 }
 
 @Injectable()
@@ -87,9 +91,14 @@ export class ExploreZonesService extends BaseClass {
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
-                content: `${zone.count} ${
+                content: `${zone.count || 0} ${
                     zone.count === 1 ? 'Device' : 'Devices'
-                }`,
+                }
+                Ambient Temp: ${zone.ambient_temp || 21} ˚C
+                ${zone.people_count || 0} ${
+                    zone.people_count === 1 ? 'Person' : 'People'
+                }
+                Humidity: ${zone.humidity || 50}%`,
             };
             labels.push(this._labels[zone.area_id]);
         }
