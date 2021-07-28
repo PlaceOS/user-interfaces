@@ -79,7 +79,7 @@ export class ExploreZonesService extends BaseClass {
             if (areas) {
                 for (const area of areas) {
                     this._capacity[area.id] = area.properties?.capacity || 100;
-                    this._capacity[area.id] = area.properties?.capacity || 100;
+                    this._location[area.id] = area.properties?.label_location;
                     this._draw[area.id] = !!area.properties?.draw_polygon;
                     this._points[area.id] = area.geometry?.coordinates || [];
                 }
