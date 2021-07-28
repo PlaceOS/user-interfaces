@@ -125,14 +125,13 @@ export class ExploreZonesService extends BaseClass {
         const features = [];
         const colours = this._settings.get('app.explore.colors') || {};
         for (const zone_id in this._statuses) {
-            if (!this._statuses[zone_id]) continue;
             const colour =
                 colours[`zone-${this._statuses[zone_id]}`] ||
                 colours[`${this._statuses[zone_id]}`] ||
                 DEFAULT_COLOURS[`${this._statuses[zone_id]}`];
-            if (this._draw[zone_id] && this._location[zone_id]) {
+            if (this._draw[zone_id]) {
                 features.push({
-                    location: this._location[zone_id],
+                    location: getCenterPoint(this._points[zone_id]),
                     content: MapPolygonComponent,
                     data: {
                         fill: `${colour}88`,
@@ -140,15 +139,36 @@ export class ExploreZonesService extends BaseClass {
                         points: this._points[zone_id],
                     },
                 });
-            } else {
-                style_map[`#${zone_id}`] = {
-                    fill: colour,
-                    opacity: 0.6,
-                };
             }
+            if (!this._statuses[zone_id]) continue;
+            style_map[`#${zone_id}`] = {
+                fill: colour,
+                opacity: 0.6,
+            };
         }
         console.log('Zone Features:', this._draw, features);
         this._state.setFeatures('zones', features);
         this._state.setStyles('zones', style_map);
     }
+}
+
+function getCenterPoint(points: [number, number][]) {
+    const diff: HashMap<number> = points.reduce(
+        (m, [x, y]) => ({
+            x_min: x < m.x_min ? x : m.x_min,
+            x_max: x > m.x_max ? x : m.x_max,
+            y_min: y < m.y_min ? y : m.y_min,
+            y_max: y > m.y_max ? y : m.y_max,
+        }),
+        {
+            x_min: 100,
+            x_max: -100,
+            y_min: 100,
+            y_max: -100,
+        }
+    );
+    return {
+        x: diff.x_min + (diff.x_max - diff.x_min) / 2,
+        y: diff.y_min + (diff.y_max - diff.y_min) / 2,
+    };
 }
