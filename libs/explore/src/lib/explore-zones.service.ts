@@ -96,9 +96,12 @@ export class ExploreZonesService extends BaseClass {
             this._statuses[zone.area_id] =
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
             if (!this._location[zone.area_id]) continue;
-            let content = `${zone.count || 0} ${
-                zone.count === 1 ? 'Device' : 'Devices'
-            }\n`;
+            let content = '';
+            if (zone.count) {
+                content += `${zone.count || 0} ${
+                    zone.count === 1 ? 'Device' : 'Devices'
+                }\n`;
+            }
             if (zone.ambient_temp)
                 content += `Ambient Temp: ${zone.ambient_temp} ˚C\n`;
             if (zone.people_count > 0)
