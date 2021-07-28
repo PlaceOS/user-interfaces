@@ -149,7 +149,7 @@ export class ExploreZonesService extends BaseClass {
                 opacity: 0.6,
             };
         }
-        console.log('Zone Features:', this._draw, features);
+        console.log('Zone:', this._statuses);
         this._state.setFeatures('zones', features);
         this._state.setStyles('zones', style_map);
     }
