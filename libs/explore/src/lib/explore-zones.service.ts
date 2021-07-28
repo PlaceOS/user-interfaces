@@ -93,10 +93,13 @@ export class ExploreZonesService extends BaseClass {
         const labels = [];
         for (const zone of value) {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
-            if (!this._draw[zone.area_id]) {
-                this._statuses[zone.area_id] =
-                    filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
-            }
+            this._statuses[zone.area_id] = this._draw[zone.area_id]
+                ? null
+                : filled < 0.4
+                ? 'free'
+                : filled < 0.75
+                ? 'pending'
+                : 'busy';
             if (!this._location[zone.area_id]) continue;
             let content = `${zone.count || 0} ${
                 zone.count === 1 ? 'Device' : 'Devices'
