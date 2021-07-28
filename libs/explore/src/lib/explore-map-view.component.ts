@@ -45,7 +45,7 @@ import { ExploreDesksService } from './explore-desks.service';
             Zones
             <mat-slide-toggle
                 class="ml-2"
-                [ngModel]="(options | async)?.disable?.includes('zones')"
+                [ngModel]="!(options | async)?.disable?.includes('zones')"
                 (ngModelChange)="toggleZones($event)"
             ></mat-slide-toggle>
         </div>
@@ -85,14 +85,14 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
-    public readonly toggleZones = async (e) => {
+    public async toggleZones(enabled: boolean) {
         const options = await this.options.pipe(take(1)).toPromise();
-        const disable = [...(options.disable || [])].filter(
-            (_) => _ !== 'zones'
-        );
-        if (e) disable.push('zones');
+        const disable = !enabled
+            ? unique([...(options.disable || []), 'zones', 'devices'])
+            : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||
+              [];
         this.setOptions({ disable });
-    };
+    }
 
     constructor(
         private _state: ExploreStateService,
