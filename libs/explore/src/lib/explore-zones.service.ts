@@ -8,6 +8,7 @@ import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { MapPolygonComponent } from 'libs/components/src/lib/map-polygon.component';
 
 const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 
@@ -30,6 +31,8 @@ export class ExploreZonesService extends BaseClass {
     private _labels: HashMap<ViewerLabel> = {};
     private _location: HashMap<Point> = {};
     private _capacity: HashMap<number> = {};
+    private _draw: HashMap<boolean> = {};
+    private _points: HashMap<[number, number][]> = {};
 
     private _bind = this._state.level.pipe(
         map((lvl) => {
@@ -76,8 +79,9 @@ export class ExploreZonesService extends BaseClass {
             if (areas) {
                 for (const area of areas) {
                     this._capacity[area.id] = area.properties?.capacity || 100;
-                    this._location[area.id] =
-                        area.properties?.label_location || null;
+                    this._capacity[area.id] = area.properties?.capacity || 100;
+                    this._draw[area.id] = !!area.properties?.draw_polygon;
+                    this._points[area.id] = area.geometry?.coordinates || [];
                 }
             }
         }
@@ -89,9 +93,10 @@ export class ExploreZonesService extends BaseClass {
         const labels = [];
         for (const zone of value) {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
-            this._statuses[zone.area_id] =
-                filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
-            if (!this._location[zone.area_id]) continue;
+            if (!this._draw[zone.area_id]) {
+                this._statuses[zone.area_id] =
+                    filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
+            } else if (!this._location[zone.area_id]) continue;
             let content = `${zone.count || 0} ${
                 zone.count === 1 ? 'Device' : 'Devices'
             }\n`;
@@ -116,17 +121,32 @@ export class ExploreZonesService extends BaseClass {
 
     private updateStatus() {
         const style_map = {};
+        const features = [];
         const colours = this._settings.get('app.explore.colors') || {};
         for (const zone_id in this._statuses) {
             if (!this._statuses[zone_id]) continue;
-            style_map[`#${zone_id}`] = {
-                fill:
-                    colours[`zone-${this._statuses[zone_id]}`] ||
-                    colours[`${this._statuses[zone_id]}`] ||
-                    DEFAULT_COLOURS[`${this._statuses[zone_id]}`],
-                opacity: 0.6,
-            };
+            const colour =
+                colours[`zone-${this._statuses[zone_id]}`] ||
+                colours[`${this._statuses[zone_id]}`] ||
+                DEFAULT_COLOURS[`${this._statuses[zone_id]}`];
+            if (this._draw[zone_id]) {
+                features.push({
+                    location: this._location[zone_id],
+                    content: MapPolygonComponent,
+                    data: {
+                        fill: `${colour}88`,
+                        stroke: colour,
+                        points: this._points[zone_id],
+                    },
+                });
+            } else {
+                style_map[`#${zone_id}`] = {
+                    fill: colour,
+                    opacity: 0.6,
+                };
+            }
         }
+        this._state.setFeatures('zones', features);
         this._state.setStyles('zones', style_map);
     }
 }
