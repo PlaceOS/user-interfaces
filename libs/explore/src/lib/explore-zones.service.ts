@@ -20,6 +20,7 @@ export interface ZoneData {
     ambient_temp: number;
     people_count: number;
     humidity: number;
+    queue_size: number;
 }
 
 @Injectable()
@@ -92,14 +93,15 @@ export class ExploreZonesService extends BaseClass {
             if (!this._location[zone.area_id]) continue;
             let content = `${zone.count || 0} ${
                 zone.count === 1 ? 'Device' : 'Devices'
-            }`;
+            }\n`;
             if (zone.ambient_temp)
-                content += `Ambient Temp: ${zone.ambient_temp || 21} ˚C`;
+                content += `Ambient Temp: ${zone.ambient_temp} ˚C\n`;
             if (zone.people_count > 0)
-                content += `${zone.people_count || 0} ${
+                content += `${zone.people_count} ${
                     zone.people_count === 1 ? 'Person' : 'People'
-                }`;
-            if (zone.humidity) content += `Humidity: ${zone.humidity || 50}%`;
+                }\n`;
+            if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
+            if (zone.queue_size) content += `Queue: ${zone.queue_size}%\n`;
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
                 content,
