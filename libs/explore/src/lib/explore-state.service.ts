@@ -46,7 +46,9 @@ export class ExploreStateService extends BaseClass {
     /** Mapping of groups to their actions */
     private _labels = new BehaviorSubject<HashMap<ViewerLabel[]>>({});
 
-    private _options = new BehaviorSubject<MapOptions>({});
+    private _options = new BehaviorSubject<MapOptions>({
+        disable: ['zones', 'devices'],
+    });
 
     private _message = new BehaviorSubject<string>('');
 
@@ -142,7 +144,7 @@ export class ExploreStateService extends BaseClass {
                     continue;
                 style_mappings = { ...style_mappings, ...styles[key] };
             }
-            if (!options.disable?.includes('zones')) {
+            if (options.disable?.includes('zones')) {
                 style_mappings['#zones'] = { display: 'none' };
                 style_mappings['#Zones'] = { display: 'none' };
             }
