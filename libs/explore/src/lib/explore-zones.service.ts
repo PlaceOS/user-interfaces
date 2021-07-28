@@ -116,6 +116,7 @@ export class ExploreZonesService extends BaseClass {
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
                 content,
+                z_index: 100,
             };
             labels.push(this._labels[zone.area_id]);
         }
@@ -141,6 +142,7 @@ export class ExploreZonesService extends BaseClass {
                         stroke: colour,
                         points: this._points[zone_id],
                     },
+                    z_index: 50,
                 });
             }
             if (!this._statuses[zone_id]) continue;
