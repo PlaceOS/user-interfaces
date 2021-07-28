@@ -130,7 +130,7 @@ export class ExploreZonesService extends BaseClass {
                 colours[`zone-${this._statuses[zone_id]}`] ||
                 colours[`${this._statuses[zone_id]}`] ||
                 DEFAULT_COLOURS[`${this._statuses[zone_id]}`];
-            if (this._draw[zone_id]) {
+            if (this._draw[zone_id] && this._location[zone_id]) {
                 features.push({
                     location: this._location[zone_id],
                     content: MapPolygonComponent,
@@ -147,6 +147,7 @@ export class ExploreZonesService extends BaseClass {
                 };
             }
         }
+        console.log('Zone Features:', features);
         this._state.setFeatures('zones', features);
         this._state.setStyles('zones', style_map);
     }
