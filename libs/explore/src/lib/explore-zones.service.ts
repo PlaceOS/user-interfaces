@@ -133,8 +133,7 @@ export class ExploreZonesService extends BaseClass {
                     location: getCenterPoint(this._points[zone_id]),
                     content: MapPolygonComponent,
                     data: {
-                        fill: `${colour}88`,
-                        stroke: colour,
+                        color: colour,
                         points: this._points[zone_id],
                     },
                     z_index: 50,
