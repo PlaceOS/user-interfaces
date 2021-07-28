@@ -147,7 +147,7 @@ export class ExploreZonesService extends BaseClass {
                 };
             }
         }
-        console.log('Zone Features:', features);
+        console.log('Zone Features:', this._draw, features);
         this._state.setFeatures('zones', features);
         this._state.setStyles('zones', style_map);
     }
