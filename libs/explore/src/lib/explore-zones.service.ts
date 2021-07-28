@@ -74,8 +74,8 @@ export class ExploreZonesService extends BaseClass {
             if (areas) {
                 for (const area of areas) {
                     this._capacity[area.id] = area.properties?.capacity || 100;
-                    this._location[area.id] = area.properties
-                        ?.label_location || { x: 0.5, y: 0.5 };
+                    this._location[area.id] =
+                        area.properties?.label_location || null;
                 }
             }
         }
@@ -89,16 +89,20 @@ export class ExploreZonesService extends BaseClass {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
+            if (!this._location[zone.area_id]) continue;
+            let content = `${zone.count || 0} ${
+                zone.count === 1 ? 'Device' : 'Devices'
+            }`;
+            if (zone.ambient_temp)
+                content += `Ambient Temp: ${zone.ambient_temp || 21} ˚C`;
+            if (zone.people_count > 0)
+                content += `${zone.people_count || 0} ${
+                    zone.people_count === 1 ? 'Person' : 'People'
+                }`;
+            if (zone.humidity) content += `Humidity: ${zone.humidity || 50}%`;
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
-                content: `${zone.count || 0} ${
-                    zone.count === 1 ? 'Device' : 'Devices'
-                }
-                Ambient Temp: ${zone.ambient_temp || 21} ˚C
-                ${zone.people_count || 0} ${
-                    zone.people_count === 1 ? 'Person' : 'People'
-                }
-                Humidity: ${zone.humidity || 50}%`,
+                content,
             };
             labels.push(this._labels[zone.area_id]);
         }
