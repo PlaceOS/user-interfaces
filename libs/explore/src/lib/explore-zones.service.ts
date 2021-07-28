@@ -21,6 +21,7 @@ export interface ZoneData {
     people_count: number;
     humidity: number;
     queue_size: number;
+    counter: number;
 }
 
 @Injectable()
@@ -101,7 +102,8 @@ export class ExploreZonesService extends BaseClass {
                     zone.people_count === 1 ? 'Person' : 'People'
                 }\n`;
             if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
-            if (zone.queue_size) content += `Queue: ${zone.queue_size}%\n`;
+            if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
+            if (zone.counter) content += `Count: ${zone.queue_size}\n`;
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
                 content,
