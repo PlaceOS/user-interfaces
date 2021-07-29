@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WeekViewComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <sidebar />
+  <main
+    class="relative overflow-hidden"
+  >
+    <week-view-topbar />
+    <week-view-timeline />
+  </main>
+</div>
+`;

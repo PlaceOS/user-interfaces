@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WeekViewDayComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <header
+    class="flex items-center justify-center border-b border-gray-200 bg-gray-500 w-full py-3 text-white"
+  >
+      
+  </header>
+  <div
+    class="flex-1 h-1/2 overflow-auto w-full"
+  >
+    <p
+      class="text-center p-2"
+    >
+      No events
+    </p>
+    
+  </div>
+  
+</div>
+`;
+
+exports[`WeekViewDayComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <header
+    class="flex items-center justify-center border-b border-gray-200 bg-gray-500 w-full py-3 text-white"
+  >
+      
+  </header>
+  <div
+    class="flex-1 h-1/2 overflow-auto w-full"
+  >
+    <p
+      class="text-center p-2"
+    >
+      No events
+    </p>
+    
+  </div>
+  
+</div>
+`;

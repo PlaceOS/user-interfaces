@@ -50,8 +50,7 @@ export class WeekViewDayComponent implements OnChanges {
         this._state.date,
         this._index,
     ]).pipe(
-        map((details) => {
-            const [events, date, index] = details;
+        map(([events, date, index]) => {
             const start = addDays(startOfWeek(date), index).valueOf();
             const end = endOfDay(start).valueOf();
             return events.filter((bkn) =>

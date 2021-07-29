@@ -6,23 +6,23 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'week-view-event',
     template: `
-            <div
-                content
-                matRipple
-                (click)="view(event)"
-                [class]="
-                    'm-2 p-2 bg-white shadow rounded border-2 text-black text-left font-normal ' +
-                    (event.state === 'done' ? 'done' : event?.type)
-                "
-            >
-                <div class="text-base">{{ event?.title }}</div>
-                <div class="text-sm">{{ event?.date | date: 'shortTime' }}</div>
-                <div class="text-sm">
-                    {{ event?.attendees.length }} Attendee{{
-                        event?.attendees.length === 1 ? '' : 's'
-                    }}
-                </div>
+        <div
+            content
+            matRipple
+            (click)="view(event)"
+            [class]="
+                'm-2 p-2 bg-white shadow rounded border-2 text-black text-left font-normal ' +
+                (event?.state === 'done' ? 'done' : event?.type)
+            "
+        >
+            <div class="text-base">{{ event?.title }}</div>
+            <div class="text-sm">{{ event?.date | date: 'shortTime' }}</div>
+            <div class="text-sm">
+                {{ event?.attendees.length }} Attendee{{
+                    event?.attendees.length === 1 ? '' : 's'
+                }}
             </div>
+        </div>
     `,
     styles: [
         `

@@ -1,0 +1,162 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WeekViewTimelineComponent should match snapshots 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="flex divide-x border-gray-400 h-full"
+  >
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    
+    
+    
+  </div>
+  
+  
+</div>
+`;
+
+exports[`WeekViewTimelineComponent should match snapshots 2`] = `
+<div
+  id="root1"
+>
+  <div
+    class="flex divide-x border-gray-400 h-full"
+  >
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    
+  </div>
+  
+  
+</div>
+`;
+
+exports[`WeekViewTimelineComponent should match snapshots 3`] = `
+<div
+  id="root1"
+>
+  <div
+    class="flex divide-x border-gray-400 h-full"
+  >
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    <week-view-day
+      class="h-full flex-1"
+    />
+    
+    
+    
+    
+  </div>
+  
+  <view-event-details />
+  
+</div>
+`;

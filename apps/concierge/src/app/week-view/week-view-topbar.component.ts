@@ -10,12 +10,9 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'week-view-topbar',
     template: `
-        <button mat-button class="w-12 xl:w-auto" (click)="newBooking()">
+        <button mat-button new class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
-                <app-icon
-                    class="mr-2"
-                    [icon]="{ class: 'material-icons', content: 'add' }"
-                ></app-icon>
+                <app-icon class="mr-2">add</app-icon>
                 <div class="hidden xl:block">New Booking</div>
             </div>
         </button>
@@ -26,7 +23,10 @@ import { EventsStateService } from '../day-view/events-state.service';
                 (ngModelChange)="updateZones($event)"
                 placeholder="All Levels"
             >
-                <mat-option *ngFor="let level of levels | async" [value]="level.id">
+                <mat-option
+                    *ngFor="let level of levels | async"
+                    [value]="level.id"
+                >
                     {{ level.display_name || level.name }}
                 </mat-option>
             </mat-select>
@@ -53,7 +53,7 @@ import { EventsStateService } from '../day-view/events-state.service';
 
             button {
                 min-width: 0;
-                padding: 0 .85rem;
+                padding: 0 0.85rem;
             }
 
             mat-form-field {
@@ -74,7 +74,8 @@ export class WeekViewTopbarComponent extends BaseClass implements OnInit {
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setDate(d);
     /** Set filtered date */
-    public readonly setWeekends = (d) => this._state.setUIOptions({ show_weekends: d });
+    public readonly setWeekends = (d) =>
+        this._state.setUIOptions({ show_weekends: d });
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
@@ -104,13 +105,11 @@ export class WeekViewTopbarComponent extends BaseClass implements OnInit {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
+                        this.zones = zones;
+                        if (!level) return;
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
-                        this.zones = zones;
                     }
                 }
             })
@@ -118,7 +117,9 @@ export class WeekViewTopbarComponent extends BaseClass implements OnInit {
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) => levels.find((lvl) => lvl.id === zone));
+                this.zones = this.zones.filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone)
+                );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
