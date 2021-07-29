@@ -138,7 +138,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
         for (const space of spaces) {
             features.push({
                 location: space.map_id,
-                hover: true,
+                full_size: true,
                 content: ExploreSpaceInfoComponent,
                 data: {
                     space,

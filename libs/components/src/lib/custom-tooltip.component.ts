@@ -15,7 +15,6 @@ import {
     ViewChild,
 } from '@angular/core';
 import { BaseClass } from '@placeos/common';
-import { first } from 'rxjs/operators';
 
 @Injectable()
 export class CustomTooltipData<T = any> {
@@ -33,7 +32,7 @@ export class CustomTooltipData<T = any> {
         <ng-content></ng-content>
 
         <ng-template cdk-portal>
-            <div custom-tooltip [ngSwitch]="type">
+            <div custom-tooltip class="relative" [ngSwitch]="type">
                 <ng-container *ngSwitchCase="'component'">
                     <ng-container
                         *ngComponentOutlet="content; injector: injector"
@@ -64,6 +63,8 @@ export class CustomTooltipComponent<T = any>
     @Input() public data: T;
     /** Whether tooltip has a backdrop */
     @Input() public backdrop = true;
+    /** Whether tooltip has a backdrop */
+    @Input() public hover = false;
     /** Type of content to render */
     public type: 'template' | 'component' | 'html' = 'template';
 
@@ -74,6 +75,10 @@ export class CustomTooltipComponent<T = any>
     @ViewChild(CdkPortal) private _portal: CdkPortal;
 
     @HostListener('click') public readonly onClick = () => this.open();
+    @HostListener('mouseenter') public readonly onEnter = () =>
+        this.hover ? this.open() : '';
+    @HostListener('mouseleave') public readonly onLeave = () =>
+        this.hover ? this.close() : '';
 
     constructor(
         private _element: ElementRef<HTMLElement>,
