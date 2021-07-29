@@ -37,7 +37,7 @@ describe('VisitorEventComponent', () => {
 
     it('should match snapshot', () => {
         expect(spectator.element).toMatchSnapshot();
-        spectator.setInput({ event: new CalendarEvent({}) });
+        spectator.setInput({ event: new CalendarEvent({ date: 1 }) });
         spectator.detectChanges();
         expect(spectator.element).toMatchSnapshot();
     });

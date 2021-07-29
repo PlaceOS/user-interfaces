@@ -30,19 +30,19 @@ exports[`VisitorEventComponent should match snapshot 2`] = `
     <div
       class="w-12 text-lg flex justify-center"
     >
+      
+      
       <i
         class="p-2 rounded-full material-icons bg-gray-400"
       >
-        event
+        done
       </i>
-      
-      
       
     </div>
     <div
       class="w-24 p-2"
     >
-       11:10 AM 
+       10:00 AM 
     </div>
     <div
       class="w-48 p-2"
