@@ -37,7 +37,7 @@ export class VisitorsStateService extends BaseClass {
     public readonly filters = this._filters.asObservable();
 
     public readonly events = combineLatest([this._filters, this._poll]).pipe(
-        debounceTime(500),
+        debounceTime(150),
         switchMap(([filters]) => {
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
@@ -57,7 +57,7 @@ export class VisitorsStateService extends BaseClass {
                 ? list
                 : list.filter(
                       (event) =>
-                          event.guests.length && event.attendees.length > 1
+                          event.guests?.length && event.attendees?.length > 1
                   );
         }),
         shareReplay(1)
@@ -73,8 +73,8 @@ export class VisitorsStateService extends BaseClass {
             return events.filter((event) =>
                 event.attendees.find(
                     (user) =>
-                        user.name.toLowerCase().includes(filter) ||
-                        user.email.toLowerCase().includes(filter)
+                        user.name?.toLowerCase().includes(filter) ||
+                        user.email?.toLowerCase().includes(filter)
                 )
             );
         })
@@ -109,23 +109,20 @@ export class VisitorsStateService extends BaseClass {
     }
 
     public async checkGuestIn(event: CalendarEvent, user: User) {
-        const new_user = checkinEventGuest(event.id, user.id, true, {
+        const new_user = await checkinEventGuest(event.id, user.email, true, {
             system_id: event.system?.id || event.resources[0]?.id,
         })
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error checking in ${user.name} for ${event.organiser.name}'s meeting`
+                    `Error checking in ${user.name} for ${event.organiser?.name}'s meeting`
                 );
                 throw e;
             });
         notifySuccess(
-            `Successfully checked in ${user.name} for ${event.organiser.name}'s meeting`
+            `Successfully checked in ${user.name} for ${event.organiser?.name}'s meeting`
         );
-        const new_attendees: User[] = unique(
-            [new_user, ...event.attendees],
-            'email'
-        ) as any;
+        const new_attendees = unique([new_user, ...event.attendees], 'email');
         new_attendees.sort((a, b) =>
             a.organizer ? -1 : a.email.localeCompare(b.email)
         );
@@ -136,18 +133,18 @@ export class VisitorsStateService extends BaseClass {
     }
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
-        const new_user = await checkinEventGuest(event.id, user.id, false, {
+        const new_user = await checkinEventGuest(event.id, user.email, false, {
             system_id: event.system?.id || event.resources[0]?.id,
         })
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error checking out ${user.name} from ${event.organiser.name}'s meeting`
+                    `Error checking out ${user.name} from ${event.organiser?.name}'s meeting`
                 );
                 throw e;
             });
         notifySuccess(
-            `Successfully checked out ${user.name} from ${event.organiser.name}'s meeting`
+            `Successfully checked out ${user.name} from ${event.organiser?.name}'s meeting`
         );
         const new_attendees = unique([new_user, ...event.attendees], 'email');
         new_attendees.sort((a, b) =>
@@ -166,18 +163,18 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkin');
         const attendees = await Promise.all(
             guests.map((user) =>
-                checkinEventGuest(event.id, user.id, true, {
+                checkinEventGuest(event.id, user.email, true, {
                     system_id: event.system?.id || event.resources[0]?.id,
                 }).toPromise()
             )
         ).catch((e) => {
             notifyError(
-                `Error checking in all guests for ${event.organiser.name}'s meeting`
+                `Error checking in all guests for ${event.organiser?.name}'s meeting`
             );
             throw e;
         });
         notifySuccess(
-            `Successfully checked in all guests for ${event.organiser.name}'s meeting`
+            `Successfully checked in all guests for ${event.organiser?.name}'s meeting`
         );
         const new_attendees = unique(
             [...attendees, ...event.attendees],
@@ -199,18 +196,18 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkout');
         const attendees = await Promise.all(
             guests.map((user) =>
-                checkinEventGuest(event.id, user.id, false, {
+                checkinEventGuest(event.id, user.email, false, {
                     system_id: event.system?.id || event.resources[0]?.id,
                 }).toPromise()
             )
         ).catch((e) => {
             notifyError(
-                `Error checking out all guests from ${event.organiser.name}'s meeting`
+                `Error checking out all guests from ${event.organiser?.name}'s meeting`
             );
             throw e;
         });
         notifySuccess(
-            `Successfully checked out all guests from ${event.organiser.name}'s meeting`
+            `Successfully checked out all guests from ${event.organiser?.name}'s meeting`
         );
         const new_attendees = unique(
             [...attendees, ...event.attendees],

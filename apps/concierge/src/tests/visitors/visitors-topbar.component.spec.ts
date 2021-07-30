@@ -55,6 +55,10 @@ describe('VisitorsTopbarComponent', () => {
         expect(spectator.element).toMatchSnapshot();
     });
 
-    it.todo('should handle zone_ids query param');
-    it.todo('should handle search query changes');
+    it('should handle query parameters', () => {
+        expect(spectator.component.zones).toEqual([]);
+        spectator.setRouteQueryParam('zone_ids', 'zone-1234,zone-2345');
+        spectator.detectChanges();
+        expect(spectator.component.zones).toEqual(['zone-1234', 'zone-2345']);
+    });
 });

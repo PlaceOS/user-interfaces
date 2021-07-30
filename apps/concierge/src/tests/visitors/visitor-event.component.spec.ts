@@ -42,7 +42,20 @@ describe('VisitorEventComponent', () => {
         expect(spectator.element).toMatchSnapshot();
     });
 
-    it.todo("should list event's visitors");
+    it("should list event's visitors", () => {
+        spectator.setInput({ event: new CalendarEvent({ date: 1 }) });
+        spectator.detectChanges();
+        expect('visitor-details').not.toExist();
+        spectator.setInput({
+            event: new CalendarEvent({
+                date: 1,
+                attendees: [{ id: '1' }, { id: '2' }] as any,
+            }),
+        });
+        spectator.detectChanges();
+        expect('visitor-details').toHaveLength(2);
+    });
+
     it.todo('should allow user to checkin allow visitors');
     it.todo('should allow user to checkout allow visitors');
     it.todo('should tweak display based off search changes');

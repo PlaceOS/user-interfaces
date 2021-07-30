@@ -195,7 +195,7 @@ export class CalendarEvent {
 
     /** List of external attendees associated with the event */
     public get guests() {
-        return this.attendees.filter((f) => !!f.visit_expected) as GuestUser[];
+        return this.attendees.filter((f) => !!f.is_external) as GuestUser[];
     }
     /** Primary space associated with the booking */
     public get space() {

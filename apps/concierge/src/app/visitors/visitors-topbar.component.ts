@@ -81,7 +81,7 @@ export class VisitorsTopbarComponent extends BaseClass implements OnInit {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
         });
-        this._state.setFilters({ zones })
+        this._state.setFilters({ zones });
     };
 
     constructor(
@@ -102,13 +102,11 @@ export class VisitorsTopbarComponent extends BaseClass implements OnInit {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
+                        this.zones = zones;
+                        if (!level) return;
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
-                        this.zones = zones;
                     }
                 }
             })
