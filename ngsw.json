@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1627450479236,
+  "timestamp": 1627623332833,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -119,11 +119,11 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "d2b74a3eff6c91de22995273d3ac9c30b5101ca3",
+    "./apps_workplace_src_app_book_book_module_ts.js": "d7b7af62b32d07491153f0e8bdb0bcd556202c17",
     "./apps_workplace_src_app_control_control_module_ts.js": "b5d44f232cfe321a7ff83e98d87fd17153eadc43",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "170ce9bacc33fbdc55e942242385ba2ca8e9de06",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "df5b1ff9d76fc3c160ff6bc6f669cfd2720c6ad1",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "21c278c780beed0e7cf68f03e54a622648fd6f55",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "c11fc62639f97ab506e6009c721d9fc3b2154215",
     "./apps_workplace_src_app_help_help_module_ts.js": "25ea01d5c2f6d0e38aa7b3853a5fb7062e7861dc",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "f52d83ee99c667ce4e9cee9e179503e364f3bdf6",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
@@ -202,14 +202,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "f1e7cfb9c694168fb819d7296495fed33b3fcacb",
-    "./main.js": "e9cc5ec7fe1d5b94e4136a82969d63d8e6991f90",
+    "./main.js": "1217b0e9922caff7cc279eed251d705dc1466b3c",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "a7a113e3e00b6854fbd17cf4762c1ca522731ea1",
-    "./vendor.js": "41831ac906ad57cb4640a86ea1f854c32f538f0f"
+    "./styles.css": "8f57f597eb2ad39395f8ef940b9fdfe5feb37fb5",
+    "./vendor.js": "855cb476cfe38e4466be2125cef2b8f865b944f5"
   },
   "navigationUrls": [
     {
