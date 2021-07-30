@@ -55,6 +55,7 @@ import { FormGroup } from '@angular/forms';
                     <input
                         matInput
                         name="phone"
+                        type="tel"
                         placeholder="Phone"
                         formControlName="phone"
                     />

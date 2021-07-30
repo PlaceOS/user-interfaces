@@ -56,6 +56,7 @@ import { CheckinStateService } from './checkin-state.service';
                     <input
                         matInput
                         name="phone"
+                        type="tel"
                         formControlName="phone"
                         placeholder="Phone Number"
                     />
@@ -67,6 +68,7 @@ import { CheckinStateService } from './checkin-state.service';
                     <input
                         matInput
                         name="phone"
+                        type="tel"
                         formControlName="phone"
                         placeholder="Organisation / Company"
                     />
@@ -126,10 +128,13 @@ export class CheckinDetailsComponent {
 
     public loading = false;
 
-    constructor(private _checkin: CheckinStateService, private _router: Router) {}
+    constructor(
+        private _checkin: CheckinStateService,
+        private _router: Router
+    ) {}
 
     public ngOnInit(): void {
-        this.form.pipe(first()).subscribe(_ => !_ ? this.previous() : '')
+        this.form.pipe(first()).subscribe((_) => (!_ ? this.previous() : ''));
     }
 
     public async updateGuest() {
