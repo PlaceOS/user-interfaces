@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1627623331914,
+  "timestamp": 1627631076243,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -77,9 +77,9 @@
   "hashTable": {
     "./apps_concierge_src_app_catering_catering_module_ts.js": "bf45f5db043ff1ef2317c679f1a3d0e827ad1970",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "37017a71333717a39698491a1c0205bb4b7183c7",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "5ba68455ad95cbddf949ad917c96f6492dc2749c",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "70fe46f707ac76cefb230389baea2e74b57a75cb",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "7b023052cb8ae139738669c65e195d6ec7a5f9b5",
-    "./apps_concierge_src_app_points_points_module_ts.js": "dd16f73145d5971c41e3b7832cf18259534a0b6e",
+    "./apps_concierge_src_app_points_points_module_ts.js": "a59163c2761889e68bda4f80c374ccf5deab7b92",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "88a3e129f14da104d2e6ca35480810ea28caa31c",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "8c46cecec94aac1227d316aa3ccb4d50b664d491",
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "0178d4d89b59ec2df2865868d81ea720f0618973",
@@ -106,7 +106,7 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "c6ec51aabc352d362d0f61305b3e45cf3b639d79",
+    "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "d2c36eb59b78621ac86f4c557a78441e51e51c83",
     "./default-libs_bookings_src_index_ts.js": "bcb927cfdb712c93370984d89d3bff74694916e1",
     "./default-libs_catering_src_index_ts.js": "b8379dcb5e47da9189dcbbce129f0402d501ee36",
     "./default-libs_explore_src_index_ts.js": "0d37a66854daf476687867d7616823c8c076d722",
@@ -114,7 +114,7 @@
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ca9634f3e50635af7d141800e6e3a778a73e7853",
-    "./main.js": "01a630625e910e28a2bea2d213e7480d05f6cb0d",
+    "./main.js": "9bfce2ae948203f1635065028fc7a8e5e41c9870",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
