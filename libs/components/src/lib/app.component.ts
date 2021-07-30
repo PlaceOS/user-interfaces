@@ -3,7 +3,6 @@ import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Integrations } from '@sentry/tracing';
-import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import {
     clientId,
@@ -109,7 +108,7 @@ export class AppComponent extends BaseClass implements OnInit {
         /** Wait for authentication details to load */
         await setupPlace(settings).catch(() => this.onInitError());
         setupCache(this._cache);
-        this.timeout('wait_for_user', () => this.onInitError(), 5 * 1000);
+        this.timeout('wait_for_user', () => this.onInitError(), 15 * 1000);
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
         setDefaultCreator(currentUser());
