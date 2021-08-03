@@ -222,10 +222,10 @@ export class InteractiveMapComponent
 
     /** Update overlays, styles and actions of viewer */
     private updateView() {
-        if (!getViewer(this.viewer) || this.loading) {
-            return this.timeout('update_view', () => this.updateView());
-        }
         try {
+            if (!getViewer(this.viewer) || this.loading) {
+                return this.timeout('update_view', () => this.updateView());
+            }
             updateViewer(this.viewer, {
                 styles: this.styles,
                 features: this.feature_list,
@@ -238,13 +238,15 @@ export class InteractiveMapComponent
 
     /** Update zoom and center position of viewer */
     private updateDisplay() {
-        updateViewer(this.viewer, {
-            zoom: this.zoom,
-            desired_zoom: this.zoom,
-            center: this.center,
-            desired_center: this.center,
-            options: this.options,
-        });
+        try {
+            updateViewer(this.viewer, {
+                zoom: this.zoom,
+                desired_zoom: this.zoom,
+                center: this.center,
+                desired_center: this.center,
+                options: this.options,
+            });
+        } catch (e) {}
     }
 
     private async createView() {
@@ -281,6 +283,7 @@ export class InteractiveMapComponent
     }
 
     private focusOn(id: string) {
+        if (!id || !this.viewer) return;
         const viewer: Viewer = getViewer(this.viewer);
         if (!viewer) return;
         const rect = viewer.mappings[id];
