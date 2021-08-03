@@ -128,7 +128,6 @@ describe('EventFormService', () => {
 
     it('should allow posting event details', async () => {
         (event_mod as any).saveEvent = jest.fn(() => of({}));
-        console.log(spectator.service.form);
         await expect(spectator.service.postForm()).rejects.toBe(
             'No form for event'
         );

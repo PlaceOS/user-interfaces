@@ -99,7 +99,6 @@ describe('BookingFormService', () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
             of([{ asset_id: 'desk-1', user_email: 'jim@1.com' }])
         );
-        console.log(spectator.service.form);
         await expect(spectator.service.postForm()).rejects.toBe(
             'No form for booking'
         );

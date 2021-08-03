@@ -49,7 +49,6 @@ export class ExploreZonesService extends BaseClass {
             const binding = getModule(system_id, 'AreaManagement').binding(
                 `${lvl.id}:areas`
             );
-            console.log('Bind:', binding);
             this.subscription(
                 `zones`,
                 binding.listen().subscribe((d) => this.parseData(d))
@@ -148,7 +147,6 @@ export class ExploreZonesService extends BaseClass {
                 };
             }
         }
-        console.log('Zone:', this._statuses);
         this._state.setFeatures('zones', features);
         this._state.setStyles('zones', style_map);
     }

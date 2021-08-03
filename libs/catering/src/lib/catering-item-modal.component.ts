@@ -225,9 +225,7 @@ export class CateringItemModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData
-    ) {
-        console.log('Form:', this.form);
-    }
+    ) {}
 
     /**
      * Add a tag to the list of tags for the item

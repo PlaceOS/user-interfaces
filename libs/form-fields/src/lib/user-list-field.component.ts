@@ -245,7 +245,6 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        console.log('Add user:', user);
         const list = this.active_list.filter((_) => _.email !== user.email);
         this.setValue([
             ...list,
@@ -385,7 +384,6 @@ export class UserListFieldComponent
      * Open modal to add or update user details
      */
     public openNewUserModal(user: User = new User()) {
-        console.log('Open User Modal:', user);
         const ref = this._dialog.open<NewUserModalComponent>(
             NewUserModalComponent,
             {

@@ -59,7 +59,6 @@ describe('WeekViewDayComponent', () => {
                 date: addDays(startOfWeek(0), 1).valueOf(),
             }),
         ]);
-        console.log(await spectator.component.events.pipe(take(1)).toPromise());
         spectator.detectChanges();
         expect('week-view-event').toHaveLength(2);
     });

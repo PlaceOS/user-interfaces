@@ -50,9 +50,7 @@ describe('ScheduleViewComponent', () => {
         spectator.component.event = new CalendarEvent({
             system: { id: '1', email: '1', resource: true } as any,
         });
-        console.log(spectator.component.event);
         spectator.detectChanges();
-        console.log(spectator.component.event);
         expect('button[locate]').toExist();
         spectator.click('button[locate]');
         expect(spectator.inject(MatDialog).open).toHaveBeenCalled();

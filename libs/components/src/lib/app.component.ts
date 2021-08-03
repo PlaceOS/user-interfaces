@@ -71,7 +71,6 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
-        console.log('MOCKS:', MOCKS);
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
             localStorage.setItem(
                 'mock',

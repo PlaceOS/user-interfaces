@@ -73,7 +73,6 @@ export class ScheduleStateService extends BaseClass {
                 ...events,
                 ...bookings,
             ].sort((a, b) => a.date - b.date);
-            console.log('List:', list);
             this._schedule.next(unique(list, 'id') as any);
             return list;
         }),

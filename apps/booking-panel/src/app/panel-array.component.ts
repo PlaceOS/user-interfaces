@@ -66,7 +66,6 @@ export class BookingPanelArrayComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this.route.queryParamMap.subscribe((params) => {
-                console.log('Params');
                 if (params.has('system_ids')) {
                     this.systems = (params.get('system_ids') || '')
                         .split(',')

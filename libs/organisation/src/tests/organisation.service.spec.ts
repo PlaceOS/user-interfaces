@@ -34,7 +34,6 @@ describe('OrganisationService', () => {
 
     it('should load organisation', async () => {
         const orgs = [{ id: 'org-1' }, { id: 'org-2' }];
-        console.log('Org List:', orgs);
         (ts_client as any).isMock = jest.fn(() => false);
         (ts_client as any).showMetadata = jest.fn(() => of({ details: {} }));
         (ts_client as any).queryZones = jest.fn(() => of({ data: orgs }));
