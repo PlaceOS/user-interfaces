@@ -1,8 +1,8 @@
-import VanillaQR from 'vanillaqr/VanillaQR.module';
+import { VanillaQR } from './vanillaqr.min';
 
 /** Generates a DataURL for QR code image */
 export function generateQRCode(code: string) {
-    console.log(VanillaQR);
+    console.log('QR:', VanillaQR);
     const qr = new VanillaQR({
         url: code || 'Hello',
         size: 360,
