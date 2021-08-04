@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1628043933053,
+  "timestamp": 1628045064007,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -119,9 +119,9 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "2172e19a24fe92eeab03e23149b8752b6952c205",
+    "./apps_workplace_src_app_book_book_module_ts.js": "ab4e02880cb2d2748a3e691e4778d1ae613b044d",
     "./apps_workplace_src_app_control_control_module_ts.js": "b5d44f232cfe321a7ff83e98d87fd17153eadc43",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "a2dda759959299d339ad04db18834cd275c9b224",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "ec906fc685ae7c9cf4f0fcfda192fb5f7848d0f4",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "df5b1ff9d76fc3c160ff6bc6f669cfd2720c6ad1",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "c11fc62639f97ab506e6009c721d9fc3b2154215",
     "./apps_workplace_src_app_help_help_module_ts.js": "25ea01d5c2f6d0e38aa7b3853a5fb7062e7861dc",
@@ -202,14 +202,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "bb7e7c6fd9f7f63799499e3dea44e346efa627ad",
-    "./main.js": "bc0b1a35e1cec82088d22d48b0171e2b138f444f",
+    "./main.js": "c965c434f7d6f976606f9e234aeacf8cc665b3c2",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
     "./styles.css": "8f57f597eb2ad39395f8ef940b9fdfe5feb37fb5",
-    "./vendor.js": "564cd575263fc65664a535c8a1f4114c7c866b95"
+    "./vendor.js": "855cb476cfe38e4466be2125cef2b8f865b944f5"
   },
   "navigationUrls": [
     {
