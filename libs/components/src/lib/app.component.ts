@@ -23,6 +23,7 @@ import {
     SettingsService,
     setupCache,
     setupPlace,
+    log,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -71,6 +72,7 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
+        log('APP', 'MOCKS:', MOCKS);
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
             localStorage.setItem(
                 'mock',

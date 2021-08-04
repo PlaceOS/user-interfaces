@@ -253,6 +253,13 @@ export class InteractiveMapComponent
         if (this.src && this._outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
             if (this.viewer) {
+                updateViewer(this.viewer, {
+                    styles: this.styles,
+                    features: [],
+                    labels: this.labels,
+                    actions: this.actions,
+                    options: this.options,
+                });
                 removeViewer(this.viewer);
             }
             this.viewer = await createViewer({
