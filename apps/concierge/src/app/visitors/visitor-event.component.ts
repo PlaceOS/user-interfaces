@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
 import { BaseClass } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
@@ -45,6 +45,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="w-64 p-2 truncate">{{ event?.location }}</div>
             <div class="w-32 py-2 flex items-center">
                 <action-icon
+                    checkin
                     matTooltip="Checkin All Guests"
                     [loading]="loading === 'checkin'"
                     [disabled]="guestCount <= 0"
@@ -53,6 +54,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 >
                 </action-icon>
                 <action-icon
+                    checkout
                     matTooltip="Checkout All Guests"
                     [loading]="loading === 'checkout'"
                     [disabled]="guestCount <= 0"

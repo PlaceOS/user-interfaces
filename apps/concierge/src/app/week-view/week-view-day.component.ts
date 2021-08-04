@@ -46,7 +46,7 @@ export class WeekViewDayComponent implements OnChanges {
     );
 
     public readonly events = combineLatest([
-        this._state.filtered_week,
+        this._state.filtered,
         this._state.date,
         this._index,
     ]).pipe(

@@ -1,3 +1,4 @@
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -40,6 +41,7 @@ describe('PointsAssetModalComponent', () => {
             MatProgressSpinnerModule,
             MatAutocompleteModule,
             MatCheckboxModule,
+            ReactiveFormsModule,
         ],
     });
 

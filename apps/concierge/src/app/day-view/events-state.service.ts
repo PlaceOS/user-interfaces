@@ -8,6 +8,7 @@ import {
     startOfMonth,
     endOfMonth,
     format,
+    getUnixTime,
 } from 'date-fns';
 import { BehaviorSubject, of, combineLatest } from 'rxjs';
 import {
@@ -17,11 +18,14 @@ import {
     catchError,
     filter,
     first,
+    tap,
+    shareReplay,
 } from 'rxjs/operators';
 
 import {
     BaseClass,
     flatten,
+    openConfirmModal,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
@@ -33,7 +37,6 @@ import {
 } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
 import { BookingModalComponent } from './booking-modal.component';
-import { ConfirmModalComponent } from '@placeos/components';
 
 export type BookingType =
     | 'internal'
@@ -64,12 +67,14 @@ export interface BookingUIOptions {
     providedIn: 'root',
 })
 export class EventsStateService extends BaseClass {
-    /** List of bookings */
-    private _poll = new BehaviorSubject<boolean>(false);
-    /** List of bookings */
-    private _long_poll = new BehaviorSubject<'month' | 'week' | ''>('');
+    /** Emitter for poll events */
+    private _poll = new BehaviorSubject<number>(0);
+    /** Period to list bookings for */
+    private _period = new BehaviorSubject<'month' | 'week' | 'day'>('day');
     /** List of bookings */
     private _bookings = new BehaviorSubject<CalendarEvent[]>([]);
+    /** Event to display */
+    private _event = new BehaviorSubject<CalendarEvent>(null);
     /** Filter details for bookings */
     private _filters = new BehaviorSubject<BookingFilters>({});
     /** Filter details for bookings */
@@ -80,18 +85,7 @@ export class EventsStateService extends BaseClass {
     private _zones = new BehaviorSubject<string[]>([]);
     /** Whether booking data is being loaded */
     private _loading = new BehaviorSubject<boolean>(false);
-    /** Observable for filter and booking list changes */
-    private _state = combineLatest([
-        this._bookings,
-        this._filters,
-        this._date,
-        this._zones,
-    ]);
-    /** Event currently being viewed */
-    private _event = new BehaviorSubject<CalendarEvent>(null);
 
-    /** Observable for list of bookings */
-    public readonly bookings = this._bookings.asObservable();
     /** Observable for active date */
     public readonly date = this._date.asObservable();
     /** Observable for active zone */
@@ -103,28 +97,76 @@ export class EventsStateService extends BaseClass {
     /** Observable for viewed event */
     public readonly event = this._event.asObservable();
     /** Obsevable for filtered list of bookings */
-    public readonly filtered = this._state.pipe(
-        map(() => {
-            const start = startOfDay(new Date(this._date.getValue()));
-            const end = endOfDay(start);
-            return this.filterEvents(start, end);
-        })
+    public readonly filtered = combineLatest([
+        this._bookings,
+        this._filters,
+        this._date,
+        this._period,
+        this._zones,
+    ]).pipe(
+        map(([events, filters, date, period, zones]) => {
+            const start_fn =
+                period === 'month'
+                    ? startOfMonth
+                    : period === 'week'
+                    ? startOfWeek
+                    : startOfDay;
+            const end_fn =
+                period === 'month'
+                    ? endOfMonth
+                    : period === 'week'
+                    ? endOfWeek
+                    : endOfDay;
+            const start = start_fn(date);
+            const end = end_fn(date);
+            console.log(events);
+            return this.filterEvents(events, start, end, filters, zones);
+        }),
+        shareReplay(1)
     );
-    /** Obsevable for filtered list of bookings of the active week */
-    public readonly filtered_week = this._state.pipe(
-        map(() => {
-            const start = startOfWeek(new Date(this._date.getValue()));
-            const end = endOfWeek(start);
-            return this.filterEvents(start, end);
-        })
-    );
-    /** Obsevable for filtered list of bookings for active month */
-    public readonly filtered_month = this._state.pipe(
-        map(() => {
-            const start = startOfMonth(new Date(this._date.getValue()));
-            const end = endOfMonth(start);
-            return this.filterEvents(start, end);
-        })
+
+    /** Observable for list of bookings */
+    public readonly events = combineLatest([
+        this._period,
+        this._zones,
+        this._date,
+        this._poll,
+    ]).pipe(
+        filter((i) => !!i[0]),
+        debounceTime(300),
+        switchMap(([period, zones, date]) => {
+            if (!zones?.length) return of([]);
+            this._loading.next(true);
+            const start_fn =
+                period === 'month'
+                    ? startOfMonth
+                    : period === 'week'
+                    ? startOfWeek
+                    : startOfDay;
+            const end_fn =
+                period === 'month'
+                    ? endOfMonth
+                    : period === 'week'
+                    ? endOfWeek
+                    : endOfDay;
+            const start = start_fn(date);
+            const end = end_fn(date);
+            return queryEvents({
+                zone_ids: zones.join(','),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+            }).pipe(map((_) => [_, start, end]));
+        }),
+        catchError(() => of([[]])),
+        tap(([events, start, end]) => {
+            this.processBookings(
+                events || [],
+                start?.valueOf(),
+                end?.valueOf()
+            );
+            this._loading.next(false);
+        }),
+        map(([events]) => events)
     );
 
     /** Active filters */
@@ -134,66 +176,7 @@ export class EventsStateService extends BaseClass {
 
     constructor(private _spaces: SpacesService, private _dialog: MatDialog) {
         super();
-        /** Generate observable for updating bookings */
-        const search = combineLatest([
-            this._poll,
-            this._zones,
-            this._date,
-        ]).pipe(
-            filter((i) => !!i[0]),
-            debounceTime(500),
-            switchMap(() => {
-                const fzones = this._zones.getValue();
-                if (!fzones || !fzones.length) {
-                    return of([]);
-                }
-                this._loading.next(true);
-                const start = startOfDay(new Date(this._date.getValue()));
-                const end = endOfDay(start);
-                return queryEvents({
-                    zone_ids: fzones.join(','),
-                    period_start: Math.floor(start.valueOf() / 1000),
-                    period_end: Math.floor(end.valueOf() / 1000),
-                });
-            }),
-            catchError(() => of([]))
-        );
-        /** Generate observable for updating bookings */
-        const search_long = combineLatest([
-            this._long_poll,
-            this._zones,
-            this._date,
-        ]).pipe(
-            filter((i) => !!i[0]),
-            debounceTime(500),
-            switchMap((props) => {
-                const type = props[0];
-                const fzones = props[1];
-                if (!fzones || !fzones.length) {
-                    return of([]);
-                }
-                this._loading.next(true);
-                const start = (type === 'week' ? startOfWeek : startOfMonth)(
-                    new Date(props[2])
-                );
-                const end = (type === 'week' ? endOfWeek : endOfMonth)(start);
-                return queryEvents({
-                    zone_ids: fzones.join(','),
-                    period_start: Math.floor(start.valueOf() / 1000),
-                    period_end: Math.floor(end.valueOf() / 1000),
-                });
-            }),
-            catchError(() => of([]))
-        );
-        /** Subscribe to update observable */
-        search.subscribe((events) => {
-            this.processBookings(events);
-            this._loading.next(false);
-        });
-        search_long.subscribe((events) => {
-            this.processBookings(events, this._long_poll.getValue() as any);
-            this._loading.next(false);
-        });
+        this.events.subscribe();
     }
 
     /**
@@ -241,67 +224,40 @@ export class EventsStateService extends BaseClass {
      * Start polling to update bookings
      * @param delay Duration between polling events in milliseconds
      */
-    public startPolling(delay: number = 30 * 1000) {
-        this._poll.next(true);
-        this.interval('polling', () => this._poll.next(true), delay);
-    }
-
-    /**
-     * Start polling to update bookings
-     * @param delay Duration between polling events in milliseconds
-     */
-    public startPollingWeek(delay: number = 150 * 1000) {
-        this._long_poll.next('week');
-        this.interval(
-            'polling_long',
-            () => this._long_poll.next('week'),
-            delay
-        );
-    }
-
-    /**
-     * Start polling to update bookings
-     * @param delay Duration between polling events in milliseconds
-     */
-    public startPollingMonth(delay: number = 5 * 60 * 1000) {
-        this._long_poll.next('month');
-        this.interval(
-            'polling_long',
-            () => this._long_poll.next('month'),
-            delay
-        );
+    public startPolling(
+        period: 'day' | 'week' | 'month' = 'day',
+        delay: number = 30 * 1000
+    ) {
+        this._poll.next(Date.now());
+        this._period.next(period);
+        this.interval('polling', () => this._poll.next(Date.now()), delay);
     }
 
     /**
      * Stop polling to update bookings;
      */
     public stopPolling() {
-        this._poll.next(false);
+        this._poll.next(0);
         this.clearInterval('polling');
-        this._long_poll.next('');
-        this.clearInterval('polling_long');
     }
 
     public async newBooking(event?: CalendarEvent) {
         const ref = this._dialog.open(BookingModalComponent, {
-            data: {
-                event,
-            },
+            data: { event },
         });
-        const booking: CalendarEvent | null = await Promise.race([
+        const details = await Promise.race([
             ref.componentInstance.event
                 .pipe(first((_) => _.reason === 'done'))
                 .toPromise(),
             ref.afterClosed().toPromise(),
         ]);
-        if (booking instanceof CalendarEvent) {
-            this.replace(booking);
-        }
+        if (details.reason !== 'done') return;
+        this.replace(details.metadata);
     }
 
     public async removeBooking(event: CalendarEvent) {
-        const ref = this._dialog.open(ConfirmModalComponent, {
-            data: {
+        const details = await openConfirmModal(
+            {
                 title: 'Delete meeting?',
                 content: `Are you sure you want to delete the meeting at ${format(
                     new Date(event.date),
@@ -309,22 +265,13 @@ export class EventsStateService extends BaseClass {
                 )}<br> in ${event.location}?`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
-        });
-        const done: boolean | null = await Promise.race([
-            ref.componentInstance.event
-                .pipe(
-                    first((_) => _.reason === 'done'),
-                    map((_) => true)
-                )
-                .toPromise(),
-            ref.afterClosed().toPromise(),
-        ]);
-        if (done) {
-            ref.componentInstance.loading = 'Deleting booking...';
-            await removeEvent(event.id, { system_id: event.system?.id });
-            this.remove(event);
-            ref.close();
-        }
+            this._dialog
+        );
+        if (details.reason !== 'done') return;
+        details.loading('Deleting booking...');
+        await removeEvent(event.id, { system_id: event.system?.id });
+        this.remove(event);
+        details.close();
     }
 
     /**
@@ -351,19 +298,10 @@ export class EventsStateService extends BaseClass {
 
     private processBookings(
         events: CalendarEvent[],
-        period: 'day' | 'week' | 'month' = 'day'
+        start: number = startOfDay(Date.now()).valueOf(),
+        end: number = endOfDay(Date.now()).valueOf()
     ) {
-        const start = (period === 'month'
-            ? startOfMonth
-            : period === 'week'
-            ? startOfWeek
-            : startOfDay)(new Date(this._date.getValue()));
-        const end = (period === 'month'
-            ? endOfMonth
-            : period === 'week'
-            ? endOfWeek
-            : endOfDay)(start);
-        let bookings = this._bookings.getValue();
+        let bookings = this._bookings.getValue() || [];
         const space_list = unique(
             flatten(events.map((event) => event.resources)),
             'email'
@@ -371,11 +309,9 @@ export class EventsStateService extends BaseClass {
         space_list.forEach((space) => {
             bookings = replaceBookings(
                 bookings,
-                events
-                    .filter((bkn) =>
-                        bkn.resources.find((s) => s.email === space.email)
-                    )
-                    .map((bkn) => new CalendarEvent(bkn)),
+                events.filter((bkn) =>
+                    bkn.resources.find((s) => s.email === space.email)
+                ),
                 {
                     space: space.email,
                     from: start.valueOf(),
@@ -383,14 +319,18 @@ export class EventsStateService extends BaseClass {
                 }
             );
         });
+        console.log(events, bookings);
         this._bookings.next(bookings);
     }
 
-    private filterEvents(start: Date, end: Date) {
-        const filters = this._filters.getValue();
-        const bookings = this._bookings.getValue();
-        const fzones = this._zones.getValue();
-        return bookings.filter((bkn) => {
+    private filterEvents(
+        events: CalendarEvent[],
+        start: Date,
+        end: Date,
+        filters: BookingFilters,
+        zones: string[] = []
+    ) {
+        return events.filter((bkn) => {
             const intersects = timePeriodsIntersect(
                 start.valueOf(),
                 end.valueOf(),
@@ -399,7 +339,7 @@ export class EventsStateService extends BaseClass {
             );
             const in_zone = !!bkn.resources
                 .map((r) => this._spaces.find(r.id || r.email))
-                .find((space) => fzones.find((z) => space?.zones?.includes(z)));
+                .find((space) => zones.find((z) => space?.zones?.includes(z)));
             const has_space =
                 !filters.space_emails?.length ||
                 !!bkn.resources.find((space) =>

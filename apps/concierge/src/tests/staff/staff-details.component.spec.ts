@@ -1,3 +1,4 @@
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
     ActionIconComponent,
@@ -27,7 +28,7 @@ describe('StaffDetailsComponent', () => {
             MockComponent(IconComponent),
             MockComponent(UserAvatarComponent),
         ],
-        imports: [],
+        imports: [MatTooltipModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -41,12 +41,14 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         recurring_master_id: new FormControl(event.recurring_master_id),
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
-        catering: new FormControl(event.extension_data.catering || []),
+        catering: new FormControl(event.extension_data?.catering || []),
         // has_catering: new FormControl(event.has_catering || false),
-        visitor_type: new FormControl(event.ext('visitor_type')),
+        visitor_type: new FormControl(event.extension_data?.visitor_type),
         location: new FormControl(event.location),
         needs_space: new FormControl(true),
-        needs_parking: new FormControl(event.ext('needs_parking') || false),
+        needs_parking: new FormControl(
+            event.extension_data?.needs_parking || false
+        ),
         system: new FormControl(event.system),
     });
     form.get('organiser').valueChanges.subscribe((o) =>

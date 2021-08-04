@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ActionIconComponent, IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { VisitorDetailsComponent } from '../../app/visitors/visitor-details.component';
 import { VisitorEventComponent } from '../../app/visitors/visitor-event.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -18,6 +18,8 @@ describe('VisitorEventComponent', () => {
                 useValue: {
                     filters: new BehaviorSubject({}),
                     filtered_events: new BehaviorSubject([]),
+                    checkAllGuestsIn: jest.fn(() => of({})),
+                    checkAllGuestsOut: jest.fn(() => of({})),
                 },
             },
         ],
@@ -52,11 +54,26 @@ describe('VisitorEventComponent', () => {
                 attendees: [{ id: '1' }, { id: '2' }] as any,
             }),
         });
+        spectator.component.show_attendees = true;
         spectator.detectChanges();
         expect('visitor-details').toHaveLength(2);
     });
 
-    it.todo('should allow user to checkin allow visitors');
-    it.todo('should allow user to checkout allow visitors');
-    it.todo('should tweak display based off search changes');
+    it('should allow user to checkin allow visitors', () => {
+        const event = new CalendarEvent({ date: 1 });
+        spectator.setInput({ event });
+        spectator.detectChanges();
+        spectator.click('action-icon[checkin]');
+        const service = spectator.inject(VisitorsStateService);
+        expect(service.checkAllGuestsIn).toBeCalledWith(event);
+    });
+
+    it('should allow user to checkout allow visitors', () => {
+        const event = new CalendarEvent({ date: 1 });
+        spectator.setInput({ event });
+        spectator.detectChanges();
+        spectator.click('action-icon[checkout]');
+        const service = spectator.inject(VisitorsStateService);
+        expect(service.checkAllGuestsOut).toBeCalledWith(event);
+    });
 });

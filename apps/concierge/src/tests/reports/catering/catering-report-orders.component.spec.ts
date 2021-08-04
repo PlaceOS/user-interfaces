@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTableComponent } from '@placeos/components';
+import { CustomTableComponent, IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
@@ -10,7 +10,10 @@ describe('CateringReportOrdersComponent', () => {
     let spectator: Spectator<CateringReportOrdersComponent>;
     const createComponent = createComponentFactory({
         component: CateringReportOrdersComponent,
-        declarations: [MockComponent(CustomTableComponent)],
+        declarations: [
+            MockComponent(CustomTableComponent),
+            MockComponent(IconComponent),
+        ],
         providers: [
             {
                 provide: CateringReportStateService,

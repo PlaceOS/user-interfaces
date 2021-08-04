@@ -1,7 +1,9 @@
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { generateEventForm } from '@placeos/events';
 import {
     ActionFieldComponent,
     DateFieldComponent,
@@ -36,7 +38,12 @@ describe('EventFormComponent', () => {
                 },
             },
         ],
-        imports: [MatFormFieldModule, MatInputModule],
+        imports: [
+            MatFormFieldModule,
+            MatInputModule,
+            FormsModule,
+            ReactiveFormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -46,20 +53,15 @@ describe('EventFormComponent', () => {
     });
 
     it('should match snapshot', () => {
-        const form = {
-            get: jest.fn(() => ({})),
-            patchValue: jest.fn(),
-        } as any;
+        const form = generateEventForm({ extension_data: {} } as any);
         spectator.setInput({ form });
         spectator.detectChanges();
         expect(spectator.element).toMatchSnapshot();
     });
 
     it('should allow selecting spaces', async () => {
-        const form = {
-            get: jest.fn(() => ({})),
-            patchValue: jest.fn(),
-        } as any;
+        const form = generateEventForm({ extension_data: {} } as any);
+        const spy = jest.spyOn(form, 'patchValue');
         spectator.setInput({ form });
         spectator.detectChanges();
         const dialog = spectator.inject(MatDialog);

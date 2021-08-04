@@ -16,6 +16,7 @@ exports[`DeskMapViewComponent should match snapshot 1`] = `
       class="absolute top-0 left-0 p-2 text-black"
     >
       <a-user-search-field
+        class="ng-untouched ng-pristine ng-valid"
         placeholder="User for bookings..."
       />
     </div>

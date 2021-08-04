@@ -1,3 +1,4 @@
+import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
@@ -49,6 +50,7 @@ describe('DeskMapViewComponent', () => {
             MockComponent(ExploreZoomControlComponent),
             MockComponent(UserSearchFieldComponent),
         ],
+        imports: [FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

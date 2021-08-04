@@ -64,12 +64,14 @@ exports[`VisitorEventComponent should match snapshot 2`] = `
       class="w-32 py-2 flex items-center"
     >
       <action-icon
+        checkin=""
         class="mat-tooltip-trigger"
         content="event_available"
         mattooltip="Checkin All Guests"
       />
       
       <action-icon
+        checkout=""
         class="mat-tooltip-trigger"
         content="event_busy"
         mattooltip="Checkout All Guests"

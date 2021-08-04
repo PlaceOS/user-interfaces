@@ -39,6 +39,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <div flex class="p-2 flex-1">{{ visitor?.name || visitor?.email }}</div>
         <div class="w-48 py-2 flex items-center justify-end">
             <action-icon
+                remote
                 [matTooltip]="
                     remote
                         ? 'Set as In-Person Visitor'
@@ -51,6 +52,7 @@ import { VisitorsStateService } from './visitors-state.service';
             >
             </action-icon>
             <action-icon
+                checkin
                 matTooltip="Checkin Guest"
                 [loading]="loading === 'checkin'"
                 [state]="visitor?.checked_in ? 'success' : ''"
@@ -60,6 +62,7 @@ import { VisitorsStateService } from './visitors-state.service';
             >
             </action-icon>
             <action-icon
+                checkout
                 matTooltip="Checkout Guest"
                 [loading]="loading === 'checkout'"
                 content="event_busy"
@@ -160,9 +163,9 @@ export class VisitorDetailsComponent extends BaseClass implements OnChanges {
 
     public readonly toggleRemote = async () => {
         this.loading = 'remote';
-        const remote_list = this.event
-            .ext('remote')
-            ?.filter((e) => e !== this.visitor.email);
+        const remote_list =
+            this.event.ext('remote')?.filter((e) => e !== this.visitor.email) ||
+            [];
         if (!this.remote) {
             remote_list.push(this.visitor.email);
         }
@@ -183,6 +186,7 @@ export class VisitorDetailsComponent extends BaseClass implements OnChanges {
         this.eventChange.emit(this.event);
         this.loading = '';
     };
+
     public readonly checkout = async () => {
         this.loading = 'checkout';
         this.event = await this._state
@@ -218,9 +222,9 @@ export class VisitorDetailsComponent extends BaseClass implements OnChanges {
     }
 
     public get remote(): boolean {
-        return !!this.event
-            ?.ext('remote')
-            ?.find((e) => e === this.visitor?.email);
+        return !!this.event?.extension_data?.remote?.find(
+            (e) => e === this.visitor?.email
+        );
     }
 
     constructor(

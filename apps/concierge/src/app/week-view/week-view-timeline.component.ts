@@ -7,7 +7,9 @@ import { EventsStateService } from '../day-view/events-state.service';
         <div class="flex divide-x border-gray-400 h-full">
             <ng-container *ngFor="let i of weekdays">
                 <ng-container
-                    *ngIf="(i !== 0 && i !== 6) || (options | async).show_weekends"
+                    *ngIf="
+                        (i !== 0 && i !== 6) || (options | async).show_weekends
+                    "
                 >
                     <week-view-day
                         class="h-full flex-1"
@@ -16,8 +18,14 @@ import { EventsStateService } from '../day-view/events-state.service';
                 </ng-container>
             </ng-container>
         </div>
-        <mat-progress-bar *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
-        <view-event-details *ngIf="event | async" [event]="event | async"></view-event-details>
+        <mat-progress-bar
+            *ngIf="loading | async"
+            mode="indeterminate"
+        ></mat-progress-bar>
+        <view-event-details
+            *ngIf="event | async"
+            [event]="event | async"
+        ></view-event-details>
     `,
     styles: [
         `
@@ -39,7 +47,7 @@ export class WeekViewTimelineComponent implements OnInit, OnDestroy {
     constructor(private _state: EventsStateService) {}
 
     public ngOnInit(): void {
-        this._state.startPollingWeek();
+        this._state.startPolling('week');
     }
 
     public ngOnDestroy() {

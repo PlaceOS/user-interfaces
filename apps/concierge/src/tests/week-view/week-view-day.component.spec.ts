@@ -3,7 +3,6 @@ import { CalendarEvent } from '@placeos/events';
 import { addDays, startOfWeek } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { WeekViewDayComponent } from '../../app/week-view/week-view-day.component';
 import { WeekViewEventComponent } from '../../app/week-view/week-view-event.component';
@@ -17,7 +16,7 @@ describe('WeekViewDayComponent', () => {
                 provide: EventsStateService,
                 useValue: {
                     date: new BehaviorSubject(0),
-                    filtered_week: new BehaviorSubject([]),
+                    filtered: new BehaviorSubject([]),
                 },
             },
         ],
@@ -34,7 +33,7 @@ describe('WeekViewDayComponent', () => {
         expect(spectator.element).toMatchSnapshot();
         const service = spectator.inject(EventsStateService);
         (service.date as any).next(addDays(0, 2));
-        (service.filtered_week as any).next([
+        (service.filtered as any).next([
             new CalendarEvent(),
             new CalendarEvent(),
         ]);
@@ -48,7 +47,7 @@ describe('WeekViewDayComponent', () => {
         const date = startOfWeek(0);
         const service = spectator.inject(EventsStateService);
         (service.date as any).next(addDays(date, 1));
-        (service.filtered_week as any).next([
+        (service.filtered as any).next([
             new CalendarEvent({ id: '1', date: date.valueOf() }),
             new CalendarEvent({
                 id: '2',

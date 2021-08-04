@@ -20,7 +20,7 @@ describe('WeekViewTimelineComponent', () => {
                     options: new BehaviorSubject({}),
                     event: new BehaviorSubject(null),
                     loading: new BehaviorSubject(''),
-                    startPollingWeek: jest.fn(),
+                    startPolling: jest.fn(),
                     stopPolling: jest.fn(),
                 },
             },

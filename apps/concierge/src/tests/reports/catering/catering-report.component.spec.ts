@@ -7,6 +7,7 @@ import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/c
 import { CateringReportComponent } from 'apps/concierge/src/app/reports/catering/catering-report.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 import { BehaviorSubject } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 describe('CateringReportComponent', () => {
     let spectator: Spectator<CateringReportComponent>;
@@ -27,6 +28,7 @@ describe('CateringReportComponent', () => {
                 },
             },
         ],
+        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

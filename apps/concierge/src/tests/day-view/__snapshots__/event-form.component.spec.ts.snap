@@ -4,7 +4,10 @@ exports[`EventFormComponent should match snapshot 1`] = `
 <div
   id="root1"
 >
-  <form>
+  <form
+    class="ng-untouched ng-pristine ng-invalid"
+    novalidate=""
+  >
     <div
       class="flex flex-col"
     >
@@ -19,7 +22,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
       </label>
       <mat-form-field
         appearance="outline"
-        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -62,7 +65,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
               <input
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-input-element mat-form-field-autofill-control cdk-text-field-autofill-monitored"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
                 data-placeholder="Meeting Title"
                 formcontrolname="title"
                 matinput=""
@@ -109,6 +112,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
         :
       </label>
       <a-date-field
+        class="ng-untouched ng-pristine ng-invalid"
         formcontrolname="date"
         name="date"
       />
@@ -129,6 +133,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
           :
         </label>
         <a-time-field
+          class="ng-untouched ng-pristine ng-valid"
           name="start-time"
         />
       </div>
@@ -145,6 +150,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
           :
         </label>
         <a-duration-field
+          class="ng-untouched ng-pristine ng-valid"
           formcontrolname="duration"
           name="duration"
         />
@@ -163,6 +169,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
         :
       </label>
       <a-user-search-field
+        class="ng-untouched ng-pristine ng-valid"
         formcontrolname="organiser"
         name="organiser"
       />
@@ -180,6 +187,7 @@ exports[`EventFormComponent should match snapshot 1`] = `
         :
       </label>
       <a-user-list-field
+        class="ng-untouched ng-pristine ng-valid"
         formcontrolname="attendees"
         name="attendees"
       />

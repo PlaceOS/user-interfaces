@@ -97,11 +97,7 @@ export class VisitorsStateService extends BaseClass {
     }
 
     public startPolling(delay: number = 30 * 1000) {
-        this.interval(
-            'poll',
-            () => this._poll.next(new Date().valueOf()),
-            delay
-        );
+        this.interval('poll', () => this._poll.next(Date.now()), delay);
     }
 
     public stopPolling() {

@@ -34,8 +34,12 @@ exports[`StaffDetailsComponent should match snapshot 2`] = `
     <div
       class="flex items-center"
     >
-      <action-icon />
+      <action-icon
+        class="mat-tooltip-trigger"
+      />
+      
       <a
+        class="mat-tooltip-trigger"
         href="mailto:jim@test.com"
         mat-icon-button=""
         mattooltip="Email Staff"
@@ -44,7 +48,9 @@ exports[`StaffDetailsComponent should match snapshot 2`] = `
           email
         </app-icon>
       </a>
+      
       <a
+        class="mat-tooltip-trigger"
         href="tel:"
         mat-icon-button=""
         mattooltip="Phone Staff"
@@ -53,6 +59,7 @@ exports[`StaffDetailsComponent should match snapshot 2`] = `
           call
         </app-icon>
       </a>
+      
     </div>
   </div>
   
