@@ -129,6 +129,13 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     }
 
     public locateSpace(space: Space) {
-        this._dialog.open(MapLocateModalComponent, { data: { item: space } });
+        this._dialog.open(MapLocateModalComponent, {
+            data: {
+                id: space.id,
+                name: space.name,
+                map_id: space.map_id,
+                level: space.level,
+            },
+        });
     }
 }
