@@ -9,7 +9,7 @@ import {
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
-import { BaseClass, HashMap, SettingsService } from '@placeos/common';
+import { BaseClass, HashMap, SettingsService, unique } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 
@@ -180,9 +180,6 @@ export class ExploreStateService extends BaseClass {
             if (!has_level && level_list.length) {
                 this.setLevel(level_list[0].id);
             }
-            if (this._settings.get('app.explore.display_devices') !== false) {
-                this.setOptions({ disable: ['devices'] });
-            }
             if (this._settings.get('app.explore.disable_actions')) {
                 this.setOptions({
                     disable_actions: this._settings.get(
@@ -215,7 +212,16 @@ export class ExploreStateService extends BaseClass {
     }
 
     public setOptions(options: MapOptions) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        const old_options = this._options.getValue();
+        const disable = unique([
+            ...(options.disable || old_options.disable),
+            ...this._settings.get('app.explore.disable'),
+        ]);
+        this._options.next({
+            ...this._options.getValue(),
+            ...options,
+            disable,
+        });
     }
 
     public setLevel(zone_id: string) {
