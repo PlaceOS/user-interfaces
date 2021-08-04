@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1627631718508,
+  "timestamp": 1628043933171,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js",
         "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js",
-        "./common.js",
+        "./default-libs_events_src_index_ts.js",
         "./favicon.ico",
         "./index.html",
         "./main.js",
@@ -95,8 +95,8 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "308e87db8019140ee4c866dd5ca376fd35375f33",
-    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "68204e43bd9b79a93f4cd2251660da8ba7b9cb42",
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "ce2aec239b50996cffb6282d202fde8a39dcd624",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "140e5c926256b92bd43d5f2f19bf5e3452372ef2",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -151,17 +151,17 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "ba6bdd10456b19006b642aa26a95ce6c38490dca",
+    "./default-libs_events_src_index_ts.js": "b4281a7ac2ff33821eced70cf444c97fa6b79d5a",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "5bd2da68bad831c3adc325ea1284ebe58b11ac70",
-    "./main.js": "a40f9cc5b399a9f4f5057b57195b19c08f5cbc80",
+    "./index.html": "3b49ccf22e63756053744632d91937179c6e4a33",
+    "./main.js": "bd5e4740099154fa162f50c15e8653d4af82054b",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "31fdd5ecd5a927640b2cbc6a9abb23c5004594ae",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
     "./styles.css": "8f57f597eb2ad39395f8ef940b9fdfe5feb37fb5",
-    "./vendor.js": "e4f2aced955c87b27190d916f79f3f5400e96e61"
+    "./vendor.js": "19143d61af4235a21d5b825c0a3b3f9d7ee16a78"
   },
   "navigationUrls": [
     {
