@@ -114,7 +114,7 @@ import { DesksStateService } from './desks-state.service';
                 {{ changed }} Desk(s) with unsaved changes
             </p>
             <div class="flex items-center justify-center">
-                <button mat-button (click)="save()">Save Changes</button>
+                <button save mat-button (click)="save()">Save Changes</button>
             </div>
         </div>
         <div
@@ -140,8 +140,8 @@ export class DesksManageComponent {
     public async save() {
         this.loading = 'Saving changes to desks...';
         const desks = await this.desks.pipe(take(1)).toPromise();
-        const updated_desks = desks.map(
-            (_) => new Desk({ ..._, ...(this.changes[_.id] || {}) })
+        const updated_desks = desks.map((_) =>
+            new Desk({ ..._, ...(this.changes[_.id] || {}) }).toJSON()
         );
         const filters = await this.filters.pipe(take(1)).toPromise();
         const level = this._org.levelWithID(filters.zones);

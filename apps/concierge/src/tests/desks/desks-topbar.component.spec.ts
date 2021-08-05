@@ -5,12 +5,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, timer } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
+
+jest.mock('@placeos/bookings');
+
+import * as booking_mod from '@placeos/bookings';
 
 describe('DesksTopbarComponent', () => {
     let spectator: SpectatorRouting<DesksTopbarComponent>;
@@ -26,6 +30,8 @@ describe('DesksTopbarComponent', () => {
                 useValue: {
                     filters: new BehaviorSubject({}),
                     setFilters: jest.fn(),
+                    approveDesk: jest.fn(),
+                    rejectDesk: jest.fn(),
                 },
             },
             {
@@ -56,9 +62,31 @@ describe('DesksTopbarComponent', () => {
         expect(spectator.element).toMatchSnapshot();
     });
 
-    it.todo('should handle zone_ids query param');
+    it('should handle zone_ids query param', async () => {
+        jest.spyOn(spectator.component, 'updateZones');
+        expect(spectator.component.updateZones).not.toBeCalled();
+        spectator.setRouteQueryParam('zone_ids', 'zone-1234,zone-2345');
+        spectator.detectChanges();
+        await timer(5).toPromise();
+        expect(spectator.component.updateZones).toBeCalledWith([
+            'zone-1234',
+            'zone-2345',
+        ]);
+    });
 
-    it.todo('should handle approve query param');
+    it('should handle approve query param', async () => {
+        (booking_mod.showBooking as any) = jest.fn(() => of({}));
+        spectator.setRouteQueryParam('approve', 'bkn-123');
+        spectator.detectChanges();
+        await timer(5).toPromise();
+        expect(spectator.inject(DesksStateService).approveDesk).toBeCalled();
+    });
 
-    it.todo('should handle reject query param');
+    it('should handle reject query param', async () => {
+        (booking_mod.showBooking as any) = jest.fn(() => of({}));
+        spectator.setRouteQueryParam('reject', 'bkn-123');
+        spectator.detectChanges();
+        await timer(5).toPromise();
+        expect(spectator.inject(DesksStateService).rejectDesk).toBeCalled();
+    });
 });

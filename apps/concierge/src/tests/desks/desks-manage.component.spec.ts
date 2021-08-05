@@ -5,13 +5,19 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CustomTableComponent, IconComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, timer } from 'rxjs';
 
 import { ItemListFieldComponent } from 'libs/form-fields/src/lib/item-list-field.component';
 import { DesksManageComponent } from '../../app/desks/desks-manage.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
+
+jest.mock('@placeos/ts-client');
+jest.mock('@placeos/common');
+
+import * as ts_client from '@placeos/ts-client';
+import * as common_mod from '@placeos/common';
 
 describe('DesksManageComponent', () => {
     let spectator: Spectator<DesksManageComponent>;
@@ -22,7 +28,7 @@ describe('DesksManageComponent', () => {
                 provide: DesksStateService,
                 useValue: {
                     setFilters: jest.fn(),
-                    desks: new BehaviorSubject([]),
+                    desks: new BehaviorSubject([{ id: '1' }]),
                     filters: new BehaviorSubject({}),
                 },
             },
@@ -31,7 +37,7 @@ describe('DesksManageComponent', () => {
                 useValue: {
                     active_levels: of([]),
                     initialised: of(true),
-                    levelWithID: jest.fn(),
+                    levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
                     buildings: [],
                 },
             },
@@ -60,6 +66,26 @@ describe('DesksManageComponent', () => {
         expect(spectator.element).toMatchSnapshot();
     });
 
-    it.todo('should handle changes to desks');
-    it.todo('should allow saving of changes to desks');
+    it('should handle changes to desks', () => {
+        expect('button[save]').not.toExist();
+        spectator.component.changes['1'] = { name: 'another' };
+        spectator.detectChanges();
+        expect('button[save]').toExist();
+    });
+
+    it('should allow saving of changes to desks', async () => {
+        (ts_client.updateMetadata as any) = jest.fn(() => of({}));
+        (common_mod.notifySuccess as any) = jest.fn(() => null);
+        spectator.component.changes['1'] = { name: 'another' };
+        spectator.detectChanges();
+        spectator.click('button[save]');
+        await timer(5).toPromise();
+        expect(ts_client.updateMetadata).toBeCalledWith('lvl-1', {
+            name: 'desks',
+            description: 'desks',
+            details: [new Desk({ id: '1', name: 'another' }).toJSON()],
+        });
+
+        expect(spectator.component.changes).toEqual({});
+    });
 });

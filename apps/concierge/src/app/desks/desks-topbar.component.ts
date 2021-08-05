@@ -65,7 +65,7 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
     public readonly setDate = (date) => this._desks.setFilters({ date });
     public readonly setFilters = (o) => this._desks.setFilters(o);
     /** Update active zones for desks */
-    public readonly updateZones = (zones) => {
+    public readonly updateZones = (zones: string[]) => {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
@@ -91,14 +91,12 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
+                        this.updateZones(zones);
                         const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
+                        if (!level) return;
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
-                        this.updateZones(zones);
                     }
                 }
                 if (params.has('date')) {

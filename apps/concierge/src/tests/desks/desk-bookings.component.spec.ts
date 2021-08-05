@@ -42,9 +42,4 @@ describe('DeskBookingsComponent', () => {
     it('should match snapshot', () => {
         expect(spectator.element).toMatchSnapshot();
     });
-
-    it.todo('should allow checking in bookings');
-    it.todo('should allow approving desk bookings');
-    it.todo('should allow rejecting desk bookings');
-    it.todo('should allow rejecting all desk bookings');
 });
