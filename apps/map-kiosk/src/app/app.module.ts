@@ -26,6 +26,7 @@ import { FooterMenuComponent } from './footer-menu.component';
 import { DeskBookingComponent } from './desk-booking.component';
 
 import * as Sentry from '@sentry/angular';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @NgModule({
     declarations: [
@@ -49,6 +50,7 @@ import * as Sentry from '@sentry/angular';
         MatProgressSpinnerModule,
         MatRippleModule,
         MatButtonToggleModule,
+        MatSlideToggleModule,
         ComponentsModule,
         FormFieldsModule,
         SharedExploreModule,

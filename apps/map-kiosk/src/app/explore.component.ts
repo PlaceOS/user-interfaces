@@ -142,6 +142,7 @@ import { first, take } from 'rxjs/operators';
     providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
 })
 export class ExploreComponent extends BaseClass implements OnInit {
+    /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
 
     public get logo() {
