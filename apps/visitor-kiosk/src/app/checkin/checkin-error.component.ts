@@ -7,10 +7,12 @@ import { CheckinStateService } from './checkin-state.service';
         <div
             class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto p-4"
         >
-            <h3 class="text-xl mb-4">Please see reception.</h3>
+            <h3 class="text-2xl mb-4">Please see reception.</h3>
             <p class="mb-2" *ngIf="error | async">{{ error | async }}</p>
             <p class="mb-4">Our staff at reception will assist you.</p>
-            <a button mat-button [routerLink]="['/welcome']">Back</a>
+            <a button mat-button class="w-32" [routerLink]="['/welcome']">
+                Back
+            </a>
         </div>
     `,
     styles: [

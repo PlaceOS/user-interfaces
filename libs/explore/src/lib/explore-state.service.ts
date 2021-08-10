@@ -215,7 +215,7 @@ export class ExploreStateService extends BaseClass {
         const old_options = this._options.getValue();
         const disable = unique([
             ...(options.disable || old_options.disable),
-            ...this._settings.get('app.explore.disable'),
+            ...(this._settings.get('app.explore.disable') || []),
         ]);
         this._options.next({
             ...this._options.getValue(),

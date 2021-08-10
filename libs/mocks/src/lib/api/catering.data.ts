@@ -7,6 +7,7 @@ export const MOCK_MENU = [
         name: 'Coffee',
         unit_price: 200,
         category: 'Drinks',
+        tags: ['drink'],
         options: [
             { id: 'opt-1', name: 'Cappacino', group: 'type' },
             { id: 'opt-2', name: 'Latte', group: 'type' },
@@ -21,6 +22,7 @@ export const MOCK_MENU = [
         name: 'Soda',
         unit_price: 160,
         category: 'Drinks',
+        tags: ['drink'],
         options: [
             { id: 'opt-1', name: 'Pepsi', group: 'type' },
             { id: 'opt-2', name: 'Sunkist', group: 'type' },

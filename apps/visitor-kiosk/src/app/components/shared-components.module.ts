@@ -1,11 +1,9 @@
-
 import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { EditorModule } from '@tinymce/tinymce-angular';
-
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { EditorModule } from '@tinymce/tinymce-angular';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -23,26 +21,12 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 
-import { TopbarHeaderComponent } from './topbar-header.component';
-import { FooterMenuComponent } from './footer-menu/footer-menu.component';
-
-import { UserFormComponent } from './forms/user-form/user-form.component';
-import { BookingFormComponent } from './forms/booking-form/booking-form.component';
-
-import { MapControlsComponent } from './map-controls/map-controls.component';
-import { TakePhotoComponent } from './take-photo/take-photo.component';
 import { ComponentsModule } from '@placeos/components';
 
-const COMPONENTS: Type<any>[] = [
-    TopbarHeaderComponent,
-    FooterMenuComponent,
+import { TopbarHeaderComponent } from './topbar-header.component';
+import { TakePhotoComponent } from './take-photo.component';
 
-    UserFormComponent,
-    BookingFormComponent,
-
-    MapControlsComponent,
-    TakePhotoComponent
-];
+const COMPONENTS: Type<any>[] = [TopbarHeaderComponent, TakePhotoComponent];
 
 const MATERIAL_MODULES: any[] = [
     MatButtonModule,
@@ -59,17 +43,13 @@ const MATERIAL_MODULES: any[] = [
     MatMenuModule,
     MatBottomSheetModule,
     MatCheckboxModule,
-    MatRadioModule
+    MatRadioModule,
 ];
 
-const CDK_MODULES: any[] = [
-    ScrollingModule
-];
+const CDK_MODULES: any[] = [ScrollingModule];
 
 @NgModule({
-    declarations: [
-        ...COMPONENTS,
-    ],
+    declarations: [...COMPONENTS],
     imports: [
         CommonModule,
         FormsModule,
@@ -78,13 +58,13 @@ const CDK_MODULES: any[] = [
         RouterModule,
         EditorModule,
         ...MATERIAL_MODULES,
-        ...CDK_MODULES
+        ...CDK_MODULES,
     ],
     exports: [
         ComponentsModule,
         ...COMPONENTS,
         ...MATERIAL_MODULES,
-        ...CDK_MODULES
-    ]
+        ...CDK_MODULES,
+    ],
 })
-export class SharedContentModule {}
+export class SharedComponentsModule {}

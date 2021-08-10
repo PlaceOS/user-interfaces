@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { BootstrapComponent } from './bootstrap/bootstrap.component';
+import { BootstrapComponent } from './bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
 
 const routes: Routes = [
@@ -9,11 +9,15 @@ const routes: Routes = [
     { path: 'welcome', component: WelcomeComponent },
     {
         path: 'explore',
-        loadChildren: () => import('./explore/explore.module').then((m) => m.AppExploreModule),
+        loadChildren: () =>
+            import('./explore/explore.module').then((m) => m.AppExploreModule),
     },
     {
         path: 'checkin',
-        loadChildren: () => import('./checkin/checkin.module').then((m) => m.VisitorCheckinModule),
+        loadChildren: () =>
+            import('./checkin/checkin.module').then(
+                (m) => m.VisitorCheckinModule
+            ),
     },
     { path: '**', redirectTo: 'bootstrap' },
 ];

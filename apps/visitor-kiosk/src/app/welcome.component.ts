@@ -14,7 +14,9 @@ import { BaseClass, SettingsService } from '@placeos/common';
             <div
                 class="flex flex-col flex-1 w-full items-center justify-center text-white bg-black bg-opacity-50 space-y-4"
             >
-                <h3 class="text-2xl">Welcome to PlaceOS Self Service Kiosk</h3>
+                <h3 class="text-2xl mb-4">
+                    Welcome to PlaceOS Self Service Kiosk
+                </h3>
                 <a
                     matRipple
                     [routerLink]="['/checkin']"
@@ -33,16 +35,18 @@ import { BaseClass, SettingsService } from '@placeos/common';
             </div>
         </div>
     `,
-    styles: [`
-        a {
-            height: 3.5rem;
-            background-color: rgba(255,255,255, .25);
-        }
-    `],
+    styles: [
+        `
+            a {
+                height: 3.5rem;
+                background-color: rgba(255, 255, 255, 0.25);
+            }
+        `,
+    ],
 })
 export class WelcomeComponent extends BaseClass implements OnInit, OnDestroy {
     /** Level to initially load on explore */
-    public level: string = '';
+    public level = '';
 
     public get background() {
         return this._settings.get('app.home.background');

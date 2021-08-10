@@ -3,35 +3,31 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Route } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-
-import { ExploreComponent } from './explore.component';
-import { SharedContentModule } from '../ui/shared.module';
-import { FooterLegendComponent } from './footer-legend/footer-legend.component';
-import { FiltersComponent } from './filters/filters.component';
 import { ComponentsModule } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
+import { SharedSpacesModule } from '@placeos/spaces';
+
+import { ExploreComponent } from './explore.component';
+import { FooterLegendComponent } from './footer-legend.component';
+import { FiltersComponent } from './filters.component';
+import { SharedComponentsModule } from '../components/shared-components.module';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
-    { path: ':search_type', component: ExploreComponent }
+    { path: ':search_type', component: ExploreComponent },
 ];
 
 @NgModule({
-    declarations: [
-        ExploreComponent,
-        FooterLegendComponent,
-        FiltersComponent
-    ],
+    declarations: [ExploreComponent, FooterLegendComponent, FiltersComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),
-        SharedContentModule,
         ComponentsModule,
+        SharedSpacesModule,
+        SharedComponentsModule,
         FormsModule,
-        SharedExploreModule
+        SharedExploreModule,
     ],
-    entryComponents: [
-        FiltersComponent
-    ]
+    entryComponents: [FiltersComponent],
 })
 export class AppExploreModule {}

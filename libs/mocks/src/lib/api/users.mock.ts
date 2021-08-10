@@ -85,9 +85,8 @@ function registerMocks() {
         metadata: {},
         method: 'GET',
         callback: (request) => {
-            const person = MOCK_GUESTS.find(
-                (user) => user.email === request.route_params.email
-            );
+            const email = decodeURIComponent(request.route_params.email);
+            const person = MOCK_GUESTS.find((user) => user.email === email);
             if (person) {
                 return person;
             }

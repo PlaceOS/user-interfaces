@@ -1,17 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
-
-import * as dayjs from 'dayjs';
+import { Component } from '@angular/core';
+import { format } from 'date-fns';
 
 @Component({
     selector: 'a-topbar-header',
     template: `
-        <div class="flex items-center bg-gray-900 shadow">
+        <div class="flex items-center justify-between bg-secondary shadow">
             <a
                 mat-button
-                [routerLink]="['/home']"
-                class="h-full flex flex-col justify-center bg-black px-4"
+                [routerLink]="['/']"
+                class="h-full flex flex-col justify-center px-4"
             >
                 <img class="h-10 my-2" src="assets/logo-dark.svg" />
             </a>
@@ -39,8 +36,8 @@ import * as dayjs from 'dayjs';
         `,
     ],
 })
-export class TopbarHeaderComponent extends BaseClass {
+export class TopbarHeaderComponent {
     public get time() {
-        return dayjs().format('dddd h:mmA');
+        return format(Date.now(), 'EEEE, MMMM do, h:mma');
     }
 }

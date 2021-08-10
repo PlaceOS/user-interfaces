@@ -1,12 +1,10 @@
-
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Route } from '@angular/router';
-import { SharedContentModule } from '../ui/shared.module';
+import { SharedComponentsModule } from '../components/shared-components.module';
 
 import { CheckinDetailsComponent } from './checkin-details.component';
-import { CheckinGroupComponent } from './checkin-group.component';
 import { CheckinPhotoComponent } from './checkin-photo.component';
 import { CheckinPreferencesComponent } from './checkin-preferences.component';
 import { CheckinQRScanComponent } from './checkin-qr-scan.component';
@@ -16,19 +14,22 @@ import { CheckinCovidComponent } from './checkin-covid.component';
 import { CheckinComponent } from './checkin.component';
 
 const ROUTES: Route[] = [
-    { path: '', component: CheckinComponent, children: [
-        { path: 'scan', component: CheckinQRScanComponent },
-        { path: 'details', component: CheckinDetailsComponent },
-        { path: 'group', component: CheckinGroupComponent },
-        { path: 'preferences', component: CheckinPreferencesComponent },
-        { path: 'photo', component: CheckinPhotoComponent },
-        { path: 'results', component: CheckinResultsComponent },
-        { path: 'error', component: CheckinErrorComponent },
-        { path: 'covid', component: CheckinCovidComponent },
-        { path: '**', redirectTo: 'scan' }
-    ] },
-    { path: '**', redirectTo: '' }
-]
+    {
+        path: '',
+        component: CheckinComponent,
+        children: [
+            { path: 'scan', component: CheckinQRScanComponent },
+            { path: 'details', component: CheckinDetailsComponent },
+            { path: 'preferences', component: CheckinPreferencesComponent },
+            { path: 'photo', component: CheckinPhotoComponent },
+            { path: 'results', component: CheckinResultsComponent },
+            { path: 'error', component: CheckinErrorComponent },
+            { path: 'covid', component: CheckinCovidComponent },
+            { path: '**', redirectTo: 'scan' },
+        ],
+    },
+    { path: '**', redirectTo: '' },
+];
 
 @NgModule({
     declarations: [
@@ -37,17 +38,16 @@ const ROUTES: Route[] = [
         CheckinQRScanComponent,
         CheckinPreferencesComponent,
         CheckinPhotoComponent,
-        CheckinGroupComponent,
         CheckinDetailsComponent,
         CheckinErrorComponent,
-        CheckinCovidComponent
+        CheckinCovidComponent,
     ],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        SharedContentModule,
-        RouterModule.forChild(ROUTES)
-    ]
+        SharedComponentsModule,
+        RouterModule.forChild(ROUTES),
+    ],
 })
-export class VisitorCheckinModule { }
+export class VisitorCheckinModule {}

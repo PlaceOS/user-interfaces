@@ -9,13 +9,14 @@ import { Router } from '@angular/router';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
 import { AppRoutingModule } from './app-routing.module';
-import { SharedOverlaysModule } from './overlays/overlays.module';
-import { SharedContentModule } from './ui/shared.module';
-import { BootstrapComponent } from './bootstrap/bootstrap.component';
+import { SharedComponentsModule } from './components/shared-components.module';
+import { BootstrapComponent } from './bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
 
 import * as Sentry from '@sentry/angular';
+import { ComponentsModule } from '@placeos/components';
+import { SharedSpacesModule } from '@placeos/spaces';
 @NgModule({
     declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
     imports: [
@@ -27,8 +28,9 @@ import * as Sentry from '@sentry/angular';
         }),
         HttpClientModule,
         FormsModule,
-        SharedOverlaysModule,
-        SharedContentModule,
+        ComponentsModule,
+        SharedSpacesModule,
+        SharedComponentsModule,
     ],
     providers: [
         {

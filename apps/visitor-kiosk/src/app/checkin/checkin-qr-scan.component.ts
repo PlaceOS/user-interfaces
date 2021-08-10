@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import QrScanner from 'qr-scanner';
@@ -75,7 +81,8 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     /** Email address of the visitor */
     public email: string;
     /** Video element to emit camera feed */
-    @ViewChild('video') private _video_el: ElementRef<HTMLVideoElement>;
+    @ViewChild('video', { static: true })
+    private _video_el: ElementRef<HTMLVideoElement>;
     /** QR Reader */
     private _reader;
 
@@ -141,8 +148,9 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
         this._reader.start();
     }
 
-    private handleError(message: string) {
-        this._checkin.setError(message);
+    private handleError(message: any) {
+        console.error(message);
+        this._checkin.setError(message?.statusText || message);
         this._router.navigate(['/checkin', 'error']);
     }
 }
