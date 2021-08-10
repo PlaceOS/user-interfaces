@@ -1,0 +1,362 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FooterLegendComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="relative bg-white shadow w-full"
+  >
+    <div
+      class="absolute top-0 left-1/2 transform -translate-y-full -translate-x-1/2 px-2 pt-2 overflow-hidden"
+    >
+      <button
+        class="flex items-center justify-center bg-white shadow rounded-t w-32 h-8 border-none text-black"
+        matripple=""
+      >
+        <app-icon>
+          keyboard_arrow_up
+        </app-icon>
+      </button>
+    </div>
+    <div
+      class="flex items-center px-2 py-1 text-xl"
+    >
+      <div
+        class="flex-1"
+      >
+        Keys
+      </div>
+    </div>
+    <div
+      class="flex items-center justify-center p-2 border border-gray-100 space-x-2"
+    >
+      <div
+        class="colour px-4 py-2 rounded shadow flex-1 text-center dark"
+        style="background-color: rgb(197, 42, 26);"
+      >
+         In Use 
+      </div>
+      <div
+        class="colour px-4 py-2 rounded shadow flex-1 text-center dark"
+        style="background-color: rgb(34, 153, 46);"
+      >
+         Available 
+      </div>
+      <div
+        class="colour px-4 py-2 rounded shadow flex-1 text-center dark"
+        style="background-color: rgb(125, 125, 125);"
+      >
+         Not Bookable 
+      </div>
+      <div
+        class="colour px-4 py-2 rounded shadow flex-1 text-center"
+        style="background-color: rgb(254, 215, 105);"
+      >
+         Collaborative 
+      </div>
+      <div
+        class="colour px-4 py-2 rounded shadow flex-1 text-center"
+        style="background-color: rgb(245, 164, 120);"
+      >
+         Focus 
+      </div>
+      
+    </div>
+    <div
+      class="flex justify-center flex-wrap h-0 w-full border border-gray-100 overflow-auto max-h-[25vh]"
+      icon-legend=""
+    >
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Lifts Up/Down 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Fire Extinguisher 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           First Aid & AED 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Cafe/Service 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Mail/Noticeboard 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Restrooms M/F 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Map Kiosk 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Screen 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Projector 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Showers 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Chairs 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Chairs 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Chairs/Couch 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Chairs/Couch 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Tables 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Funzone Games 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Concierge Pods 
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center h-[12.4vw] w-[12.4vw] text-[2vw] border border-gray-100 flex-grow"
+      >
+        <app-icon
+          class="text-[3em]"
+        />
+        <div
+          class="text-[0.625em] font-normal"
+        >
+           Phone Booths 
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+`;

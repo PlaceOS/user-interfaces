@@ -1,9 +1,9 @@
-
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { BaseClass, log, SettingsService } from '@placeos/common';
+import { ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -35,12 +35,20 @@ import { OrganisationService } from '@placeos/organisation';
     ],
 })
 export class ExploreComponent extends BaseClass implements OnInit {
+    /** Number of seconds after a user action to reset the kiosk state */
+    public reset_delay = 180;
     /** Whether to show the overlay menu */
     public show_menu: boolean;
+
+    @HostListener('window:mousedown') public onMouse = () =>
+        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
+    @HostListener('window:touchstart') public onTouch = () =>
+        this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
 
     constructor(
         private _org: OrganisationService,
         private _settings: SettingsService,
+        private _state: ExploreStateService,
         private _router: Router,
         private _dialog: MatDialog
     ) {
@@ -49,14 +57,15 @@ export class ExploreComponent extends BaseClass implements OnInit {
 
     public ngOnInit(): void {
         this._settings.title = 'Explore';
-        let level = '';
-        if (localStorage) {
-            level = localStorage.getItem('KIOSK.level');
-        }
+        this.reset_delay =
+            this._settings.get('app.inactivity_timeout_secs') || 180;
+        const level = localStorage?.getItem('KIOSK.level');
         if (!level) {
             this._router.navigate(['/bootstrap']);
+            return;
         }
-        this.timeout('refresh', () => this.refreshKiosk(), 2 * 60 * 1000);
+        this._state.setLevel(level);
+        this.onMouse();
     }
 
     public get emergency_phone(): string {
@@ -66,7 +75,7 @@ export class ExploreComponent extends BaseClass implements OnInit {
             return;
         }
         const building = this._org.buildings.find(
-            bld => bld.id === level.parent_id
+            (bld) => bld.id === level.parent_id
         );
         if (!building) {
             return;
@@ -75,28 +84,16 @@ export class ExploreComponent extends BaseClass implements OnInit {
     }
 
     /**
-     * Reset the timeout for refreshing the kiosk view
-     */
-    public resetRefresh() {
-        this.timeout('refresh', () => this.refreshKiosk(), 2 * 60 * 1000);
-    }
-
-    /**
      * Refresh the kiosk view
      */
-    public refreshKiosk() {
+    public resetKiosk() {
         log('EXPLORE', 'Refreshing kiosk...');
+        if ((document.activeElement as any)?.blur)
+            (document.activeElement as any)?.blur();
+        const level = localStorage.getItem('KIOSK.level');
+        this._state.setPositions(1, { x: 0.5, y: 0.5 });
+        if (level) this._state.setLevel(level);
         this._dialog.closeAll();
-        let level = '';
-        if (localStorage) {
-            level = localStorage.getItem('KIOSK.level');
-        }
-        if (!level) {
-            this._router.navigate(['/bootstrap']);
-        } else {
-            this._router.navigate(['/explore', 'none'], { queryParams: { level } });
-        }
-        this._dialog.closeAll();
-        this._settings.post('KIOSK.reset', new Date().getTime());
+        this._settings.post('KIOSK.reset', Date.now());
     }
 }

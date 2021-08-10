@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExploreComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <header>
+    <a-topbar-header />
+  </header>
+  <main
+    class="flex flex-1 w-full relative"
+  >
+    <explore-map-view />
+  </main>
+  <footer
+    class="flex w-full"
+  >
+    <a-footer-legend />
+  </footer>
+</div>
+`;
