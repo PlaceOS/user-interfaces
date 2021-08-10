@@ -176,7 +176,10 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         }
         const mod = getModule(locate_details.system_id, locate_details.module);
         const locations: MapLocation[] = (
-            await mod.execute('locate_user', [user.email, user.id])
+            await mod.execute('locate_user', [
+                user.email,
+                user.username || user.id,
+            ])
         ).map((i) => new MapLocation(i));
         locations.sort(
             (a, b) =>
