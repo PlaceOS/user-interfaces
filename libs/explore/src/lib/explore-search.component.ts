@@ -113,7 +113,7 @@ export class ExploreSearchComponent extends BaseClass {
     public checkClick(event) {
         if (!this._el?.nativeElement?.contains(event.target)) {
             this.show = false;
-            this._input_el.nativeElement.blur();
+            this._input_el?.nativeElement?.blur();
         }
     }
 
