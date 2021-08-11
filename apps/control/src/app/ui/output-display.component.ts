@@ -44,17 +44,17 @@ const ICON_MAP = {
                 </p>
             </div>
             <div class="flex items-center space-x-2 w-full">
-                <button mat-icon-button (click)="mute = !mute">
+                <button mat-icon-button (click)="mute = !item.mute">
                     <app-icon>{{
-                        mute
+                        item.mute
                             ? 'volume_off'
-                            : volume > 0
+                            : item.volume > 0
                             ? 'volume_up'
                             : 'volume_mute'
                     }}</app-icon>
                 </button>
                 <mat-slider
-                    [ngModel]="!mute ? volume : 0"
+                    [ngModel]="!mute ? item.volume : 0"
                     (ngModelChange)="volume = $event; mute = false"
                     class="flex-1"
                 ></mat-slider>

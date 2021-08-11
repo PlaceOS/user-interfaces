@@ -18,6 +18,7 @@ export interface RoomInput {
     name: string;
     type: string;
     mod: string;
+    volume: number;
     mute: boolean;
     locked: boolean;
     routes: string[];
@@ -31,6 +32,7 @@ export interface RoomOutput {
     type: string;
     mod: string;
     mute: boolean;
+    volume: number;
     locked: boolean;
     source: string;
     inputs: string[];
@@ -201,6 +203,10 @@ export class ControlStateService extends BaseClass {
             list.splice(index, 1, { id, ...data });
         } else {
             list.push({ id, ...data });
+        }
+        if (type === 'output') {
+            this._volume.next(list[0].volume || 0);
+            this._mute.next(!!list[0].mute);
         }
         list_observer.next(list);
     }
