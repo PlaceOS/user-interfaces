@@ -188,6 +188,9 @@ export class InteractiveMapComponent
                             provide: MAP_FEATURE_DATA,
                             useValue: {
                                 ...f.data,
+                                ratio$: this._on_changes.pipe(
+                                    map((_) => _.ratio)
+                                ),
                                 zoom: this._on_changes.pipe(map((_) => _.zoom)),
                                 position: this._on_changes.pipe(
                                     map((_) => _.center)

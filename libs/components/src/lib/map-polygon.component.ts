@@ -13,20 +13,25 @@ export interface MapPolygonData {
     /**  */
     ratio?: number;
 
+    ratio$?: Observable<number>;
+
     data$?: Observable<MapPolygonData>;
 }
 
 @Component({
     selector: '[map-polygon]',
     template: `
-        <div polygon class="absolute w-full h-full center">
+        <div
+            polygon
+            class="absolute w-full h-full transform -translate-x-1/2 -translate-y-1/2"
+        >
             <svg
                 [attr.viewBox]="
                     '0 0 ' + width + padding + ' ' + height + padding
                 "
                 [style.width]="width * (100 / scale) + '%'"
                 [style.height]="height * (100 / scale) + '%'"
-                class="center top-1/2 left-1/2"
+                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full"
             >
                 <polygon
                     [attr.points]="points"
@@ -44,7 +49,7 @@ export interface MapPolygonData {
             </svg>
             <div
                 text
-                class="center top-1/2 left-1/2 text-shadow text-white text-xl text-center whitespace-pre-line"
+                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-shadow text-white text-xl text-center whitespace-pre-line"
             >
                 {{ name }}
             </div>
@@ -57,16 +62,6 @@ export interface MapPolygonData {
             }
             circle {
                 stroke-width: 2;
-            }
-
-            svg {
-                width: 100%;
-                height: 100%;
-            }
-
-            .center {
-                position: absolute;
-                transform: translate(-50%, -50%);
             }
 
             [text] {
@@ -114,6 +109,15 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
                     this.fill = `${_.color || '#e53935'}88`;
                     this.stroke = _.color || '#e53935';
                     this.processPoints(_.points);
+                })
+            );
+        }
+        if (this._details.ratio$) {
+            this.subscription(
+                'ratio',
+                this._details.ratio$.subscribe((_) => {
+                    this._details.ratio = _;
+                    this.processPoints(this._details.points);
                 })
             );
         }
