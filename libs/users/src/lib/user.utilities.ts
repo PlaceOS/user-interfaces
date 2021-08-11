@@ -87,7 +87,10 @@ export function generateUserForm(user: User): FormGroup {
             user.organisation || '',
             Validators.required
         ),
-        phone: new FormControl(user.phone || ''),
+        phone: new FormControl(
+            user.phone || '',
+            Validators.pattern(/[+\-()0-9]{1,24}/g)
+        ),
         assistance_required: new FormControl(user.assistance_required || false),
         visit_expected: new FormControl(user.visit_expected ?? true),
     };
