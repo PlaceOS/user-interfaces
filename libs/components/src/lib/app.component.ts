@@ -109,7 +109,7 @@ export class AppComponent extends BaseClass implements OnInit {
         /** Wait for authentication details to load */
         await setupPlace(settings).catch(() => this.onInitError());
         setupCache(this._cache);
-        this.timeout('wait_for_user', () => this.onInitError(), 15 * 1000);
+        this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
         setDefaultCreator(currentUser());
