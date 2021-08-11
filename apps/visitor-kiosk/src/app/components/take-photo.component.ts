@@ -10,7 +10,10 @@ import {
 @Component({
     selector: 'a-take-photo',
     template: `
-        <div name="camera" class="flex flex-col items-center justify-center rounded overflow-hidden relative">
+        <div
+            name="camera"
+            class="flex flex-col items-center justify-center rounded overflow-hidden relative"
+        >
             <mat-spinner diameter="32"></mat-spinner>
             <div class="text">Please wait...</div>
             <video
@@ -30,7 +33,12 @@ import {
             ></canvas>
         </div>
         <div class="flex items-center justify-center mt-4 space-x-2">
-            <button class="take-photo" *ngIf="!hasPhoto; else accept_state" mat-button (click)="takePhoto()">
+            <button
+                class="take-photo"
+                *ngIf="!hasPhoto; else accept_state"
+                mat-button
+                (click)="takePhoto()"
+            >
                 Take Photo
             </button>
         </div>
@@ -38,9 +46,7 @@ import {
             <button class="inverse" mat-button (click)="cancelPhoto()">
                 Cancel
             </button>
-            <button mat-button (click)="acceptPhoto()">
-                Accept
-            </button>
+            <button mat-button (click)="acceptPhoto()">Accept</button>
         </ng-template>
     `,
     styles: [
@@ -51,7 +57,7 @@ import {
                 align-items: center;
             }
 
-            [name="camera"] {
+            [name='camera'] {
                 width: 22.5rem;
                 height: 25rem;
             }
@@ -65,8 +71,8 @@ import {
 export class TakePhotoComponent implements OnInit, OnDestroy {
     @Output() public photoAccepted = new EventEmitter();
     @HostBinding('class.has-photo') public hasPhoto = false;
-    public video: any;
-    public canvas: any;
+    public video: HTMLVideoElement;
+    public canvas: HTMLCanvasElement;
     private canvasContext = null;
 
     private constraints = {
@@ -78,8 +84,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
     };
 
     public imgSrc = null;
-
-    constructor() {}
 
     public ngOnInit() {
         setTimeout(() => this.getCanvasContext(), 500);
@@ -110,8 +114,8 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
 
     private stopCapture() {
         console.log('TakePhotoComponent::stopCapture');
-        if (this.video && this.video.srcObject) {
-            this.video.srcObject
+        if (this.video?.srcObject) {
+            (this.video.srcObject as any)
                 .getVideoTracks()
                 .forEach((track) => track.stop());
         }

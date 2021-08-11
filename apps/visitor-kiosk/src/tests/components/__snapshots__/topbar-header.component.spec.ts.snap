@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TopbarHeaderComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="flex items-center justify-between bg-secondary shadow"
+  >
+    <a
+      class="h-full flex flex-col justify-center px-4"
+      mat-button=""
+    >
+      <img
+        class="h-10 my-2"
+        src="assets/logo-dark.svg"
+      />
+    </a>
+    <div
+      class="ml-auto h-full flex flex-col justify-center text-white px-4"
+    >
+       Wednesday, August 11th, 3:47PM 
+    </div>
+  </div>
+</div>
+`;
