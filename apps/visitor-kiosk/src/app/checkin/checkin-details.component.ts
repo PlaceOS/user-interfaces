@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
@@ -74,7 +74,7 @@ import { CheckinStateService } from './checkin-state.service';
                     />
                 </mat-form-field>
             </div>
-            <button mat-button (click)="updateGuest()">Next</button>
+            <button next mat-button (click)="updateGuest()">Next</button>
             <a
                 mat-icon-button
                 class="absolute top-0 right-0"
@@ -123,7 +123,7 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
 })
-export class CheckinDetailsComponent {
+export class CheckinDetailsComponent implements OnInit {
     public readonly form = this._checkin.form;
 
     public loading = false;
