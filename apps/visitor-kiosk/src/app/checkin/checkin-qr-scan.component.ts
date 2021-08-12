@@ -131,7 +131,7 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     }
 
     private setupQRReader() {
-        if (navigator.mediaDevices.getUserMedia) {
+        if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices
                 .getUserMedia({ video: true })
                 .then(
@@ -142,6 +142,7 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
                     console.error('Unable to fetch media devices!', e)
                 );
         }
+        if (!QrScanner) return;
         this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
             this.checkQRCode(r)
         );

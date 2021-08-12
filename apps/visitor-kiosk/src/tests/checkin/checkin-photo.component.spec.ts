@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -7,8 +7,8 @@ import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 import { TakePhotoComponent } from '../../app/components/take-photo.component';
 
 describe('CheckinPhotoComponent', () => {
-    let spectator: Spectator<CheckinPhotoComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<CheckinPhotoComponent>;
+    const createComponent = createRoutingFactory({
         component: CheckinPhotoComponent,
         providers: [
             {

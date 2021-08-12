@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CheckinPhotoComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center p-4"
+  >
+    <h3
+      class="text-xl mb-4"
+    >
+      Take a photo to continue
+    </h3>
+    <a-take-photo />
+    <a
+      class="absolute top-0 right-0"
+      mat-icon-button=""
+    >
+      <app-icon>
+        close
+      </app-icon>
+    </a>
+  </div>
+  
+  
+</div>
+`;
