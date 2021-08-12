@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { updateMetadata } from '@placeos/ts-client';
 import { HashMap, notifyError } from '@placeos/common';
-import {
-    CalendarEvent,
-    checkinEventGuest,
-    showEvent,
-} from '@placeos/events';
+import { CalendarEvent, checkinEventGuest, showEvent } from '@placeos/events';
 import {
     GuestUser,
     generateGuestForm,
@@ -82,7 +78,7 @@ export class CheckinStateService {
         await updateMetadata(guest.email, {
             name: 'preferences',
             details: { ...guest, ...form.value, ...(data || {}) },
-        });
+        }).toPromise();
     }
 
     public async checkinGuest() {
@@ -91,7 +87,7 @@ export class CheckinStateService {
         if (!guest || !event) return;
         await checkinEventGuest(event.id, guest.email, true, {
             system_id: event.system?.id || event.resources[0]?.id,
-        });
+        }).toPromise();
     }
 
     public printPass() {
