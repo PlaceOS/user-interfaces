@@ -1,4 +1,5 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
+import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -44,7 +45,7 @@ const ICON_MAP = {
                 </p>
             </div>
             <div class="flex items-center space-x-2 w-full">
-                <button mat-icon-button (click)="mute = !item.mute">
+                <button mat-icon-button (click)="setMute(!item.mute)">
                     <app-icon>{{
                         item.mute
                             ? 'volume_off'
@@ -55,28 +56,10 @@ const ICON_MAP = {
                 </button>
                 <mat-slider
                     [ngModel]="!mute ? item.volume : 0"
-                    (ngModelChange)="volume = $event; mute = false"
+                    (ngModelChange)="setVolume($event)"
                     class="flex-1"
                 ></mat-slider>
             </div>
-        </div>
-        <div *ngIf="item?.mod">
-            <i
-                binding
-                [sys]="id"
-                [mod]="item.mod"
-                bind="volume"
-                exec="volume"
-                [(model)]="volume"
-            ></i>
-            <i
-                binding
-                [sys]="id"
-                [mod]="item.mod"
-                bind="mute"
-                exec="mute"
-                [(model)]="mute"
-            ></i>
         </div>
     `,
     styles: [
@@ -87,7 +70,7 @@ const ICON_MAP = {
         `,
     ],
 })
-export class OutputDisplayComponent {
+export class OutputDisplayComponent extends BaseClass {
     @Input() public item: RoomOutput;
     /** Current volume level for output */
     public volume: number;
@@ -104,12 +87,17 @@ export class OutputDisplayComponent {
     public readonly icons = ICON_MAP;
 
     public readonly switchSource = () => this._state.switchSource(this.item.id);
+    public readonly setVolume = (v) =>
+        this.timeout('volume', () => this._state.setVolume(v, this.item.id));
+    public readonly setMute = (s) => this._state.setMute(s, this.item.id);
 
     public get id(): string {
         return this._state.id;
     }
 
-    constructor(private _state: ControlStateService) {}
+    constructor(private _state: ControlStateService) {
+        super();
+    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item) {

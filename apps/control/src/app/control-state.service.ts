@@ -135,15 +135,37 @@ export class ControlStateService extends BaseClass {
     }
 
     public setMute(state: boolean = true, source: string = '') {
+        const outputs = this._output_data.getValue();
         if (!source) {
             this._mute.next(state);
+            source = outputs[0]?.id || '';
+        }
+        if (source) {
+            const data = outputs.find((_) => _.id === source);
+            if (data) {
+                this.updateSourceData('output', data.id, {
+                    ...data,
+                    mute: state,
+                });
+            }
         }
         return this.execute('mute', source ? [state, source] : [state]);
     }
 
     public setVolume(value: number = 0, source: string = '') {
+        const outputs = this._output_data.getValue();
         if (!source) {
             this._volume.next(value);
+            source = outputs[0]?.id || '';
+        }
+        if (source) {
+            const data = outputs.find((_) => _.id === source);
+            if (data) {
+                this.updateSourceData('output', data.id, {
+                    ...data,
+                    volume: value,
+                });
+            }
         }
         return this.execute('volume', source ? [value, source] : [value]);
     }
@@ -208,6 +230,7 @@ export class ControlStateService extends BaseClass {
             this._volume.next(list[0].volume || 0);
             this._mute.next(!!list[0].mute);
         }
+        console.log('Update Source Data:', type, id, data);
         list_observer.next(list);
     }
 
