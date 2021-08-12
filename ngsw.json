@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1628740773605,
+  "timestamp": 1628742626452,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -95,7 +95,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "b955e26a6c09f0a9380e9f7dde595b43aa845876",
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "5f6d079a417ce12e03aef078cafa4b2cf3125ea2",
     "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "a948ae5337d9cbb4bfa3d5d6ff762cbda1a60f98",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
@@ -154,7 +154,7 @@
     "./default-libs_events_src_index_ts-libs_form-fields_src_index_ts.js": "1129c0eec1356cee65e7a0cf3890105d34b966a7",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "622dfe3be42ac53156bea1ed7ac60f2d306ab2d8",
-    "./main.js": "df1353ae06302aa2ca075a91e3b4137c97c6b657",
+    "./main.js": "3d38956b88ccf9de940030c0abffd22cadbff949",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
