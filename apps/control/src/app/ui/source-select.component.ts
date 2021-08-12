@@ -14,14 +14,20 @@ import { ControlStateService, RoomInput } from '../control-state.service';
 @Component({
     selector: 'source-select',
     template: `
-        <div class="flex flex-col items-center text-black p-4">
+        <div
+            class="flex flex-col items-center text-black"
+            [class.p-2]="simple"
+            [class.p-4]="!simple"
+        >
             <h3 class="font-medium text-xl mb-2">
                 Select input source for
                 {{ (details | async)?.name || '= No Name =' }}
             </h3>
             <ng-container *ngIf="!loading; else load_state">
                 <div
-                    class="flex flex-wrap divide divide-gray-200"
+                    class="flex divide"
+                    [class.flex-col]="simple"
+                    [class.flex-wrap]="!simple"
                     *ngIf="(input_types | async)?.length; else empty_state"
                 >
                     <div
@@ -63,9 +69,11 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                 <p>Switching input source...</p>
             </div>
         </ng-template>
-    `
+    `,
 })
 export class SourceSelectComponent implements OnChanges {
+    // Whether to use the simple display
+    @Input() public simple = false;
     // ID of the selected output
     @Input() public output: string;
     /** Emitter for changes to the selected input source */

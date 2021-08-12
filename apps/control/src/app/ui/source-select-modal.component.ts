@@ -8,19 +8,35 @@ export class SourceSelectModalData {
 @Component({
     selector: 'source-select-modal',
     template: `
-        <div class="fixed inset-0 bg-white flex flex-col items-center py-16 px-8">
-            <source-select [output]="output" (source)="close()"></source-select>
+        <div
+            class="bg-white flex flex-col items-center py-16 px-8 overflow-auto"
+            [style.max-height]="simple ? '80vh' : ''"
+            [class.fixed]="!simple"
+            [class.inset-0]="!simple"
+            [class.relative]="simple"
+            [class.rounded]="simple"
+        >
+            <source-select
+                [simple]="simple"
+                [output]="output"
+                (source)="close()"
+            ></source-select>
             <button
                 mat-icon-button
                 mat-dialog-close
-                class="absolute top-8 right-8"
+                class="absolute"
+                [class.top-8]="!simple"
+                [class.right-8]="!simple"
+                [class.top-2]="simple"
+                [class.right-2]="simple"
             >
                 <app-icon>close</app-icon>
             </button>
         </div>
-    `
+    `,
 })
 export class SourceSelectModalComponent {
+    public simple = false;
     public readonly output = this._data.output;
 
     constructor(
