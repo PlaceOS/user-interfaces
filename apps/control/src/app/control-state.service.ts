@@ -121,12 +121,12 @@ export class ControlStateService extends BaseClass {
 
     /** Power on the active system */
     public powerOn() {
-        return this.execute('powerup');
+        return this.execute('power', [true]);
     }
 
     /** Power off the active system */
     public powerOff() {
-        return this.execute('shutdown');
+        return this.execute('power', [false]);
     }
 
     /** Route input source to output */
@@ -189,7 +189,7 @@ export class ControlStateService extends BaseClass {
     private bindToState(id: string) {
         if (!id) return;
         this.bindTo(id, 'name');
-        this.bindTo(id, 'active');
+        this.bindTo(id, 'power');
         this.bindTo(id, 'connected');
         this.bindTo(id, 'recording');
         this.bindTo(id, 'has_zoom');

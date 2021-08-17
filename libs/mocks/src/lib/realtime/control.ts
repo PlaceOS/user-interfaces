@@ -34,7 +34,7 @@ export interface RoomOutput {
 class RoomModule {
     public readonly name: string;
     public readonly connected: boolean;
-    public active: boolean;
+    public power: boolean;
 
     public readonly input_list: HashMap<RoomInput>;
     public readonly output_list: HashMap<RoomOutput>;
@@ -49,7 +49,7 @@ class RoomModule {
     constructor(_data: Partial<RoomModule>) {
         this.name = _data.name || 'Test Module';
         this.connected = _data.connected ?? true;
-        this.active = _data.active || false;
+        this.power = _data.power || false;
         this.input_list = _data.input_list;
         this.output_list = _data.output_list;
         this.env_sources = _data.env_sources || [];
@@ -73,17 +73,9 @@ class RoomModule {
         );
     }
 
-    $powerup() {
-        console.log('Power On');
-        this.active = true;
-    }
-    /**
-     * Power off the space. End any active calls, disconnect signal routes, place
-     * powerable devices into standby and return environmental configuration to
-     * sensible defaults.
-     **/
-    $shutdown() {
-        this.active = false;
+    $power(state = true) {
+        console.log('Power:', state);
+        this.power = state;
     }
     /** Shares a signal source with the room and any connected remote participants. */
     $share() {}
