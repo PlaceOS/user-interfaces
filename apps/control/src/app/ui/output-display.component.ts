@@ -82,7 +82,7 @@ export class OutputDisplayComponent extends BaseClass {
     public readonly input = combineLatest([
         this._input,
         this._state.input_list,
-    ]).pipe(map(([id, list]) => list.find((_) => _.id === id)));
+    ]).pipe(map(([id, list]) => list.find((_) => _.id === id || _.ref === id)));
 
     public readonly icons = ICON_MAP;
 

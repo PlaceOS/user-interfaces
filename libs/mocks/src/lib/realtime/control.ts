@@ -10,6 +10,7 @@ export interface EnvironmentSource {
 
 export interface RoomInput {
     id?: string;
+    ref: string;
     name: string;
     type: string;
     mod: string;
@@ -21,6 +22,7 @@ export interface RoomInput {
 
 export interface RoomOutput {
     id?: string;
+    ref: string;
     name: string;
     type: string;
     mod: string;
