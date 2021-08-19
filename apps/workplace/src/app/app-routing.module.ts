@@ -2,9 +2,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {
     AuthorisedUserGuard,
-    MisconfiguredComponent, UnauthorisedComponent
+    MisconfiguredComponent,
+    UnauthorisedComponent,
 } from '@placeos/components';
-
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -53,7 +53,9 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
-            import('./schedule/schedule.module').then((m) => m.AppScheduleModule),
+            import('./schedule/schedule.module').then(
+                (m) => m.AppScheduleModule
+            ),
     },
     {
         path: 'help',
@@ -61,6 +63,13 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./help/help.module').then((m) => m.HelpModule),
+    },
+    {
+        path: 'whats-on',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./whats-on/whats-on.module').then((m) => m.WhatsOnModule),
     },
     { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];

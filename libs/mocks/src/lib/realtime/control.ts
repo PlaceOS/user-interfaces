@@ -36,7 +36,7 @@ export interface RoomOutput {
 class RoomModule {
     public readonly name: string;
     public readonly connected: boolean;
-    public power: boolean;
+    public active: boolean;
 
     public readonly input_list: HashMap<RoomInput>;
     public readonly output_list: HashMap<RoomOutput>;
@@ -51,7 +51,7 @@ class RoomModule {
     constructor(_data: Partial<RoomModule>) {
         this.name = _data.name || 'Test Module';
         this.connected = _data.connected ?? true;
-        this.power = _data.power || false;
+        this.active = _data.active || false;
         this.input_list = _data.input_list;
         this.output_list = _data.output_list;
         this.env_sources = _data.env_sources || [];
@@ -77,7 +77,7 @@ class RoomModule {
 
     $power(state = true) {
         console.log('Power:', state);
-        this.power = state;
+        this.active = state;
     }
     /** Shares a signal source with the room and any connected remote participants. */
     $share() {}

@@ -67,6 +67,14 @@ const general: any = {
                 content: 'date_range',
             },
         },
+        {
+            name: "What's On",
+            route: '/whats-on',
+            icon: {
+                class: 'material-icons',
+                content: 'celebration',
+            },
+        },
         // {
         //     name: 'Wellness',
         //     route: '/schedule',
