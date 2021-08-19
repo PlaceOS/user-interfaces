@@ -1,4 +1,10 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    HostListener,
+    Input,
+    ViewChild,
+} from '@angular/core';
 import { CalendarEvent } from '@placeos/events';
 
 const CARD_WIDTH = 60 * 4;
@@ -20,6 +26,7 @@ const CARD_WIDTH = 60 * 4;
                     card
                     *ngFor="let event of events; let i = index"
                     [style.min-width]="'calc(' + 100 / cards + '% - .45rem)'"
+                    [style.max-width]="'calc(' + 100 / cards + '% - .45rem)'"
                     [style.opacity]="i >= index && i < index + cards ? 1 : 0"
                     [style.transform]="
                         'translateX(calc(-' +
@@ -120,6 +127,10 @@ export class WhatsOnEventListComponent {
 
     @ViewChild('container', { static: true })
     private _el: ElementRef<HTMLDivElement>;
+
+    @HostListener('window:resize') public onResize() {
+        this.index = 0;
+    }
 
     public get cards() {
         return Math.floor(this._el.nativeElement.clientWidth / CARD_WIDTH) || 1;
