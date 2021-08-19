@@ -10,7 +10,7 @@ import { ControlStateService } from './control-state.service';
     template: `
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
-                *ngIf="(system | async).power; else power_off_state"
+                *ngIf="(system | async).active; else power_off_state"
                 class="absolute inset-0 flex flex-col"
             >
                 <topbar-header></topbar-header>

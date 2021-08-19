@@ -191,7 +191,7 @@ export class ControlStateService extends BaseClass {
     private bindToState(id: string) {
         if (!id) return;
         this.bindTo(id, 'name');
-        this.bindTo(id, 'power');
+        this.bindTo(id, 'active');
         this.bindTo(id, 'connected');
         this.bindTo(id, 'recording');
         this.bindTo(id, 'has_zoom');
