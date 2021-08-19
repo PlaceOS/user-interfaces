@@ -80,6 +80,37 @@ function registerMocks() {
                 const id = parts[parts.length - 1];
                 return generateMockDeskMetadata(id);
             }
+            if (request.query_params.name === 'map_regions') {
+                return {
+                    map_regions: {
+                        details: {
+                            areas: [
+                                {
+                                    id: 'zone-10.A',
+                                    properties: {
+                                        capacity: 100,
+                                        label_location: { x: 0.36, y: 0.33 },
+                                    },
+                                },
+                                {
+                                    id: 'zone-10.B',
+                                    properties: {
+                                        capacity: 100,
+                                        label_location: { x: 0.76, y: 0.33 },
+                                    },
+                                },
+                                {
+                                    id: 'zone-10.C',
+                                    properties: {
+                                        capacity: 100,
+                                        label_location: { x: 0.63, y: 0.77 },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                };
+            }
             if (
                 MOCK_METADATA[request.route_params.id] &&
                 MOCK_METADATA[request.route_params.id][

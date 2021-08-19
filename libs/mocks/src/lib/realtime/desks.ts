@@ -1,5 +1,5 @@
 import { Md5 } from 'ts-md5';
-import { HashMap, predictableRandomInt } from '@placeos/common';
+import { HashMap, predictableRandomInt, randomInt } from '@placeos/common';
 import { MOCK_LEVELS } from '../api/zone.data';
 import { MOCK_STAFF } from '../api/users.data';
 
@@ -55,6 +55,25 @@ export function createLocationServicesModule(
             .fill(0)
             .map((_, idx) => `table-${lvl.number}.${padZero(idx)}`);
         mod[`${lvl.id}`] = { value: [] };
+        mod[`${lvl.id}:areas`] = {
+            value: [
+                {
+                    area_id: 'zone-10.B',
+                    count: predictableRandomInt(100),
+                    name: '.L1 IFS IT',
+                },
+                {
+                    area_id: 'zone-10.A',
+                    count: predictableRandomInt(100),
+                    name: '.L1 IFS IT',
+                },
+                {
+                    area_id: 'zone-10.C',
+                    count: predictableRandomInt(50),
+                    name: '.L1 IFS IT',
+                },
+            ],
+        };
     }
     updateLocations(mod, MOCK_LEVELS);
     setInterval(() => updateLocations(mod, MOCK_LEVELS), 60 * 1000);
@@ -85,9 +104,7 @@ export function generateLocation(
               location: 'desk',
               at_location: predictableRandomInt(9999) % 5 !== 0,
               map_id: desks[predictableRandomInt(desks.length)],
-              mac: Md5.hashStr(
-                  users[predictableRandomInt(users.length)].email
-              ),
+              mac: Md5.hashStr(users[predictableRandomInt(users.length)].email),
               level: lvl.id,
               building: lvl.parent_id,
           }
@@ -99,9 +116,7 @@ export function generateLocation(
               lon: 55.27476066828535,
               lat: 25.20106100633537,
               s2_cell_id: '3e5f4281459c',
-              mac: Md5.hashStr(
-                  users[predictableRandomInt(users.length)].email
-              ),
+              mac: Md5.hashStr(users[predictableRandomInt(users.length)].email),
               variance: 9.62534032222287,
               last_seen: Math.floor(new Date().valueOf() / 1000),
               map_width: 100,
