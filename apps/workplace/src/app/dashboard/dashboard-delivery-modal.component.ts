@@ -33,6 +33,29 @@ import { DialogEvent } from '@placeos/common';
                     ></textarea>
                 </mat-form-field>
             </div>
+            <div>
+                <label>Sender:</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        placeholder="Name of sender"
+                        formControlName="sender"
+                    />
+                    <mat-error>Sender is required</mat-error>
+                </mat-form-field>
+            </div>
+            <div>
+                <label>Priority:</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-select placeholder="Low" formControlName="priority">
+                        <mat-option>Very Low</mat-option>
+                        <mat-option>Low</mat-option>
+                        <mat-option>Normal</mat-option>
+                        <mat-option>High</mat-option>
+                        <mat-option>Very Height</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
         </main>
         <footer
             class="p-2 flex items-center justify-center border-t border-gray-100"
@@ -50,6 +73,8 @@ export class DashboardDeliveryModalComponent {
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
         description: new FormControl(''),
+        sender: new FormControl(''),
+        priority: new FormControl(''),
     });
 
     public register() {
