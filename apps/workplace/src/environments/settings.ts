@@ -256,6 +256,7 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
+    can_deliver: true,
     general,
     help,
     booking,

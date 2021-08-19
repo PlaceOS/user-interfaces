@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 
 import { DashboardStateService } from './dashboard-state.service';
 
@@ -95,6 +95,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 </div>
             </button>
         </mat-menu>
+        <dashboard-deliveries *ngIf="can_deliver"></dashboard-deliveries>
     `,
     styles: [
         `
@@ -159,7 +160,14 @@ export class DashboardContactsComponent extends BaseClass {
 
     @ViewChild('input') private _input_el: ElementRef;
 
-    constructor(private _state: DashboardStateService) {
+    public get can_deliver() {
+        return !!this._settings.get('app.can_deliver');
+    }
+
+    constructor(
+        private _state: DashboardStateService,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
