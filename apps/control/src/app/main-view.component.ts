@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseClass } from '@placeos/common';
@@ -46,7 +46,7 @@ import { ControlStateService } from './control-state.service';
     styles: [
         `
             :host > div {
-                background-color: #000051;
+                background-color: var(--secondary);
                 color: #fff;
             }
 
@@ -61,7 +61,7 @@ import { ControlStateService } from './control-state.service';
         `,
     ],
 })
-export class ControlMainViewComponent extends BaseClass {
+export class ControlMainViewComponent extends BaseClass implements OnInit {
     public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();

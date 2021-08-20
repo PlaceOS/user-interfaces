@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
-import { distinct, map, shareReplay } from 'rxjs/operators';
-import { BehaviorSubject } from 'rxjs';
+import { distinct, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 
-import { BaseClass, HashMap } from '@placeos/common';
+import { BaseClass, currentUser, HashMap } from '@placeos/common';
+import { Calendar, CalendarService } from '@placeos/calendar';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { endOfDay, getUnixTime } from 'date-fns';
+import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 
 export interface EnvironmentSource {
     name: string;
@@ -63,6 +67,8 @@ export class ControlStateService extends BaseClass {
     private _lights = new BehaviorSubject<string[]>([]);
     private _blinds = new BehaviorSubject<string[]>([]);
     private _screens = new BehaviorSubject<string[]>([]);
+    private _url = new BehaviorSubject<string>('');
+    private _calendar = new BehaviorSubject<Calendar>(null);
 
     /** General data associated with the active system */
     public readonly system = this._system.asObservable();
@@ -76,6 +82,7 @@ export class ControlStateService extends BaseClass {
         map((_) => _.filter((_) => !_.hidden)),
         shareReplay(1)
     );
+    public readonly calendar = this._calendar.asObservable();
     /** List of available light sources */
     public readonly lights = this._lights.asObservable();
     /** List of available blind sources */
@@ -106,11 +113,29 @@ export class ControlStateService extends BaseClass {
         )
     );
 
+    public readonly calendars = this._cal.calendar_list;
+
+    public readonly events = combineLatest([this._url, this._calendar]).pipe(
+        switchMap(([url, cal]) => {
+            if (!cal || !url) return of([] as CalendarEvent[]);
+            return queryEvents({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                calendars: cal.id,
+            });
+        }),
+        map((list) => {
+            const url = this._url.getValue();
+            return list.filter((_) => _.meeting_url.startsWith(url));
+        }),
+        shareReplay(1)
+    );
+
     public get id() {
         return this._id.getValue();
     }
 
-    constructor(private _dialog: MatDialog) {
+    constructor(private _dialog: MatDialog, private _cal: CalendarService) {
         super();
         this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
         this._inputs.subscribe((_) => this.bindSources('input', _ || []));
@@ -123,17 +148,38 @@ export class ControlStateService extends BaseClass {
 
     /** Power on the active system */
     public powerOn() {
-        return this.execute('power', [true]);
+        return this._execute('power', [true]);
     }
 
     /** Power off the active system */
     public powerOff() {
-        return this.execute('power', [false]);
+        return this._execute('power', [false]);
+    }
+
+    /** Set the active calendar */
+    public setCalendar(cal: Calendar) {
+        this._calendar.next(cal);
     }
 
     /** Route input source to output */
     public setRoute(input: string, output: string) {
-        return this.execute('route', [input, output]);
+        return this._execute('route', [input, output]);
+    }
+
+    /** Update the econtrol meeting */
+    public setEvent(event: CalendarEvent) {
+        return this._execute(
+            'econtrol',
+            [
+                currentUser().name,
+                event.meeting_url,
+                event.meeting_id,
+                event.meeting_provider,
+                event.event_start,
+                event.event_end,
+            ],
+            'MeetingPush'
+        );
     }
 
     public setMute(state: boolean = true, source: string = '') {
@@ -151,7 +197,7 @@ export class ControlStateService extends BaseClass {
                 });
             }
         }
-        return this.execute('mute', source ? [state, source] : [state]);
+        return this._execute('mute', source ? [state, source] : [state]);
     }
 
     public setVolume(value: number = 0, source: string = '') {
@@ -169,10 +215,11 @@ export class ControlStateService extends BaseClass {
                 });
             }
         }
-        return this.execute('volume', source ? [value, source] : [value]);
+        return this._execute('volume', source ? [value, source] : [value]);
     }
 
-    private execute(
+    /** Execute driver method */
+    private _execute(
         name: string,
         params: any[] = [],
         mod_name: string = 'System'
@@ -182,14 +229,28 @@ export class ControlStateService extends BaseClass {
         return mod.execute(name, params);
     }
 
+    /** Open switch source modal */
     public switchSource(output: string) {
         this._dialog.open(SourceSelectModalComponent, {
             data: { output },
         });
     }
 
+    /** Open select meeting modal */
+    public async selectMeeting(input?: string) {
+        const cals = await this.calendars.pipe(take(1)).toPromise();
+        if (cals?.length) this.setCalendar(cals[0]);
+        this._dialog.open(SelectMeetingModalComponent, {
+            data: { input },
+        });
+    }
+
     private bindToState(id: string) {
         if (!id) return;
+        this.bindTo(id, 'supported_meeting_url', 'MeetingPush', (u) => {
+            this.updateProperty('meeting_url', u);
+            this._url.next(u);
+        });
         this.bindTo(id, 'name');
         this.bindTo(id, 'active');
         this.bindTo(id, 'connected');
@@ -221,7 +282,7 @@ export class ControlStateService extends BaseClass {
     ) {
         const list_observer =
             type === 'input' ? this._input_data : this._output_data;
-        const list: any[] = [...list_observer.getValue()];
+        let list: any[] = [...list_observer.getValue()];
         const index = list.findIndex((item) => item.id === id);
         if (index >= 0) {
             list.splice(index, 1, { id, ...data });
@@ -232,7 +293,6 @@ export class ControlStateService extends BaseClass {
             this._volume.next(list[0].volume || 0);
             this._mute.next(!!list[0].mute);
         }
-        console.log('Update Source Data:', type, id, data);
         list_observer.next(list);
     }
 
