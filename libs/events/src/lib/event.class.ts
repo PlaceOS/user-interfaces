@@ -63,6 +63,12 @@ export class CalendarEvent {
     public readonly timezone: string;
     /** Location details for the event */
     public readonly location: string;
+    /** URL of the associated meeting */
+    public readonly meeting_url: string;
+    /** URL of the associated meeting */
+    public readonly meeting_id: string;
+    /** URL of the associated meeting */
+    public readonly meeting_provider: string;
     /** Whether this event is recurring */
     public readonly recurring: boolean;
     /** Details about the event's recurrence */
@@ -139,6 +145,10 @@ export class CalendarEvent {
               30;
         this.timezone = data.timezone || '';
         this.location = data.location || '';
+        this.meeting_url = data.meeting_url || data.online_meeting_url || '';
+        this.meeting_id = data.meeting_id || data.online_meeting_id || '';
+        this.meeting_provider =
+            data.meeting_provider || data.online_meeting_provider || '';
         this.recurring = !!data.recurring;
         this.recurring_master_id = data.recurring_master_id || '';
         this.organiser = this.attendees.find(

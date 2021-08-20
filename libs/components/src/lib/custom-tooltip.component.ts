@@ -104,6 +104,7 @@ export class CustomTooltipComponent<T = any>
     }
 
     public open() {
+        if (!this.content) return;
         this._updateType();
         if (this._overlay_ref) this.close();
         if (!this._portal) return;

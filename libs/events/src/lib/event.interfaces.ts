@@ -33,6 +33,12 @@ export interface EventExtensionData {
     remote?: string[];
     /** URL to a meeting/call associated with the booking */
     meeting_link: string;
+    /** URL to a meeting/call associated with the booking */
+    online_meeting_url: string;
+    /** URL to a meeting/call associated with the booking */
+    online_meeting_id: string;
+    /** URL to a meeting/call associated with the booking */
+    online_meeting_provider: string;
 }
 
 export interface RecurrenceDetails {
