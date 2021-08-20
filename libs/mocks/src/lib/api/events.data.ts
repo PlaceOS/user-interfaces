@@ -39,6 +39,8 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
     attendees = unique(attendees, 'email');
     const event_start = nextEventTime(true);
     const event_end = nextEventTime();
+    const meeting_url =
+        predictableRandomInt(9999) % 3 === 0 ? 'https://meet.place.tech' : '';
     return {
         id: `cal-event-${index}`,
         status: randomStatus(),
@@ -66,6 +68,9 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
         recurrence: {},
         attachments: {},
         system: space,
+        meeting_url,
+        meeting_id: meeting_url ? `m${predictableRandomInt(9999)}` : '',
+        meeting_provider: meeting_url ? 'PlaceOS' : '',
         extension_data: {
             catering:
                 predictableRandomInt(99999) % 4 === 0

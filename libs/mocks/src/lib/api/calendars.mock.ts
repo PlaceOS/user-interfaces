@@ -3,7 +3,8 @@ import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_EVENTS } from './events.data';
 import { MOCK_SPACES } from './spaces.data';
 
-import { timePeriodsIntersect } from '@placeos/common';
+import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
+import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
 export const CALENDAR_MOCKS = registerMocks();
 
@@ -12,7 +13,41 @@ function registerMocks() {
         path: '/api/staff/v1/calendars',
         metadata: {},
         method: 'GET',
-        callback: (request) => [],
+        callback: (request) => {
+            const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
+            const user2 = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
+            const user3 = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
+            return [
+                {
+                    id: ACTIVE_USER.email,
+                    summary: ACTIVE_USER.name,
+                    primary: true,
+                    can_edit: true,
+                    hidden: false,
+                },
+                {
+                    id: user.email,
+                    summary: user.name,
+                    primary: false,
+                    can_edit: true,
+                    hidden: false,
+                },
+                {
+                    id: user2.email,
+                    summary: user2.name,
+                    primary: false,
+                    can_edit: false,
+                    hidden: false,
+                },
+                {
+                    id: user3.email,
+                    summary: user3.name,
+                    primary: false,
+                    can_edit: false,
+                    hidden: true,
+                },
+            ];
+        },
     });
 
     const handleSpaceAvailability = (request) => {
