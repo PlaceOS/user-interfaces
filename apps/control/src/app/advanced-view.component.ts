@@ -7,10 +7,11 @@ import { ControlStateService } from './control-state.service';
     selector: 'control-advanced-view',
     template: `
         <div
-            class="w-full flex-1 h-1/2 flex items-center justify-center flex-wrap"
+            class="w-full flex-1 h-1/2 flex items-center flex-col sm:flex-row sm:justify-center sm:flex-wrap overflow-auto"
             *ngIf="(outputs | async)?.length; else empty_state"
         >
             <output-display
+                class="w-full sm:w-auto min-w-[33%]"
                 *ngFor="
                     let output of outputs
                         | async
