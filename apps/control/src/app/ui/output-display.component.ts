@@ -16,7 +16,7 @@ const ICON_MAP = {
 @Component({
     selector: 'output-display',
     template: `
-        <div class="p-4 m-2 bg-white rounded shadow text-black">
+        <div class="p-4 m-2 bg-white rounded shadow text-black" *ngIf="item">
             <div
                 view
                 matRipple

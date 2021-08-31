@@ -23,7 +23,7 @@ import { PowerTooltipComponent } from './ui/power-tooltip.component';
             <ng-container *ngFor="let item of action_list">
                 <div customTooltip [content]="cmp[item.id]" *ngIf="item.show">
                     <button
-                        [attr.action-id]="item.id"
+                        [attr.type]="item.id"
                         mat-icon-button
                         (click)="item.action ? item.action() : ''"
                     >
@@ -50,7 +50,7 @@ import { PowerTooltipComponent } from './ui/power-tooltip.component';
                         item.action ? item.action() : ''
                     "
                 >
-                    <button [attr.action-id]="item.id" mat-menu-item>
+                    <button [attr.type]="item.id" mat-menu-item>
                         <div class="flex items-center text-base">
                             <app-icon class="mr-2">{{ item.icon }}</app-icon>
                             <span>{{ item.name }}</span>
@@ -104,7 +104,7 @@ export class TopbarHeaderComponent extends BaseClass {
             action: () => this.selectMeeting(),
         },
         {
-            id: 'lighting',
+            id: 'lights',
             name: 'Lighting',
             icon: 'brightness_high',
             show: true,

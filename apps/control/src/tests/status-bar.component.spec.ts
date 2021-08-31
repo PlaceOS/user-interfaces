@@ -16,7 +16,7 @@ describe('ControlStatusBarComponent', () => {
         declarations: [
             MockComponent(IconComponent),
             MockDirective(BindingDirective),
-            MockPipe(DurationPipe)
+            MockPipe(DurationPipe),
         ],
         providers: [
             {
@@ -24,11 +24,12 @@ describe('ControlStatusBarComponent', () => {
                 useValue: {
                     volume: new BehaviorSubject(0),
                     system: new BehaviorSubject({}),
+                    capture_list: new BehaviorSubject([]),
                     setVolume: jest.fn(),
                 },
             },
         ],
-        imports: [MatSliderModule, FormsModule]
+        imports: [MatSliderModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -40,13 +41,15 @@ describe('ControlStatusBarComponent', () => {
     it('should show recording details', async () => {
         expect('[recording]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ recording: true });        spectator.detectChanges();
+        (service as any).capture_list.next([{ mod: 'Capture' }]);
+        spectator.detectChanges();
         expect('[recording]').toExist();
     });
 
     it('should allow pausing and resuming recordings', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).system.next({ recording: true });        spectator.detectChanges();
+        (service as any).capture_list.next([{ mod: 'Capture' }]);
+        spectator.detectChanges();
         expect('[place-action="start"]').toExist();
         expect('[place-action="pause"]').not.toExist();
         spectator.component.rec_status = 'playing';
@@ -62,5 +65,5 @@ describe('ControlStatusBarComponent', () => {
 
     it('should allow toggling the mute state', () => {
         // TODO: Hookup mute button
-    })
+    });
 });

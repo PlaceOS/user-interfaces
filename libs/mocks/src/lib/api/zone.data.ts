@@ -66,4 +66,11 @@ export const MOCK_LEVELS = MOCK_BUILDINGS.map((bld) =>
     bld.levels.map((level, idx) =>
         mockLevel(level, idx, bld, +level.split('-')[1])
     )
-).reduce((p, c) => p.concat(c), []);
+).reduce((p, c) => p.concat(c), [
+    {
+        id: 'test',
+        parent_id: 'bld-01',
+        name: 'Test',
+        map_id: 'assets/maps/l19.svg',
+    },
+]);

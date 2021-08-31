@@ -1,3 +1,4 @@
+import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { CustomTooltipComponent, IconComponent } from '@placeos/components';
@@ -28,10 +29,11 @@ describe('TopbarHeaderComponent', () => {
                     powerOff: jest.fn(),
                 },
             },
-        ]
+        ],
+        imports: [MatMenuModule],
     });
 
-    beforeEach(() => spectator = createComponent());
+    beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -42,38 +44,42 @@ describe('TopbarHeaderComponent', () => {
     });
 
     it('should show the lights action', async () => {
-        expect('button[lights]').not.toExist();
+        expect('button[type="lights"]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).lights.next([{}]);        spectator.detectChanges();
-        expect('button[lights]').toExist();
+        (service as any).lights.next([{}]);
+        spectator.detectChanges();
+        expect('button[type="lights"]').toExist();
     });
 
     it('should show the blinds action', async () => {
-        expect('button[blinds]').not.toExist();
+        expect('button[type="blinds"]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).blinds.next([{}]);        spectator.detectChanges();
-        expect('button[blinds]').toExist();
+        (service as any).blinds.next([{}]);
+        spectator.detectChanges();
+        expect('button[type="blinds"]').toExist();
     });
 
     it('should show the mics action', async () => {
-        expect('button[mics]').not.toExist();
+        expect('button[type="mics"]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).mic_list.next([{}]);        spectator.detectChanges();
-        expect('button[mics]').toExist();
+        (service as any).mic_list.next([{}]);
+        spectator.detectChanges();
+        expect('button[type="mics"]').toExist();
     });
 
     it('should show the camera action', async () => {
-        expect('button[cameras]').not.toExist();
+        expect('button[type="camera"]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).camera_list.next([{}]);        spectator.detectChanges();
-        expect('button[cameras]').toExist();
+        (service as any).camera_list.next([{}]);
+        spectator.detectChanges();
+        expect('button[type="camera"]').toExist();
     });
 
     it('should show help action', () => {
-        expect('button[help]').toExist()
+        expect('button[type="help"]').toExist();
     });
 
     it('should show power action', () => {
-        expect('button[power]').toExist()
+        expect('button[type="power"]').toExist();
     });
 });
