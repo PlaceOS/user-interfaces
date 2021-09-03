@@ -10,6 +10,11 @@ import { OrganisationService } from '@placeos/organisation';
             class="flex sm:flex-col bg-white overflow-auto text-black shadow divide-y divide-gray-100 w-full sm:w-auto h-auto sm:h-full border-t sm:border-t border-gray-300 relative p-2"
             (mouseenter)="hidden ? entered() : ''"
         >
+            <div class="sm:hidden block h-16 min-w-[4rem] relative -left-1 top-1">
+                <ng-container
+                    *ngTemplateOutlet="building_button"
+                ></ng-container>
+            </div>
             <a
                 mat-icon-button
                 class="h-16 w-16 sm:h-12 rounded sm:mb-2 sm:hover:bg-gray-200"
@@ -37,39 +42,44 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </a>
         </div>
-        <button
-            mat-icon-button
-            *ngIf="(buildings | async)?.length > 0"
-            [matMenuTriggerFor]="menu"
-            class="absolute bottom-1 left-1 h-16 w-16 sm:h-12 rounded sm:mb-2 sm:hover:bg-gray-200"
-            [class.sm:w-56]="!hidden"
-            [class.sm:w-12]="hidden"
-        >
-            <div
-                class="flex flex-col sm:flex-row items-center justify-start w-16 px-2"
+        <div class="hidden sm:block">
+            <ng-container *ngTemplateOutlet="building_button"></ng-container>
+        </div>
+        <ng-template #building_button>
+            <button
+                mat-icon-button
+                *ngIf="(buildings | async)?.length > 0"
+                [matMenuTriggerFor]="menu"
+                class="absolute bottom-1 left-1 h-16 w-16 sm:h-12 rounded sm:mb-2 sm:hover:bg-gray-200"
                 [class.sm:w-56]="!hidden"
+                [class.sm:w-12]="hidden"
             >
-                <app-icon>business</app-icon>
                 <div
-                    text
-                    class="text-sm font-normal h-0 sm:h-auto overflow-hidden opacity-0 text-left flex items-center"
-                    [class.sm:w-0]="hidden"
-                    [class.sm:w-48]="!hidden"
-                    [class.sm:opacity-100]="!hidden"
-                    [class.sm:ml-2]="!hidden"
+                    class="flex flex-col sm:flex-row items-center justify-start w-16 px-2"
+                    [class.sm:w-56]="!hidden"
                 >
-                    <div class="truncate flex-1 w-px">Building</div>
+                    <app-icon>business</app-icon>
                     <div
-                        class="text-xs ml-2 px-2 py-1 bg-primary text-white rounded"
+                        text
+                        class="text-sm font-normal h-0 sm:h-auto overflow-hidden opacity-0 text-left flex items-center"
+                        [class.sm:w-0]="hidden"
+                        [class.sm:w-48]="!hidden"
+                        [class.sm:opacity-100]="!hidden"
+                        [class.sm:ml-2]="!hidden"
                     >
-                        {{
-                            (building | async)?.display_name ||
-                                (building | async)?.name
-                        }}
+                        <div class="truncate flex-1 w-px">Building</div>
+                        <div
+                            class="text-xs ml-2 px-2 py-1 bg-primary text-white rounded"
+                        >
+                            {{
+                                (building | async)?.display_name ||
+                                    (building | async)?.name
+                            }}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </button>
+            </button>
+        </ng-template>
         <mat-menu #menu="matMenu">
             <button
                 mat-menu-item
