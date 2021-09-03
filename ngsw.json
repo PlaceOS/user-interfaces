@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1630388263022,
+  "timestamp": 1630652371964,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -125,7 +125,7 @@
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "6b39e9dd36877324dcf53c01eb4dd500054972c2",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "df5b1ff9d76fc3c160ff6bc6f669cfd2720c6ad1",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "c11fc62639f97ab506e6009c721d9fc3b2154215",
-    "./apps_workplace_src_app_help_help_module_ts.js": "25ea01d5c2f6d0e38aa7b3853a5fb7062e7861dc",
+    "./apps_workplace_src_app_help_help_module_ts.js": "a465e4bb80390323d90f00ef8d9185feb71cafd3",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "c6cfaf61a2b3e072d1acebe14231d07845319451",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "73c7ce73b315617665d3d8466100ea1259dec4bd",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
@@ -203,15 +203,15 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "07ceeb810a15319c2c7d36b7349f130e3ed8e007",
-    "./main.js": "3c0ac1180bf071d5c9c113b3a83d18b1ef883032",
+    "./index.html": "8cd5b8c98131ff5605afb952fd6a86a896f3b4d1",
+    "./main.js": "a2b34f12204e5e5da526a4725ac328c036c686ec",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "c823cdba9fa1b78b01bf188cc3ecf4aad56945fa",
-    "./vendor.js": "2a9fab7b9a3b8fdd42070f05e3aac25725314ff2"
+    "./styles.css": "c23dcb4a4d76f15dfbeb82597619ba70ab93370e",
+    "./vendor.js": "4b29e1dccd8ba09419c01c7ddd06af16bf107905"
   },
   "navigationUrls": [
     {
