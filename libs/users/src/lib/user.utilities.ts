@@ -7,7 +7,7 @@ let USER_COUNT = 0;
 
 type HashMap<T = any> = Record<string, T>;
 
-export let USER_DOMAIN = 'place.tech';
+export let USER_DOMAIN = '@place.tech';
 
 export function setInternalUserDomain(domain: string) {
     USER_DOMAIN = domain;

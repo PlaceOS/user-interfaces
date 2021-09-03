@@ -34,6 +34,6 @@ export const MOCK_STAFF = PREDEF_USERS.map((name, i) => ({
 export const MOCK_GUESTS = PREDEF_USERS.map((name, i) => ({
     id: `guest-${i + 1}`,
     name: `${name} (External)`,
-    email: `${name.split(' ').join('.').toLowerCase()}@not-${DOMAIN}`,
+    email: `${name.split(' ').join('.').toLowerCase()}@guest.${DOMAIN}`,
     visit_expected: predictableRandomInt(99999) % 2 === 0,
 }));

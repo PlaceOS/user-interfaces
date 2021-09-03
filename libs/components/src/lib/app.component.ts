@@ -115,7 +115,7 @@ export class AppComponent extends BaseClass implements OnInit {
         setDefaultCreator(currentUser());
         setInternalUserDomain(
             this._settings.get('app.general.internal_user_domain') ||
-                currentUser()?.email?.split('@')[1]
+                `@${currentUser()?.email?.split('@')[1]}`
         );
         initSentry(this._settings.get('app.sentry_dsn'));
     }

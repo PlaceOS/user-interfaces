@@ -14,7 +14,7 @@ describe('[User]', () => {
         expect(user.notes).toBe('');
         expect(user.photo).toBe('');
         expect(user.organizer).toBe(false);
-        expect(user.visit_expected).toBe(false);
+        expect(user.visit_expected).toBe(true);
         expect(user.checked_in).toBe(false);
         expect(user.groups).toEqual([]);
         expect(user.extension_data).toEqual({});
