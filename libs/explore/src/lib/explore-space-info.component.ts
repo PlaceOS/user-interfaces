@@ -20,14 +20,18 @@ export interface SpaceInfoData {
     selector: 'explore-space-info',
     template: `
         <div
-            customTooltip
-            [content]="space_tooltip"
-            [backdrop]="false"
-            [xPosition]="'center'"
-            [yPosition]="'center'"
-            [hover]="true"
-            class="h-full w-full pointer-events-auto relative"
-        ></div>
+            [attr.id]="space.map_id || space.id"
+            class="h-full w-full pointer-events-auto relative flex items-center justify-center"
+        >
+            <div
+                customTooltip
+                [content]="space_tooltip"
+                [backdrop]="false"
+                [xPosition]="'center'"
+                [yPosition]="'center'"
+                [hover]="true"
+            ></div>
+        </div>
         <ng-template #space_tooltip>
             <div
                 name="space-info"
