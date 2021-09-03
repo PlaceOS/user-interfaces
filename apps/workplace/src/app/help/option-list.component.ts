@@ -26,22 +26,26 @@ import {
                 >
                     <div
                         inner
-                        class="relative rounded-lg flex flex-col items-center justify-center bg-black hover:bg-opacity-30 bg-opacity-60 text-white overflow-hidden bg-center bg-cover m-auto shadow cursor-pointer"
+                        class="relative rounded-lg flex sm:flex-col space-x-2 sm:space-x-0 items-center sm:justify-center bg-black/60 hover:bg-black/30 text-white overflow-hidden bg-center bg-cover m-auto shadow cursor-pointer"
                         [style.background-image]="
                             'url(' + item?.background + ')' | safe: 'style'
                         "
                     >
                         <div
                             overlay
-                            class="absolute inset-0 bg-black hover:bg-opacity-30 bg-opacity-60 z-0"
+                            class="absolute inset-0 bg-black/60 hover:bg-black/30 z-0"
                             *ngIf="item?.background"
                         ></div>
                         <app-icon
-                            class="relative text-7xl mb-2 z-10"
+                            class="relative text-6xl sm:text-7xl z-10"
                             [icon]="item?.icon"
                         ></app-icon>
-                        <p class="relative text-2xl z-10">{{ item?.name }}</p>
-                        <p class="relative z-10">{{ item?.description }}</p>
+                        <div>
+                            <p class="relative text-2xl z-10">
+                                {{ item?.name }}
+                            </p>
+                            <p class="relative z-10">{{ item?.description }}</p>
+                        </div>
                     </div>
                 </a>
             </ng-container>
