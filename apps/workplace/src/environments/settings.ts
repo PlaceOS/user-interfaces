@@ -93,7 +93,7 @@ const general: any = {
 const help: any = {
     tiles: [
         {
-            name: 'About Engine',
+            name: 'About PlaceOS',
             link: 'https://place.technology/resources',
             icon: {
                 type: 'icon',
