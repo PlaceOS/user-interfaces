@@ -10,7 +10,7 @@ import { combineLatest } from 'rxjs';
 @Component({
     selector: 'report-desks-charts',
     template: `
-        <div class="flex items-center space-x-2 w-full px-4">
+        <div class="flex items-center space-x-4 w-full px-4">
             <div class="bg-white rounded shadow flex-1">
                 <div class="border-b border-gray-300 p-4 text-xl font-bold">
                     Daily Utilisation

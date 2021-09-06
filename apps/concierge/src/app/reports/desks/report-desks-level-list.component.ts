@@ -10,37 +10,39 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-levels-list',
     template: `
-        <div class="m-4 rounded bg-white shadow overflow-hidden w-full">
-            <div class="border-b border-gray-300 p-4 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
-                <button mat-icon-button (click)="download()">
-                    <app-icon>download</app-icon>
-                </button>
+        <div class="px-4 mb-4 w-full">
+            <div class="rounded bg-white shadow overflow-hidden w-full">
+                <div class="border-b border-gray-300 p-4 flex items-center">
+                    <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
+                    <button mat-icon-button (click)="download()">
+                        <app-icon>download</app-icon>
+                    </button>
+                </div>
+                <custom-table
+                    red-header
+                    [dataSource]="level_list"
+                    [pagination]="true"
+                    [columns]="[
+                        'name',
+                        'avg_usage',
+                        'approved',
+                        'count',
+                        'utilisation'
+                    ]"
+                    [display_column]="[
+                        'Level',
+                        'Avg. Used Desks',
+                        'Approved Bookings',
+                        'Total Requests',
+                        'Utilisation'
+                    ]"
+                    [column_size]="['flex']"
+                    [template]="{ utilisation: percent_view }"
+                ></custom-table>
+                <ng-template #percent_view let-data="data">
+                    {{ data || '0' }}%
+                </ng-template>
             </div>
-            <custom-table
-                red-header
-                [dataSource]="level_list"
-                [pagination]="true"
-                [columns]="[
-                    'name',
-                    'avg_usage',
-                    'approved',
-                    'count',
-                    'utilisation'
-                ]"
-                [display_column]="[
-                    'Level',
-                    'Avg. Used Desks',
-                    'Approved Bookings',
-                    'Total Requests',
-                    'Utilisation'
-                ]"
-                [column_size]="['flex']"
-                [template]="{ utilisation: percent_view }"
-            ></custom-table>
-            <ng-template #percent_view let-data="data">
-                {{ data || '0' }}%
-            </ng-template>
         </div>
     `,
 })
