@@ -20,6 +20,7 @@ import { ReportsStateService } from '../reports-state.service';
                         <p>{{ (utilisation | async) || 0 }}%</p>
                     </div>
                 </div>
+                <report-desks-charts></report-desks-charts>
                 <report-desks-overall-list></report-desks-overall-list>
                 <report-desks-levels-list></report-desks-levels-list>
             </ng-container>

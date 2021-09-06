@@ -1,10 +1,18 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 import { Booking, queryBookings } from '@placeos/bookings';
-import { downloadFile, HashMap, jsonToCsv, notifyError } from '@placeos/common';
+import { downloadFile, HashMap, jsonToCsv, notifyError, timePeriodsIntersect } from '@placeos/common';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { differenceInDays, endOfDay, format, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    differenceInDays,
+    endOfDay,
+    format,
+    isBefore,
+    startOfDay,
+} from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
     catchError,
@@ -129,9 +137,54 @@ export class ReportsStateService {
         })
     );
 
+    public readonly day_list = combineLatest([
+        this.options,
+        this.stats,
+    ]).pipe(
+        map(([options, stats]) => {
+            const { start } = options;
+            let date = startOfDay(start);
+            const end = endOfDay(options.end || date);
+            const dates = [];
+            while (isBefore(date, end)) {
+                const s = startOfDay(date).valueOf();
+                const e = endOfDay(s).valueOf();
+                const events: Booking[] = stats.events.filter((bkn) =>
+                    timePeriodsIntersect(
+                        s,
+                        e,
+                        bkn.date,
+                        bkn.date + bkn.duration * 60 * 1000
+                    )
+                );
+                dates.push({
+                    date: s,
+                    total: stats.total,
+                    free: stats.total - events.length,
+                    approved: events.reduce(
+                        (c, e) => c + (e.approved ? 1 : 0),
+                        0
+                    ),
+                    count: events.length,
+                    utilisation: ((events.length / stats.total) * 100).toFixed(
+                        1
+                    ),
+                });
+                date = addDays(date, 1);
+            }
+            return dates;
+        }),
+        shareReplay(1)
+    )
+
     public get duration() {
         const opts = this._options.getValue();
-        return Math.abs(differenceInDays(opts.start, opts.end));
+        return Math.abs(
+            differenceInDays(
+                startOfDay(opts.start),
+                addMinutes(endOfDay(opts.end), 1)
+            )
+        );
     }
 
     constructor(private _org: OrganisationService) {

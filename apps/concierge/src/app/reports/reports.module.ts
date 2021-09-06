@@ -22,6 +22,7 @@ import { CateringReportComponent } from './catering/catering-report.component';
 import { CateringReportOverallComponent } from './catering/catering-report-overall.component';
 import { CateringReportOrdersComponent } from './catering/catering-report-orders.component';
 import { CateringReportItemsComponent } from './catering/catering-report-items.component';
+import { ReportDesksChartsComponent } from './desks/report-desks-charts.component';
 
 const ROUTES: Route[] = [
     {
@@ -50,6 +51,7 @@ const ROUTES: Route[] = [
         ReportDesksComponent,
         ReportDesksOverallListComponent,
         ReportDesksLevelListComponent,
+        ReportDesksChartsComponent,
         ReportsMenuComponent,
 
         CateringReportComponent,

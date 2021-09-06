@@ -10,7 +10,7 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-levels-list',
     template: `
-        <div class="m-4 rounded bg-white shadow overflow-hidden">
+        <div class="m-4 rounded bg-white shadow overflow-hidden w-full">
             <div class="border-b border-gray-300 p-4 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
                 <button mat-icon-button (click)="download()">
@@ -36,7 +36,11 @@ import { ReportsStateService } from '../reports-state.service';
                     'Utilisation'
                 ]"
                 [column_size]="['flex']"
+                [template]="{ utilisation: percent_view }"
             ></custom-table>
+            <ng-template #percent_view let-data="data">
+                {{ data || '0' }}%
+            </ng-template>
         </div>
     `,
 })
