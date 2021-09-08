@@ -86,6 +86,14 @@ export class ControlMainViewComponent extends BaseClass implements OnInit {
                     : ''
             )
         );
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) =>
+                params.get('join') === 'true'
+                    ? this._state.selectMeeting()
+                    : ''
+            )
+        );
         this.timeout('init', () =>
             !this._state.id ? this._router.navigate(['/bootstrap']) : ''
         );
