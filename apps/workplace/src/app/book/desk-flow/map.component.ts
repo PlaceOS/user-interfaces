@@ -275,6 +275,9 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
     public setActiveDesk(desk: Desk) {
         this._explore.setLevel(desk?.zone?.id);
         this._active_desk.next(desk);
-        this._state.form.patchValue({ asset_id: desk?.id, zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [] });
+        this._state.form.patchValue({
+            asset_id: desk?.id,
+            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+        });
     }
 }

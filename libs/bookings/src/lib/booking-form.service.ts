@@ -9,6 +9,7 @@ import {
     getInvalidFields,
     notifyError,
     openConfirmModal,
+    SettingsService,
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -214,6 +215,7 @@ export class BookingFormService extends BaseClass {
 
     constructor(
         private _router: Router,
+        private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog
     ) {
@@ -324,16 +326,23 @@ export class BookingFormService extends BaseClass {
             ),
             type: this._options.getValue().type,
         }).toPromise();
-        if (bookings.find((_) => _.asset_id === asset_id))
+        if (bookings.find((_) => _.asset_id === asset_id)) {
             throw `${asset_id} is not available at the selected time`;
+        }
+        const allowed_bookings =
+            this._settings.get(
+                `app.booking.allowed_daily_${this._options.getValue().type}`
+            ) ?? 1;
         if (
-            bookings.find(
+            allowed_bookings > 0 &&
+            bookings.filter(
                 (_) =>
                     _.user_email ===
                     (form.value.user_email || currentUser()?.email)
-            )
-        )
+            ).length >= allowed_bookings
+        ) {
             throw `You already have a desk booked`;
+        }
         const result = await saveBooking(new Booking(form.value)).toPromise();
         this.clearForm();
         this.last_success = result;
