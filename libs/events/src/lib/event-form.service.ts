@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { debounce, debounceTime, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
 import { generateEventForm } from './utilities';
@@ -53,6 +53,7 @@ export class EventFormService extends BaseClass {
         this._org.initialised.pipe(filter((_) => _)),
     ]).pipe(
         filter(([view, _, form]) => view === 'find' && !!form),
+        debounceTime(300),
         switchMap(([_, options, form]) => {
             this._loading.next('Retrieving available spaces...');
             const start = form.get('date').value;
