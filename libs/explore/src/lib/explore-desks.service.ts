@@ -252,6 +252,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     asset_id: desk.id,
                     user: options.host || currentUser(),
                     booking_type: 'desk',
+                    zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : []
                 });
                 await this._bookings.confirmPost();
                 notifySuccess(
