@@ -102,6 +102,10 @@
                 "breakdown": {
                     "type": "number",
                     "description": "Default breakdown time for new bookings in minutes"
+                },
+                "allowed_daily_desk_count": {
+                    "type": "number",
+                    "description": "Number of allowed desk bookings for a single day. `0` for unlimited. Defaults to `1`"
                 }
             }
         },
