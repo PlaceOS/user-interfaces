@@ -35,6 +35,6 @@ workplace/src/app
 └── ui/             # Common application level components
 ```
 
-# Settings
+## Settings
 
 A list of application settings (configurable via Zone.metadata) is available at `/apps/workplace/src/environments/settings.schema.json`
