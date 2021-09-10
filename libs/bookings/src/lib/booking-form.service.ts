@@ -331,7 +331,7 @@ export class BookingFormService extends BaseClass {
         }
         const allowed_bookings =
             this._settings.get(
-                `app.booking.allowed_daily_${this._options.getValue().type}`
+                `app.booking.allowed_daily_${this._options.getValue().type}_count`
             ) ?? 1;
         if (
             allowed_bookings > 0 &&
