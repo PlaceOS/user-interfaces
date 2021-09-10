@@ -43,6 +43,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _desks = new BehaviorSubject<string[]>([]);
     private _reserved = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
+    private _users: HashMap<string> = {};
     private _poll = new BehaviorSubject<number>(0);
 
     private _desk_bookings = combineLatest([
@@ -243,6 +244,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 hover: true,
                 data: {
                     map_id: desk.name,
+                    user: this._users[desk.map_id] || desk.staff_name,
                     status: this._statuses[desk.map_id],
                 },
             });
