@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CateringOrder, CateringStateService } from '@placeos/catering';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'detailed-book-space-form',
@@ -63,7 +64,7 @@ import { CateringOrder, CateringStateService } from '@placeos/catering';
                             ></textarea>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col mb-4">
+                    <div class="flex flex-col mb-4" *ngIf="has_catering">
                         <label>Catering</label>
                         <an-action-field (onAction)="editCatering()">
                             <div
@@ -98,6 +99,10 @@ import { CateringOrder, CateringStateService } from '@placeos/catering';
 export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;
 
+    public get has_catering() {
+        return !!this._settings.get('app.rooms.has_catering');
+    }
+
     public readonly editCatering = async () =>
         this.form.patchValue({
             catering: [
@@ -109,5 +114,5 @@ export class DetailBookSpaceFormComponent {
             ],
         });
 
-    constructor(private _catering: CateringStateService) {}
+    constructor(private _catering: CateringStateService, private _settings: SettingsService) {}
 }
