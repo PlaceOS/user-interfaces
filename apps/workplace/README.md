@@ -34,3 +34,7 @@ workplace/src/app
 |   └── view-event  # Components for viewing event and booking details
 └── ui/             # Common application level components
 ```
+
+## Settings
+
+A list of application settings (configurable via Zone.metadata) is available at `/apps/workplace/src/environments/settings.schema.json`

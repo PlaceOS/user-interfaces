@@ -52,3 +52,8 @@ There are 7 available frontends for this client
 -   [`kiosk`](./apps/map-kiosk/README.md) | Internal building location kiosk UI
 -   [`visitors`](./apps/visitor-kiosk/README.md) | Internal building location kiosk UI
 -   [`workplace`](./apps/workplace/README.md) | Staff Application
+
+
+## Settings
+
+A list of application settings (configurable via Zone.metadata) is available at `/apps/<app name>/src/environments/settings.schema.json`
