@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: '[dashboard]',
@@ -19,6 +20,7 @@ import { Component } from '@angular/core';
                         class="flex-1 min-w-64"
                     ></a-dashboard-upcoming>
                     <a-dashboard-contacts
+                        *ngIf="!hide_contacts"
                         class="flex-1 min-w-64"
                     ></a-dashboard-contacts>
                 </main>
@@ -61,4 +63,10 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class DashboardComponent {}
+export class DashboardComponent {
+    constructor(private _settings: SettingsService) {}
+
+    public get hide_contacts() {
+        return !!this._settings.get('app.hide_contacts');
+    }
+}
