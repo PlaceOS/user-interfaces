@@ -19,7 +19,7 @@ import { CheckinStateService } from './checkin-state.service';
             class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto"
         >
             <h3 class="text-xl mb-2 w-full">Would you like a drink?</h3>
-            <form class="w-full">
+            <div class="w-full">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-select
                         [(ngModel)]="beverage"
@@ -33,7 +33,7 @@ import { CheckinStateService } from './checkin-state.service';
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-            </form>
+            </div>
             <button mat-button class="w-32" (click)="update()">
                 {{ beverage ? 'Update' : 'Continue' }}
             </button>

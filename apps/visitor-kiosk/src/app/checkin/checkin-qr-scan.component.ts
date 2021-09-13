@@ -101,7 +101,7 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
                 .getTracks()
                 .forEach((track) => track?.stop());
         }
-        this._reader.stop();
+        this._reader?.stop();
     }
 
     public async checkQRCode(raw_text: string) {

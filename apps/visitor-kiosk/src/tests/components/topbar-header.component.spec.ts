@@ -1,9 +1,10 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { TopbarHeaderComponent } from '../../app/components/topbar-header.component';
 
 describe('TopbarHeaderComponent', () => {
-    let spectator: Spectator<TopbarHeaderComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<TopbarHeaderComponent>;
+    const createComponent = createRoutingFactory({
         component: TopbarHeaderComponent,
     });
 

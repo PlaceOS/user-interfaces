@@ -1,12 +1,12 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
 import { CheckinResultsComponent } from '../../app/checkin/checkin-result.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
 describe('CheckinComponent', () => {
-    let spectator: Spectator<CheckinResultsComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<CheckinResultsComponent>;
+    const createComponent = createRoutingFactory({
         component: CheckinResultsComponent,
         providers: [
             {

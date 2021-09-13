@@ -12,12 +12,12 @@ exports[`CheckinPreferencesComponent should match snapshot 1`] = `
     >
       Would you like a drink?
     </h3>
-    <form
+    <div
       class="w-full"
     >
       <mat-form-field
         appearance="outline"
-        class="mat-form-field w-full mat-primary mat-form-field-type-mat-select mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field w-full mat-primary mat-form-field-type-mat-select mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -64,7 +64,7 @@ exports[`CheckinPreferencesComponent should match snapshot 1`] = `
                 aria-haspopup="true"
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-select mat-select-empty"
+                class="mat-select mat-select-empty ng-untouched ng-pristine ng-valid"
                 placeholder="Select beverage"
                 role="combobox"
                 tabindex="0"
@@ -120,7 +120,7 @@ exports[`CheckinPreferencesComponent should match snapshot 1`] = `
           </div>
         </div>
       </mat-form-field>
-    </form>
+    </div>
     <button
       class="w-32"
       mat-button=""

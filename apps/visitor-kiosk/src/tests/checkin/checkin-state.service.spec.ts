@@ -1,6 +1,5 @@
 import { FormGroup } from '@angular/forms';
-import { createServiceFactory } from '@ngneat/spectator';
-import { SpectatorService } from '@ngneat/spectator/jest';
+import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';

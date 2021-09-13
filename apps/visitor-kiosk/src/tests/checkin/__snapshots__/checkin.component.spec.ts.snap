@@ -15,19 +15,3 @@ exports[`CheckinComponent should match snapshot 1`] = `
   </div>
 </div>
 `;
-
-exports[`TopbarHeaderComponent should match snapshot 1`] = `
-<div
-  id="root1"
->
-  <a-topbar-header
-    class="w-full"
-  />
-  <div
-    class="flex-1 w-full bg-center bg-cover relative"
-    style="background-image: url(null);"
-  >
-    <router-outlet />
-  </div>
-</div>
-`;

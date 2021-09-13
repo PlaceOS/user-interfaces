@@ -1,9 +1,12 @@
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { generateGuestForm } from '@placeos/users';
+import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { CheckinDetailsComponent } from '../../app/checkin/checkin-details.component';
@@ -13,6 +16,7 @@ describe('CheckinDetailsComponent', () => {
     let spectator: SpectatorRouting<CheckinDetailsComponent>;
     const createComponent = createRoutingFactory({
         component: CheckinDetailsComponent,
+        declarations: [MockComponent(IconComponent)],
         providers: [
             {
                 provide: CheckinStateService,
@@ -23,7 +27,7 @@ describe('CheckinDetailsComponent', () => {
                 },
             },
         ],
-        imports: [MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
+        imports: [MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, FormsModule, ReactiveFormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

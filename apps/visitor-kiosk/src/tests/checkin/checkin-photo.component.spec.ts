@@ -1,4 +1,5 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -16,7 +17,7 @@ describe('CheckinPhotoComponent', () => {
                 useValue: { event: of({}), guest: of({}) },
             },
         ],
-        declarations: [MockComponent(TakePhotoComponent)],
+        declarations: [MockComponent(TakePhotoComponent), MockComponent(IconComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

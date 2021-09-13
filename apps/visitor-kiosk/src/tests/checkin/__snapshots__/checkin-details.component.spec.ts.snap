@@ -2,10 +2,11 @@
 
 exports[`CheckinDetailsComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <form
-    class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto"
+    class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto ng-untouched ng-pristine ng-invalid"
+    novalidate=""
   >
     <h3
       class="text-2xl m-4"
@@ -23,7 +24,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
       </label>
       <mat-form-field
         appearance="outline"
-        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -66,7 +67,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               <input
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-input-element mat-form-field-autofill-control cdk-text-field-autofill-monitored"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
                 data-placeholder="Host's Email Address"
                 formcontrolname="host"
                 matinput=""
@@ -111,7 +112,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
       </label>
       <mat-form-field
         appearance="outline"
-        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -154,7 +155,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               <input
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-input-element mat-form-field-autofill-control cdk-text-field-autofill-monitored"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-valid cdk-text-field-autofill-monitored"
                 data-placeholder="Full Name"
                 formcontrolname="name"
                 matinput=""
@@ -199,7 +200,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
       </label>
       <mat-form-field
         appearance="outline"
-        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-invalid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -242,7 +243,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               <input
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-input-element mat-form-field-autofill-control cdk-text-field-autofill-monitored"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
                 data-placeholder="Email Address"
                 formcontrolname="email"
                 matinput=""
@@ -287,7 +288,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
       </label>
       <mat-form-field
         appearance="outline"
-        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -330,7 +331,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               <input
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-input-element mat-form-field-autofill-control cdk-text-field-autofill-monitored"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-valid cdk-text-field-autofill-monitored"
                 data-placeholder="Phone Number"
                 formcontrolname="phone"
                 matinput=""
@@ -376,7 +377,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
       </label>
       <mat-form-field
         appearance="outline"
-        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float _mat-animation-noopable"
+        class="mat-form-field mat-primary mat-form-field-type-mat-input mat-form-field-appearance-outline mat-form-field-can-float ng-untouched ng-pristine ng-valid _mat-animation-noopable"
       >
         <div
           class="mat-form-field-wrapper"
@@ -419,7 +420,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               <input
                 aria-invalid="false"
                 aria-required="false"
-                class="mat-input-element mat-form-field-autofill-control cdk-text-field-autofill-monitored"
+                class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-valid cdk-text-field-autofill-monitored"
                 data-placeholder="Organisation / Company"
                 formcontrolname="phone"
                 matinput=""
