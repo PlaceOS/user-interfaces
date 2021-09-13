@@ -138,7 +138,7 @@ export class ExploreZonesService extends BaseClass {
                         color: colour,
                         points: this._points[zone_id],
                     },
-                    z_index: 50,
+                    z_index: 10,
                 });
             } else {
                 style_map[`#${zone_id}`] = {

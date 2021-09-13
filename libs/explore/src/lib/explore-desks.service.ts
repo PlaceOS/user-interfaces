@@ -247,6 +247,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     user: this._users[desk.map_id] || desk.staff_name,
                     status: this._statuses[desk.map_id],
                 },
+                z_index: 20
             });
             const book_fn = async () => {
                 this._bookings.newForm();
