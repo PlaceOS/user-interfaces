@@ -3,8 +3,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 
-import { DeskFlowStateService } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-state.service';
-import { DeskFlowListingComponent } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-listing.component';
 import { DeskBookingComponent } from '../app/desk-booking.component';
 import { FooterMenuComponent } from '../app/footer-menu.component';
 
@@ -17,11 +15,9 @@ describe('DeskBookingComponent', () => {
     const createComponent = createComponentFactory({
         component: DeskBookingComponent,
         declarations: [
-            MockComponent(DeskFlowListingComponent),
             MockComponent(FooterMenuComponent),
         ],
         providers: [
-            { provide: DeskFlowStateService, useValue: { setHost: jest.fn() } },
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: Router, useValue: { navigate: jest.fn() } },
         ],

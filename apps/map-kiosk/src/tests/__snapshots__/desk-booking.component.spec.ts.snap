@@ -4,9 +4,6 @@ exports[`DeskBookingComponent should match snapshot 1`] = `
 <div
   id="root1"
 >
-  <desk-flow-listing
-    class="h-1/2 flex-1 overflow-hidden"
-  />
   <footer-menu />
 </div>
 `;

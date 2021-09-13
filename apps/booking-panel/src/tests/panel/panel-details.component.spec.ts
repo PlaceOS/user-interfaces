@@ -3,11 +3,14 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { PanelStateService } from '../../app/panel/panel-state.service';
 import { PanelDetailsComponent } from '../../app/panel/panel-details.component';
 import { BehaviorSubject } from 'rxjs';
+import { MockComponent } from 'ng-mocks';
+import { IconComponent } from '@placeos/components';
 
 describe('PanelDetailsComponent', () => {
     let spectator: SpectatorRouting<PanelDetailsComponent>;
     const createComponent = createRoutingFactory({
         component: PanelDetailsComponent,
+        declarations: [MockComponent(IconComponent)],
         providers: [
             {
                 provide: PanelStateService,

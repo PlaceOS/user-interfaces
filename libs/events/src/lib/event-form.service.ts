@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounce, debounceTime, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
 import { generateEventForm } from './utilities';

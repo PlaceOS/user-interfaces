@@ -1,4 +1,4 @@
-import { ActivatedRoute } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -22,6 +22,7 @@ describe('NavMenuComponent', () => {
             { path: '', component: IconComponent },
             { path: 'foo', component: IconComponent },
         ],
+        imports: [MatMenuModule]
     });
 
     beforeEach(() => (spectator = createComponent()));

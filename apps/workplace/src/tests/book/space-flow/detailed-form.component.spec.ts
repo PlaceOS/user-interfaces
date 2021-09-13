@@ -2,6 +2,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { CateringStateService } from '@placeos/catering';
 import { CalendarEvent, generateEventForm } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -9,6 +10,7 @@ import {
     TimeFieldComponent,
     UserListFieldComponent,
 } from '@placeos/form-fields';
+import { OrganisationService } from '@placeos/organisation';
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
 import { MockComponent } from 'ng-mocks';
 
@@ -21,6 +23,10 @@ describe('DetailBookSpaceFormComponent', () => {
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
             MockComponent(UserListFieldComponent),
+        ],
+        providers: [
+            { provide: OrganisationService, useValue: {} }
+            { provide: CateringStateService, useValue: {} }
         ],
         imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
     });

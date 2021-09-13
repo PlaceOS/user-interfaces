@@ -26,6 +26,7 @@ exports[`DashboardComponent should match snapshot 1`] = `
         <a-dashboard-contacts
           class="flex-1 min-w-64"
         />
+        
       </main>
     </div>
   </div>

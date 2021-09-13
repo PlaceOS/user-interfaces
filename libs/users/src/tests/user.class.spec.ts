@@ -18,7 +18,7 @@ describe('[User]', () => {
         expect(user.checked_in).toBe(false);
         expect(user.groups).toEqual([]);
         expect(user.extension_data).toEqual({});
-        expect(user.is_external).toBe(false);
+        expect(user.is_external).toBe(true);
         expect(user.assistance_required).toBe(false);
         user = new User({
             first_name: 'Jim',

@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
@@ -10,16 +10,16 @@ import {
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { DeskFlowStateService } from 'apps/workplace/src/app/bookings/desk-flow/desk-flow-state.service';
 import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { ExploreComponent } from '../app/explore.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('ExploreComponent', () => {
-    let spectator: Spectator<ExploreComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<ExploreComponent>;
+    const createComponent = createRoutingFactory({
         component: ExploreComponent,
         declarations: [
             MockComponent(InteractiveMapComponent),
@@ -33,9 +33,9 @@ describe('ExploreComponent', () => {
             { provide: ExploreZonesService, useValue: {} },
         ],
         providers: [
+            { provide: MatDialog, useValue: { open: jest.fn() } },
             { provide: ExploreStateService, useValue: {} },
             { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: DeskFlowStateService, useValue: {} },
             {
                 provide: OrganisationService,
                 useValue: { initialised: of(true) },

@@ -6,11 +6,11 @@ exports[`ScheduleListItemComponent should match snapshot 1`] = `
 >
   
   <a
-    class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white border border-gray-200 hover:shadow p-0 opacity-50"
+    class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0 opacity-50"
     mat-button=""
   >
     <div
-      class="flex items-center"
+      class="flex items-center border border-gray-200"
     >
       <div
         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight bg-error"
@@ -66,11 +66,11 @@ exports[`ScheduleListItemComponent should match snapshot 2`] = `
 >
   
   <a
-    class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white border border-gray-200 hover:shadow p-0"
+    class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
     mat-button=""
   >
     <div
-      class="flex items-center"
+      class="flex items-center border border-gray-200"
     >
       <div
         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight bg-success"
@@ -84,7 +84,7 @@ exports[`ScheduleListItemComponent should match snapshot 2`] = `
         <div
           class="font-normal"
         >
-           3:30 PM 
+           6:25 PM 
         </div>
         <div
           class="capitalize text-xs font-medium"

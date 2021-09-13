@@ -2,7 +2,7 @@
 
 exports[`DetailBookSpaceFormComponent should match snapshot 1`] = `
 <div
-  id="root1"
+  id="root0"
 >
   
 </div>
@@ -10,7 +10,7 @@ exports[`DetailBookSpaceFormComponent should match snapshot 1`] = `
 
 exports[`DetailBookSpaceFormComponent should match snapshot 2`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <form
     class="ng-untouched ng-pristine ng-invalid"
@@ -251,6 +251,7 @@ exports[`DetailBookSpaceFormComponent should match snapshot 2`] = `
             </div>
           </mat-form-field>
         </div>
+        
       </div>
     </section>
   </form>

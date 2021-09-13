@@ -19,7 +19,7 @@ exports[`TopbarHeaderComponent should match snapshot 1`] = `
     <div
       class="ml-auto h-full flex flex-col justify-center text-white px-4"
     >
-       Monday, September 13th, 4:13PM 
+       Monday, September 13th, 6:22PM 
     </div>
   </div>
 </div>
