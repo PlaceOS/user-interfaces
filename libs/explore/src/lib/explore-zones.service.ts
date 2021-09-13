@@ -18,7 +18,7 @@ export interface ZoneData {
     /** Number of devices in the zone */
     count: number;
 
-    ambient_temp: number;
+    temperature: number;
     people_count: number;
     humidity: number;
     queue_size: number;
@@ -105,8 +105,8 @@ export class ExploreZonesService extends BaseClass {
                     zone.count === 1 ? 'Device' : 'Devices'
                 }\n`;
             }
-            if (zone.ambient_temp)
-                content += `Ambient Temp: ${zone.ambient_temp} ˚C\n`;
+            if (zone.temperature)
+                content += `Temperature: ${zone.temperature} ˚C\n`;
             if (zone.people_count > 0)
                 content += `${zone.people_count} ${
                     zone.people_count === 1 ? 'Person' : 'People'
