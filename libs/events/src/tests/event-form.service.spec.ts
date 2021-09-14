@@ -3,7 +3,7 @@ import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { FormGroup } from '@angular/forms';
 import { take } from 'rxjs/operators';
-import { of, Subject } from 'rxjs';
+import { of, Subject, timer } from 'rxjs';
 import { EventFormService } from '../lib/event-form.service';
 
 import { CalendarEvent } from '../lib/event.class';
@@ -85,12 +85,14 @@ describe('EventFormService', () => {
         expect(spaces).toEqual([]);
         const space_list = [{ id: 'space-1' }, { id: 'space-2' }];
         (cal_mod.querySpaceFreeBusy as any).mockImplementation(() =>
-            of(space_list)
+            of([...space_list])
         );
         spectator.service.setView('find');
+        await timer(301).toPromise();
         spaces = await spectator.service.available_spaces
             .pipe(take(1))
             .toPromise();
+        console.log(spaces);
         expect(spaces).toEqual(space_list);
     });
 
@@ -113,6 +115,7 @@ describe('EventFormService', () => {
             zone_ids: ['lvl-1', 'lvl-2'],
             capacity: 32,
         });
+        await timer(301).toPromise();
         await spectator.service.available_spaces.pipe(take(1)).toPromise();
         expect(cal_mod.querySpaceFreeBusy).toBeCalledWith(
             {

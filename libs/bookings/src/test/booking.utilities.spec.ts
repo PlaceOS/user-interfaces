@@ -1,43 +1,10 @@
+import { FormGroup } from '@angular/forms';
+import { generateBookingForm } from '../lib/booking.utilities';
 
 describe('Booking Utilities', () => {
-
-    describe('storeBookingFormData', () => {
-
-    });
-
-    describe('retrieveBookingFormData', () => {
-
-    });
-
-    describe('storeDeskBookingFormData', () => {
-
-    });
-
-    describe('retrieveDeskBookingFormData', () => {
-
-    });
-
-    describe('filterSpacesRules', () => {
-
-    });
-
-    describe('rulesForSpace', () => {
-
-    });
-
-    describe('getMinLength', () => {
-
-    });
-
-    describe('durationGreaterThanOrEqual', () => {
-
-    });
-
-    describe('stringToMinutes', () => {
-
-    });
-
-    describe('statusFromBookings', () => {
-
+    describe('generateBookingForm', () => {
+        it('should get current status from a list of bookings', () =>
+            expect(generateBookingForm()).toBeInstanceOf(FormGroup)
+        );
     });
 });

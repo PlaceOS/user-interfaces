@@ -101,11 +101,11 @@ describe('OrganisationService', () => {
     it('should load org and buildings settings', async () => {
         const settings = spectator.inject(SettingsService);
         // settings.get.mockImplementation(() => );
-        (spectator.service as any).buildings_subject.next([
+        (spectator.service as any)._buildings.next([
             { id: 'bld-1' },
             { id: 'bld-2' },
         ]);
-        (spectator.service as any).active_building_subject.next({
+        (spectator.service as any)._active_building.next({
             id: 'bld-1',
         });
         (spectator.service as any)._organisation = new Organisation({

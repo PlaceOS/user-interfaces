@@ -16,6 +16,7 @@ import { of } from 'rxjs';
 import { ExploreComponent } from '../app/explore.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 import { MatDialog } from '@angular/material/dialog';
+import { SpacesService } from '@placeos/spaces';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;
@@ -33,9 +34,19 @@ describe('ExploreComponent', () => {
             { provide: ExploreZonesService, useValue: {} },
         ],
         providers: [
-            { provide: MatDialog, useValue: { open: jest.fn() } },
-            { provide: ExploreStateService, useValue: {} },
+            {
+                provide: MatDialog,
+                useValue: { open: jest.fn(), closeAll: jest.fn() },
+            },
+            {
+                provide: ExploreStateService,
+                useValue: { setPositions: jest.fn(), setFeatures: jest.fn() },
+            },
             { provide: SettingsService, useValue: { get: jest.fn() } },
+            {
+                provide: SpacesService,
+                useValue: { initialised: of(true), get: jest.fn() },
+            },
             {
                 provide: OrganisationService,
                 useValue: { initialised: of(true) },

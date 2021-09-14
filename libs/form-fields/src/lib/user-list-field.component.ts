@@ -85,13 +85,14 @@ function validateEmail(email) {
             >
                 <div
                     user
+                    [id]="user.email"
                     *ngFor="let user of active_list"
                     class="flex items-center space-x-2 p-2 hover:bg-black hover:bg-opacity-5 rounded"
                     (click)="user.is_external ? openNewUserModal(user) : ''"
                 >
                     <a-user-avatar
                         [user]="user"
-                        [icon]="!user.is_external"
+                        [attr.icon]="!user.is_external"
                         [matTooltip]="
                             user.is_external
                                 ? 'External Attendee'
@@ -164,6 +165,7 @@ function validateEmail(email) {
                     </button>
                     <button
                         mat-icon-button
+                        remove
                         type="button"
                         (click)="removeUser(user); $event.stopPropagation()"
                     >

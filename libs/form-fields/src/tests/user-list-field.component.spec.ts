@@ -3,14 +3,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { generateMockUser, User } from '@placeos/users';
+import { SettingsService } from '@placeos/common';
 
 jest.mock('@placeos/common');
 import * as common_lib from '@placeos/common';
 
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;
@@ -19,11 +21,13 @@ describe('UserListFieldComponent', () => {
         declarations: [
             MockComponent(IconComponent),
             MockComponent(UserSearchFieldComponent),
+            MockComponent(UserAvatarComponent),
         ],
         providers: [
             { provide: MatDialog, useValue: { open: jest.fn(() => ({})) } },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
-        imports: [MatChipsModule, FormsModule],
+        imports: [MatChipsModule, FormsModule, MatTooltipModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -43,24 +47,27 @@ describe('UserListFieldComponent', () => {
         const user_list = Array(20)
             .fill(1)
             .map((_) => new User(generateMockUser()));
+
         spectator.component.writeValue(user_list);
         spectator.detectChanges();
-        expect('mat-chip').toHaveLength(user_list.length);
+        expect('[user]').toHaveLength(user_list.length);
     });
 
     it('should allow user to add existing users', () => {
         const user = new User(generateMockUser());
         expect('a-user-search-field').toExist();
-        expect('mat-chip').toHaveLength(0);
+        expect('[user]').toHaveLength(0);
         spectator.triggerEventHandler(
             'a-user-search-field',
             'ngModelChange',
             user
         );
         spectator.detectChanges();
-        expect('mat-chip').toHaveLength(1);
-        expect('mat-chip').toContainText(user.name);
-        expect(spectator.component.active_list).toContain(user);
+        expect('[user]').toHaveLength(1);
+        expect('[user]').toContainText(user.name);
+        expect(
+            spectator.component.active_list.find((_) => _.email === user.email)
+        ).toBeTruthy();
     });
 
     it('should allow user to indicate that they want to add a new contact', async () => {
@@ -113,35 +120,14 @@ describe('UserListFieldComponent', () => {
             .map((_) => new User(generateMockUser()));
         spectator.component.writeValue(user_list);
         spectator.detectChanges();
-        expect('mat-chip').toHaveLength(user_list.length);
-        expect('app-icon').toExist();
-        spectator.click('app-icon');
+        expect('[user]').toHaveLength(user_list.length);
+        expect('[user] [remove]').toExist();
+        spectator.click('[user] [remove]');
         expect(
             spectator.component.active_list.find(
                 (user) => user.email === user_list[0].email
             )
         ).not.toBeTruthy();
-    });
-
-    it('should show external users with a different colour', () => {
-        const user_list = [
-            {
-                id: 'test-real',
-                name: 'Real Test',
-                email: 'test@place.tech',
-                visit_expected: false,
-            },
-            {
-                id: 'test-external',
-                name: 'Jim Test',
-                email: 'jim@test.com',
-                visit_expected: true,
-            },
-        ].map((_) => new User(_));
-        spectator.component.writeValue(user_list);
-        spectator.detectChanges();
-        expect(`[id="test@place.tech"]`).toHaveAttribute('color', 'internal');
-        expect(`[id="jim@test.com"]`).toHaveAttribute('color', 'external');
     });
 
     it('should be able to hide user actions', () => {

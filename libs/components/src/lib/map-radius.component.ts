@@ -17,6 +17,7 @@ export interface MapRadiusData {
     template: `
         <ng-container *ngIf="show && radius" (window:resize)="updateRadius()">
             <div
+                radius
                 class="center border-4 rounded-full border-dashed"
                 [style.border-color]="stroke"
                 [style.background-color]="fill + '40'"
@@ -25,7 +26,7 @@ export interface MapRadiusData {
             ></div>
             <div
                 *ngIf="message && show_message"
-                name="message"
+                message
                 [style.top]="'-' + (radius / 2) * zoom + 'px'"
                 class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
             >

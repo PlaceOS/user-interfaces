@@ -25,6 +25,7 @@ describe('ExploreStateService', () => {
                 provide: ExploreStateService,
                 useValue: {
                     level: new BehaviorSubject(null),
+                    setFeatures: jest.fn(),
                     setLabels: jest.fn(),
                     setStyles: jest.fn(),
                 },
@@ -74,12 +75,13 @@ describe('ExploreStateService', () => {
 
     it('should handle binding updates', () => {
         jest.useFakeTimers();
-        let data = { value: [{ area_id: 'zone-1', count: 1 }] };
+        (spectator.service as any)._location['zone-1'] = { x: 1, y: 1 };
+        let data = { value: [{ area_id: 'zone-1', count: 1 }] } as any;
         const state = spectator.inject(ExploreStateService);
         spectator.service.parseData(data);
         jest.runOnlyPendingTimers();
         expect(state.setLabels).toHaveBeenCalledWith('zones', [
-            { location: undefined, content: '1 Device' },
+            { location: { x: 1, y: 1 }, content: '1 Device\n', z_index: 100 },
         ]);
         expect(state.setStyles).toHaveBeenCalledWith('zones', {
             '#zone-1': { fill: '#43a047', opacity: 0.6 },
@@ -88,7 +90,7 @@ describe('ExploreStateService', () => {
         spectator.service.parseData(data);
         jest.runOnlyPendingTimers();
         expect(state.setLabels).toHaveBeenCalledWith('zones', [
-            { location: undefined, content: '50 Devices' },
+            { location: { x: 1, y: 1 }, content: '50 Devices\n', z_index: 100 },
         ]);
         expect(state.setStyles).toHaveBeenCalledWith('zones', {
             '#zone-1': { fill: '#ffb300', opacity: 0.6 },
@@ -97,7 +99,7 @@ describe('ExploreStateService', () => {
         spectator.service.parseData(data);
         jest.runOnlyPendingTimers();
         expect(state.setLabels).toHaveBeenCalledWith('zones', [
-            { location: undefined, content: '99 Devices' },
+            { location: { x: 1, y: 1 }, content: '99 Devices\n', z_index: 100 },
         ]);
         expect(state.setStyles).toHaveBeenCalledWith('zones', {
             '#zone-1': { fill: '#e53935', opacity: 0.6 },

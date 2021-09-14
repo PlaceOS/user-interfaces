@@ -2,7 +2,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { currentUser } from '@placeos/common';
 import { Booking } from './booking.class';
 
-export function generateBookingForm(booking: Booking) {
+export function generateBookingForm(booking: Booking = {} as any) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         date: new FormControl(booking.date, []),

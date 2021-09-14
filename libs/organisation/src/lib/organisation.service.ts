@@ -191,7 +191,7 @@ export class OrganisationService {
         } as any)
             .pipe(
                 map((i) =>
-                    i.data.filter((_) => _.parent_id === this._organisation.id)
+                    i.data.filter((_) => _.parent_id === this._organisation?.id)
                 )
             )
             .toPromise();

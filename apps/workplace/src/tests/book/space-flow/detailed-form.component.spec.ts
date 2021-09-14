@@ -25,7 +25,7 @@ describe('DetailBookSpaceFormComponent', () => {
             MockComponent(UserListFieldComponent),
         ],
         providers: [
-            { provide: OrganisationService, useValue: {} }
+            { provide: OrganisationService, useValue: {} },
             { provide: CateringStateService, useValue: {} }
         ],
         imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],

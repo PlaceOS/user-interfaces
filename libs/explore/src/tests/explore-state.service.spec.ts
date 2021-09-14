@@ -69,7 +69,7 @@ describe('ExploreStateService', () => {
         spectator.service.setFeatures('spaces', [{ id: 'first' }]);
         feats = await spectator.service.map_features.pipe(take(1)).toPromise();
         expect(feats).toEqual([{ id: 'first' }]);
-        spectator.service.setFeatures('zones', [{ id: 'second' }]);
+        spectator.service.setFeatures('other', [{ id: 'second' }]);
         feats = await spectator.service.map_features.pipe(take(1)).toPromise();
         expect(feats).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
@@ -82,7 +82,7 @@ describe('ExploreStateService', () => {
         spectator.service.setActions('spaces', [{ id: 'first' }]);
         actions = await spectator.service.map_actions.pipe(take(1)).toPromise();
         expect(actions).toEqual([{ id: 'first' }]);
-        spectator.service.setActions('zones', [{ id: 'second' }]);
+        spectator.service.setActions('other', [{ id: 'second' }]);
         actions = await spectator.service.map_actions.pipe(take(1)).toPromise();
         expect(actions).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
@@ -98,7 +98,7 @@ describe('ExploreStateService', () => {
         spectator.service.setLabels('zones', [{ id: 'second' }]);
         labels = await spectator.service.map_labels.pipe(take(1)).toPromise();
         expect(labels).toEqual([{ id: 'first' }]);
-        spectator.service.setOptions({ show_zones: true });
+        spectator.service.setOptions({ disable: [] });
         labels = await spectator.service.map_labels.pipe(take(1)).toPromise();
         expect(labels).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
@@ -116,7 +116,7 @@ describe('ExploreStateService', () => {
         spectator.service.setStyles('spaces', { space1: {} });
         styles = await spectator.service.map_styles.pipe(take(1)).toPromise();
         expect(styles).toEqual({ ...DEFAULTS, space1: {} });
-        spectator.service.setStyles('zones', { zones1: {} });
+        spectator.service.setStyles('other', { zones1: {} });
         styles = await spectator.service.map_styles.pipe(take(1)).toPromise();
         expect(styles).toEqual({ ...DEFAULTS, space1: {}, zones1: {} });
     });

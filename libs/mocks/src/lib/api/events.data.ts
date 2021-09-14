@@ -36,7 +36,7 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
     attendees = attendees.concat({ ...space, resource: true });
     if (predictableRandomInt(9999) % 2 === 0) attendees.unshift(ACTIVE_USER);
     else attendees.unshift(MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]);
-    attendees = unique(attendees, 'email');
+    attendees = unique(attendees, 'email') || [{}];
     const event_start = nextEventTime(true);
     const event_end = nextEventTime();
     const meeting_url =

@@ -1,13 +1,14 @@
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { DeskFlowConfirmComponent } from 'apps/workplace/src/app/book/desk-flow/confirm.component';
+import { MockComponent } from 'ng-mocks';
 
 describe('DeskFlowConfirmComponent', () => {
-    let spectator: Spectator<DeskFlowConfirmComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<DeskFlowConfirmComponent>;
+    const createComponent = createRoutingFactory({
         component: DeskFlowConfirmComponent,
-        providers: [{ provide: Router, useValue: { navigate: jest.fn() } }],
+        declarations: [MockComponent(IconComponent)],
         imports: [FormsModule],
     });
 

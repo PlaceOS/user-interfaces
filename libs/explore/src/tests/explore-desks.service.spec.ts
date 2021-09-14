@@ -1,5 +1,5 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { DesksService } from '@placeos/bookings';
+import { BookingFormService, DesksService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import {
     Building,
@@ -19,7 +19,7 @@ import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from '@placeos/bookings';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 
-describe('AuthService', () => {
+describe('ExploreDesksService', () => {
     let spectator: SpectatorService<ExploreDesksService>;
     const createService = createServiceFactory({
         service: ExploreDesksService,
@@ -44,6 +44,7 @@ describe('AuthService', () => {
             },
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: DesksService, useValue: {} },
+            { provide: BookingFormService, useValue: {} },
         ],
     });
 

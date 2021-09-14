@@ -52,7 +52,6 @@ export class ExploreSearchService {
         this._user_search,
         this._emergency_contacts,
     ]).pipe(
-        debounceTime(1000),
         map(([spaces, users, contacts]) => {
             const filter = this._filter.getValue() || '';
             const search = filter.toLowerCase();

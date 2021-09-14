@@ -84,7 +84,7 @@ exports[`ScheduleListItemComponent should match snapshot 2`] = `
         <div
           class="font-normal"
         >
-           6:25 PM 
+           7:10 PM 
         </div>
         <div
           class="capitalize text-xs font-medium"

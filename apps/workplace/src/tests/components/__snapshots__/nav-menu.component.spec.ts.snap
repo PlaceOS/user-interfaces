@@ -2,7 +2,7 @@
 
 exports[`NavMenuComponent should allow for navigating 1`] = `
 <div
-  id="root0"
+  id="root2"
 >
   <div
     class="absolute hidden sm:w-56"

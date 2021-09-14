@@ -1,5 +1,5 @@
 import { Space } from '@placeos/spaces';
-import { User } from '@placeos/users';
+import { setInternalUserDomain, User } from '@placeos/users';
 import { add, getUnixTime, sub } from 'date-fns';
 import { CalendarEvent, setDefaultCreator } from '../lib/event.class';
 
@@ -10,7 +10,7 @@ describe('CalendarEvent', () => {
 
     it('should expose properties', () => {
         expect(event.id).toBe('');
-        expect(event.status).toBe('confirmed');
+        expect(event.status).toBe('approved');
         expect(event.host).toBe('');
         expect(event.calendar).toBe('');
         expect(event.creator).toBe('');
@@ -26,7 +26,7 @@ describe('CalendarEvent', () => {
         expect(event.recurring).toBe(false);
         expect(event.recurring_master_id).toBe('');
         expect(event.attachments).toEqual([]);
-        expect(event.system).toBeUndefined();
+        expect(event.system).toBeNull();
         expect(event.extension_data).toEqual({ catering: [] });
         expect(event.type).toBe('internal');
         event = new CalendarEvent({
@@ -50,7 +50,7 @@ describe('CalendarEvent', () => {
             attachments: [{ name: 'file.png', blob: null }],
         });
         expect(event.id).toBe('One');
-        expect(event.status).toBe('cancelled');
+        expect(event.status).toBe('declined');
         expect(event.host).toBe('me@work.com');
         expect(event.calendar).toBe('me@work.com');
         expect(event.creator).toBe('me@work.com');
@@ -70,7 +70,7 @@ describe('CalendarEvent', () => {
         expect(event.recurring).toBe(true);
         expect(event.recurring_master_id).toBe('Another');
         expect(event.attachments).toEqual([{ name: 'file.png', blob: null }]);
-        expect(event.system).toBeUndefined();
+        expect(event.system).toBeTruthy();
         expect(event.extension_data).toEqual({ catering: [] });
         expect(event.type).toBe('cancelled');
         // TODO: Test date/time fields
@@ -145,6 +145,7 @@ describe('CalendarEvent', () => {
     });
 
     it('should expose list of guests for event', () => {
+        setInternalUserDomain('work.com');
         expect(event.guests).toEqual([]);
         event = new CalendarEvent({
             attendees: [

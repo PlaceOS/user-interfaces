@@ -2,7 +2,7 @@
 
 exports[`DetailBookSpaceFormComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   
 </div>
@@ -10,7 +10,7 @@ exports[`DetailBookSpaceFormComponent should match snapshot 1`] = `
 
 exports[`DetailBookSpaceFormComponent should match snapshot 2`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <form
     class="ng-untouched ng-pristine ng-invalid"

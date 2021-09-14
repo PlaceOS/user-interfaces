@@ -30,7 +30,7 @@ describe('ConfirmModalComponent', () => {
         expect('h3').toContainText('Confirm');
         expect('[content]').toContainText('Are you sure?');
         expect('button[mat-dialog-close]').toContainText('Cancel');
-        expect('button[name="accept"]').toContainText('Ok');
+        expect('button[name="accept"]').toContainText('Accept');
         (spectator.component as any).title = 'Test Modal';
         (spectator.component as any).content = 'You are doing a good job!';
         (spectator.component as any).confirm_text = 'Yep';

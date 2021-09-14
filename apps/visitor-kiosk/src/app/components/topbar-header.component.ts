@@ -37,7 +37,9 @@ import { format } from 'date-fns';
     ],
 })
 export class TopbarHeaderComponent {
+    public date: number;
+
     public get time() {
-        return format(Date.now(), 'EEEE, MMMM do, h:mma');
+        return format(this.date || Date.now(), 'EEEE, MMMM do, h:mma');
     }
 }

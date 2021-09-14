@@ -1,5 +1,5 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import {
     CalendarEvent,
     EventFormService,
@@ -9,11 +9,12 @@ import { MockComponent } from 'ng-mocks';
 
 import { SpaceFlowConfirmComponent } from 'apps/workplace/src/app/book/space-flow/confirm.component';
 import { throwError, timer } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 jest.mock('@placeos/common');
 
 import * as common_mod from '@placeos/common';
-import { switchMap } from 'rxjs/operators';
 
 describe('SpaceFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowConfirmComponent>;
@@ -28,7 +29,11 @@ describe('SpaceFlowConfirmComponent', () => {
                 },
             },
         ],
-        declarations: [MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(UserAvatarComponent),
+        ],
+        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

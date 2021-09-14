@@ -9,9 +9,11 @@ import { SpacesService } from '@placeos/spaces';
 import { AppComponent } from '../lib/app.component';
 
 jest.mock('@placeos/common');
+jest.mock('@placeos/mocks');
 
 import * as Sentry from '@sentry/angular';
 import * as common_mod from '@placeos/common';
+import * as mocks_mod from '@placeos/mocks';
 import { of } from 'rxjs';
 
 describe('AppComponent', () => {
@@ -41,6 +43,7 @@ describe('AppComponent', () => {
         (common_mod as any).setAppName = jest.fn();
         (common_mod as any).setupCache = jest.fn();
         (common_mod as any).setNotifyOutlet = jest.fn();
+        (common_mod as any).unique = jest.fn(() => [{}]);
         spectator = createComponent();
     });
 

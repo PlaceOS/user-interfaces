@@ -134,8 +134,8 @@ exports[`ScheduleListComponent should match snapshot 1`] = `
           class="mat-datepicker-input opacity-0 absolute inset-0"
           data-mat-calendar="mat-datepicker-1"
           matinput=""
-          max="2022-01-13"
-          min="2021-09-13"
+          max="2022-01-14"
+          min="2021-09-14"
         />
         <mat-datepicker-toggle
           class="mat-datepicker-toggle opacity-0 absolute inset-0"

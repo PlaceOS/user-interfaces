@@ -77,10 +77,12 @@ describe('UserSearchFieldComponent', () => {
         spectator.tick(1000);
     }));
 
-    it("should show the selected user's name in the input field", () => {
+    it("should show the selected user's name in the input field", fakeAsync(() => {
         const user = new User(generateMockUser());
         spectator.component.writeValue(user);
+        spectator.tick(101);
         spectator.detectChanges();
+        console.log(user.name);
         expect(spectator.component.search_str).toBe(user.name);
         spectator.dispatchFakeEvent('input', 'focusin');
         (spectator.query('input') as HTMLInputElement).value = 'Not User';
@@ -88,7 +90,9 @@ describe('UserSearchFieldComponent', () => {
         spectator.detectChanges();
         expect(spectator.component.search_str).not.toBe(user.name);
         spectator.blur('input');
+        spectator.tick(101);
         spectator.detectChanges();
         expect(spectator.component.search_str).toBe(user.name);
-    });
+        spectator.component.ngOnDestroy();
+    }));
 });

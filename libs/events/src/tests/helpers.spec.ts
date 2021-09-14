@@ -15,10 +15,10 @@ import {
 describe('CalendarEvent[Methods]', () => {
     describe('eventStatus', () => {
         it('should get correct event status', () => {
-            expect(eventStatus({ resources: [] })).toBe('confirmed');
+            expect(eventStatus({ resources: [] })).toBe('approved');
             expect(
                 eventStatus({ resources: [{ response_status: 'accepted' }] })
-            ).toBe('confirmed');
+            ).toBe('approved');
             expect(
                 eventStatus({ resources: [{ response_status: 'tentative' }] })
             ).toBe('tentative');
@@ -27,7 +27,7 @@ describe('CalendarEvent[Methods]', () => {
             ).toBe('tentative');
             expect(
                 eventStatus({ resources: [{ response_status: 'blah' }] })
-            ).toBe('cancelled');
+            ).toBe('declined');
             expect(
                 eventStatus({
                     resources: [
@@ -176,7 +176,7 @@ describe('CalendarEvent[Methods]', () => {
                     {
                         space: new Space({ zones: ['zone-1'] }),
                     } as any,
-                    { 'zone-1': { rules: { hidden: true }, conditions: {} } }
+                    { 'zone-1': [{ rules: { hidden: true }, conditions: {} }] }
                 )
             ).toEqual({ auto_approve: true, hidden: true });
             expect(
@@ -185,10 +185,10 @@ describe('CalendarEvent[Methods]', () => {
                         space: new Space({ zones: ['zone-1'] }),
                     } as any,
                     {
-                        'zone-1': {
+                        'zone-1': [{
                             rules: { hidden: true },
                             conditions: { min_length: '1 minute' },
-                        },
+                        }],
                     }
                 )
             ).toEqual({ auto_approve: true, hidden: false });

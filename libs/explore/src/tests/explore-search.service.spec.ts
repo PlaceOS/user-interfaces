@@ -1,7 +1,7 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { Organisation, OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { ExploreSearchService } from '../lib/explore-search.service';
@@ -53,6 +53,7 @@ describe('ExploreSearchService', () => {
         expect(result[0].type).toBe('user');
         expect(user_mod.searchStaff).toHaveBeenCalledWith('Jim');
         spectator.service.setFilter('James');
+        await timer(401).toPromise();
         result = await spectator.service.search_results
             .pipe(take(1))
             .toPromise();
@@ -76,6 +77,7 @@ describe('ExploreSearchService', () => {
         expect(result).toHaveLength(2);
         expect(result[0].type).toBe('space');
         spectator.service.setFilter('Space 1');
+        await timer(401).toPromise();
         result = await spectator.service.search_results
             .pipe(take(1))
             .toPromise();
@@ -101,6 +103,7 @@ describe('ExploreSearchService', () => {
         expect(result).toHaveLength(1);
         expect(result[0].type).toBe('first_aid');
         spectator.service.setFilter('Jim');
+        await timer(401).toPromise();
         result = await spectator.service.search_results
             .pipe(take(1))
             .toPromise();

@@ -26,7 +26,7 @@ export interface SpaceInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
-            [attr.id]="space.map_id || space.id"
+            [attr.id]="space?.map_id || space?.id"
             class="h-full w-full pointer-events-auto relative"
         ></div>
         <ng-template #space_tooltip>

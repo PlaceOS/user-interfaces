@@ -15,6 +15,8 @@ describe('TopbarHeaderComponent', () => {
     });
 
     it('should match snapshot', () => {
+        spectator.component.date = 1;
+        spectator.detectChanges();
         expect(spectator.element).toMatchSnapshot();
     });
 });

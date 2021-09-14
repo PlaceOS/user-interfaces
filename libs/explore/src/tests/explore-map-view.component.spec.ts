@@ -54,6 +54,7 @@ describe('ExploreMapViewComponent', () => {
                 provide: ExploreStateService,
                 useValue: {
                     level: new BehaviorSubject(null),
+                    options: new BehaviorSubject({}),
                     setLevel: jest.fn(),
                     setFeatures: jest.fn(),
                     setOptions: jest.fn(),
@@ -79,14 +80,14 @@ describe('ExploreMapViewComponent', () => {
     });
 
     it('should handle option changes', () => {
-        expect('[name="zones"]').toExist();
+        expect('[zones]').toExist();
         const state = spectator.inject(ExploreStateService);
         spectator.triggerEventHandler(
             'mat-slide-toggle',
             'ngModelChange',
             true
         );
-        expect(state.setOptions).toHaveBeenCalledWith({ show_zones: true });
+        expect(state.setOptions).toHaveBeenCalledWith({ disable: undefined });
     });
 
     it('should handle level changes', () => {
