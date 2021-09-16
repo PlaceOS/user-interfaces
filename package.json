@@ -65,7 +65,7 @@
         "@nrwl/tao": "12.2.0",
         "@nrwl/workspace": "12.2.0",
         "@placeos/svg-viewer": "^0.1.8-dev",
-        "@placeos/ts-client": "^3.9.8",
+        "@placeos/ts-client": "^3.9.10",
         "@sentry/angular": "^6.2.5",
         "@sentry/tracing": "^6.2.5",
         "@tinymce/tinymce-angular": "^4.2.2",
