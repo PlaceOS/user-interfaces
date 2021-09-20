@@ -46,7 +46,8 @@ a[button],
     flex-grow: 1;
 }
 
-.dark {
+.dark,
+[dark] {
     mat-tab-group {
         .mat-tab-label-container {
             @apply bg-gray-900;
@@ -64,6 +65,15 @@ a[button],
             @apply text-white;
         }
     }
+
+    .mat-select-value-text,
+    .mat-select-arrow {
+        color: #fff;
+    }    
+
+    .mat-form-field-outline > div {
+        color: #fff8;
+    }    
 }
 #placeos {
     .mat-ink-bar {

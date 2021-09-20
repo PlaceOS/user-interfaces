@@ -75,7 +75,6 @@ export class ExploreZonesService extends BaseClass {
         );
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
-            console.log('Explore Zones:', areas);
             if (areas) {
                 for (const area of areas) {
                     this._capacity[area.id] = area.properties?.capacity || 100;

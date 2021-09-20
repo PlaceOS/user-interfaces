@@ -46,6 +46,33 @@ class RoomModule {
     public readonly outputs;
     public readonly environment;
 
+    public readonly help = {
+        'help': {
+            title: 'Help',
+            content: `
+# Using the asset browser
+
+## Activating the menu
+The 5 finger touch can be actvated by placing 4 fingers and your thumb on the screen, or quickly double-tapping the screen. Activation through double tap will leave the menu on-screen. To close tap the ‘X’.
+
+## Selecting a menu item
+Leaving at least one finger on the screen, drag your finger to the icon to select.
+
+## Home Menu
+The home menu allows you to access files and navigate to content and presentations via the Launcher.
+
+## Connect and stream your laptop or access the CMS to add files
+Plug your laptop into the HDMI to stream it to the screen, or access the CMS to add your own content and create custom presentations.
+
+<video></video>
+            `
+        },
+        'web_asset': {
+            title: 'Asset Browser',
+            content: `# Test 2`
+        }
+    }
+
     public volume = 0;
 
     constructor(_data: Partial<RoomModule>) {

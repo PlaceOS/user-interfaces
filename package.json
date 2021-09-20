@@ -85,6 +85,7 @@
         "git-describe": "^4.0.4",
         "jest": "26.2.2",
         "jest-preset-angular": "8.4.0",
+        "marked": "^3.0.4",
         "material-design-icons": "^3.0.1",
         "ng-mocks": "^11.10.0",
         "postcss": "^8.2.9",

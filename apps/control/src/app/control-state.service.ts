@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
-import { distinct, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import {
+    distinct,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+} from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 
 import { BaseClass, currentUser, HashMap } from '@placeos/common';
@@ -10,6 +17,7 @@ import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
+import { HelpModalComponent } from './ui/help-modal.component';
 
 export interface EnvironmentSource {
     name: string;
@@ -112,6 +120,18 @@ export class ControlStateService extends BaseClass {
         map((list) =>
             list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera'))
         )
+    );
+    public readonly help_items = this.system_id.pipe(
+        switchMap((id) => {
+            const mod = getModule(id, 'System');
+            const binding = mod.binding('help');
+            this.subscription('binding', binding.bind());
+            return binding.listen();
+        }),
+        map((_) =>
+            !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] }))
+        ),
+        shareReplay(1)
     );
 
     public readonly calendars = this._cal.calendar_list;
@@ -243,6 +263,21 @@ export class ControlStateService extends BaseClass {
         if (cals?.length) this.setCalendar(cals[0]);
         this._dialog.open(SelectMeetingModalComponent, {
             data: { input },
+        });
+    }
+
+    /** Open view help modal */
+    public async viewHelp(id?: string) {
+        this._dialog.open(HelpModalComponent, {
+            data: {
+                items: await this.help_items
+                    .pipe(
+                        filter((_) => !!_),
+                        take(1)
+                    )
+                    .toPromise(),
+                active_id: id,
+            },
         });
     }
 

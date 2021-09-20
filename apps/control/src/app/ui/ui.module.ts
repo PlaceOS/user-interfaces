@@ -25,6 +25,7 @@ import { VideoConferenceTooltipComponent } from './video-conf-tooltip.component'
 import { MatRippleModule } from '@angular/material/core';
 import { DialpadComponent } from './dialpad.component';
 import { RouterModule } from '@angular/router';
+import { HelpModalComponent } from './help-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -40,6 +41,7 @@ const COMPONENTS: Type<any>[] = [
     SelectMeetingModalComponent,
     VideoConferenceTooltipComponent,
     DialpadComponent,
+    HelpModalComponent,
 
     DurationPipe,
 ];
