@@ -39,7 +39,7 @@ import { ExploreDesksService } from './explore-desks.service';
         ></explore-map-controls>
         <!-- <explore-search class="absolute top-0 right-0"></explore-search> -->
         <div
-        zones
+            zones
             class="p-2 bg-white border border-gray-400 absolute left-0 m-2 rounded flex items-center"
         >
             Zones
@@ -58,7 +58,7 @@ import { ExploreDesksService } from './explore-desks.service';
                 background: var(--bg);
             }
 
-            [name='zones'] {
+            [zones] {
                 top: 3.5rem;
             }
         `,

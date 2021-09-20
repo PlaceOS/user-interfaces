@@ -75,14 +75,15 @@ export class ExploreZonesService extends BaseClass {
         );
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
+            console.log('Explore Zones:', areas);
             if (areas) {
                 for (const area of areas) {
                     this._capacity[area.id] = area.properties?.capacity || 100;
-                    this._location[area.id] = area.properties?.hide_label
+                    this._location[area.id] = area.properties?.hide_label !== false
                         ? area.properties?.label_location ||
-                          area.geometry?.coordinates?.length
+                          (area.geometry?.coordinates?.length
                             ? getCenterPoint(area.geometry?.coordinates)
-                            : null
+                            : null)
                         : null;
                     this._draw[area.id] = !!area.properties?.draw_polygon;
                     this._points[area.id] = area.geometry?.coordinates || [];
@@ -120,8 +121,10 @@ export class ExploreZonesService extends BaseClass {
                 content,
                 z_index: 100,
             };
+            console.log('Zone has Label:', zone.area_id);
             labels.push(this._labels[zone.area_id]);
         }
+        console.log('Zone Locations:', this._location);
         this._state.setLabels('zones', labels);
         this.timeout('update', () => this.updateStatus(), 100);
     }
@@ -158,7 +161,7 @@ export class ExploreZonesService extends BaseClass {
 }
 
 function getCenterPoint(points: [number, number][]) {
-    const diff: HashMap<number> = points.reduce(
+    const diff: HashMap<number> = (points || []).reduce(
         (m, [x, y]) => ({
             x_min: x < m.x_min ? x : m.x_min,
             x_max: x > m.x_max ? x : m.x_max,

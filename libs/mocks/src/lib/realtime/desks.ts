@@ -25,6 +25,11 @@ export class MockLocationServicesModule implements HashMap {
     /** Overview of the zones */
     overview: HashMap<ZoneOverview> = {};
 
+    emergency_contacts = {
+        "First Aid": MOCK_STAFF.filter(_ => predictableRandomInt(9999) % 5 === 0),
+        "Fire Warden": MOCK_STAFF.filter(_ => predictableRandomInt(9999) % 5 === 0),
+    }
+
     $locate_user(email: string, username: string) {}
 }
 
