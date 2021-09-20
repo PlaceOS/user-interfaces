@@ -13,6 +13,15 @@ import { ControlStateService } from '../control-state.service';
     providedIn: 'root',
 })
 export class VideoCallStateService extends BaseClass {
+    public readonly connected: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
+        switchMap((id) => {
+            const mod = getModule(id, 'VidConf');
+            const binding = mod.binding('connected');
+            this.subscription('binding', binding.bind());
+            return binding.listen();
+        }),
+        shareReplay(1)
+    );
     public readonly call: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
         switchMap((id) => {
             const mod = getModule(id, 'VidConf');

@@ -93,7 +93,6 @@ export class TopbarHeaderComponent extends BaseClass {
         video_conf: VideoConferenceTooltipComponent,
         lighting: LightingTooltipComponent,
         power: PowerTooltipComponent,
-        help: HelpTooltipComponent,
         blinds: BlindsTooltipComponent,
         camera: CameraTooltipComponent,
         mics: MicrophoneTooltipComponent,
@@ -122,11 +121,12 @@ export class TopbarHeaderComponent extends BaseClass {
         { id: 'blinds', name: 'Blinds', icon: 'unfold_more', show: true },
         { id: 'mics', name: 'Microphones', icon: 'mic', show: true },
         { id: 'camera', name: 'Cameras', icon: 'photo_camera', show: true },
-        { id: 'help', name: 'Help', icon: 'help', show: true },
+        { id: 'help', name: 'Help', icon: 'help', show: true, action: () => this.viewHelp(), },
         { id: 'power', name: 'Power', icon: 'power_settings_new', show: true },
     ];
 
     public readonly selectMeeting = () => this._state.selectMeeting();
+    public readonly viewHelp = () => this._state.viewHelp();
     public readonly powerOff = () => this._state.powerOff();
 
     public get logo() {
@@ -154,15 +154,17 @@ export class TopbarHeaderComponent extends BaseClass {
                 this.lights_list,
                 this.blinds_list,
                 this.system,
+                this._call.connected,
                 this._call.call,
-            ]).subscribe(([mics, cams, lights, blinds, system, call]) => {
+            ]).subscribe(([mics, cams, lights, blinds, system, has_vc, call]) => {
+                (this.action_list as any)[0].show = has_vc; 
                 (this.action_list as any)[0].enabled = !!call; 
                 this.action_list[1].show =
                     !this.is_trusted && (system as any).meeting_url;
-                this.action_list[2].show = lights?.length > 0;
-                this.action_list[3].show = blinds?.length > 0;
-                this.action_list[4].show = mics?.length > 0;
-                this.action_list[5].show = cams?.length > 0;
+                this.action_list[2].show = (lights as any)?.length > 0;
+                this.action_list[3].show = (blinds as any)?.length > 0;
+                this.action_list[4].show = (mics as any)?.length > 0;
+                this.action_list[5].show = (cams as any)?.length > 0;
                 this.action_list = [...this.action_list];
             })
         );
