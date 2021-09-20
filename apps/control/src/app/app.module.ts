@@ -21,16 +21,20 @@ import { ControlStatusBarComponent } from './status-bar.component';
 import { ControlAdvancedViewComponent } from './advanced-view.component';
 
 import * as Sentry from '@sentry/angular';
+import { ControlVideoCallViewComponent } from './video-call/video-call-view.component';
+import { VideoCallPageComponent } from './video-call/video-call-page.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         BootstrapComponent,
         ControlMainViewComponent,
+        ControlVideoCallViewComponent,
         TopbarHeaderComponent,
         ControlPageViewComponent,
         ControlStatusBarComponent,
         ControlAdvancedViewComponent,
+        VideoCallPageComponent
     ],
     imports: [
         BrowserModule,

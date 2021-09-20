@@ -9,6 +9,7 @@ import { createDisplayModule } from './realtime/display';
 import { createMicrophoneModule } from './realtime/microphone';
 import { createCaptureModule } from './realtime/capture';
 import { createMeetingPushModule } from './realtime/meeting';
+import { createVideoConferenceModule } from './realtime/video-conference';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {
@@ -22,5 +23,6 @@ export function createSystem(space: HashMap) {
             .map((_) => createMicrophoneModule(space)),
         Capture: [createCaptureModule(space)],
         MeetingPush: [createMeetingPushModule()],
+        VidConf: [createVideoConferenceModule()]
     });
 }

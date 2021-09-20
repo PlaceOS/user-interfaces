@@ -82,6 +82,7 @@ export class ControlStateService extends BaseClass {
         map((_) => _.filter((_) => !_.hidden)),
         shareReplay(1)
     );
+    public readonly system_id = this._id.asObservable();
     public readonly calendar = this._calendar.asObservable();
     /** List of available light sources */
     public readonly lights = this._lights.asObservable();

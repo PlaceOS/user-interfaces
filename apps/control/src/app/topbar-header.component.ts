@@ -9,6 +9,8 @@ import { HelpTooltipComponent } from './ui/help-tooltip.component';
 import { LightingTooltipComponent } from './ui/lighting-tooltip.component';
 import { MicrophoneTooltipComponent } from './ui/microphone-tooltip.component';
 import { PowerTooltipComponent } from './ui/power-tooltip.component';
+import { VideoConferenceTooltipComponent } from './ui/video-conf-tooltip.component';
+import { VideoCallStateService } from './video-call/video-call-state.service';
 
 @Component({
     selector: 'topbar-header',
@@ -25,6 +27,7 @@ import { PowerTooltipComponent } from './ui/power-tooltip.component';
                     <button
                         [attr.type]="item.id"
                         mat-icon-button
+                        [class.bg-success]="item.enabled"
                         (click)="item.action ? item.action() : ''"
                     >
                         <app-icon>{{ item.icon }}</app-icon>
@@ -87,6 +90,7 @@ export class TopbarHeaderComponent extends BaseClass {
     public readonly blinds_list = this._state.blinds;
 
     public readonly cmp = {
+        video_conf: VideoConferenceTooltipComponent,
         lighting: LightingTooltipComponent,
         power: PowerTooltipComponent,
         help: HelpTooltipComponent,
@@ -96,6 +100,12 @@ export class TopbarHeaderComponent extends BaseClass {
     };
 
     public action_list = [
+        {
+            id: 'video_conf',
+            name: 'Video Conference',
+            icon: 'call',
+            show: true,
+        },
         {
             id: 'meet',
             name: 'Join Meeting',
@@ -129,7 +139,8 @@ export class TopbarHeaderComponent extends BaseClass {
 
     constructor(
         private _settings: SettingsService,
-        private _state: ControlStateService
+        private _state: ControlStateService,
+        private _call: VideoCallStateService
     ) {
         super();
     }
@@ -143,13 +154,15 @@ export class TopbarHeaderComponent extends BaseClass {
                 this.lights_list,
                 this.blinds_list,
                 this.system,
-            ]).subscribe(([mics, cams, lights, blinds, system]) => {
-                this.action_list[0].show =
+                this._call.call,
+            ]).subscribe(([mics, cams, lights, blinds, system, call]) => {
+                (this.action_list as any)[0].enabled = !!call; 
+                this.action_list[1].show =
                     !this.is_trusted && (system as any).meeting_url;
-                this.action_list[1].show = lights?.length > 0;
-                this.action_list[2].show = blinds?.length > 0;
-                this.action_list[3].show = mics?.length > 0;
-                this.action_list[4].show = cams?.length > 0;
+                this.action_list[2].show = lights?.length > 0;
+                this.action_list[3].show = blinds?.length > 0;
+                this.action_list[4].show = mics?.length > 0;
+                this.action_list[5].show = cams?.length > 0;
                 this.action_list = [...this.action_list];
             })
         );

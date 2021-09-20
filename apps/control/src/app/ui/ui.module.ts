@@ -21,6 +21,10 @@ import { OutputDisplayComponent } from './output-display.component';
 import { JoystickComponent } from './joystick.component';
 import { DurationPipe } from './duration.pipe';
 import { SelectMeetingModalComponent } from './select-meeting-modal.component';
+import { VideoConferenceTooltipComponent } from './video-conf-tooltip.component';
+import { MatRippleModule } from '@angular/material/core';
+import { DialpadComponent } from './dialpad.component';
+import { RouterModule } from '@angular/router';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -34,6 +38,8 @@ const COMPONENTS: Type<any>[] = [
     OutputDisplayComponent,
     JoystickComponent,
     SelectMeetingModalComponent,
+    VideoConferenceTooltipComponent,
+    DialpadComponent,
 
     DurationPipe,
 ];
@@ -44,6 +50,7 @@ const MAT_MODULES: any[] = [
     MatAutocompleteModule,
     MatButtonModule,
     MatSliderModule,
+    MatRippleModule
 ];
 
 const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
@@ -55,6 +62,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ComponentsModule,
         ...MAT_MODULES,
         ...ANGULAR_MODULES,
+        RouterModule.forChild([])
     ],
     exports: [
         ComponentsModule,
