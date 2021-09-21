@@ -9,17 +9,32 @@ import { DesksStateService } from './desks-state.service';
     selector: 'desks-manage',
     template: `
         <custom-table
-            class="min-w-[48rem]"
+            class="min-w-[72rem] block"
             [dataSource]="desks"
             [filter]="(filters | async)?.search"
-            [columns]="['id', 'bookable', 'name', 'groups', 'actions']"
-            [display_column]="['ID', 'Bookable', 'Name', 'Groups', ' ']"
-            [column_size]="['8r', '6r', '12r', 'flex', '10r']"
+            [columns]="[
+                'id',
+                'bookable',
+                'name',
+                'groups',
+                'features',
+                'actions'
+            ]"
+            [display_column]="[
+                'ID',
+                'Bookable',
+                'Name',
+                'Groups',
+                'Features',
+                ' '
+            ]"
+            [column_size]="['8r', '6r', '12r', 'flex', '16r', '10r']"
             [template]="{
                 id: text_edit_template,
                 name: text_edit_template,
                 bookable: bookable_edit_template,
-                groups: group_edit_template,
+                groups: list_edit_template,
+                features: list_edit_template,
                 actions: action_template
             }"
             [empty]="
@@ -28,11 +43,16 @@ import { DesksStateService } from './desks-state.service';
                     : 'No desks for selected level'
             "
         ></custom-table>
-        <ng-template #group_edit_template let-data="data" let-row="row">
+        <ng-template
+            #list_edit_template
+            let-data="data"
+            let-row="row"
+            let-key="key"
+        >
             <item-list-field
                 class="w-full"
                 hide-outline
-                [placeholder]="key"
+                [placeholder]="key === 'groups' ? 'User Groups' : 'Features'"
                 [ngModel]="(changes[row.id] ? changes[row.id][key] : null) ?? data"
                 (ngModelChange)="
                     changes[row.id] && changes[row.id][key]
@@ -107,7 +127,7 @@ import { DesksStateService } from './desks-state.service';
             </div>
         </ng-template>
         <div
-            class="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-4 rounded bg-white shadow"
+            class="fixed bottom-2 left-1/2 transform -translate-x-1/2 p-4 rounded bg-white shadow"
             *ngIf="changed > 0"
         >
             <p class="mb-2 text-xl">

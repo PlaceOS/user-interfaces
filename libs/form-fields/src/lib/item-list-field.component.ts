@@ -62,7 +62,7 @@ export function removeChipItem<T = string>(
                     <app-icon matChipRemove>close</app-icon>
                 </mat-chip>
                 <input
-                    placeholder="User groups..."
+                    [placeholder]="placeholder || 'User groups...'"
                     i18n-placeholder="@@userGroupsPlaceholder"
                     [matChipInputFor]="chipList"
                     [matChipInputSeparatorKeyCodes]="separators"
@@ -84,6 +84,8 @@ export function removeChipItem<T = string>(
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     @Input() public separators: number[] = [ENTER, COMMA, SPACE];
+
+    @Input() public placeholder = '';
     /** List of items stored */
     public value: T[] = [];
 
