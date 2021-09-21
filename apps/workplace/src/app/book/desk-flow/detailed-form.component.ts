@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, format } from 'date-fns';
 
 @Component({
     selector: 'detailed-book-desks-form',
@@ -36,7 +36,7 @@ import { addDays, endOfDay } from 'date-fns';
             >
                 <div class="flex flex-col flex-1 w-full sm:w-1/4">
                     <label>Date</label>
-                    <a-date-field formControlName="date">
+                    <a-date-field [to]="book_until" formControlName="date">
                         Date and time must be in the future
                     </a-date-field>
                 </div>
@@ -223,7 +223,12 @@ export class DeskFlowDetailedFormComponent {
     }
 
     public get book_until() {
-        return endOfDay(addDays(Date.now(), this._settings.get('app.desks.available_period') || 90));
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.desks.available_period') || 90
+            )
+        );
     }
 
     constructor(
@@ -231,4 +236,8 @@ export class DeskFlowDetailedFormComponent {
         private _org: OrganisationService,
         private _settings: SettingsService
     ) {}
+
+    public ngOnInit() {
+        console.log('Date:', format(this.book_until, 'dd MMM yyyy'));
+    }
 }
