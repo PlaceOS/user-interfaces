@@ -96,8 +96,9 @@ export class BookingFormService extends BaseClass {
                         map((data) =>
                             flatten(
                                 data.map((_) =>
-                                    (
-                                        _.metadata.desks?.details instanceof Array ? _.metadata.desks?.details : []
+                                    (_.metadata.desks?.details instanceof Array
+                                        ? _.metadata.desks?.details
+                                        : []
                                     ).map((d) => ({ ...d, zone: _.zone }))
                                 )
                             )
@@ -331,7 +332,9 @@ export class BookingFormService extends BaseClass {
         }
         const allowed_bookings =
             this._settings.get(
-                `app.booking.allowed_daily_${this._options.getValue().type}_count`
+                `app.booking.allowed_daily_${
+                    this._options.getValue().type
+                }_count`
             ) ?? 1;
         if (
             allowed_bookings > 0 &&
@@ -344,7 +347,10 @@ export class BookingFormService extends BaseClass {
             throw `You already have a desk booked`;
         }
         if (form.value.duration > 23 * 60) {
-            form.patchValue({ date: set(form.value.date, { hours: 12, minutes: 0 }), duration: 60 });
+            form.patchValue({
+                date: set(form.value.date, { hours: 12, minutes: 0 }),
+                duration: 60,
+            });
         }
         const result = await saveBooking(new Booking(form.value)).toPromise();
         this.clearForm();
