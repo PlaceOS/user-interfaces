@@ -14,7 +14,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { listChildMetadata, PlaceZone } from '@placeos/ts-client';
-import { format, getUnixTime, addMinutes } from 'date-fns';
+import { format, getUnixTime, addMinutes, set } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     debounceTime,
@@ -342,6 +342,9 @@ export class BookingFormService extends BaseClass {
             ).length >= allowed_bookings
         ) {
             throw `You already have a desk booked`;
+        }
+        if (form.value.duration > 23 * 60) {
+            form.patchValue({ date: set(form.value.date, { hours: 12, minutes: 0 }), duration: 60 });
         }
         const result = await saveBooking(new Booking(form.value)).toPromise();
         this.clearForm();

@@ -5,7 +5,8 @@ import {
     getUnixTime,
     isAfter,
     isSameDay,
-    roundToNearestMinutes
+    roundToNearestMinutes,
+    startOfDay
 } from 'date-fns';
 
 export type BookingType = 'desk' | 'parking' | 'locker' | '';
@@ -74,16 +75,10 @@ export class Booking {
         this.asset_id = data.asset_id || '';
         this.zones = data.zones || [];
         this.booking_start =
-            data.booking_start ||
-            getUnixTime(
-                data.date ||
-                    roundToNearestMinutes(addMinutes(new Date(), 2), {
-                        nearestTo: 5,
-                    })
-            );
+            data.booking_start || getUnixTime(startOfDay(Date.now()));
         this.booking_end =
             data.booking_end ||
-            getUnixTime(addMinutes(this.booking_start * 1000, data.duration || 60));
+            getUnixTime(addMinutes(this.booking_start * 1000, data.duration || (24 * 60)));
         this.booking_type = data.booking_type || '';
         this.type = data.type || 'booking';
         this.date = data.date || this.booking_start * 1000;

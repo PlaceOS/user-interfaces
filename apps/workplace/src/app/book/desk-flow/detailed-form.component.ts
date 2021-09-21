@@ -93,6 +93,25 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </div>
             </div>
             <div
+                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                *ngFor="allow_time_changes"
+            >
+                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                    <label>Start Time</label>
+                    <a-time-field formControlName="date"></a-time-field>
+                </div>
+                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                    <label>End Time</label>
+                    <a-duration-field
+                        formControlName="duration"
+                        [time]="form.get('date')?.value"
+                        [max]="24 * 60"
+                        [step]="60"
+                    >
+                    </a-duration-field>
+                </div>
+            </div>
+            <div
                 class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
                 <label>Reason</label>
@@ -220,6 +239,10 @@ export class DeskFlowDetailedFormComponent {
 
     public get allow_groups() {
         return this._settings.get('app.desks.allow_groups');
+    }
+
+    public get allow_time_changes() {
+        return this._settings.get('app.desks.allow_time_changes');
     }
 
     public get book_until() {
