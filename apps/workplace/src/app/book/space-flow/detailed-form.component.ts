@@ -37,6 +37,7 @@ import { SettingsService } from '@placeos/common';
                 >
                     <label>Attendees</label>
                     <a-user-list-field
+                        [hideActions]="hide_actions"
                         formControlName="attendees"
                     ></a-user-list-field>
                 </div>
@@ -101,6 +102,10 @@ export class DetailBookSpaceFormComponent {
 
     public get has_catering() {
         return !!this._settings.get('app.rooms.has_catering');
+    }
+
+    public get hide_actions() {
+        return !!this._settings.get('app.booking.hide_user_actions');
     }
 
     public readonly editCatering = async () =>
