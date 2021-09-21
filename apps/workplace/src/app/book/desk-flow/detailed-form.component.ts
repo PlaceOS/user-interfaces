@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'detailed-book-desks-form',
@@ -154,6 +155,7 @@ import { OrganisationService } from '@placeos/organisation';
                             })
                         "
                         [ngModelOptions]="{ standalone: true }"
+                        [to]="book_until"
                     >
                         Date and time must be in the future
                     </a-date-field>
@@ -218,6 +220,10 @@ export class DeskFlowDetailedFormComponent {
 
     public get allow_groups() {
         return this._settings.get('app.desks.allow_groups');
+    }
+
+    public get book_until() {
+        return endOfDay(addDays(Date.now(), this._settings.get('app.desks.available_period') || 90));
     }
 
     constructor(
