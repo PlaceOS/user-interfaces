@@ -20,9 +20,15 @@ import { ControlPageViewComponent } from './page-view.component';
 import { ControlStatusBarComponent } from './status-bar.component';
 import { ControlAdvancedViewComponent } from './advanced-view.component';
 
-import * as Sentry from '@sentry/angular';
 import { ControlVideoCallViewComponent } from './video-call/video-call-view.component';
 import { VideoCallPageComponent } from './video-call/video-call-page.component';
+
+import { ControlTabbedViewComponent } from './tabbed-view/tabbed-view.component';
+import { TabOutletComponent } from './tabbed-view/tab-outlet.component';
+import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
+import { DeviceOutputListItemComponent } from './tabbed-view/output-list-item.component';
+
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
     declarations: [
@@ -34,7 +40,11 @@ import { VideoCallPageComponent } from './video-call/video-call-page.component';
         ControlPageViewComponent,
         ControlStatusBarComponent,
         ControlAdvancedViewComponent,
-        VideoCallPageComponent
+        VideoCallPageComponent,
+        ControlTabbedViewComponent,
+        DeviceOutputListComponent,
+        DeviceOutputListItemComponent,
+        TabOutletComponent
     ],
     imports: [
         BrowserModule,

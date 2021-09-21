@@ -73,6 +73,22 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
         }
     }
 
+    public tabs =[
+        {
+           icon: "laptop",
+           name: "Laptop",
+           type: 'Display',
+           help: "laptop-help"
+         },
+        {
+           icon: "call",
+           name: "VC",
+           inputs: ["VidConf_1"],
+           help: "vidconf-help",
+           controls: "vidconf-controls"
+         },
+      ]
+
     public volume = 0;
 
     constructor(_data: Partial<RoomModule>) {
@@ -290,6 +306,11 @@ const input_list: HashMap = {
         name: 'IPTV 1',
         type: 'TV',
         mod: 'IPTV_1',
+    },
+    VC1: {
+        name: 'Video Conference 1',
+        type: 'VC',
+        mod: 'VidConf_1',
     },
 };
 

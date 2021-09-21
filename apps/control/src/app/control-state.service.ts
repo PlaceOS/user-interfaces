@@ -9,7 +9,7 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
 import { BaseClass, currentUser, HashMap } from '@placeos/common';
 import { Calendar, CalendarService } from '@placeos/calendar';
@@ -23,6 +23,15 @@ export interface EnvironmentSource {
     name: string;
     states: string[];
     state: string;
+}
+
+export interface TabDetails {
+    icon: string;
+    name: string;
+    inputs: string[];
+    help: string;
+    controls: string;
+    type: string;
 }
 
 export interface RoomInput {
@@ -76,6 +85,7 @@ export class ControlStateService extends BaseClass {
     private _blinds = new BehaviorSubject<string[]>([]);
     private _screens = new BehaviorSubject<string[]>([]);
     private _url = new BehaviorSubject<string>('');
+    private _active_output = new BehaviorSubject<string>('');
     private _calendar = new BehaviorSubject<Calendar>(null);
 
     /** General data associated with the active system */
@@ -99,6 +109,7 @@ export class ControlStateService extends BaseClass {
     public readonly screens = this._screens.asObservable();
     public readonly volume = this._volume.asObservable();
     public readonly mute = this._mute.asObservable();
+    public readonly active_output = this._active_output.asObservable();
     /** List of available capture output sources */
     public readonly capture_list = this._output_data.pipe(
         map((list) =>
@@ -131,6 +142,16 @@ export class ControlStateService extends BaseClass {
         map((_) =>
             !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] }))
         ),
+        shareReplay(1)
+    );
+    public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
+        switchMap((id) => {
+            const mod = getModule(id, 'System');
+            const binding = mod.binding('tabs');
+            this.subscription('binding', binding.bind());
+            return binding.listen();
+        }),
+        map(_ => _ || []),
         shareReplay(1)
     );
 
@@ -182,9 +203,21 @@ export class ControlStateService extends BaseClass {
         this._calendar.next(cal);
     }
 
+    /** Set the active calendar */
+    public setOutput(id: string) {
+        this._active_output.next(id);
+    }
+
     /** Route input source to output */
     public setRoute(input: string, output: string) {
         return this._execute('route', [input, output]);
+    }
+
+    /** Set the route of the active output */
+    public setOutputSource(input: string) {
+        const output = this._active_output.getValue();
+        if (!output) return;
+        return this.setRoute(input, output)
     }
 
     /** Update the econtrol meeting */
