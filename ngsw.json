@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1632118705042,
+  "timestamp": 1632184280947,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -77,7 +77,7 @@
   "hashTable": {
     "./apps_concierge_src_app_catering_catering_module_ts.js": "bf45f5db043ff1ef2317c679f1a3d0e827ad1970",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "37017a71333717a39698491a1c0205bb4b7183c7",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "b1519abbb951525f77d5da1efbb0326ffcf98b58",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "83169374b29cd381e512b4316d359fe92dfdf0a9",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "7b023052cb8ae139738669c65e195d6ec7a5f9b5",
     "./apps_concierge_src_app_points_points_module_ts.js": "31a5cd9ac23e2788f4bd28e654b2df9e60f4ca09",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "e31cc1428ad4e3089cf46fad4eee05861a90c4f7",
@@ -107,21 +107,21 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "f771b71d1b20aad0ee21deadd3ba811610d521e2",
-    "./default-libs_bookings_src_index_ts.js": "c63db3515ecac7cf8400efe104f73c3ec25a28bb",
+    "./default-libs_bookings_src_index_ts.js": "6c14131e434b7c07548ed3c06a6fb7e17728e52e",
     "./default-libs_catering_src_index_ts.js": "ff0c7a52cdfb2c9ac5a63aeb2b88277c9a698b58",
     "./default-libs_explore_src_index_ts.js": "3f166724255707e0b970cd017b8b4bc2b5dae2bb",
     "./default-node_modules_angular_material_fesm2015_radio_js.js": "17e10b5cd4398eefb256820e6f74827093f3c42a",
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "a3a01451af0a637b3cd7702def4edf8c984a02d1",
-    "./main.js": "3a01c7c501246d53e868899a142377221ba5b2b0",
+    "./main.js": "07049f466354d05929b2f166879c77091981cacd",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "09a9a3e3da942b13a02f9e4f52075977ac379955",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "8ea8815a3011fbc4951c30c9575ab554659e316c",
-    "./vendor.js": "2e7ce33cba69d03f0c36993d02dcb68df7f991a9"
+    "./styles.css": "e18503c545ca2e24a385a3adfe9940e56fcfc48b",
+    "./vendor.js": "d68e28823d15fc57bc287119669d17ec29ce1d72"
   },
   "navigationUrls": [
     {
