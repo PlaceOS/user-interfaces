@@ -57,3 +57,5 @@ There are 7 available frontends for this client
 ## Settings
 
 A list of application settings (configurable via Zone.metadata) is available at `/apps/<app name>/src/environments/settings.schema.json`
+
+* [Workplace App](https://github.com/PlaceOS/user-interfaces/blob/master/apps/workplace/src/environments/settings.ts)
