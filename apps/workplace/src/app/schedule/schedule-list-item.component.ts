@@ -51,7 +51,7 @@ import { BookingLike } from './schedule-state.service';
                         </div>
                         <div class="flex items-center font-normal">
                             <app-icon class="text-lg mr-1">place</app-icon>
-                            <span>{{ item?.location }}</span>
+                            <span>{{ (item?.location || item?.body?.length) | slice:0:255 }}</span>
                         </div>
                     </div>
                 </div>
