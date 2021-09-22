@@ -364,6 +364,7 @@ export class BookingFormService extends BaseClass {
     }
 
     private async checkQuestions() {
+        if (!!this._settings.get('app.desks.ignore_questions')) return;
         const ref = this._dialog.open(DeskQuestionsModalComponent);
         const result = await Promise.race([
             ref.componentInstance.event
