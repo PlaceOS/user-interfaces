@@ -1,5 +1,7 @@
 import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 
 import { ComponentsModule } from '@placeos/components';
+
 import { LightingTooltipComponent } from './lighting-tooltip.component';
 import { PowerTooltipComponent } from './power-tooltip.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
@@ -22,10 +25,10 @@ import { JoystickComponent } from './joystick.component';
 import { DurationPipe } from './duration.pipe';
 import { SelectMeetingModalComponent } from './select-meeting-modal.component';
 import { VideoConferenceTooltipComponent } from './video-conf-tooltip.component';
-import { MatRippleModule } from '@angular/material/core';
 import { DialpadComponent } from './dialpad.component';
-import { RouterModule } from '@angular/router';
 import { HelpModalComponent } from './help-modal.component';
+import { MarkdownPipe } from './markdown.pipe';
+import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -42,8 +45,10 @@ const COMPONENTS: Type<any>[] = [
     VideoConferenceTooltipComponent,
     DialpadComponent,
     HelpModalComponent,
+    VideoCallDialViewComponent,
 
     DurationPipe,
+    MarkdownPipe
 ];
 
 const MAT_MODULES: any[] = [

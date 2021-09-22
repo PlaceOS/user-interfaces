@@ -14,7 +14,10 @@ import { ControlStateService } from '../control-state.service';
                 class="absolute inset-0 flex flex-col"
             >
                 <topbar-header></topbar-header>
-                <div class="h-1/2 flex-1" video-call-page></div>
+
+                <div class="h-1/2 flex-1">
+                    <div class="absolute inset-4 flex flex-col bg-white rounded shadow"  video-call-page></div>
+                </div>
                 <control-status-bar></control-status-bar>
             </div>
         </ng-container>

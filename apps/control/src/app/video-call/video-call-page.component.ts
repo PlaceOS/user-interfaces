@@ -9,7 +9,7 @@ import { VideoCallStateService } from './video-call-state.service';
     selector: '[video-call-page]',
     template: `
         <div
-            class="absolute inset-4 flex flex-col bg-white rounded shadow text-black p-2"
+            class="text-black p-2 h-full w-full"
             *ngIf="!loading; else load_state"
         >
             <h2 class="w-full text-center font-medium text-xl">Video Conference</h2>
@@ -134,7 +134,6 @@ import { VideoCallStateService } from './video-call-state.service';
         `
             :host {
                 position: relative;
-                background-color: #f0f0f0;
             }
         `,
     ],
