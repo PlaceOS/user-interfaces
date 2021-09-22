@@ -13,7 +13,6 @@ import {
 } from '@placeos/common';
 import {
     BookingFormService,
-    DesksService,
     queryBookings,
 } from '@placeos/bookings';
 import { StaffUser } from '@placeos/users';
@@ -249,6 +248,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 },
                 z_index: 20
             });
+            if (!desk.bookable) continue;
             const book_fn = async () => {
                 this._bookings.newForm();
                 this._bookings.form.patchValue({
