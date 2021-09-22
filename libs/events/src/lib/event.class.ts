@@ -144,7 +144,6 @@ export class CalendarEvent {
               differenceInMinutes(data.event_end * 1000, this.date) ||
               30;
         this.timezone = data.timezone || '';
-        this.location = data.location || this.space?.display_name || this?.space.name || '';
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
         this.meeting_id = data.meeting_id || data.online_meeting_id || '';
         this.meeting_provider =
@@ -186,6 +185,7 @@ export class CalendarEvent {
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
         this.status = eventStatus(this) || 'none';
+        this.location = data.location || this.space?.display_name || this?.space.name || '';
         this.type =
             this.status === 'declined'
                 ? 'cancelled'

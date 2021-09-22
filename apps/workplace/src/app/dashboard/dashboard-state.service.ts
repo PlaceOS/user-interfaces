@@ -7,22 +7,22 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, debounceTime, filter, first, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
-import {
-    BaseClass,
-    currentUser,
-    HashMap,
-    unique,
-} from '@placeos/common';
+import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
-import {
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 
 export interface DashboardOptions {
@@ -56,7 +56,7 @@ export class DashboardStateService extends BaseClass {
     public readonly search_results = this._options.pipe(
         debounceTime(500),
         switchMap(({ search }) => (search ? searchStaff(search) : of([]))),
-        catchError(_ => []),
+        catchError((_) => []),
         shareReplay(1)
     );
     /**  */
@@ -164,6 +164,15 @@ export class DashboardStateService extends BaseClass {
                 period_end,
                 zone_ids: this._org.building.id,
             })
+            .pipe(
+                map((_) =>
+                    _.filter(
+                        (space) =>
+                            !space.availability.length ||
+                            space.availability.find((_) => _.status !== 'busy')
+                    )
+                )
+            )
             .toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
