@@ -49,9 +49,17 @@ import { BookingLike } from './schedule-state.service';
                         <div class="text-xl pl-1">
                             {{ item?.title || 'Untitled Event' }}
                         </div>
-                        <div class="flex items-center font-normal">
+                        <div
+                            class="flex items-center font-normal"
+                            *ngIf="item?.location || item?.description"
+                        >
                             <app-icon class="text-lg mr-1">place</app-icon>
-                            <span>{{ (item?.location || item?.description) | slice:0:255 }}</span>
+                            <span>
+                                {{
+                                    item?.location || item?.description
+                                        | slice: 0:255
+                                }}
+                            </span>
                         </div>
                     </div>
                 </div>
