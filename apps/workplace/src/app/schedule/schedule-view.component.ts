@@ -76,7 +76,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         <app-icon>menu_book</app-icon>
                     </div>
                     <div class="flex-1 truncate">
-                        {{ event.asset_id || '&lt;No Asset&gt;' }}
+                        {{ event.description || '&lt;No Asset&gt;' }}
                     </div>
                 </div>
                 <div
