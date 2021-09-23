@@ -207,7 +207,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         class="w-32"
                         [disabled]="loading"
                         (click)="editEvent()"
-                        *ngIf="is_host"
+                        *ngIf="is_host && !event.asset_id"
                     >
                         Edit Event
                     </button>
@@ -216,6 +216,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         remove
                         class="w-32 error inverse"
                         [disabled]="loading"
+                        *ngIf="is_host"
                         (click)="confirmDelete()"
                     >
                         {{ is_host ? 'Delete' : 'Decline' }} Event
