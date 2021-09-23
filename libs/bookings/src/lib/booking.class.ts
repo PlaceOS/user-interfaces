@@ -103,7 +103,7 @@ export class Booking {
         this.approver_name = data.approver_name || '';
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
-        this.all_day = data.all_day ?? this.duration >= 24 * 60;
+        this.all_day = data.all_day ?? this.duration > 12 * 60;
         this.status = this.rejected
             ? 'declined'
             : this.approved
