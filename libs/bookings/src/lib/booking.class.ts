@@ -6,7 +6,7 @@ import {
     isAfter,
     isSameDay,
     roundToNearestMinutes,
-    startOfDay
+    startOfDay,
 } from 'date-fns';
 
 export type BookingType = 'desk' | 'parking' | 'locker' | '';
@@ -75,19 +75,26 @@ export class Booking {
         this.asset_id = data.asset_id || '';
         this.zones = data.zones || [];
         this.booking_start =
-            data.booking_start || getUnixTime(startOfDay(Date.now()));
+            data.date / 1000 ||
+            data.booking_start ||
+            getUnixTime(startOfDay(Date.now()));
         this.booking_end =
+            (data.date / 1000 + data.duration * 60) ||
             data.booking_end ||
-            getUnixTime(addMinutes(this.booking_start * 1000, data.duration || (24 * 60)));
+            getUnixTime(
+                addMinutes(this.booking_start * 1000, data.duration || 24 * 60)
+            );
         this.booking_type = data.booking_type || '';
         this.type = data.type || 'booking';
         this.date = data.date || this.booking_start * 1000;
         this.duration =
             data.duration ||
-            Math.abs(differenceInMinutes(
-                this.booking_start * 1000,
-                this.booking_end * 1000
-            ));
+            Math.abs(
+                differenceInMinutes(
+                    this.booking_start * 1000,
+                    this.booking_end * 1000
+                )
+            );
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.user_email = data.user_email || '';
