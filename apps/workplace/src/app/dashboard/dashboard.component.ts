@@ -67,6 +67,6 @@ export class DashboardComponent {
     constructor(private _settings: SettingsService) {}
 
     public get hide_contacts() {
-        return !!this._settings.get('app.hide_contacts');
+        return this._settings.get('app.hide_contacts') !== false;
     }
 }
