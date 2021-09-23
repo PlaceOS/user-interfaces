@@ -94,7 +94,7 @@ import { addDays, endOfDay, format } from 'date-fns';
             </div>
             <div
                 class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
-                *ngFor="allow_time_changes"
+                *ngIf="allow_time_changes"
             >
                 <div class="flex flex-col flex-1 w-full sm:w-1/3">
                     <label>Start Time</label>
@@ -242,7 +242,7 @@ export class DeskFlowDetailedFormComponent {
     }
 
     public get allow_time_changes() {
-        return this._settings.get('app.desks.allow_time_changes');
+        return !!this._settings.get('app.desks.allow_time_changes');
     }
 
     public get book_until() {
