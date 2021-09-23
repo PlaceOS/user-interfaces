@@ -80,7 +80,7 @@ export class EventFormService extends BaseClass {
         map((_) =>
             _.filter(
                 (space) =>
-                    !space.availability.length ||
+                    !space.availability?.length ||
                     space.availability.find((_) => _.status !== 'busy')
             )
         ),

@@ -50,10 +50,10 @@ describe('ExploreSpacesService', () => {
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
         expect(ts_client.getModule).toHaveBeenCalledWith('space-1', 'Bookings');
-        expect(binding).toHaveBeenCalledTimes(2);
+        expect(binding).toHaveBeenCalledTimes(4);
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
-        expect(bind).toHaveBeenCalledTimes(2);
+        expect(bind).toHaveBeenCalledTimes(4);
         expect(state.setActions).toHaveBeenCalled();
     });
 

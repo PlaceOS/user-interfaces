@@ -302,7 +302,7 @@ export class BookingFormService extends BaseClass {
             },
             this._dialog
         );
-        if (details?.reason !== 'done') return;
+        if (details?.reason !== 'done') throw 'User cancelled';
         details.loading('Performing booking request...');
         await this.postForm().catch((_) => {
             notifyError(_);

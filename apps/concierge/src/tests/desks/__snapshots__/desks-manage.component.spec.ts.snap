@@ -5,7 +5,7 @@ exports[`DesksManageComponent should match snapshot 1`] = `
   id="root1"
 >
   <custom-table
-    class="min-w-[48rem]"
+    class="min-w-[72rem] block"
   />
   
   

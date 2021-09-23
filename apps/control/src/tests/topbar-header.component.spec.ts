@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
+import { VideoCallStateService } from '../app/video-call/video-call-state.service';
 
 describe('TopbarHeaderComponent', () => {
     let spectator: Spectator<TopbarHeaderComponent>;
@@ -27,6 +28,13 @@ describe('TopbarHeaderComponent', () => {
                     lights: new BehaviorSubject([]),
                     blinds: new BehaviorSubject([]),
                     powerOff: jest.fn(),
+                },
+            },
+            {
+                provide: VideoCallStateService,
+                useValue: {
+                    call: new BehaviorSubject(null),
+                    connected: new BehaviorSubject(null),
                 },
             },
         ],
