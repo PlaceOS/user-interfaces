@@ -19,7 +19,11 @@ import { SettingsService } from '@placeos/common';
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
                         <label>Start Time</label>
-                        <a-time-field formControlName="date"></a-time-field>
+                        <a-time-field
+                            [ngModel]="form.value.date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                        ></a-time-field>
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
                         <label>End Time</label>
@@ -119,5 +123,8 @@ export class DetailBookSpaceFormComponent {
             ],
         });
 
-    constructor(private _catering: CateringStateService, private _settings: SettingsService) {}
+    constructor(
+        private _catering: CateringStateService,
+        private _settings: SettingsService
+    ) {}
 }
