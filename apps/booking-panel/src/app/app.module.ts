@@ -32,6 +32,7 @@ import { PanelStatusComponent } from './panel/panel-status.component';
 import { MatRippleModule } from '@angular/material/core';
 import { PanelTimelineComponent } from './panel/timeline.component';
 import { AppPanelViewModule } from './new-panel/panel-view.module';
+import { AppCheckinModule } from './checkin/checkin.module';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -63,6 +64,7 @@ const MAT_MODULES: any[] = [
         MatRippleModule,
         SharedOverlaysModule,
         AppPanelViewModule,
+        AppCheckinModule,
         ComponentsModule,
         ...MAT_MODULES,
         ServiceWorkerModule.register('ngsw-worker.js', {
