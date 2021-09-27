@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1632380007853,
+  "timestamp": 1632728323625,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -47,6 +47,9 @@
         "./assets/maps/level_2.svg",
         "./assets/maps/level_3.svg",
         "./assets/not-supported.html",
+        "./assets/room_free.svg",
+        "./assets/room_in_use.svg",
+        "./assets/room_pending.svg",
         "./assets/support/chrome-logo.svg",
         "./assets/support/edge-logo.svg",
         "./assets/support/firefox-logo.svg",
@@ -73,6 +76,9 @@
     "./assets/maps/level_2.svg": "9a6f3cf8a7cefa4c41187294cb8747b80db8e04d",
     "./assets/maps/level_3.svg": "017bd15f1d17e947d3cde810ded6f09d26c27bd9",
     "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
+    "./assets/room_free.svg": "3df6318c5ca260b37c8335fb98bae0df2e9679c7",
+    "./assets/room_in_use.svg": "55ab0a19b17159de24d236047d6d6dd71ca3ded7",
+    "./assets/room_pending.svg": "36abfe55b105aa197a3c61ad75af87d141d9f469",
     "./assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
     "./assets/support/edge-logo.svg": "28d8691fd6c19223a3d99dd8732416d32a82d496",
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
@@ -80,14 +86,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "9816ecdf293da6fee14dbcc58956c6d0041876bb",
-    "./main.js": "c72cee886308ae10ab4e2e275863aa82dc33dc88",
+    "./main.js": "9d96aa3f2c7db188861c184ed45d28844ace561e",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "c912fb1a02c1f92437786bb0a58c0a1e5fd2ad69",
     "./runtime.js": "513a39ca585502656b2a6d6e2d55fab6f750d2e3",
-    "./styles.css": "2c498fbceb363921b7fe7ab58b095b95a4ae9e15",
-    "./vendor.js": "47072dc9563a7c54e0c23d74d977cc2f415566b5"
+    "./styles.css": "b5e5075381de2178fdcac4d545323cb8003557e5",
+    "./vendor.js": "078de822285a4ca34aab9cee2f274f1b45a04b18"
   },
   "navigationUrls": [
     {
