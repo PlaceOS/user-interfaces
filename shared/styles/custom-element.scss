@@ -8,19 +8,19 @@ button.mat-button,
 a[button],
 .dark-mode button.mat-button,
 .dark-mode a[button] {
-    background-color: var(--primary);
-    border: 1px solid var(--primary);
+    --color: var(--primary);
+    background-color: var(--color);
+    border: 1px solid var(--color);
     color: var(--font-light);
     min-height: 3em;
 
     &.inverse {
         background-color: #fff;
-        color: var(--primary);
+        color: var(--color);
     }
 
     &.success {
-        background-color: var(--success);
-        border-color: var(--primary);
+        --color: var(--success);
     }
 
     &.clear {
@@ -30,9 +30,11 @@ a[button],
     }
 
     &.error {
-        background: none;
-        color: var(--error);
-        border-color: var(--error);
+        --color: var(--error);
+    }
+
+    &.black {
+        --color: #000;
     }
 
     &[disabled] {

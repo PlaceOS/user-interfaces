@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
@@ -76,6 +76,17 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                             </div>
                         </ng-container>
                     </ng-container>
+                    <button
+                        *ngIf="(tab | async)?.help"
+                        mat-button
+                        class="absolute top-4 right-4 w-32 inverse black"
+                        (click)="viewHelp()"
+                    >
+                        <div class="flex items-center justify-center mr-2">
+                            <app-icon>help</app-icon>
+                            <div class="mx-2">Help</div>
+                        </div>
+                    </button>
                 </div>
             </div>
             <div class="w-full">
@@ -112,7 +123,6 @@ export class TabOutletComponent extends BaseClass {
     ]).pipe(
         map(([id, tabs, inputs]) => {
             const tab = tabs.find((_: any) => (_.id || _.icon) === id);
-            console.log('Inputs:', id, tabs, inputs, tab);
             if (!tab) return inputs;
             return inputs.filter(
                 (_) =>
@@ -125,6 +135,7 @@ export class TabOutletComponent extends BaseClass {
     );
 
     public setInput = (s) => this._service.setOutputSource(s.id);
+    public viewHelp = async () => this._service.viewHelp((await this.tab.pipe(take(1)).toPromise()).help);
 
     public get id() {
         return this._service.id;
