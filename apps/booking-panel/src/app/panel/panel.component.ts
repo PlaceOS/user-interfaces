@@ -9,7 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { BaseClass } from '@placeos/common';
 
-import { PanelStateService } from './panel-state.service';
+import { PanelStateService } from '../panel-state.service';
 
 @Component({
     selector: 'app-booking-panel',

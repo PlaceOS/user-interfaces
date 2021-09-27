@@ -8,7 +8,7 @@ import {
 import { combineLatest, interval } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { PanelStateService } from './panel-state.service';
+import { PanelStateService } from '../panel-state.service';
 
 @Component({
     selector: 'panel-booking-list',

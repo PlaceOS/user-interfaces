@@ -9,7 +9,7 @@ import {
 import { combineLatest, timer } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-import { PanelStateService } from './panel-state.service';
+import { PanelStateService } from '../panel-state.service';
 
 @Component({
     selector: 'panel-timeline',

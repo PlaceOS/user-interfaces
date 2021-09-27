@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { PanelStateService } from './panel-state.service';
+import { PanelStateService } from '../panel-state.service';
 
 @Component({
     selector: 'panel-details',

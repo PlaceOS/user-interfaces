@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { BaseClass, HashMap } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
-import { currentBooking } from './panel/panel-state.service';
+import { currentBooking } from './panel-state.service';
 
 @Component({
     selector: 'app-booking-panel-select',

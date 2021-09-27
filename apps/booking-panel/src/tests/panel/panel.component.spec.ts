@@ -2,7 +2,7 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MatDialog } from '@angular/material/dialog';
 import { MockComponent } from 'ng-mocks';
 
-import { PanelStateService } from '../../app/panel/panel-state.service';
+import { PanelStateService } from '../../app/panel-state.service';
 import { BookingPanelComponent } from '../../app/panel/panel.component';
 import { PanelTopbarComponent } from '../../app/panel/topbar.component';
 import { PanelStatusComponent } from '../../app/panel/panel-status.component';

@@ -2,7 +2,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { SpacesService } from '@placeos/spaces';
 import { BehaviorSubject } from 'rxjs';
-import { PanelStateService } from '../../app/panel/panel-state.service';
+import { PanelStateService } from '../../app/panel-state.service';
 
 describe('PanelStateService', () => {
     let spectator: SpectatorService<PanelStateService>;

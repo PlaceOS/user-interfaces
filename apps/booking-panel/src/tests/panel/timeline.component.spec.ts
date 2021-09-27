@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { addMinutes } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 
-import { PanelStateService } from '../../app/panel/panel-state.service';
+import { PanelStateService } from '../../app/panel-state.service';
 import { PanelTimelineComponent } from '../../app/panel/timeline.component';
 
 const promiseTimeout = (delay: number = 300) =>

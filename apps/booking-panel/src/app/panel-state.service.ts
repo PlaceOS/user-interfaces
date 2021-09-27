@@ -13,8 +13,8 @@ import {
     timePeriodsIntersect,
 } from '@placeos/common';
 
-import { openBookingModal } from '../overlays/booking-modal.component';
-import { EmbeddedControlModalComponent } from '../overlays/embedded-control-modal.component';
+import { openBookingModal } from './overlays/booking-modal.component';
+import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 import { addSeconds, getUnixTime } from 'date-fns';
 
 export interface PanelSettings {
@@ -90,6 +90,10 @@ export class PanelStateService extends BaseClass {
     }
     public set system(value: string) {
         this._system.next(value);
+    }
+
+    public setting<T = any>(name: string): T {
+        return this._settings.getValue()[name];
     }
     /** Currently active booking */
     public readonly current: Observable<CalendarEvent> = combineLatest(

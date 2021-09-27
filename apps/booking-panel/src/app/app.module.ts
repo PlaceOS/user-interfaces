@@ -31,6 +31,7 @@ import * as Sentry from '@sentry/angular';
 import { PanelStatusComponent } from './panel/panel-status.component';
 import { MatRippleModule } from '@angular/material/core';
 import { PanelTimelineComponent } from './panel/timeline.component';
+import { AppPanelViewModule } from './new-panel/panel-view.module';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -61,6 +62,7 @@ const MAT_MODULES: any[] = [
         MatSnackBarModule,
         MatRippleModule,
         SharedOverlaysModule,
+        AppPanelViewModule,
         ComponentsModule,
         ...MAT_MODULES,
         ServiceWorkerModule.register('ngsw-worker.js', {
