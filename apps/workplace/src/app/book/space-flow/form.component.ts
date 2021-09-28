@@ -6,66 +6,6 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 @Component({
     selector: 'space-flow-form',
     template: `
-        <section quick class="text-white" *ngIf="!is_edit">
-            <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto pb-2">
-                <h2 class="text-xl uppercase font-medium mb-2 mt-4">
-                    Quick Book Space
-                </h2>
-                <div class="flex flex-col sm:flex-row space-x-0 sm:space-x-2">
-                    <mat-form-field
-                        class="sm:flex-2 h-[3.25rem]"
-                        overlay
-                        appearance="outline"
-                    >
-                        <mat-select
-                            name="time"
-                            [(ngModel)]="time"
-                            placeholder="Now"
-                        >
-                            <mat-option
-                                *ngFor="let item of quick_times"
-                                [value]="item.value"
-                            >
-                                {{ item.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field
-                        class="sm:flex-2 h-[3.25rem]"
-                        overlay
-                        appearance="outline"
-                    >
-                        <mat-select
-                            name="capacity"
-                            [(ngModel)]="capacity"
-                            placeholder="Any Capacity"
-                        >
-                            <mat-option
-                                *ngFor="let item of quick_capacities"
-                                [value]="item.value"
-                            >
-                                {{ item.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <button
-                        class="sm:flex-1 h-[2.75rem] mt-1 mb-2"
-                        mat-button
-                        (click)="quickBook()"
-                    >
-                        <div class="flex items-center justify-center">
-                            <app-icon class="text-xl">search</app-icon>
-                            <span class="ml-2 mx-4">Find Space</span>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </section>
-        <section class="bg-gray-300" *ngIf="!is_edit">
-            <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
-                <h2 class="text-xl uppercase font-medium my-4">OR</h2>
-            </div>
-        </section>
         <section form class="flex-1 min-h-[50%]">
             <h2
                 class="text-xl uppercase font-medium mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
