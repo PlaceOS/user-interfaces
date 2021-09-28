@@ -78,7 +78,8 @@ import { logout } from '@placeos/ts-client';
             </div>
         </mat-menu>
         <ng-template #search>
-            <global-search class="flex-1 mx-2 max-w-[640px]"></global-search>
+            <div class="flex-1"></div>
+            <global-search></global-search>
         </ng-template>
     `,
     styles: [``],

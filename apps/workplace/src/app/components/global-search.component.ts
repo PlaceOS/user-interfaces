@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { BaseClass } from '@placeos/common';
 
 import { ExploreSearchService } from '@placeos/explore';
 
@@ -6,25 +7,41 @@ import { ExploreSearchService } from '@placeos/explore';
     selector: 'global-search',
     template: `
         <div
-            container
-            class="flex items-center rounded focus-within:shadow focus:shadow w-full px-2 relative"
+            class="h-16 w-16 relative"
         >
-            <app-icon class="text-2xl">search</app-icon>
-            <input
-                #input
-                placeholder="Search for people or spaces..."
-                class="flex-1 w-1/2 py-2 outline-none"
-                [(ngModel)]="filter_str"
-                (ngModelChange)="setFilter($event)"
-                [matAutocomplete]="auto"
-                [matAutocompleteConnectedTo]="origin"
-            />
-            <mat-spinner *ngIf="loading | async" [diameter]="32"></mat-spinner>
-            <div
-                class="absolute bottom-0 left-2 right-2 min-w-[20rem]"
-                matAutocompleteOrigin
-                #origin="matAutocompleteOrigin"
-            ></div>
+            <button mat-icon-button class="text-white h-16 w-16 rounded-none" (click)="showInput()">
+                <app-icon class="text-3xl">search</app-icon>
+            </button>
+            <div 
+                search
+                class="flex items-center absolute top-1/2 right-0 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2"
+                [ngClass]="{
+                    'w-[32rem]': show,
+                    'w-px': !show,
+                    'opacity-100': show,
+                    'opacity-0': !show,
+                    'pointer-events-none': !show
+                }"
+                (click)="showInput()"
+            >
+                <app-icon class="text-3xl">search</app-icon>
+                <input
+                    #input
+                    placeholder="Search for people or spaces..."
+                    class="flex-1 w-1/2 py-2 outline-none"
+                    [(ngModel)]="filter_str"
+                    (ngModelChange)="setFilter($event)"
+                    [matAutocomplete]="auto"
+                    [matAutocompleteConnectedTo]="origin"
+                    (blur)="hideInput()"
+                />
+                <mat-spinner *ngIf="loading | async" [diameter]="32"></mat-spinner>
+                <div
+                    class="absolute bottom-0 left-2 right-2 min-w-[20rem]"
+                    matAutocompleteOrigin
+                    #origin="matAutocompleteOrigin"
+                ></div>
+            </div>
         </div>
         <mat-autocomplete #auto="matAutocomplete">
             <ng-container *ngIf="(loading | async) !== true && filter_str">
@@ -67,32 +84,17 @@ import { ExploreSearchService } from '@placeos/explore';
     `,
     styles: [
         `
-            [container] {
-                transition: color 200ms, background-color 200ms;
-                background-color: #fff4;
-                color: #fff8;
+            [search] {
+                transition: width 200ms, opacity 200ms;
             }
 
-            [container]:focus,
-            [container]:focus-within {
-                background-color: #fff;
-                color: #000;
-                outline: var(--primary);
-            }
-
-            input::placeholder {
-                color: #fff8;
-            }
-
-            input:focus ::placeholder {
-                color: #0008;
-            }
         `,
     ],
 })
-export class GlobalSearchComponent {
+export class GlobalSearchComponent extends BaseClass {
     public readonly results = this._service.search_results;
     public readonly loading = this._service.loading;
+    public show = false;
 
     public filter_str = '';
 
@@ -101,5 +103,19 @@ export class GlobalSearchComponent {
             ? (this.filter_str = '')
             : this._service.setFilter(s);
 
-    constructor(private _service: ExploreSearchService) {}
+    @ViewChild('input') public _input_el: ElementRef<HTMLInputElement>
+
+    constructor(private _service: ExploreSearchService) {
+        super();
+    }
+
+    public showInput() {
+        this.show = true;
+        this._input_el.nativeElement.focus();
+        this.clearTimeout('close');
+    }
+
+    public hideInput() {
+        this.timeout('close', () => this.show = false);
+    }
 }
