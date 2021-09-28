@@ -150,6 +150,7 @@ export class DesksService {
             zones,
             booking_type: 'desk',
             extension_data: {
+                map_id: desk?.map_id || desk?.id,
                 groups: desk.groups,
                 for_user: for_user?.email,
             },

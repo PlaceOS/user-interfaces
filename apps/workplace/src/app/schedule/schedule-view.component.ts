@@ -78,6 +78,22 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                     <div class="flex-1 truncate">
                         {{ event.description || '&lt;No Asset&gt;' }}
                     </div>
+                    <button
+                        mat-button
+                        locate
+                        *ngIf="event.extension_data.map_id"
+                        class="bg-transparent border-none underline text-black"
+                        (click)="
+                            viewLocation({
+                                id: event.asset_id,
+                                map_id: event.extension_data.map_id,
+                                name: event.description,
+                                zones: event.zones
+                            })
+                        "
+                    >
+                        Map
+                    </button>
                 </div>
                 <div
                     class="border-b border-gray-200 w-full"
@@ -315,7 +331,6 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
 
     public viewLocation(space: Space) {
         this._dialog.open(MapLocateModalComponent, {
-            width: '32em',
             maxWidth: '95vw',
             maxHeight: '95vh',
             data: { item: space },

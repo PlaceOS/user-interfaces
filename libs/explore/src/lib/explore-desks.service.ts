@@ -253,10 +253,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 this._bookings.newForm();
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
+                    map_id: desk?.map_id || desk?.id,
                     description: desk.name,
                     user: options.host || currentUser(),
                     booking_type: 'desk',
-                    zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : []
+                    zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
                 });
                 await this._bookings.confirmPost();
                 notifySuccess(

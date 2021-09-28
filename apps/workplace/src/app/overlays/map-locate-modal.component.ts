@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
 import { BaseClass } from '@placeos/common';
-import { BuildingLevel } from '@placeos/organisation';
+import { BuildingLevel, Organisation, OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { MapPinComponent } from '@placeos/components';
 
@@ -12,6 +12,7 @@ export interface Locatable {
     name: string;
     map_id: string;
     level: BuildingLevel;
+    zones?: string[];
 }
 
 @Component({
@@ -50,6 +51,7 @@ export interface Locatable {
     styles: [
         `
             [body] {
+                min-width: 80vw !important;
                 width: 80vw;
                 height: 65vh;
             }
@@ -67,10 +69,10 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
     public style_map: ViewerStyles = {};
 
     public get level(): BuildingLevel {
-        return this.item.level;
+        return this.item.level || this._org.levelWithID(this.item.zones || []);
     }
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: { item: Locatable }) {
+    constructor(@Inject(MAT_DIALOG_DATA) private _data: { item: Locatable }, private _org: OrganisationService) {
         super();
     }
 
