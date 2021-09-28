@@ -1,4 +1,4 @@
-import { addSeconds, isBefore, subSeconds } from 'date-fns';
+import { addSeconds, format, isBefore, subSeconds } from 'date-fns';
 
 import { HashMap, timePeriodsIntersect } from '@placeos/common';
 import { MOCK_EVENTS } from '../api/events.data';
@@ -20,28 +20,62 @@ export class MockBookingModule {
     catering_ui = '';
     /** Time of the last booking started by a user */
     last_booking_started = 0;
+
+    get current() {
+        return this.bookings.find((_) =>
+            timePeriodsIntersect(
+                Date.now(),
+                Date.now(),
+                _.event_start * 1000,
+                _.event_end * 1000
+            )
+        );
+    }
+
+    get next() {
+        return this.bookings.find((_) => _.event_start * 1000 > Date.now());
+    }
+
     /** Current status of the space */
-    status: 'pending' | 'busy' | 'free' | 'not-bookable' = 'free';
+    get status(): 'pending' | 'busy' | 'free' | 'not-bookable' {
+        const date = new Date();
+        const { current, next } = this;
+        const start = new Date((current || next)?.event_start);
+        const pending = timePeriodsIntersect(
+            date,
+            date,
+            subSeconds(start, this.pending_before),
+            addSeconds(start, this.pending_period)
+        );
+        return this._space?.bookable
+            ? current
+                ? 'busy'
+                : pending
+                ? 'pending'
+                : 'free'
+            : 'not-bookable';
+    }
+
+    constructor(private _space, _data: Partial<MockBookingModule>) {
+        updateBookings(_space, this);
+        setInterval(() => updateBookings(_space, this), 1000);
+    }
+
+    /** Start the meeting at the given time */
+    $start_meeting(t: number) {
+        this.last_booking_started = t;
+    }
+    /** End the meeting at the given time */
+    $end_meeting(t: number) {}
+    /** Book meeting for the current time */
+    $book_now(len: number, t?: string, o?: string) {}
 }
 
 export function createBookingsModule(
     space: HashMap,
     overrides: Partial<MockBookingModule> = {}
 ) {
-    const mod = {
-        ...new MockBookingModule(),
-        ...overrides,
-        /** Start the meeting at the given time */
-        $start_meeting: function (t: number) {
-            this.last_booking_started = t;
-        },
-        /** End the meeting at the given time */
-        $end_meeting: function (t: number) {},
-        /** Book meeting for the current time */
-        $book_now: function (len: number, t?: string, o?: string) {},
-    };
-    updateBookings(space, mod);
-    setInterval(() => updateBookings(space, mod), 1000);
+    const mod = new MockBookingModule(space, overrides);
     return mod;
 }
 
@@ -51,34 +85,16 @@ function updateBookings(space: HashMap, mod: HashMap) {
             event.attendees?.find((u) => u.email === space.email)
         ) || [];
     bookings.sort((a, b) => a.event_start - b.event_start);
-    mod.bookings = bookings;
-    if (!space.bookable) {
-        return (mod.status = 'not-bookable');
-    }
-    const date = new Date();
-    const current = bookings.find((bkn) =>
-        timePeriodsIntersect(
-            date.valueOf(),
-            date.valueOf(),
-            bkn.event_start,
-            bkn.event_end
+    console.log(
+        'Bookings:',
+        space.name,
+        bookings.map(
+            (_) =>
+                `${format(_.event_start * 1000, 'dd MMM h:mm a')} - ${format(
+                    _.event_end * 1000,
+                    'dd MMM h:mm a'
+                )}`
         )
     );
-    const next = bookings.find((bkn) =>
-        isBefore(date.valueOf(), bkn.event_start)
-    );
-    const start = new Date((current || next)?.event_start);
-    const pending = timePeriodsIntersect(
-        date,
-        date,
-        subSeconds(start, mod.pending_before),
-        addSeconds(start, mod.pending_period)
-    );
-    mod.status = current
-        ? pending
-            ? 'pending'
-            : 'busy'
-        : next && pending
-        ? 'pending'
-        : 'free';
+    mod.bookings = bookings;
 }

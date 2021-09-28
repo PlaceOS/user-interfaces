@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
-import { filter, map, shareReplay, take, tap } from 'rxjs/operators';
+import { filter, map, shareReplay } from 'rxjs/operators';
 
 import { CalendarEvent } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
@@ -123,7 +123,7 @@ export class PanelStateService extends BaseClass {
                     new Date(),
                     settings.pending_period || 1440
                 ).valueOf() > booking?.date;
-            switch (booking.state) {
+            switch (booking?.state) {
                 case 'future':
                     return 'available';
                 case 'upcoming':

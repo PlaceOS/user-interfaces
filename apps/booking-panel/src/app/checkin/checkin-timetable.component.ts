@@ -53,7 +53,7 @@ interface EventBlock {
             <ng-container *ngFor="let blk of event_blocks">
                 <div
                     event
-                    *ngIf="blk.start + blk.duration >= 0"
+                    *ngIf="(blk.start + blk.length) >= 0 && blk.start < 24 * 60"
                     class="absolute bottom-0 h-[3.5rem] bg-gray-300 opacity-40"
                     [style.left]="8 + blk.start + 'px'"
                     [style.width]="blk.length + 'px'"
@@ -139,7 +139,7 @@ export class CheckinTimetableComponent extends BaseClass {
             }
         );
         let date = start;
-        const end = addHours(start, 12);
+        const end = addHours(start, 24);
         while (date < end) {
             blocks.push({
                 id: date.valueOf(),
