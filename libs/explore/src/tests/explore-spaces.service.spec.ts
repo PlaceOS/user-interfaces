@@ -63,7 +63,6 @@ describe('ExploreSpacesService', () => {
             { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
             { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
         ].map((_) => new Space(_));
-        console.log('Spaces:', spaces);
         const state = spectator.inject(ExploreStateService);
         spectator.service.handleStatusChange(spaces, spaces[0], '');
         jest.runOnlyPendingTimers();

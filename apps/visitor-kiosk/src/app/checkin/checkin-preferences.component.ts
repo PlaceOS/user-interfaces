@@ -60,7 +60,6 @@ export class CheckinPreferencesComponent {
 
     public readonly menu = this._catering.menu.pipe(
         map((l) => {
-            console.log('List:', l);
             return l.filter((_) =>
                 _.tags.find((_) => _.toLowerCase() === 'drink')
             );

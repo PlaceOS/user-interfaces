@@ -90,7 +90,6 @@ export class ReportDesksChartsComponent extends BaseClass {
             }),
             series: (zones || []).map((_) => count[_]),
         };
-        console.log('Level Data:', data, mapping);
         this._level_chart = new Chartist.Pie('#level-chart', data);
     }
 }

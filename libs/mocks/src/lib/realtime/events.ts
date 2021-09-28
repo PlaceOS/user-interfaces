@@ -85,16 +85,5 @@ function updateBookings(space: HashMap, mod: HashMap) {
             event.attendees?.find((u) => u.email === space.email)
         ) || [];
     bookings.sort((a, b) => a.event_start - b.event_start);
-    console.log(
-        'Bookings:',
-        space.name,
-        bookings.map(
-            (_) =>
-                `${format(_.event_start * 1000, 'dd MMM h:mm a')} - ${format(
-                    _.event_end * 1000,
-                    'dd MMM h:mm a'
-                )}`
-        )
-    );
     mod.bookings = bookings;
 }

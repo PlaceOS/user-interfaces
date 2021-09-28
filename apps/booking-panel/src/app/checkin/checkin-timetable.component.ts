@@ -157,7 +157,6 @@ export class CheckinTimetableComponent extends BaseClass {
             start: differenceInMinutes(_.date, this.blocks[0].id),
             length: _.duration,
         }));
-        console.log('Blocks:', this.event_blocks);
     }
 
     private _updateCurrentTime() {

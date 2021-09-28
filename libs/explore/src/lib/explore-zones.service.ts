@@ -120,10 +120,8 @@ export class ExploreZonesService extends BaseClass {
                 content,
                 z_index: 100,
             };
-            console.log('Zone has Label:', zone.area_id);
             labels.push(this._labels[zone.area_id]);
         }
-        console.log('Zone Locations:', this._location);
         this._state.setLabels('zones', labels);
         this.timeout('update', () => this.updateStatus(), 100);
     }

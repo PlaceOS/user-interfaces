@@ -82,7 +82,6 @@ describe('UserSearchFieldComponent', () => {
         spectator.component.writeValue(user);
         spectator.tick(101);
         spectator.detectChanges();
-        console.log(user.name);
         expect(spectator.component.search_str).toBe(user.name);
         spectator.dispatchFakeEvent('input', 'focusin');
         (spectator.query('input') as HTMLInputElement).value = 'Not User';

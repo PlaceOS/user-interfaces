@@ -61,7 +61,6 @@ export class PanelViewDetailsComponent {
 
     public ngOnInit() {
         const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-        console.log('URL:', url);
         this.qr_code = generateQRCode(url, '#fff0', '#fff');
     }
 }

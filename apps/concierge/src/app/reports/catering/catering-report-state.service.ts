@@ -29,7 +29,6 @@ export class CateringReportStateService {
                         )
                     )
             );
-            console.log('Orders:', orders);
             return orders
                 .filter((_) => _)
                 .sort((a, b) => a.event?.date - b.event?.date);

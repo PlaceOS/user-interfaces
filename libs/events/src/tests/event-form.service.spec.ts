@@ -92,7 +92,6 @@ describe('EventFormService', () => {
         spaces = await spectator.service.available_spaces
             .pipe(take(1))
             .toPromise();
-        console.log(spaces);
         expect(spaces).toEqual(space_list);
     });
 
