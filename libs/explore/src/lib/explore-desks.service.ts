@@ -11,10 +11,7 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import {
-    BookingFormService,
-    queryBookings,
-} from '@placeos/bookings';
+import { BookingFormService, queryBookings } from '@placeos/bookings';
 import { StaffUser } from '@placeos/users';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
@@ -22,6 +19,8 @@ import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
+import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -136,7 +135,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         private _state: ExploreStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _bookings: BookingFormService
+        private _bookings: BookingFormService,
+        private _dialog: MatDialog
     ) {
         super();
         this.init();
@@ -246,18 +246,26 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     user: this._users[desk.map_id] || desk.staff_name,
                     status: this._statuses[desk.map_id],
                 },
-                z_index: 20
+                z_index: 20,
             });
             if (!desk.bookable) continue;
             const book_fn = async () => {
                 this._bookings.newForm();
+                const { date, duration } = await this._setBookingTime(
+                    this._bookings.form.value.date,
+                    this._bookings.form.value.duration
+                );
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
+                    date,
+                    duration,
                     map_id: desk?.map_id || desk?.id,
                     description: desk.name,
                     user: options.host || currentUser(),
                     booking_type: 'desk',
-                    zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+                    zones: desk.zone
+                        ? [desk.zone?.parent_id, desk.zone?.id]
+                        : [],
                 });
                 await this._bookings.confirmPost();
                 notifySuccess(
@@ -281,5 +289,18 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         );
         this._state.setFeatures('desks', list);
         this.timeout('update', () => this.updateStatus(), 100);
+    }
+
+    private async _setBookingTime(date: number, duration: number) {
+        if (!!this._settings.get('app.desks.allow_time_changes')) {
+            const ref = this._dialog.open(SetDatetimeModalComponent, {
+                data: { date, duration },
+            });
+            const details = await ref.afterClosed().toPromise();
+            if (!details) throw 'User cancelled';
+            date = details.date;
+            duration = details.duration;
+        }
+        return { date, duration };
     }
 }
