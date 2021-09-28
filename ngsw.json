@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1632798462574,
+  "timestamp": 1632800896499,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -95,8 +95,8 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "c31d87269dc55b4d2f07dc80e91fb35ceb81496c",
-    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "03fddc2f77e2b4d3d6e7d4b0e397c4313ed4a2bf",
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "5c5bfc2ce5c27fcb3e77755fd88579a4e395e8a7",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "6765f067eefcbfefa421582916f4a55404f5d0c6",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -151,10 +151,10 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./default-libs_events_src_index_ts-libs_form-fields_src_index_ts.js": "1129c0eec1356cee65e7a0cf3890105d34b966a7",
+    "./default-libs_events_src_index_ts-libs_form-fields_src_index_ts.js": "b87b1b7ad3739d5b04993528abe0d77385d73416",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "b5f880c0cb3b39d702457aae92ccf5be81650bee",
-    "./main.js": "99a74e247da259451e0ac589d6474d1150ffed6f",
+    "./main.js": "48dd6534acaf5b0330689dbbc706537a33e2a05e",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
