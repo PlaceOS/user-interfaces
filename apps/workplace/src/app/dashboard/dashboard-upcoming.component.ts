@@ -8,7 +8,7 @@ import { DashboardStateService } from './dashboard-state.service';
 @Component({
     selector: 'a-dashboard-upcoming',
     template: `
-        <h3 class="m-0 mb-4 font-medium text-xl">Today's Events</h3>
+        <h3 class="m-0 mb-4 font-medium text-xl">Your Bookings</h3>
         <div
             name="event"
             *ngFor="let event of upcoming_events | async | slice: 0:3"

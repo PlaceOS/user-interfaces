@@ -267,6 +267,7 @@ const app: any = {
         enabled: true,
         tracking_id: '',
     },
+    hide_contacts: false,
     schedule,
 };
 

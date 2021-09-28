@@ -8,11 +8,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <h3 class="m-0 font-medium text-xl">Available Now</h3>
         <div class="flex flex-col items-center p-2 bg-white my-4 rounded-lg">
             <div class="flex items-center w-full mb-2">
-                <app-icon
-                    class="bg-darken rounded-lg mr-2 text-2xl"
-                    [icon]="{ class: 'material-icons', content: 'crop_free' }"
-                ></app-icon>
-                <div>Most free space:</div>
+                <div>Spaces</div>
             </div>
             <div free-levels class="items space-y-2 w-full">
                 <a
@@ -32,13 +28,9 @@ import { DashboardStateService } from './dashboard-state.service';
             class="flex items-center flex-col rounded-lg bg-white my-4 p-2"
         >
             <div class="flex items-center w-full mb-2">
-                <app-icon
-                    class="bg-darken rounded-lg mr-2 text-2xl"
-                    [icon]="{ class: 'material-icons', content: 'av_timer' }"
-                ></app-icon>
-                <div>Free rooms now:</div>
+                <div>Rooms</div>
             </div>
-            <div class="items space-y-2">
+            <div class="items space-y-2 w-full">
                 <a
                     button
                     mat-button

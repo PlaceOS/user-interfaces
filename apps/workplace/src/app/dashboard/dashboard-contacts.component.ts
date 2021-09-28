@@ -6,7 +6,7 @@ import { DashboardStateService } from './dashboard-state.service';
 @Component({
     selector: 'a-dashboard-contacts',
     template: `
-        <h3 class="m-0 mb-2 font-medium text-xl">Contacts</h3>
+        <h3 class="m-0 mb-2 font-medium text-xl">Colleagues</h3>
         <div
             name="contact-list"
             class="bg-gray-400 rounded-lg p-2 pl-0 space-y-2 flex flex-wrap"
