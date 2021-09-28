@@ -7,14 +7,14 @@ import { ExploreSearchService } from '@placeos/explore';
     selector: 'global-search',
     template: `
         <div
-            class="h-16 w-16 relative"
+            class="h-full w-12 relative"
         >
             <button mat-icon-button class="text-white h-16 w-16 rounded-none" (click)="showInput()">
                 <app-icon class="text-3xl">search</app-icon>
             </button>
             <div 
                 search
-                class="flex items-center absolute top-1/2 right-0 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2"
+                class="flex items-center absolute top-1/2 right-0 -translate-y-1/2 max-w-[calc(100vw-5rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
