@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Booking } from '@placeos/bookings';
+import { CalendarEvent } from '@placeos/events';
 import { isAfter } from 'date-fns';
 import { BookingLike } from './schedule-state.service';
 
@@ -23,7 +24,7 @@ import { BookingLike } from './schedule-state.service';
                 *ngSwitchDefault
                 class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
                 [class.opacity-50]="has_ended"
-                [routerLink]="['/schedule', 'view', item?.id]"
+                [routerLink]="['/schedule', 'view', item?.id, type]"
             >
                 <div class="flex items-center border border-gray-200 ">
                     <div
@@ -69,6 +70,10 @@ import { BookingLike } from './schedule-state.service';
 })
 export class ScheduleListItemComponent {
     @Input() public item: BookingLike;
+
+    public get type() {
+        return this.item instanceof Booking ? 'booking' : 'event'; 
+    }
 
     public get has_ended() {
         return (

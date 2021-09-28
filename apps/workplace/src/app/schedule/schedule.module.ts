@@ -6,7 +6,8 @@ import { Route, RouterModule } from '@angular/router';
 import { SharedComponentModule } from '../components/shared.module';
 import { ScheduleListItemComponent } from './schedule-list-item.component';
 import { ScheduleListComponent } from './schedule-list.component';
-import { ScheduleViewComponent } from './schedule-view.component';
+import { ScheduleViewBookingComponent } from './schedule-view-booking.component';
+import { ScheduleViewEventComponent } from './schedule-view-event.component';
 import { ScheduleComponent } from './schedule.component';
 
 const ROUTES: Route[] = [
@@ -15,7 +16,8 @@ const ROUTES: Route[] = [
         component: ScheduleComponent,
         children: [
             { path: '', component: ScheduleListComponent },
-            { path: 'view/:id', component: ScheduleViewComponent },
+            { path: 'view/:id/booking', component: ScheduleViewBookingComponent },
+            { path: 'view/:id/event', component: ScheduleViewEventComponent },
         ],
     },
     { path: '*', redirectTo: '' },
@@ -26,7 +28,8 @@ const ROUTES: Route[] = [
         ScheduleComponent,
         ScheduleListComponent,
         ScheduleListItemComponent,
-        ScheduleViewComponent,
+        ScheduleViewBookingComponent,
+        ScheduleViewEventComponent
     ],
     imports: [
         CommonModule,

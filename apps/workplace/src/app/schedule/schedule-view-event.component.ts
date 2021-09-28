@@ -1,10 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Booking, removeBooking, showBooking } from '@placeos/bookings';
 import {
     BaseClass,
-    currentUser,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -16,11 +14,11 @@ import {
     showEvent,
 } from '@placeos/events';
 import { Space } from '@placeos/spaces';
-import { addMinutes, formatDuration, isAfter } from 'date-fns';
+import { formatDuration } from 'date-fns';
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 
 @Component({
-    selector: 'schedule-view',
+    selector: 'schedule-view-event',
     template: `
         <div topbar class="">
             <a
@@ -68,37 +66,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                     </div>
                     <div class="flex-1 truncate">{{ duration }}</div>
                 </div>
-                <div
-                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
-                    *ngIf="event.asset_id"
-                >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
-                        <app-icon>menu_book</app-icon>
-                    </div>
-                    <div class="flex-1 truncate">
-                        {{ event.description || '&lt;No Asset&gt;' }}
-                    </div>
-                    <button
-                        mat-button
-                        locate
-                        *ngIf="event.extension_data.map_id"
-                        class="bg-transparent border-none underline text-black"
-                        (click)="
-                            viewLocation({
-                                id: event.asset_id,
-                                map_id: event.extension_data.map_id,
-                                name: event.description,
-                                zones: event.zones
-                            })
-                        "
-                    >
-                        Map
-                    </button>
-                </div>
-                <div
-                    class="border-b border-gray-200 w-full"
-                    *ngIf="!event.asset_id"
-                >
+                <div class="border-b border-gray-200 w-full">
                     <div class="flex items-center py-2 space-x-2 ">
                         <div class="p-2 rounded-full bg-gray-300 mr-2">
                             <app-icon>place</app-icon>
@@ -157,10 +125,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         </div>
                     </div>
                 </div>
-                <div
-                    class="border-b border-gray-200 w-full"
-                    *ngIf="!event.asset_id"
-                >
+                <div class="border-b border-gray-200 w-full">
                     <div class="flex items-center py-2 space-x-2 ">
                         <div class="p-2 rounded-full bg-gray-300 mr-2">
                             <app-icon>group</app-icon>
@@ -215,7 +180,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                 </div>
                 <div
                     class="flex items-center justify-center space-x-2 mt-4"
-                    *ngIf="!has_ended"
+                    *ngIf="event.state === 'done'"
                 >
                     <button
                         mat-button
@@ -223,7 +188,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         class="w-32"
                         [disabled]="loading"
                         (click)="editEvent()"
-                        *ngIf="is_host && !event.asset_id"
+                        *ngIf="is_host && event.state !== 'done'"
                     >
                         Edit Event
                     </button>
@@ -232,7 +197,6 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         remove
                         class="w-32 error inverse"
                         [disabled]="loading"
-                        *ngIf="is_host"
                         (click)="confirmDelete()"
                     >
                         {{ is_host ? 'Delete' : 'Decline' }} Event
@@ -268,15 +232,11 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
         `,
     ],
 })
-export class ScheduleViewComponent extends BaseClass implements OnInit {
-    public event: CalendarEvent | Booking;
+export class ScheduleViewEventComponent extends BaseClass {
+    @Input() public event: CalendarEvent;
 
     public get is_host() {
-        return (
-            this.event &&
-            ((this.event as CalendarEvent).host ||
-                (this.event as Booking).user_email) === currentUser()?.email
-        );
+        return this.event?.host;
     }
 
     public get duration() {
@@ -284,16 +244,6 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
             hours: Math.floor(this.event?.duration / 60),
             minutes: this.event?.duration % 60,
         });
-    }
-
-    public get has_ended() {
-        return (
-            this.event &&
-            isAfter(
-                new Date(),
-                addMinutes(this.event.date, this.event.duration)
-            )
-        );
     }
 
     constructor(
@@ -310,15 +260,7 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    try {
-                        this.event = await showEvent(
-                            params.get('id')
-                        ).toPromise();
-                    } catch {
-                        this.event = await showBooking(params.get('id'))
-                            .toPromise()
-                            .catch(() => null);
-                    }
+                    this.event = await showEvent(params.get('id')).toPromise();
                 }
             })
         );
@@ -357,8 +299,7 @@ export class ScheduleViewComponent extends BaseClass implements OnInit {
         );
         if (details.reason !== 'done') return;
         details.loading('Removing event...');
-        const fn = this.event instanceof Booking ? removeBooking : removeEvent;
-        await fn(this.event.id)
+        await removeEvent(this.event.id)
             .toPromise()
             .catch((e) => {
                 details.loading('');
