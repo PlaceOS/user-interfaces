@@ -63,11 +63,12 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                                 video-call-page
                             ></div>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'help'">
-                            <div class="p-4">{{ help | async | markdown }}</div>
-                        </ng-container>
                         <ng-container *ngSwitchDefault>
+                            <div class="p-4" *ngIf="help | async">
+                                {{ help | async | markdown }}
+                            </div>
                             <div
+                                *ngIf="!(help | async)"
                                 class="h-full w-full flex items-center justify-center"
                             >
                                 <p>
