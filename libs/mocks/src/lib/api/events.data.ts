@@ -47,8 +47,10 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
         host: attendees[0].email,
         calendar: 'calendar_id',
         creator: 'optional@fake.com',
-        attendees: unique(attendees, 'email').map((_) => ({
+        attendees: unique(attendees, 'email').map((_, idx) => ({
             ..._,
+            organizer: idx === 0,
+            checked_in: predictableRandomInt(99999) % 2 === 0,
             response_status:
                 predictableRandomInt(99999) % 2 === 0
                     ? 'accepted'
