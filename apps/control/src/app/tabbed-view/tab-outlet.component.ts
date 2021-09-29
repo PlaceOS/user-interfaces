@@ -10,7 +10,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     selector: 'tab-outlet,[tab-outlet]',
     template: `
         <div
-            class="h-full w-full flex flex-col items-center overflow-auto px-2 pt-2"
+            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2"
         >
             <div class="flex items-center w-full px-1 pt-2 overflow-hidden">
                 <a
@@ -95,7 +95,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     </button>
                 </div>
             </div>
-            <div class="w-full">
+            <div class="w-full -mb-2">
                 <device-output-list></device-output-list>
             </div>
         </div>

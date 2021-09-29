@@ -102,7 +102,7 @@ import { ControlStateService } from './control-state.service';
             </div>
         </div>
         <div class="flex-1"></div>
-        <div class="flex items-center space-x-2 w-64 py-2 px-4">
+        <div class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4">
             <button mat-icon-button (click)="mute = !mute">
                 <app-icon>{{
                     mute

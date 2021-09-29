@@ -230,7 +230,7 @@ export class ControlStateService extends BaseClass {
         return this.timeout(
             `selected`,
             () => this._execute('selected_input', [input]),
-            10
+            50
         );
     }
 
