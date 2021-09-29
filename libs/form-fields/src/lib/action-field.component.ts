@@ -7,6 +7,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
             class="flex items-center rounded p-2 border border-gray-300 hover:border-black"
             role="button"
             [attr.disabled]="disabled"
+            [attr.name]="name"
             form-field
             tabindex="0"
             (keydown.enter)="performAction()"

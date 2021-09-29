@@ -29,7 +29,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             >
                 <div
                     class="flex-1 h-full space-y-2 px-4 pt-2 pb-4 overflow-auto"
-                    *ngIf="(inputs | async)?.length !== 1"
+                    *ngIf="(inputs | async)?.length > 1"
                 >
                     <h3 class="text-center p-2 font-medium text-lg">
                         Available Inputs
@@ -135,7 +135,8 @@ export class TabOutletComponent extends BaseClass {
     );
 
     public setInput = (s) => this._service.setOutputSource(s.id);
-    public viewHelp = async () => this._service.viewHelp((await this.tab.pipe(take(1)).toPromise()).help);
+    public viewHelp = async () =>
+        this._service.viewHelp((await this.tab.pipe(take(1)).toPromise()).help);
 
     public get id() {
         return this._service.id;
@@ -157,6 +158,13 @@ export class TabOutletComponent extends BaseClass {
                     params.get('tab') || this.active_tab.getValue()
                 )
             )
+        );
+        this.subscription(
+            'inputs',
+            combineLatest([
+                this.inputs,
+                this._service.active_output,
+            ]).subscribe(([_]) => (_.length === 1 ? this.setInput(_[0]) : ''))
         );
     }
 }

@@ -216,7 +216,8 @@ export class ControlStateService extends BaseClass {
     /** Set the route of the active output */
     public setOutputSource(input: string) {
         const output = this._active_output.getValue();
-        if (!output) return;
+        const data = (this._output_data.getValue() || []).find(_ => _.id === output);
+        if (!output || data?.source === input) return;
         return this.setRoute(input, output)
     }
 
