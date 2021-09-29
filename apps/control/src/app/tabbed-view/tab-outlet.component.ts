@@ -78,7 +78,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         </ng-container>
                     </ng-container>
                     <button
-                        *ngIf="(tab | async)?.help"
+                        *ngIf="(tab | async)?.help && (tab | async)?.controls"
                         mat-button
                         class="absolute top-4 right-4 w-32 inverse black"
                         (click)="viewHelp()"
