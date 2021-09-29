@@ -22,7 +22,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     >close</i
                 >
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400"
+                    class="p-2 rounded-full material-icons bg-gray-400 opacity-40"
                     *ngIf="
                         event?.state === 'done' && event?.status !== 'declined'
                     "
