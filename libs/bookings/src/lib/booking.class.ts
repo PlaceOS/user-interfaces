@@ -82,7 +82,7 @@ export class Booking {
             (data.date / 1000 + data.duration * 60) ||
             data.booking_end ||
             getUnixTime(
-                addMinutes(this.booking_start * 1000, data.duration || 24 * 60)
+                addMinutes(this.booking_start * 1000, data.duration || 60)
             );
         this.booking_type = data.booking_type || '';
         this.type = data.type || 'booking';
