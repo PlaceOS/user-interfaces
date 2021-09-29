@@ -31,3 +31,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 [content] img {
     width: 100%;
 }
+
+[content] ol {
+    list-style: decimal;
+    padding-left: 1rem;
+}
+

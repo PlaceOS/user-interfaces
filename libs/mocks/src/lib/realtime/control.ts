@@ -65,9 +65,14 @@ The home menu allows you to access files and navigate to content and presentatio
 Plug your laptop into the HDMI to stream it to the screen, or access the CMS to add your own content and create custom presentations.
 
 <video></video>
+
+1. Test1
+2. Test2
+3. Test3
             `
         },
-        'web_asset': {
+        'laptop-help': {
+            icon: 'web_asset',
             title: 'Asset Browser',
             content: `# Test 2`
         }

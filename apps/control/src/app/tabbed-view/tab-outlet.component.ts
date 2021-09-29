@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map, shareReplay, take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
@@ -64,12 +64,17 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                             ></div>
                         </ng-container>
                         <ng-container *ngSwitchDefault>
-                            <div class="p-4" *ngIf="help | async">
-                                {{ help | async | markdown }}
-                            </div>
+                            <div
+                                class="p-8"
+                                content
+                                *ngIf="help | async"
+                                [innerHTML]="
+                                    (help | async).content | markdown | sanitize
+                                "
+                            ></div>
                             <div
                                 *ngIf="!(help | async)"
-                                class="h-full w-full flex items-center justify-center"
+                                class="h-full w-full flex items-center justify-center opacity-60"
                             >
                                 <p>
                                     No controls available for this input source
@@ -112,10 +117,6 @@ export class TabOutletComponent extends BaseClass {
         this._service.tabs,
         this.active_tab,
     ]).pipe(map(([_, id]) => _.find((t: any) => (t.id || t.icon) === id)));
-    public readonly help = combineLatest([
-        this._service.help_items,
-        this.tab,
-    ]).pipe(map(([_, t]) => _.find((h: any) => h.id === t.help)));
 
     public readonly inputs = combineLatest([
         this.active_tab,
@@ -134,6 +135,11 @@ export class TabOutletComponent extends BaseClass {
             );
         })
     );
+
+    public readonly help = combineLatest([
+        this._service.help_items,
+        this.tab,
+    ]).pipe(map(([_, t]) => (_ || []).find((h: any) => h.id === t?.help)));
 
     public setInput = (s) => this._service.setOutputSource(s.id);
     public viewHelp = async () =>

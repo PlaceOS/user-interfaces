@@ -137,7 +137,7 @@ export class ControlStateService extends BaseClass {
         switchMap((id) => {
             const mod = getModule(id, 'System');
             const binding = mod.binding('help');
-            this.subscription('binding', binding.bind());
+            this.subscription('binding:help', binding.bind());
             return binding.listen();
         }),
         map((_) =>
@@ -149,7 +149,7 @@ export class ControlStateService extends BaseClass {
         switchMap((id) => {
             const mod = getModule(id, 'System');
             const binding = mod.binding('tabs');
-            this.subscription('binding', binding.bind());
+            this.subscription('binding:tabs', binding.bind());
             return binding.listen();
         }),
         map((_) => _ || []),

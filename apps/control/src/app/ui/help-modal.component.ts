@@ -33,7 +33,7 @@ import * as marked from 'marked';
                                 class="w-12 h-12 absolute bottom-0 right-0 translate-y-1/2 bg-[#212121] rounded-full"
                             ></div>
                         </div>
-                        <app-icon>{{ item.id }}</app-icon>
+                        <app-icon>{{ item.icon || 'help' }}</app-icon>
                         <div class="ml-4">{{ item.title }}</div>
                         <div
                             class="absolute inset-0 overflow-hidden rounded-3xl"
