@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1632891147649,
+  "timestamp": 1632899471644,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -107,20 +107,20 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "170dbf103760a7ea82093d609fd355f98c5a6d96",
-    "./default-libs_bookings_src_index_ts.js": "db92de62409ef009a1500bd129e43e679f16fa15",
+    "./default-libs_bookings_src_index_ts.js": "b1ab14e5d7f9d20c5168054b52426a0626689f22",
     "./default-libs_catering_src_index_ts.js": "3f3a8b5b9fea68b4a797e94f0a3fdb936c351e81",
     "./default-libs_explore_src_index_ts.js": "0a0462d89ba5edf88faa1c1197747aec495ab584",
     "./default-node_modules_angular_material_fesm2015_radio_js.js": "17e10b5cd4398eefb256820e6f74827093f3c42a",
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "9ed0ee7936ff0965adbd7547f037a40316732697",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "39c927e84b1a236ece32c7e5faeab9dbc8bc9924",
-    "./main.js": "d6e267ffa939089b93acb1ab92a31f472c86c34c",
+    "./main.js": "85b53be97096b7e87b5e988272644b3966edc098",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "09a9a3e3da942b13a02f9e4f52075977ac379955",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "1d89f987fcb4c8a4ea4e8207320b4fc12ab154ce",
+    "./styles.css": "a7f05ffdde324599301aea77a8811d88520312e3",
     "./vendor.js": "f8b5e35888427684c1cf6049f2fc42bd0a83f790"
   },
   "navigationUrls": [
