@@ -5,11 +5,13 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'device-output-list',
     template: `
+    <ng-container *ngIf="(outputs | async)?.length > 1">
         <device-output-list-item
             *ngFor="let output of outputs | async"
             [item]="output"
             [active]="(active_output | async) === output.id"
         ></device-output-list-item>
+    </ng-container>
     `,
     styles: [
         `
