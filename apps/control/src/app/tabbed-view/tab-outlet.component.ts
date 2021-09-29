@@ -125,7 +125,7 @@ export class TabOutletComponent extends BaseClass {
     ]).pipe(
         map(([id, tabs, inputs]) => {
             const tab = tabs.find((_: any) => (_.id || _.icon) === id);
-            if (!tab) return inputs;
+            if (!tab) return [];
             return inputs.filter(
                 (_) =>
                     (!tab.inputs && (!tab.type || _.type === tab.type)) ||
@@ -177,6 +177,7 @@ export class TabOutletComponent extends BaseClass {
             combineLatest([
                 this.inputs,
                 this._service.active_output,
+                this.tab
             ]).subscribe(([_]) =>
                 _.length === 1
                     ? this.setInput(_[0])
