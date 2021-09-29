@@ -15,7 +15,7 @@ import { ControlStateService, RoomOutput } from '../control-state.service';
             (click)="setActiveOutput()"
         >
             <div
-                class="bg-secondary/90 rounded w-full h-[6.5rem] relative flex items-center justify-center"
+                class="bg-secondary bg-opacity/90 rounded w-full h-[6.5rem] relative flex items-center justify-center"
                 [class.!bg-gray-400]="!(input | async)"
             >
                 <div

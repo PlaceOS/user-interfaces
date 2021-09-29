@@ -35,6 +35,7 @@ export class SettingsService extends BaseClass {
      */
     public set overrides(value: HashMap[]) {
         this._overrides.next(value);
+        this._applyCssVariables();
     }
 
     /** Get observable for key */
@@ -126,5 +127,21 @@ export class SettingsService extends BaseClass {
             }
         }
         return getItemWithKeys(keys, DEFAULT_SETTINGS);
+    }
+
+    private _applyCssVariables() {
+        const variable_map = this.get('app.css_variables') || {};
+        let css_string = 'body { ';
+        for (const key in variable_map) {
+            css_string += `--${key}: ${variable_map[key]}; `;
+        }
+        css_string += '}';
+        let element = document.getElementById('css-var-overrides');
+        if (!element) {
+            element = document.createElement('style');
+            element.id = 'css-var-overrides';
+            document.head.appendChild(element);
+        }
+        element.innerText = css_string;
     }
 }

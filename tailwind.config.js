@@ -16,8 +16,10 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#C92366',
-                secondary: '#0A0D2E',
+                primary: 'var(--primary)',
+                'primary-fore': '#fff',
+                secondary: 'var(--secondary)',
+                'secondary-fore': '#fff',
                 ternary: '#0A0D2E',
                 quaternary: '#0A0D2E',
                 error: '#e53935',
