@@ -161,11 +161,23 @@ export class TabOutletComponent extends BaseClass {
             )
         );
         this.subscription(
+            'tab',
+            this._service.system.subscribe((_) =>
+                _.selected_tab ? this.active_tab.next(_.selected_tab) : ''
+            )
+        );
+        this.subscription(
             'inputs',
             combineLatest([
                 this.inputs,
                 this._service.active_output,
-            ]).subscribe(([_]) => (_.length === 1 ? this.setInput(_[0]) : ''))
+            ]).subscribe(([_]) =>
+                _.length === 1
+                    ? this.setInput(_[0])
+                    : _.length > 0
+                    ? this._service.setSelectedInput(_[0].id)
+                    : ''
+            )
         );
     }
 }

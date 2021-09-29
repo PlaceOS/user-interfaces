@@ -67,6 +67,7 @@ export interface SystemState {
     name?: string;
     power?: boolean;
     connected?: boolean;
+    selected_tab?: string;
 }
 
 @Injectable({
@@ -151,7 +152,7 @@ export class ControlStateService extends BaseClass {
             this.subscription('binding', binding.bind());
             return binding.listen();
         }),
-        map(_ => _ || []),
+        map((_) => _ || []),
         shareReplay(1)
     );
 
@@ -210,15 +211,27 @@ export class ControlStateService extends BaseClass {
 
     /** Route input source to output */
     public setRoute(input: string, output: string) {
+        this.setSelectedInput(input);
         return this._execute('route', [input, output]);
     }
 
     /** Set the route of the active output */
     public setOutputSource(input: string) {
         const output = this._active_output.getValue();
-        const data = (this._output_data.getValue() || []).find(_ => _.id === output);
+        const data = (this._output_data.getValue() || []).find(
+            (_) => _.id === output
+        );
+        this.setSelectedInput(input);
         if (!output || data?.source === input) return;
-        return this.setRoute(input, output)
+        return this.setRoute(input, output);
+    }
+
+    public setSelectedInput(input: string) {
+        return this.timeout(
+            `selected`,
+            () => this._execute('selected_input', [input]),
+            10
+        );
     }
 
     /** Update the econtrol meeting */
@@ -326,6 +339,7 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'connected');
         this.bindTo(id, 'recording');
         this.bindTo(id, 'has_zoom');
+        this.bindTo(id, 'selected_tab');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'outputs', undefined, (l) => this._outputs.next(l));
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
