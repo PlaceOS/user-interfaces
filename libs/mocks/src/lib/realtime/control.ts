@@ -83,6 +83,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
            icon: "laptop",
            name: "Laptop",
            type: 'Display',
+           inputs: ['Display_1'],
            help: "laptop-help"
          },
         {

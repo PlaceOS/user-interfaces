@@ -16,7 +16,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 <a
                     mat-button
                     class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
-                    [routerLink]="['/tabbed', id, tab.id || tab.icon]"
+                    [routerLink]="['/tabbed', id, tab.id || tab.name]"
                     routerLinkActive="border-primary bg-white text-primary"
                     *ngFor="let tab of tabs | async"
                 >
@@ -95,7 +95,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     </button>
                 </div>
             </div>
-            <div class="w-full -mb-2">
+            <div class="w-full">
                 <device-output-list></device-output-list>
             </div>
         </div>
@@ -116,7 +116,7 @@ export class TabOutletComponent extends BaseClass {
     public readonly tab = combineLatest([
         this._service.tabs,
         this.active_tab,
-    ]).pipe(map(([_, id]) => _.find((t: any) => (t.id || t.icon) === id)));
+    ]).pipe(map(([_, id]) => _.find((t: any) => (t.id || t.name) === id)));
 
     public readonly inputs = combineLatest([
         this.active_tab,
@@ -124,7 +124,7 @@ export class TabOutletComponent extends BaseClass {
         this._service.input_list,
     ]).pipe(
         map(([id, tabs, inputs]) => {
-            const tab = tabs.find((_: any) => (_.id || _.icon) === id);
+            const tab = tabs.find((_: any) => (_.id || _.name) === id);
             if (!tab) return [];
             return inputs.filter(
                 (_) =>
