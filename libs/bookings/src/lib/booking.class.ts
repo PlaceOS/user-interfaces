@@ -77,9 +77,13 @@ export class Booking {
         this.booking_start =
             data.date / 1000 ||
             data.booking_start ||
-            getUnixTime(startOfDay(Date.now()));
+            getUnixTime(
+                roundToNearestMinutes(addMinutes(Date.now(), 5), {
+                    nearestTo: 5,
+                })
+            );
         this.booking_end =
-            (data.date / 1000 + data.duration * 60) ||
+            data.date / 1000 + data.duration * 60 ||
             data.booking_end ||
             getUnixTime(
                 addMinutes(this.booking_start * 1000, data.duration || 60)

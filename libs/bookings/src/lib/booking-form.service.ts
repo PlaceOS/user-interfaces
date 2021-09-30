@@ -346,7 +346,7 @@ export class BookingFormService extends BaseClass {
         ) {
             throw `You already have a desk booked`;
         }
-        if (form.value.duration > 23 * 60) {
+        if (form.value.duration > 23 * 60 || form.value.all_day) {
             form.patchValue({
                 date: set(form.value.date, { hours: 12, minutes: 0 }),
                 duration: 60,
