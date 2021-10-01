@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BaseClass, notifyError } from '@placeos/common';
 import { filter, take } from 'rxjs/operators';
@@ -48,7 +48,7 @@ import { VideoCallStateService } from './video-call-state.service';
                     </button>
                 </div>
                 <div class="flex-1 p-2 flex items-center justify-center">
-                    <dialpad (pressed)="sentDTMF($event)"></dialpad>
+                    <dialpad [backspace]="false" (pressed)="sentDTMF($event)"></dialpad>
                 </div>
                 <div
                     class="flex-1 p-2 flex flex-col items-center justify-center space-y-4"
@@ -123,7 +123,7 @@ import { VideoCallStateService } from './video-call-state.service';
         </div>
         <ng-template #load_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 text-black"
+                class="w-full h-full flex flex-col items-center justify-center space-y-2 text-black p-24"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -139,6 +139,7 @@ import { VideoCallStateService } from './video-call-state.service';
     ],
 })
 export class VideoCallPageComponent extends BaseClass {
+    @Input() public redirect = true;
     public loading = 'Loading call details...';
     public readonly call = this._state.call;
     public readonly show_camera_pip = this._state.show_camera_pip;
@@ -196,6 +197,7 @@ export class VideoCallPageComponent extends BaseClass {
     }
 
     private _onCallEnded() {
-        this._router.navigate(['/panel', this._control.id]);
+        if (this.redirect)
+            this._router.navigate(['/panel', this._control.id]);
     }
 }

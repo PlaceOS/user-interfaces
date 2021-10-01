@@ -341,7 +341,7 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'has_zoom');
         this.bindTo(id, 'selected_tab');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
-        this.bindTo(id, 'outputs', undefined, (l) => this._outputs.next(l));
+        this.bindTo(id, 'available_outputs', undefined, (l) => this._outputs.next(l));
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
         this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
         this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));

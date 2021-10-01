@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';
@@ -56,11 +56,12 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <ng-container [ngSwitch]="(tab | async)?.controls">
                         <ng-container *ngSwitchCase="'vidconf-controls'">
                             <ng-template #no_call_state>
-                                <video-call-dial-view></video-call-dial-view>
+                                <video-call-dial-view class="mt-4 block"></video-call-dial-view>
                             </ng-template>
                             <div
                                 *ngIf="call | async; else no_call_state"
                                 video-call-page
+                                [redirect]="false"
                             ></div>
                         </ng-container>
                         <ng-container *ngSwitchDefault>
@@ -69,7 +70,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                                 content
                                 *ngIf="help | async"
                                 [innerHTML]="
-                                    (help | async).content | markdown | sanitize
+                                    (help | async).content | markdown | safe
                                 "
                             ></div>
                             <div
@@ -152,7 +153,8 @@ export class TabOutletComponent extends BaseClass {
     constructor(
         private _service: ControlStateService,
         private _vc_state: VideoCallStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         super();
     }
@@ -168,9 +170,12 @@ export class TabOutletComponent extends BaseClass {
         );
         this.subscription(
             'tab',
-            this._service.system.subscribe((_) =>
-                _.selected_tab ? this.active_tab.next(_.selected_tab) : ''
-            )
+            this._service.system.subscribe((_) =>{
+                if (_.selected_tab) {
+                    this.active_tab.next(_.selected_tab);
+                    this._router.navigate(['/tabbed', this.id, _.selected_tab])
+                }
+            })
         );
         this.subscription(
             'inputs',

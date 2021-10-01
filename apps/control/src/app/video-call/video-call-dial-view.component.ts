@@ -7,28 +7,33 @@ import { VideoCallStateService } from './video-call-state.service';
 @Component({
     selector: 'video-call-dial-view',
     template: `
-        <div class="flex flex-col">
-            <ng-container *ngIf="!loading; else load_state">
-                <p class="px-4 pt-4">Enter your video conference code</p>
-                <div class="p-4 w-full">
-                    <mat-form-field appearance="outline" class="h-12 w-full">
-                        <input
-                            matInput
-                            [(ngModel)]="dial_number"
-                            placeholder="Dial number..."
-                        />
-                    </mat-form-field>
-                </div>
+        <div class="flex justify-center">
+            <ng-container *ngIf="!loading; else load_state" class="">
                 <dialpad (pressed)="addDigit($event)"></dialpad>
-                <div class="p-4 w-full">
-                    <button
-                        mat-button
-                        class="w-full"
-                        [disabled]="!dial_number"
-                        (click)="joinConference()"
-                    >
-                        Join
-                    </button>
+                <div class="flex flex-col">
+                    <p class="px-2 pt-4">Enter your video conference code</p>
+                    <div class="p-2 w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="h-12 w-full"
+                        >
+                            <input
+                                matInput
+                                [(ngModel)]="dial_number"
+                                placeholder="Dial number..."
+                            />
+                        </mat-form-field>
+                    </div>
+                    <div class="p-2 w-full">
+                        <button
+                            mat-button
+                            class="w-full"
+                            [disabled]="!dial_number"
+                            (click)="joinConference()"
+                        >
+                            Join
+                        </button>
+                    </div>
                 </div>
             </ng-container>
         </div>
@@ -62,7 +67,12 @@ export class VideoCallDialViewComponent {
     ) {}
 
     public addDigit(digit: string) {
-        this.dial_number += digit;
+        digit
+            ? (this.dial_number += digit)
+            : (this.dial_number = this.dial_number.substr(
+                  0,
+                  this.dial_number.length - 1
+              ));
     }
 
     public async joinConference() {
@@ -74,4 +84,5 @@ export class VideoCallDialViewComponent {
         this.loading = false;
         this._router.navigate(['call'], { relativeTo: this._route });
         this.close.emit();
-    }}
+    }
+}
