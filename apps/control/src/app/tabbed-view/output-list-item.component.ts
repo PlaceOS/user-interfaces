@@ -3,6 +3,7 @@ import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
+import { ICON_MAP } from '../ui/output-display.component';
 
 @Component({
     selector: 'device-output-list-item',
@@ -15,7 +16,7 @@ import { ControlStateService, RoomOutput } from '../control-state.service';
             (click)="setActiveOutput()"
         >
             <div
-                class="bg-secondary bg-opacity/90 rounded w-full h-[6.5rem] relative flex items-center justify-center"
+                class="bg-secondary bg-opacity/90 rounded w-full h-[6.5rem] relative flex flex-col items-center justify-center"
                 [class.!bg-gray-400]="!(input | async)"
             >
                 <div
@@ -24,6 +25,9 @@ import { ControlStateService, RoomOutput } from '../control-state.service';
                 >
                     {{ item?.name || 'Display' }}
                 </div>
+                <app-icon class="text-5xl">
+                    {{ (input | async)?.icon || icons[(input | async)?.type] || 'add_to_queue' }}
+                </app-icon>
                 <span
                     class="text-white text-sm"
                     [class.opacity-60]="!(input | async)"
@@ -64,6 +68,8 @@ export class DeviceOutputListItemComponent extends BaseClass {
     public volume: number;
     /** Current mute state of the output */
     public mute: boolean;
+
+    public readonly icons = ICON_MAP;
     /** ID of the input associated with the displayed output */
     private _input = new BehaviorSubject('');
     /** Details of the associated input */

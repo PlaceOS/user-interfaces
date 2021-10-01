@@ -31,7 +31,7 @@ const ICON_MAP = {
                     {{ item?.name }}
                 </div>
                 <app-icon class="text-7xl">{{
-                    icons[(input | async)?.type] || 'add_to_queue'
+                    (input | async)?.icon || icons[(input | async)?.type] || 'add_to_queue'
                 }}</app-icon>
                 <p class="font-medium">
                     {{
