@@ -8,6 +8,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
@@ -40,12 +41,14 @@ export interface RoomInput {
     name: string;
     type: string;
     mod: string;
+    index?: string;
     volume: number;
     mute: boolean;
     locked: boolean;
     routes: string[];
     outputs: string[];
     hidden?: boolean;
+    presentable?: boolean;
 }
 
 export interface RoomOutput {
@@ -68,6 +71,7 @@ export interface SystemState {
     power?: boolean;
     connected?: boolean;
     selected_tab?: string;
+    selected_input?: string;
 }
 
 @Injectable({
@@ -94,6 +98,11 @@ export class ControlStateService extends BaseClass {
     /** List of available input sources */
     public readonly input_list = this._input_data.pipe(
         map((_) => _.filter((_) => !_.hidden)),
+        shareReplay(1)
+    );
+    /** List of inputs that are available as presentation sources */
+    public readonly presentables$ = this._input_data.pipe(
+        map((_) =>  _.filter((_) => _.presentable !== false)),
         shareReplay(1)
     );
     /** List of available output sources */
@@ -133,25 +142,19 @@ export class ControlStateService extends BaseClass {
             list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera'))
         )
     );
+    public readonly selected_camera = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'selected_camera')),
+        shareReplay(1)
+    );
     public readonly help_items = this.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'System');
-            const binding = mod.binding('help');
-            this.subscription('binding:help', binding.bind());
-            return binding.listen();
-        }),
+        switchMap((id) => this._listenToSystemBinding(id, 'help')),
         map((_) =>
             !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] }))
         ),
         shareReplay(1)
     );
     public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'System');
-            const binding = mod.binding('tabs');
-            this.subscription('binding:tabs', binding.bind());
-            return binding.listen();
-        }),
+        switchMap((id) => this._listenToSystemBinding(id, 'tabs')),
         map((_) => _ || []),
         shareReplay(1)
     );
@@ -207,26 +210,32 @@ export class ControlStateService extends BaseClass {
     /** Set the active calendar */
     public setOutput(id: string) {
         this._active_output.next(id);
+        if (this._system.getValue()?.selected_input) {
+            this.setOutputSource(this._system.getValue()?.selected_input);
+            this._active_output.next('');
+        }
     }
 
     /** Route input source to output */
-    public setRoute(input: string, output: string) {
-        this.setSelectedInput(input);
+    public setRoute(input: string, output: string, set_input = true) {
+        if(set_input) this.setSelectedInput(input);
         return this._execute('route', [input, output]);
     }
 
     /** Set the route of the active output */
-    public setOutputSource(input: string) {
+    public async setOutputSource(input: string, clear = true) {
         const output = this._active_output.getValue();
         const data = (this._output_data.getValue() || []).find(
             (_) => _.id === output
         );
         this.setSelectedInput(input);
         if (!output || data?.source === input) return;
-        return this.setRoute(input, output);
+        await this.setRoute(input, output);
+        if (clear) this._active_output.next('');
     }
 
     public setSelectedInput(input: string) {
+        if (this._system.getValue().selected_input === input) return;
         return this.timeout(
             `selected`,
             () => this._execute('selected_input', [input]),
@@ -340,6 +349,7 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'recording');
         this.bindTo(id, 'has_zoom');
         this.bindTo(id, 'selected_tab');
+        this.bindTo(id, 'selected_input');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'available_outputs', undefined, (l) => this._outputs.next(l));
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
@@ -400,5 +410,12 @@ export class ControlStateService extends BaseClass {
         const item = { ...this._system.getValue() };
         item[name] = value;
         this._system.next(item);
+    }
+
+    private _listenToSystemBinding(id: string, name: string) {
+        const mod = getModule(id, 'System');
+        const binding = mod.binding(name);
+        this.subscription(`binding:name`, binding.bind());
+        return binding.listen();
     }
 }

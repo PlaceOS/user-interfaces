@@ -27,15 +27,15 @@ export function eventToPoint(event: MouseEvent | TouchEvent): Point {
 }
 
 export enum JoystickTilt {
-    Down,
-    Up,
-    Stop,
+    Down = 'down',
+    Up = 'up',
+    Stop = 'stop',
 }
 
 export enum JoystickPan {
-    Left,
-    Right,
-    Stop,
+    Left = 'left',
+    Right = 'right',
+    Stop = 'stop',
 }
 
 @Component({
@@ -46,6 +46,7 @@ export enum JoystickPan {
             joystick
             (mousedown)="startPan($event)"
             (touchstart)="startPan($event)"
+            (contextmenu)="$event.preventDefault()"
             class="relative h-48 w-48 rounded-full bg-gray-600 text-white"
         >
             <div class="absolute inset-0 flex text-5xl items-center">
@@ -135,6 +136,8 @@ export class JoystickComponent extends BaseClass {
                 this.unsub('on_end');
                 this.tilt = JoystickTilt.Stop;
                 this.pan = JoystickPan.Stop;
+                this.tiltChange.emit(this.tilt);
+                this.panChange.emit(this.pan);
             })
         );
         this.handlePan(event);
@@ -149,6 +152,7 @@ export class JoystickComponent extends BaseClass {
         const angle =
             (Math.atan2(point.y - box_point.y, point.x - box_point.x) * 180) /
             Math.PI;
+        const { tilt, pan } = this;
         this.tilt =
             angle >= 150 || angle <= -150 || (angle > -30 && angle < 30)
                 ? JoystickTilt.Stop
@@ -161,7 +165,7 @@ export class JoystickComponent extends BaseClass {
                 : angle > 90 || angle < -90
                 ? JoystickPan.Left
                 : JoystickPan.Right;
-        this.tiltChange.emit(this.tilt);
-        this.panChange.emit(this.pan);
+        if (tilt !== this.tilt) this.tiltChange.emit(this.tilt);
+        if (pan !== this.pan) this.panChange.emit(this.pan);
     }
 }

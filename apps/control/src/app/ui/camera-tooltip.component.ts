@@ -1,14 +1,16 @@
 import { Component, Renderer2 } from '@angular/core';
 import { BaseClass } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
+import { getModule } from '@placeos/ts-client';
+import { combineLatest } from 'rxjs';
 
 import { ControlStateService, RoomInput } from '../control-state.service';
 import { JoystickPan, JoystickTilt } from './joystick.component';
 
 export enum ZoomDirection {
-    In,
-    Out,
-    Stop,
+    In = 'in',
+    Out = 'out',
+    Stop = 'stop',
 }
 @Component({
     selector: 'camera-tooltip',
@@ -20,6 +22,7 @@ export enum ZoomDirection {
             <mat-form-field appearance="outline" class="m-4 h-12">
                 <mat-select
                     [(ngModel)]="active_camera"
+                    (ngModelChange)="selectCamera($event)"
                     placeholder="Select Camera"
                 >
                     <mat-option
@@ -32,29 +35,76 @@ export enum ZoomDirection {
             </mat-form-field>
             <div class="flex relative border-t border-gray-400 mt-1">
                 <div
-                    class="flex flex-col items-center border-r border-gray-400 p-4 space-y-2"
+                    class="flex flex-col items-center border-r border-gray-400 p-4 space-y-2 relative"
                 >
-                    <h3 class="mb-2 text-xl font-medium">Presets</h3>
+                    <h3 class="mb-2 text-xl font-medium pr-12">Presets</h3>
                     <ng-container *ngIf="presets?.length; else no_presets">
-                        <button
-                            preset
-                            mat-button
-                            class="w-48"
-                            [class.inverse]="preset === name"
+                        <div
+                            class="flex items-center space-x-2"
                             *ngFor="let name of presets"
-                            (click)="preset = name"
                         >
-                            {{ name }}
-                        </button>
+                            <button
+                                preset
+                                mat-button
+                                class="w-48"
+                                [class.inverse]="preset === name"
+                                (click)="recallPreset(name)"
+                            >
+                                {{ name }}
+                            </button>
+                            <button
+                                mat-icon-button
+                                *ngIf="presets?.length > 1"
+                                class="rounded bg-error text-white"
+                                (click)="removePreset(name)"
+                            >
+                                <app-icon>delete</app-icon>
+                            </button>
+                        </div>
                     </ng-container>
                     <ng-template #no_presets>
                         <p>No presets for this camera</p>
                     </ng-template>
+                    <button
+                        mat-icon-button
+                        class="absolute top-1 right-4"
+                        [matMenuTriggerFor]="menu"
+                    >
+                        <app-icon>add</app-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <div class="px-2 w-full flex flex-col">
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-full h-[3.5rem]"
+                                (click)="$event.stopPropagation()"
+                            >
+                                <input
+                                    matInput
+                                    [(ngModel)]="new_preset"
+                                    placeholder="New preset name"
+                                />
+                            </mat-form-field>
+                            <button
+                                mat-button
+                                [disabled]="!new_preset"
+                                class="w-full"
+                                (click)="addPreset(new_preset); new_preset = ''"
+                            >
+                                Save Preset
+                            </button>
+                        </div>
+                    </mat-menu>
                 </div>
                 <div class="p-4">
                     <h3 class="mb-2 text-xl font-medium">Controls</h3>
                     <div class="flex items-center space-x-2">
-                        <joystick [(pan)]="pan" [(tilt)]="tilt"></joystick>
+                        <joystick
+                            [(pan)]="pan"
+                            [(tilt)]="tilt"
+                            (panChange)="moveCamera()"
+                            (tiltChange)="moveCamera()"
+                        ></joystick>
                         <div
                             zoom
                             class="flex flex-col items-center border border-gray-600 rounded"
@@ -99,42 +149,14 @@ export enum ZoomDirection {
         <div hidden *ngIf="active_camera?.mod">
             <i
                 binding
-                [model]="zoom"
+                (modelChange)="
+                    presets = active_camera.index
+                        ? $events[active_camera.index]
+                        : $events
+                "
                 [sys]="id"
                 [mod]="active_camera.mod"
-                bind="zoom"
-                exec="zoom"
-            ></i>
-            <i
-                binding
-                [model]="pan"
-                [sys]="id"
-                [mod]="active_camera.mod"
-                bind="pan"
-                exec="pan"
-            ></i>
-            <i
-                binding
-                [model]="tilt"
-                [sys]="id"
-                [mod]="active_camera.mod"
-                bind="tilt"
-                exec="tilt"
-            ></i>
-            <i
-                binding
-                [(model)]="presets"
-                [sys]="id"
-                [mod]="active_camera.mod"
-                bind="presets"
-            ></i>
-            <i
-                binding
-                [(model)]="preset"
-                [sys]="id"
-                [mod]="active_camera.mod"
-                bind="preset"
-                exec="recall"
+                [bind]="active_camera.index ? 'camera_presets' : 'presets'"
             ></i>
         </div>
         <ng-template #empty_state>
@@ -177,15 +199,82 @@ export class CameraTooltipComponent extends BaseClass {
         super();
     }
 
-    public startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
+    public ngOnInit() {
+        this.subscription(
+            'camera_list',
+            combineLatest([
+                this.camera_list,
+                this._state.selected_camera,
+            ]).subscribe(([l, cam]) => {
+                if (!l?.length) return;
+                this.active_camera =
+                    l.find((_) => _.id === cam) || this.active_camera || l[0];
+            })
+        );
+    }
+
+    public selectCamera(camera: RoomInput) {
+        const mod = getModule(this.id, this.active_camera.mod);
+        if (!mod) return;
+        mod.execute('selected_camera', [camera.id]);
+    }
+
+    public recallPreset(preset: string) {
+        const mod = getModule(this.id, this.active_camera.mod);
+        if (!mod) return;
+        mod.execute('recall', [preset]);
+    }
+
+    public addPreset(preset: string) {
+        const mod = getModule(this.id, 'System');
+        if (!mod) return;
+        mod.execute('add_preset', [preset, this.active_camera.id]);
+    }
+
+    public removePreset(preset: string) {
+        const mod = getModule(this.id, 'System');
+        if (!mod) return;
+        mod.execute('remove_preset', [preset, this.active_camera.id]);
+    }
+
+    public moveCamera() {
+        if (!this.active_camera) return;
+        this.timeout(
+            'move',
+            async () => {
+                const { index } = this.active_camera;
+                const mod = getModule(this.id, this.active_camera.mod);
+                if (!mod) return;
+                await mod.execute('stop', index ? [index] : []);
+                if (this.tilt !== JoystickTilt.Stop)
+                    await mod.execute(
+                        'tilt',
+                        index ? [this.tilt, index] : [this.tilt]
+                    );
+                if (this.pan !== JoystickPan.Stop)
+                    await mod.execute(
+                        'pan',
+                        index ? [this.pan, index] : [this.pan]
+                    );
+            },
+            50
+        );
+    }
+
+    public async startZoom(dir: 'in' | 'out', e: MouseEvent | TouchEvent) {
+        const mod = getModule(this.id, this.active_camera.mod);
+        if (!mod) return;
         const end_event = e instanceof MouseEvent ? 'mouseup' : 'touchend';
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
+        const { index } = this.active_camera;
+        await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
         this.subscription(
             'on_end',
             this._renderer.listen('window', end_event, (_) => {
                 this.unsub('on_move');
                 this.unsub('on_end');
                 this.zoom = ZoomDirection.Stop;
+                mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
             })
         );
     }
