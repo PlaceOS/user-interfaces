@@ -58,7 +58,7 @@ export class MockBookingModule {
 
     constructor(private _space, _data: Partial<MockBookingModule>) {
         updateBookings(_space, this);
-        setInterval(() => updateBookings(_space, this), 1000);
+        setInterval(() => updateBookings(_space, this), 15 * 1000);
     }
 
     /** Start the meeting at the given time */

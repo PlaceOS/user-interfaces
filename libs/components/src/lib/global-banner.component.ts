@@ -11,7 +11,7 @@ export interface BannerDetails {
     selector: 'global-banner',
     template: `
         <div
-            class="flex items-center w-full text-white p-4"
+            class="flex items-center w-full text-white p-4 space-x-4"
             [class.bg-blue-600]="banner.type === 'info' || !banner.type"
             [class.bg-pending]="banner.type === 'warn'"
             [class.bg-error]="banner.type === 'error'"

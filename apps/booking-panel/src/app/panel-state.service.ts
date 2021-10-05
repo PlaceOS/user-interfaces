@@ -158,6 +158,7 @@ export class PanelStateService extends BaseClass {
                 'catering_ui',
                 'pending_period',
                 'pending_before',
+                'room_image',
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });

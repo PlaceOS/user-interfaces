@@ -1,10 +1,15 @@
 import { predictableRandomInt } from '@placeos/common';
-import { addMinutes, getUnixTime, setHours, startOfDay } from 'date-fns';
+import { addMinutes, getUnixTime, set, subDays } from 'date-fns';
 
 import { MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS } from './zone.data';
 
-let EVENT_TIME = setHours(startOfDay(new Date()), 7);
+let EVENT_TIME = set(subDays(Date.now(), 3), {
+    hours: 7,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0,
+});
 
 const nextEventTime = (save = false): number => {
     const next = addMinutes(EVENT_TIME, (predictableRandomInt(8) + 1) * 15);
@@ -42,7 +47,7 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
         approver_email: approved === 0 ? approver.email : '',
         zones: [bld.id, lvl?.id],
         extension_data: {
-            map_id: `table-10.00${index}`
+            map_id: `table-10.00${index}`,
         },
     };
 });

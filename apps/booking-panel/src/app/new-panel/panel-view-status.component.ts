@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
+import { CalendarEvent } from '@placeos/events';
 import {
     addMinutes,
     differenceInMinutes,
     format,
     formatDuration,
 } from 'date-fns';
-import { take } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
+import { currentPeriod, nextPeriod } from './helpers';
 
 @Component({
     selector: 'panel-view-status',
@@ -30,9 +33,12 @@ import { PanelStateService } from '../panel-state.service';
                 ></div>
                 <h3 class="text-4xl uppercase font-medium mt-4">Now</h3>
                 <p class="text-2xl font-light mt-4">
-                    {{ current_period || 'No current event' }}
+                    {{ (event_state | async)?.current || 'No current event' }}
                 </p>
-                <div class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4" *ngIf="(state | async) === 'pending'">
+                <div
+                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
+                    *ngIf="(state | async) === 'pending'"
+                >
                     <p class="uppercase">Touch or scan to check-in</p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
@@ -48,7 +54,7 @@ import { PanelStateService } from '../panel-state.service';
                 ></div>
                 <h3 class="text-4xl uppercase font-medium">Next</h3>
                 <p class="text-2xl font-light">
-                    {{ next_period || 'No upcoming events' }}
+                    {{ (event_state | async)?.next || 'No upcoming events' }}
                 </p>
             </div>
         </div>
@@ -65,6 +71,13 @@ export class PanelViewStatusComponent {
     public readonly state = this._state.status;
     public readonly current = this._state.current;
     public readonly next = this._state.next;
+
+    public readonly event_state = combineLatest([this.current, this.next]).pipe(
+        map(([c, n]) => ({
+            current: currentPeriod(c, n),
+            next: nextPeriod(n),
+        }))
+    );
 
     public readonly free_svg = `
     <svg width="129" height="117" viewBox="0 0 129 117" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,40 +129,20 @@ export class PanelViewStatusComponent {
     </svg>
     `;
 
-    public get next_period() {
-        const next = this._state.setting('next');
-        return next
-            ? `${format(next.date, 'h:mm a')} - ${format(
-                  addMinutes(next.date, next.duration),
-                  'h:mm a'
-              )}`
-            : 'No upcoming events';
-    }
-
-    public get current_period() {
-        const current = this._state.setting('current');
-        const next = this._state.setting('next');
-        const next_diff = differenceInMinutes(Date.now(), next?.date);
-        if (!current)
-            return next
-                ? `Free for ${formatDuration({
-                      hours: Math.floor(next_diff / 60),
-                      minutes: next_diff % 60,
-                  })}`
-                : 'No current event';
-        const checked_in = true;
-        const current_diff = differenceInMinutes(
-            Date.now(),
-            current.event_end * 1000
-        );
-        const curr_avail = formatDuration({
-            hours: Math.floor(current_diff / 60),
-            minutes: current_diff % 60,
-        });
-        return checked_in
-            ? `Free in ${curr_avail}`
-            : `You meeting will be cancelled in ${'8 minutes'} if you do not check-in`;
-    }
-
     constructor(private _state: PanelStateService) {}
+
+    public ngOnInit() {
+        this._state.current.subscribe((_) =>
+            console.log(
+                'Current:',
+                _ ? format(_.date, 'dd MMM, h:mm a') : '<None>'
+            )
+        );
+        this._state.next.subscribe((_) =>
+            console.log(
+                'Next:',
+                _ ? format(_.date, 'dd MMM, h:mm a') : '<None>'
+            )
+        );
+    }
 }
