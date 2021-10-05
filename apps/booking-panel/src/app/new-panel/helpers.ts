@@ -23,12 +23,12 @@ export function currentPeriod(current: CalendarEvent, next: CalendarEvent) {
             ? `Free for ${formatDuration({
                   hours: Math.floor(next_diff / 60),
                   minutes: next_diff % 60,
-              })}`
+              }) || 'less than 1 minute'}`
             : '';
     const checked_in = true;
     const current_diff = differenceInMinutes(
-        Date.now(),
-        current.event_end * 1000
+        current.event_end * 1000,
+        Date.now()
     );
     const curr_avail = formatDuration({
         hours: Math.floor(current_diff / 60),
