@@ -118,6 +118,7 @@ import { addDays, endOfDay, format } from 'date-fns';
             </div>
             <div
                 class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                *ngIf="needs_reason"
             >
                 <label>Reason</label>
                 <mat-form-field class="w-full" appearance="outline">
@@ -244,6 +245,10 @@ export class DeskFlowDetailedFormComponent {
 
     public get allow_groups() {
         return this._settings.get('app.desks.allow_groups');
+    }
+
+    public get needs_reason() {
+        return this._settings.get('app.desks.needs_reason') === true;
     }
 
     public get allow_time_changes() {
