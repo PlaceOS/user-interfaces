@@ -30,8 +30,8 @@ export class FeatureAvailableGuard implements CanActivate, CanLoad {
     private async checkFeature() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        const features = this._settings.get('app.features') || [];
-        const can_activate = !!features.find((_) =>
+        const features = this._settings.get('app.disabled_features') || [];
+        const can_activate = !features.find((_) =>
             this._router.url.includes(_)
         );
         if (!can_activate) {
