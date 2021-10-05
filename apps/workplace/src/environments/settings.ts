@@ -2,6 +2,11 @@
  * GENERAL APPLICATION SETTINGS
  */
 const general: any = {
+    banner: {
+        id: '2',
+        type: 'info',
+        content: ``
+    },
     menu_items: [
         {
             name: 'Home',

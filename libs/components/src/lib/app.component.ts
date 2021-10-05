@@ -52,10 +52,20 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 @Component({
     selector: 'app-root',
     template: `
-        <router-outlet></router-outlet>
+        <global-banner></global-banner>
+        <div class="flex-1 w-full relative">
+            <router-outlet></router-outlet>
+        </div>
         <global-loading></global-loading>
     `,
-    styles: [``],
+    styles: [`
+        :host {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+    `],
 })
 export class AppComponent extends BaseClass implements OnInit {
     constructor(

@@ -40,6 +40,7 @@ import { VirtualKeyboardComponent } from './virtual-keyboard.component';
 import { GlobalLoadingComponent } from './global-loading.component';
 import { MatSortModule } from '@angular/material/sort';
 import { MapPolygonComponent } from './map-polygon.component';
+import { GlobalBannerComponent } from './global-banner.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -101,6 +102,7 @@ const COMPONENTS: Type<any>[] = [
     CustomTooltipComponent,
     VirtualKeyboardComponent,
     GlobalLoadingComponent,
+    GlobalBannerComponent,
 
     FixedPipe,
     SafePipe,
