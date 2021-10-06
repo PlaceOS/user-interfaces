@@ -353,7 +353,9 @@ export class BookingFormService extends BaseClass {
             });
         }
         const result = await saveBooking(new Booking(form.value)).toPromise();
+        const { booking_type } = form.value;
         this.clearForm();
+        this._form.getValue()?.patchValue({ booking_type });
         this.last_success = result;
         sessionStorage.setItem(
             'PLACEOS.last_booked_booking',

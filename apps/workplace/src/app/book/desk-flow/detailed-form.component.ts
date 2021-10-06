@@ -269,8 +269,4 @@ export class DeskFlowDetailedFormComponent {
         private _org: OrganisationService,
         private _settings: SettingsService
     ) {}
-
-    public ngOnInit() {
-        console.log('Date:', format(this.book_until, 'dd MMM yyyy'));
-    }
 }
