@@ -53,7 +53,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     selector: 'app-root',
     template: `
         <global-banner></global-banner>
-        <div class="flex-1 w-full relative">
+        <div class="flex-1 w-full relative h-1/2">
             <router-outlet></router-outlet>
         </div>
         <global-loading></global-loading>
