@@ -58,7 +58,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                     >
                         <app-icon class="text-2xl">place</app-icon>
                         <div class="flex flex-col w-1/2 flex-1">
-                            <div name class="">{{ desk.name }}</div>
+                            <div name class="">{{ desk.name || desk.id }}</div>
                             <div level class="text-xs">
                                 {{
                                     desk.zone?.display_name ||

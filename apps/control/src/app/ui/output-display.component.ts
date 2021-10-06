@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { ControlStateService, RoomOutput } from '../control-state.service';
 
-const ICON_MAP = {
+export const ICON_MAP = {
     Display: 'deskotp_windows',
     PC: 'desktop_windows',
     Laptop: 'laptop_chromebook',

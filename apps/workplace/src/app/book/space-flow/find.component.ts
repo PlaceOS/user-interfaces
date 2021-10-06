@@ -248,7 +248,7 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get multiple() {
-        return this._settings.get('app.booking.multiple_spaces') ?? false;
+        return this._settings.get('app.events.multiple_spaces') ?? false;
     }
 
     constructor(

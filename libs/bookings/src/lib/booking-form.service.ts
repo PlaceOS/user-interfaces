@@ -321,9 +321,9 @@ export class BookingFormService extends BaseClass {
             )}]`;
         const asset_id = form.get('asset_id').value;
         const bookings = await queryBookings({
-            period_start: getUnixTime(form.get('date').value),
+            period_start: getUnixTime(form.value.date),
             period_end: getUnixTime(
-                form.get('date').value + form.get('duration').value * 60 * 1000
+                form.value.date + form.value.duration * 60 * 1000
             ),
             type: this._options.getValue().type,
         }).toPromise();

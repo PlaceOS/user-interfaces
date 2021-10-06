@@ -54,7 +54,7 @@ export class ControlSpaceListItemComponent {
     @Input() public space: Space;
 
     public get show_image() {
-        return this._settings.get('app.space_display.show_images');
+        return this._settings.get('app.spaces.show_images');
     }
 
     /** Display location of the space */

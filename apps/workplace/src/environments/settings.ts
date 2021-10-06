@@ -7,7 +7,7 @@ const general: any = {
         type: 'info',
         content: ``
     },
-    menu_items: [
+    menu: [
         {
             name: 'Home',
             route: '/dashboard',
@@ -147,43 +147,6 @@ const help: any = {
  * BOOKING FLOW SETTINGS
  */
 const booking: any = {
-    booking_types: [
-        { display: 'Internal', value: 'internal' },
-        { display: 'Client', value: 'client' },
-        { display: 'External', value: 'external' },
-        { display: 'Setup', value: 'setup' },
-        { display: 'Training', value: 'training' },
-        { display: 'Interview', value: 'interview' },
-    ],
-    los_groups: {
-        ifs: 'Internal Firm Services',
-        deals: 'Deals',
-        assurance: 'Assurance',
-        tax: 'Tax',
-        consulting: 'Consulting',
-        ladies: 'Ladies',
-        it: 'IT',
-    },
-    capacity_filters: [
-        { display: '< 10', value: '0' },
-        { display: '10 - 15', value: '10' },
-        { display: '16 - 20', value: '16' },
-        { display: '21 - 25', value: '21' },
-        { display: '> 25', value: '26' },
-    ],
-    show_fields: [
-        'attendees',
-        'body',
-        'catering',
-        'date',
-        'duration',
-        'organiser',
-        'recurrence',
-        'title',
-        'type',
-        'configuration',
-    ],
-    html_body: true,
     multiple_spaces: false,
     desk_start: 9,
     breakdown: 15,

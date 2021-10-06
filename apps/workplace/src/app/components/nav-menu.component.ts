@@ -187,7 +187,7 @@ export class NavMenuComponent extends BaseClass {
     }
 
     public get menu_items(): ApplicationLink[] {
-        return this._settings.get('app.general.menu_items') || [];
+        return this._settings.get('app.general.menu') || [];
     }
 
     public readonly buildings = this._org.building_list;

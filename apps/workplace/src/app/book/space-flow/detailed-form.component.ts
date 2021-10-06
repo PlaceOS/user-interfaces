@@ -105,11 +105,11 @@ export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;
 
     public get has_catering() {
-        return !!this._settings.get('app.rooms.has_catering');
+        return !!this._settings.get('app.events.has_catering');
     }
 
     public get hide_actions() {
-        return !!this._settings.get('app.booking.hide_user_actions');
+        return !!this._settings.get('app.events.hide_user_actions');
     }
 
     public readonly editCatering = async () =>

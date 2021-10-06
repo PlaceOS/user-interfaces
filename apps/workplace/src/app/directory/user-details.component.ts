@@ -57,7 +57,7 @@ export class DirectoryUserListItemComponent {
     @Input() public user: User;
 
     public get show_image() {
-        return this._settings.get('app.directory.show_avatars');
+        return this._settings.get('app.users.show_avatars');
     }
 
     public sendLocateEvent() {
