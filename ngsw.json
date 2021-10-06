@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1633397111391,
+  "timestamp": 1633559116388,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -120,10 +120,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "c7dae576b3a2d34f35afc50f2a5904bd33cf1130",
-    "./apps_workplace_src_app_control_control_module_ts.js": "a67fc7777e178c19d0a778777b27a1d5ec1b71aa",
+    "./apps_workplace_src_app_book_book_module_ts.js": "5a846fa381e19a2977885fc9af05449eaf692d4b",
+    "./apps_workplace_src_app_control_control_module_ts.js": "80d296372f0dcf18936852ab3af2856a0de0c95a",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "ab9fbffa019f498087459f068122726a1be26815",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "3d3b9e5a47f31bff8383de7a1813737dc6809609",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "c2d9c4a8a73494ae710913165e14f9660b08908e",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "c11fc62639f97ab506e6009c721d9fc3b2154215",
     "./apps_workplace_src_app_help_help_module_ts.js": "df5e50732a688128314f8c8d16623609f51b4df6",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "af354ba3a1b1ee66c7bcad20794de019d3e61a9f",
@@ -204,14 +204,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "26df348e54b8ea7b8bf892faa7e2603477e9a1cb",
-    "./main.js": "8277613d906117bbbca826214c52c300d2c2e811",
+    "./main.js": "afb9e23c263cbe5c383f8cd0306418acdd727644",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
     "./styles.css": "be140946cd6bb1705a7f0268f54d4c5c8efb5437",
-    "./vendor.js": "e25bb0faccf8a03a91ccf5196793327dd157361d"
+    "./vendor.js": "57c1173d64d51496a15073660411718a6614e90b"
   },
   "navigationUrls": [
     {
