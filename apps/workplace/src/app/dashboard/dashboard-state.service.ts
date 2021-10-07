@@ -114,9 +114,10 @@ export class DashboardStateService extends BaseClass {
     }
 
     public async updateContacts() {
-        const metadata: PlaceMetadata = (await showMetadata(currentUser().id, {
-            name: 'contacts',
-        }).toPromise()) as any;
+        const metadata: PlaceMetadata = (await showMetadata(
+            currentUser().id,
+            'contacts'
+        ).toPromise()) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         this._contacts.next(list.map((i) => new User(i)));
     }
@@ -191,9 +192,7 @@ export class DashboardStateService extends BaseClass {
 
     private async updateBuildingMetadata() {
         const building = this._org.building;
-        const metadata = await showMetadata(building.id, {
-            name: 'bindings',
-        }).toPromise();
+        const metadata = await showMetadata(building.id, 'bindings').toPromise();
         if (!(metadata.details as HashMap).occupancy) return;
         const details = (metadata.details as HashMap).occupancy;
         const module = getModule(details.sys, details.module, details.index);

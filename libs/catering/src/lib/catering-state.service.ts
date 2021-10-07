@@ -314,7 +314,7 @@ export class CateringStateService extends BaseClass {
 
     private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {
         const menu = (
-            await showMetadata(zone_id, { name: 'catering' }).toPromise()
+            await showMetadata(zone_id, 'catering').toPromise()
         ).details;
         return menu instanceof Array ? menu : [];
     }
@@ -323,7 +323,7 @@ export class CateringStateService extends BaseClass {
         zone_id: string = this._org.building.id
     ): Promise<CateringRuleset[]> {
         const rules = (
-            await showMetadata(zone_id, { name: 'catering_config' }).toPromise()
+            await showMetadata(zone_id, 'catering_config').toPromise()
         ).details;
         return rules instanceof Array ? (rules as any) : [];
     }

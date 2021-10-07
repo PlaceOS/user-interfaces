@@ -56,9 +56,7 @@ export class DesksStateService extends BaseClass {
         switchMap((filters) => {
             const zones = filters.zones || [];
             return !zones.includes('All')
-                ? showMetadata(zones[0], {
-                      name: 'desks',
-                  }).pipe(map((m) => m.details))
+                ? showMetadata(zones[0], 'desks').pipe(map((m) => m.details))
                 : listChildMetadata(this._org.building?.id, {
                       name: 'desks',
                   }).pipe(

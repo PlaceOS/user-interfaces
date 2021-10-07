@@ -70,7 +70,7 @@ export class ExploreZonesService extends BaseClass {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const zone_metadata = await Promise.all(
             this._org.levels.map((bld) =>
-                showMetadata(bld.id, { name: 'map_regions' }).toPromise()
+                showMetadata(bld.id, 'map_regions').toPromise()
             )
         );
         for (const zone of zone_metadata) {

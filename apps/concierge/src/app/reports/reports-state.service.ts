@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 import { Booking, queryBookings } from '@placeos/bookings';
-import { downloadFile, HashMap, jsonToCsv, notifyError, timePeriodsIntersect } from '@placeos/common';
+import {
+    downloadFile,
+    HashMap,
+    jsonToCsv,
+    notifyError,
+    timePeriodsIntersect,
+} from '@placeos/common';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import {
@@ -101,9 +107,7 @@ export class ReportsStateService {
             );
             return Promise.all(
                 zones.map((z) =>
-                    showMetadata(z, {
-                        name: 'desks',
-                    })
+                    showMetadata(z, 'desks')
                         .pipe(map((m) => [z, m.details.length]))
                         .toPromise()
                 )
@@ -137,10 +141,7 @@ export class ReportsStateService {
         })
     );
 
-    public readonly day_list = combineLatest([
-        this.options,
-        this.stats,
-    ]).pipe(
+    public readonly day_list = combineLatest([this.options, this.stats]).pipe(
         map(([options, stats]) => {
             const { start } = options;
             let date = startOfDay(start);
@@ -175,7 +176,7 @@ export class ReportsStateService {
             return dates;
         }),
         shareReplay(1)
-    )
+    );
 
     public get duration() {
         const opts = this._options.getValue();

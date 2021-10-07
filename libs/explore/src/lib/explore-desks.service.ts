@@ -60,7 +60,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
 
     public readonly desk_list = this._state.level.pipe(
         switchMap((lvl) =>
-            showMetadata(lvl.id, { name: 'desks' }).pipe(
+            showMetadata(lvl.id, 'desks').pipe(
                 map((i) =>
                     (i.details instanceof Array ? i.details : []).map(
                         (j: HashMap) => new Desk({ ...j, zone: lvl as any })

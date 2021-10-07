@@ -169,10 +169,10 @@ export class OrganisationService {
                     (list) => isMock() || list.id === auth?.config?.org_zone
                 ) || org_list[0];
             const bindings: HashMap = (
-                await showMetadata(org.id, { name: 'bindings' }).toPromise()
+                await showMetadata(org.id, 'bindings').toPromise()
             )?.details;
             const settings: HashMap = (
-                await showMetadata(org.id, { name: 'settings' }).toPromise()
+                await showMetadata(org.id, 'settings').toPromise()
             )?.details;
             this._settings = { ...this._settings, ...settings };
             this._organisation = new Organisation({ ...org, bindings });
@@ -201,7 +201,7 @@ export class OrganisationService {
         const buildings = [];
         for (const bld of building_list) {
             const bindings: HashMap = (
-                await showMetadata(bld.id, { name: 'bindings' }).toPromise()
+                await showMetadata(bld.id, 'bindings').toPromise()
             )?.details;
             buildings.push(new Building({ ...bld, bindings }));
         }
@@ -247,14 +247,10 @@ export class OrganisationService {
         const app_name = `${(
             this._service.get('app.name') || 'workplace'
         ).toLowerCase()}_app`;
-        this._settings = await showMetadata(this._organisation.id, {
-            name: app_name,
-        }).toPromise();
+        this._settings = await showMetadata(this._organisation.id, app_name).toPromise();
         const buildings = this.buildings;
         for (const bld of buildings) {
-            this._building_settings[bld.id] = await showMetadata(bld.id, {
-                name: app_name,
-            }).toPromise();
+            this._building_settings[bld.id] = await showMetadata(bld.id, app_name).toPromise();
         }
         this._service.overrides = [
             this._settings.details,
