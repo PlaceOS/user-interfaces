@@ -279,6 +279,7 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
             asset_id: desk?.id,
             map_id: desk?.map_id || desk?.id,
             description: desk.name,
+            booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
         });
     }
