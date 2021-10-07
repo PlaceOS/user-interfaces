@@ -19,7 +19,9 @@ import { DashboardStateService } from './dashboard-state.service';
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
-                    {{ lvl.display_name || lvl.name }}
+                    <div class="max-w-full truncate">
+                        {{ lvl.display_name || lvl.name }}
+</div>
                 </a>
             </div>
         </div>
@@ -38,7 +40,10 @@ import { DashboardStateService } from './dashboard-state.service';
                     *ngFor="let space of space_list | async | slice: 0:3"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.id }"
-                    >{{ space.display_name || space.name }}
+                >
+                    <div class="max-w-full truncate">
+                        {{ space.display_name || space.name }}
+                    </div>
                 </a>
                 <span
                     *ngIf="!(space_list | async).length"
