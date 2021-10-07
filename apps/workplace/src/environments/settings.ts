@@ -21,7 +21,7 @@ const general: any = {
             route: '/book/spaces',
             icon: {
                 class: 'material-icons',
-                content: 'book_online',
+                content: 'meeting_room',
             },
         },
         {
