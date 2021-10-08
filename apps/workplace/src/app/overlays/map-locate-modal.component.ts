@@ -4,7 +4,6 @@ import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
 import { BaseClass } from '@placeos/common';
 import { BuildingLevel, Organisation, OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
 import { MapPinComponent } from '@placeos/components';
 
 export interface Locatable {

@@ -141,12 +141,32 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                             queryParams: {},
                         });
                     });
+                } else if (params.has('locate')) {
+                    this._locateFeature(
+                        params.get('locate'),
+                        params.get('name')
+                    );
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
                     });
                 }
             })
+        );
+    }
+
+    private _locateFeature(id: string, name = '') {
+        const has_coordinates = id.includes(',');
+        const parts = id.split(',');
+        const feature: any = {
+            location: has_coordinates
+                ? { x: parseFloat(parts[0]), y: parseFloat(parts[1]) }
+                : id,
+            content: MapPinComponent,
+            data: { message: name },
+        };
+        this.timeout('update_location', () =>
+            this._state.setFeatures('_located', [feature])
         );
     }
 
