@@ -31,6 +31,7 @@ import { DesksStateService } from './desks-state.service';
             ]"
             [column_size]="['flex', '', '12r', '', '10r', '', '', '12r']"
             [template]="{
+                user_name: user_template,
                 date: date_template,
                 status: status_template,
                 checked_in: bool_template,
@@ -45,6 +46,9 @@ import { DesksStateService } from './desks-state.service';
         ></custom-table>
         <ng-template #date_template let-data="data">
             {{ data | date }} at {{ data | date: 'shortTime' }}
+        </ng-template>
+        <ng-template #user_template let-row="row">
+            {{ row.user_name || row.user_email || row.booked_by_name || row.booked_by_email }}
         </ng-template>
         <ng-template #status_template let-data="data">
             <span
