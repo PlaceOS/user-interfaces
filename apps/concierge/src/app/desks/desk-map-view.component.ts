@@ -3,6 +3,7 @@ import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
 
 import { DesksStateService } from './desks-state.service';
 import { BaseClass } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'desk-map-view',
@@ -69,7 +70,8 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
     constructor(
         private _state: ExploreStateService,
         private _desk: DesksStateService,
-        private _desks_state: ExploreDesksService
+        private _desks_state: ExploreDesksService,
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -78,6 +80,8 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
         this.subscription(
             'date',
             this._desk.filters.subscribe((opts) => {
+                const level = this._org.levelWithID(opts.zones);
+                if (level) this._state.setLevel(level.id);
                 this._desks_state.setOptions({
                     date: opts.date ? new Date(opts.date) : new Date(),
                     zones: opts.zones,
