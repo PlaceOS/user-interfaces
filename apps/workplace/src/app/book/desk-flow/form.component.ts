@@ -12,7 +12,7 @@ import { first } from 'rxjs/operators';
             <h2
                 class="text-xl uppercase font-medium mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
-                {{ is_edit ? 'Edit' : 'Detailed' }} Booking
+                {{ is_edit ? 'Edit' : 'Detailed' }} Desk Booking
             </h2>
             <detailed-book-desks-form [form]="form"></detailed-book-desks-form>
             <div class="mb-4 border-b border-gray-300 w-full"></div>

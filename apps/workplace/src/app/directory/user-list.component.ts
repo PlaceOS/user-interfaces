@@ -17,7 +17,6 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
     template: `
         <topbar></topbar>
         <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
-            <nav-menu class="relative z-10"></nav-menu>
             <div
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
@@ -64,6 +63,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                 </main>
             </div>
         </div>
+        <footer-menu></footer-menu>
         <ng-template #empty_state>
             <div class="flex flex-col items-center p-8">
                 <app-icon class="text-5xl">{{

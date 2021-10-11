@@ -47,7 +47,7 @@ const app = {
     name: 'Concierge',
     title: 'PlaceOS',
     description: 'Concierge UI',
-    short_name: 'PlaceOS',
+    short_name: 'PlaceOS', 
     logo_light: {
         type: 'img',
         src: 'assets/logo-light.svg',

@@ -12,7 +12,7 @@ import { logout } from '@placeos/ts-client';
     template: `
         <div
             topbar
-            class="flex items-center justify-between h-16 bg-secondary border-b border-gray-200 text-white"
+            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 text-black z-50 shadow"
         >
             <a
                 logo
@@ -20,9 +20,12 @@ import { logout } from '@placeos/ts-client';
                 [routerLink]="['/']"
                 *ngIf="logo"
             >
-                <img class="h-10 sm:h-12" [src]="logo?.src" />
+                <img class="h-10" [src]="logo?.src" />
             </a>
-            <h2 *ngIf="title; else search">{{ title }}</h2>
+            <div class="flex-1 flex items-center justify-center h-full">
+                <top-menu class="hidden sm:block"></top-menu>
+            </div>
+            <global-search></global-search>
             <a-user-avatar
                 class="m-3 text-lg"
                 [user]="user"
@@ -36,7 +39,7 @@ import { logout } from '@placeos/ts-client';
                 *ngIf="user"
             >
                 <a-user-avatar
-                    class="m-3 text-lg"
+                    class="m-3 text-base"
                     [user]="user"
                 ></a-user-avatar>
                 <div class="flex flex-col">
@@ -78,8 +81,6 @@ import { logout } from '@placeos/ts-client';
             </div>
         </mat-menu>
         <ng-template #search>
-            <div class="flex-1"></div>
-            <global-search></global-search>
         </ng-template>
     `,
     styles: [``],
@@ -89,7 +90,7 @@ export class TopbarComponent {
 
     /** Application logo to display */
     public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo_dark');
+        return this._settings.get('app.logo_light');
     }
     /** Text to display for page title */
     public get title(): string {

@@ -6,13 +6,13 @@ import { DesksService } from '@placeos/bookings';
     template: `
         <topbar></topbar>
         <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
-            <nav-menu class="relative z-10"></nav-menu>
             <main
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
                 <explore-map-view></explore-map-view>
             </main>
         </div>
+        <footer-menu></footer-menu>
     `,
     styles: [
         `

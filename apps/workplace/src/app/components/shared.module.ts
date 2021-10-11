@@ -24,20 +24,22 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBadgeModule } from '@angular/material/badge';
 
 import { GlobalSearchComponent } from './global-search.component';
-import { NavMenuComponent } from './nav-menu.component';
 import { TopbarComponent } from './topbar.component';
 import { BookingFormModalComponent } from './booking-form-modal.component';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 import { FormFieldsModule } from '@placeos/form-fields';
+import { TopMenuComponent } from './top-menu.component';
+import { FooterMenuComponent } from './footer-menu.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
-    NavMenuComponent,
     GlobalSearchComponent,
     BookingFormModalComponent,
     VerticalTimelineComponent,
     EventTimelineComponent,
+    TopMenuComponent,
+    FooterMenuComponent
 ];
 
 const MATERIAL_MODULES: any[] = [

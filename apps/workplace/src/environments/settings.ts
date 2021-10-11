@@ -9,32 +9,27 @@ const general: any = {
     },
     menu: [
         {
-            name: 'Home',
-            route: '/dashboard',
-            icon: {
-                class: 'material-icons',
-                content: 'home',
-            },
-        },
-        {
-            name: 'Book',
+            name: 'Book Rooms',
             route: '/book/spaces',
+            type: 'book',
             icon: {
                 class: 'material-icons',
                 content: 'meeting_room',
             },
         },
         {
-            name: 'Scan',
+            name: 'Scan QR code',
             route: '/book/code',
+            type: 'book',
             icon: {
                 class: 'material-icons',
                 content: 'qr_code',
             },
         },
         {
-            name: 'Desk',
+            name: 'Book Desks',
             route: '/book/desks',
+            type: 'book',
             icon: {
                 class: 'material-icons',
                 content: 'dashboard_customize',

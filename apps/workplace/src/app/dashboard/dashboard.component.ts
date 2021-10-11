@@ -6,7 +6,6 @@ import { SettingsService } from '@placeos/common';
     template: `
         <topbar></topbar>
         <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-200">
-            <nav-menu class="relative z-10"></nav-menu>
             <div
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
@@ -26,6 +25,7 @@ import { SettingsService } from '@placeos/common';
                 </main>
             </div>
         </div>
+        <footer-menu></footer-menu>
     `,
     styles: [
         `
