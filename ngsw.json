@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1633667947058,
+  "timestamp": 1633931751632,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -120,14 +120,14 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "61e28b871c4312dea43a5653926fd19b4f6fe03d",
-    "./apps_workplace_src_app_control_control_module_ts.js": "80d296372f0dcf18936852ab3af2856a0de0c95a",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "8e1a98592080cd0eed8ce875d7318448dffd77fc",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "c2d9c4a8a73494ae710913165e14f9660b08908e",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "c11fc62639f97ab506e6009c721d9fc3b2154215",
-    "./apps_workplace_src_app_help_help_module_ts.js": "df5e50732a688128314f8c8d16623609f51b4df6",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "af354ba3a1b1ee66c7bcad20794de019d3e61a9f",
-    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "dbd922a0ef9985b8be250f33c796db222e8fe380",
+    "./apps_workplace_src_app_book_book_module_ts.js": "a0974f853d7987a1df34dbdc04cd11235372a229",
+    "./apps_workplace_src_app_control_control_module_ts.js": "4c4d1601e49d8f313eb1114b631ccbf1291cd1cd",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "5e35505f6e6c77cf7878db069858149da98e2f87",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "ca14ccb80fe449b13ecf4cdf82325ae0ef20ed11",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "efaa911d328ef27d11a01b952726694c077cdb60",
+    "./apps_workplace_src_app_help_help_module_ts.js": "90313303d37c5da6db3c8b6f95282cfb68850637",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "9e13e47fea5e10d34179e37edc4fd4d945b80cce",
+    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "7a8bc7ab2507598e58d94b03d7bf16e4d49e4d7b",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -204,14 +204,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "26df348e54b8ea7b8bf892faa7e2603477e9a1cb",
-    "./main.js": "3c92141e07df73dab861bb9f90106defc1d66c99",
+    "./main.js": "99234ff60a67259add70189baf9c79ae3535a447",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "be140946cd6bb1705a7f0268f54d4c5c8efb5437",
-    "./vendor.js": "64d5c0f26b99be8328e96a4da3ccdf256fa99789"
+    "./styles.css": "1245d5499fe61871880fbc1c172b4f4fdf875b35",
+    "./vendor.js": "253c16209b2b692e9f80339b80769f65aaca554b"
   },
   "navigationUrls": [
     {
