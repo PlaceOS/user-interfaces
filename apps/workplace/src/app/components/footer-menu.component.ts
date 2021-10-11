@@ -30,7 +30,7 @@ import { OrganisationService } from '@placeos/organisation';
             <a
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
-                [routerLink]="['/']"
+                [routerLink]="['/dashboard']"
                 routerLinkActive="text-primary"
             >
                 <app-icon class="text-2xl">home</app-icon>

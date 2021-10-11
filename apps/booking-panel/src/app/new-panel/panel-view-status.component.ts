@@ -48,8 +48,10 @@ import { currentPeriod, nextPeriod } from './helpers';
             >
                 <div
                     [innerHTML]="
-                        ((state | async) === 'busy' ? free_svg : in_use_svg)
-                            | safe
+                        (!(event_state | async)?.next
+                            ? free_svg
+                            : in_use_svg
+                        ) | safe
                     "
                 ></div>
                 <h3 class="text-4xl uppercase font-medium">Next</h3>
