@@ -18,7 +18,7 @@ import { currentPeriod, nextPeriod } from './helpers';
             <div
                 class="flex-1 h-full text-white flex flex-col items-center justify-center relative"
                 [class.bg-error]="(state | async) === 'busy'"
-                [class.bg-success]="(state | async) === 'available'"
+                [class.bg-success]="(state | async) === 'free'"
                 [class.bg-pending]="(state | async) === 'pending'"
             >
                 <div
@@ -132,19 +132,4 @@ export class PanelViewStatusComponent {
     `;
 
     constructor(private _state: PanelStateService) {}
-
-    public ngOnInit() {
-        this._state.current.subscribe((_) =>
-            console.log(
-                'Current:',
-                _ ? format(_.date, 'dd MMM, h:mm a') : '<None>'
-            )
-        );
-        this._state.next.subscribe((_) =>
-            console.log(
-                'Next:',
-                _ ? format(_.date, 'dd MMM, h:mm a') : '<None>'
-            )
-        );
-    }
 }

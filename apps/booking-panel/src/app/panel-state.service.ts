@@ -111,32 +111,8 @@ export class PanelStateService extends BaseClass {
         })
     );
 
-    public readonly status: Observable<string> = combineLatest([
-        this.current,
-        this.next,
-        this._settings,
-    ]).pipe(
-        map(([current, next, settings]) => {
-            const booking: CalendarEvent = current || next;
-            const is_active =
-                addSeconds(
-                    new Date(),
-                    settings.pending_period || 1440
-                ).valueOf() > booking?.date;
-            switch (booking?.state) {
-                case 'future':
-                    return 'available';
-                case 'upcoming':
-                    return settings.pending && !is_active
-                        ? 'pending'
-                        : 'available';
-                case 'started':
-                    return settings.pending && !is_active ? 'pending' : 'busy';
-                case 'in_progress':
-                    return settings.pending && !is_active ? 'pending' : 'busy';
-            }
-            return 'available';
-        }),
+    public readonly status: Observable<string> = this._settings.pipe(
+        map(_ => _.status || 'free'),
         shareReplay(1)
     );
 
