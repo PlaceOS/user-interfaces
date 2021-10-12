@@ -415,7 +415,7 @@ export class ControlStateService extends BaseClass {
     private _listenToSystemBinding(id: string, name: string) {
         const mod = getModule(id, 'System');
         const binding = mod.binding(name);
-        this.subscription(`binding:name`, binding.bind());
+        this.subscription(`binding:${name}`, binding.bind());
         return binding.listen();
     }
 }

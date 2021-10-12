@@ -21,7 +21,7 @@ export class MockBookingModule {
     /** Time of the last booking started by a user */
     last_booking_started = 0;
 
-    get current() {
+    get current_booking() {
         return this.bookings.find((_) =>
             timePeriodsIntersect(
                 Date.now(),
@@ -32,7 +32,7 @@ export class MockBookingModule {
         );
     }
 
-    get next() {
+    get next_booking() {
         return this.bookings.find((_) => _.event_start * 1000 > Date.now());
     }
 

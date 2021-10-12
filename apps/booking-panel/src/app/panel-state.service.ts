@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
-import { filter, map, shareReplay } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CalendarEvent } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
@@ -96,10 +96,11 @@ export class PanelStateService extends BaseClass {
         return this._settings.getValue()[name];
     }
     /** Currently active booking */
-    public readonly current: Observable<CalendarEvent> = combineLatest(
-        this._poll,
-        this._bookings
-    ).pipe(map(([_, bookings]) => currentBooking(bookings)));
+    public readonly current: Observable<CalendarEvent> = this._system.pipe(
+        switchMap((id) => this._listenToModuleBinding(id, 'current_booking')),
+        map((_) => _ ? new CalendarEvent(_) : null),
+        shareReplay(1)
+    );
     /** Upcoming booking */
     public readonly next: Observable<CalendarEvent> = combineLatest([
         this._poll,
@@ -310,5 +311,12 @@ export class PanelStateService extends BaseClass {
         const item = { ...this._settings.getValue() };
         item[name] = value;
         this._settings.next(item);
+    }
+
+    private _listenToModuleBinding(id: string, name: string, mod_name = 'Bookings') {
+        const mod = getModule(id, mod_name);
+        const binding = mod.binding(name);
+        this.subscription(`binding:${mod_name}:${name}`, binding.bind());
+        return binding.listen();
     }
 }
