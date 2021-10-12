@@ -123,6 +123,7 @@ export class PanelStateService extends BaseClass {
                 'pending_period',
                 'pending_before',
                 'room_image',
+                'show_qr_code'
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });

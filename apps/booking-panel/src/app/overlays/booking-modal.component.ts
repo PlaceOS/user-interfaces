@@ -25,7 +25,7 @@ export async function openBookingModal(
     const result = (await Promise.race([
         ref.componentInstance.event.pipe(first((_) => _.reason === 'done')).toPromise(),
         ref.afterClosed().toPromise(),
-    ]))
+    ])).catch(_ => ({}))
     return {
         ...result,
         close: ref.close,

@@ -23,6 +23,7 @@ import { PanelStateService } from '../panel-state.service';
             </div>
             <div
                 qr-checkin
+                *ngIf="checkin"
                 class="absolute top-4 right-4 text-xl w-40 space-y-4"
             >
                 <img class="w-full" [src]="qr_code" />
@@ -55,6 +56,10 @@ export class PanelViewDetailsComponent {
 
     public get room_image() {
         return this._state.setting('image');
+    }
+
+    public get checkin() {
+        return this._state.setting('show_qr_code');
     }
 
     constructor(private _state: PanelStateService) {}
