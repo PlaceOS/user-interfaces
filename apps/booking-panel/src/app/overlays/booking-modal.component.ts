@@ -22,11 +22,12 @@ export async function openBookingModal(
     const ref = dialog.open(BookingModalComponent, {
         data,
     });
+    const result = (await Promise.race([
+        ref.componentInstance.event.pipe(first((_) => _.reason === 'done')).toPromise(),
+        ref.afterClosed().toPromise(),
+    ]))
     return {
-        ...(await Promise.race([
-            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')),
-            ref.afterClosed().toPromise(),
-        ])),
+        ...result,
         close: ref.close,
     };
 }

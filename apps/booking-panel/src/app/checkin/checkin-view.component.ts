@@ -33,7 +33,7 @@ import { PanelStateService } from '../panel-state.service';
                 <div
                     class="w-2 h-full min-h-[3rem] rounded"
                     [class.bg-error]="(state | async) === 'busy'"
-                    [class.bg-success]="(state | async) === 'available'"
+                    [class.bg-success]="(state | async) === 'free'"
                     [class.bg-pending]="(state | async) === 'pending'"
                 ></div>
                 <div class="text-sm  flex-1 px-2">
@@ -55,7 +55,7 @@ import { PanelStateService } from '../panel-state.service';
                 <button
                     mat-button
                     class="w-24"
-                    *ngIf="(state | async) === 'available'"
+                    *ngIf="(state | async) === 'free'"
                     (click)="newBooking()"
                 >
                     Book
