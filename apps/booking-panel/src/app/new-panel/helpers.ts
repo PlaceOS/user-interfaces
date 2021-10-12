@@ -35,6 +35,6 @@ export function currentPeriod(current: CalendarEvent, next: CalendarEvent) {
         minutes: current_diff % 60,
     });
     return checked_in
-        ? `Free in ${curr_avail}`
+        ? `Free in ${ current_diff < 1 ? 'less than 1 minute' : curr_avail}`
         : `You meeting will be cancelled in ${'8 minutes'} if you do not check-in`;
 }
