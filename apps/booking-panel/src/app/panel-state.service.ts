@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 
 import { CalendarEvent } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
@@ -62,16 +62,12 @@ export type CalendarEventStatus =
 export class PanelStateService extends BaseClass {
     /** Polling observable */
     private _poll = interval(1000);
-    /** List of current bookings for active system */
-    private _bookings = new BehaviorSubject<CalendarEvent[]>([]);
     /** Mapping of current settings for the active system */
     private _settings = new BehaviorSubject<PanelSettings>({});
     /** Active system */
     private _system = new BehaviorSubject<string>('');
     /** Mapping of current settings for the active system */
     public readonly settings = this._settings.asObservable();
-    /** List of current bookings for active system */
-    public readonly bookings = this._bookings.asObservable();
     /** List of current bookings for active system */
     public readonly space = combineLatest([
         this._system,
@@ -80,10 +76,6 @@ export class PanelStateService extends BaseClass {
         map(([id, list]) => list.find((_) => _.id === id)),
         shareReplay(1)
     );
-    /** List of current bookings */
-    public get booking_list() {
-        return this._bookings.getValue();
-    }
     /** Active system */
     public get system() {
         return this._system.getValue();
@@ -95,6 +87,12 @@ export class PanelStateService extends BaseClass {
     public setting<T = any>(name: string): T {
         return this._settings.getValue()[name];
     }
+    /** List of current bookings for active system */
+    public readonly bookings: Observable<CalendarEvent[]> = this._system.pipe(
+        switchMap((id) => this._listenToModuleBinding(id, 'bookings')),
+        map((_) => _?.length ? _.map(_ => new CalendarEvent(_)) : []),
+        shareReplay(1)
+    );
     /** Currently active booking */
     public readonly current: Observable<CalendarEvent> = this._system.pipe(
         switchMap((id) => this._listenToModuleBinding(id, 'current_booking')),
@@ -102,14 +100,10 @@ export class PanelStateService extends BaseClass {
         shareReplay(1)
     );
     /** Upcoming booking */
-    public readonly next: Observable<CalendarEvent> = combineLatest([
-        this._poll,
-        this._bookings,
-    ]).pipe(
-        map(([_, bookings]) => {
-            const date = new Date().valueOf();
-            return bookings.find((bkn) => bkn.date > date);
-        })
+    public readonly next: Observable<CalendarEvent> = this._system.pipe(
+        switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
+        map((_) => _ ? new CalendarEvent(_) : null),
+        shareReplay(1)
     );
 
     public readonly status: Observable<string> = this._settings.pipe(
@@ -120,13 +114,6 @@ export class PanelStateService extends BaseClass {
     constructor(private _spaces: SpacesService, private _dialog: MatDialog) {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
-            this.bindTo(id, 'bookings' as any, 'Bookings', (l) =>
-                this._bookings.next(
-                    l
-                        ?.map((i) => new CalendarEvent(i))
-                        .sort((a, b) => a.date - b.date) || []
-                )
-            );
             const settings: any[] = [
                 'disable_book_now',
                 'pending',
@@ -232,15 +219,7 @@ export class PanelStateService extends BaseClass {
      * @param reason Reason for ending the meeting early
      */
     public async endCurrent(reason: string = 'user_input') {
-        const now = new Date().valueOf();
-        const current = this.booking_list.find((bkn) =>
-            timePeriodsIntersect(
-                now,
-                now,
-                bkn.date,
-                bkn.date + bkn.duration * 1000
-            )
-        );
+        const current = await this.current.pipe(take(1)).toPromise();
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module

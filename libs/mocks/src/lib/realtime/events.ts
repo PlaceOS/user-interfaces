@@ -39,8 +39,8 @@ export class MockBookingModule {
     /** Current status of the space */
     get status(): 'pending' | 'busy' | 'free' | 'not-bookable' {
         const date = new Date();
-        const { current, next } = this;
-        const start = new Date((current || next)?.event_start);
+        const { current_booking, next_booking } = this;
+        const start = new Date((current_booking || next_booking)?.event_start);
         const pending = timePeriodsIntersect(
             date,
             date,
@@ -48,7 +48,7 @@ export class MockBookingModule {
             addSeconds(start, this.pending_period)
         );
         return this._space?.bookable
-            ? current
+            ? current_booking
                 ? 'busy'
                 : pending
                 ? 'pending'
