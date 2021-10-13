@@ -257,6 +257,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 );
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
+                    asset_name: desk.name,
                     date,
                     duration,
                     map_id: desk?.map_id || desk?.id,

@@ -120,7 +120,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                 class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 *ngIf="needs_reason"
             >
-                <label>Reason</label>
+                <label>Details</label>
                 <mat-form-field class="w-full" appearance="outline">
                     <input
                         matInput

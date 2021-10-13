@@ -59,7 +59,7 @@ export class PanelViewDetailsComponent {
     }
 
     public get checkin() {
-        return this._state.setting('show_qr_code');
+        return this._state.setting('show_qr_code') !== false;
     }
 
     constructor(private _state: PanelStateService) {}

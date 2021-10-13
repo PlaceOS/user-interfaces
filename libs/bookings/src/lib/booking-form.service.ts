@@ -296,8 +296,12 @@ export class BookingFormService extends BaseClass {
             {
                 title: `Book ${options.type}`,
                 content: `Would you like to book the ${options.type} ${
-                    form.get('asset_id').value
-                } for ${format(form.get('date').value, 'dd MMM yyyy')}`,
+                    form.value.asset_name
+                } for ${format(form.value.date, 'dd MMM yyyy')}${
+                    form.value.duration < 12 * 60
+                        ? ' at ' + format(form.value.date, 'h:mm a')
+                        : ''
+                }`,
                 icon: { content: 'event_available' },
             },
             this._dialog

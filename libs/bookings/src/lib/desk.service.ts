@@ -145,6 +145,7 @@ export class DesksService {
             user_email: for_user?.email || host.email,
             booking_end: Math.floor(endOfDay(date).valueOf() / 1000),
             asset_id: desk.id,
+            asset_name: desk.name,
             title: reason,
             description: location,
             zones,

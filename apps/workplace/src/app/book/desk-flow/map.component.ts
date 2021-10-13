@@ -277,6 +277,7 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
         this._active_desk.next(desk);
         this._state.form.patchValue({
             asset_id: desk?.id,
+            asset_name: desk.name,
             map_id: desk?.map_id || desk?.id,
             description: desk.name,
             booking_type: 'desk',
