@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1634086810794,
+  "timestamp": 1634091753739,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -122,7 +122,7 @@
   "hashTable": {
     "./apps_workplace_src_app_book_book_module_ts.js": "c8b7757730d66949ab09f2c73d931a91198a11fa",
     "./apps_workplace_src_app_control_control_module_ts.js": "4c4d1601e49d8f313eb1114b631ccbf1291cd1cd",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "5e35505f6e6c77cf7878db069858149da98e2f87",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "29cb42fbc76be0c12f5f0d35de23e7188cb0ae21",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "ca14ccb80fe449b13ecf4cdf82325ae0ef20ed11",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "efaa911d328ef27d11a01b952726694c077cdb60",
     "./apps_workplace_src_app_help_help_module_ts.js": "90313303d37c5da6db3c8b6f95282cfb68850637",
@@ -203,14 +203,14 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "26df348e54b8ea7b8bf892faa7e2603477e9a1cb",
-    "./main.js": "586ce174b4ae2f4cee925c5b8a5eeb95a9fe4e44",
+    "./index.html": "0d25286232413c869129b93422eec87ea3e72616",
+    "./main.js": "778fb07079b73d561850e9ef7722ba71d7758366",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "a289900388d6d7b7451b3b3309cf761c53be5a4c",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "1245d5499fe61871880fbc1c172b4f4fdf875b35",
+    "./styles.css": "d0285876a614c7ca80026b3f0574e7601b87b359",
     "./vendor.js": "98f5971f5780b468b74d9eddee9142e670293905"
   },
   "navigationUrls": [
