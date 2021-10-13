@@ -31,8 +31,8 @@ const general: any = {
             route: '/book/desks',
             type: 'book',
             icon: {
-                class: 'material-icons',
-                content: 'dashboard_customize',
+                type: 'img',
+                src: 'assets/icons/desk-filled.svg'
             },
         },
         {

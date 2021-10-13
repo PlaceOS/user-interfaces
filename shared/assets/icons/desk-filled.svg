@@ -1,8 +1,7 @@
 <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="28" height="28" fill="white"/>
-<path d="M2 8L26 8" stroke="#292F5B" stroke-width="2"/>
-<path d="M5 22V8" stroke="#292F5B" stroke-width="2"/>
-<path d="M23 22V8" stroke="#292F5B" stroke-width="2"/>
-<rect x="5" y="10" width="17" height="2" fill="#292F5B"/>
-<rect x="5" y="9" width="17" height="2" fill="#292F5B"/>
+<path d="M2 8L26 8" stroke="currentColor" stroke-width="2"/>
+<path d="M5 22V8" stroke="currentColor" stroke-width="2"/>
+<path d="M23 22V8" stroke="currentColor" stroke-width="2"/>
+<rect x="5" y="10" width="17" height="2" fill="currentColor"/>
+<rect x="5" y="9" width="17" height="2" fill="currentColor"/>
 </svg>
