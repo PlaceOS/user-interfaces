@@ -12,7 +12,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <div
             name="event"
             *ngFor="let event of upcoming_events | async | slice: 0:3"
-            class="flex bg-white rounded-lg relative overflow-hidden mb-4"
+            class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4"
         >
             <div name="status" class="absolute rounded-lg"></div>
             <div name="details" class="flex-1 mr-2">
