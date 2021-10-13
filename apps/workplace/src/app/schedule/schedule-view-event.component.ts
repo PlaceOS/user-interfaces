@@ -180,7 +180,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                 </div>
                 <div
                     class="flex items-center justify-center space-x-2 mt-4"
-                    *ngIf="event.state === 'done'"
+                    *ngIf="event.state !== 'done'"
                 >
                     <button
                         mat-button
@@ -188,7 +188,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         class="w-32"
                         [disabled]="loading"
                         (click)="editEvent()"
-                        *ngIf="is_host && event.state !== 'done'"
+                        *ngIf="is_host"
                     >
                         Edit Event
                     </button>
