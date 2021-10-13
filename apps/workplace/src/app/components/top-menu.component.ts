@@ -13,7 +13,16 @@ import { OrganisationService } from '@placeos/organisation';
                 [routerLink]="['/dashboard']"
                 routerLinkActive="text-secondary active"
             >
-                <app-icon class="text-xl">home</app-icon>
+                <app-icon
+                    class="text-xl"
+                    [icon]="{
+                        type: 'img',
+                        src:
+                            'assets/icons/home-' +
+                            (type === 'home' ? 'filled' : 'outline') +
+                            '.svg'
+                    }"
+                ></app-icon>
                 <span>Home</span>
                 <div
                     bar
@@ -28,7 +37,16 @@ import { OrganisationService } from '@placeos/organisation';
                 [class.text-secondary]="type === 'book'"
                 [class.active]="type === 'book'"
             >
-                <app-icon>book</app-icon>
+                <app-icon
+                    class="text-xl"
+                    [icon]="{
+                        type: 'img',
+                        src:
+                            'assets/icons/meeting-room-' +
+                            (type === 'book' ? 'filled' : 'outline') +
+                            '.svg'
+                    }"
+                ></app-icon>
                 <span>Book</span>
                 <div
                     bar
@@ -43,7 +61,16 @@ import { OrganisationService } from '@placeos/organisation';
                 [class.text-secondary]="type === 'more'"
                 [class.active]="type === 'more'"
             >
-                <app-icon>more</app-icon>
+                <app-icon
+                    class="text-xl"
+                    [icon]="{
+                        type: 'img',
+                        src:
+                            'assets/icons/more-' +
+                            (type === 'more' ? 'filled' : 'outline') +
+                            '.svg'
+                    }"
+                ></app-icon>
                 <span>More</span>
                 <div
                     bar
@@ -135,6 +162,7 @@ export class TopMenuComponent {
 
     public get type() {
         const url = this._router.url;
+        if (url.includes('dashboard')) return 'home';
         return this.book_items.find((_) => url.includes(_.route))
             ? 'book'
             : this.other_items.find((_) => url.includes(_.route))
