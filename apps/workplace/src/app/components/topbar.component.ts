@@ -26,11 +26,13 @@ import { logout } from '@placeos/ts-client';
                 <top-menu class="hidden sm:block"></top-menu>
             </div>
             <global-search></global-search>
-            <a-user-avatar
-                class="m-3 text-lg"
-                [user]="user"
+            <button
+                matRipple
+                class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
                 [matMenuTriggerFor]="menu"
-            ></a-user-avatar>
+            >
+                <app-icon class="text-2xl">person</app-icon>
+            </button>
         </div>
         <mat-menu #menu="matMenu">
             <div
@@ -61,7 +63,12 @@ import { logout } from '@placeos/ts-client';
                     </span>
                 </ng-container>
             </div>
-            <button mat-menu-item [routerLink]="['/help']" routerLinkActive="text-primary" *ngIf="features.includes('help')">
+            <button
+                mat-menu-item
+                [routerLink]="['/help']"
+                routerLinkActive="text-primary"
+                *ngIf="features.includes('help')"
+            >
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-xl">help</app-icon>
                     <div>Help & Support</div>
@@ -86,8 +93,7 @@ import { logout } from '@placeos/ts-client';
                 </div>
             </div>
         </mat-menu>
-        <ng-template #search>
-        </ng-template>
+        <ng-template #search> </ng-template>
     `,
     styles: [``],
 })

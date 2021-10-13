@@ -9,8 +9,8 @@ import { ExploreSearchService } from '@placeos/explore';
         <div
             class="h-full w-12 relative"
         >
-            <button mat-icon-button class="text-black h-[3.5rem] w-[3.5rem] rounded-none" (click)="showInput()">
-                <app-icon class="text-3xl">search</app-icon>
+            <button mat-icon-button class="text-black h-10 w-10 rounded-full bg-gray-200" (click)="showInput()">
+                <app-icon class="text-2xl">search</app-icon>
             </button>
             <div 
                 search
@@ -24,7 +24,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 }"
                 (click)="showInput()"
             >
-                <app-icon class="text-3xl">search</app-icon>
+                <app-icon class="text-2xl">search</app-icon>
                 <input
                     #input
                     placeholder="Search for people or spaces..."
