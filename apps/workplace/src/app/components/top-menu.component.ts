@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ApplicationLink, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
         <div menu class="flex items-center h-full">
             <a
                 matRipple
-                class="flex items-center justify-center space-x-2 relative"
+                class="flex items-center justify-center space-x-2 relative px-4"
                 [routerLink]="['/dashboard']"
                 routerLinkActive="text-secondary active"
             >
@@ -31,11 +31,10 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <button
                 matRipple
-                class="flex items-center justify-center space-x-2 relative"
-                [matMenuTriggerFor]="book_menu"
-                *ngIf="book_items.length"
-                [class.text-secondary]="type === 'book'"
-                [class.active]="type === 'book'"
+                class="flex items-center justify-center space-x-2 relative px-4"
+                *ngIf="features.includes('spaces')"
+                [routerLink]="['/book', 'spaces']"
+                routerLinkActive="text-secondary active"
             >
                 <app-icon
                     class="text-xl"
@@ -43,11 +42,11 @@ import { OrganisationService } from '@placeos/organisation';
                         type: 'img',
                         src:
                             'assets/icons/meeting-room-' +
-                            (type === 'book' ? 'filled' : 'outline') +
+                            (type === 'spaces' ? 'filled' : 'outline') +
                             '.svg'
                     }"
                 ></app-icon>
-                <span>Book</span>
+                <span>Book Room</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -55,23 +54,22 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
             <button
                 matRipple
-                [matMenuTriggerFor]="more_menu"
-                class="flex items-center justify-center space-x-2 relative"
-                *ngIf="other_items.length"
-                [class.text-secondary]="type === 'more'"
-                [class.active]="type === 'more'"
+                class="flex items-center justify-center space-x-2 relative px-4"
+                *ngIf="features.includes('desks')"
+                [routerLink]="['/book', 'desks']"
+                routerLinkActive="text-secondary active"
             >
                 <app-icon
                     class="text-xl"
                     [icon]="{
                         type: 'img',
                         src:
-                            'assets/icons/more-' +
-                            (type === 'more' ? 'filled' : 'outline') +
+                            'assets/icons/desk-' +
+                            (type === 'desks' ? 'filled' : 'outline') +
                             '.svg'
                     }"
                 ></app-icon>
-                <span>More</span>
+                <span>Book Desk</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -79,7 +77,30 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
             <button
                 matRipple
-                class="flex items-center justify-center space-x-2 relative"
+                class="flex items-center justify-center space-x-2 relative px-4"
+                *ngIf="features.includes('parking')"
+                [routerLink]="['/book', 'parking']"
+                routerLinkActive="text-secondary active"
+            >
+                <app-icon
+                    class="text-xl"
+                    [icon]="{
+                        type: 'img',
+                        src:
+                            'assets/icons/car-' +
+                            (type === 'parking' ? 'filled' : 'outline') +
+                            '.svg'
+                    }"
+                ></app-icon>
+                <span>Book Car Space</span>
+                <div
+                    bar
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                ></div>
+            </button>
+            <button
+                matRipple
+                class="flex items-center justify-center space-x-2 relative px-4"
                 [matMenuTriggerFor]="building_menu"
                 *ngIf="(buildings | async)?.length > 1"
             >
@@ -87,30 +108,6 @@ import { OrganisationService } from '@placeos/organisation';
                 <span>Building</span>
             </button>
         </div>
-        <mat-menu #book_menu="matMenu">
-            <a
-                mat-menu-item
-                *ngFor="let item of book_items"
-                [routerLink]="item.route"
-                routerLinkActive="text-primary"
-                class="flex items-center space-x-2 text-base"
-            >
-                <app-icon [icon]="item.icon"></app-icon>
-                <div>{{ item.name }}</div>
-            </a>
-        </mat-menu>
-        <mat-menu #more_menu="matMenu">
-            <a
-                mat-menu-item
-                *ngFor="let item of other_items"
-                [routerLink]="item.route"
-                routerLinkActive="text-primary"
-                class="flex items-center space-x-2 text-base"
-            >
-                <app-icon [icon]="item.icon"></app-icon>
-                <div>{{ item.name }}</div>
-            </a>
-        </mat-menu>
         <mat-menu #building_menu="matMenu">
             <button
                 mat-menu-item
@@ -148,26 +145,17 @@ export class TopMenuComponent {
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
 
-    public get book_items() {
-        return this.menu_items.filter((_: any) => _.type === 'book');
-    }
-
-    public get other_items() {
-        return this.menu_items.filter((_: any) => _.type !== 'book');
-    }
-
-    public get menu_items(): ApplicationLink[] {
-        return this._settings.get('app.general.menu') || [];
+    public get features(): string[] {
+        return this._settings.get('app.features') || [];
     }
 
     public get type() {
         const url = this._router.url;
         if (url.includes('dashboard')) return 'home';
-        return this.book_items.find((_) => url.includes(_.route))
-            ? 'book'
-            : this.other_items.find((_) => url.includes(_.route))
-            ? 'more'
-            : '';
+        if (url.includes('book/spaces')) return 'spaces';
+        if (url.includes('book/desks')) return 'desks';
+        if (url.includes('book/parking')) return 'parking';
+        return '';
     }
 
     public readonly setBuilding = (b) => (this._org.building = b);

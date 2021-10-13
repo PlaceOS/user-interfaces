@@ -61,6 +61,12 @@ import { logout } from '@placeos/ts-client';
                     </span>
                 </ng-container>
             </div>
+            <button mat-menu-item [routerLink]="['/help']" routerLinkActive="text-primary" *ngIf="features.includes('help')">
+                <div class="flex items-center space-x-2">
+                    <app-icon class="text-xl">help</app-icon>
+                    <div>Help & Support</div>
+                </div>
+            </button>
             <button mat-menu-item (click)="logout()">
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-xl">logout</app-icon>
@@ -103,6 +109,10 @@ export class TopbarComponent {
 
     public get version() {
         return VERSION;
+    }
+
+    public get features(): string[] {
+        return this._settings.get('app.features');
     }
 
     constructor(private _settings: SettingsService) {}

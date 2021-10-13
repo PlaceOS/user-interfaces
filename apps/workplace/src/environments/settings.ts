@@ -7,83 +7,6 @@ const general: any = {
         type: 'info',
         content: ``
     },
-    menu: [
-        {
-            name: 'Book Rooms',
-            route: '/book/spaces',
-            type: 'book',
-            icon: {
-                class: 'material-icons',
-                content: 'meeting_room',
-            },
-        },
-        {
-            name: 'Scan QR code',
-            route: '/book/code',
-            type: 'book',
-            icon: {
-                class: 'material-icons',
-                content: 'qr_code',
-            },
-        },
-        {
-            name: 'Book Desks',
-            route: '/book/desks',
-            type: 'book',
-            icon: {
-                type: 'img',
-                src: 'assets/icons/desk-filled.svg'
-            },
-        },
-        {
-            name: 'Spaces',
-            route: '/explore',
-            icon: {
-                class: 'material-icons',
-                content: 'place',
-            },
-        },
-        {
-            name: 'People',
-            route: '/directory',
-            icon: {
-                class: 'material-icons',
-                content: 'person_search',
-            },
-        },
-        {
-            name: 'Help',
-            route: '/help',
-            icon: {
-                class: 'material-icons',
-                content: 'help',
-            },
-        },
-        {
-            name: 'My Day',
-            route: '/schedule',
-            icon: {
-                class: 'material-icons',
-                content: 'date_range',
-            },
-        },
-        {
-            name: "What's On",
-            route: '/whats-on',
-            icon: {
-                class: 'material-icons',
-                content: 'celebration',
-            },
-        },
-        // {
-        //     name: 'Wellness',
-        //     route: '/schedule',
-        //     icon: {
-        //         class: 'material-icons',
-        //         content: 'mood',
-        //     },
-        // },
-    ],
     copyright: 'PlaceOS',
     position: 'right',
 };
@@ -219,6 +142,7 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
+    features: ['spaces', 'desks', 'parking', 'help'],
     can_deliver: true,
     general,
     help,
