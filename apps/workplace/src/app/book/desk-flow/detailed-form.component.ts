@@ -117,6 +117,15 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </div>
             </div>
             <div
+                class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                *ngIf="can_book_for_others"
+            >
+                <label>Host</label>
+                <a-user-search-field
+                    formControlName="user"
+                ></a-user-search-field>
+            </div>
+            <div
                 class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 *ngIf="needs_reason"
             >
@@ -239,6 +248,9 @@ export class DeskFlowDetailedFormComponent {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
+    public get can_book_for_others() {
+        return this._settings.get('app.desks.can_book_for_others');
+    }
     public get can_recurr() {
         return this._settings.get('app.desks.recurrence_allowed');
     }

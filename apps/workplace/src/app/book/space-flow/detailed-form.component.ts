@@ -38,6 +38,15 @@ import { SettingsService } from '@placeos/common';
             <section class="mb-4 border-b border-gray-300">
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                    *ngIf="can_book_for_others"
+                >
+                    <label>Host</label>
+                    <a-user-search-field
+                        formControlName="organiser"
+                    ></a-user-search-field>
+                </div>
+                <div
+                    class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
                     <label>Attendees</label>
                     <a-user-list-field
@@ -110,6 +119,9 @@ export class DetailBookSpaceFormComponent {
 
     public get hide_actions() {
         return !!this._settings.get('app.events.hide_user_actions');
+    }
+    public get can_book_for_others() {
+        return this._settings.get('app.events.can_book_for_others');
     }
 
     public readonly editCatering = async () =>
