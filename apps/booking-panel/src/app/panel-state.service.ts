@@ -4,7 +4,7 @@ import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
 import {
     BaseClass,
@@ -90,28 +90,32 @@ export class PanelStateService extends BaseClass {
     /** List of current bookings for active system */
     public readonly bookings: Observable<CalendarEvent[]> = this._system.pipe(
         switchMap((id) => this._listenToModuleBinding(id, 'bookings')),
-        map((_) => _?.length ? _.map(_ => new CalendarEvent(_)) : []),
+        map((_) => (_?.length ? _.map((_) => new CalendarEvent(_)) : [])),
         shareReplay(1)
     );
     /** Currently active booking */
     public readonly current: Observable<CalendarEvent> = this._system.pipe(
         switchMap((id) => this._listenToModuleBinding(id, 'current_booking')),
-        map((_) => _ ? new CalendarEvent(_) : null),
+        map((_) => (_ ? new CalendarEvent(_) : null)),
         shareReplay(1)
     );
     /** Upcoming booking */
     public readonly next: Observable<CalendarEvent> = this._system.pipe(
         switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
-        map((_) => _ ? new CalendarEvent(_) : null),
+        map((_) => (_ ? new CalendarEvent(_) : null)),
         shareReplay(1)
     );
 
     public readonly status: Observable<string> = this._settings.pipe(
-        map(_ => _.status || 'free'),
+        map((_) => _.status || 'free'),
         shareReplay(1)
     );
 
-    constructor(private _spaces: SpacesService, private _dialog: MatDialog) {
+    constructor(
+        private _spaces: SpacesService,
+        private _dialog: MatDialog,
+        private _events: EventFormService
+    ) {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
@@ -123,7 +127,7 @@ export class PanelStateService extends BaseClass {
                 'pending_period',
                 'pending_before',
                 'room_image',
-                'show_qr_code'
+                'show_qr_code',
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
@@ -143,7 +147,9 @@ export class PanelStateService extends BaseClass {
             this._dialog
         );
         if (details.reason !== 'done') return details.close();
-        await this.makeBooking(details.metadata);
+        this._events.newForm();
+        this._events.form.patchValue({ ...details.metadata });
+        await this._events.postForm();
         details.close();
     }
 
@@ -293,7 +299,11 @@ export class PanelStateService extends BaseClass {
         this._settings.next(item);
     }
 
-    private _listenToModuleBinding(id: string, name: string, mod_name = 'Bookings') {
+    private _listenToModuleBinding(
+        id: string,
+        name: string,
+        mod_name = 'Bookings'
+    ) {
         const mod = getModule(id, mod_name);
         const binding = mod.binding(name);
         this.subscription(`binding:${mod_name}:${name}`, binding.bind());
