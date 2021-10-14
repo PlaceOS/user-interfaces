@@ -14,7 +14,7 @@ import { ExploreSearchService } from '@placeos/explore';
             </button>
             <div 
                 search
-                class="flex items-center absolute top-1/2 right-0 -translate-y-1/2 max-w-[calc(100vw-5rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2"
+                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
