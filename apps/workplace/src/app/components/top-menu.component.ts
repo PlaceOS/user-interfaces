@@ -101,6 +101,29 @@ import { OrganisationService } from '@placeos/organisation';
             <button
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-4"
+                *ngIf="features.includes('explore')"
+                [routerLink]="['/explore']"
+                routerLinkActive="text-secondary active"
+            >
+                <app-icon
+                    class="text-xl"
+                    [icon]="{
+                        type: 'img',
+                        src:
+                            'assets/icons/place-' +
+                            (type === 'explore' ? 'filled' : 'outline') +
+                            '.svg'
+                    }"
+                ></app-icon>
+                <span>Spaces</span>
+                <div
+                    bar
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                ></div>
+            </button>
+            <button
+                matRipple
+                class="flex items-center justify-center space-x-2 relative px-4"
                 [matMenuTriggerFor]="building_menu"
                 *ngIf="(buildings | async)?.length > 1"
             >
@@ -155,6 +178,7 @@ export class TopMenuComponent {
         if (url.includes('book/spaces')) return 'spaces';
         if (url.includes('book/desks')) return 'desks';
         if (url.includes('book/parking')) return 'parking';
+        if (url.includes('explore')) return 'explore';
         return '';
     }
 

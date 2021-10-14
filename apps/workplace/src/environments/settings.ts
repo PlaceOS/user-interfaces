@@ -64,10 +64,11 @@ const help: any = {
 /**
  * BOOKING FLOW SETTINGS
  */
-const booking: any = {
+const events: any = {
     multiple_spaces: false,
     desk_start: 9,
     breakdown: 15,
+    can_book_for_others: false
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -142,14 +143,17 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
-    features: ['spaces', 'desks', 'parking', 'help'],
+    features: ['spaces', 'desks', 'explore', 'help'],
     can_deliver: true,
     general,
     help,
-    booking,
+    events,
     space_display,
     directory,
     explore,
+    desks: {
+        can_book_for_others: true
+    },
     analytics: {
         enabled: true,
         tracking_id: '',
