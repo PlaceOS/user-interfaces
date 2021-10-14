@@ -12,7 +12,7 @@ import { logout } from '@placeos/ts-client';
     template: `
         <div
             topbar
-            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 text-black z-50 shadow"
+            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 text-black z-50 shadow relative"
         >
             <a
                 logo

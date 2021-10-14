@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'placeos-book',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 z-10 relative">
             <main
                 class="relative flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
