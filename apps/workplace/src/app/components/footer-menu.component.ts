@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ApplicationLink, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'footer-menu',
@@ -12,16 +11,42 @@ import { OrganisationService } from '@placeos/organisation';
         >
             <a
                 matRipple
-                *ngFor="let item of book_items"
-                [routerLink]="item.route"
+                [routerLink]="['/book', 'spaces']"
+                *ngIf="features.includes('spaces')"
                 class="flex items-center space-x-4 text-base w-48"
             >
                 <div
                     class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                 >
-                    <app-icon [icon]="item.icon"></app-icon>
+                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/meeting-room-filled.svg' }"></app-icon>
                 </div>
-                <div>{{ item.name }}</div>
+                <div>Book Room</div>
+            </a>
+            <a
+                matRipple
+                [routerLink]="['/book', 'desks']"
+                *ngIf="features.includes('desks')"
+                class="flex items-center space-x-4 text-base w-48"
+            >
+                <div
+                    class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                >
+                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/desk-filled.svg' }"></app-icon>
+                </div>
+                <div>Book Desk</div>
+            </a>
+            <a
+                matRipple
+                [routerLink]="['/book', 'parking']"
+                *ngIf="features.includes('parking')"
+                class="flex items-center space-x-4 text-base w-48"
+            >
+                <div
+                    class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                >
+                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/car-filled.svg' }"></app-icon>
+                </div>
+                <div>Book Car Space</div>
             </a>
         </div>
         <div
@@ -48,15 +73,15 @@ import { OrganisationService } from '@placeos/organisation';
                     show_book_items ? 'close' : 'add'
                 }}</app-icon>
             </button>
-            <button
+            <a
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
-                [matMenuTriggerFor]="building_menu"
-                *ngIf="(buildings | async)?.length > 1"
+                [routerLink]="['/explore']"
+                routerLinkActive="text-primary"
             >
-                <app-icon class="text-2xl">business</app-icon>
-                <span class="text-sm">Building</span>
-            </button>
+                <app-icon class="text-2xl">place</app-icon>
+                <span class="text-sm">Spaces</span>
+            </a>
             <div
                 class="overflow-hidden absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-24 h-2"
             >
@@ -65,37 +90,17 @@ import { OrganisationService } from '@placeos/organisation';
                 ></div>
             </div>
         </div>
-        <mat-menu #building_menu="matMenu">
-            <button
-                mat-menu-item
-                *ngFor="let item of buildings | async"
-                (click)="setBuilding(item)"
-                class="flex items-center space-x-2 text-base"
-                [class.text-primary]="(building | async).id === item.id"
-            >
-                {{ item.name }}
-            </button>
-        </mat-menu>
     `,
     styles: [``],
 })
 export class FooterMenuComponent {
     public show_book_items = false;
-    public readonly buildings = this._org.building_list;
-    public readonly building = this._org.active_building;
 
-    public get menu_items(): ApplicationLink[] {
-        return this._settings.get('app.general.menu') || [];
+    public get features(): string[] {
+        return this._settings.get('app.features') || [];
     }
-
-    public get book_items() {
-        return this.menu_items.filter((_: any) => _.type === 'book');
-    }
-
-    public readonly setBuilding = (b) => (this._org.building = b);
 
     constructor(
-        private _settings: SettingsService,
-        private _org: OrganisationService
+        private _settings: SettingsService
     ) {}
 }
