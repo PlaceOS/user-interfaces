@@ -9,9 +9,11 @@ import { OrganisationService } from '@placeos/organisation';
         <div menu class="flex items-center h-full">
             <a
                 matRipple
-                class="flex items-center justify-center space-x-2 relative px-4"
+                class="flex items-center justify-center space-x-2 relative px-8"
                 [routerLink]="['/dashboard']"
                 routerLinkActive="text-secondary active"
+                matTooltip="Home"
+                matTooltipPosition="below"
             >
                 <app-icon
                     class="text-xl"
@@ -23,7 +25,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span>Home</span>
+                <span *ngIf="show_text">Home</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -31,10 +33,12 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <button
                 matRipple
-                class="flex items-center justify-center space-x-2 relative px-4"
+                class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('spaces')"
                 [routerLink]="['/book', 'spaces']"
                 routerLinkActive="text-secondary active"
+                matTooltip="Book Room"
+                matTooltipPosition="below"
             >
                 <app-icon
                     class="text-xl"
@@ -46,7 +50,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span>Book Room</span>
+                <span *ngIf="show_text">Book Room</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -54,10 +58,12 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
             <button
                 matRipple
-                class="flex items-center justify-center space-x-2 relative px-4"
+                class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('desks')"
                 [routerLink]="['/book', 'desks']"
                 routerLinkActive="text-secondary active"
+                matTooltip="Book Desk"
+                matTooltipPosition="below"
             >
                 <app-icon
                     class="text-xl"
@@ -69,7 +75,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span>Book Desk</span>
+                <span *ngIf="show_text">Book Desk</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -77,10 +83,12 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
             <button
                 matRipple
-                class="flex items-center justify-center space-x-2 relative px-4"
+                class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
                 [routerLink]="['/book', 'parking']"
                 routerLinkActive="text-secondary active"
+                matTooltip="Book Car Space"
+                matTooltipPosition="below"
             >
                 <app-icon
                     class="text-xl"
@@ -92,7 +100,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span>Book Car Space</span>
+                <span *ngIf="show_text">Book Car Space</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -100,10 +108,12 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
             <button
                 matRipple
-                class="flex items-center justify-center space-x-2 relative px-4"
+                class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('explore')"
                 [routerLink]="['/explore']"
                 routerLinkActive="text-secondary active"
+                matTooltip="Spaces"
+                matTooltipPosition="below"
             >
                 <app-icon
                     class="text-xl"
@@ -115,43 +125,18 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span>Spaces</span>
+                <span *ngIf="show_text">Spaces</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
                 ></div>
             </button>
-            <button
-                matRipple
-                class="flex items-center justify-center space-x-2 relative px-4"
-                [matMenuTriggerFor]="building_menu"
-                *ngIf="(buildings | async)?.length > 1"
-            >
-                <app-icon>business</app-icon>
-                <span>Building</span>
-            </button>
         </div>
-        <mat-menu #building_menu="matMenu">
-            <button
-                mat-menu-item
-                *ngFor="let item of buildings | async"
-                (click)="setBuilding(item)"
-                class="flex items-center space-x-2 text-base"
-                [class.text-primary]="(building | async).id === item.id"
-            >
-                {{ item.name }}
-            </button>
-        </mat-menu>
     `,
     styles: [
         `
             [menu] > * {
                 height: 3.5rem;
-            }
-
-            button,
-            a {
-                min-width: 8rem;
             }
 
             [bar] {
@@ -167,6 +152,10 @@ import { OrganisationService } from '@placeos/organisation';
 export class TopMenuComponent {
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
+
+    public get show_text() {
+        return this.features.length <= 5;
+    }
 
     public get features(): string[] {
         return this._settings.get('app.features') || [];
