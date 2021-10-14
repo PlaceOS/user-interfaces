@@ -126,5 +126,6 @@ export class TopbarComponent {
     public logout() {
         logout();
         location.href = '/logout';
+        
     }
 }
