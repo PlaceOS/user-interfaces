@@ -71,7 +71,7 @@ export class ScheduleStateService extends BaseClass {
             const list = [
                 ...this._schedule.getValue(),
                 ...events,
-                ...bookings,
+                ...bookings.filter(_ => _.status !== 'declined'),
             ].sort((a, b) => a.date - b.date);
             this._schedule.next(unique(list, 'id') as any);
             return list;

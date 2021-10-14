@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     Booking,
     BookingFormService,
-    removeBooking,
+    rejectBooking,
     showBooking,
 } from '@placeos/bookings';
 import {
@@ -214,7 +214,7 @@ export class ScheduleViewBookingComponent extends BaseClass {
         );
         if (details.reason !== 'done') return;
         details.loading('Removing booking...');
-        await removeBooking(this.event.id)
+        await rejectBooking(this.event.id)
             .toPromise()
             .catch((e) => {
                 details.loading('');
