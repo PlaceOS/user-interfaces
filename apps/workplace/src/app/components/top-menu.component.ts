@@ -153,6 +153,8 @@ export class TopMenuComponent {
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
 
+    public readonly setBuilding = (b) => (this._org.building = b);
+
     public get show_text() {
         return this.features.length <= 5;
     }
@@ -170,8 +172,6 @@ export class TopMenuComponent {
         if (url.includes('explore')) return 'explore';
         return '';
     }
-
-    public readonly setBuilding = (b) => (this._org.building = b);
 
     constructor(
         private _settings: SettingsService,
