@@ -66,6 +66,17 @@ import { logout } from '@placeos/ts-client';
             </div>
             <button
                 mat-menu-item
+                [routerLink]="['/schedule']"
+                routerLinkActive="text-primary"
+                *ngIf="features.includes('schedule')"
+            >
+                <div class="flex items-center space-x-2">
+                    <app-icon class="text-xl">event</app-icon>
+                    <div>My Day</div>
+                </div>
+            </button>
+            <button
+                mat-menu-item
                 [routerLink]="['/help']"
                 routerLinkActive="text-primary"
                 *ngIf="features.includes('help')"
