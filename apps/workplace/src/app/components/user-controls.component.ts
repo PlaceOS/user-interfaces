@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
+import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 
@@ -57,6 +58,10 @@ import { HelpTooltipComponent } from './help-tooltip.component';
                     </div>
                 </button>
             </div>
+            <div
+                customTooltip
+                [content]="accessibility_tooltip"
+            >
             <button mat-button class="clear w-full text-left h-[3.5rem]">
                 <div class="flex items-center space-x-2">
                     <div
@@ -70,6 +75,7 @@ import { HelpTooltipComponent } from './help-tooltip.component';
                     >
                 </div>
             </button>
+                        </div>
             <div class="flex flex-col items-center p-4">
                 <button mat-button class="inverse mb-4">Sign Out</button>
                 <div class="text-xs opacity-60 w-full">
@@ -96,6 +102,7 @@ export class UserControlsComponent {
 
     public readonly building_select = BuildingSelectComponent;
     public readonly help_tooltip = HelpTooltipComponent;
+    public readonly accessibility_tooltip = AccessibilityTooltipComponent;
 
     public get user() {
         return currentUser();

@@ -22,6 +22,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatSliderModule } from '@angular/material/slider';
 
 import { GlobalSearchComponent } from './global-search.component';
 import { TopbarComponent } from './topbar.component';
@@ -34,6 +35,8 @@ import { FooterMenuComponent } from './footer-menu.component';
 import { UserControlsComponent } from './user-controls.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
+import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -45,7 +48,8 @@ const COMPONENTS: Type<any>[] = [
     FooterMenuComponent,
     UserControlsComponent,
     BuildingSelectComponent,
-    HelpTooltipComponent
+    HelpTooltipComponent,
+    AccessibilityTooltipComponent
 ];
 
 const MATERIAL_MODULES: any[] = [
@@ -67,6 +71,8 @@ const MATERIAL_MODULES: any[] = [
     MatBadgeModule,
     MatTooltipModule,
     MatRadioModule,
+    MatSlideToggleModule,
+    MatSliderModule
 ];
 
 @NgModule({
