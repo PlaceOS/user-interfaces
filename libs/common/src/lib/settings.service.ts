@@ -9,6 +9,10 @@ import { HashMap } from './types';
 import { BaseClass } from './base.class';
 
 import { VERSION } from './version';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { currentUser } from './user-state';
+import { current_user } from '..';
+import { first } from 'rxjs/operators';
 
 declare global {
     interface Window {
@@ -25,10 +29,14 @@ export class SettingsService extends BaseClass {
     private _app_name = 'PlaceOS';
     /** List of override settings in order of priority */
     private _overrides = new BehaviorSubject<HashMap[]>([]);
+    /** User's personal settings */
+    private _user_settings = new BehaviorSubject<HashMap>({});
     /** Mapping of behaviour subjects */
     private _subjects: HashMap<BehaviorSubject<any>> = {};
     /** Mapping of observables */
     private _observables: HashMap<Observable<any>> = {};
+    /** Mapping of pending settings */
+    private _pending_settings: HashMap = {};
 
     /**
      * @hidden
@@ -103,6 +111,15 @@ export class SettingsService extends BaseClass {
             if (!window.application) window.application = {};
             window.application.settings = this;
         }
+        this.subscription(
+            'user_settings',
+            this._user_settings.subscribe((_) => this._applyUserSettings(_))
+        );
+        const user = await current_user.pipe(first((_) => !!_)).toPromise();
+        console.log('User:', user);
+        const data = await showMetadata(user.id, 'settings').toPromise();
+        console.log('Data:', data);
+        this._user_settings.next(data.details || {});
     }
 
     /** Whether settings service has initialised */
@@ -117,9 +134,13 @@ export class SettingsService extends BaseClass {
     public get<T = any>(key: string): T {
         const keys = key.split('.');
         if (keys[0] !== 'app') {
-            return getItemWithKeys(keys, DEFAULT_SETTINGS);
+            return (
+                getItemWithKeys(keys, this._user_settings.getValue()) ||
+                getItemWithKeys(keys, this._pending_settings) ||
+                getItemWithKeys(keys, DEFAULT_SETTINGS)
+            );
         }
-        const override_settings = this._overrides.getValue();
+        const override_settings = [...this._overrides.getValue()];
         for (const override of override_settings) {
             const value = getItemWithKeys(keys.slice(1), override);
             if (value != null) {
@@ -127,6 +148,11 @@ export class SettingsService extends BaseClass {
             }
         }
         return getItemWithKeys(keys, DEFAULT_SETTINGS);
+    }
+
+    public saveUserSetting<T>(name: string, value: T) {
+        this._pending_settings[name] = value;
+        this.timeout('save_settings', () => this._savePendingChanges(), 5000);
     }
 
     private _applyCssVariables() {
@@ -143,5 +169,29 @@ export class SettingsService extends BaseClass {
             document.head.appendChild(element);
         }
         element.innerText = css_string;
+    }
+
+    private async _savePendingChanges() {
+        const user = currentUser();
+        if (!user || !Object.keys(this._pending_settings).length) return;
+        await updateMetadata(user.id, {
+            name: 'settings',
+            description: '',
+            details: {
+                ...this._user_settings.getValue(),
+                ...this._pending_settings,
+            },
+        });
+    }
+
+    private async _applyUserSettings(settings: HashMap) {
+        if (settings.dark_mode) {
+            document.body.classList.add('dark');
+        } else {
+            document.body.classList.remove('dark');
+        }
+        if (settings.font_size) {
+            document.body.style.fontSize = `${settings.font_size}px`;
+        }
     }
 }

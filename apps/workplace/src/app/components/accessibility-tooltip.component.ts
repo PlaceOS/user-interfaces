@@ -22,7 +22,10 @@ import { CustomTooltipData } from '@placeos/components';
                     <app-icon class="text-xl">mode_night</app-icon>
                 </div>
                 <div class="flex-1 text-sm">Dark Mode</div>
-                <mat-slide-toggle></mat-slide-toggle>
+                <mat-slide-toggle
+                    [ngModel]="dark_mode"
+                    (ngModelChange)="applySetting('dark_mode', $event)"
+                ></mat-slide-toggle>
             </div>
             <div
                 action
@@ -34,7 +37,10 @@ import { CustomTooltipData } from '@placeos/components';
                     <app-icon class="text-xl">playlist_add</app-icon>
                 </div>
                 <div class="flex-1 text-sm">Large Accessibility Sizes</div>
-                <mat-slide-toggle [(ngModel)]="accessible"></mat-slide-toggle>
+                <mat-slide-toggle
+                    [ngModel]="accessible"
+                    (ngModelChange)="applySetting('accessible', $event)"
+                ></mat-slide-toggle>
             </div>
             <ng-container *ngIf="accessible">
                 <div class="px-8 py-4 bg-gray-200 text-center">
@@ -46,7 +52,8 @@ import { CustomTooltipData } from '@placeos/components';
                         class="flex-1 w-1/2"
                         [min]="10"
                         [max]="22"
-                        [(ngModel)]="font_size"
+                        [ngModel]="font_size"
+                        (ngModelChange)="applySetting('font_size', $event)"
                         [step]="2"
                     ></mat-slider>
                     <span class="text-2xl">A</span>
@@ -63,12 +70,21 @@ import { CustomTooltipData } from '@placeos/components';
     ],
 })
 export class AccessibilityTooltipComponent {
-    public accessible = false;
-    public font_size = 16;
-    /** Tiles to display on the help page */
-    public get tiles(): ApplicationLink[] {
-        return this._settings.get('app.help.tiles') || [];
+
+    public get dark_mode() {
+        return !!this._settings.get('dark_mode');
     }
+
+    public get accessible() {
+        return !!this._settings.get('accessible');
+    }
+
+    public get font_size() {
+        return this._settings.get('font_size') || 16;
+    }
+
+    public readonly applySetting = (n, v) =>
+        this._settings.saveUserSetting(n, v);
 
     public readonly close = () => this._data?.close();
 
