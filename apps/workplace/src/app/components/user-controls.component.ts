@@ -3,6 +3,7 @@ import { currentUser, SettingsService, VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
 import { BuildingSelectComponent } from './building-select.component';
+import { HelpTooltipComponent } from './help-tooltip.component';
 
 @Component({
     selector: 'user-controls',
@@ -37,25 +38,25 @@ import { BuildingSelectComponent } from './building-select.component';
                     </div>
                 </button>
             </div>
-            <button
-                mat-button
-                class="clear w-full text-left h-[3.5rem]"
-                [routerLink]="['/help']"
-                routerLinkActive="text-primary"
+            <div
+                customTooltip
+                [content]="help_tooltip"
                 *ngIf="features.includes('help')"
             >
-                <div class="flex items-center space-x-2">
-                    <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
-                    >
-                        <app-icon>help</app-icon>
+                <button mat-button class="clear w-full text-left h-[3.5rem]">
+                    <div class="flex items-center space-x-2">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                        >
+                            <app-icon>help</app-icon>
+                        </div>
+                        <div class="flex-1">Help & Support</div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
                     </div>
-                    <div class="flex-1">Help & Support</div>
-                    <app-icon class="opacity-60 text-2xl"
-                        >chevron_right</app-icon
-                    >
-                </div>
-            </button>
+                </button>
+            </div>
             <button mat-button class="clear w-full text-left h-[3.5rem]">
                 <div class="flex items-center space-x-2">
                     <div
@@ -63,7 +64,7 @@ import { BuildingSelectComponent } from './building-select.component';
                     >
                         <app-icon>mode_night</app-icon>
                     </div>
-                    <div class="flex-1">Display & Accessability</div>
+                    <div class="flex-1">Display & Accessibility</div>
                     <app-icon class="opacity-60 text-2xl"
                         >chevron_right</app-icon
                     >
@@ -94,6 +95,7 @@ export class UserControlsComponent {
     public readonly building = this._org.active_building;
 
     public readonly building_select = BuildingSelectComponent;
+    public readonly help_tooltip = HelpTooltipComponent;
 
     public get user() {
         return currentUser();
