@@ -131,6 +131,31 @@ import { OrganisationService } from '@placeos/organisation';
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
                 ></div>
             </button>
+            <button
+                matRipple
+                class="flex items-center justify-center space-x-2 relative px-8"
+                *ngIf="features.includes('schedule')"
+                [routerLink]="['/schedule']"
+                routerLinkActive="text-secondary active"
+                matTooltip="Your Bookings"
+                matTooltipPosition="below"
+            >
+                <app-icon
+                    class="text-xl"
+                    [icon]="{
+                        type: 'img',
+                        src:
+                            'assets/icons/today-' +
+                            (type === 'schedule' ? 'filled' : 'outline') +
+                            '.svg'
+                    }"
+                ></app-icon>
+                <span *ngIf="show_text">Your Bookings</span>
+                <div
+                    bar
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                ></div>
+            </button>
         </div>
     `,
     styles: [
@@ -170,6 +195,7 @@ export class TopMenuComponent {
         if (url.includes('book/desks')) return 'desks';
         if (url.includes('book/parking')) return 'parking';
         if (url.includes('explore')) return 'explore';
+        if (url.includes('schedule')) return 'schedule';
         return '';
     }
 
