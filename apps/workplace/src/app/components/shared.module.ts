@@ -31,6 +31,7 @@ import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline
 import { FormFieldsModule } from '@placeos/form-fields';
 import { TopMenuComponent } from './top-menu.component';
 import { FooterMenuComponent } from './footer-menu.component';
+import { UserControlsComponent } from './user-controls.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -39,7 +40,8 @@ const COMPONENTS: Type<any>[] = [
     VerticalTimelineComponent,
     EventTimelineComponent,
     TopMenuComponent,
-    FooterMenuComponent
+    FooterMenuComponent,
+    UserControlsComponent
 ];
 
 const MATERIAL_MODULES: any[] = [

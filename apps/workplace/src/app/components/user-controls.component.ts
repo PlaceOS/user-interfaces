@@ -1,0 +1,125 @@
+import { Component } from '@angular/core';
+import { currentUser, SettingsService, VERSION } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { logout } from '@placeos/ts-client';
+
+@Component({
+    selector: 'user-controls',
+    template: `
+        <div
+            class="rounded bg-white shadow mt-1 flex flex-col"
+        >
+            <div
+                avatar
+                class="flex flex-col items-center p-2 w-[18rem]"
+                [matTooltip]="groups"
+            >
+                <a-user-avatar class="text-2xl" [user]="user"></a-user-avatar>
+                <div class="">{{ user?.name }}</div>
+                <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
+            </div>
+            <button
+                mat-button
+                class="clear w-full text-left h-[3.5rem]"
+                [matMenuTriggerFor]="building_menu"
+            >
+                <div class="flex items-center space-x-2">
+                    <div
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                    >
+                        <app-icon>business</app-icon>
+                    </div>
+                    <div class="flex-1">
+                        {{ (building | async)?.display_name || (building | async)?.name }}
+                    </div>
+                    <app-icon class="opacity-60 text-2xl">chevron_right</app-icon>
+                </div>
+            </button>
+            <button
+                mat-button
+                class="clear w-full text-left h-[3.5rem]"
+                [routerLink]="['/help']"
+                routerLinkActive="text-primary"
+                *ngIf="features.includes('help')"
+            >
+                <div class="flex items-center space-x-2">
+                    <div
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                    >
+                        <app-icon>help</app-icon>
+                    </div>
+                    <div class="flex-1">Help & Support</div>
+                    <app-icon class="opacity-60 text-2xl">chevron_right</app-icon>
+                </div>
+            </button>
+            <button mat-button class="clear w-full text-left h-[3.5rem]">
+                <div class="flex items-center space-x-2">
+                    <div
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                    >
+                        <app-icon>mode_night</app-icon>
+                    </div>
+                    <div class="flex-1">Display & Accessability</div>
+                    <app-icon class="opacity-60 text-2xl">chevron_right</app-icon>
+                </div>
+            </button>
+            <div class="flex flex-col items-center p-4">
+                <button mat-button class="inverse mb-4">Sign Out</button>
+                <div class="text-xs opacity-60 w-full">
+                    Version: {{ version.hash }}
+                </div>
+                <div class="text-xs opacity-60 w-full">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
+        </div>
+        <mat-menu #building_menu="matMenu">
+            <button
+                mat-menu-item
+                *ngFor="let item of buildings | async"
+                (click)="setBuilding(item)"
+                class="flex items-center space-x-2 text-base w-64"
+                [class.text-primary]="(building | async).id === item.id"
+            >
+                {{ item.name }}
+            </button>
+        </mat-menu>
+    `,
+    styles: [`
+        :host > div > *:nth-child(n + 1) {
+            border-top: 1px solid #ccc;
+            border-radius: 0;
+        }
+    `],
+})
+export class UserControlsComponent {
+    public readonly buildings = this._org.building_list;
+    public readonly building = this._org.active_building;
+
+    public get user() {
+        return currentUser();
+    }
+
+    public get groups() {
+        return this.user.groups.join('\n');
+    }
+
+    public get version() {
+        return VERSION;
+    }
+
+    public get features(): string[] {
+        return this._settings.get('app.features') || [];
+    }
+
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService
+    ) {}
+
+    public logout() {
+        logout();
+        location.href = '/logout';
+    }
+}
