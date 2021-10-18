@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1634179782795,
+  "timestamp": 1634529299143,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -110,7 +110,7 @@
   "dataGroups": [],
   "hashTable": {
     "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "fa8fb1b12fbb9613c11c074ea9da3442250c20fa",
-    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "b84f92d530f9603c4b0d293f8952d5fdf0a21d6d",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "d01def4799f3011490f2bded0add1e85d9a8d3d9",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -182,13 +182,13 @@
     "./default-libs_events_src_index_ts-libs_form-fields_src_index_ts.js": "299c2d42e6192fc8e94c9337d21f9fbb38fca3b4",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "fafccffa46a7c9ae04571c52484686ae8533e853",
-    "./main.js": "f409af60335e68625d054718fa565401ea26c3d9",
+    "./main.js": "a2f53eb8de50133aebe30be28fa0f5965d8a0abc",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "31fdd5ecd5a927640b2cbc6a9abb23c5004594ae",
     "./runtime.js": "513a39ca585502656b2a6d6e2d55fab6f750d2e3",
-    "./styles.css": "bce9cc3789630657b252ebf4c8efe984a8e3b713",
+    "./styles.css": "f19655ef19d60148da8978d9b2f929834c3fee70",
     "./vendor.js": "b2ba35fda9bf455901731bcda437907467881959"
   },
   "navigationUrls": [
