@@ -2,13 +2,12 @@ import { Component } from '@angular/core';
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
+import { BuildingSelectComponent } from './building-select.component';
 
 @Component({
     selector: 'user-controls',
     template: `
-        <div
-            class="rounded bg-white shadow mt-1 flex flex-col"
-        >
+        <div class="rounded bg-white shadow mt-1 flex flex-col relative">
             <div
                 avatar
                 class="flex flex-col items-center p-2 w-[18rem]"
@@ -18,23 +17,26 @@ import { logout } from '@placeos/ts-client';
                 <div class="">{{ user?.name }}</div>
                 <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
             </div>
-            <button
-                mat-button
-                class="clear w-full text-left h-[3.5rem]"
-                [matMenuTriggerFor]="building_menu"
-            >
-                <div class="flex items-center space-x-2">
-                    <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
-                    >
-                        <app-icon>business</app-icon>
+            <div customTooltip [content]="building_select" class="relative">
+                <button mat-button class="clear w-full text-left h-[3.5rem]">
+                    <div class="flex items-center space-x-2">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                        >
+                            <app-icon>business</app-icon>
+                        </div>
+                        <div class="flex-1">
+                            {{
+                                (building | async)?.display_name ||
+                                    (building | async)?.name
+                            }}
+                        </div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
                     </div>
-                    <div class="flex-1">
-                        {{ (building | async)?.display_name || (building | async)?.name }}
-                    </div>
-                    <app-icon class="opacity-60 text-2xl">chevron_right</app-icon>
-                </div>
-            </button>
+                </button>
+            </div>
             <button
                 mat-button
                 class="clear w-full text-left h-[3.5rem]"
@@ -49,7 +51,9 @@ import { logout } from '@placeos/ts-client';
                         <app-icon>help</app-icon>
                     </div>
                     <div class="flex-1">Help & Support</div>
-                    <app-icon class="opacity-60 text-2xl">chevron_right</app-icon>
+                    <app-icon class="opacity-60 text-2xl"
+                        >chevron_right</app-icon
+                    >
                 </div>
             </button>
             <button mat-button class="clear w-full text-left h-[3.5rem]">
@@ -60,7 +64,9 @@ import { logout } from '@placeos/ts-client';
                         <app-icon>mode_night</app-icon>
                     </div>
                     <div class="flex-1">Display & Accessability</div>
-                    <app-icon class="opacity-60 text-2xl">chevron_right</app-icon>
+                    <app-icon class="opacity-60 text-2xl"
+                        >chevron_right</app-icon
+                    >
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
@@ -74,28 +80,20 @@ import { logout } from '@placeos/ts-client';
                 </div>
             </div>
         </div>
-        <mat-menu #building_menu="matMenu">
-            <button
-                mat-menu-item
-                *ngFor="let item of buildings | async"
-                (click)="setBuilding(item)"
-                class="flex items-center space-x-2 text-base w-64"
-                [class.text-primary]="(building | async).id === item.id"
-            >
-                {{ item.name }}
-            </button>
-        </mat-menu>
     `,
-    styles: [`
-        :host > div > *:nth-child(n + 1) {
-            border-top: 1px solid #ccc;
-            border-radius: 0;
-        }
-    `],
+    styles: [
+        `
+            :host > div > *:nth-child(n + 1) {
+                border-top: 1px solid #ccc;
+                border-radius: 0;
+            }
+        `,
+    ],
 })
 export class UserControlsComponent {
-    public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
+
+    public readonly building_select = BuildingSelectComponent;
 
     public get user() {
         return currentUser();

@@ -32,6 +32,7 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { TopMenuComponent } from './top-menu.component';
 import { FooterMenuComponent } from './footer-menu.component';
 import { UserControlsComponent } from './user-controls.component';
+import { BuildingSelectComponent } from './building-select.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -41,7 +42,8 @@ const COMPONENTS: Type<any>[] = [
     EventTimelineComponent,
     TopMenuComponent,
     FooterMenuComponent,
-    UserControlsComponent
+    UserControlsComponent,
+    BuildingSelectComponent
 ];
 
 const MATERIAL_MODULES: any[] = [
