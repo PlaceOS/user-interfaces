@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, first, map, switchMap } from 'rxjs/operators';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import {
     BaseClass,
@@ -294,8 +294,14 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
 
     private async _setBookingTime(date: number, duration: number) {
         if (!!this._settings.get('app.desks.allow_time_changes')) {
+            const until = endOfDay(
+                addDays(
+                    Date.now(),
+                    this._settings.get('app.desks.available_period') || 90
+                )
+            );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration },
+                data: { date, duration, until },
             });
             const details = await ref.afterClosed().toPromise();
             if (!details) throw 'User cancelled';
