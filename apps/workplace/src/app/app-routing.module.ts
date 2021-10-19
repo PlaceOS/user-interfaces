@@ -58,13 +58,6 @@ const routes: Routes = [
             ),
     },
     {
-        path: 'help',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        loadChildren: () =>
-            import('./help/help.module').then((m) => m.HelpModule),
-    },
-    {
         path: 'whats-on',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
