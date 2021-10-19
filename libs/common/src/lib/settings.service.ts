@@ -135,8 +135,8 @@ export class SettingsService extends BaseClass {
         const keys = key.split('.');
         if (keys[0] !== 'app') {
             return (
-                getItemWithKeys(keys, this._user_settings.getValue()) ||
                 getItemWithKeys(keys, this._pending_settings) ||
+                getItemWithKeys(keys, this._user_settings.getValue()) ||
                 getItemWithKeys(keys, DEFAULT_SETTINGS)
             );
         }
