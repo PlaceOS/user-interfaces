@@ -96,9 +96,7 @@ export class SettingsService extends BaseClass {
      * Initialise the settings
      */
     public async init() {
-        if (this.get('debug')) {
-            window.debug = true;
-        }
+        if (this.get('debug')) window.debug = true;
         if (this.get('app')?.name) {
             this._app_name = this.get('app').name;
         }
