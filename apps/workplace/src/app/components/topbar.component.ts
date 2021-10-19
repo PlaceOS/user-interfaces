@@ -17,7 +17,7 @@ import { UserControlsComponent } from './user-controls.component';
             >
                 <img class="h-10" [src]="logo?.src" />
             </a>
-            <div class="flex-1 flex items-center justify-center h-full">
+            <div class="flex-1 flex items-center justify-center h-full w-1/2">
                 <top-menu class="hidden sm:block"></top-menu>
             </div>
             <global-search></global-search>

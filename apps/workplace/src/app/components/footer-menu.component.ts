@@ -48,6 +48,19 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 </div>
                 <div>Book Car Space</div>
             </a>
+            <a
+                matRipple
+                [routerLink]="['/schedule']"
+                *ngIf="features.includes('schedule')"
+                class="flex items-center space-x-4 text-base w-48"
+            >
+                <div
+                    class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                >
+                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/today-filled.svg' }"></app-icon>
+                </div>
+                <div>Your Bookings</div>
+            </a>
         </div>
         <div
             class="flex items-center justify-center bg-white border-t border-gray-200 shadow relative h-16 w-full sm:hidden z-40"

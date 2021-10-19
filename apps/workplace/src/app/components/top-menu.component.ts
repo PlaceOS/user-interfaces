@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'top-menu',
     template: `
-        <div menu class="flex items-center h-full">
+        <div menu class="flex items-center justify-center h-full w-full overflow-hidden">
             <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
@@ -25,7 +25,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text">Home</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block">Home</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -50,7 +50,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text">Book Room</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block">Book Room</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -75,7 +75,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text">Book Desk</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block">Book Desk</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -100,7 +100,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text">Book Car Space</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block">Book Car Space</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -125,7 +125,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text">Spaces</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block">Spaces</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -150,7 +150,7 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text">Your Bookings</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block">Your Bookings</span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -162,6 +162,7 @@ import { OrganisationService } from '@placeos/organisation';
         `
             [menu] > * {
                 height: 3.5rem;
+                flex-shrink: 1;
             }
 
             [bar] {
