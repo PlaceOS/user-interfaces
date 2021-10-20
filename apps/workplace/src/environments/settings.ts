@@ -68,7 +68,8 @@ const events: any = {
     multiple_spaces: false,
     desk_start: 9,
     breakdown: 15,
-    can_book_for_others: false
+    can_book_for_others: false,
+    has_catering: true
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -152,7 +153,8 @@ const app: any = {
     directory,
     explore,
     desks: {
-        can_book_for_others: true
+        can_book_for_others: true,
+        allow_groups: true
     },
     analytics: {
         enabled: true,
