@@ -14,36 +14,39 @@ export interface DeskInfoData {
     selector: 'explore-desk-info',
     template: `
         <div
-            name="space-info"
-            [id]="map_id"
-            [class]="
-                'absolute rounded bg-white p-4 top-0 left-0 shadow ' +
-                x_pos +
-                ' ' +
-                y_pos
-            "
-        >
-            <div class="arrow"></div>
-            <div class="details">
-                <h4 map-id class="m-0 font-medium">{{ map_id }}</h4>
-                <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
-                <p start class="mt-1 text-sm" *ngIf="start">
-                    {{ start | date: 'shortTime' }} &ndash;
-                    {{ end | date: 'shortTime' }}
-                </p>
+            customTooltip
+            [content]="desk_tooltip"
+            [backdrop]="false"
+            [xPosition]="'center'"
+            [yPosition]="'center'"
+            [hover]="true"
+            class="h-full w-full pointer-events-auto relative"
+        ></div>
+        <ng-template #desk_tooltip>
+            <div
+                name="space-info"
+                [id]="map_id"
+                [class]="
+                    'absolute rounded bg-white p-4 top-0 left-0 shadow ' +
+                    x_pos +
+                    ' ' +
+                    y_pos
+                "
+            >
+                <div class="arrow"></div>
+                <div class="details">
+                    <h4 map-id class="m-0 font-medium">{{ map_id }}</h4>
+                    <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
+                    <p start class="mt-1 text-sm" *ngIf="start">
+                        {{ start | date: 'shortTime' }} &ndash;
+                        {{ end | date: 'shortTime' }}
+                    </p>
+                </div>
             </div>
-        </div>
+        </ng-template>
     `,
     styles: [
         `
-            :host {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                pointer-events: none;
-                z-index: 1;
-            }
 
             [name='space-info'] {
                 width: 16rem;

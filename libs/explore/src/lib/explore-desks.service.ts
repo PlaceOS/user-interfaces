@@ -240,7 +240,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             list.push({
                 location: desk.id,
                 content: ExploreDeskInfoComponent,
-                hover: true,
+                full_size: true,
                 data: {
                     map_id: desk.name,
                     user: this._users[desk.map_id] || desk.staff_name,
