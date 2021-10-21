@@ -241,6 +241,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 location: desk.id,
                 content: ExploreDeskInfoComponent,
                 full_size: true,
+                no_scale: true,
                 data: {
                     map_id: desk.name,
                     user: this._users[desk.map_id] || desk.staff_name,

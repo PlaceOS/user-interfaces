@@ -58,6 +58,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
                     <div
                         #feature
                         class="pointer-events-none"
+                        [attr.no-scale]="element.no_scale"
                         [attr.el-id]="element.location"
                         [attr.view-id]="viewer"
                         [ngSwitch]="type(element.content)"

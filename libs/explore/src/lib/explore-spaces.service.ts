@@ -138,6 +138,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
             features.push({
                 location: space.map_id,
                 full_size: true,
+                no_scale: true,
                 content: ExploreSpaceInfoComponent,
                 data: {
                     space,

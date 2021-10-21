@@ -27,7 +27,7 @@ export interface DeskInfoData {
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'absolute rounded bg-white p-4 top-0 left-0 shadow ' +
+                    'absolute rounded bg-white p-4 top-0 left-0 shadow pointer-events-none ' +
                     x_pos +
                     ' ' +
                     y_pos
