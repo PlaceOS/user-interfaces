@@ -19,6 +19,15 @@ const routes: Routes = [
             ),
     },
     {
+        path: 'landing',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./landing/landing.module').then(
+                (m) => m.AppLandingModule
+            ),
+    },
+    {
         path: 'book',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
