@@ -45,12 +45,12 @@ export class OrganisationService {
     /** Organisation data for the application */
     private _organisation: Organisation;
     /** Mapping of organisation settings overrides */
-    private _settings: HashMap = {};
+    private _settings: HashMap[] = [];
     /** Mapping of buildings to settings overrides */
     private _building_settings: HashMap<HashMap> = {};
 
     /** Mapping of organisation settings overrides */
-    public get settings(): HashMap {
+    public get settings(): HashMap[] {
         return this._settings;
     }
 
@@ -86,7 +86,7 @@ export class OrganisationService {
     public set building(bld: Building) {
         this._active_building.next(bld);
         this._service.overrides = [
-            this._settings,
+            ...this._settings,
             this.buildingSettings(bld.id).details,
         ];
     }
@@ -108,7 +108,7 @@ export class OrganisationService {
         this.active_building.subscribe((bld) => {
             if (bld) {
                 this._service.overrides = [
-                    this._settings,
+                    ...this._settings,
                     this.buildingSettings(bld.id),
                 ];
             }
@@ -245,13 +245,13 @@ export class OrganisationService {
         ).toLowerCase()}_app`;
         const app_settings = await showMetadata(this._organisation.id, app_name).toPromise();
         const global_settings = await showMetadata(this._organisation.id, 'settings').toPromise();
-        this._settings = { ...global_settings.details, ...app_settings.details };
+        this._settings = [global_settings.details, app_settings.details];
         const buildings = this.buildings;
         for (const bld of buildings) {
             this._building_settings[bld.id] = await showMetadata(bld.id, app_name).toPromise();
         }
         this._service.overrides = [
-            this._settings.details,
+            ...this._settings,
             this.buildingSettings(this.building.id).details,
         ];
     }
