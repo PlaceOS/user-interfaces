@@ -86,7 +86,7 @@ export class OrganisationService {
     public set building(bld: Building) {
         this._active_building.next(bld);
         this._service.overrides = [
-            this._settings.details,
+            this._settings,
             this.buildingSettings(bld.id).details,
         ];
     }
@@ -171,10 +171,6 @@ export class OrganisationService {
             const bindings: HashMap = (
                 await showMetadata(org.id, 'bindings').toPromise()
             )?.details;
-            const settings: HashMap = (
-                await showMetadata(org.id, 'settings').toPromise()
-            )?.details;
-            this._settings = { ...this._settings, ...settings };
             this._organisation = new Organisation({ ...org, bindings });
         } else {
             this._router.navigate(['/misconfigured']);
@@ -247,7 +243,9 @@ export class OrganisationService {
         const app_name = `${(
             this._service.get('app.name') || 'workplace'
         ).toLowerCase()}_app`;
-        this._settings = await showMetadata(this._organisation.id, app_name).toPromise();
+        const app_settings = await showMetadata(this._organisation.id, app_name).toPromise();
+        const global_settings = await showMetadata(this._organisation.id, 'settings').toPromise();
+        this._settings = { ...global_settings.details, ...app_settings.details };
         const buildings = this.buildings;
         for (const bld of buildings) {
             this._building_settings[bld.id] = await showMetadata(bld.id, app_name).toPromise();
