@@ -6,7 +6,7 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
     debounceTime,

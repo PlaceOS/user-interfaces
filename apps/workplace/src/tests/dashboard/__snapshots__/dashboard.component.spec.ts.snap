@@ -2,15 +2,12 @@
 
 exports[`DashboardComponent should match snapshot 1`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <topbar />
   <div
     class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-200"
   >
-    <nav-menu
-      class="relative z-10"
-    />
     <div
       class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
     >
@@ -23,12 +20,10 @@ exports[`DashboardComponent should match snapshot 1`] = `
         <a-dashboard-upcoming
           class="flex-1 min-w-64"
         />
-        <a-dashboard-contacts
-          class="flex-1 min-w-64"
-        />
         
       </main>
     </div>
   </div>
+  <footer-menu />
 </div>
 `;

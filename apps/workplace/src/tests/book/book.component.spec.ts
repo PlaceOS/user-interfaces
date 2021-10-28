@@ -1,7 +1,7 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 import { BookComponent } from '../../app/book/book.component';
-import { NavMenuComponent } from '../../app/components/nav-menu.component';
+import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 
 describe('BookComponent', () => {
@@ -10,7 +10,7 @@ describe('BookComponent', () => {
         component: BookComponent,
         declarations: [
             MockComponent(TopbarComponent),
-            MockComponent(NavMenuComponent),
+            MockComponent(FooterMenuComponent),
         ],
     });
 

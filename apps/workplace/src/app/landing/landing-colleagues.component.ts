@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
-    selector: 'dashboard-colleagues',
+    selector: 'landing-colleagues',
     template: `
         <div
             class="flex flex-col w-[18rem] h-full overflow-hidden bg-white border-r border-gray-200"

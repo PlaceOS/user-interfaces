@@ -1,7 +1,7 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
+import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 
-import { NavMenuComponent } from '../../app/components/nav-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { DashboardAvailabilityComponent } from '../../app/dashboard/dashboard-availability.component';
 import { DashboardContactsComponent } from '../../app/dashboard/dashboard-contacts.component';
@@ -14,7 +14,7 @@ describe('DashboardComponent', () => {
         component: DashboardComponent,
         declarations: [
             MockComponent(TopbarComponent),
-            MockComponent(NavMenuComponent),
+            MockComponent(FooterMenuComponent),
             MockComponent(DashboardAvailabilityComponent),
             MockComponent(DashboardUpcomingComponent),
             MockComponent(DashboardContactsComponent),

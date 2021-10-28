@@ -13,13 +13,13 @@ import { LandingStateService } from './landing-state.service';
                     button
                     mat-button
                     class="inverse hidden sm:block"
-                    [routerLink]="['/schedule']"
+                    [routerLink]="['/your-bookings']"
                 >
                     View All
                 </a>
                 <a
                     class="inverse block sm:hidden text-blue-500 underline relative top-8"
-                    [routerLink]="['/schedule']"
+                    [routerLink]="['/your-bookings']"
                 >
                     View All
                 </a>
@@ -37,10 +37,12 @@ import { LandingStateService } from './landing-state.service';
                             <event-card
                                 *ngSwitchCase="'event'"
                                 [event]="event"
+                                [show_day]="true"
                             ></event-card>
                             <booking-card
                                 *ngSwitchCase="'booking'"
                                 [booking]="booking"
+                                [show_day]="true"
                             ></booking-card>
                         </ng-container>
                     </ng-container>

@@ -2,7 +2,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { DesksService } from '@placeos/bookings';
 import { ExploreMapViewComponent } from '@placeos/explore';
 import { MockComponent } from 'ng-mocks';
-import { NavMenuComponent } from '../../app/components/nav-menu.component';
+import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ExploreComponent } from '../../app/explore/explore.component';
 
@@ -13,7 +13,7 @@ describe('ExploreComponent', () => {
         providers: [{ provide: DesksService, useValue: {} }],
         declarations: [
             MockComponent(TopbarComponent),
-            MockComponent(NavMenuComponent),
+            MockComponent(FooterMenuComponent),
             MockComponent(ExploreMapViewComponent),
         ],
     });

@@ -1,0 +1,217 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventCardComponent should match snapshot 1`] = `
+<div
+  id="root0"
+>
+  
+  
+</div>
+`;
+
+exports[`EventCardComponent should match snapshot 2`] = `
+<div
+  id="root0"
+>
+  <h4
+    class="mb-2 flex items-center"
+  >
+    
+     8:00 AM 
+    <span
+      class="text-xs"
+    >
+      (GMT+11)
+    </span>
+  </h4>
+  
+  <a
+    class="w-full"
+    matripplecolor=""
+  >
+    <div
+      class="w-full bg-white rounded shadow py-2 relative"
+    >
+      <h4
+        class="px-2"
+      >
+        
+      </h4>
+      <div
+        class="flex m-2"
+      >
+        <div
+          class="flex items-center bg-gray-200 rounded-2xl px-2 py-1 text-sm space-x-2 pr-2 font-medium"
+        >
+          <div
+            class="rounded-full h-4 w-4 bg-black/20 flex items-center justify-center text-white"
+          >
+            <app-icon>
+              done
+            </app-icon>
+          </div>
+          <div
+            class="pr-2"
+          >
+            8:00 AM - 8:30 AM (30mins)
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-gray-200 py-2 space-y-2 sm:space-y-0"
+      >
+        <div
+          class="flex items-center px-2"
+        >
+          <app-icon>
+            meeting_room
+          </app-icon>
+          <div
+            class="mx-2 truncate"
+          >
+             ,  
+          </div>
+        </div>
+        
+        <div
+          class="flex items-center px-2"
+        >
+          <app-icon>
+            person_outline
+          </app-icon>
+          <div
+            class="mx-2"
+          >
+              
+          </div>
+        </div>
+        
+        <div
+          class="flex items-center px-2"
+        >
+          <app-icon>
+            people
+          </app-icon>
+          <div
+            class="mx-2"
+          >
+             0 People 
+          </div>
+        </div>
+      </div>
+      <app-icon
+        class="absolute top-1/2 right-1 text-4xl -translate-y-1/2"
+      >
+         chevron_right 
+      </app-icon>
+      
+    </div>
+  </a>
+  
+</div>
+`;
+
+exports[`EventCardComponent should match snapshot 3`] = `
+<div
+  id="root0"
+>
+  <h4
+    class="mb-2 flex items-center"
+  >
+    <span>
+      Today, 
+    </span>
+    
+     8:00 AM 
+    <span
+      class="text-xs"
+    >
+      (GMT+11)
+    </span>
+  </h4>
+  
+  <a
+    class="w-full"
+    matripplecolor=""
+  >
+    <div
+      class="w-full bg-white rounded shadow py-2 relative"
+    >
+      <h4
+        class="px-2"
+      >
+        
+      </h4>
+      <div
+        class="flex m-2"
+      >
+        <div
+          class="flex items-center bg-gray-200 rounded-2xl px-2 py-1 text-sm space-x-2 pr-2 font-medium"
+        >
+          <div
+            class="rounded-full h-4 w-4 bg-black/20 flex items-center justify-center text-white"
+          >
+            <app-icon>
+              done
+            </app-icon>
+          </div>
+          <div
+            class="pr-2"
+          >
+            8:00 AM - 8:30 AM (30mins)
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-gray-200 py-2 space-y-2 sm:space-y-0"
+      >
+        <div
+          class="flex items-center px-2"
+        >
+          <app-icon>
+            meeting_room
+          </app-icon>
+          <div
+            class="mx-2 truncate"
+          >
+             ,  
+          </div>
+        </div>
+        
+        <div
+          class="flex items-center px-2"
+        >
+          <app-icon>
+            person_outline
+          </app-icon>
+          <div
+            class="mx-2"
+          >
+              
+          </div>
+        </div>
+        
+        <div
+          class="flex items-center px-2"
+        >
+          <app-icon>
+            people
+          </app-icon>
+          <div
+            class="mx-2"
+          >
+             0 People 
+          </div>
+        </div>
+      </div>
+      <app-icon
+        class="absolute top-1/2 right-1 text-4xl -translate-y-1/2"
+      >
+         chevron_right 
+      </app-icon>
+      
+    </div>
+  </a>
+  
+</div>
+`;

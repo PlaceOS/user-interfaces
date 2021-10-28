@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LandingUpcomingComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="py-2"
+  >
+    <div
+      class="flex items-center justify-between mb-2 sm:mb-4 px-4"
+    >
+      <div
+        class="sm:text-lg font-medium"
+      >
+        Your Bookings
+      </div>
+      <a
+        button=""
+        class="inverse hidden sm:block"
+        mat-button=""
+      >
+         View All 
+      </a>
+      <a
+        class="inverse block sm:hidden text-blue-500 underline relative top-8"
+      >
+         View All 
+      </a>
+    </div>
+    <div
+      class="space-y-4 px-4"
+    >
+      <div
+        class="w-full p-8 flex flex-col items-center justify-center space-y-4"
+      >
+        <img
+          class="mr-4"
+          src="assets/img/no-events.svg"
+        />
+        <p
+          class="opacity-30"
+        >
+          You have no upcoming bookings
+        </p>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+`;

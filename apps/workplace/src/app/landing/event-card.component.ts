@@ -5,11 +5,16 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 @Component({
     selector: 'event-card',
     template: `
-        <h4 class="mb-2">{{ day }}, {{ event?.date | date: 'h:mm a (z)' }}</h4>
+        <h4 class="mb-2 flex items-center" *ngIf="event">
+            <span *ngIf="show_day">{{ day }}, </span>
+            {{ event?.date | date: 'h:mm a' }}
+            <span class="text-xs">({{ event?.date | date:'z' }})</span>
+        </h4>
         <a
             matRippleColor
             class="w-full"
             [routerLink]="['/schedule', 'view', event?.id, 'event']"
+            *ngIf="event"
         >
             <div class="w-full bg-white rounded shadow py-2 relative">
                 <h4 class="px-2">{{ event?.title }}</h4>
@@ -81,7 +86,8 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                     class="absolute bottom-2 right-2 sm:bottom-auto sm:top-2 flex items-center pr-4"
                     *ngIf="event?.attendees?.length"
                 >
-                    <div class="h-10 w-6"
+                    <div
+                        class="h-10 w-6"
                         *ngFor="
                             let user of event?.attendees
                                 | slice
@@ -92,7 +98,9 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                         <a-user-avatar [user]="user"></a-user-avatar>
                     </div>
                     <div class="h-10 w-6" *ngIf="event?.attendees?.length > 6">
-                        <div class="bg-secondary rounded-full h-10 w-10 border-2 border-white flex items-center justify-center text-white">
+                        <div
+                            class="bg-secondary rounded-full h-10 w-10 border-2 border-white flex items-center justify-center text-white"
+                        >
                             +{{ event?.attendees?.length - 5 }}
                         </div>
                     </div>
@@ -111,6 +119,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 })
 export class EventCardComponent {
     @Input() public event: CalendarEvent;
+    @Input() public show_day: boolean = false;
 
     public get day() {
         const date = this.event?.date || Date.now();

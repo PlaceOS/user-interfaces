@@ -1,7 +1,7 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
-import { NavMenuComponent } from '../../app/components/nav-menu.component';
+import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ControlComponent } from '../../app/control/control.component';
 import { ControlSpaceListComponent } from '../../app/control/space-list.component';
@@ -13,7 +13,7 @@ describe('ControlComponent', () => {
         providers: [{ provide: SettingsService, useValue: { title: '' } }],
         declarations: [
             MockComponent(TopbarComponent),
-            MockComponent(NavMenuComponent),
+            MockComponent(FooterMenuComponent),
             MockComponent(ControlSpaceListComponent),
         ],
     });

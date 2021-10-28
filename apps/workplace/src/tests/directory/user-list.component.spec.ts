@@ -10,11 +10,10 @@ import { of, timer } from 'rxjs';
 jest.mock('@placeos/users');
 
 import * as users_mod from '@placeos/users';
-import { NavMenuComponent } from '../../app/components/nav-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { DirectoryUserListItemComponent } from '../../app/directory/user-details.component';
 import { DirectoryUserListComponent } from '../../app/directory/user-list.component';
-import { fakeAsync } from '@angular/core/testing';
+import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 
 describe('DirectoryUserListComponent', () => {
     let spectator: Spectator<DirectoryUserListComponent>;
@@ -24,7 +23,7 @@ describe('DirectoryUserListComponent', () => {
         imports: [MatFormFieldModule, MatInputModule, FormsModule],
         declarations: [
             MockComponent(TopbarComponent),
-            MockComponent(NavMenuComponent),
+            MockComponent(FooterMenuComponent),
             MockComponent(IconComponent),
             MockComponent(DirectoryUserListItemComponent),
         ],

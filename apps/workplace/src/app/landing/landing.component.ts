@@ -7,9 +7,9 @@ import { startOfMinute } from 'date-fns';
     template: `
         <topbar></topbar>
         <div class="flex flex-1 h-1/2 bg-[#E5E5E5]">
-            <dashboard-colleagues
+            <landing-colleagues
                 class="h-full hidden sm:block"
-            ></dashboard-colleagues>
+            ></landing-colleagues>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto">
                 <header class="sticky top-0 z-50 bg-[#ECF0F3] px-4 rounded-b flex items-center justify-between overflow-hidden">
                     <div class="">
@@ -48,9 +48,10 @@ import { startOfMinute } from 'date-fns';
     ],
 })
 export class LandingComponent {
+    public time: number;
 
     public get date() {
-        return startOfMinute(Date.now());
+        return startOfMinute(this.time || Date.now());
     }
 
     public get user() {
