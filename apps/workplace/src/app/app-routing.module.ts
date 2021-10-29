@@ -58,6 +58,15 @@ const routes: Routes = [
             ),
     },
     {
+        path: 'your-bookings',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./new-schedule/schedule.module').then(
+                (m) => m.AppScheduleModule
+            ),
+    },
+    {
         path: 'schedule',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],

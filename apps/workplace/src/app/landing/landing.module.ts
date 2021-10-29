@@ -2,8 +2,6 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { SharedComponentModule } from "../components/shared.module";
-import { BookingCardComponent } from "./booking-card.component";
-import { EventCardComponent } from "./event-card.component";
 import { LandingAvailabilityComponent } from "./landing-availability.component";
 import { LandingColleaguesComponent } from "./landing-colleagues.component";
 import { LandingUpcomingComponent } from "./landing-upcoming.component";
@@ -13,9 +11,7 @@ const COMPONENTS = [
     LandingComponent,
     LandingColleaguesComponent,
     LandingAvailabilityComponent,
-    LandingUpcomingComponent,
-    EventCardComponent,
-    BookingCardComponent
+    LandingUpcomingComponent
 ]
 
 const ROUTES = [

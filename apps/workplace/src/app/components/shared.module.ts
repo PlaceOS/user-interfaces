@@ -37,6 +37,8 @@ import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { EventCardComponent } from './event-card.component';
+import { BookingCardComponent } from './booking-card.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -49,7 +51,9 @@ const COMPONENTS: Type<any>[] = [
     UserControlsComponent,
     BuildingSelectComponent,
     HelpTooltipComponent,
-    AccessibilityTooltipComponent
+    AccessibilityTooltipComponent,
+    EventCardComponent,
+    BookingCardComponent
 ];
 
 const MATERIAL_MODULES: any[] = [

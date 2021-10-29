@@ -9,7 +9,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         <h4 class="mb-2 flex items-center" *ngIf="booking">
             <span *ngIf="show_day">{{ day }}, </span>
             {{ booking?.date | date: 'h:mm a' }}
-            <span class="text-xs">({{ booking?.date | date:'z' }})</span>
+            <span class="text-xs px-2">({{ booking?.date | date:'z' }})</span>
         </h4>
         <a
             matRippleColor
@@ -21,14 +21,30 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                 <h4 class="px-2">{{ booking?.title }}</h4>
                 <div class="flex m-2">
                     <div
-                        class="flex items-center bg-gray-200 rounded-2xl px-2 py-1 text-sm space-x-2 pr-2 font-medium"
+                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
+                        [class.bg-success]="booking?.status === 'approved'"
+                        [class.bg-pending]="booking?.status === 'tentative'"
+                        [class.bg-error]="booking?.status === 'declined'"
+                        [class.bg-gray-200]="!booking?.status"
                     >
                         <div
-                            class="rounded-full h-4 w-4 bg-black/20 flex items-center justify-center text-white"
+                            class="rounded-full h-5 w-5 flex items-center justify-center text-white"
+                            [class.bg-success]="booking?.status === 'approved'"
+                            [class.bg-pending]="booking?.status === 'tentative'"
+                            [class.bg-error]="booking?.status === 'declined'"
+                            [class.bg-gray-200]="!booking?.status"
                         >
-                            <app-icon>done</app-icon>
+                            <app-icon>
+                                {{
+                                    booking?.status === 'approved'
+                                        ? 'done'
+                                        : booking?.status === 'tentative'
+                                        ? 'warning'
+                                        : 'close'
+                                }}
+                            </app-icon>
                         </div>
-                        <div class="pr-2">{{ period }}</div>
+                        <div class="pr-1">{{ period }}</div>
                     </div>
                 </div>
                 <div
@@ -53,7 +69,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             </div>
         </a>
         <ng-template #desk_icon>
-            <img src="assets/icons/desk-outline.svg" class="w-4 h-4 m-2" />
+            <img src="assets/icons/desk-outline.svg" class="w-5 h-5" />
         </ng-template>
     `,
     styles: [

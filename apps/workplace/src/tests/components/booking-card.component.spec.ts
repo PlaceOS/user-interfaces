@@ -4,7 +4,7 @@ import { IconComponent } from "@placeos/components";
 import { OrganisationService } from "@placeos/organisation";
 import { set } from "date-fns";
 import { MockComponent } from "ng-mocks";
-import { BookingCardComponent } from "../../app/landing/booking-card.component";
+import { BookingCardComponent } from "../../app/components/booking-card.component";
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;

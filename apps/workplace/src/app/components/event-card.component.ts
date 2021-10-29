@@ -8,7 +8,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         <h4 class="mb-2 flex items-center" *ngIf="event">
             <span *ngIf="show_day">{{ day }}, </span>
             {{ event?.date | date: 'h:mm a' }}
-            <span class="text-xs">({{ event?.date | date:'z' }})</span>
+            <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
             matRippleColor
@@ -20,14 +20,30 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                 <h4 class="px-2">{{ event?.title }}</h4>
                 <div class="flex m-2">
                     <div
-                        class="flex items-center bg-gray-200 rounded-2xl px-2 py-1 text-sm space-x-2 pr-2 font-medium"
+                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
+                        [class.bg-success]="event?.status === 'approved'"
+                        [class.bg-pending]="event?.status === 'tentative'"
+                        [class.bg-error]="event?.status === 'declined'"
+                        [class.bg-gray-200]="!event?.status"
                     >
                         <div
-                            class="rounded-full h-4 w-4 bg-black/20 flex items-center justify-center text-white"
+                            class="rounded-full h-5 w-5 flex items-center justify-center text-white"
+                            [class.bg-success]="event?.status === 'approved'"
+                            [class.bg-pending]="event?.status === 'tentative'"
+                            [class.bg-error]="event?.status === 'declined'"
+                            [class.bg-gray-200]="!event?.status"
                         >
-                            <app-icon>done</app-icon>
+                            <app-icon>
+                                {{
+                                    event?.status === 'approved'
+                                        ? 'done'
+                                        : event?.status === 'tentative'
+                                        ? 'warning'
+                                        : 'close'
+                                }}
+                            </app-icon>
                         </div>
-                        <div class="pr-2">{{ period }}</div>
+                        <div class="pr-1">{{ period }}</div>
                     </div>
                 </div>
                 <div
@@ -83,7 +99,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                     chevron_right
                 </app-icon>
                 <div
-                    class="absolute bottom-2 right-2 sm:bottom-auto sm:top-2 flex items-center pr-4"
+                    class="absolute bottom-2 right-2 sm:bottom-auto sm:top-2 text-sm sm:text-base flex items-center pr-4"
                     *ngIf="event?.attendees?.length"
                 >
                     <div
