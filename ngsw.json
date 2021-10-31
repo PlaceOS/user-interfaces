@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1635478044933,
+  "timestamp": 1635723044620,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -145,7 +145,7 @@
     "./apps_workplace_src_app_directory_directory_module_ts.js": "ca14ccb80fe449b13ecf4cdf82325ae0ef20ed11",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "efaa911d328ef27d11a01b952726694c077cdb60",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "d2893713f8bb9b659eafebdc0c1a28c63d2222c9",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "c4fa2213e848bbe0b4a6386e5a6f0ac605f60ffe",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "b35c74517ed77f31db0d782d83d7ceb5268d270f",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "2f443102ef9596170217dbf51932db02a96d9f84",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "7a8bc7ab2507598e58d94b03d7bf16e4d49e4d7b",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -242,7 +242,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "238ba361537c6881f5bd44114cdbaf28aba7efa0",
-    "./main.js": "75b0b7ad094f2888f828a391fe1ebdc1c7ecbd0e",
+    "./main.js": "d799f497cf3ce973330cf47b349b46e0d87e8777",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "3978d04a147f9948e09f90b40126523c1c910396",
