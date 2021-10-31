@@ -53,7 +53,7 @@ export class ScheduleStateService extends BaseClass {
         this.parking,
     ]).pipe(
         map(([e, d, p]) => [...e, ...d, ...p].sort((a, b) => a.date - b.date)),
-        tap(() => this._loading.next(false))
+        tap(() => this.timeout('end_loading', () => this._loading.next(false)))
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([

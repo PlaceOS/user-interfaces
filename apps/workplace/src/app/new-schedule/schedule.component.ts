@@ -8,8 +8,14 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'app-schedule',
     template: `
         <topbar></topbar>
-        <div class="flex flex-1 h-1/2 bg-[#E5E5E5]">
+        <div class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] relative">
             <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
+            <div class="w-full bg-white border-b border-gray-300 sm:hidden">
+                <schedule-mobile-calendar
+                    [ngModel]="date | async"
+                    (ngModelChange)="setDate($event)"
+                ></schedule-mobile-calendar>
+            </div>
             <div class="flex-1 h-full p-4 overflow-auto space-y-2">
                 <schedule-filters></schedule-filters>
                 <h3 class="font-medium my-2">
@@ -19,7 +25,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <ng-container
                     *ngIf="(bookings | async)?.length; else empty_state"
                 >
-                    <ng-container *ngFor="let item of bookings | async">
+                    <ng-container *ngFor="let item of (loading | async) ? [] : bookings | async">
                         <event-card
                             *ngIf="isEvent(item); else booking_card"
                             [event]="item"
@@ -67,6 +73,7 @@ export class ScheduleComponent {
     public readonly is_today = this.date.pipe(
         map((_) => isSameDay(_, Date.now()))
     );
+    public readonly setDate = (d) => this._state.setDate(d);
 
     public isEvent(item: any) {
         return item instanceof CalendarEvent;

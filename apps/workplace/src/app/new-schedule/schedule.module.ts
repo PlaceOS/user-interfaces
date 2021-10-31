@@ -9,6 +9,7 @@ import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleFiltersComponent } from './schedule-filters.component';
 import { ScheduleSidebarComponent } from './schedule-sidebar.component';
 import { ScheduleComponent } from './schedule.component';
+import { ScheduleMobileCalendarComponent } from './schedule-mobile-calendar.component';
 
 const ROUTES: Route[] = [
     { path: '', component: ScheduleComponent },
@@ -21,6 +22,7 @@ const COMPONENTS = [
     ScheduleCalendarComponent,
     ScheduleFiltersComponent,
     ScheduleFilterCardComponent,
+    ScheduleMobileCalendarComponent
 ];
 
 @NgModule({
