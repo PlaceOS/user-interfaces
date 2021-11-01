@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ScheduleFiltersComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="hidden sm:block bg-white border border-gray-300 rounded p-2"
+  >
+    <h3
+      class="font-medium mb-2"
+    >
+      Category Filters
+    </h3>
+    <div
+      class="flex flex-wrap space-x-2"
+    >
+      
+      
+      
+    </div>
+  </div>
+  <div
+    class="sm:hidden flex items-center space-x-2"
+  >
+    <button
+      class="w-24"
+      mat-button=""
+    >
+       Filters 
+    </button>
+    
+    
+    
+  </div>
+</div>
+`;

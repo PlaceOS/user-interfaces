@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ScheduleComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <topbar />
+  <div
+    class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] relative"
+  >
+    <schedule-sidebar
+      class="hidden sm:block"
+    />
+    <div
+      class="w-full bg-white border-b border-gray-300 sm:hidden"
+    >
+      <schedule-mobile-calendar />
+    </div>
+    <div
+      class="flex-1 h-full p-4 overflow-auto space-y-2"
+    >
+      <schedule-filters />
+      <h3
+        class="font-medium my-2"
+      >
+         Mon 01 Nov 2021 
+        <span>
+          (Today)
+        </span>
+        
+      </h3>
+      <div
+        class="w-full p-8 flex flex-col items-center justify-center space-y-4"
+      >
+        <img
+          class="mr-4"
+          src="assets/img/no-events.svg"
+        />
+        <p
+          class="opacity-30"
+        >
+           No events and bookings for Monday, 01 Nov 2021 
+        </p>
+      </div>
+      
+    </div>
+    <mat-progress-bar
+      aria-valuemax="100"
+      aria-valuemin="0"
+      class="mat-progress-bar absolute inset-x-0 bottom-0 mat-primary _mat-animation-noopable"
+      mode="indeterminate"
+      role="progressbar"
+      tabindex="-1"
+    >
+      <div
+        aria-hidden="true"
+      >
+        <svg
+          class="mat-progress-bar-background mat-progress-bar-element"
+          focusable="false"
+          height="4"
+          width="100%"
+        >
+          <defs>
+            <pattern
+              height="4"
+              patternUnits="userSpaceOnUse"
+              width="8"
+              x="4"
+              y="0"
+            >
+              <circle
+                cx="2"
+                cy="2"
+                r="2"
+              />
+            </pattern>
+          </defs>
+          <rect
+            fill="url('/#mat-progress-bar-1')"
+            height="100%"
+            width="100%"
+          />
+        </svg>
+        <div
+          class="mat-progress-bar-buffer mat-progress-bar-element"
+        />
+        <div
+          class="mat-progress-bar-primary mat-progress-bar-fill mat-progress-bar-element"
+          style="transform: scale3d(0, 1, 1);"
+        />
+        <div
+          class="mat-progress-bar-secondary mat-progress-bar-fill mat-progress-bar-element"
+        />
+      </div>
+    </mat-progress-bar>
+    
+  </div>
+  <footer-menu />
+  
+</div>
+`;
