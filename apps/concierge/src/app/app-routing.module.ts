@@ -39,6 +39,13 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'asset-manager',
+        loadChildren: () =>
+            import('./asset-manager/asset-manager.module').then((m) => m.AppAssetManangerModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'desks',
         loadChildren: () =>
             import('./desks/desks.module').then((m) => m.DesksModule),

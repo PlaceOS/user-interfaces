@@ -1,0 +1,56 @@
+import { Component } from '@angular/core';
+import { AssetManagerStateService } from './asset-manager-state.service';
+
+@Component({
+    selector: 'asset-manager-topbar',
+    template: `
+        <div class="w-full px-4 py-2 bg-white flex items-center space-x-4">
+            <button mat-button>Add Asset</button>
+            <mat-button-toggle-group
+                [ngModel]="(options | async)?.view"
+                (ngModelChange)="setOptions({ view: $event })"
+            >
+                <mat-button-toggle value="grid">
+                    <div
+                        class="flex items-center justify-center h-10 w-6 text-xl"
+                    >
+                        <app-icon>view_module</app-icon>
+                    </div>
+                </mat-button-toggle>
+                <mat-button-toggle value="list">
+                    <div
+                        class="flex items-center justify-center h-10 w-6 text-xl"
+                    >
+                        <app-icon>view_list</app-icon>
+                    </div>
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+            <button mat-button class="clear">
+                <div class="flex items-center">
+                    <div class="pl-2">Sort By</div>
+                    <app-icon class="text-2xl">arrow_drop_down</app-icon>
+                </div>
+            </button>
+            <div class="flex-1"></div>
+            <mat-form-field appearance="outline" class="h-[3.25rem]">
+                <app-icon matPrefix class="text-2xl relative top-1 -left-1"
+                    >search</app-icon
+                >
+                <input
+                    matInput
+                    [ngModel]="(options | async)?.search"
+                    (ngModelChange)="setOptions({ search: $event })"
+                    placeholder="Search for an asset or request"
+                />
+            </mat-form-field>
+        </div>
+    `,
+    styles: [``],
+})
+export class AssetManagerTopbarComponent {
+    public readonly options = this._state.options;
+
+    public readonly setOptions = (o) => this._state.setOptions(o);
+
+    constructor(private _state: AssetManagerStateService) {}
+}
