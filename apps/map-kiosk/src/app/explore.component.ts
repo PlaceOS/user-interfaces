@@ -33,7 +33,7 @@ import { first, take } from 'rxjs/operators';
             <img class="w-32" [src]="logo?.src" />
         </div>
         <!-- <explore-map-stack class="z-0"></explore-map-stack> -->
-        <div class="absolute inset-20">
+        <div class="absolute inset-0">
             <i-map
                 [src]="url | async"
                 [zoom]="(positions | async)?.zoom"
