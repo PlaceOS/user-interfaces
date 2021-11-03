@@ -60,7 +60,7 @@ import { ExploreSearchService } from '@placeos/explore';
                         [queryParams]="
                             option.type === 'space'
                                 ? { space: option.id }
-                                : { email: option.id }
+                                : { user: option.id }
                         "
                         class="w-full h-full flex items-center leading-tight"
                     >
