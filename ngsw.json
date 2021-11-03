@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1635302733086,
+  "timestamp": 1635907680835,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,6 +11,7 @@
         "ignoreVary": true
       },
       "urls": [
+        "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js",
         "./apps_concierge_src_app_catering_catering_module_ts.js",
         "./apps_concierge_src_app_day-view_day-view_module_ts.js",
         "./apps_concierge_src_app_desks_desks_module_ts.js",
@@ -91,6 +92,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "261a8ac322006d4d7f057a90a55f518d73b517d6",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "333a57fac35d9b2ff888b92a894b65d48665c80a",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "a21d3055dfd5866b31b39c4f6ea01dbcf5d26aaa",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "9684ca21f914aa8be02866e84d89b8b16c3d337a",
@@ -145,14 +147,14 @@
     "./default-node_modules_angular_material_fesm2015_radio_js.js": "4bf4083bbfd358d2566890a75ef3ff583c1d4924",
     "./default-node_modules_angular_material_fesm2015_tabs_js.js": "4d1afd45a0e2471f9f6f1ff6adbe54a6ff55dab4",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "b2aa44d5bc33f5590411474976b5e79f1e85ce41",
-    "./main.js": "aab58a4d58f6f9fc348b1cec6d51ee9461c38b06",
+    "./index.html": "9a759912e880e324c4063e2e02e7a4dc9e5f8c7a",
+    "./main.js": "8fe364a81c82b9a7a57e3d33ce8169b0c250f8a5",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "882e8f63169b0023e8211e5ee184aea4c9f3e35a",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "22760c9f6a260bc3e681940fc31ac923b0f604a8",
+    "./styles.css": "881dd93ab14aaf533e267177403b956035b49c11",
     "./vendor.js": "48bec04275e2857ce9d404706aa280988e6ea90f"
   },
   "navigationUrls": [
