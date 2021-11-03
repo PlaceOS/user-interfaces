@@ -102,8 +102,8 @@ export class ExploreZonesService extends BaseClass {
             if (!this._location[zone.area_id]) continue;
             let content = '';
             if (zone.count) {
-                content += `${zone.count || 0} ${
-                    zone.count === 1 ? 'Device' : 'Devices'
+                content += `${zone.count || 0} User Device${
+                    zone.count === 1 ? '' : 's'
                 }\n`;
             }
             if (zone.temperature)
