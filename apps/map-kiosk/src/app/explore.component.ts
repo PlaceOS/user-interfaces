@@ -206,6 +206,14 @@ export class ExploreComponent extends BaseClass implements OnInit {
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
         this.subscription(
+            'level',
+            this._state.level.subscribe(() =>
+                this.timeout('update_location', () => {
+                    this._state.setFeatures('_located', []);
+                })
+            )
+        );
+        this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('level')) {
