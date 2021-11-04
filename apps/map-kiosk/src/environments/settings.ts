@@ -20,6 +20,7 @@ const app = {
     },
     general,
     desks,
+    show_qr_for_booking: true
 };
 
 /**

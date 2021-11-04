@@ -16,6 +16,7 @@ import { CalendarEvent } from '@placeos/events';
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
+import { ExploreBookQrComponent } from './explore-book-qr.component';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -82,9 +83,14 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 } is unavailable at the current time`
             );
         }
-        this._dialog.open(ExploreBookingModalComponent, {
-            data: { space },
-        });
+        this._dialog.open(
+            (this._settings.get('app.show_qr_for_booking')
+                ? ExploreBookQrComponent
+                : ExploreBookingModalComponent) as any,
+            {
+                data: { space },
+            }
+        );
     }
 
     public handleBookingsChange(
