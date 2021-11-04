@@ -163,6 +163,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 ? { x: parseFloat(parts[0]), y: parseFloat(parts[1]) }
                 : id,
             content: MapPinComponent,
+            z_index: 99,
             data: { message: name },
         };
         this.timeout('update_location', () =>
@@ -175,6 +176,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         const feature: any = {
             location: space.map_id,
             content: MapPinComponent,
+            z_index: 99,
             data: {
                 message: `${space.display_name || space.name} is here`,
             },
@@ -228,6 +230,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 locations[0].type === 'wireless'
                     ? MapRadiusComponent
                     : MapPinComponent,
+            z_index: 99,
             data: {
                 message: `${user.name} is here`,
                 radius: locations[0].variance,
