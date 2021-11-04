@@ -11,6 +11,7 @@ import {
 import { getModule } from '@placeos/ts-client';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
+import { BaseClass } from '@placeos/common';
 export interface DeviceInfoData {
     mac: string;
     variance: number;
@@ -35,19 +36,28 @@ export interface DeviceInfoData {
         <div
             name="dot"
             #dot
-            class="h-2 w-2 absolute center rounded-full pointer-events-auto shadow"
+            class="h-2 w-2 absolute center rounded-full shadow"
             [style.background-color]="bg_color"
         ></div>
+        <div
+            customTooltip
+            [content]="device_tooltip"
+            [backdrop]="false"
+            [xPosition]="x_pos"
+            [yPosition]="y_pos"
+            [hover]="true"
+            class="absolute inset-0 pointer-events-auto"
+        ></div>
 
-        <ng-template cdk-portal>
+        <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="w-64 rounded bg-white p-4 top-0 left-0 shadow pointer-events-none"
+                class="w-64 rounded bg-white p-4 top-0 left-0 shadow pointer-events-none mx-2"
                 (mouseleave)="close()"
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <p><label>MAC:</label> {{ mac }}</p>
+                    <p class="break-words"><label>MAC:</label> {{ mac }}</p>
                     <p><label>Accuracy:</label> {{ variance }}m</p>
                     <p><label>Last Seen:</label> {{ last_seen }}</p>
                     <p type *ngIf="manufacturer">
@@ -88,7 +98,7 @@ export interface DeviceInfoData {
         `,
     ],
 })
-export class ExploreDeviceInfoComponent implements OnInit {
+export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
     /** Name of the user associated with the mac address */
     public username = '';
     /** User details associated with device */
@@ -108,7 +118,6 @@ export class ExploreDeviceInfoComponent implements OnInit {
     /** Background color for the dot */
     public readonly bg_color = this._details.bg_color || this.distance_color;
 
-    public overlay_ref: OverlayRef = null;
     /** Time of the last update */
     public get last_seen() {
         return formatDistanceToNow((this._details.last_seen || 0) * 1000, {
@@ -136,19 +145,12 @@ export class ExploreDeviceInfoComponent implements OnInit {
             : '#e53935';
     }
 
-    @ViewChild(CdkPortal) private _portal: CdkPortal;
-    @ViewChild('dot') private _dot: ElementRef<HTMLDivElement>;
-
-    @HostListener('mouseenter') public onEnter = () => this.loadUser();
-    @HostListener('mouseleave') public onLeave = () => this.close();
-    @HostListener('click') public onClick = () => this.loadUser();
-    @HostListener('touchend') public onTouch = () => this.loadUser();
-
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
-        private _element: ElementRef<HTMLElement>,
-        private _overlay: Overlay
-    ) {}
+        private _element: ElementRef<HTMLElement>
+    ) {
+        super();
+    }
 
     public ngOnInit(tries: number = 0) {
         if (tries > 10) return;
@@ -166,7 +168,6 @@ export class ExploreDeviceInfoComponent implements OnInit {
     }
 
     public async loadUser() {
-        this.open();
         if (this.username) return;
         const mod = getModule(this._details.system, 'LocationServices');
         if (mod) {
@@ -176,32 +177,6 @@ export class ExploreDeviceInfoComponent implements OnInit {
                 .catch((_) => null);
             this.username =
                 details && details.assigned_to ? details.assigned_to : '';
-        }
-    }
-
-    public open() {
-        if (this.overlay_ref) this.close();
-        if (!this._portal) return;
-        this.overlay_ref = this._overlay.create({
-            positionStrategy: this._overlay
-                .position()
-                .flexibleConnectedTo(this._dot)
-                .withPositions([
-                    {
-                        originX: this.x_pos === 'start' ? 'end' : 'start',
-                        originY: this.y_pos === 'top' ? 'bottom' : 'top',
-                        overlayX: this.x_pos || 'end',
-                        overlayY: this.y_pos || 'bottom',
-                    },
-                ]),
-        });
-        this.overlay_ref.attach(this._portal);
-    }
-
-    public close() {
-        if (this.overlay_ref) {
-            this.overlay_ref.dispose();
-            this.overlay_ref = null;
         }
     }
 }
