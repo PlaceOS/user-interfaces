@@ -190,9 +190,9 @@ export class InteractiveMapComponent
                             useValue: {
                                 ...f.data,
                                 ratio$: this._on_changes.pipe(
-                                    map((_) => _.ratio)
+                                    map((_) => _?.ratio || 1)
                                 ),
-                                zoom: this._on_changes.pipe(map((_) => _.zoom)),
+                                zoom: this._on_changes.pipe(map((_) => _?.zoom || 1)),
                                 position: this._on_changes.pipe(
                                     map((_) => _.center)
                                 ),

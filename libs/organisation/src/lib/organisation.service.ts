@@ -241,7 +241,7 @@ export class OrganisationService {
     public async loadSettings() {
         if (!this._organisation) return;
         const app_name = `${(
-            this._service.get('app.name') || 'workplace'
+            this._service.app_name || 'workplace'
         ).toLowerCase()}_app`;
         const app_settings = await showMetadata(this._organisation.id, app_name).toPromise();
         const global_settings = await showMetadata(this._organisation.id, 'settings').toPromise();
