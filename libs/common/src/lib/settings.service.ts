@@ -101,7 +101,7 @@ export class SettingsService extends BaseClass {
             this._app_name = this.get('app').name;
         }
         this._app_name =
-            location.pathname.replace('/', '') || this._app_name;
+            location.pathname.replace('/', '').trim() || this._app_name;
         setAppName(this._app_name.split('-').join('_').toUpperCase());
         log('Settings', 'Successfully loaded settings');
         this._initialised.next(true);
