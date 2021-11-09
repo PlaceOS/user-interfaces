@@ -22,9 +22,9 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                        [class.bg-success]="booking?.status === 'approved'"
-                        [class.bg-pending]="booking?.status === 'tentative'"
-                        [class.bg-error]="booking?.status === 'declined'"
+                        [class.bg-green-600]="booking?.status === 'approved'"
+                        [class.bg-yellow-500]="booking?.status === 'tentative'"
+                        [class.bg-red-600]="booking?.status === 'declined'"
                         [class.bg-gray-200]="!booking?.status"
                     >
                         <div

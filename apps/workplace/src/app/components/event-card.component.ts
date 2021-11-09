@@ -21,9 +21,9 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                        [class.bg-success]="event?.status === 'approved'"
-                        [class.bg-pending]="event?.status === 'tentative'"
-                        [class.bg-error]="event?.status === 'declined'"
+                        [class.bg-green-600]="event?.status === 'approved'"
+                        [class.bg-yellow-500]="event?.status === 'tentative'"
+                        [class.bg-red-600]="event?.status === 'declined'"
                         [class.bg-gray-200]="!event?.status"
                     >
                         <div
