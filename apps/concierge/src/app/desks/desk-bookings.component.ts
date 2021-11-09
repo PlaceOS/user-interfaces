@@ -74,20 +74,29 @@ import { DesksStateService } from './desks-state.service';
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2">
                     <action-icon (click)="checkin(row)">how_to_reg</action-icon>
-                    <button mat-icon-button (click)="approve(row)">
+                    <button
+                        mat-icon-button
+                        (click)="approve(row)"
+                        matTooltip="Approve Desk"
+                    >
                         <app-icon>event_available</app-icon>
                     </button>
-                    <button mat-icon-button (click)="reject(row)">
+                    <button
+                        mat-icon-button
+                        (click)="reject(row)"
+                        matTooltip="Reject Desk"
+                    >
                         <app-icon>event_busy</app-icon>
                     </button>
                     <button
                         mat-icon-button
                         [disabled]="!row.extension_data?.checkin_qr_code"
                         [matMenuTriggerFor]="menu"
+                        matTooltip="View Desk QR code"
                     >
-                        <app-icon *ngIf="row.extension_data?.checkin_qr_code"
-                            >qr_code</app-icon
-                        >
+                        <app-icon *ngIf="row.extension_data?.checkin_qr_code">
+                            qr_code
+                        </app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <div
