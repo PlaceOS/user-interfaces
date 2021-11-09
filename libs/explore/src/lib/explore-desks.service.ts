@@ -225,8 +225,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     x: device.coordinates_from?.includes('right') ? 1 - x : x,
                     y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
                 },
-                content: ExploreDeviceInfoComponent,
-                z_index: 99,
+                content: ExploreDeviceInfoComponent,            
+                z_index: 20,
                 data: { ...device, system: system_id },
             });
         }

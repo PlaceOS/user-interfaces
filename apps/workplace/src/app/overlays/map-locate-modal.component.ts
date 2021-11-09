@@ -98,6 +98,7 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
             data: {
                 name: this.item.name,
             },
+            z_index: 99,
             zoom: 100,
         };
         this.features = [focus];

@@ -310,6 +310,7 @@ export class ExploreComponent extends BaseClass implements OnInit {
                 locations[0].type === 'wireless'
                     ? MapRadiusComponent
                     : MapPinComponent,
+            z_index: 99,
             data: {
                 message: `${user.name} is here`,
                 radius: locations[0].variance,
