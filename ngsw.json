@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1636328380603,
+  "timestamp": 1636426420645,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -144,8 +144,8 @@
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "723ba7611ae4336b6578350c73f33f545efb7b6c",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "ca14ccb80fe449b13ecf4cdf82325ae0ef20ed11",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "efaa911d328ef27d11a01b952726694c077cdb60",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "d2893713f8bb9b659eafebdc0c1a28c63d2222c9",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "b35c74517ed77f31db0d782d83d7ceb5268d270f",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "adc7eb269fcf89b2849434220513fd2774147bc3",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "5c59080b9da3a9f38c126c620084f85ec8162d59",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "2f443102ef9596170217dbf51932db02a96d9f84",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "7a8bc7ab2507598e58d94b03d7bf16e4d49e4d7b",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -242,13 +242,13 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "b35b48369de961420e8c6a8bf2991a0ded128a9c",
-    "./main.js": "9a3f1b4a894983ead2c2cf4942eabda1123f3c2a",
+    "./main.js": "f076df5ec5aa3bc902f093673a7e0100221da646",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "3978d04a147f9948e09f90b40126523c1c910396",
     "./polyfills.js": "afdec7af2896adc9ee14d198bef773c9ea1bcd55",
     "./runtime.js": "044aa09f985217b14e1103d011f1018edfbf4ec8",
-    "./styles.css": "27259a5a6c0eb97245e93843097276ee7ee477d0",
+    "./styles.css": "2a6da544ebb33b73cdc75c37ca15a4f21b3ed5fb",
     "./vendor.js": "ef16f713ad20dd6af2b373650771b0ca119fb22b"
   },
   "navigationUrls": [
