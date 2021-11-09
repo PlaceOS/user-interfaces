@@ -25,7 +25,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <ng-container
                     *ngIf="(bookings | async)?.length; else empty_state"
                 >
-                    <ng-container *ngFor="let item of (loading | async) ? [] : bookings | async">
+                    <ng-container *ngFor="let item of (loading | async) ? [] : bookings | async; trackBy: trackByFn">
                         <event-card
                             *ngIf="isEvent(item); else booking_card"
                             [event]="item"
@@ -80,4 +80,8 @@ export class ScheduleComponent {
     }
 
     constructor(private _state: ScheduleStateService) {}
+
+    public trackByFn(index: number, item: any) {
+        return item?.id;
+    }
 }

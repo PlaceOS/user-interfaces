@@ -30,7 +30,7 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <ng-container
                         *ngFor="
-                            let event of upcoming_events | async | slice: 0:3
+                            let event of upcoming_events | async | slice: 0:3; trackBy: trackByFn
                         "
                     >
                         <ng-container [ngSwitch]="type(event)">
@@ -75,5 +75,9 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         this._state.stopPollingUpcomingEvents();
+    }
+
+    public trackByFn(index: number, item: any) {
+        return item?.id;
     }
 }
