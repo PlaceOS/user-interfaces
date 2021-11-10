@@ -2,15 +2,20 @@
 
 exports[`DeskBookingsComponent should match snapshot 1`] = `
 <div
-  id="root1"
+  id="root0"
 >
-  <custom-table
-    class="min-w-[76rem]"
-  />
-  
-  
-  
-  
+  <div
+    class="overflow-auto h-full w-full"
+  >
+    <custom-table
+      class="min-w-[76rem]"
+    />
+    
+    
+    
+    
+    
+  </div>
   <button
     aria-haspopup="true"
     class="mat-menu-trigger absolute bottom-2 right-2 bg-white shadow"

@@ -2,7 +2,7 @@
 
 exports[`CateringReportComponent should match snapshot 1`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <div
     class="h-full w-full flex flex-col items-center p-8"
@@ -12,6 +12,7 @@ exports[`CateringReportComponent should match snapshot 1`] = `
       mode="indeterminate"
       role="progressbar"
       style="width: 32px; height: 32px;"
+      tabindex="-1"
     >
       <svg
         aria-hidden="true"
@@ -44,7 +45,7 @@ exports[`CateringReportComponent should match snapshot 1`] = `
 
 exports[`CateringReportComponent should match snapshot 2`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <div
     class="h-full w-full flex flex-col items-center p-8"
@@ -65,7 +66,7 @@ exports[`CateringReportComponent should match snapshot 2`] = `
 
 exports[`CateringReportComponent should match snapshot 3`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <div
     class="h-full w-full"

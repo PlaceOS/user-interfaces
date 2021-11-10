@@ -28,7 +28,7 @@ describe('BookingCardComponent', () => {
         expect(spectator.element).toMatchSnapshot();
         spectator.setInput({
             booking: new Booking({
-                date: set(Date.now(), { hours: 8, minutes: 0 }).valueOf(),
+                date: set(1, { hours: 8, minutes: 0 }).valueOf(),
             }),
         });
         

@@ -4,7 +4,7 @@ import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { set } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
-import { EventCardComponent } from '../../app/landing/event-card.component';
+import { EventCardComponent } from '../../app/components/event-card.component';
 
 describe('EventCardComponent', () => {
     let spectator: SpectatorRouting<EventCardComponent>;

@@ -27,6 +27,12 @@ describe('DeskMapViewComponent', () => {
                 },
             },
             {
+                provide: OrganisationService,
+                useValue: {
+                    levelWithID: jest.fn(),
+                },
+            },
+            {
                 provide: ExploreStateService,
                 useValue: {
                     map_url: of(''),

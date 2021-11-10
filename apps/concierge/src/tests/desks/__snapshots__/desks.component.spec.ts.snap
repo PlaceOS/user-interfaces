@@ -2,37 +2,41 @@
 
 exports[`DesksComponent should match snapshot 1`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <sidebar />
   <main
-    class="relative overflow-hidden flex-1 flex flex-col dark"
+    class="relative overflow-hidden flex-1 flex flex-col"
   >
     <desks-topbar
       class="w-full"
     />
-    <nav
-      mat-tab-nav-bar=""
+    <div
+      class="dark"
     >
-      <a
-        mat-tab-link=""
-        queryparamshandling="merge"
+      <nav
+        mat-tab-nav-bar=""
       >
-         Bookings 
-      </a>
-      <a
-        mat-tab-link=""
-        queryparamshandling="merge"
-      >
-         Map View 
-      </a>
-      <a
-        mat-tab-link=""
-        queryparamshandling="merge"
-      >
-         Manage Desks 
-      </a>
-    </nav>
+        <a
+          mat-tab-link=""
+          queryparamshandling="merge"
+        >
+           Bookings 
+        </a>
+        <a
+          mat-tab-link=""
+          queryparamshandling="merge"
+        >
+           Map View 
+        </a>
+        <a
+          mat-tab-link=""
+          queryparamshandling="merge"
+        >
+           Manage Desks 
+        </a>
+      </nav>
+    </div>
     <div
       class="flex-1 h-1/2 w-full relative overflow-auto"
     >

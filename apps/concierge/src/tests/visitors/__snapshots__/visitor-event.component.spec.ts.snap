@@ -2,7 +2,7 @@
 
 exports[`VisitorEventComponent should match snapshot 1`] = `
 <div
-  id="root1"
+  id="root0"
 >
   
   <div
@@ -22,7 +22,7 @@ exports[`VisitorEventComponent should match snapshot 1`] = `
 
 exports[`VisitorEventComponent should match snapshot 2`] = `
 <div
-  id="root1"
+  id="root0"
 >
   <div
     class="flex items-center px-2 bg-gray-100"
@@ -33,7 +33,7 @@ exports[`VisitorEventComponent should match snapshot 2`] = `
       
       
       <i
-        class="p-2 rounded-full material-icons bg-gray-400"
+        class="p-2 rounded-full material-icons bg-gray-400 opacity-40"
       >
         done
       </i>
