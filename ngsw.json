@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1636511588871,
+  "timestamp": 1636588480727,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -117,14 +117,14 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "7ab7828c5f1a0e3fec8fa41705df631c21f10fc7",
-    "./main.js": "d1b85acb62dda0945e3c0472f71d41752a85b7a2",
+    "./index.html": "ea09361916f8cfcf3758186e3634ea506196fe82",
+    "./main.js": "6c66271e8cb2b37046a05fb33f042b2615a8f452",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./node_modules_node-fetch_browser_js.js": "4c404b4f506d6a8b08df7b1876aebfa3ab5b3efc",
     "./node_modules_websocket_lib_browser_js.js": "d13ea5acb3a679a30df08ff448b3c37e17ca73c4",
     "./polyfills.js": "3a024cdc78ffc481dd56129572fad357af9bcd07",
     "./runtime.js": "513a39ca585502656b2a6d6e2d55fab6f750d2e3",
-    "./styles.css": "2a6da544ebb33b73cdc75c37ca15a4f21b3ed5fb",
+    "./styles.css": "df6543b843951bae2c41d15d583a4826f9dc4461",
     "./vendor.js": "5ef2cb4c7551b988fd8f181b3ffec6107c0fccf5"
   },
   "navigationUrls": [
