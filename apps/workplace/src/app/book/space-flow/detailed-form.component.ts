@@ -30,6 +30,7 @@ import { SettingsService } from '@placeos/common';
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
+                            [max]="max_duration"
                         >
                         </a-duration-field>
                     </div>
@@ -120,8 +121,13 @@ export class DetailBookSpaceFormComponent {
     public get hide_actions() {
         return !!this._settings.get('app.events.hide_user_actions');
     }
+
     public get can_book_for_others() {
         return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get max_duration() {
+        return this._settings.get('app.events.max_duration') || 4 * 60;
     }
 
     public readonly editCatering = async () =>
