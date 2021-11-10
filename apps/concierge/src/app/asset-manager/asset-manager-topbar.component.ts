@@ -5,7 +5,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     selector: 'asset-manager-topbar',
     template: `
         <div class="w-full px-4 py-2 bg-white flex items-center space-x-4">
-            <button mat-button>Add Asset</button>
+            <a
+                button
+                mat-button
+                class="secondary"
+                [routerLink]="['/asset-manager', 'manage', 'details']"
+            >
+                Add Asset
+            </a>
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
                 (ngModelChange)="setOptions({ view: $event })"

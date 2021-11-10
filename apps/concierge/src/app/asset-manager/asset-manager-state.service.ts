@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -18,9 +19,30 @@ export interface Asset {
     barcode: string;
     brand: string;
     description: string;
-    properties: Record<string, string>;
+    specifications: Record<string, string>;
+    purchase_details: Record<string, string>;
+    invoices: string[];
     count: number;
     locations: [string, string][];
+}
+
+function generateAssetForm() {
+    return new FormGroup({
+        id: new FormControl(''),
+        name: new FormControl('', [Validators.required]),
+        category: new FormControl('', [Validators.required]),
+        count: new FormControl(0, [Validators.required]),
+        size: new FormControl('', [Validators.required]),
+        description: new FormControl('', [Validators.required]),
+        barcode: new FormControl('', [Validators.required]),
+        brand: new FormControl('', [Validators.required]),
+        specifications: new FormControl({}),
+        purchase_date: new FormControl(Date.now(), [Validators.required]),
+        expiry_date: new FormControl(null),
+        invoices: new FormControl([]),
+        purchase_details: new FormControl({}),
+        locations: new FormControl([])
+    })
 }
 
 @Injectable({
@@ -28,6 +50,7 @@ export interface Asset {
 })
 export class AssetManagerStateService {
     private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
+    private _form = generateAssetForm();
 
     private _assets = new BehaviorSubject<Asset[]>([
         { id: '1', name: 'iPad', category: 'Technology', images: ['assets/support/chrome-logo.svg', 'assets/support/firefox-logo.svg', 'assets/support/safari-logo.svg'] },
@@ -82,8 +105,17 @@ export class AssetManagerStateService {
         map((_) => Object.keys(_ || {}))
     );
 
+    public get form() {
+        return this._form;
+    }
+
+    public resetForm() {
+        this._form = generateAssetForm();
+    }
+
     /** Update the set view options */
     public setOptions(options: Partial<AssetOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
     }
+    
 }
