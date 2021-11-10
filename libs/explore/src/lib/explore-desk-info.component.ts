@@ -3,6 +3,7 @@ import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 
 export interface DeskInfoData {
+    id: string;
     map_id: string;
     user: string;
     start?: number;
@@ -21,6 +22,7 @@ export interface DeskInfoData {
             [yPosition]="'center'"
             [hover]="true"
             class="h-full w-full pointer-events-auto relative"
+            [attr.id]="id"
         ></div>
         <ng-template #desk_tooltip>
             <div
@@ -73,6 +75,7 @@ export interface DeskInfoData {
 })
 export class ExploreDeskInfoComponent implements OnInit {
     /** Space to display details for */
+    public readonly id = this._details.id;
     public readonly map_id = this._details.map_id;
     public readonly user = this._details.user;
     public readonly start = this._details.start;
