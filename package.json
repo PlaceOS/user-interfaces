@@ -64,7 +64,7 @@
         "@nrwl/linter": "12.2.0",
         "@nrwl/tao": "12.2.0",
         "@nrwl/workspace": "12.2.0",
-        "@placeos/svg-viewer": "^0.3.6-dev",
+        "@placeos/svg-viewer": "^0.3.7-dev",
         "@placeos/ts-client": "^3.10.5",
         "@sentry/angular": "^6.2.5",
         "@sentry/tracing": "^6.2.5",
