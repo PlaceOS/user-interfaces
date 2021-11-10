@@ -1,8 +1,11 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SettingsService } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
+
+const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 
 @Component({
     selector: 'explore-book-qr',
@@ -23,7 +26,12 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
 export class ExploreBookQrComponent {
     public readonly space = this._data.space;
     public readonly qr_code = generateQRCode(
-        `${location.origin}#/workplace/explore?space=${this._data.space?.email}`
+        `${location.origin}${(
+            this._settings.get('app.booking_qr_path') || DEFAULT_PATH
+        ).replace('{{id}}', this._data.space?.email)}`
     );
-    constructor(@Inject(MAT_DIALOG_DATA) public _data: { space: Space }) {}
+    constructor(
+        @Inject(MAT_DIALOG_DATA) public _data: { space: Space },
+        private _settings: SettingsService
+    ) {}
 }
