@@ -190,9 +190,9 @@ export class InteractiveMapComponent
                             useValue: {
                                 ...f.data,
                                 ratio$: this._on_changes.pipe(
-                                    map((_) => _?.ratio || 1)
+                                    map((_) => _.ratio)
                                 ),
-                                zoom: this._on_changes.pipe(map((_) => _?.zoom || 1)),
+                                zoom: this._on_changes.pipe(map((_) => _.zoom)),
                                 position: this._on_changes.pipe(
                                     map((_) => _.center)
                                 ),
@@ -281,9 +281,10 @@ export class InteractiveMapComponent
             this.loading = false;
             this.subscription(
                 'view_changes',
-                listenToViewerChanges(this.viewer)?.subscribe((v) =>
-                    this._on_changes.next(v)
-                )
+                listenToViewerChanges(this.viewer)?.subscribe((v) =>{
+                    const box = this._outlet_el.nativeElement.getBoundingClientRect();
+                    this._on_changes.next({  ...v, ratio: v.svg_ratio * .9 * v.zoom})
+                })
             );
         } else if (
             (this.src && !this._outlet_el?.nativeElement) ||
