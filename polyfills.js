@@ -1,6 +1,6 @@
 "use strict";(self.webpackChunkplaceos=self.webpackChunkplaceos||[]).push([["polyfills"],{6515:(De,de,Te)=>{
 /**
-       * @license Angular v12.2.10
+       * @license Angular v12.2.13
        * (c) 2010-2021 Google LLC. https://angular.io/
        * License: MIT
        */
