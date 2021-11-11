@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1626678582343,
+  "timestamp": 1636589867755,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,15 +11,15 @@
         "ignoreVary": true
       },
       "urls": [
-        "./121.27ef3bc42141a064ed07.js",
-        "./68.0848d646e3c4c139e97d.js",
+        "./33.9bc2338d7c2acb8aa4be.js",
+        "./640.33608d73dd53019858ae.js",
         "./favicon.ico",
         "./index.html",
-        "./main.4893067248c149489700.js",
+        "./main.7679f994395036398f6d.js",
         "./manifest.webmanifest",
-        "./polyfills.4b466627f9fdba6b7610.js",
-        "./runtime.e310651f698220298799.js",
-        "./styles.704e138b4ff4c82d4b94.css"
+        "./polyfills.8994a78bb8ea55067f1e.js",
+        "./runtime.0d7aadd21f759ec3c825.js",
+        "./styles.8688cd560e57beb1975a.css"
       ],
       "patterns": []
     },
@@ -31,6 +31,14 @@
         "ignoreVary": true
       },
       "urls": [
+        "./assets/icons/building-filled.svg",
+        "./assets/icons/building-outline.svg",
+        "./assets/icons/car-filled.svg",
+        "./assets/icons/car-outline.svg",
+        "./assets/icons/desk-filled.svg",
+        "./assets/icons/desk-outline.svg",
+        "./assets/icons/home-filled.svg",
+        "./assets/icons/home-outline.svg",
         "./assets/icons/icon-128x128.png",
         "./assets/icons/icon-144x144.png",
         "./assets/icons/icon-152x152.png",
@@ -39,6 +47,14 @@
         "./assets/icons/icon-512x512.png",
         "./assets/icons/icon-72x72.png",
         "./assets/icons/icon-96x96.png",
+        "./assets/icons/meeting-room-filled.svg",
+        "./assets/icons/meeting-room-outline.svg",
+        "./assets/icons/more-filled.svg",
+        "./assets/icons/more-outline.svg",
+        "./assets/icons/place-filled.svg",
+        "./assets/icons/place-outline.svg",
+        "./assets/icons/today-filled.svg",
+        "./assets/icons/today-outline.svg",
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_10.svg",
@@ -57,8 +73,16 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./121.27ef3bc42141a064ed07.js": "8885d0295b55f624f5cee318039ba5e1ba1bcc98",
-    "./68.0848d646e3c4c139e97d.js": "89c41d3c9623114e141d206bef6edb0434358a0e",
+    "./33.9bc2338d7c2acb8aa4be.js": "55054ff76f94eb01d6e8f3b20127898b41aca85e",
+    "./640.33608d73dd53019858ae.js": "a547657b5acfd285ee43c0ab8f35da672933ed93",
+    "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
+    "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
+    "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
+    "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
+    "./assets/icons/desk-filled.svg": "09e40cda715246db7f24adb6334964d8c9825e26",
+    "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
+    "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
+    "./assets/icons/home-outline.svg": "0a7375fdb84d3b06f05435c96448b64a3548d2fb",
     "./assets/icons/icon-128x128.png": "1012bed190db9fef4146dfc101aa3cf16521d77c",
     "./assets/icons/icon-144x144.png": "375e890188db0e4389a65bd3b6af6885dd90b835",
     "./assets/icons/icon-152x152.png": "027b9f0ceac3c46895ab61d407ee9f40126ec85f",
@@ -67,6 +91,14 @@
     "./assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
     "./assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
     "./assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
+    "./assets/icons/meeting-room-filled.svg": "cdc43c2a31283ba4bbe5f8c32169dd057e6e7065",
+    "./assets/icons/meeting-room-outline.svg": "0f308c70593945497175a4c6becf8237d0ddea10",
+    "./assets/icons/more-filled.svg": "a736dcf0bd45c84f52e1f19e8fd709267a60a114",
+    "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
+    "./assets/icons/place-filled.svg": "89ab65674b9e909b284ad78a7f8d7544a13ab74a",
+    "./assets/icons/place-outline.svg": "6059875d2deb6a48ea76d30ac29bd329a888a48d",
+    "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
+    "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_10.svg": "42bce54f5c369b4083cba411cac812131d4150f3",
@@ -80,12 +112,12 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "70229285f6dcbd311c9f86b214afe189248e2c58",
-    "./main.4893067248c149489700.js": "68518335b45230019b3cbdab29128a803272251b",
+    "./index.html": "ac0fea90ad6a0c39f73d6fd29df83529770559bd",
+    "./main.7679f994395036398f6d.js": "c74b85829765569267822f739ee83b460047337b",
     "./manifest.webmanifest": "b77d510a22ab8c2bbb2bd38f11b3b266666784f3",
-    "./polyfills.4b466627f9fdba6b7610.js": "22ffc11788d5444131e99bd59cf9afc0da87c595",
-    "./runtime.e310651f698220298799.js": "fb1b92e456d1d743e058b8393b4758ea4c46f7a8",
-    "./styles.704e138b4ff4c82d4b94.css": "aae843a419e231e9bf7587fcdd6a47a1554cca62"
+    "./polyfills.8994a78bb8ea55067f1e.js": "3771cf0f478648d5892448cd334054a88e9756b2",
+    "./runtime.0d7aadd21f759ec3c825.js": "fa9cac377c8e148e6da04dd64c7bf40cb54409b3",
+    "./styles.8688cd560e57beb1975a.css": "98ebfe3af6e84d5827d94f0e40aba5a1db66cc7f"
   },
   "navigationUrls": [
     {
