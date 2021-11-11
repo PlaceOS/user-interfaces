@@ -44,7 +44,7 @@ export class GlobalLoadingComponent implements OnInit {
 
     constructor(
         private _org: OrganisationService,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
     ) {}
 
     public async ngOnInit() {

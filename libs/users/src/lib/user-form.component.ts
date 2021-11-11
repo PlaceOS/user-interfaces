@@ -97,11 +97,10 @@ import { FormGroup } from '@angular/forms';
 })
 export class UserFormComponent {
     /** Group of form fields used for creating the system */
-    @Input() public form: FormGroup;
+    @Input() public form?: FormGroup;
 
     public hasError(name: string) {
-        return (
-            this.form.controls[name].invalid && this.form.controls[name].touched
-        );
+        const { invalid, touched } = this.form?.controls[name] || {};
+        return invalid && touched;
     }
 }

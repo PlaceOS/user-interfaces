@@ -72,7 +72,7 @@ export function generateMockUser(
  * Generate form fields for the given user
  * @param user User to generate form for
  */
-export function generateUserForm(user: User): FormGroup {
+export function generateUserForm(user?: User): FormGroup {
     if (!user) {
         throw Error('No user passed');
     }

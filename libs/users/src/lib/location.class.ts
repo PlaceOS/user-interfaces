@@ -1,11 +1,11 @@
-import { Point } from '@placeos/svg-viewer';
 import { HashMap } from '@placeos/common';
 import { getUnixTime } from 'date-fns';
+
 export class MapLocation {
     /** Source that the location was generated */
     public type: 'desk' | 'wireless' | 'meeting' | 'other';
     /** Details of the location */
-    public position: string | Point;
+    public position: string | { x: number, y: number };
     /** Accuracy of the location data */
     public variance: number;
     /** Unix epoch in seconds that the data was last updated */

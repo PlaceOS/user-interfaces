@@ -55,11 +55,11 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for the new user */
-    public form: FormGroup;
+    public form?: FormGroup;
     /** New user data store */
-    public user: User;
+    public user?: User;
     /** Whether user details are being saved */
-    public loading: boolean;
+    public loading = false;
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: any) {
         super();
@@ -71,6 +71,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
     }
 
     public saveChanges() {
+        if (!this.form) return;
         this.form.markAllAsTouched();
         if (this.form.valid) {
             const new_user = new User({

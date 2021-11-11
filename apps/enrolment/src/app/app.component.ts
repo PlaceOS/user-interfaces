@@ -4,20 +4,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Integrations } from '@sentry/tracing';
 import { first } from 'rxjs/operators';
-import {
-    clientId,
-    invalidateToken,
-    isMock,
-    refreshToken,
-    token,
-} from '@placeos/ts-client';
 
 import {
     BaseClass,
-    current_user,
     currentUser,
-    HotkeysService,
-    notifySuccess,
     setAppName,
     setNotifyOutlet,
     SettingsService,
@@ -56,16 +46,17 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         <div class="flex-1 w-full relative h-1/2">
             <router-outlet></router-outlet>
         </div>
-        <global-loading></global-loading>
     `,
-    styles: [`
-        :host {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+        `,
+    ],
 })
 export class AppComponent extends BaseClass implements OnInit {
     constructor(
@@ -75,7 +66,6 @@ export class AppComponent extends BaseClass implements OnInit {
         private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
-        private _hotkey: HotkeysService,
         private _clipboard: Clipboard
     ) {
         super();
@@ -83,31 +73,6 @@ export class AppComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
-        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
-            localStorage.setItem(
-                'mock',
-                `${localStorage.getItem('mock') !== 'true'}`
-            );
-            location.reload();
-        });
-        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
-            this._clipboard.copy(`${token()}|${refreshToken()}`);
-            notifySuccess('Successfully copied token.');
-        });
-        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
-            navigator.clipboard?.readText().then((tkn) => {
-                const parts = tkn.split('|');
-                const id = clientId();
-                localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
-                localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
-                localStorage.setItem(
-                    `${id}_expires_at`,
-                    `${addHours(new Date(), 6).valueOf()}`
-                );
-                notifySuccess('Successfully pasted token.');
-                setTimeout(() => location.reload(), 2000);
-            });
-        });
         setNotifyOutlet(this._snackbar);
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
@@ -117,25 +82,12 @@ export class AppComponent extends BaseClass implements OnInit {
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
-        await setupPlace(settings).catch(() => this.onInitError());
+        await setupPlace(settings)
         setupCache(this._cache);
-        if (!settings.local_login) {
-            this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
-        }
-        await current_user.pipe(first((_) => !!_)).toPromise();
-        this.clearTimeout('wait_for_user');
-        setDefaultCreator(currentUser());
         setInternalUserDomain(
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
         initSentry(this._settings.get('app.sentry_dsn'));
-    }
-
-    private onInitError() {
-        if (isMock() || currentUser()?.is_logged_in) return;
-        console.error('Error initialising user.');
-        invalidateToken();
-        location.reload();
     }
 }
