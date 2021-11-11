@@ -1,52 +1,64 @@
 {
-  "implicitDependencies": {
-    "angular.json": "*",
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
-    "tsconfig.base.json": "*",
-    "tslint.json": "*",
-    ".eslintrc.json": "*",
-    "nx.json": "*"
-  },
-  "affected": { "defaultBase": "master" },
-  "npmScope": "placeos",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+    "implicitDependencies": {
+        "angular.json": "*",
+        "package.json": {
+            "dependencies": "*",
+            "devDependencies": "*"
+        },
+        "tsconfig.base.json": "*",
+        "tslint.json": "*",
+        ".eslintrc.json": "*",
+        "nx.json": "*"
+    },
+    "affected": {
+        "defaultBase": "master"
+    },
+    "npmScope": "placeos",
+    "tasksRunnerOptions": {
+        "default": {
+            "runner": "@nrwl/workspace/tasks-runners/default",
+            "options": {
+                "cacheableOperations": ["build", "lint", "test", "e2e"]
+            }
+        }
+    },
+    "targetDependencies": {
+        "build": [
+            {
+                "target": "build",
+                "projects": "dependencies"
+            }
+        ]
+    },
+    "cli": {
+        "defaultCollection": "@nrwl/angular"
+    },
+    "defaultProject": "workplace",
+    "generators": {
+        "@nrwl/angular": {
+            "application": {
+                "linter": "eslint"
+            },
+            "library": {
+                "linter": "eslint"
+            },
+            "storybook-configuration": {
+                "linter": "eslint"
+            }
+        },
+        "@nrwl/angular:application": {
+            "style": "css",
+            "linter": "eslint",
+            "unitTestRunner": "jest",
+            "e2eTestRunner": "cypress"
+        },
+        "@nrwl/angular:library": {
+            "style": "css",
+            "linter": "eslint",
+            "unitTestRunner": "jest"
+        },
+        "@nrwl/angular:component": {
+            "style": "css"
+        }
     }
-  },
-  "projects": {
-    "workplace": { "tags": [] },
-    "workplace-e2e": { "tags": [], "implicitDependencies": ["workplace"] },
-    "concierge": { "tags": [] },
-    "concierge-e2e": { "tags": [], "implicitDependencies": ["concierge"] },
-    "control": { "tags": [] },
-    "control-e2e": { "tags": [], "implicitDependencies": ["control"] },
-    "booking-panel": { "tags": [] },
-    "booking-panel-e2e": {
-      "tags": [],
-      "implicitDependencies": ["booking-panel"]
-    },
-    "map-kiosk": { "tags": [] },
-    "map-kiosk-e2e": { "tags": [], "implicitDependencies": ["map-kiosk"] },
-    "visitor-kiosk": { "tags": [] },
-    "visitor-kiosk-e2e": {
-      "tags": [],
-      "implicitDependencies": ["visitor-kiosk"]
-    },
-    "caterer-ui": { "tags": [] },
-    "caterer-ui-e2e": { "tags": [], "implicitDependencies": ["caterer-ui"] },
-    "bookings": { "tags": [] },
-    "calendar": { "tags": [] },
-    "catering": { "tags": [] },
-    "common": { "tags": [] },
-    "components": { "tags": [] },
-    "events": { "tags": [] },
-    "explore": { "tags": [] },
-    "form-fields": { "tags": [] },
-    "mocks": { "tags": [] },
-    "organisation": { "tags": [] },
-    "spaces": { "tags": [] },
-    "users": { "tags": [] }
-  }
 }
