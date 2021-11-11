@@ -212,7 +212,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
             throw 'No locations for the given user';
         }
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
-        const pos = locations[0].position;
+        const pos: any = locations[0].position;
         const { coordinates_from } = locations[0];
         const feature: any = {
             location:

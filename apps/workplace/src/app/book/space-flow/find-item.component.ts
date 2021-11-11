@@ -30,8 +30,8 @@ import { MapLocateModalComponent } from '../../overlays/map-locate-modal.compone
                 <button
                     mat-button
                     book
-                    [class.bg-pending]="book"
-                    [class.border-pending]="book"
+                    [class.bg-pending]="multiple && book"
+                    [class.border-pending]="multiple && book"
                     (click)="bookSpace()"
                 >
                     {{ multiple ? (book ? 'Remove' : 'Select') : 'Book' }}
@@ -68,7 +68,7 @@ export class SpaceFlowFindItemComponent {
     constructor(private _dialog: MatDialog) {}
 
     public bookSpace() {
-        this.book = !this.book;
+        this.book = this.multiple ? !this.book : true;
         this.bookChange.emit(this.book);
     }
 
