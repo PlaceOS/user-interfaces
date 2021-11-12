@@ -151,7 +151,7 @@ export class BookingFormService extends BaseClass {
                             (!options.zone_id ||
                                 options.zone_id === asset.zone?.id ||
                                 options.zone_id === asset.zone?.parent_id) &&
-                            !bookings.find((bkn) => bkn.asset_id === asset.id)
+                            !bookings.find((bkn) => bkn.asset_id === asset.id && bkn.status !== 'declined')
                     )
                 )
             )
