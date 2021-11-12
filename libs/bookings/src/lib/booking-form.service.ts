@@ -345,7 +345,8 @@ export class BookingFormService extends BaseClass {
             bookings.filter(
                 (_) =>
                     _.user_email ===
-                    (form.value.user_email || currentUser()?.email)
+                        (form.value.user_email || currentUser()?.email) &&
+                    _.status !== 'declined'
             ).length >= allowed_bookings
         ) {
             throw `You already have a desk booked`;
