@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { currentUser } from '@placeos/common';
 
 @Component({
     selector: 'flow-success',
@@ -12,7 +13,7 @@ import { Component, Input } from '@angular/core';
             </div>
             <div class="text-center text-lg text-white mb-4">
                 Thank you, you {{ type }} booking was successful!<br />
-                An event has been added to your calendar
+                An event has been added to {{ is_host ? 'your' : 'the host\'s'}} calendar
             </div>
             <div class="flex items-center space-x-2">
                 <a
@@ -42,4 +43,8 @@ export class FlowSuccessComponent {
     @Input() public calendar: string;
     @Input() public route = 'spaces';
     @Input() public type = 'space';
+
+    public get is_host() {
+        return this.calendar = currentUser()?.email;
+    }
 }
