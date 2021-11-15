@@ -45,6 +45,6 @@ export class FlowSuccessComponent {
     @Input() public type = 'space';
 
     public get is_host() {
-        return this.calendar = currentUser()?.email;
+        return this.calendar === currentUser()?.email;
     }
 }

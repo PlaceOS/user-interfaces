@@ -88,7 +88,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                 </div>
                 <div
                     class="flex items-center justify-center space-x-2 mt-4"
-                    *ngIf="!has_ended"
+                    *ngIf="!has_ended && is_host"
                 >
                     <button
                         mat-button
