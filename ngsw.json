@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1636680274945,
+  "timestamp": 1636949609940,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -139,14 +139,14 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "fb5a8cb791545292c7b0d36f2a8f68afbcbbcf36",
+    "./apps_workplace_src_app_book_book_module_ts.js": "672ef97758e58ff204d6b2fcbb272c17050f4997",
     "./apps_workplace_src_app_control_control_module_ts.js": "ed31fe7e16f14bac4b44c44e917489c801846d8b",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "a5fe543f19252334d472c348e15dcb57d38723eb",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "5275b156acbcee39d7e92a1b60aa89f3372ee8cf",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "0590011f9a94b510fca685be41119448068c9c4b",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "4e06cb13a508dc6274693792109cc07cba1563ea",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "25154a80108ca035780ae07e79b44382552dce98",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "a95edd51d1e3f7e387066958f220d1a6225dc5d9",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "5041f39c9839c8410adaf213c2ccc024586e3550",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "2d0a23d1b4cdaf32b7676601df277c8c0545c6dc",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -242,7 +242,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "7d43a73163997e302419c58d551f8f4f97432c31",
-    "./main.js": "1f1ac6c712fbab362f8df02f545b73f2fe7c1bcb",
+    "./main.js": "473947176c9e88a404f53d873a076ef493251a9c",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "06295c519ba08bae846748d456bcc0a5945a4c2f",
     "./node_modules_websocket_lib_browser_js.js": "b171afa649a89bc4a0e3c1d9d92ef902f528b7c1",
