@@ -4,6 +4,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Integrations } from '@sentry/tracing';
 import { first } from 'rxjs/operators';
+import {
+    Amazon,
+    Azure,
+    Google,
+    OpenStack,
+    initialiseUploadService
+} from '@placeos/cloud-uploads';
 
 import {
     BaseClass,
@@ -19,11 +26,10 @@ import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
-import { setDefaultCreator } from 'libs/events/src/lib/event.class';
-import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
 import * as MOCKS from '@placeos/mocks';
+import { token } from '@placeos/ts-client';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -66,7 +72,7 @@ export class AppComponent extends BaseClass implements OnInit {
         private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
@@ -88,6 +94,15 @@ export class AppComponent extends BaseClass implements OnInit {
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
+        this.timeout('init_uploads', () => {
+            initialiseUploadService({
+                auto_start: true,
+                token: token(),
+                endpoint: '/api/files/v1/uploads',
+                worker_url: 'assets/md5_worker.js',
+                providers: [Amazon, Azure, Google, OpenStack] as any
+            });
+        });
         initSentry(this._settings.get('app.sentry_dsn'));
     }
 }
