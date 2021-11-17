@@ -1,13 +1,6 @@
 import { Component } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
-import {
-    addMinutes,
-    differenceInMinutes,
-    format,
-    formatDuration,
-} from 'date-fns';
 import { combineLatest, timer } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
 
@@ -20,6 +13,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-pending]="(state | async) === 'pending'"
+                (click)="can_book ? book() : ''"
             >
                 <div
                     [innerHTML]="
@@ -40,6 +34,13 @@ import { currentPeriod, nextPeriod } from './helpers';
                     *ngIf="(state | async) === 'pending'"
                 >
                     <p class="uppercase">Touch or scan to check-in</p>
+                    <app-icon>arrow_forward</app-icon>
+                </div>
+                <div
+                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
+                    *ngIf="(state | async) === 'free' && can_book"
+                >
+                    <p class="uppercase">Touch or scan to book</p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
             </div>
@@ -80,6 +81,12 @@ export class PanelViewStatusComponent {
             next: nextPeriod(n),
         }))
     );
+
+    public get can_book() {
+        return !this._state.setting('disable_book_now');
+    }
+
+    public readonly book = () => this._state.newBooking();
 
     public readonly free_svg = `
     <svg width="129" height="117" viewBox="0 0 129 117" fill="none" xmlns="http://www.w3.org/2000/svg">
