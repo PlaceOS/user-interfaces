@@ -34,22 +34,23 @@ export interface MapPolygonData {
                 [style.height]="height + '%'"
             >
                 <svg
-                    [attr.viewBox]="'0 0 ' + (width / svg_scale + padding) + ' ' + (height / svg_scale + padding)"
-                    class="relative -top-8 -left-8 w-[calc(100%+64px)] h-[calc(100%+64px)]"
+                    [attr.viewBox]="'0 0 '+ this.width / 20 +' ' + this.height / 20"
+                    preserveAspectRatio="none"
+                    class="relative w-full h-full"
                 >
                     <polygon
                         [attr.points]="points"
                         [style.fill]="fill"
                         [style.stroke]="stroke"
                     />
-                    <circle
+                    <!-- <circle
                         *ngFor="let point of point_list"
                         [attr.cx]="point[0] || 0"
                         [attr.cy]="point[1] || 0"
                         [attr.r]="4"
                         [style.stroke]="'#000'"
                         [style.fill]="'#fffd'"
-                    />
+                    /> -->
                 </svg>
             </div>
         </div>
@@ -159,7 +160,6 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
             y: diff.y_max - diff.y_min,
         };
         const { ratio, zoom_value } = this._details;
-        console.log('Ratio:', ratio);
         this.width = range.x * 100 * zoom_value;
         this.height = range.y * 100 * (ratio || 1) * zoom_value;
         const edge_padding = this.padding / 4;
@@ -169,17 +169,16 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
             .reduce(
                 (s, [x, y]) =>
                     `${s}${s ? ' ' : ''}${
-                        ((x - diff.x_min) / range.x) * this.width * 1.05 / this.svg_scale + edge_padding * (ratio || 1)
+                        ((x - diff.x_min) / range.x) * this.width / 20
                     },${
-                        ((y - diff.y_min) / range.y) * this.height * 1.05 / this.svg_scale +
-                        edge_padding
+                        ((y - diff.y_min) / range.y) * this.height / 20
                     }`,
                 ''
             )
             .replace(/NaN/g, '0');
         this.point_list = points.map(([x, y]) => [
-            ((x - diff.x_min) / range.x) * this.width * 1.05 / this.svg_scale + edge_padding * (ratio || 1),
-            ((y - diff.y_min) / range.y) * this.height * 1.05 / this.svg_scale + edge_padding,
+            ((x - diff.x_min) / range.x) * this.width / 20,
+            ((y - diff.y_min) / range.y) * this.height / 20,
         ]);
         // this.width = this.width + this.padding + 8;
         // this.height = this.height + this.padding + 8;
