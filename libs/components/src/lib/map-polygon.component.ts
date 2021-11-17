@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
-import { BaseClass, HashMap } from '@placeos/common';
+import { BaseClass, HashMap } from '@placeos-tools/common';
 import { Observable } from 'rxjs';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 
@@ -12,12 +12,11 @@ export interface MapPolygonData {
     points: [number, number][];
     /**  */
     ratio?: number;
-
+    svg_ratio?: number;
     zoom_value?: number;
-
     ratio$?: Observable<number>;
-    zoom?: Observable<number>;
-
+    svg_ratio$?: Observable<number>;
+    zoom$?: Observable<number>;
     data$?: Observable<MapPolygonData>;
 }
 
@@ -26,28 +25,39 @@ export interface MapPolygonData {
     template: `
         <div
             polygon
-            class="absolute w-full h-full transform -translate-x-1/2 -translate-y-1/2"
+            class="absolute w-full h-full transform -translate-x-1/2 -translate-y-1/2 -top-1 -left-1"
+            [style.transform]="'scale(' + scale + ')'"
         >
-            <svg
-                [attr.viewBox]="
-                    '0 0 ' + width + padding + ' ' + height + padding
-                "
-                [style.width]="width * (100 / scale) + '%'"
-                [style.height]="height * (100 / scale) + '%'"
-                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full"
-            >
-                <polygon
-                    [attr.points]="points"
-                    [style.fill]="fill"
-                    [style.stroke]="stroke"
-                />
-            </svg>
             <div
-                text
-                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-shadow text-white text-xl text-center whitespace-pre-line"
+                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                [style.width]="width + '%'"
+                [style.height]="height + '%'"
             >
-                {{ name }}
+                <svg
+                    [attr.viewBox]="'0 0 ' + (width / svg_scale + padding) + ' ' + (height / svg_scale + padding)"
+                    class="relative -top-8 -left-8 w-[calc(100%+64px)] h-[calc(100%+64px)]"
+                >
+                    <polygon
+                        [attr.points]="points"
+                        [style.fill]="fill"
+                        [style.stroke]="stroke"
+                    />
+                    <circle
+                        *ngFor="let point of point_list"
+                        [attr.cx]="point[0] || 0"
+                        [attr.cy]="point[1] || 0"
+                        [attr.r]="4"
+                        [style.stroke]="'#000'"
+                        [style.fill]="'#fffd'"
+                    />
+                </svg>
             </div>
+        </div>
+        <div
+            text
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-shadow text-white text-xl text-center whitespace-pre-line"
+        >
+            {{ name }}
         </div>
     `,
     styles: [
@@ -55,6 +65,10 @@ export interface MapPolygonData {
             polygon {
                 stroke-width: 2;
             }
+            circle {
+                stroke-width: 2;
+            }
+
             [text] {
                 width: 32rem;
                 max-width: 65vw;
@@ -69,15 +83,14 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
     public fill = `${this._details.color || '#e53935'}88`;
     /** Stroke colour for the pin SVG */
     public stroke = this._details.color || '#e53935';
-
     public padding = 32;
-
-    public scale = 8;
-
-    public offset_x = 0;
-    public offset_y = 0;
     public width = 1;
     public height = 1;
+    public readonly svg_scale = 20;
+
+    public get scale() {
+        return (this._details.svg_ratio || 1);
+    }
 
     /** List of points for drawing the polygon */
     public points = `0,0 0,${this.height} ${this.width},${this.height} ${this.width},0`;
@@ -103,22 +116,26 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
                 })
             );
         }
-        if (this._details.ratio$) {
-            this.subscription(
-                'ratio',
-                this._details.ratio$?.subscribe((_) => {
-                    this._details.ratio = _;
-                    this.processPoints(this._details.points);
-                })
-            );
-            this.subscription(
-                'zoom',
-                this._details.zoom?.subscribe((_) => {
-                    this._details.zoom_value = _;
-                    this.processPoints(this._details.points);
-                })
-            );
-        }
+        this.subscription(
+            'ratio',
+            this._details.ratio$?.subscribe((_) => {
+                this._details.ratio = _;
+                this.processPoints(this._details.points);
+            })
+        );
+        this.subscription(
+            'zoom',
+            this._details.zoom$?.subscribe((_) => {
+                this._details.zoom_value = _;
+                this.processPoints(this._details.points);
+            })
+        );
+        this.subscription(
+            'svg_ratio',
+            this._details.svg_ratio$?.subscribe(
+                (_) => (this._details.svg_ratio = _)
+            )
+        );
         this.processPoints(this._details.points);
     }
 
@@ -137,36 +154,35 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
                 y_max: -100,
             }
         );
-        this.offset_x = diff.x_min * 100;
-        this.offset_y = diff.y_min * 100;
         const range = {
             x: diff.x_max - diff.x_min,
             y: diff.y_max - diff.y_min,
         };
-        const scale = this.scale * ( this._details.ratio || 1);
-        this.width = range.x * 100 * scale;
-        this.height = range.y * 100 * scale * .9;
-        const edge_padding = this.padding / 2 + 8;
-        this.width = Math.floor(this.width * 100) / 100;
-        this.height = Math.floor(this.height * 100) / 100;
+        const { ratio, zoom_value } = this._details;
+        console.log('Ratio:', ratio);
+        this.width = range.x * 100 * zoom_value;
+        this.height = range.y * 100 * (ratio || 1) * zoom_value;
+        const edge_padding = this.padding / 4;
+        this.width = Math.floor(this.width * 100);
+        this.height = Math.floor(this.height * 100);
         this.points = points
             .reduce(
                 (s, [x, y]) =>
                     `${s}${s ? ' ' : ''}${
-                        ((x - diff.x_min) / range.x) * this.width + edge_padding
+                        ((x - diff.x_min) / range.x) * this.width * 1.05 / this.svg_scale + edge_padding * (ratio || 1)
                     },${
-                        ((y - diff.y_min) / range.y) * this.height +
+                        ((y - diff.y_min) / range.y) * this.height * 1.05 / this.svg_scale +
                         edge_padding
                     }`,
                 ''
             )
             .replace(/NaN/g, '0');
         this.point_list = points.map(([x, y]) => [
-            ((x - diff.x_min) / range.x) * this.width + edge_padding,
-            ((y - diff.y_min) / range.y) * this.height + edge_padding,
+            ((x - diff.x_min) / range.x) * this.width * 1.05 / this.svg_scale + edge_padding * (ratio || 1),
+            ((y - diff.y_min) / range.y) * this.height * 1.05 / this.svg_scale + edge_padding,
         ]);
-        this.width = this.width + this.padding + 8;
-        this.height = this.height + this.padding + 8;
+        // this.width = this.width + this.padding + 8;
+        // this.height = this.height + this.padding + 8;
         this._cdr.detectChanges();
     }
 }
