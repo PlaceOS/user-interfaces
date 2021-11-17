@@ -69,6 +69,9 @@ MIT
 @angular/service-worker
 MIT
 
+@placeos/cloud-uploads
+ISC
+
 @placeos/svg-viewer
 MIT
 MIT License
