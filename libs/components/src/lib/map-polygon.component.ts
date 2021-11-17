@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
-import { BaseClass, HashMap } from '@placeos-tools/common';
+import { BaseClass, HashMap } from '@placeos/common';
 import { Observable } from 'rxjs';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 
