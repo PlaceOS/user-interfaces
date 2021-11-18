@@ -66,6 +66,7 @@ export class EnrolmentStateService {
         phone: new FormControl(''),
         assistance_required: new FormControl(false),
         preferred_beverage: new FormControl(''),
+        attachments: new FormControl([]),
         accepted_terms_conditions: new FormControl(
             false,
             Validators.requiredTrue

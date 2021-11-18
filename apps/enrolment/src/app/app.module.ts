@@ -17,6 +17,7 @@ import * as Sentry from '@sentry/angular';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { UploadListComponent } from './upload-list.component';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },
@@ -31,6 +32,7 @@ const ROUTES: Route[] = [
         EnrolmentEventDetailsComponent,
         EnrolmentGuestConfirmComponent,
         EnrolmentErrorComponent,
+        UploadListComponent
     ],
     imports: [
         BrowserModule,

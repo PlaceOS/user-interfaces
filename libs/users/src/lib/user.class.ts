@@ -2,8 +2,12 @@ import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 
 export interface Attachment {
+    id?: string;
     name: string;
     url: string;
+    size?: number;
+    created_at?: number; 
+    progress?: number;
 }
 
 export interface UserComplete extends User {
