@@ -1,6 +1,11 @@
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 
+export interface Attachment {
+    name: string;
+    url: string;
+}
+
 export interface UserComplete extends User {
     sys_admin?: boolean;
     support?: boolean;
@@ -87,12 +92,19 @@ export class GuestUser extends User {
     public readonly preferred_beverage: string;
     /** Whether guest has accepted the terms and conditions */
     public readonly accepted_terms_conditions: boolean;
+    /** List of links to associated attachments */
+    public readonly attachments: Attachment[];
+    /** Status of the guest attendance */
+    public readonly status: 'pending' | 'approved' | 'declined';
 
     constructor(data: Partial<GuestUser> = {}) {
         super(data);
         this.preferred_beverage = data.preferred_beverage || '';
         this.accepted_terms_conditions =
             data.accepted_terms_conditions || false;
+        this.attachments =
+            data.extension_data?.attachments || data.attachments || [];
+        this.status = data.extension_data?.status || data.status || 'pending';
     }
 }
 

@@ -7,7 +7,8 @@ import { VisitorsStateService } from './visitors-state.service';
         <sidebar></sidebar>
         <main class="relative overflow-hidden flex-1 flex flex-col">
             <visitors-topbar class="w-full"></visitors-topbar>
-            <visitor-listings class="w-full flex-1 h-0"></visitor-listings>
+            <visitor-listings *ngIf="!(filters | async)?.show_guests" class="w-full flex-1 h-0"></visitor-listings>
+            <guest-listings *ngIf="(filters | async)?.show_guests" class="w-full flex-1 h-0"></guest-listings>
             <mat-progress-bar class="w-full" *ngIf="loading | async" mode="indeterminate"></mat-progress-bar>
         </main>
     `,
@@ -24,6 +25,7 @@ import { VisitorsStateService } from './visitors-state.service';
 })
 export class VisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
+    public readonly filters = this._state.filters;
 
     constructor(private _state: VisitorsStateService) {}
 

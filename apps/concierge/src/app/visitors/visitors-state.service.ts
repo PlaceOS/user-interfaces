@@ -1,23 +1,42 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 import {
     endOfDay,
     endOfWeek,
     startOfDay,
     startOfWeek,
     getUnixTime,
+    addDays,
+    format,
 } from 'date-fns';
 
-import { BaseClass, notifyError, notifySuccess, unique } from '@placeos/common';
+import {
+    BaseClass,
+    downloadFile,
+    flatten,
+    jsonToCsv,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+    unique,
+} from '@placeos/common';
 import { CalendarEvent, checkinEventGuest, queryEvents } from '@placeos/events';
-import { User } from '@placeos/users';
+import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
+import { MatDialog } from '@angular/material/dialog';
 
 export interface VisitorFilters {
     date?: number;
     zones?: string[];
     all_bookings?: boolean;
-    show_week?: boolean;
+    period?: number;
 }
 
 @Injectable({
@@ -36,15 +55,30 @@ export class VisitorsStateService extends BaseClass {
 
     public readonly filters = this._filters.asObservable();
 
+    public readonly guests = combineLatest([this._filters, this._poll]).pipe(
+        debounceTime(150),
+        switchMap(([filters]) => {
+            this._loading.next(true);
+            const date = filters.date ? new Date(filters.date) : new Date();
+            const start = startOfDay(date);
+            const end = addDays(start, filters.period || 1);
+            return queryGuests({
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+                zone_ids: (filters.zones || []).join(','),
+            });
+        }),
+        tap(() => this._loading.next(false)),
+        shareReplay(1)
+    );
+
     public readonly events = combineLatest([this._filters, this._poll]).pipe(
         debounceTime(150),
         switchMap(([filters]) => {
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
-            const start = filters.show_week
-                ? startOfWeek(date)
-                : startOfDay(date);
-            const end = filters.show_week ? endOfWeek(date) : endOfDay(date);
+            const start = startOfDay(date);
+            const end = addDays(start, filters.period || 1);
             return queryEvents({
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
@@ -67,8 +101,7 @@ export class VisitorsStateService extends BaseClass {
         this._search,
         this.events,
     ]).pipe(
-        map((details) => {
-            const [search, events] = details;
+        map(([search, events]) => {
             const filter = search.toLowerCase();
             return events.filter((event) =>
                 event.attendees.find(
@@ -80,11 +113,48 @@ export class VisitorsStateService extends BaseClass {
         })
     );
 
+    public readonly filtered_guests = combineLatest([
+        this._search,
+        this.filtered_events,
+        this.guests,
+    ]).pipe(
+        map(([search, events, guest_list]) => {
+            const filter = search.toLowerCase();
+            return flatten(
+                events.map((event) => {
+                    const guests = event.attendees.filter(
+                        (user) =>
+                            user.is_external &&
+                            (user.name?.toLowerCase().includes(filter) ||
+                                user.email?.toLowerCase().includes(filter))
+                    );
+                    return guests.map((_) => {
+                        const g: any =
+                            guest_list.find((g) => g.email === _.email) || {};
+                        return new GuestUser({
+                            ..._,
+                            ...g,
+                            extension_data: {
+                                ..._.extension_data,
+                                ...g.extension_data,
+                                date: event.date,
+                                host:
+                                    event.organiser?.name ||
+                                    event.organiser?.email ||
+                                    event.host,
+                            },
+                        });
+                    });
+                })
+            );
+        })
+    );
+
     public get search() {
         return this._search.getValue();
     }
 
-    constructor() {
+    constructor(private _dialog: MatDialog) {
         super();
     }
 
@@ -126,6 +196,44 @@ export class VisitorsStateService extends BaseClass {
             ...event,
             attendees: new_attendees,
         });
+    }
+
+    public async approveVisitor(guest: GuestUser) {
+        const details = await openConfirmModal(
+            {
+                title: 'Approve Visitor',
+                content: `Approve attendance of ${guest.name} to their meeting?`,
+                icon: { content: 'event_available' },
+            },
+            this._dialog
+        );
+        console.log('Details:', details);
+        if (details.reason !== 'done') return details.close();
+        details.loading('Updating guest details')
+        await updateGuest(guest.id, {
+            ...guest,
+            extension_data: { ...guest.extension_data, status: 'approved' },
+        }).toPromise(); 
+        details.close();
+    }
+
+    public async declineVisitor(guest: GuestUser) {
+        const details = await openConfirmModal(
+            {
+                title: 'Decline Visitor',
+                content: `Decline attendance of ${guest.name} to their meeting?`,
+                icon: { content: 'event_available' },
+            },
+            this._dialog
+        );
+        console.log('Details:', details);
+        if (details.reason !== 'done') return details.close();
+        details.loading('Updating guest details')
+        await updateGuest(guest.id, {
+            ...guest,
+            extension_data: { ...guest.extension_data, status: 'declined' },
+        }).toPromise(); 
+        details.close()
     }
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
@@ -216,5 +324,24 @@ export class VisitorsStateService extends BaseClass {
             ...event,
             attendees: new_attendees,
         });
+    }
+
+    public async downloadVisitorsList() {
+        const guests: GuestUser[] = await this.filtered_guests.pipe(take(1)).toPromise();
+        if (!guests.length) return;
+        const { date } = this._filters.getValue();
+        const list = guests.map(_ => ({
+            Name: _.name,
+            Email: _.email,
+            'Checked In': _.checked_in,
+            Host: _.extension_data?.host || '',
+            Status: _.status,
+            Date: format(_.extension_data?.date, 'dd MMM h:mm a')
+        }))
+        const data = jsonToCsv(list);
+        downloadFile(
+            `visitor-list-${format(date || Date.now(), 'MMM-dd')}.csv`,
+            data
+        );
     }
 }

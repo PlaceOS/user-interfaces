@@ -9,6 +9,7 @@ import { ApplicationIcon } from '@placeos/common';
             class="relative flex items-center justify-center h-8 w-8"
             [class.success]="state === 'success'"
             [disabled]="loading || disabled"
+            title=""
         >
             <app-icon root [className]="className" [icon]="icon">
                 {{ content }}

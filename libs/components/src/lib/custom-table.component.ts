@@ -63,7 +63,7 @@ import { Observable } from 'rxjs';
             ></cdk-header-row>
             <cdk-row
                 row
-                class="flex z-0 relative"
+                class="flex z-0 relative hover:bg-black/5"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
             <ng-template cdkNoDataRow>

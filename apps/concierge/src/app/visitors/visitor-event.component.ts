@@ -32,8 +32,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="w-24 p-2">
                 {{
                     event?.date
-                        | date
-                            : ((filters | async)?.show_week
+                        | date: ((filters | async)?.period > 1
                                   ? 'MMM d, h:mm a'
                                   : 'shortTime')
                 }}

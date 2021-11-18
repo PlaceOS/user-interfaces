@@ -10,6 +10,7 @@ import { VisitorsTopbarComponent } from './visitors-topbar.component';
 import { VisitorListingsComponent } from './visitor-listings.component';
 import { VisitorEventComponent } from './visitor-event.component';
 import { VisitorDetailsComponent } from './visitor-details.component';
+import { GuestListingComponent } from './guest-listing.component';
 
 const ROUTES: Route[] = [{ path: '', component: VisitorsComponent }];
 
@@ -19,7 +20,8 @@ const ROUTES: Route[] = [{ path: '', component: VisitorsComponent }];
         VisitorsTopbarComponent,
         VisitorListingsComponent,
         VisitorEventComponent,
-        VisitorDetailsComponent
+        VisitorDetailsComponent,
+        GuestListingComponent
     ],
     imports: [
         CommonModule,

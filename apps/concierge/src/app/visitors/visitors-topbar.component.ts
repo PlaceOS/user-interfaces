@@ -24,17 +24,29 @@ import { VisitorsStateService } from './visitors-state.service';
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-select
+                [ngModel]="(filters | async)?.period || 1"
+                (ngModelChange)="setFilters({ period: $event })"
+                placeholder="Viewing Period"
+            >
+                <mat-option [value]="1">Show Day</mat-option>
+                <mat-option [value]="7">Show Week</mat-option>
+                <mat-option [value]="30">Show Month</mat-option>
+            </mat-select>
+        </mat-form-field>
         <mat-slide-toggle
             class="m-2"
-            [ngModel]="(filters | async)?.all_bookings"
-            (ngModelChange)="setFilters({ all_bookings: $event })"
-            ><div class="text-xs">All Bookings</div></mat-slide-toggle
+            [ngModel]="(filters | async)?.show_guests"
+            (ngModelChange)="setFilters({ show_guests: $event })"
+            ><div class="text-xs">Only Guests</div></mat-slide-toggle
         >
         <mat-slide-toggle
             class="m-2"
-            [ngModel]="(filters | async)?.show_week"
-            (ngModelChange)="setFilters({ show_week: $event })"
-            ><div class="text-xs">Show Week</div></mat-slide-toggle
+            *ngIf="!(filters | async)?.show_guests"
+            [ngModel]="(filters | async)?.all_bookings"
+            (ngModelChange)="setFilters({ all_bookings: $event })"
+            ><div class="text-xs">All Bookings</div></mat-slide-toggle
         >
         <div class="flex-1 w-2"></div>
         <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
