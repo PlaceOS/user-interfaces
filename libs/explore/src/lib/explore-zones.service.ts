@@ -78,15 +78,23 @@ export class ExploreZonesService extends BaseClass {
             const areas = (zone?.details as any)?.areas;
             if (areas) {
                 for (const area of areas) {
-                    this._capacity[area.id] = area.properties?.capacity || 100;
-                    this._location[area.id] = area.properties?.hide_label !== false
-                        ? area.properties?.label_location ||
-                          (area.geometry?.coordinates?.length
-                            ? getCenterPoint(area.geometry?.coordinates)
-                            : null)
-                        : null;
-                    this._draw[area.id] = !!area.properties?.draw_polygon;
-                    this._points[area.id] = area.geometry?.coordinates || [];
+                    const {
+                        capacity,
+                        hide_label,
+                        label_location,
+                        draw_polygon,
+                    } = area.properties || {};
+                    const { coordinates } = area.geometry || {};
+                    this._capacity[area.id] = capacity || 100;
+                    this._location[area.id] =
+                        hide_label === false
+                            ? label_location ||
+                              (coordinates?.length
+                                  ? getCenterPoint(coordinates)
+                                  : null)
+                            : null;
+                    this._draw[area.id] = !!draw_polygon;
+                    this._points[area.id] = coordinates || [];
                     if (this._draw[area.id]) {
                         features.push({
                             location: getCenterPoint(this._points[area.id]),

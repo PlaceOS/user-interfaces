@@ -34,7 +34,7 @@ export interface MapPolygonData {
                 [style.height]="height + '%'"
             >
                 <svg
-                    [attr.viewBox]="'0 0 '+ this.width / 20 +' ' + this.height / 20"
+                    [attr.viewBox]="'0 0 '+ (this.width / 20 || 1) +' ' + (this.height / 20 || 1)"
                     preserveAspectRatio="none"
                     class="relative w-full h-full"
                 >
