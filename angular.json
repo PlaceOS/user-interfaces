@@ -917,6 +917,7 @@
             "main": "apps/enrolment/src/main.ts",
             "polyfills": "apps/enrolment/src/polyfills.ts",
             "tsConfig": "apps/enrolment/tsconfig.app.json",
+            "baseHref": ".",
             "assets": [
               "apps/enrolment/src/favicon.ico",
               "apps/enrolment/src/assets",
