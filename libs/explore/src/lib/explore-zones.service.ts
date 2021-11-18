@@ -73,6 +73,7 @@ export class ExploreZonesService extends BaseClass {
                 showMetadata(bld.id, 'map_regions').toPromise()
             )
         );
+        const features = [];
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
             if (areas) {
@@ -86,9 +87,21 @@ export class ExploreZonesService extends BaseClass {
                         : null;
                     this._draw[area.id] = !!area.properties?.draw_polygon;
                     this._points[area.id] = area.geometry?.coordinates || [];
+                    if (this._draw[area.id]) {
+                        features.push({
+                            location: getCenterPoint(this._points[area.id]),
+                            content: MapPolygonComponent,
+                            data: {
+                                color: DEFAULT_COLOURS['not-bookable'],
+                                points: this._points[area.id],
+                            },
+                            z_index: 10,
+                        });
+                    }
                 }
             }
         }
+        this._state.setFeatures('zones', features);
         this.subscription('bind', this._bind.subscribe());
     }
 
