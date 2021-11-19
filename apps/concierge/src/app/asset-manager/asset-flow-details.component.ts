@@ -26,7 +26,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <div class="flex-1 flex-col">
                     <label>Category<span>*</span></label>
                     <mat-form-field appearance="outline">
-                        <mat-select formControlName="category"></mat-select>
+                        <mat-select formControlName="category">
+                            <mat-option value="Furniture">Furniture</mat-option>
+                            <mat-option value="Technology">Technology</mat-option>
+                            <mat-option value="Stationary">Stationary</mat-option>
+                        </mat-select>
                         <mat-error>Category is required</mat-error>
                     </mat-form-field>
                 </div>
@@ -35,7 +39,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <div class="flex-1 flex-col">
                     <label>Item Size<span>*</span></label>
                     <mat-form-field appearance="outline">
-                        <mat-select formControlName="size"></mat-select>
+                        <mat-select formControlName="size">
+                            <mat-option value="Very Small">Very Small</mat-option>
+                            <mat-option value="Small">Small</mat-option>
+                            <mat-option value="Medium">Medium</mat-option>
+                            <mat-option value="Large">Large</mat-option>
+                            <mat-option value="Very Large">Very Large</mat-option>
+                        </mat-select>
                         <mat-error>Item size is required</mat-error>
                     </mat-form-field>
                 </div>
