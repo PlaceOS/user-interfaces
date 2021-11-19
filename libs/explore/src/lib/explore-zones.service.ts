@@ -20,6 +20,7 @@ export interface ZoneData {
 
     temperature: number;
     people_count: number;
+    people_count_sum: number;
     humidity: number;
     queue_size: number;
     counter: number;
@@ -130,8 +131,8 @@ export class ExploreZonesService extends BaseClass {
             if (zone.temperature)
                 content += `Temperature: ${zone.temperature} ˚C\n`;
             if (zone.people_count > 0)
-                content += `${zone.people_count} ${
-                    zone.people_count === 1 ? 'Person' : 'People'
+                content += `${zone.people_count_sum} ${
+                    zone.people_count_sum === 1 ? 'Person' : 'People'
                 }\n`;
             if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
