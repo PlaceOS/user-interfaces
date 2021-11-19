@@ -136,7 +136,7 @@ export class ExploreZonesService extends BaseClass {
                 }\n`;
             if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
-            if (zone.counter) content += `Count: ${zone.queue_size}\n`;
+            if (zone.counter) content += `Count: ${zone.counter}\n`;
             this._labels[zone.area_id] = {
                 location: this._location[zone.area_id],
                 content,
