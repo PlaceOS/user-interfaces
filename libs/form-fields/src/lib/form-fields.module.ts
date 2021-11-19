@@ -19,6 +19,7 @@ import { UserSearchFieldComponent } from './user-search-field.component';
 import { ItemListFieldComponent } from './item-list-field.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { UploadListFieldComponent } from './upload-list-field.component';
 
 export * from './action-field.component';
 export * from './counter.component';
@@ -37,6 +38,7 @@ const COMPONENTS: Type<any>[] = [
     UserListFieldComponent,
     UserSearchFieldComponent,
     ItemListFieldComponent,
+    UploadListFieldComponent
 ];
 @NgModule({
     declarations: [...COMPONENTS],

@@ -11,12 +11,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <label>Barcode<span>*</span></label>
                 <mat-form-field appearance="outline">
                     <input matInput formControlName="barcode" placeholder="e.g. 10001" />
+                    <mat-error>Barcode is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex-1 flex-col">
                 <label>Brand<span>*</span></label>
                 <mat-form-field appearance="outline">
                     <input matInput formControlName="brand" placeholder="e.g. Apple" />
+                    <mat-error>Brand is required</mat-error>
                 </mat-form-field>
             </div>
         </div>

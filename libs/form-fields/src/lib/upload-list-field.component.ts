@@ -10,16 +10,14 @@ import { uploadFiles } from '@placeos/cloud-uploads';
 @Component({
     selector: 'upload-list',
     template: `
-        <div
-            class="flex items-center mb-4 border border-gray-200 rounded bg-gray-50"
-        >
-            <div class="w-48 h-48 relative">
-                <div
-                    class="absolute inset-2 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center rounded"
-                >
-                    <app-icon class="text-2xl">upload</app-icon>
-                    <p class="text-center">Upload files</p>
-                </div>
+        <div class="flex items-center space-x-2">
+            <div
+                class="w-52 h-48 relative border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded hover:bg-black/5"
+            >
+                <app-icon class="text-3xl mb-2">upload_file</app-icon>
+                <p class="text-center">Drop files</p>
+                <p class="text-center text-xs my-1">or</p>
+                <button mat-button class="w-28">Browse</button>
                 <input
                     multiple="true"
                     type="file"
@@ -27,7 +25,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                     (change)="onFileEvent($event)"
                 />
             </div>
-            <div class="w-1/2 h-48 flex-1 flex flex-col items-center mr-2 py-2">
+            <div class="w-1/2 h-48 flex-1 flex flex-col items-center">
                 <div
                     list
                     class="space-y-2 w-full h-full overflow-auto"
@@ -90,12 +88,12 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => UploadListComponent),
+            useExisting: forwardRef(() => UploadListFieldComponent),
             multi: true,
         },
     ],
 })
-export class UploadListComponent implements ControlValueAccessor {
+export class UploadListFieldComponent implements ControlValueAccessor {
     public list: Attachment[] = [
         { name: 'test-file-1.jpg', progress: 80, url: '1' },
         { name: 'test-file-2.jpg', progress: -1, url: '1' },

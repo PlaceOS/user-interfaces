@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { Route, Router, RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 import { AppComponent } from './app.component';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
@@ -17,7 +18,6 @@ import * as Sentry from '@sentry/angular';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { UploadListComponent } from './upload-list.component';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },
@@ -31,12 +31,12 @@ const ROUTES: Route[] = [
         EnrolmentComponent,
         EnrolmentEventDetailsComponent,
         EnrolmentGuestConfirmComponent,
-        EnrolmentErrorComponent,
-        UploadListComponent
+        EnrolmentErrorComponent
     ],
     imports: [
         BrowserModule,
         ComponentsModule,
+        FormFieldsModule,
         ReactiveFormsModule,
         FormsModule,
         MatSnackBarModule,

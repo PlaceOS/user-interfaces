@@ -37,7 +37,9 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     />
                 </mat-form-field>
             </div>
-            <upload-list formControlName="attachments"></upload-list>
+            <div class="bg-gray-50 p-2 border border-gray-200 mb-4">
+                <upload-list formControlName="attachments"></upload-list>
+            </div>
             <mat-checkbox
                 formControlName="accepted_terms_conditions"
                 class="mb-4"
