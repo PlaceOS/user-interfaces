@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1637286479965,
+  "timestamp": 1637646105011,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -139,13 +139,13 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "672ef97758e58ff204d6b2fcbb272c17050f4997",
+    "./apps_workplace_src_app_book_book_module_ts.js": "bcdc993d016ecf82f0c26c231d3da2482e3323f1",
     "./apps_workplace_src_app_control_control_module_ts.js": "ed31fe7e16f14bac4b44c44e917489c801846d8b",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "a5fe543f19252334d472c348e15dcb57d38723eb",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "5275b156acbcee39d7e92a1b60aa89f3372ee8cf",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "0590011f9a94b510fca685be41119448068c9c4b",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "4e06cb13a508dc6274693792109cc07cba1563ea",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "25154a80108ca035780ae07e79b44382552dce98",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "d021b0975d1993881512e372fa9d8a562d638474",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "5041f39c9839c8410adaf213c2ccc024586e3550",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "2d0a23d1b4cdaf32b7676601df277c8c0545c6dc",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -242,14 +242,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "7d43a73163997e302419c58d551f8f4f97432c31",
-    "./main.js": "b3fb559aaabcb50b7e5f2e279ffc83c60f0afc07",
+    "./main.js": "322d3352e1b3cb355b3c0607a93e12a3772fd964",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_node-fetch_browser_js.js": "06295c519ba08bae846748d456bcc0a5945a4c2f",
     "./node_modules_websocket_lib_browser_js.js": "b171afa649a89bc4a0e3c1d9d92ef902f528b7c1",
     "./polyfills.js": "8944bf9f94595733117b100fe1f4e8c37f3c1056",
     "./runtime.js": "a3f8a7ce1d6dee86aab464a367734aba2a8df843",
-    "./styles.css": "8d5938344f6a835d13f30e25269b40e84394f199",
-    "./vendor.js": "cadfc35b9518e76f282573a15cc0927321b4a705"
+    "./styles.css": "bdf8d2a2536c065d24a484e4a41bc6d17842cdfe",
+    "./vendor.js": "957ea048eacfae2ae62b3cbc2e8f5a1d1b2f1d91"
   },
   "navigationUrls": [
     {
