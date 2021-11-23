@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { OrganisationService } from '@placeos/organisation';
 
 import { Space } from './space.class';
+import { flatten, unique } from '@placeos/common';
 
 @Injectable({
     providedIn: 'root',
@@ -19,6 +20,8 @@ export class SpacesService {
     public readonly initialised = this._initialised.asObservable();
     /** Observable for list of spaces */
     public readonly list = this._list.asObservable();
+    /** List of available features */
+    public readonly features = this.list.pipe(map(_ => unique(flatten(_.map(i => i.features)))));
     /** Default predicate for filter method */
     protected _compare = (space: Space) =>
         space.zones.includes(this._org.building.id);

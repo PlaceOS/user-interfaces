@@ -34,7 +34,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                     <mat-form-field
                         overlay
                         buildings
-                        class="w-full sm:w-auto sm:flex-1 h-[3.25rem]"
+                        class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
                         *ngIf="(buildings | async)?.length > 1"
                         appearance="outline"
                     >
@@ -52,7 +52,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="w-full sm:w-auto sm:flex-1 h-[3.25rem]"
+                        class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
                         overlay
                         *ngIf="(levels | async)?.length > 0"
                         appearance="outline"
@@ -75,7 +75,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="w-full sm:w-auto sm:flex-1 h-[3.25rem] hidden sm:block"
+                        class="w-full sm:w-px sm:flex-1 h-[3.25rem] hidden sm:block"
                         overlay
                         appearance="outline"
                     >
@@ -89,6 +89,26 @@ import { filter, first, map, take } from 'rxjs/operators';
                                 [value]="item.value"
                             >
                                 {{ item.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                        class="w-full sm:w-px sm:flex-1 h-[3.25rem] hidden sm:block"
+                        overlay
+                        appearance="outline"
+                        *ngIf="(features | async).length"
+                    >
+                        <mat-select
+                            placeholder="Any Features"
+                            multiple
+                            [ngModel]="(options | async)?.features"
+                            (ngModelChange)="setOptions({ features: $event })"
+                        >
+                            <mat-option
+                                *ngFor="let item of features | async"
+                                [value]="item"
+                            >
+                                {{ item }}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -235,6 +255,7 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly options = this._state.options;
 
     public readonly spaces = this._state.available_spaces;
+    public readonly features = this._spaces.features;
     public async setBuilding(bld) {
         const opts = await this.options.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
