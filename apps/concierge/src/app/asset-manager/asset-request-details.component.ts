@@ -23,6 +23,7 @@ import { AssetRequest } from './asset-manager-state.service';
                 <div class="border-b border-gray-200 px-2 py-4 flex space-x-4">
                     <a-user-avatar
                         [user]="{ name: request.user_name }"
+                        class="text-xl"
                     ></a-user-avatar>
                     <div details class="space-y-1">
                         <div class="font-medium">{{ request.user_name }}</div>
