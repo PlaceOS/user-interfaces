@@ -11,7 +11,7 @@ import { User } from '../../../users/src/lib/user.class';
         >
             <div
                 initials
-                class="text-black text-opacity-50 uppercase"
+                class="text-white text-opacity-80 uppercase"
                 *ngIf="!user.photo; else image_state"
             >
                 {{ initials }}
@@ -26,7 +26,7 @@ import { User } from '../../../users/src/lib/user.class';
             :host > div {
                 height: 2.5em;
                 width: 2.5em;
-                background-color: #ccc;
+                background-color: var(--secondary);
                 overflow: hidden;
                 border: 2px solid white;
             }
@@ -43,11 +43,10 @@ export class UserAvatarComponent {
 
     public get initials(): string {
         if (!this.user) return 'NA';
-        const parts = this.user.name
-            .replace(/[()[\]\-+=\\/]+/gi, '')
-            .split(' ');
+        const name = this.user.name || '';
+        const parts = name.replace(/[()[\]\-+=\\/]+/gi, '').split(' ');
         return parts.length > 1
             ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-            : this.user.name.slice(0, 2);
+            : name.slice(0, 2);
     }
 }

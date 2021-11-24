@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -16,6 +16,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
                 (ngModelChange)="setOptions({ view: $event })"
+                *ngIf="show_actions"
             >
                 <mat-button-toggle value="grid">
                     <div
@@ -32,7 +33,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </mat-button-toggle>
             </mat-button-toggle-group>
-            <button mat-button class="clear">
+            <button mat-button class="clear" *ngIf="show_actions">
                 <div class="flex items-center">
                     <div class="pl-2">Sort By</div>
                     <app-icon class="text-2xl">arrow_drop_down</app-icon>
@@ -55,6 +56,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     styles: [``],
 })
 export class AssetManagerTopbarComponent {
+    @Input() public show_actions = true;
+
     public readonly options = this._state.options;
 
     public readonly setOptions = (o) => this._state.setOptions(o);

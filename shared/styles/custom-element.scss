@@ -565,3 +565,20 @@ form {
         width: 70vmin;
     }
 }
+
+custom-table[asset-requests] {
+    cdk-row {
+        background-color: #fff;
+        [cdk-cell]:nth-child(n + 1) {
+            border-left: 1px solid #ccc;
+        }
+    }
+    cdk-header-row {
+        background: none !important;
+        [cdk-header-cell]:nth-child(n + 1) {
+            background: none;
+            border-left: 1px solid #ccc;
+            height: 100%;
+        }
+    }
+}

@@ -16,6 +16,9 @@ import { AssetFlowConsumablesComponent } from './asset-flow-consumables.componen
 import { AssetFlowDetailsComponent } from './asset-flow-details.component';
 import { AssetFlowPurchasesComponent } from './asset-flow-purchases.component';
 import { AssetFlowSpecsComponent } from './asset-flow-specs.component';
+import { AssetRequestListComponent } from './asset-request-list.component';
+import { ComponentsModule } from '@placeos/components';
+import { AssetItemListComponent } from './asset-item-list.component';
 
 const COMPONENTS = [
     AssetManagerComponent,
@@ -27,7 +30,9 @@ const COMPONENTS = [
     AssetFlowDetailsComponent,
     AssetFlowPurchasesComponent,
     AssetFlowSpecsComponent,
-    ImageCarouselComponent
+    ImageCarouselComponent,
+    AssetRequestListComponent,
+    AssetItemListComponent,
 ];
 
 const ROUTES: Route[] = [
@@ -35,10 +40,18 @@ const ROUTES: Route[] = [
         path: '',
         component: AssetManagerComponent,
         children: [
-            { path: 'list', component: AssetListingComponent },
+            {
+                path: 'list',
+                component: AssetListingComponent,
+                children: [
+                    { path: 'items', component: AssetItemListComponent },
+                    { path: 'requests', component: AssetRequestListComponent },
+                    { path: '**', redirectTo: 'requests' },
+                ],
+            },
             { path: 'view/:id', component: AssetViewComponent },
             { path: 'manage/:view', component: AssetFlowComponent },
-            { path: '**', redirectTo: 'list' },
+            { path: '**', redirectTo: 'list/requests' },
         ],
     },
     { path: '**', redirectTo: '' },
@@ -49,6 +62,7 @@ const ROUTES: Route[] = [
     imports: [
         CommonModule,
         UIModule,
+        ComponentsModule,
         MatButtonToggleModule,
         MatTabsModule,
         MatStepperModule,

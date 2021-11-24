@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { unique } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BaseClass, unique } from '@placeos/common';
+import { User } from '@sentry/types';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface AssetOptions {
@@ -15,18 +16,31 @@ export interface Asset {
     id: string;
     name: string;
     category: string;
-    images: string[];
+    images: { name: string; url: string }[];
     barcode: string;
     brand: string;
     description: string;
     specifications: Record<string, string>;
     purchase_details: Record<string, string>;
-    invoices: string[];
+    invoices: { name: string; url: string; price?: number }[];
     count: number;
     locations: [string, string][];
 }
 
-function generateAssetForm() {
+export interface AssetRequest {
+    id: string;
+    assets: { id: string, name: string, amount?: number }[],
+    date: number;
+    user_id: string;
+    user_name: string;
+    location_id: string;
+    location_name: string;
+    location_floor: string;
+    status: 'approved' | 'pending' | 'declined';
+    tracking: 'in_storage' | 'in_transit' | 'at_location' | 'unknown';
+}
+
+export function generateAssetForm() {
     return new FormGroup({
         id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
@@ -41,19 +55,29 @@ function generateAssetForm() {
         expiry_date: new FormControl(null),
         invoices: new FormControl([]),
         purchase_details: new FormControl({}),
-        locations: new FormControl([])
-    })
+        locations: new FormControl([]),
+    });
 }
 
 @Injectable({
     providedIn: 'root',
 })
-export class AssetManagerStateService {
+export class AssetManagerStateService extends BaseClass {
     private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
+    private _poll = new BehaviorSubject(0);
     private _form = generateAssetForm();
 
     private _assets = new BehaviorSubject<Asset[]>([
-        { id: '1', name: 'iPad', category: 'Technology', images: ['assets/support/chrome-logo.svg', 'assets/support/firefox-logo.svg', 'assets/support/safari-logo.svg'] },
+        {
+            id: '1',
+            name: 'iPad',
+            category: 'Technology',
+            images: [
+                { url: 'assets/support/chrome-logo.svg' },
+                { url: 'assets/support/firefox-logo.svg' },
+                { url: 'assets/support/safari-logo.svg' },
+            ],
+        },
         { id: '2', name: 'iPhone', category: 'Technology' },
         { id: '3', name: 'iWatch', category: 'Technology' },
         { id: '4', name: 'Chair', category: 'Furniture' },
@@ -65,6 +89,30 @@ export class AssetManagerStateService {
     public readonly assets = this._assets.asObservable();
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
+    /** List of requests made by users for assets */
+    public readonly requests: Observable<AssetRequest[]> = this._poll.pipe(
+        map((_) => {
+            return [{ id: '1', assets: [{ id: '1', name: 'iPad'}], user_name: 'Alex S', location_name: 'Room 1', location_floor: '99', date: Date.now(), status: 'approved', tracking: 'at_location' }] as any;
+        })
+    );
+    /** Filtered list of asset requests */
+    public readonly filtered_requests = combineLatest([
+        this.requests,
+        this._options,
+    ]).pipe(
+        map(([list, options]) =>{
+            const search = (options.search || '').toLowerCase();
+            return search
+                ? list.filter((i) =>
+                      i.user_name.toLowerCase().includes(search) ||
+                      i.location_name.toLowerCase().includes(search) ||
+                      i.assets.find(_ => _.name.toLowerCase().includes(search)) ||
+                      i.status.includes(search) ||
+                      i.tracking.includes(search)
+                  )
+                : list
+        })
+    );
     /** Currently active asset */
     public readonly active_asset = combineLatest([
         this._assets,
@@ -117,5 +165,4 @@ export class AssetManagerStateService {
     public setOptions(options: Partial<AssetOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
     }
-    
 }
