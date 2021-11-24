@@ -4,7 +4,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'app-asset-item-list',
     template: `
-        <div *ngFor="let group of categories | async">
+        <div class="overflow-auto pb-2" *ngFor="let group of categories | async">
             <h2 class="py-2">
                 <span class="font-medium">{{ group }}</span>
                 <span class="text-xs">

@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BaseClass, unique } from '@placeos/common';
-import { User } from '@sentry/types';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 export interface AssetOptions {
     search?: string;
@@ -29,8 +28,9 @@ export interface Asset {
 
 export interface AssetRequest {
     id: string;
-    assets: { id: string, name: string, amount?: number }[],
+    assets: { id: string; name: string; amount?: number }[];
     date: number;
+    duration: number;
     user_id: string;
     user_name: string;
     location_id: string;
@@ -92,7 +92,19 @@ export class AssetManagerStateService extends BaseClass {
     /** List of requests made by users for assets */
     public readonly requests: Observable<AssetRequest[]> = this._poll.pipe(
         map((_) => {
-            return [{ id: '1', assets: [{ id: '1', name: 'iPad'}], user_name: 'Alex S', location_name: 'Room 1', location_floor: '99', date: Date.now(), status: 'approved', tracking: 'at_location' }] as any;
+            return [
+                {
+                    id: '1',
+                    assets: [{ id: '1', name: 'iPad' }],
+                    user_name: 'Alex S',
+                    location_name: 'Room 1',
+                    location_floor: '99',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                    tracking: 'at_location',
+                },
+            ] as any;
         })
     );
     /** Filtered list of asset requests */
@@ -100,17 +112,20 @@ export class AssetManagerStateService extends BaseClass {
         this.requests,
         this._options,
     ]).pipe(
-        map(([list, options]) =>{
+        map(([list, options]) => {
             const search = (options.search || '').toLowerCase();
             return search
-                ? list.filter((i) =>
-                      i.user_name.toLowerCase().includes(search) ||
-                      i.location_name.toLowerCase().includes(search) ||
-                      i.assets.find(_ => _.name.toLowerCase().includes(search)) ||
-                      i.status.includes(search) ||
-                      i.tracking.includes(search)
+                ? list.filter(
+                      (i) =>
+                          i.user_name.toLowerCase().includes(search) ||
+                          i.location_name.toLowerCase().includes(search) ||
+                          i.assets.find((_) =>
+                              _.name.toLowerCase().includes(search)
+                          ) ||
+                          i.status.includes(search) ||
+                          i.tracking.includes(search)
                   )
-                : list
+                : list;
         })
     );
     /** Currently active asset */
@@ -122,6 +137,18 @@ export class AssetManagerStateService extends BaseClass {
             list.find((_) => _.id === options.active_asset)
         )
     );
+    /** List of requests for the currently active asset */
+    public readonly active_asset_requests: Observable<AssetRequest[]> =
+        this.active_asset.pipe(
+            switchMap((asset) => {
+                return this.requests.pipe(
+                    map((_) =>
+                        _.filter((i) => i.assets.find((a) => a.id === asset.id))
+                    )
+                );
+            }),
+            map((_) => _.filter((i) => i.status !== 'declined'))
+        );
     /** list of filtered assets */
     public readonly filtered_assets = combineLatest([
         this._assets,

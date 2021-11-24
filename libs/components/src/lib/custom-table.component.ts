@@ -1,8 +1,10 @@
 import {
     AfterViewInit,
     Component,
+    EventEmitter,
     Input,
     OnChanges,
+    Output,
     SimpleChanges,
     TemplateRef,
     ViewChild,
@@ -64,6 +66,7 @@ import { Observable } from 'rxjs';
             <cdk-row
                 row
                 class="flex z-0 relative hover:bg-black/5"
+                (click)="row_clicked.emit(row)"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
             <ng-template cdkNoDataRow>
@@ -122,6 +125,8 @@ export class CustomTableComponent<T extends {} = any>
     @Input() public empty: string;
     /** Displayed value when the table is empty */
     @Input() public template: HashMap<TemplateRef<any>> = {};
+
+    @Output() public row_clicked = new EventEmitter<T>();
 
     public readonly data_source: MatTableDataSource<T> = new MatTableDataSource(
         []

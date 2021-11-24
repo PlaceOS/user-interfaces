@@ -19,6 +19,9 @@ import { AssetFlowSpecsComponent } from './asset-flow-specs.component';
 import { AssetRequestListComponent } from './asset-request-list.component';
 import { ComponentsModule } from '@placeos/components';
 import { AssetItemListComponent } from './asset-item-list.component';
+import { SplitJoinPipe } from './split-join.pipe';
+import { AssetRequestDetailsComponent } from './asset-request-details.component';
+import { DurationFormatPipe } from './duration.pipe';
 
 const COMPONENTS = [
     AssetManagerComponent,
@@ -33,6 +36,9 @@ const COMPONENTS = [
     ImageCarouselComponent,
     AssetRequestListComponent,
     AssetItemListComponent,
+    AssetRequestDetailsComponent,
+    SplitJoinPipe,
+    DurationFormatPipe
 ];
 
 const ROUTES: Route[] = [
