@@ -34,7 +34,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 >
                                     <img
                                         [src]="
-                                            asset.images ? asset.images[0] : ''
+                                            asset.images?.length ? asset.images[0].url : ''
                                         "
                                         class="max-w-full max-h-full object-contain"
                                     />
@@ -73,7 +73,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 >
                                     <img
                                         [src]="
-                                            asset.images ? asset.images[0] : ''
+                                            asset.images?.length ? asset.images[0].url : ''
                                         "
                                         class="max-w-full max-h-full object-contain"
                                     />

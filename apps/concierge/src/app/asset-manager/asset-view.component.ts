@@ -16,7 +16,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     button
                     mat-button
                     class="inverse"
-                    [routerLink]="['/asset-manager']"
+                    [routerLink]="['/asset-manager', 'list', 'items']"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>

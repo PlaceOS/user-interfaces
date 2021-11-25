@@ -10,7 +10,7 @@ import { Component, Input } from '@angular/core';
                 *ngFor="let image of images"
                 [style.transform]="'translateX(-' + offset * 100 + '%)'"
             >
-                <img class="h-full object-contain" [src]="image" />
+                <img class="h-full object-contain" *ngIf="image" [src]="image.url || image" />
             </div>
             <div
                 class="h-full w-full relative flex items-center justify-center opacity-30"
