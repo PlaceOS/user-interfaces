@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { first } from 'rxjs/operators';
+import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -74,7 +76,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </div>
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">In Use: {{ (asset | async)?.locations?.length || 0 }}</div>
-                            <button mat-button>View Locations</button>
+                            <button mat-button (click)="viewLocations()">View Locations</button>
                         </div>
                     </div>
                 </div>
@@ -107,9 +109,14 @@ export class AssetViewComponent extends BaseClass {
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
-        private _state: AssetManagerStateService
+        private _state: AssetManagerStateService,
+        private _dialog: MatDialog
     ) {
         super();
+    }
+
+    public viewLocations() {
+        this._dialog.open(AssetLocationModalComponent);
     }
 
     public ngOnInit() {

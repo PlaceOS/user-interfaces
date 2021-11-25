@@ -580,3 +580,9 @@ custom-table[asset-requests] {
         }
     }
 }
+
+#placeos {
+    .cdk-overlay-pane {
+        max-width: none !important;
+    }
+}

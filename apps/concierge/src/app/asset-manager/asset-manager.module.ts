@@ -22,6 +22,7 @@ import { AssetItemListComponent } from './asset-item-list.component';
 import { SplitJoinPipe } from './split-join.pipe';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { DurationFormatPipe } from './duration.pipe';
+import { AssetLocationModalComponent } from './asset-location-modal.component';
 
 const COMPONENTS = [
     AssetManagerComponent,
@@ -37,8 +38,9 @@ const COMPONENTS = [
     AssetRequestListComponent,
     AssetItemListComponent,
     AssetRequestDetailsComponent,
+    AssetLocationModalComponent,
     SplitJoinPipe,
-    DurationFormatPipe
+    DurationFormatPipe,
 ];
 
 const ROUTES: Route[] = [
