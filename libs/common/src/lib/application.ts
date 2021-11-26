@@ -34,7 +34,7 @@ export function setupCache(
         _activated = cache.activated.subscribe(() => {
             log('CACHE', `Updates activated. Reloading...`);
             notify('Newer version of the application is available', () =>
-                location.reload(true)
+                location.reload()
             );
         });
         _timer = <any>setInterval(() => {
@@ -53,7 +53,7 @@ function activateUpdate(cache: SwUpdate) {
         log('CACHE', `Activating changes to the cache...`);
         cache.activateUpdate().then(() => {
             notifyInfo('Newer version of the application is available', 'Refresh', () =>
-                location.reload(true)
+                location.reload()
             );
         });
     }
