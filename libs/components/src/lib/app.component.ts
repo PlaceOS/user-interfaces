@@ -117,7 +117,7 @@ export class AppComponent extends BaseClass implements OnInit {
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
-        await setupPlace(settings).catch(() => this.onInitError());
+        await setupPlace(settings).catch((_) =>  console.error(_));
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);

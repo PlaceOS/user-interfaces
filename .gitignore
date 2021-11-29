@@ -42,3 +42,5 @@ libs/common/src/lib/version.ts
 .vscode/settings.json
 shared/assets/maps/l19.svg
 migrations.json
+
+.angular
