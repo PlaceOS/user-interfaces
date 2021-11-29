@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { getHours, getMinutes, startOfMinute } from 'date-fns';
+import { ActivatedRoute } from '@angular/router';
+import { BaseClass, SettingsService } from '@placeos/common';
+import { Space, SpacesService } from '@placeos/spaces';
+import { getHours, getMinutes, startOfSecond } from 'date-fns';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'app-timetable',
@@ -22,55 +25,111 @@ import { getHours, getMinutes, startOfMinute } from 'date-fns';
                 class="flex items-center overflow-auto h-1/2 flex-1 w-full bg-[#424242] z-10 relative"
             >
                 <div
-                    class="sticky left-0 min-h-full w-16 border-r border-white/50 bg-[#212121] flex flex-col"
+                    class="sticky left-0 min-h-full w-16 min-w-[4rem] border-r border-white/50 bg-[#212121] flex flex-col z-20"
                 >
-                    <div now class="absolute left-0 w-screen h-[2px] bg-primary -translate-y-1/2 z-20" [style.top]="current_offset + '%'">
-                        <div class="arrow absolute left-0 top-0 -translate-y-1/2"></div>
-                    </div>
-                    <div class="w-full min-h-[3rem] border-b border-white/50"></div>
                     <div
-                        *ngFor="let hr of hours"
-                        hour
-                        class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
-                    >
-                        <div text class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">{{ hr }}</div>
-                        <div class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"></div>
+                        class="w-full min-h-[3rem] border-b border-white/50"
+                    ></div>
+                    <div class="w-full flex flex-col flex-1 h-1/2 relative">
+                        <div
+                            now
+                            class="absolute left-0 w-screen h-[2px] bg-primary -translate-y-1/2 z-20"
+                            [style.top]="current_offset + '%'"
+                        >
+                            <div
+                                class="arrow absolute left-0 top-0 -translate-y-1/2"
+                            ></div>
+                        </div>
+                        <div
+                            *ngFor="let hr of hours"
+                            hour
+                            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+                        >
+                            <div
+                                text
+                                class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                            >
+                                {{ hr }}
+                            </div>
+                            <div
+                                class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+                            ></div>
+                        </div>
                     </div>
                 </div>
-                <space-timetable class="flex-1 min-w-[30vw]"></space-timetable>
+                <ng-container *ngIf="spaces.length; else empty_state">
+                    <space-timetable
+                        *ngFor="let space of spaces"
+                        class="flex-1 min-w-[24vw] border-r border-white/50 relative z-10"
+                        [space]="space"
+                    ></space-timetable>
+                </ng-container>
             </div>
         </div>
+        <ng-template #empty_state>
+            <div
+                class="flex-1 min-w-[30vw] flex flex-col items-center justify-center text-white opacity-60"
+            >
+                <p>No spaces have been selected</p>
+            </div>
+        </ng-template>
     `,
-    styles: [`
-        [hour]:last-child {
-            border: none !important;
-        }
+    styles: [
+        `
+            [hour]:last-child {
+                border: none !important;
+            }
 
-        .arrow {
-            width: 0; 
-            height: 0; 
-            border-top: .8rem solid transparent;
-            border-bottom: .8rem solid transparent;
-            border-left: 1rem solid var(--primary);
-        }
-    `],
+            .arrow {
+                width: 0;
+                height: 0;
+                border-top: 0.8rem solid transparent;
+                border-bottom: 0.8rem solid transparent;
+                border-left: 1rem solid var(--primary);
+            }
+        `,
+    ],
 })
-export class AppTimetableComponent {
+export class AppTimetableComponent extends BaseClass {
+    public spaces: Space[] = [];
     public readonly hours = new Array(24)
         .fill(0)
         .map((_, idx) => (idx % 12 === 0 ? 12 : idx % 12));
 
     public get time() {
-        return startOfMinute(Date.now());
+        return startOfSecond(Date.now());
     }
 
     public get current_offset() {
-        return (getHours(Date.now()) + getMinutes(Date.now()) / 60) / 24 * 100;
+        return (
+            ((getHours(Date.now()) + getMinutes(Date.now()) / 60) / 24) * 100
+        );
     }
 
     public get logo() {
         return this._settings.get('app.logo_dark');
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _route: ActivatedRoute,
+        private _spaces: SpacesService
+    ) {
+        super();
+    }
+
+    public async ngOnInit() {
+        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                console.log('Params:', params);
+                if (params.has('sys_ids')) {
+                    const id_list = params.get('sys_ids').split(',');
+                    this.spaces = id_list.map((_) => this._spaces.find(_));
+                    console.log('Spaces:', this.spaces);
+                }
+            })
+        );
+    }
 }

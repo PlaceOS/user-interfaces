@@ -9,6 +9,7 @@ import { ComponentsModule } from '@placeos/components';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { AppTimetableComponent } from './timetable.component';
 import { SpaceTimetableComponent } from './space-timetable.component';
+import { SpaceEventDetailsComponent } from './space-event-details.component';
 import { environment } from '../environments/environment';
 
 import * as Sentry from '@sentry/angular';
@@ -18,6 +19,7 @@ import * as Sentry from '@sentry/angular';
         AppComponent,
         AppTimetableComponent,
         SpaceTimetableComponent,
+        SpaceEventDetailsComponent
     ],
     imports: [
         BrowserModule,
@@ -27,7 +29,7 @@ import * as Sentry from '@sentry/angular';
         RouterModule.forRoot([
             { path: '', component: AppTimetableComponent },
             { path: '**', redirectTo: '' },
-        ]),
+        ], { useHash: true }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
             // Register the ServiceWorker as soon as the app is stable
