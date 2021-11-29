@@ -17,7 +17,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             *ngSwitchCase="'event'"
                         ></enrolment-event-details>
                         <enrolment-guest-confirm
-                        *ngSwitchDefault
+                        *ngSwitchCase="'guest'"
                         ></enrolment-guest-confirm>
                         <div
                             class="bg-white rounded p-4 border border-gray-200 shadow"
@@ -26,7 +26,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             You are now checked in. See you {{ event ? 'at ' + event.display.time : 'soon' }}
                         </div>
                         <enrolment-error
-                        *ngSwitchCase="''"
+                        *ngSwitchDefault
                         ></enrolment-error>
                     </ng-container>
                 </ng-container>

@@ -88,6 +88,9 @@ export class User {
         this.is_external = !this.email?.endsWith(`${USER_DOMAIN}`);
         this.visit_expected = data.visit_expected ?? true;
         this.assistance_required = !!this.extension_data?.assistance_required;
+        for (const key in data) {
+            if (!(key in this)) this.extension_data[key] = data[key];
+        }
     }
 }
 

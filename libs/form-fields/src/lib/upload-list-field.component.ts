@@ -12,7 +12,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     template: `
         <div class="flex items-center space-x-2">
             <div
-                class="w-52 h-48 relative border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded hover:bg-black/5"
+                class="w-52 h-48 relative border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded hover:bg-black/5 cursor-pointer"
             >
                 <app-icon class="text-3xl mb-2">upload_file</app-icon>
                 <p class="text-center">Drop files</p>
@@ -69,7 +69,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                         >
                             <app-icon>link</app-icon>
                         </a>
-                        <button mat-icon-button>
+                        <button mat-icon-button (click)="removeFile(item)">
                             <app-icon>close</app-icon>
                         </button>
                     </div>
@@ -94,13 +94,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     ],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
-    public list: Attachment[] = [
-        { name: 'test-file-1.jpg', progress: 80, url: '1' },
-        { name: 'test-file-2.jpg', progress: -1, url: '1' },
-        { name: 'test-file-3.jpg', progress: 100, url: '1' },
-        { name: 'test-file-4.jpg', progress: 80, url: '1' },
-        { name: 'test-file-5.jpg', progress: 80, url: '1' },
-    ];
+    public list: Attachment[] = [];
     /** Form control on change handler */
     private _onChange: (_: Attachment[]) => void;
     /** Form control on touch handler */
@@ -123,7 +117,11 @@ export class UploadListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: Attachment[]) {
-        // this.list = value;
+        this.list = value.map(_ => ({ id: `file-${randomInt(999_999_999)}` , ..._ }));
+    }
+
+    public removeFile(item: Attachment) {
+        this.list = this.list.filter(_ => _.id !== item.id);
     }
 
     public onFileEvent(event) {

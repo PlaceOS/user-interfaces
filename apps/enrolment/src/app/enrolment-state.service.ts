@@ -67,6 +67,7 @@ export class EnrolmentStateService {
         assistance_required: new FormControl(false),
         preferred_beverage: new FormControl(''),
         attachments: new FormControl([]),
+        vaccination_proof: new FormControl(),
         accepted_terms_conditions: new FormControl(
             false,
             Validators.requiredTrue

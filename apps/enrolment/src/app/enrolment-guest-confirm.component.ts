@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
@@ -15,6 +16,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                 <label>Name:</label>
                 <mat-form-field appearance="outline">
                     <input matInput formControlName="name" placeholder="Name" />
+                    <mat-error>Name is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex flex-col">
@@ -25,6 +27,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         formControlName="email"
                         placeholder="Email"
                     />
+                    <mat-error>Email Address is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex flex-col">
@@ -35,10 +38,18 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         formControlName="organisation"
                         placeholder="Organisation"
                     />
+                    <mat-error>Organisation is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="bg-gray-50 p-2 border border-gray-200 mb-4">
-                <upload-list formControlName="attachments"></upload-list>
+            <div class="flex flex-col">
+                <label>Identification:</label>
+                <div class="bg-gray-50 p-2 border border-gray-200 mb-4">
+                    <upload-list formControlName="attachments"></upload-list>
+                </div>
+            </div>
+            <div class="flex flex-col mb-4" *ngIf="check_vaccine">
+                <label>Vaccination Proof:</label>
+                <upload-file formControlName="vaccination_proof"></upload-file>
             </div>
             <mat-checkbox
                 formControlName="accepted_terms_conditions"
@@ -50,7 +61,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                 <button
                     mat-button
                     class="w-32"
-                    [disabled]="!form.value.accepted_terms_conditions"
+                    [disabled]="!form.valid"
                     (click)="updateGuest()"
                 >
                     Save
@@ -58,7 +69,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                 <button
                     mat-button
                     class="w-32"
-                    [disabled]="!form.value.accepted_terms_conditions"
+                    [disabled]="!form.valid"
                     (click)="checkin()"
                 >
                     Check-in
@@ -73,5 +84,9 @@ export class EnrolmentGuestConfirmComponent {
     public readonly updateGuest = () => this._state.updateGuest();
     public readonly checkin = () => this._state.checkin();
 
-    constructor(private _state: EnrolmentStateService) {}
+    public get check_vaccine() {
+        return this._settings.get('app.guests.vaccine_check');
+    }
+
+    constructor(private _state: EnrolmentStateService, private _settings: SettingsService) {}
 }
