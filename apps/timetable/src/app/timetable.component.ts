@@ -22,7 +22,7 @@ import { first } from 'rxjs/operators';
                 </div>
             </div>
             <div
-                class="flex items-center overflow-auto h-1/2 flex-1 w-full bg-[#424242] z-10 relative"
+                class="flex items-center overflow-auto h-1/2 flex-1 w-full bg-[#424242] z-10 relative flex-wrap"
             >
                 <div
                     class="sticky left-0 min-h-full w-16 min-w-[4rem] border-r border-white/50 bg-[#212121] flex flex-col z-20"
