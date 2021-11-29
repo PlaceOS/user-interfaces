@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
@@ -11,21 +12,14 @@ import { VisitorsStateService } from './visitors-state.service';
                 class="min-w-[80rem]"
                 [dataSource]="guests"
                 [filter]="search | async"
-                [columns]="[
-                    'state',
-                    'date',
-                    'name',
-                    'host',
-                    'email',
-                    'status',
-                    'actions'
-                ]"
+                [columns]="columns"
                 [display_column]="[
                     ' ',
                     'Date',
                     'Person',
                     'Host',
                     'Email',
+                    'Vaccinated',
                     'State',
                     ' '
                 ]"
@@ -35,6 +29,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     '12r',
                     '12r',
                     'flex',
+                    '',
                     '10r',
                     '12r'
                 ]"
@@ -43,6 +38,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     status: status_template,
                     date: date_template,
                     host: host_template,
+                    vaccinated: vaccinated_template,
                     actions: action_template
                 }"
                 [empty]="
@@ -68,6 +64,17 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #host_template let-row="row">
             {{ row.extension_data?.host }}
         </ng-template>
+        <ng-template #vaccinated_template let-row="row">
+            <a
+                *ngIf="row.extension_data?.vaccination_proof?.url"
+                [href]="row.extension_data?.vaccination_proof?.url"
+                target="_blank"
+                rel="noreferer noopener"
+                class="bg-success rounded-3xl px-4 py-2 text-white"
+            >
+                Confirmed
+            </a>
+        </ng-template>
         <ng-template #status_template let-row="row">
             <button
                 mat-button
@@ -90,8 +97,12 @@ import { VisitorsStateService } from './visitors-state.service';
                 </div>
             </button>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="approveVisitor(row)">Approve Visitor</button>
-                <button mat-menu-item (click)="declineVisitor(row)">Decline Visitor</button>
+                <button mat-menu-item (click)="approveVisitor(row)">
+                    Approve Visitor
+                </button>
+                <button mat-menu-item (click)="declineVisitor(row)">
+                    Decline Visitor
+                </button>
             </mat-menu>
         </ng-template>
         <ng-template #date_template let-row="row">
@@ -190,8 +201,26 @@ export class GuestListingComponent {
     public readonly downloadVisitorList = () =>
         this._state.downloadVisitorsList();
 
-        public readonly approveVisitor = (u) => this._state.approveVisitor(u);
-        public readonly declineVisitor = (u) => this._state.declineVisitor(u);
+    public readonly approveVisitor = (u) => this._state.approveVisitor(u);
+    public readonly declineVisitor = (u) => this._state.declineVisitor(u);
 
-    constructor(private _state: VisitorsStateService) {}
+    public get columns() {
+        return this._settings.get('app.guests.vaccine_check')
+            ? [
+                  'state',
+                  'date',
+                  'name',
+                  'host',
+                  'email',
+                  'vaccinated',
+                  'status',
+                  'actions',
+              ]
+            : ['state', 'date', 'name', 'host', 'email', 'status', 'actions'];
+    }
+
+    constructor(
+        private _state: VisitorsStateService,
+        private _settings: SettingsService
+    ) {}
 }
