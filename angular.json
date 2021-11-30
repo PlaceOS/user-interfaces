@@ -1368,6 +1368,7 @@
                         "main": "apps/timetable/src/main.ts",
                         "polyfills": "apps/timetable/src/polyfills.ts",
                         "tsConfig": "apps/timetable/tsconfig.app.json",
+                        "baseHref": ".",
                         "assets": [
                             "apps/timetable/src/favicon.ico",
                             "apps/timetable/src/assets",
