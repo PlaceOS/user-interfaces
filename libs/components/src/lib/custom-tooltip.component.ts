@@ -75,6 +75,7 @@ export class CustomTooltipComponent<T = any>
     @ViewChild(CdkPortal) private _portal: CdkPortal;
 
     @HostListener('click') public readonly onClick = () => this.open();
+    @HostListener('touchend') public readonly onTouch = () => this.open();
     @HostListener('mouseenter') public readonly onEnter = () =>
         this.hover ? this.open() : '';
     @HostListener('mouseleave') public readonly onLeave = () =>
