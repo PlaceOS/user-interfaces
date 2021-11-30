@@ -12,6 +12,7 @@ import { getModule } from '@placeos/ts-client';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { BaseClass } from '@placeos/common';
+import { Observable } from 'rxjs';
 export interface DeviceInfoData {
     mac: string;
     variance: number;
@@ -22,6 +23,7 @@ export interface DeviceInfoData {
     ssid?: string;
     user?: any;
     bg_color?: string;
+    zoom$?: Observable<number>;
 }
 
 @Component({
@@ -30,13 +32,14 @@ export interface DeviceInfoData {
         <div
             name="radius"
             (mouseenter)="loadUser()"
-            class="radius absolute center bg-blue-600 bg-opacity-25 border-4 border-dashed border-blue-600 rounded-full"
+            class="radius absolute center bg-blue-600 bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
+        <div shadow class="absolute center bg-black/40 h-8 w-8 rounded-full"></div>
         <div
             name="dot"
             #dot
-            class="h-2 w-2 absolute center rounded-full shadow"
+            class="h-3 w-3 absolute center rounded-full shadow border-2 border-white"
             [style.background-color]="bg_color"
         ></div>
         <div
@@ -113,10 +116,10 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
     public readonly ssid = this._details.ssid;
     /** Accuracy of the location data */
     public readonly variance = this._details.variance?.toFixed(2);
-    /** Diameter of the radius circle */
-    public readonly diameter = this._details.variance * 100;
     /** Background color for the dot */
     public readonly bg_color = this._details.bg_color || this.distance_color;
+
+    public zoom = 1;
 
     /** Time of the last update */
     public get last_seen() {
@@ -128,6 +131,11 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
     public y_pos: 'top' | 'bottom';
 
     public x_pos: 'end' | 'start';
+    /** Diameter of the radius circle */
+    public get diameter() {
+        return this._details.variance * 100 * this.zoom;
+    }
+
     public get distance() {
         return Math.abs(
             differenceInMinutes(
@@ -164,6 +172,7 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
             };
             this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
             this.x_pos = position.x >= 0.5 ? 'end' : 'start';
+            this.subscription('zoom', this._details.zoom$.subscribe(_ => this.zoom = _));
         }, 200);
     }
 
