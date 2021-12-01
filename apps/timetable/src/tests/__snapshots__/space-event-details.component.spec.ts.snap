@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpaceEventDetailsComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="absolute inset-x-1 bg-[#212121] text-white rounded border border-white/50 overflow-hidden px-2 py-1"
+    style="top: 56.52777777777778%; height: 4.166666666666666%;"
+  >
+    <h2>
+      
+    </h2>
+    <p>
+        – 10:00 AM 
+    </p>
+  </div>
+</div>
+`;
+
+exports[`SpaceEventDetailsComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <div
+    class="absolute inset-x-1 bg-[#212121] text-white rounded border border-white/50 overflow-hidden px-2 py-1"
+    style="top: 41.66666666666667%; height: 4.166666666666666%;"
+  >
+    <h2>
+      Event 1
+    </h2>
+    <p>
+       10:00 AM – 11:00 AM 
+    </p>
+  </div>
+</div>
+`;

@@ -92,18 +92,17 @@ import { first } from 'rxjs/operators';
 })
 export class AppTimetableComponent extends BaseClass {
     public spaces: Space[] = [];
+    public date = Date.now();
     public readonly hours = new Array(24)
         .fill(0)
         .map((_, idx) => (idx % 12 === 0 ? 12 : idx % 12));
 
     public get time() {
-        return startOfSecond(Date.now());
+        return startOfSecond(this.date);
     }
 
     public get current_offset() {
-        return (
-            ((getHours(Date.now()) + getMinutes(Date.now()) / 60) / 24) * 100
-        );
+        return ((getHours(this.date) + getMinutes(this.date) / 60) / 24) * 100;
     }
 
     public get logo() {
@@ -120,14 +119,13 @@ export class AppTimetableComponent extends BaseClass {
 
     public async ngOnInit() {
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        this.interval('time', () => this.date = Date.now(), 2000);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                console.log('Params:', params);
                 if (params.has('sys_ids')) {
                     const id_list = params.get('sys_ids').split(',');
                     this.spaces = id_list.map((_) => this._spaces.find(_));
-                    console.log('Spaces:', this.spaces);
                 }
             })
         );

@@ -1,0 +1,411 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppTimetableComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="absolute inset-0 flex flex-col"
+  >
+    <div
+      class="bg-secondary w-full shadow z-20 p-2 h-16 flex items-center relative"
+      topbar=""
+    >
+      <img
+        class="h-12"
+        src=""
+      />
+      <div
+        class="flex-1"
+      />
+      <div
+        class="text-white p-2 text-xl"
+      >
+        <span>
+          Jan 1, 1970
+        </span>
+        <span
+          class="mx-2"
+        >
+          •
+        </span>
+        <span
+          class="ml-1"
+        >
+          10:00 AM
+        </span>
+      </div>
+    </div>
+    <div
+      class="flex items-center overflow-auto h-1/2 flex-1 w-full bg-[#424242] z-10 relative flex-wrap"
+    >
+      <div
+        class="sticky left-0 min-h-full w-16 min-w-[4rem] border-r border-white/50 bg-[#212121] flex flex-col z-20"
+      >
+        <div
+          class="w-full min-h-[3rem] border-b border-white/50"
+        />
+        <div
+          class="w-full flex flex-col flex-1 h-1/2 relative"
+        >
+          <div
+            class="absolute left-0 w-screen h-[2px] bg-primary -translate-y-1/2 z-20"
+            now=""
+            style="top: 41.66666666666667%;"
+          >
+            <div
+              class="arrow absolute left-0 top-0 -translate-y-1/2"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               12 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               1 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               2 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               3 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               4 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               5 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               6 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               7 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               8 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               9 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               10 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               11 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               12 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               1 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               2 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               3 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               4 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               5 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               6 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               7 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               8 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               9 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               10 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          <div
+            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+            hour=""
+          >
+            <div
+              class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              text=""
+            >
+               11 
+            </div>
+            <div
+              class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+            />
+          </div>
+          
+        </div>
+      </div>
+      <div
+        class="flex-1 min-w-[30vw] flex flex-col items-center justify-center text-white opacity-60"
+      >
+        <p>
+          No spaces have been selected
+        </p>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+`;

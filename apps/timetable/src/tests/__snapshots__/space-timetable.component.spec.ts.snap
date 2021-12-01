@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpaceTimetableComponent should match snapshot 1`] = `
+<div
+  id="root1"
+>
+  <div
+    class="w-full min-h-[3rem] bg-[#212121] border-b border-white/50 flex items-center justify-center text-white text-xl font-medium"
+  >
+      
+  </div>
+  
+</div>
+`;
+
+exports[`SpaceTimetableComponent should match snapshot 2`] = `
+<div
+  id="root1"
+>
+  <div
+    class="w-full min-h-[3rem] bg-[#212121] border-b border-white/50 flex items-center justify-center text-white text-xl font-medium"
+  >
+     Room 1 
+  </div>
+  <div
+    class="w-full h-1/2 flex-1 relative"
+  >
+    <space-event-details />
+    
+  </div>
+  
+</div>
+`;
