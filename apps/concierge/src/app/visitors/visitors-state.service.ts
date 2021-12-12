@@ -9,10 +9,7 @@ import {
     tap,
 } from 'rxjs/operators';
 import {
-    endOfDay,
-    endOfWeek,
     startOfDay,
-    startOfWeek,
     getUnixTime,
     addDays,
     format,
@@ -198,6 +195,12 @@ export class VisitorsStateService extends BaseClass {
         });
     }
 
+    public async setExt<T = any>(guest: GuestUser, field: string, value: T) {
+        const extension_data = { ...guest.extension_data };
+        extension_data[field] = value;
+        await updateGuest(guest.id, { ...guest, extension_data }).toPromise();
+    }
+
     public async approveVisitor(guest: GuestUser) {
         const details = await openConfirmModal(
             {
@@ -209,11 +212,11 @@ export class VisitorsStateService extends BaseClass {
         );
         console.log('Details:', details);
         if (details.reason !== 'done') return details.close();
-        details.loading('Updating guest details')
+        details.loading('Updating guest details');
         await updateGuest(guest.id, {
             ...guest,
             extension_data: { ...guest.extension_data, status: 'approved' },
-        }).toPromise(); 
+        }).toPromise();
         details.close();
     }
 
@@ -228,12 +231,12 @@ export class VisitorsStateService extends BaseClass {
         );
         console.log('Details:', details);
         if (details.reason !== 'done') return details.close();
-        details.loading('Updating guest details')
+        details.loading('Updating guest details');
         await updateGuest(guest.id, {
             ...guest,
             extension_data: { ...guest.extension_data, status: 'declined' },
-        }).toPromise(); 
-        details.close()
+        }).toPromise();
+        details.close();
     }
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
@@ -327,17 +330,19 @@ export class VisitorsStateService extends BaseClass {
     }
 
     public async downloadVisitorsList() {
-        const guests: GuestUser[] = await this.filtered_guests.pipe(take(1)).toPromise();
+        const guests: GuestUser[] = await this.filtered_guests
+            .pipe(take(1))
+            .toPromise();
         if (!guests.length) return;
         const { date } = this._filters.getValue();
-        const list = guests.map(_ => ({
+        const list = guests.map((_) => ({
             Name: _.name,
             Email: _.email,
             'Checked In': _.checked_in,
             Host: _.extension_data?.host || '',
             Status: _.status,
-            Date: format(_.extension_data?.date, 'dd MMM h:mm a')
-        }))
+            Date: format(_.extension_data?.date, 'dd MMM h:mm a'),
+        }));
         const data = jsonToCsv(list);
         downloadFile(
             `visitor-list-${format(date || Date.now(), 'MMM-dd')}.csv`,

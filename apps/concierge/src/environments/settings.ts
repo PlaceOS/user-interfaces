@@ -62,6 +62,7 @@ const app = {
         src: 'assets/logo-dark.svg',
     },
     general,
+    guests: { vaccine_check: true }
 };
 
 /**

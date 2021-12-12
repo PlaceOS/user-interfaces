@@ -9,36 +9,19 @@ import { VisitorsStateService } from './visitors-state.service';
             class="w-full flex flex-col flex-1 text-sm h-full overflow-auto pb-20"
         >
             <custom-table
-                class="min-w-[80rem]"
+                class="min-w-[88rem]"
                 [dataSource]="guests"
                 [filter]="search | async"
                 [columns]="columns"
-                [display_column]="[
-                    ' ',
-                    'Date',
-                    'Person',
-                    'Host',
-                    'Email',
-                    'Vaccinated',
-                    'State',
-                    ' '
-                ]"
-                [column_size]="[
-                    '3.5r',
-                    '8r',
-                    '12r',
-                    '12r',
-                    'flex',
-                    '',
-                    '10r',
-                    '12r'
-                ]"
+                [display_column]="display_columns"
+                [column_size]="column_sizes"
                 [template]="{
                     state: state_template,
                     status: status_template,
                     date: date_template,
                     host: host_template,
                     vaccinated: vaccinated_template,
+                    id_data: id_template,
                     actions: action_template
                 }"
                 [empty]="
@@ -65,15 +48,81 @@ import { VisitorsStateService } from './visitors-state.service';
             {{ row.extension_data?.host }}
         </ng-template>
         <ng-template #vaccinated_template let-row="row">
-            <a
-                *ngIf="row.extension_data?.vaccination_proof?.url"
-                [href]="row.extension_data?.vaccination_proof?.url"
-                target="_blank"
-                rel="noreferer noopener"
-                class="bg-success rounded-3xl px-4 py-2 text-white"
-            >
-                Confirmed
-            </a>
+            <div customTooltip [content]="vaccine_confirmation">
+                <button
+                    matRipple
+                    *ngIf="row.extension_data?.vaccination_proof?.url"
+                    class="bg-success rounded-3xl px-4 py-2 text-white"
+                >
+                    {{
+                        row.extension_data?.vaccination_confirmed
+                            ? 'Confirmed'
+                            : row.extension_data?.vaccination_confirmed ===
+                              false
+                            ? 'Rejected'
+                            : 'Submitted'
+                    }}
+                </button>
+            </div>
+            <ng-template #vaccine_confirmation>
+                <div class="bg-white rounded">
+                    <img
+                        [src]="row.extension_data?.vaccination_proof?.url"
+                        class="max-w-[20rem] max-h-[20rem] p-2 object-contain"
+                    />
+                    <button
+                        mat-button
+                        (click)="setExt(row, 'vaccination_confirmed', true)"
+                    >
+                        Confirm Vaccination Proof
+                    </button>
+                    <button
+                        mat-button
+                        class="inverse mt-2"
+                        (click)="setExt(row, 'vaccination_confirmed', false)"
+                    >
+                        Reject Vaccination Proof
+                    </button>
+                </div>
+            </ng-template>
+        </ng-template>
+        <ng-template #id_template let-row="row">
+            <div customTooltip [content]="id_confirmation">
+                <button
+                    matRipple
+                    *ngIf="row.extension_data?.id_data?.url"
+                    class="bg-success rounded-3xl px-4 py-2 text-white"
+                >
+                    {{
+                        row.extension_data?.id_confirmed
+                            ? 'Confirmed'
+                            : row.extension_data?.id_confirmed === false
+                            ? 'Rejected'
+                            : 'Submitted'
+                    }}
+                </button>
+            </div>
+            <ng-template #id_confirmation>
+                <div class="bg-white rounded p-2">
+                    <img
+                        [src]="row.extension_data?.id_data?.url"
+                        class="max-w-[20rem] max-h-[20rem] object-contain"
+                    />
+                    <button
+                        mat-button
+                        (click)="setExt(row, 'id_confirmed', true)"
+                    >
+                        Confirm ID
+                    </button>
+                    <button
+                        mat-button
+                        class="inverse mt-2"
+                        (click)="setExt(row, 'id_confirmed', false)"
+                    >
+                        Reject ID
+                    </button>
+                </div>
+            </ng-template>
         </ng-template>
         <ng-template #status_template let-row="row">
             <button
@@ -203,6 +252,7 @@ export class GuestListingComponent {
 
     public readonly approveVisitor = (u) => this._state.approveVisitor(u);
     public readonly declineVisitor = (u) => this._state.declineVisitor(u);
+    public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
 
     public get columns() {
         return this._settings.get('app.guests.vaccine_check')
@@ -213,10 +263,41 @@ export class GuestListingComponent {
                   'host',
                   'email',
                   'vaccinated',
+                  'id_data',
                   'status',
                   'actions',
               ]
             : ['state', 'date', 'name', 'host', 'email', 'status', 'actions'];
+    }
+
+    public get display_columns() {
+        const fields = {
+            state: ' ',
+            date: 'Date',
+            name: 'Person',
+            host: 'Host',
+            email: 'Email',
+            vaccinated: 'Vaccinated',
+            id_data: 'ID',
+            status: 'State',
+            actions: ' '
+        }
+        return this.columns.map(_ => fields[_] || _);
+    }
+
+    public get column_sizes() {
+        const fields = {
+            state: '3.5r',
+            date: '8r',
+            name: '12r',
+            host: '12r',
+            email: 'flex',
+            vaccinated: '8r',
+            id_data: '8r',
+            status: '10r',
+            actions: '12r'
+        }
+        return this.columns.map(_ => fields[_] || _);
     }
 
     constructor(
