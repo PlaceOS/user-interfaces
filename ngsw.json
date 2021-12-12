@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1639352214670,
+  "timestamp": 1639353223919,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -100,7 +100,7 @@
     "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "496f5e1754b382bd0a6ded858ff0a3cb3cd9b03d",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "e97dd63be84dfdd9b20fdde302ab5b4d8e6c0125",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "078fe7b5b17305f867e093011b7dd318f80e8c4a",
-    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "bc4ee98b70beaa4147de1afc4aa1dd45dfa00dd8",
+    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "94265521b4ddbd1de29ef59ea97f57a12fb68525",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "5cf71171a676743fd4014627c40b844672b43c87",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -148,14 +148,14 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "cbca0052c3fcbe825645e0f3fa1c82fc46d8e6d7",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "6614cd74445df4a9604ed4457c0e77d1d38c7ad9",
-    "./main.js": "9f2c44e31192837dabfdd28082902ca7e2812c08",
+    "./main.js": "e620e7c7932086a43a6fb9db0c6ce29323648baa",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "1b9c53f55d14c291b48e5bde01562d43f0e7393d",
     "./node_modules_websocket_lib_browser_js.js": "c7af7c1222d99ab8078681870dad81aa9422653f",
     "./polyfills.js": "c535e56f7a1d041776c89827b5089cb723d65b09",
     "./runtime.js": "8ae943a427f5bd7b9177a390ed05b737da18d096",
-    "./styles.css": "cc297c8f7feeb1a9d2c60fa09085f9263ee529fb",
-    "./vendor.js": "a1efca239f89d63d45a755b4f7428d7c8a41e510"
+    "./styles.css": "8e3f2cbf8e38e5cfd018434f80064b759ff9c487",
+    "./vendor.js": "221bff9a935a2f2bd6921018504c768643008317"
   },
   "navigationUrls": [
     {
