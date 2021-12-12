@@ -49,6 +49,8 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     });
 }
 
+(window as any).global = window;
+
 @Component({
     selector: 'app-root',
     template: `
