@@ -74,9 +74,9 @@ export class ReportSpacesSpaceListing {
             }
             const period_in_days = differenceInDays(end, start);
             for (const space of list) {
-                space.avg_attendees = space.attendees / space.count;
-                space.utilisation = space.usage / 60 / 8 / period_in_days;
-                space.occupancy = space.avg_attendees / space.capacity;
+                space.avg_attendees = Math.floor(space.attendees / space.count * 100) / 100;
+                space.utilisation = Math.floor(space.usage / 60 / 8 / period_in_days * 100) / 100;
+                space.occupancy = Math.floor(space.avg_attendees / space.capacity * 100) / 100;
             }
             return list;
         })
