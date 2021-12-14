@@ -65,7 +65,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
             </div>
             <ng-template #vaccine_confirmation>
-                <div class="bg-white rounded p-2 flex flex-col space-y-2 my-2">
+                <div class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]">
                     <img
                         [src]="row.extension_data?.vaccination_proof?.url"
                         class="max-w-[20rem] max-h-[20rem] p-2 object-contain"
@@ -103,7 +103,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
             </div>
             <ng-template #id_confirmation>
-                <div class="bg-white rounded p-2 flex flex-col space-y-2 my-2">
+                <div class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]">
                     <img
                         [src]="row.extension_data?.id_data?.url"
                         class="max-w-[20rem] max-h-[20rem] object-contain"

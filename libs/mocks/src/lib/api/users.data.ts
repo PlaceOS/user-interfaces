@@ -36,8 +36,8 @@ export const MOCK_GUESTS = PREDEF_USERS.map((name, i) => ({
     name: `${name} (External)`,
     email: `${name.split(' ').join('.').toLowerCase()}@guest.${DOMAIN}`,
     visit_expected: predictableRandomInt(99999) % 2 === 0,
-    extension_data: {
+    extension_data: predictableRandomInt(99999) % 3 === 0 ? {
         vaccination_proof: { url: 'https://fonts.gstatic.com/s/i/materialicons/verified/v11/24px.svg' },
         id_data: { url: 'https://fonts.gstatic.com/s/i/materialicons/fingerprint/v12/24px.svg' } 
-    }
+    } : {}
 }));
