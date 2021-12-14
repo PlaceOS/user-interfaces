@@ -10,24 +10,32 @@ import { EnrolmentStateService } from './enrolment-state.service';
             <div class="w-full h-16 p-2 bg-secondary shadow z-20">
                 <img [src]="logo.src" class="h-12" />
             </div>
-            <div class="w-full h-1/2 flex-1 relative z-10 flex flex-col items-center">
+            <div
+                class="w-full h-1/2 flex-1 relative z-10 flex flex-col items-center overflow-auto"
+            >
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <ng-container [ngSwitch]="view | async">
                         <enrolment-event-details
                             *ngSwitchCase="'event'"
                         ></enrolment-event-details>
                         <enrolment-guest-confirm
-                        *ngSwitchCase="'guest'"
+                            *ngSwitchCase="'guest'"
                         ></enrolment-guest-confirm>
                         <div
-                            class="bg-white rounded p-4 border border-gray-200 shadow"
+                            class="bg-white rounded p-4 border border-gray-200 shadow m-4"
                             *ngSwitchCase="'complete'"
                         >
-                            You are now checked in. See you {{ event ? 'at ' + event.display.time : 'soon' }}
+                            <app-icon class="text-7xl text-success"
+                                >done</app-icon
+                            >
+                            <p>
+                                You are now checked in. See you
+                                {{
+                                    event ? 'at ' + event.display.time : 'soon'
+                                }}
+                            </p>
                         </div>
-                        <enrolment-error
-                        *ngSwitchDefault
-                        ></enrolment-error>
+                        <enrolment-error *ngSwitchDefault></enrolment-error>
                     </ng-container>
                 </ng-container>
             </div>
