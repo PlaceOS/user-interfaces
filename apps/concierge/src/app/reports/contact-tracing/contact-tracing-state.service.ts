@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { predictableRandomInt } from '@placeos/common';
+import { roundToNearestMinutes, subMinutes } from 'date-fns';
 import { MOCK_STAFF } from 'libs/mocks/src/lib/api/users.data';
 import { MOCK_LEVELS } from 'libs/mocks/src/lib/api/zone.data';
 import { BehaviorSubject } from 'rxjs';
@@ -26,7 +27,7 @@ export class ContactTracingStateService {
             const contact = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
             return {
                 id: `contact-${idx}`,
-                date: Date.now(),
+                date: subMinutes(roundToNearestMinutes(Date.now(), { nearestTo: 5 }), predictableRandomInt(24) * 5).valueOf(),
                 user_id: user.id,
                 user: user.name,
                 contact_id: contact.id,
@@ -35,7 +36,7 @@ export class ContactTracingStateService {
                 location_name: MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)].name,
                 distance: predictableRandomInt(10, 2)
             };
-        })
+        }).sort((a, b) => a.date - b.date)
     );
 
     public readonly events = this._events.asObservable();
