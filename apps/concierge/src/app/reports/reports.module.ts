@@ -23,6 +23,7 @@ import { CateringReportOverallComponent } from './catering/catering-report-overa
 import { CateringReportOrdersComponent } from './catering/catering-report-orders.component';
 import { CateringReportItemsComponent } from './catering/catering-report-items.component';
 import { ReportDesksChartsComponent } from './desks/report-desks-charts.component';
+import { ContactTracingReportComponent } from './contact-tracing/contact-tracing-report.component';
 
 const ROUTES: Route[] = [
     {
@@ -33,6 +34,7 @@ const ROUTES: Route[] = [
             { path: 'spaces', component: ReportSpacesComponent },
             { path: 'desks', component: ReportDesksComponent },
             { path: 'catering', component: CateringReportComponent },
+            { path: 'contact-tracing', component: ContactTracingReportComponent },
             { path: '**', redirectTo: 'desks' },
         ],
     },
@@ -58,6 +60,8 @@ const ROUTES: Route[] = [
         CateringReportOverallComponent,
         CateringReportOrdersComponent,
         CateringReportItemsComponent,
+
+        ContactTracingReportComponent
     ],
     imports: [
         CommonModule,

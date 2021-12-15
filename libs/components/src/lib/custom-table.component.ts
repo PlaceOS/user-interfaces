@@ -70,7 +70,7 @@ import { Observable } from 'rxjs';
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
             <ng-template cdkNoDataRow>
-                <p class="w-full p-4 text-center">
+                <p class="w-full p-4 text-center opacity-30">
                     {{ empty || 'No data to display' }}
                 </p>
             </ng-template>
