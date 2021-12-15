@@ -4,7 +4,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'app-asset-item-list',
     template: `
-        <div class="overflow-auto pb-2 w-full h-full">
+        <div
+            class="overflow-auto pb-2 w-full h-full"
+            *ngIf="(categories | async)?.length; else empty_state"
+        >
             <div class="" *ngFor="let group of categories | async">
                 <h2 class="py-2">
                     <span class="font-medium">{{ group }}</span>
@@ -34,7 +37,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 >
                                     <img
                                         [src]="
-                                            asset.images?.length ? asset.images[0].url : ''
+                                            asset.images?.length
+                                                ? asset.images[0].url
+                                                : ''
                                         "
                                         class="max-w-full max-h-full object-contain"
                                     />
@@ -73,7 +78,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 >
                                     <img
                                         [src]="
-                                            asset.images?.length ? asset.images[0].url : ''
+                                            asset.images?.length
+                                                ? asset.images[0].url
+                                                : ''
                                         "
                                         class="max-w-full max-h-full object-contain"
                                     />
@@ -98,6 +105,29 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </ng-container>
             </div>
         </div>
+        <mat-progress-bar
+            *ngIf="loading | async"
+            mode="indeterminate"
+        ></mat-progress-bar>
+        <ng-template #empty_state>
+            <div class="flex flex-col items-center justify-center p-8 space-y-4 h-full w-full">
+                <p class="opacity-40">
+                    {{
+                        (options | async)?.search
+                            ? 'No matching assets found'
+                            : 'No assets available. Create a new asset with the button below'
+                    }}
+                </p>
+                <a
+                    button
+                    mat-button
+                    *ngIf="!(options | async)?.search"
+                    [routerLink]="['/asset-manager', 'manage', 'details']"
+                >
+                    Create new Asset
+                </a>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -110,6 +140,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     ],
 })
 export class AssetItemListComponent {
+    public readonly loading = this._state.loading;
     public readonly options = this._state.options;
     public readonly categories = this._state.asset_categories;
     public readonly assets = this._state.asset_mapping;

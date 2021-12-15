@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
+import { CustomTooltipComponent } from '@placeos/components';
 import { first } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -59,7 +60,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </button>
                             <div class="w-px h-4 bg-gray-300"></div>
                             <button mat-button class="clear">
-                                <div class="flex items-center text-secondary">
+                                <div class="flex items-center text-secondary" customTooltip [content]="delete_tooltip">
                                     <app-icon class="text-lg">delete</app-icon>
                                     <div class="mr-2">Delete</div>
                                 </div>
@@ -99,12 +100,42 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <p>Loading asset details...</p>
             </div>
         </ng-template>
+        <ng-template #delete_tooltip>
+            <div class="p-4 bg-white rounded my-2 w-64 h-36 text-center" *ngIf="!deleting; else delete_loading">
+                <p>Are you sure you want to permanently delete this asset?</p>
+                <div class="flex items-center space-x-2 mt-6">
+                    <button mat-button class="inverse flex-1" (click)="closeTooltip()">No</button>
+                    <button mat-button class="error flex-1" (click)="deleteAsset()">Yes, delete</button>
+                </div>
+            </div>
+            <ng-template #delete_loading>
+                <div class="p-4 bg-white rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>Deleting asset details...</p>
+                </div>
+            </ng-template>
+        </ng-template>
     `,
     styles: [``],
 })
 export class AssetViewComponent extends BaseClass {
     public loading = false;
+    public deleting = false;
     public readonly asset = this._state.active_asset;
+
+    @ViewChild(CustomTooltipComponent) public _tooltip_el: CustomTooltipComponent
+
+    public async deleteAsset() {
+        this.deleting = true;
+        await this._state.deleteActiveAsset();
+        this.deleting = false;
+        this._router.navigate(['/asset-manager', 'list', 'items']);
+        this.closeTooltip();
+    }
+
+    public closeTooltip() {
+        this._tooltip_el?.close();
+    }
 
     constructor(
         private _route: ActivatedRoute,

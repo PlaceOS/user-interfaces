@@ -12,8 +12,8 @@ import {
         >
             <div class="bg-white p-4 border-t border-b border-gray-300">
                 <div class="opacity-60 text-sm">
-                    {{ (requests | async).length }} asset request{{
-                        (requests | async).length === '1' ? '' : 's'
+                    {{ (requests | async)?.length }} asset request{{
+                        (requests | async)?.length === '1' ? '' : 's'
                     }}
                 </div>
             </div>
@@ -62,8 +62,8 @@ import {
                     }"
                     [empty]="
                         (filters | async)?.search
-                            ? 'No matching desk bookings'
-                            : 'There are no desk booking for the currently selected date.'
+                            ? 'No matching asset requests'
+                            : 'There are no asset requests for the currently selected date.'
                     "
                     (row_clicked)="request = $event"
                 ></custom-table>

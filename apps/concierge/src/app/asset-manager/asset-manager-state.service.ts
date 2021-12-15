@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { BaseClass, unique } from '@placeos/common';
+import { queryBookings } from '@placeos/bookings';
+import { BaseClass, notifySuccess, unique } from '@placeos/common';
+import { del, get } from '@placeos/ts-client';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 
 export interface AssetOptions {
     search?: string;
@@ -59,54 +62,40 @@ export function generateAssetForm() {
     });
 }
 
+const ASSET_ENDPOINT = '/api/engine/v1/assets';
+
 @Injectable({
     providedIn: 'root',
 })
 export class AssetManagerStateService extends BaseClass {
     private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
+    private _change = new BehaviorSubject(0);
     private _poll = new BehaviorSubject(0);
     private _form = generateAssetForm();
-
-    private _assets = new BehaviorSubject<Asset[]>([
-        {
-            id: '1',
-            name: 'iPad',
-            category: 'Technology',
-            images: [
-                { url: 'assets/support/chrome-logo.svg' },
-                { url: 'assets/support/firefox-logo.svg' },
-                { url: 'assets/support/safari-logo.svg' },
-            ],
-        },
-        { id: '2', name: 'iPhone', category: 'Technology' },
-        { id: '3', name: 'iWatch', category: 'Technology' },
-        { id: '4', name: 'Chair', category: 'Furniture' },
-        { id: '5', name: 'Lounge', category: 'Furniture' },
-        { id: '6', name: 'Table', category: 'Furniture' },
-        { id: '7', name: 'Couch', category: 'Furniture' },
-        { id: '8', name: 'Something', category: 'Other' },
-    ] as any);
+    private _loading = new BehaviorSubject(false);
     /** List of available assets */
-    public readonly assets = this._assets.asObservable();
+    public readonly assets: Observable<Asset[]> = this._change.pipe(
+        switchMap(() => {
+            console.log('Get Assets');
+            this._loading.next(true);
+            return get(`${ASSET_ENDPOINT}`);
+        }),
+        tap(() => this._loading.next(false)),
+        shareReplay(1)
+    ) as any;
+    /** Whether asset list is loading */
+    public readonly loading = this._loading.asObservable();
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
     /** List of requests made by users for assets */
-    public readonly requests: Observable<AssetRequest[]> = this._poll.pipe(
-        map((_) => {
-            return [
-                {
-                    id: '1',
-                    assets: [{ id: '1', name: 'iPad' }],
-                    user_name: 'Alex S',
-                    location_name: 'Room 1',
-                    location_floor: '99',
-                    date: Date.now(),
-                    duration: 60,
-                    status: 'approved',
-                    tracking: 'at_location',
-                },
-            ] as any;
-        })
+    public readonly requests = this._poll.pipe(
+        switchMap((_) =>
+            queryBookings({
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type: 'asset-request',
+            })
+        )
     );
     /** Filtered list of asset requests */
     public readonly filtered_requests = combineLatest([
@@ -119,19 +108,21 @@ export class AssetManagerStateService extends BaseClass {
                 ? list.filter(
                       (i) =>
                           i.user_name.toLowerCase().includes(search) ||
-                          i.location_name.toLowerCase().includes(search) ||
-                          i.assets.find((_) =>
+                          i.extension_data.location_name
+                              .toLowerCase()
+                              .includes(search) ||
+                          i.extension_data.assets.find((_) =>
                               _.name.toLowerCase().includes(search)
                           ) ||
                           i.status.includes(search) ||
-                          i.tracking.includes(search)
+                          i.extension_data.tracking.includes(search)
                   )
                 : list;
         })
     );
     /** Currently active asset */
     public readonly active_asset = combineLatest([
-        this._assets,
+        this.assets,
         this._options,
     ]).pipe(
         map(([list, options]) =>
@@ -139,12 +130,16 @@ export class AssetManagerStateService extends BaseClass {
         )
     );
     /** List of requests for the currently active asset */
-    public readonly active_asset_requests: Observable<AssetRequest[]> =
+    public readonly active_asset_requests =
         this.active_asset.pipe(
             switchMap((asset) => {
                 return this.requests.pipe(
                     map((_) =>
-                        _.filter((i) => i.assets.find((a) => a.id === asset.id))
+                        _.filter((i) =>
+                            i.extension_data.assets.find(
+                                (a) => a.id === asset.id
+                            )
+                        )
                     )
                 );
             }),
@@ -152,7 +147,7 @@ export class AssetManagerStateService extends BaseClass {
         );
     /** list of filtered assets */
     public readonly filtered_assets = combineLatest([
-        this._assets,
+        this.assets,
         this._options,
     ]).pipe(
         map(([list, options]) =>
@@ -192,5 +187,13 @@ export class AssetManagerStateService extends BaseClass {
     /** Update the set view options */
     public setOptions(options: Partial<AssetOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public async deleteActiveAsset() {
+        const asset = await this.active_asset.pipe(take(1)).toPromise();
+        if (!asset?.id) return;
+        await del(`${ASSET_ENDPOINT}/${asset.id}`).toPromise();
+        this._change.next(Date.now());
+        notifySuccess('Successfully deleted asset');
     }
 }

@@ -23,6 +23,7 @@ import { SplitJoinPipe } from './split-join.pipe';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { DurationFormatPipe } from './duration.pipe';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 const COMPONENTS = [
     AssetManagerComponent,
@@ -72,6 +73,7 @@ const ROUTES: Route[] = [
         UIModule,
         ComponentsModule,
         MatButtonToggleModule,
+        MatProgressBarModule,
         MatTabsModule,
         MatStepperModule,
         RouterModule.forChild(ROUTES),
