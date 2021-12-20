@@ -217,7 +217,6 @@ export class AssetRequestDetailsComponent {
     constructor(private _state: AssetManagerStateService) {}
 
     public async setStatus(status: string) {
-        console.log('Request:', this.request);
         this.loading = true;
         await this._state.setStatus(this.request, status);
         (this.request as any).status = status;
