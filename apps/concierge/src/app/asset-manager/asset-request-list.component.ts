@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BaseClass } from '@placeos/common';
 import {
     AssetManagerStateService,
     AssetRequest,
@@ -58,7 +59,9 @@ import {
                         date: date_template,
                         period: period_template,
                         approval: approval_template,
-                        tracking: tracking_template
+                        tracking: tracking_template,
+                        location_floor: level_template,
+                        location_name: space_template
                     }"
                     [empty]="
                         (filters | async)?.search
@@ -76,14 +79,20 @@ import {
             </div>
         </ng-template>
         <ng-template #assets_template let-row="row">
-            <p class="whitespace-pre-line">
-                <span *ngFor="let asset of row.assets"
-                    >{{ asset.amount || 1 }}× {{ asset.name }}</span
-                >
-            </p>
+            <div class="flex flex-col">
+                <div *ngFor="let asset of row.extension_data?.assets || []">
+                    {{ asset.amount || 1 }}× {{ asset.name }}
+                </div>
+            </div>
         </ng-template>
         <ng-template #date_template let-row="row">
             {{ row.date | date: 'mediumDate' }}
+        </ng-template>
+        <ng-template #space_template let-row="row">
+            {{ row.extension_data?.space?.display_name || row.extension_data?.space?.name  }}
+        </ng-template>
+        <ng-template #level_template let-row="row">
+            {{ row.extension_data?.space?.level?.display_name || row.extension_data?.space?.level?.name  }}
         </ng-template>
         <ng-template #period_template let-row="row">
             {{ row.date | date: 'shortTime' }} &ndash;
@@ -95,15 +104,16 @@ import {
                 class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2"
                 [class.bg-green-600]="row.status === 'approved'"
                 [class.bg-red-600]="row.status === 'declined'"
-                [class.bg-yellow-600]="row.status === 'pending'"
+                [class.bg-yellow-400]="row.status === 'tentative'"
                 [matMenuTriggerFor]="menu"
+                (click)="$event.stopPropagation()"
                 [disabled]="loading[row.id]"
             >
                 <div
                     class="h-5 w-5 rounded-full text-white flex items-center justify-center"
                     [class.bg-green-600]="row.status === 'approved'"
                     [class.bg-red-600]="row.status === 'declined'"
-                    [class.bg-yellow-600]="row.status === 'pending'"
+                    [class.bg-yellow-400]="row.status === 'tentative'"
                 >
                     <app-icon>{{
                         row.status === 'approved'
@@ -130,10 +140,11 @@ import {
                 matRipple
                 class="bg-none w-full flex items-center px-2 py-1 text-left"
                 [matMenuTriggerFor]="tracking_menu"
+                (click)="$event.stopPropagation()"
                 [disabled]="loading[row.id]"
             >
                 <div class="capitalize flex-1">
-                    {{ row.tracking | splitjoin }}
+                    {{ row.extension_data?.tracking | splitjoin }}
                 </div>
                 <app-icon class="text-2xl">expand_more</app-icon>
             </button>
@@ -161,24 +172,30 @@ import {
         `,
     ],
 })
-export class AssetRequestListComponent {
+export class AssetRequestListComponent extends BaseClass {
     public readonly requests = this._state.filtered_requests;
     public readonly filters = this._state.options;
     public request;
 
     public readonly loading: Record<string, boolean> = {};
 
-    public async setStatus(item: AssetRequest, status: string) {
+    public async setStatus(item: any, status: string) {
         this.loading[item.id] = true;
-
+        await this._state.setStatus(item, status);
         this.loading[item.id] = false;
     }
 
-    public async setTracking(item: AssetRequest, state: string) {
+    public async setTracking(item: any, state: string) {
         this.loading[item.id] = true;
-
+        await this._state.setTracking(item, state);
         this.loading[item.id] = false;
     }
 
-    constructor(private _state: AssetManagerStateService) {}
+    constructor(private _state: AssetManagerStateService) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription('polling', this._state.startPolling());
+    }
 }

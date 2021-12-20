@@ -52,15 +52,28 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             {{ (asset | async)?.name }}
                         </div>
                         <div class="flex items-center text-sm ">
-                            <button mat-button class="clear">
+                            <a
+                                button
+                                mat-button
+                                class="clear"
+                                [routerLink]="[
+                                    '/asset-manager',
+                                    'manage',
+                                    'details'
+                                ]"
+                            >
                                 <div class="flex items-center text-secondary">
                                     <app-icon class="text-lg">edit</app-icon>
                                     <div class="mr-2">Edit</div>
                                 </div>
-                            </button>
+                            </a>
                             <div class="w-px h-4 bg-gray-300"></div>
                             <button mat-button class="clear">
-                                <div class="flex items-center text-secondary" customTooltip [content]="delete_tooltip">
+                                <div
+                                    class="flex items-center text-secondary"
+                                    customTooltip
+                                    [content]="delete_tooltip"
+                                >
                                     <app-icon class="text-lg">delete</app-icon>
                                     <div class="mr-2">Delete</div>
                                 </div>
@@ -70,14 +83,27 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <div class="py-4 w-full flex-1 h-1/2 overflow-auto">
                         {{ (asset | async)?.description || '~No Description~' }}
                     </div>
-                    <div class="rounded bg-white shadow border border-gray-300 w-full divide-y divide-gray-200">
+                    <div
+                        class="rounded bg-white shadow border border-gray-300 w-full divide-y divide-gray-200"
+                    >
                         <div class="flex items-center justify-between p-3">
-                            <div class="pl-2">Available: {{ ((asset | async)?.count - (asset | async)?.locations?.length) || 0 }}</div>
+                            <div class="pl-2">
+                                Available:
+                                {{
+                                    (asset | async)?.count -
+                                        (asset | async)?.locations?.length || 0
+                                }}
+                            </div>
                             <button mat-button>Assign to Location</button>
                         </div>
                         <div class="flex items-center justify-between p-3">
-                            <div class="pl-2">In Use: {{ (asset | async)?.locations?.length || 0 }}</div>
-                            <button mat-button (click)="viewLocations()">View Locations</button>
+                            <div class="pl-2">
+                                In Use:
+                                {{ (asset | async)?.locations?.length || 0 }}
+                            </div>
+                            <button mat-button (click)="viewLocations()">
+                                View Locations
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -85,10 +111,127 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 
             <mat-tab-group>
                 <mat-tab label="Specifications">
+                    <div class="p-8">
+                        <h3 class="p-2">General</h3>
+                        <div
+                            data-table
+                            class="bg-white  border border-gray-300"
+                        >
+                            <div class="flex items-center p-2">
+                                <label>Barcode</label>
+                                <div>
+                                    {{ (asset | async)?.barcode || '~None~' }}
+                                </div>
+                            </div>
+                            <div class="flex items-center p-2">
+                                <label>Brand</label>
+                                <div>
+                                    {{ (asset | async)?.brand || '~None~' }}
+                                </div>
+                            </div>
+                        </div>
+                        <h3
+                            class="p-2"
+                            *ngIf="(asset | async)?.general_details?.length"
+                        >
+                            Other
+                        </h3>
+                        <div
+                            data-table
+                            class="bg-white  border border-gray-300"
+                            *ngIf="(asset | async)?.general_details?.length"
+                        >
+                            <div
+                                class="flex items-center"
+                                *ngFor="
+                                    let item of (asset | async)
+                                        ?.general_details || []
+                                "
+                            >
+                                <label>{{ item.name }}</label>
+                                <div>{{ item.value || 'None' }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </mat-tab>
                 <mat-tab label="Purchase information">
+                    <div class="p-8">
+                        <h3 class="p-2">Timeline</h3>
+                        <div
+                            data-table
+                            class="bg-white  border border-gray-300"
+                        >
+                            <div class="flex items-center p-2">
+                                <label>Purchase Date</label>
+                                <div>
+                                    {{
+                                        (asset | async)?.purchase_date
+                                            | date: 'mediumDate'
+                                    }}
+                                </div>
+                            </div>
+                            <div class="flex items-center p-2">
+                                <label>Good Until</label>
+                                <div>
+                                    {{
+                                        (asset | async)?.good_until
+                                            | date: 'mediumDate'
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="p-2">Invoices</h3>
+                        <div
+                            data-table
+                            class="bg-white  border border-gray-300"
+                            *ngIf="
+                                (asset | async)?.invoices?.length;
+                                else empty_invoices
+                            "
+                        >
+                            <div
+                                class="flex items-center p-2"
+                                *ngFor="
+                                    let item of (asset | async)?.invoices || []
+                                "
+                            >
+                                <label>{{ item.name }}</label>
+                                <div>{{ item.price | currency }}</div>
+                                <a
+                                    class="underline"
+                                    [href]="invoice.url | safe"
+                                    target="_blank"
+                                    ref="noreferer noopener"
+                                >
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </mat-tab>
                 <mat-tab label="Consumable assets">
+                    <div class="p-8">
+                        <h3 class="p-2">Items</h3>
+                        <div
+                            data-table
+                            class="bg-white  border border-gray-300"
+                            *ngIf="
+                                (asset | async)?.consumables?.length;
+                                else empty_items
+                            "
+                        >
+                            <div
+                                class="flex items-center p-2"
+                                *ngFor="
+                                    let item of (asset | async)?.consumables ||
+                                        []
+                                "
+                            >
+                                <label>{{ item.name }}</label>
+                                <div>{{ item.value }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </mat-tab>
             </mat-tab-group>
         </div>
@@ -101,29 +244,64 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </div>
         </ng-template>
         <ng-template #delete_tooltip>
-            <div class="p-4 bg-white rounded my-2 w-64 h-36 text-center" *ngIf="!deleting; else delete_loading">
+            <div
+                class="p-4 bg-white rounded my-2 w-64 h-36 text-center"
+                *ngIf="!deleting; else delete_loading"
+            >
                 <p>Are you sure you want to permanently delete this asset?</p>
                 <div class="flex items-center space-x-2 mt-6">
-                    <button mat-button class="inverse flex-1" (click)="closeTooltip()">No</button>
-                    <button mat-button class="error flex-1" (click)="deleteAsset()">Yes, delete</button>
+                    <button
+                        mat-button
+                        class="inverse flex-1"
+                        (click)="closeTooltip()"
+                    >
+                        No
+                    </button>
+                    <button
+                        mat-button
+                        class="error flex-1"
+                        (click)="deleteAsset()"
+                    >
+                        Yes, delete
+                    </button>
                 </div>
             </div>
             <ng-template #delete_loading>
-                <div class="p-4 bg-white rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2">
+                <div
+                    class="p-4 bg-white rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2"
+                >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>Deleting asset details...</p>
                 </div>
             </ng-template>
         </ng-template>
+        <ng-template #empty_invoices>
+            <div class="p-2 opacity-30">No Invoices</div>
+        </ng-template>
+        <ng-template #empty_items>
+            <div class="p-2 opacity-30">No consumables</div>
+        </ng-template>
     `,
-    styles: [``],
+    styles: [
+        `
+            [data-table] > div:nth-child(2n) {
+                background: #0001;
+            }
+
+            label {
+                width: 15rem;
+                min-width: 0;
+            }
+        `,
+    ],
 })
 export class AssetViewComponent extends BaseClass {
     public loading = false;
     public deleting = false;
     public readonly asset = this._state.active_asset;
 
-    @ViewChild(CustomTooltipComponent) public _tooltip_el: CustomTooltipComponent
+    @ViewChild(CustomTooltipComponent)
+    public _tooltip_el: CustomTooltipComponent;
 
     public async deleteAsset() {
         this.deleting = true;

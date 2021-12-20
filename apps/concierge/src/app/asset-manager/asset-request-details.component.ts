@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AssetRequest } from './asset-manager-state.service';
+import { AssetManagerStateService, AssetRequest } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-request-details',
@@ -60,10 +60,15 @@ import { AssetRequest } from './asset-manager-state.service';
                         </div>
                         <div class="font-medium">Assets Requested</div>
                     </div>
-                    <div class="pl-10 whitespace-pre-line mt-1">
-                        <span *ngFor="let asset of request.assets">
+                    <div class="pl-10 flex flex-col mt-1">
+                        <div
+                            *ngFor="
+                                let asset of request.extension_data?.assets ||
+                                    []
+                            "
+                        >
                             {{ asset.amount || 1 }}× {{ asset.name }}
-                        </span>
+                        </div>
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -101,7 +106,7 @@ import { AssetRequest } from './asset-manager-state.service';
                         <div class="font-medium">Floor</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{ request.location_floor }}
+                        {{ request.extension_data?.space?.level?.display_name || request.extension_data?.space?.level?.name }}
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -112,7 +117,7 @@ import { AssetRequest } from './asset-manager-state.service';
                         <div class="font-medium">Room</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{ request.location_name }}
+                        {{ request.extension_data?.space?.display_name || request.extension_data?.space?.name }}
                     </div>
                     <div class="absolute top-4 right-4 text-sm">
                         <button
@@ -120,15 +125,21 @@ import { AssetRequest } from './asset-manager-state.service';
                             class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2 mb-4"
                             [class.bg-green-600]="request.status === 'approved'"
                             [class.bg-red-600]="request.status === 'declined'"
-                            [class.bg-yellow-600]="request.status === 'pending'"
+                            [class.bg-yellow-400]="request.status === 'tentative'"
                             [matMenuTriggerFor]="menu"
                             [disabled]="loading"
                         >
                             <div
                                 class="h-5 w-5 rounded-full text-white flex items-center justify-center"
-                                [class.bg-green-600]="request.status === 'approved'"
-                                [class.bg-red-600]="request.status === 'declined'"
-                                [class.bg-yellow-600]="request.status === 'pending'"
+                                [class.bg-green-600]="
+                                    request.status === 'approved'
+                                "
+                                [class.bg-red-600]="
+                                    request.status === 'declined'
+                                "
+                                [class.bg-yellow-400]="
+                                    request.status === 'tentative'
+                                "
                             >
                                 <app-icon>{{
                                     request.status === 'approved'
@@ -164,7 +175,9 @@ import { AssetRequest } from './asset-manager-state.service';
                             [disabled]="loading"
                         >
                             <div class="capitalize flex-1">
-                                {{ request.tracking | splitjoin }}
+                                {{
+                                    request.extension_data?.tracking | splitjoin
+                                }}
                             </div>
                             <app-icon class="text-2xl">expand_more</app-icon>
                         </button>
@@ -183,7 +196,7 @@ import { AssetRequest } from './asset-manager-state.service';
                             </button>
                             <button
                                 mat-menu-item
-                                (click)="setTracking(request, 'at_location')"
+                                (click)="setTracking('at_location')"
                             >
                                 At Location
                             </button>
@@ -196,20 +209,25 @@ import { AssetRequest } from './asset-manager-state.service';
     styles: [``],
 })
 export class AssetRequestDetailsComponent {
-    @Input() public request: AssetRequest;
-    @Output() public requestChange = new EventEmitter<AssetRequest>();
+    @Input() public request: any;
+    @Output() public requestChange = new EventEmitter<any>();
 
     public loading = false;
 
-    public async setStatus(status: string) {
-        this.loading = true;
+    constructor(private _state: AssetManagerStateService) {}
 
+    public async setStatus(status: string) {
+        console.log('Request:', this.request);
+        this.loading = true;
+        await this._state.setStatus(this.request, status);
+        (this.request as any).status = status;
         this.loading = false;
     }
 
     public async setTracking(state: string) {
         this.loading = true;
-
+        await this._state.setTracking(this.request, state);
+        (this.request as any).extension_data.tracking = state;
         this.loading = false;
     }
 }

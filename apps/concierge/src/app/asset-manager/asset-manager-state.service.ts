@@ -1,11 +1,19 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { queryBookings } from '@placeos/bookings';
+import { Booking, queryBookings, updateBooking } from '@placeos/bookings';
 import { BaseClass, notifySuccess, unique } from '@placeos/common';
-import { del, get } from '@placeos/ts-client';
+import { SpacesService } from '@placeos/spaces';
+import { del, get, post, put } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import {
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 
 export interface AssetOptions {
     search?: string;
@@ -23,7 +31,9 @@ export interface Asset {
     brand: string;
     description: string;
     specifications: Record<string, string>;
-    purchase_details: Record<string, string>;
+    purchase_details: { name: string; value: string }[];
+    consumables: { id: string; name: string }[];
+    general_details: { id: string; name: string }[];
     invoices: { name: string; url: string; price?: number }[];
     count: number;
     locations: [string, string][];
@@ -48,17 +58,19 @@ export function generateAssetForm() {
         id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
         category: new FormControl('', [Validators.required]),
-        count: new FormControl(0, [Validators.required]),
-        size: new FormControl('', [Validators.required]),
-        description: new FormControl('', [Validators.required]),
+        count: new FormControl(1),
+        size: new FormControl('Small'),
+        description: new FormControl(''),
         barcode: new FormControl('', [Validators.required]),
         brand: new FormControl('', [Validators.required]),
         specifications: new FormControl({}),
         purchase_date: new FormControl(Date.now(), [Validators.required]),
         expiry_date: new FormControl(null),
         invoices: new FormControl([]),
-        purchase_details: new FormControl({}),
-        locations: new FormControl([]),
+        purchase_details: new FormControl([]),
+        consumables: new FormControl([]),
+        general_details: new FormControl([]),
+        images: new FormControl([]),
     });
 }
 
@@ -76,7 +88,6 @@ export class AssetManagerStateService extends BaseClass {
     /** List of available assets */
     public readonly assets: Observable<Asset[]> = this._change.pipe(
         switchMap(() => {
-            console.log('Get Assets');
             this._loading.next(true);
             return get(`${ASSET_ENDPOINT}`);
         }),
@@ -88,14 +99,33 @@ export class AssetManagerStateService extends BaseClass {
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
     /** List of requests made by users for assets */
-    public readonly requests = this._poll.pipe(
+    public readonly requests = combineLatest([
+        this._poll,
+        this._change,
+        this._spaces.initialised,
+    ]).pipe(
+        debounceTime(200),
         switchMap((_) =>
             queryBookings({
                 period_start: getUnixTime(startOfDay(Date.now())),
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type: 'asset-request',
             })
-        )
+        ),
+        map((_) =>
+            _.map(
+                (b) =>
+                    new Booking({
+                        ...b,
+                        extension_data: {
+                            ...b.extension_data,
+                            space: this._spaces.find(b.extension_data.space_id),
+                        },
+                    })
+            )
+        ),
+        tap((_) => console.log('Requests:', _)),
+        shareReplay(1)
     );
     /** Filtered list of asset requests */
     public readonly filtered_requests = combineLatest([
@@ -130,21 +160,18 @@ export class AssetManagerStateService extends BaseClass {
         )
     );
     /** List of requests for the currently active asset */
-    public readonly active_asset_requests =
-        this.active_asset.pipe(
-            switchMap((asset) => {
-                return this.requests.pipe(
-                    map((_) =>
-                        _.filter((i) =>
-                            i.extension_data.assets.find(
-                                (a) => a.id === asset.id
-                            )
-                        )
+    public readonly active_asset_requests = this.active_asset.pipe(
+        switchMap((asset) => {
+            return this.requests.pipe(
+                map((_) =>
+                    _.filter((i) =>
+                        i.extension_data.assets.find((a) => a.id === asset.id)
                     )
-                );
-            }),
-            map((_) => _.filter((i) => i.status !== 'declined'))
-        );
+                )
+            );
+        }),
+        map((_) => _.filter((i) => i.status !== 'declined'))
+    );
     /** list of filtered assets */
     public readonly filtered_assets = combineLatest([
         this.assets,
@@ -180,6 +207,19 @@ export class AssetManagerStateService extends BaseClass {
         return this._form;
     }
 
+    constructor(private _spaces: SpacesService) {
+        super();
+    }
+
+    public startPolling(delay = 15 * 1000) {
+        this.interval('polling', () => this._poll.next(Date.now()), delay);
+        return () => this.stopPolling();
+    }
+
+    public stopPolling() {
+        this.clearInterval('polling');
+    }
+
     public resetForm() {
         this._form = generateAssetForm();
     }
@@ -189,11 +229,49 @@ export class AssetManagerStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
+    public async setStatus(item: Booking, status: any) {
+        const result = await updateBooking(item.id, {
+            ...item,
+            approved: status === 'approved',
+            rejected: status === 'declined',
+        }).toPromise();
+        this._change.next(Date.now());
+        return result;
+    }
+
+    public async setTracking(item: Booking, tracking: string) {
+        const result = await updateBooking(item.id, {
+            ...item,
+            extension_data: { ...item.extension_data, tracking },
+        }).toPromise();
+        this._change.next(Date.now());
+        return result;
+    }
+
+    public clearActiveAsset() {
+        this.setOptions({ active_asset: '' });
+        this.resetForm();
+    }
+
     public async deleteActiveAsset() {
         const asset = await this.active_asset.pipe(take(1)).toPromise();
         if (!asset?.id) return;
         await del(`${ASSET_ENDPOINT}/${asset.id}`).toPromise();
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
+        this.clearActiveAsset();
+    }
+
+    public async postForm() {
+        if (!this.form?.valid) return;
+        const data = this.form.value;
+        const asset = await (data.id
+            ? put(`${ASSET_ENDPOINT}/${data.id}`, data)
+            : post(`${ASSET_ENDPOINT}`, data)
+        ).toPromise();
+        this._change.next(Date.now());
+        notifySuccess(`Successfully ${data.id ? 'updated' : 'created'} asset`);
+        this.resetForm();
+        return asset.id;
     }
 }

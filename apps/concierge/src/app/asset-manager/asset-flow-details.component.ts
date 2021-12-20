@@ -37,7 +37,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </div>
             <div class="flex items-center space-x-4">
                 <div class="flex-1 flex-col">
-                    <label>Item Size<span>*</span></label>
+                    <label>Item Size</label>
                     <mat-form-field appearance="outline">
                         <mat-select formControlName="size">
                             <mat-option value="Very Small">Very Small</mat-option>
@@ -50,7 +50,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex-1 flex-col">
-                    <label>Quantity<span>*</span></label>
+                    <label>Quantity</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -62,7 +62,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
             </div>
-            <label>Description<span>*</span></label>
+            <label>Description</label>
             <mat-form-field appearance="outline">
                 <textarea
                     matInput

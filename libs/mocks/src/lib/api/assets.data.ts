@@ -5,9 +5,9 @@ export const MOCK_ASSETS = [
         name: 'iPad',
         category: 'Technology',
         images: [
-            { url: 'assets/support/chrome-logo.svg' },
-            { url: 'assets/support/firefox-logo.svg' },
-            { url: 'assets/support/safari-logo.svg' },
+            { name: 'chrome.svg', url: 'assets/support/chrome-logo.svg' },
+            { name: 'firefox.svg', url: 'assets/support/firefox-logo.svg' },
+            { name: 'safari.svg', url: 'assets/support/safari-logo.svg' },
         ],
     },
     { id: '2', name: 'iPhone', category: 'Technology' },

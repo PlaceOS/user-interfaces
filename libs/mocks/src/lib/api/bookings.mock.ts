@@ -61,7 +61,8 @@ function registerMocks() {
                 message: `Unable to find booking with ID ${id}`,
             };
         const new_event = { ...data };
-        MOCK_BOOKINGS.splice(index, 1, new_event);
+        const removed = MOCK_BOOKINGS.splice(index, 1, new_event);
+        console.log('Removed:', removed);
         return new_event;
     };
 
@@ -69,6 +70,13 @@ function registerMocks() {
         path: '/api/staff/v1/bookings/:id',
         metadata: {},
         method: 'PUT',
+        callback: (req) => updateBooking(req.route_params.id, { ...req.body }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/bookings/:id',
+        metadata: {},
+        method: 'PATCH',
         callback: (req) => updateBooking(req.route_params.id, { ...req.body }),
     });
 
