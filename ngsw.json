@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1639536126656,
+  "timestamp": 1639961677612,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -48,6 +48,7 @@
         "ignoreVary": true
       },
       "urls": [
+        "./assets/asset_success.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
         "./assets/icons/car-filled.svg",
@@ -92,16 +93,17 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "ca6c249e06aaa892b31baa19ee957a0d97ecffb4",
-    "./apps_concierge_src_app_catering_catering_module_ts.js": "b29b792bb83fae5ca2c3351abcc889907fbf1b3f",
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "b2cfb43f878f54dd343e4dfef3f4ed5db14293d9",
+    "./apps_concierge_src_app_catering_catering_module_ts.js": "43fbd35d1329d54d1e8dcce21767d0984455b7fe",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "0f56b91711bc080e900b5fd2d2321cb2e4e58860",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "8f413cdff1dd208bc69324b30cae9fe81d6c7f78",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "f00dd5afbf40b369995f5171b57f84a52fc917bf",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "60f868486699e13b83ff04d586298c32a7b5203a",
-    "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "496f5e1754b382bd0a6ded858ff0a3cb3cd9b03d",
-    "./apps_concierge_src_app_reports_reports_module_ts.js": "985548f5d91871f31e9bdca7de3ff395d5d37f58",
-    "./apps_concierge_src_app_staff_staff_module_ts.js": "078fe7b5b17305f867e093011b7dd318f80e8c4a",
+    "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "c06ffe4ab3de3e2e8f3aace07f8acb76f654753c",
+    "./apps_concierge_src_app_reports_reports_module_ts.js": "19655cc63855fcfdf8062cc6c24dfabdd6d19981",
+    "./apps_concierge_src_app_staff_staff_module_ts.js": "2ac3293e921d946489d739ce2fa6ee0a36c006b6",
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "b3237777c2c12635cc08d896f567837af31c6ac1",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "5cf71171a676743fd4014627c40b844672b43c87",
+    "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -141,21 +143,21 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "1284f763dd46d30ecf6154d7e83bda49c3d0c4d8",
-    "./default-libs_bookings_src_index_ts.js": "7f57f071005244ba957315135ac511b978166af2",
-    "./default-libs_catering_src_index_ts.js": "60ebaaa92f96a0f00ef0e4e1fd60063b3d277d1d",
+    "./default-libs_bookings_src_index_ts.js": "d0e977d6bf6d9863d58be40f95d918c15dd6e083",
+    "./default-libs_catering_src_index_ts.js": "b7a287b41427708200c2e86e93a072d1214fecd2",
     "./default-libs_explore_src_index_ts.js": "867d844090466807ffb780072f12ed569d411b3a",
     "./default-node_modules_angular_material_fesm2020_radio_mjs.js": "f2b244852cba362d74fa07f2fb4228e00fe95a54",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "cbca0052c3fcbe825645e0f3fa1c82fc46d8e6d7",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "6614cd74445df4a9604ed4457c0e77d1d38c7ad9",
-    "./main.js": "10c9a77aec8a2c82ed297afff7dc2744945bb89a",
+    "./main.js": "fa63c5801c351eedd0df588e80320c155e52f6bb",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "1b9c53f55d14c291b48e5bde01562d43f0e7393d",
     "./node_modules_websocket_lib_browser_js.js": "c7af7c1222d99ab8078681870dad81aa9422653f",
     "./polyfills.js": "c535e56f7a1d041776c89827b5089cb723d65b09",
     "./runtime.js": "8ae943a427f5bd7b9177a390ed05b737da18d096",
-    "./styles.css": "277be3c59f533fabb2193efbe74511b344d8c7e3",
-    "./vendor.js": "221bff9a935a2f2bd6921018504c768643008317"
+    "./styles.css": "ad7ef7f41835f605066ad2c14906d334d3346ea0",
+    "./vendor.js": "4462590f4185ca34db1dad9300496347159ff3af"
   },
   "navigationUrls": [
     {
