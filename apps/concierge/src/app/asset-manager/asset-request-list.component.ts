@@ -21,7 +21,7 @@ import {
             <div class="w-full overflow-auto h-1/2 flex-1">
                 <custom-table
                     asset-requests
-                    class="block min-w-[76rem] text-sm"
+                    class="block min-w-[82rem] text-sm"
                     [dataSource]="requests"
                     [columns]="[
                         'user',
@@ -47,9 +47,9 @@ import {
                         'flex',
                         '12r',
                         '',
-                        '10r',
-                        '',
-                        '',
+                        '9.5r',
+                        '6r',
+                        '12r',
                         '10r',
                         '10r'
                     ]"
