@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1640220015386,
+  "timestamp": 1640920837361,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -112,7 +112,7 @@
   "dataGroups": [],
   "hashTable": {
     "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "7c74e23b1d81fd06e9dcaf799d0b762a9b42fc83",
-    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "3430d21d11b072b67738eeb84075a839a2d1526f",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "a4e165b8faad43e31523b6a5cc4af9a2d2e994b7",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -186,7 +186,7 @@
     "./default-libs_events_src_index_ts-libs_form-fields_src_index_ts.js": "bfdd5fb9fd93ed89cc1b7af2a88076770cde0d13",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "0b74ce3f02b7b09960c2d4ac4453a504521e3bcf",
-    "./main.js": "e2911851bb347f9f5b9b4dc64c5072f9368a2425",
+    "./main.js": "6ad983fa1385885df6ae7a66d168aa8225ca8dfa",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_node-fetch_browser_js.js": "b988d484475f1a5eef8d7e2af7ae6e8f60c813b8",
     "./node_modules_websocket_lib_browser_js.js": "f4692936b86e7ae3227de50ac280329f1596024f",
