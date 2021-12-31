@@ -46,7 +46,7 @@ describe('[User]', () => {
         expect(user.visit_expected).toBe(true);
         expect(user.checked_in).toBe(true);
         expect(user.groups).toEqual(['placeos_admin', 'placeos_support']);
-        expect(user.extension_data).toEqual({ assistance_required: true });
+        expect(user.extension_data?.assistance_required).toBe(true);
         expect(user.is_external).toBe(true);
         expect(user.assistance_required).toBe(true);
     });

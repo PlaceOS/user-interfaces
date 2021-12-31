@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/catering/catering-report-overall.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
+import { Router } from '@angular/router';
 
 describe('CateringReportOverallComponent', () => {
     let spectator: Spectator<CateringReportOverallComponent>;
@@ -16,6 +17,7 @@ describe('CateringReportOverallComponent', () => {
                     stats: new BehaviorSubject({}),
                 },
             },
+            { provide: Router, useValue: {} },
         ],
     });
 

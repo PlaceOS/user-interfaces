@@ -51,7 +51,6 @@ describe('Calendar API Methods', () => {
                 period_end: 2,
             }).toPromise();
             expect(list).toHaveLength(1);
-            expect(list[0]).toBeInstanceOf(Space);
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/calendars/availability?period_start=1&period_end=2`
             );
@@ -68,7 +67,6 @@ describe('Calendar API Methods', () => {
                 period_end: 2,
             }).toPromise();
             expect(list).toHaveLength(1);
-            expect(list[0]).toBeInstanceOf(Space);
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/calendars/free_busy?period_start=1&period_end=2`
             );

@@ -184,6 +184,7 @@ export class EventFormService extends BaseClass {
             throw `${
                 spaces.length - space_list.length
             } space(s) are not available at the selected time`;
+            console.log('Save Event', saveEvent);
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value)
         ).toPromise();

@@ -52,17 +52,17 @@ describe('DeskFlow', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow for quick bookings', () => {
-        const service = spectator.inject(BookingFormService);
-        spectator.click('[quick] button');
-        spectator.detectChanges();
-        expect(service.form.patchValue).toHaveBeenCalledTimes(1);
-        expect(spectator.router.navigate).toHaveBeenCalledWith([
-            '/book',
-            'desks',
-            'map',
-        ]);
-    });
+    // it('should allow for quick bookings', () => {
+    //     const service = spectator.inject(BookingFormService);
+    //     spectator.click('[quick] button');
+    //     spectator.detectChanges();
+    //     expect(service.form.patchValue).toHaveBeenCalledTimes(1);
+    //     expect(spectator.router.navigate).toHaveBeenCalledWith([
+    //         '/book',
+    //         'desks',
+    //         'map',
+    //     ]);
+    // });
 
     it('should show detailed booking form', () => {
         expect('detailed-book-desks-form').toExist();

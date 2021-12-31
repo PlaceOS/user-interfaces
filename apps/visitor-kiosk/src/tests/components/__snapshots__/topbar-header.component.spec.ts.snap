@@ -9,6 +9,7 @@ exports[`TopbarHeaderComponent should match snapshot 1`] = `
   >
     <a
       class="h-full flex flex-col justify-center px-4"
+      href="/"
       mat-button=""
     >
       <img

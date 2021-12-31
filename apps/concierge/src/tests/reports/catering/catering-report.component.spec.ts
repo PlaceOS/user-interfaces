@@ -8,6 +8,7 @@ import { CateringReportComponent } from 'apps/concierge/src/app/reports/catering
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 import { BehaviorSubject } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 
 describe('CateringReportComponent', () => {
     let spectator: Spectator<CateringReportComponent>;
@@ -27,6 +28,7 @@ describe('CateringReportComponent', () => {
                     setOptions: jest.fn(),
                 },
             },
+            { provide: Router, useValue: {} },
         ],
         imports: [MatProgressSpinnerModule],
     });

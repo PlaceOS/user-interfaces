@@ -18,7 +18,6 @@ exports[`ExploreMapViewComponent should match snapshot 1`] = `
      Zones 
     <mat-slide-toggle
       class="mat-slide-toggle ml-2 mat-accent _mat-animation-noopable ng-untouched ng-pristine ng-valid"
-      tabindex="-1"
     >
       <label
         class="mat-slide-toggle-label"

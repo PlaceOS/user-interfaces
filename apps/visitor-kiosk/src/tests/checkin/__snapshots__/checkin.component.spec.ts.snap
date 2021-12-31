@@ -12,6 +12,7 @@ exports[`CheckinComponent should match snapshot 1`] = `
     style="background-image: url(undefined);"
   >
     <router-outlet />
+    
   </div>
 </div>
 `;

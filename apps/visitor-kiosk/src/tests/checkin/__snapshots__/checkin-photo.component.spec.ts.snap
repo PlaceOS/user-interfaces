@@ -15,6 +15,7 @@ exports[`CheckinPhotoComponent should match snapshot 1`] = `
     <a-take-photo />
     <a
       class="absolute top-0 right-0"
+      href="/"
       mat-icon-button=""
     >
       <app-icon>

@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
+import { Router } from '@angular/router';
 
 describe('CateringReportItemsComponent', () => {
     let spectator: Spectator<CateringReportItemsComponent>;
@@ -20,6 +21,7 @@ describe('CateringReportItemsComponent', () => {
                     downloadOrders: jest.fn(),
                 },
             },
+            { provide: Router, useValue: {} },
         ],
         imports: [MatTooltipModule],
     });

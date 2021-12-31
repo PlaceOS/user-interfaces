@@ -63,7 +63,7 @@ describe('SourceSelectComponent', () => {
         expect('button[source]').toHaveClass('inverse');
     });
 
-    it('should emit selected inputs', async (done) => {
+    it('should emit selected inputs', (done) => {
         const input = { id: 'i1', name: 'i1', type: 'F' };
         const service = spectator.inject(ControlStateService);
         (service as any).input_list.next([input]);

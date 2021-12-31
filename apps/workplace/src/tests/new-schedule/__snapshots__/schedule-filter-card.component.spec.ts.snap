@@ -79,6 +79,7 @@ exports[`ScheduleFilterCardComponent should match snapshot 1`] = `
               class="mat-checkbox-background"
             >
               <svg
+                aria-hidden="true"
                 class="mat-checkbox-checkmark"
                 focusable="false"
                 version="1.1"
@@ -165,6 +166,7 @@ exports[`ScheduleFilterCardComponent should match snapshot 1`] = `
               class="mat-checkbox-background"
             >
               <svg
+                aria-hidden="true"
                 class="mat-checkbox-checkmark"
                 focusable="false"
                 version="1.1"
@@ -250,6 +252,7 @@ exports[`ScheduleFilterCardComponent should match snapshot 1`] = `
               class="mat-checkbox-background"
             >
               <svg
+                aria-hidden="true"
                 class="mat-checkbox-checkmark"
                 focusable="false"
                 version="1.1"

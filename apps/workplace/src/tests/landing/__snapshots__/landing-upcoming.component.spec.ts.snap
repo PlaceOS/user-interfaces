@@ -18,12 +18,14 @@ exports[`LandingUpcomingComponent should match snapshot 1`] = `
       <a
         button=""
         class="inverse hidden sm:block"
+        href="/"
         mat-button=""
       >
          View All 
       </a>
       <a
         class="inverse block sm:hidden text-blue-500 underline relative top-8"
+        href="/"
       >
          View All 
       </a>

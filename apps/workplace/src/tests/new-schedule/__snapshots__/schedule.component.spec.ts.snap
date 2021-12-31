@@ -23,10 +23,7 @@ exports[`ScheduleComponent should match snapshot 1`] = `
       <h3
         class="font-medium my-2"
       >
-         Mon 01 Nov 2021 
-        <span>
-          (Today)
-        </span>
+         Thu 01 Jan 1970 
         
       </h3>
       <div
@@ -39,61 +36,11 @@ exports[`ScheduleComponent should match snapshot 1`] = `
         <p
           class="opacity-30"
         >
-           No events and bookings for Monday, 01 Nov 2021 
+           No events and bookings for Thursday, 01 Jan 1970 
         </p>
       </div>
       
     </div>
-    <mat-progress-bar
-      aria-valuemax="100"
-      aria-valuemin="0"
-      class="mat-progress-bar absolute inset-x-0 bottom-0 mat-primary _mat-animation-noopable"
-      mode="indeterminate"
-      role="progressbar"
-      tabindex="-1"
-    >
-      <div
-        aria-hidden="true"
-      >
-        <svg
-          class="mat-progress-bar-background mat-progress-bar-element"
-          focusable="false"
-          height="4"
-          width="100%"
-        >
-          <defs>
-            <pattern
-              height="4"
-              patternUnits="userSpaceOnUse"
-              width="8"
-              x="4"
-              y="0"
-            >
-              <circle
-                cx="2"
-                cy="2"
-                r="2"
-              />
-            </pattern>
-          </defs>
-          <rect
-            fill="url('/#mat-progress-bar-1')"
-            height="100%"
-            width="100%"
-          />
-        </svg>
-        <div
-          class="mat-progress-bar-buffer mat-progress-bar-element"
-        />
-        <div
-          class="mat-progress-bar-primary mat-progress-bar-fill mat-progress-bar-element"
-          style="transform: scale3d(0, 1, 1);"
-        />
-        <div
-          class="mat-progress-bar-secondary mat-progress-bar-fill mat-progress-bar-element"
-        />
-      </div>
-    </mat-progress-bar>
     
   </div>
   <footer-menu />

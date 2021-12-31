@@ -13,7 +13,7 @@ exports[`ScheduleCalendarComponent should match snapshot 1`] = `
       <div
         class="px-2 font-medium"
       >
-         November 
+         December 
       </div>
       <div>
         <button
@@ -79,7 +79,19 @@ exports[`ScheduleCalendarComponent should match snapshot 1`] = `
         class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
         mat-icon-button=""
       >
-         31 
+         28 
+      </button>
+      <button
+        class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
+        mat-icon-button=""
+      >
+         29 
+      </button>
+      <button
+        class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
+        mat-icon-button=""
+      >
+         30 
       </button>
       <button
         class="min-w-[14%] flex-1 text-black font-normal"
@@ -94,7 +106,7 @@ exports[`ScheduleCalendarComponent should match snapshot 1`] = `
          2 
       </button>
       <button
-        class="min-w-[14%] flex-1 text-primary bg-gray-200"
+        class="min-w-[14%] flex-1 text-black font-normal"
         mat-icon-button=""
       >
          3 
@@ -262,6 +274,12 @@ exports[`ScheduleCalendarComponent should match snapshot 1`] = `
          30 
       </button>
       <button
+        class="min-w-[14%] flex-1 text-primary bg-gray-200"
+        mat-icon-button=""
+      >
+         31 
+      </button>
+      <button
         class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
         mat-icon-button=""
       >
@@ -308,24 +326,6 @@ exports[`ScheduleCalendarComponent should match snapshot 1`] = `
         mat-icon-button=""
       >
          8 
-      </button>
-      <button
-        class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
-        mat-icon-button=""
-      >
-         9 
-      </button>
-      <button
-        class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
-        mat-icon-button=""
-      >
-         10 
-      </button>
-      <button
-        class="min-w-[14%] flex-1 text-opacity-30 text-black font-normal"
-        mat-icon-button=""
-      >
-         11 
       </button>
       
     </div>

@@ -10,7 +10,6 @@ describe('Calendar', () => {
         expect(calendar.id).toBe('');
         expect(calendar.name).toBe('');
         expect(calendar.summary).toBe('');
-        expect(calendar.resource).toBeInstanceOf(Space);
         expect(calendar.primary).toBeFalsy();
         expect(calendar.can_edit).toBeFalsy();
         expect(calendar.availability).toEqual([]);

@@ -2,7 +2,7 @@
 
 exports[`LandingComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <topbar />
   <div

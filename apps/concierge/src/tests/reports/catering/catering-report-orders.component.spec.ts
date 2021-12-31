@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
+import { Router } from '@angular/router';
 
 describe('CateringReportOrdersComponent', () => {
     let spectator: Spectator<CateringReportOrdersComponent>;
@@ -22,6 +23,7 @@ describe('CateringReportOrdersComponent', () => {
                     downloadOrders: jest.fn(),
                 },
             },
+            { provide: Router, useValue: {} },
         ],
     });
 

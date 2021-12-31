@@ -2,6 +2,7 @@
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
     BindingDirective,
@@ -14,6 +15,7 @@ import { ControlStateService } from '../../app/control-state.service';
 
 import { CameraTooltipComponent, ZoomDirection } from '../../app/ui/camera-tooltip.component';
 import { JoystickComponent } from '../../app/ui/joystick.component';
+import { MatInputModule } from '@angular/material/input';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
@@ -36,7 +38,7 @@ describe('CameraTooltipComponent', () => {
                 useValue: { close: jest.fn() },
             },
         ],
-        imports: [MatSelectModule, MatFormFieldModule, FormsModule]
+        imports: [MatSelectModule, MatFormFieldModule, FormsModule, MatMenuModule, MatInputModule]
     });
 
     beforeEach(() => (spectator = createComponent()));

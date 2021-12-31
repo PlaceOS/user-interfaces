@@ -10,6 +10,7 @@ exports[`DeskFlowMapComponent should match snapshot 1`] = `
     <a
       button=""
       class="clear h-[2.75rem] text-white"
+      href="/"
       mat-button=""
     >
       <div

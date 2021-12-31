@@ -9,6 +9,7 @@ exports[`FooterMenuComponent should match snapshot 1`] = `
   >
     <a
       class="flex-1 h-16 !rounded-none"
+      href="/"
       mat-button=""
       routerlinkactive="!bg-primary !text-white"
     >
@@ -29,6 +30,7 @@ exports[`FooterMenuComponent should match snapshot 1`] = `
     </a>
     <a
       class="flex-1 h-16 !rounded-none"
+      href="/"
       mat-button=""
       routerlinkactive="!bg-primary !text-white"
     >

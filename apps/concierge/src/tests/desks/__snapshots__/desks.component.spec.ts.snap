@@ -2,7 +2,7 @@
 
 exports[`DesksComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <sidebar />
   <main
@@ -18,18 +18,21 @@ exports[`DesksComponent should match snapshot 1`] = `
         mat-tab-nav-bar=""
       >
         <a
+          href="/"
           mat-tab-link=""
           queryparamshandling="merge"
         >
            Bookings 
         </a>
         <a
+          href="/"
           mat-tab-link=""
           queryparamshandling="merge"
         >
            Map View 
         </a>
         <a
+          href="/"
           mat-tab-link=""
           queryparamshandling="merge"
         >
@@ -41,6 +44,7 @@ exports[`DesksComponent should match snapshot 1`] = `
       class="flex-1 h-1/2 w-full relative overflow-auto"
     >
       <router-outlet />
+      
     </div>
     
   </main>

@@ -1,6 +1,7 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { of, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
 
@@ -15,6 +16,9 @@ describe('VisitorStateService', () => {
     let spectator: SpectatorService<VisitorsStateService>;
     const createService = createServiceFactory({
         service: VisitorsStateService,
+        providers: [
+            { provide: MatDialog, useValue: { open: jest.fn() } }
+        ]
     });
 
     beforeEach(() => (spectator = createService()));

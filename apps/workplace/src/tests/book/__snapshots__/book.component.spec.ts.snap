@@ -2,7 +2,7 @@
 
 exports[`BookComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <topbar />
   <div
@@ -12,6 +12,7 @@ exports[`BookComponent should match snapshot 1`] = `
       class="relative flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
     >
       <router-outlet />
+      
     </main>
   </div>
   <footer-menu />

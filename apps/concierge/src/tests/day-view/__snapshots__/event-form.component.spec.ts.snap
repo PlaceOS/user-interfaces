@@ -63,14 +63,14 @@ exports[`EventFormComponent should match snapshot 1`] = `
               class="mat-form-field-infix"
             >
               <input
-                aria-invalid="false"
-                aria-required="false"
+                aria-required="true"
                 class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
                 data-placeholder="Meeting Title"
                 formcontrolname="title"
                 matinput=""
                 name="title"
                 placeholder="Meeting Title"
+                required=""
               />
               <span
                 class="mat-form-field-label-wrapper"

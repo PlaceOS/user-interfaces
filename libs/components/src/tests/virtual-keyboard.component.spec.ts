@@ -25,10 +25,12 @@ describe('VirtualKeyboardComponent', () => {
         spectator.detectChanges();
         expect(document.querySelector('div[keyboard]')).not.toExist();
         VirtualKeyboardComponent.enabled = true;
-        spectator.focus(spectator.hostElement.querySelector('input'));
+        spectator.detectChanges();
+        spectator.focus(document.querySelector('input'));
+        spectator.tick(320);
         spectator.detectChanges();
         expect(document.querySelector('div[keyboard]')).toExist();
-        spectator.blur(spectator.hostElement.querySelector('input'));
+        spectator.blur(document.querySelector('input'));
         spectator.tick(320);
         spectator.detectChanges();
         expect(document.querySelector('div[keyboard]')).not.toExist();

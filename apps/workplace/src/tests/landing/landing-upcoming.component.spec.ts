@@ -2,7 +2,7 @@ import { createRoutingFactory, SpectatorRouting } from "@ngneat/spectator/jest";
 import { MockComponent } from "ng-mocks";
 import { BehaviorSubject } from "rxjs";
 import { BookingCardComponent } from "../../app/components/booking-card.component";
-import { EventCardComponent } from "../../app/landing/event-card.component";
+import { EventCardComponent } from "../../app/components/event-card.component";
 import { LandingStateService } from "../../app/landing/landing-state.service";
 import { LandingUpcomingComponent } from "../../app/landing/landing-upcoming.component";
 

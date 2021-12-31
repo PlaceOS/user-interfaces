@@ -21,6 +21,7 @@ exports[`CheckinErrorComponent should match snapshot 1`] = `
     <a
       button=""
       class="w-32"
+      href="/"
       mat-button=""
     >
        Back 

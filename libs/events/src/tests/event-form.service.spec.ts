@@ -147,7 +147,7 @@ describe('EventFormService', () => {
             '1 space(s) are not available at the selected time'
         );
         spectator.service.form.patchValue({ resources: [] });
-        await spectator.service.postForm();
+        await expect(spectator.service.postForm()).resolves.toBeTruthy();
         expect(spectator.service.view).toBe('success');
     });
 

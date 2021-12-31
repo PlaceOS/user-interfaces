@@ -2,7 +2,7 @@
 
 exports[`BookingCardComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   
   
@@ -12,7 +12,7 @@ exports[`BookingCardComponent should match snapshot 1`] = `
 
 exports[`BookingCardComponent should match snapshot 2`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <h4
     class="mb-2 flex items-center"
@@ -28,6 +28,7 @@ exports[`BookingCardComponent should match snapshot 2`] = `
   
   <a
     class="w-full"
+    href="/"
     matripplecolor=""
   >
     <div
@@ -90,7 +91,7 @@ exports[`BookingCardComponent should match snapshot 2`] = `
 
 exports[`BookingCardComponent should match snapshot 3`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <h4
     class="mb-2 flex items-center"
@@ -109,6 +110,7 @@ exports[`BookingCardComponent should match snapshot 3`] = `
   
   <a
     class="w-full"
+    href="/"
     matripplecolor=""
   >
     <div

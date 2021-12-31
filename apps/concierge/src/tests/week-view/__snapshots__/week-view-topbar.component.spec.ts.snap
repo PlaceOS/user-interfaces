@@ -132,7 +132,6 @@ exports[`WeekViewTopbarComponent should match snapshot 1`] = `
   </mat-form-field>
   <mat-slide-toggle
     class="mat-slide-toggle m-2 mat-accent _mat-animation-noopable ng-untouched ng-pristine ng-valid"
-    tabindex="-1"
   >
     <label
       class="mat-slide-toggle-label"

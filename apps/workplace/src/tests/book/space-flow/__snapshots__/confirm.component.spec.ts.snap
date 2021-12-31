@@ -10,6 +10,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
     <a
       button=""
       class="clear h-[2.75rem] text-white"
+      href="/"
       mat-button=""
     >
       <div
@@ -53,6 +54,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
       </div>
       <a
         class="clear underline"
+        href="/"
         mat-button=""
       >
         Edit
@@ -75,6 +77,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
       </div>
       <a
         class="clear underline"
+        href="/"
         mat-button=""
       >
         Edit
@@ -107,6 +110,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
         </button>
         <a
           class="clear underline"
+          href="/"
           mat-button=""
         >
           Edit
@@ -147,6 +151,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 1`] = `
         </button>
         <a
           class="clear underline"
+          href="/"
           mat-button=""
         >
           Edit
@@ -186,6 +191,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
     <a
       button=""
       class="clear h-[2.75rem] text-white"
+      href="/"
       mat-button=""
     >
       <div
@@ -229,6 +235,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
       </div>
       <a
         class="clear underline"
+        href="/"
         mat-button=""
       >
         Edit
@@ -251,6 +258,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
       </div>
       <a
         class="clear underline"
+        href="/"
         mat-button=""
       >
         Edit
@@ -282,6 +290,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
         </button>
         <a
           class="clear underline"
+          href="/"
           mat-button=""
         >
           Edit
@@ -334,6 +343,7 @@ exports[`SpaceFlowConfirmComponent should display booking details 2`] = `
         </button>
         <a
           class="clear underline"
+          href="/"
           mat-button=""
         >
           Edit

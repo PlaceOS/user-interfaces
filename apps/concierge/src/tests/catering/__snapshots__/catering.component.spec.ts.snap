@@ -18,6 +18,7 @@ exports[`CateringComponent should match snapshot 1`] = `
     >
       <a
         class="rounded flex flex-col items-center bg-white shadow text-black"
+        href="/"
         matripple=""
       >
         <div
@@ -42,6 +43,7 @@ exports[`CateringComponent should match snapshot 1`] = `
       </a>
       <a
         class="rounded flex flex-col items-center bg-white shadow text-black"
+        href="/"
         matripple=""
       >
         <div

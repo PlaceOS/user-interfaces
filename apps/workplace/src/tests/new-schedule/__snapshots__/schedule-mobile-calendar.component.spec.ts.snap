@@ -14,7 +14,7 @@ exports[`ScheduleMobileCalendarComponent should match snapshot 1`] = `
       <div
         class="px-2 font-medium"
       >
-         November 
+         December 
       </div>
       <app-icon>
         arrow_drop_down
@@ -64,46 +64,46 @@ exports[`ScheduleMobileCalendarComponent should match snapshot 1`] = `
       class="flex items-center justify-between flex-wrap"
     >
       <button
-        class="min-w-10 h-10 mx-2 text-opacity-30 text-black font-normal"
+        class="min-w-10 h-10 mx-2 text-black font-normal"
         mat-icon-button=""
       >
-         31 
+         26 
+      </button>
+      <button
+        class="min-w-10 h-10 mx-2 text-black font-normal"
+        mat-icon-button=""
+      >
+         27 
+      </button>
+      <button
+        class="min-w-10 h-10 mx-2 text-black font-normal"
+        mat-icon-button=""
+      >
+         28 
+      </button>
+      <button
+        class="min-w-10 h-10 mx-2 text-black font-normal"
+        mat-icon-button=""
+      >
+         29 
+      </button>
+      <button
+        class="min-w-10 h-10 mx-2 text-black font-normal"
+        mat-icon-button=""
+      >
+         30 
       </button>
       <button
         class="min-w-10 h-10 mx-2 text-primary bg-gray-200"
         mat-icon-button=""
       >
+         31 
+      </button>
+      <button
+        class="min-w-10 h-10 mx-2 text-opacity-30 text-black font-normal"
+        mat-icon-button=""
+      >
          1 
-      </button>
-      <button
-        class="min-w-10 h-10 mx-2 text-black font-normal"
-        mat-icon-button=""
-      >
-         2 
-      </button>
-      <button
-        class="min-w-10 h-10 mx-2 text-black font-normal"
-        mat-icon-button=""
-      >
-         3 
-      </button>
-      <button
-        class="min-w-10 h-10 mx-2 text-black font-normal"
-        mat-icon-button=""
-      >
-         4 
-      </button>
-      <button
-        class="min-w-10 h-10 mx-2 text-black font-normal"
-        mat-icon-button=""
-      >
-         5 
-      </button>
-      <button
-        class="min-w-10 h-10 mx-2 text-black font-normal"
-        mat-icon-button=""
-      >
-         6 
       </button>
       
     </div>

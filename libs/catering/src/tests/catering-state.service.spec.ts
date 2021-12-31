@@ -164,15 +164,11 @@ describe('CateringStateService', () => {
         (ts_client as any).showMetadata = jest.fn(() => of({}));
         let config = await spectator.service.getCateringConfig();
         expect(config).toEqual([]);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld-1', {
-            name: 'catering_config',
-        });
+        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld-1', 'catering_config');
         (ts_client as any).showMetadata = jest.fn(() => of([]));
         config = await spectator.service.getCateringConfig('bld-2');
         expect(config).toEqual([]);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld-2', {
-            name: 'catering_config',
-        });
+        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld-2', 'catering_config');
     });
 
     it('should allow user to add items to order', () => {

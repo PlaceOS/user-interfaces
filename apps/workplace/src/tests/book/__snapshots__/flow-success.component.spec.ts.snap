@@ -20,7 +20,7 @@ exports[`FlowSuccessComponent should match snapshot 1`] = `
     >
        Thank you, you space booking was successful!
       <br />
-       An event has been added to your calendar 
+       An event has been added to {{ is_host ? 'your' : 'the host's'}} calendar 
     </div>
     <div
       class="flex items-center space-x-2"
@@ -28,6 +28,7 @@ exports[`FlowSuccessComponent should match snapshot 1`] = `
       <a
         button=""
         class="w-32"
+        href="/"
         mat-button=""
       >
          New Booking 
@@ -35,6 +36,7 @@ exports[`FlowSuccessComponent should match snapshot 1`] = `
       <a
         button=""
         class="w-32"
+        href="/"
         mat-button=""
       >
          My Day 

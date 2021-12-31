@@ -2,6 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent, InteractiveMapComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { MockComponent } from 'ng-mocks';
 
 import { MapLocateModalComponent } from '../../app/overlays/map-locate-modal.component';
@@ -18,6 +19,10 @@ describe('MapLocateModalComponent', () => {
             {
                 provide: MAT_DIALOG_DATA,
                 useValue: { item: { map_id: '1', name: 'Item 1', level: {} } },
+            },
+            {
+                provide: OrganisationService,
+                useValue: { levelWithID: jest.fn() },
             },
         ],
         imports: [FormsModule],

@@ -2,7 +2,7 @@
 
 exports[`EventCardComponent should match snapshot 1`] = `
 <div
-  id="root0"
+  id="root1"
 >
   
   
@@ -11,7 +11,7 @@ exports[`EventCardComponent should match snapshot 1`] = `
 
 exports[`EventCardComponent should match snapshot 2`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <h4
     class="mb-2 flex items-center"
@@ -19,7 +19,7 @@ exports[`EventCardComponent should match snapshot 2`] = `
     
      8:00 AM 
     <span
-      class="text-xs"
+      class="text-xs px-2"
     >
       (GMT+11)
     </span>
@@ -27,6 +27,7 @@ exports[`EventCardComponent should match snapshot 2`] = `
   
   <a
     class="w-full"
+    href="/"
     matripplecolor=""
   >
     <div
@@ -41,17 +42,17 @@ exports[`EventCardComponent should match snapshot 2`] = `
         class="flex m-2"
       >
         <div
-          class="flex items-center bg-gray-200 rounded-2xl px-2 py-1 text-sm space-x-2 pr-2 font-medium"
+          class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium bg-green-600"
         >
           <div
-            class="rounded-full h-4 w-4 bg-black/20 flex items-center justify-center text-white"
+            class="rounded-full h-5 w-5 flex items-center justify-center text-white bg-success"
           >
             <app-icon>
-              done
+               done 
             </app-icon>
           </div>
           <div
-            class="pr-2"
+            class="pr-1"
           >
             8:00 AM - 8:30 AM (30mins)
           </div>
@@ -113,7 +114,7 @@ exports[`EventCardComponent should match snapshot 2`] = `
 
 exports[`EventCardComponent should match snapshot 3`] = `
 <div
-  id="root0"
+  id="root1"
 >
   <h4
     class="mb-2 flex items-center"
@@ -124,7 +125,7 @@ exports[`EventCardComponent should match snapshot 3`] = `
     
      8:00 AM 
     <span
-      class="text-xs"
+      class="text-xs px-2"
     >
       (GMT+11)
     </span>
@@ -132,6 +133,7 @@ exports[`EventCardComponent should match snapshot 3`] = `
   
   <a
     class="w-full"
+    href="/"
     matripplecolor=""
   >
     <div
@@ -146,17 +148,17 @@ exports[`EventCardComponent should match snapshot 3`] = `
         class="flex m-2"
       >
         <div
-          class="flex items-center bg-gray-200 rounded-2xl px-2 py-1 text-sm space-x-2 pr-2 font-medium"
+          class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium bg-green-600"
         >
           <div
-            class="rounded-full h-4 w-4 bg-black/20 flex items-center justify-center text-white"
+            class="rounded-full h-5 w-5 flex items-center justify-center text-white bg-success"
           >
             <app-icon>
-              done
+               done 
             </app-icon>
           </div>
           <div
-            class="pr-2"
+            class="pr-1"
           >
             8:00 AM - 8:30 AM (30mins)
           </div>

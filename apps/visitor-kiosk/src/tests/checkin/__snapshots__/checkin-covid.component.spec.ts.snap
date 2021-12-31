@@ -275,6 +275,7 @@ exports[`CheckinCovidComponent should match snapshot 1`] = `
     </button>
     <a
       class="absolute top-0 right-0"
+      href="/"
       mat-icon-button=""
     >
       <app-icon>

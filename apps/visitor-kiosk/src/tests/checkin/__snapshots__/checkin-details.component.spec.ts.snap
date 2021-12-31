@@ -65,14 +65,14 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               class="mat-form-field-infix"
             >
               <input
-                aria-invalid="false"
-                aria-required="false"
+                aria-required="true"
                 class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
                 data-placeholder="Host's Email Address"
                 formcontrolname="host"
                 matinput=""
                 name="host"
                 placeholder="Host's Email Address"
+                required=""
               />
               <span
                 class="mat-form-field-label-wrapper"
@@ -241,14 +241,14 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
               class="mat-form-field-infix"
             >
               <input
-                aria-invalid="false"
-                aria-required="false"
+                aria-required="true"
                 class="mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
                 data-placeholder="Email Address"
                 formcontrolname="email"
                 matinput=""
                 name="email"
                 placeholder="Email Address"
+                required=""
               />
               <span
                 class="mat-form-field-label-wrapper"
@@ -463,6 +463,7 @@ exports[`CheckinDetailsComponent should match snapshot 1`] = `
     </button>
     <a
       class="absolute top-0 right-0"
+      href="/"
       mat-icon-button=""
     >
       <app-icon>

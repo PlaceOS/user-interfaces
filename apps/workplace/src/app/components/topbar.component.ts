@@ -35,7 +35,7 @@ import { UserControlsComponent } from './user-controls.component';
                 mat-menu-item
                 [routerLink]="['/schedule']"
                 routerLinkActive="text-primary"
-                *ngIf="features.includes('schedule')"
+                *ngIf="features?.includes('schedule')"
             >
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-xl">event</app-icon>

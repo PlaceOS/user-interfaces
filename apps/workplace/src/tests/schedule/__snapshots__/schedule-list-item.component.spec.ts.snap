@@ -7,6 +7,7 @@ exports[`ScheduleListItemComponent should match snapshot 1`] = `
   
   <a
     class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0 opacity-50"
+    href="/"
     mat-button=""
   >
     <div
@@ -40,18 +41,7 @@ exports[`ScheduleListItemComponent should match snapshot 1`] = `
         >
            Untitled Event 
         </div>
-        <div
-          class="flex items-center font-normal"
-        >
-          <app-icon
-            class="text-lg mr-1"
-          >
-            place
-          </app-icon>
-          <span>
-            
-          </span>
-        </div>
+        
       </div>
     </div>
   </a>
@@ -67,6 +57,7 @@ exports[`ScheduleListItemComponent should match snapshot 2`] = `
   
   <a
     class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
+    href="/"
     mat-button=""
   >
     <div
@@ -84,7 +75,7 @@ exports[`ScheduleListItemComponent should match snapshot 2`] = `
         <div
           class="font-normal"
         >
-           7:10 PM 
+           1:35 PM 
         </div>
         <div
           class="capitalize text-xs font-medium"
@@ -100,18 +91,7 @@ exports[`ScheduleListItemComponent should match snapshot 2`] = `
         >
            Untitled Event 
         </div>
-        <div
-          class="flex items-center font-normal"
-        >
-          <app-icon
-            class="text-lg mr-1"
-          >
-            place
-          </app-icon>
-          <span>
-            
-          </span>
-        </div>
+        
       </div>
     </div>
   </a>
