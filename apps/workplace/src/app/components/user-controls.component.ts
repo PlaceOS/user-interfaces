@@ -77,7 +77,7 @@ import { HelpTooltipComponent } from './help-tooltip.component';
             </button>
                         </div>
             <div class="flex flex-col items-center p-4">
-                <button mat-button class="inverse mb-4">Sign Out</button>
+                <button mat-button class="inverse mb-4" (click)="logout()">Sign Out</button>
                 <div class="text-xs opacity-60 w-full">
                     Version: {{ version.hash }}
                 </div>
