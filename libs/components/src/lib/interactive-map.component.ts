@@ -282,6 +282,7 @@ export class InteractiveMapComponent
                 options: this.options,
             });
             this.loading = false;
+            if (this.focus) this.focusOn(this.focus);
             this.subscription(
                 'view_changes',
                 listenToViewerChanges(this.viewer)?.subscribe((v) =>{
@@ -304,8 +305,8 @@ export class InteractiveMapComponent
         const rect = viewer.mappings[id];
         if (!rect) return;
         this.center = {
-            x: 1 - (rect.x + rect.w / 2),
-            y: 1 - (rect.y + rect.h / 2),
+            x: 1 - (rect.x),
+            y: 1 - (rect.y),
         };
         this.updateDisplay();
     }
