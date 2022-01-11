@@ -151,8 +151,8 @@ jobs:
 
             - name: Compress build Artifacts
               run: |
-                tar -czvf ${{ maxtrix.package }}.tar.gz dist/apps/${{ maxtrix.package }}/*
-                echo $GITHUB_SHA > ${{ maxtrix.package }}.txt
+                tar -czvf ${{ matrix.package }}.tar.gz dist/apps/${{ matrix.package }}/*
+                echo $GITHUB_SHA > ${{ matrix.package }}.txt
 
             - name: Deploy the application(production)
               env:
@@ -160,8 +160,8 @@ jobs:
               run: | 
                 export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
                 echo $VERSION
-                gh release upload $VERSION ${{ maxtrix.package}}.tar.gz --clobber
-                gh release upload $VERSION ${{ maxtrix.package }}.txt --clobber
+                gh release upload $VERSION ${{ matrix.package}}.tar.gz --clobber
+                gh release upload $VERSION ${{ matrix.package }}.txt --clobber
               if: ${{ env.configuration == 'production' }}
 
             - name: Deploy the application(develop)
@@ -171,8 +171,8 @@ jobs:
                 if gh release create develop
                 then echo Created new version develop
                 fi
-                gh release upload develop ${{ maxtrix.package}}.tar.gz --clobber
-                gh release upload develop ${{ maxtrix.package }}.txt --clobber
+                gh release upload develop ${{ matrix.package}}.tar.gz --clobber
+                gh release upload develop ${{ matrix.package }}.txt --clobber
               if: ${{ env.configuration != 'production' }}
 
             - name: Update Pipeline Chat Status
