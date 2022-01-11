@@ -4,15 +4,13 @@ const baseSha = ref;
 const cmd = process.argv[3] || 'build';
 
 // prints an object with keys {lint1: [...], lint2: [...], lint3: [...], test1: [...], .... build3: [...]}
-console.log(
-  JSON.stringify(commands(cmd))
-);
+console.log(JSON.stringify(commands(cmd)));
 
 function commands(target) {
-  const array = JSON.parse(
-    execSync(`npx nx print-affected --base=${baseSha}~1 --target=${target}`)
-      .toString()
-      .trim()
-  ).tasks.map((t) => t.target.project);
-  return array;
+    const release = ref.includes('release');
+    const base = release ? '' : `--base=${baseSha}~1`;
+    const array = execSync(
+        `npx nx print-affected --target=${target} --select=tasks.target.project ${base}`
+    ).toString().replace(/\n/g, '').split(', ').filter(_ => !!_);
+    return array;
 }
