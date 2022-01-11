@@ -6,7 +6,7 @@ name: BUILD
 # events but only for the master branch
 on:
     push:
-        branches: [develop, release/**, master]
+        branches: [develop, release/**]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -63,6 +63,24 @@ jobs:
                         echo "::set-output name=configuration::staging"
                         echo "::set-output name=deploy_branch::dev"
                     fi
+
+            - name: Update version
+              run: |
+                git config user.email $(git show -s --format='%ae' HEAD)
+                git config user.name CI_USER
+                export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
+                echo $VERSION
+                npm run version
+                export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
+                if gh release create $VERSION
+                then echo Created new version $VERSION
+                fi
+                gh release upload $VERSION CHANGELOG.md --clobber
+                git tag -d $VERSION
+                git reset --hard origin/${{ steps.branch_name.outputs.name }}
+                git tag -a $VERSION && git push origin $VERSION
+              if: ${{ steps.build_ext.outputs.configuration == 'production' }}
+
             - name: List affected applications
               id: affected_apps
               run: |
@@ -131,15 +149,31 @@ jobs:
               run: |
                 npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
-            - name: Deploy the application(${{ matrix.package }})
-              uses: MrYuion/gha-publish-to-git@v1.1
-              continue-on-error: true
-              with:
-                  branch: build/${{ matrix.package }}/${{ env.deploy_branch }}
-                  source_folder: dist/apps/${{ matrix.package }}
-                  commit_message: >
-                      build(${{ matrix.package }}): CI build from ${{ env.sha_short }}
-                  github_pat: ${{ secrets.API_GITHUB_TOKEN }}
+            - name: Compress build Artifacts
+              run: |
+                tar -czvf ${{ maxtrix.package }}.tar.gz dist/apps/${{ maxtrix.package }}/*
+                echo $GITHUB_SHA > ${{ maxtrix.package }}.txt
+
+            - name: Deploy the application(production)
+              env:
+                GITHUB_TOKEN: ${{ secrets.API_GITHUB_TOKEN }}
+              run: | 
+                export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
+                echo $VERSION
+                gh release upload $VERSION ${{ maxtrix.package}}.tar.gz --clobber
+                gh release upload $VERSION ${{ maxtrix.package }}.txt --clobber
+              if: ${{ env.configuration == 'production' }}
+
+            - name: Deploy the application(develop)
+              env:
+                GITHUB_TOKEN: ${{ secrets.API_GITHUB_TOKEN }}
+              run: | 
+                if gh release create develop
+                then echo Created new version develop
+                fi
+                gh release upload develop ${{ maxtrix.package}}.tar.gz --clobber
+                gh release upload develop ${{ maxtrix.package }}.txt --clobber
+              if: ${{ env.configuration != 'production' }}
 
             - name: Update Pipeline Chat Status
               uses: fjogeleit/http-request-action@master

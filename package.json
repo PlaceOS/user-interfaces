@@ -25,7 +25,8 @@
         "update": "nx migrate latest",
         "workspace-generator": "nx workspace-generator",
         "dep-graph": "nx dep-graph",
-        "help": "nx help"
+        "help": "nx help",
+        "version": "node ./tools/apply-version.js && npx standard-version"
     },
     "private": true,
     "dependencies": {
@@ -94,6 +95,7 @@
         "postcss": "^8.4.4",
         "postcss-preset-env": "^6.7.0",
         "prettier": "2.4.1",
+        "standard-version": "^9.3.2",
         "tailwindcss": "^2.2.19",
         "ts-jest": "27.0.5",
         "ts-md5": "^1.2.7",
