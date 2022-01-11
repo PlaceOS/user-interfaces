@@ -1,5 +1,5 @@
 const execSync = require('child_process').execSync;
-const ref = process.argv[2] || 'origin/master';
+const ref = process.argv[2] || 'origin/develop';
 const baseSha = ref;
 const cmd = process.argv[3] || 'build';
 
