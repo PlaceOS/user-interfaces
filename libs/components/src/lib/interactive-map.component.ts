@@ -282,14 +282,14 @@ export class InteractiveMapComponent
                 options: this.options,
             });
             this.loading = false;
-            if (this.focus) this.focusOn(this.focus);
             this.subscription(
                 'view_changes',
                 listenToViewerChanges(this.viewer)?.subscribe((v) =>{
                     const box = this._outlet_el.nativeElement.getBoundingClientRect();
-                    this._on_changes.next({  ...v })
+                    this._on_changes.next({ ...v } as any)
                 })
             );
+            if (this.focus) this.focusOn(this.focus);
         } else if (
             (this.src && !this._outlet_el?.nativeElement) ||
             this.loading
@@ -305,8 +305,8 @@ export class InteractiveMapComponent
         const rect = viewer.mappings[id];
         if (!rect) return;
         this.center = {
-            x: 1 - (rect.x),
-            y: 1 - (rect.y),
+            x: 1 - (rect.x + rect.w / 2),
+            y: 1 - (rect.y + rect.h / 4),
         };
         this.updateDisplay();
     }
