@@ -27,7 +27,6 @@ const ROUTES: Route[] = [
         SharedComponentsModule,
         FormsModule,
         SharedExploreModule,
-    ],
-    entryComponents: [FiltersComponent],
+    ]
 })
 export class AppExploreModule {}
