@@ -41,6 +41,11 @@ const general = {
             icon: { class: 'material-icons', content: 'loyalty' },
         },
         {
+            route: 'parking',
+            name: 'Parking',
+            icon: { class: 'material-icons', content: 'local_parking' },
+        },
+        {
             route: 'reports',
             name: 'Reports',
             icon: { class: 'material-icons', content: 'analytics' },

@@ -80,6 +80,13 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'parking',
+        loadChildren: () =>
+            import('./parking/parking.module').then((m) => m.AppParkingModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: 'day-view' },
 ];
 

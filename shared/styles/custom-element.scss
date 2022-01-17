@@ -581,6 +581,16 @@ custom-table[asset-requests] {
     }
 }
 
+custom-table[header-dark] {
+    cdk-header-row {
+        background: #263238 !important;
+        color: #fff;
+        [cdk-header-cell] {
+            background: none;
+        }
+    }
+}
+
 #placeos {
     .cdk-overlay-pane {
         max-width: none !important;

@@ -97,6 +97,30 @@ export function randomInt(ceil: number, floor: number = 0) {
     return Math.floor(Math.random() * (ceil - floor)) + floor;
 }
 
+/**
+ * Pad string to the given length
+ * @param str Base string
+ * @param length Length to pad the string
+ */
+export function padString(str: string | number, length: number = 5) {
+    str = `${str}`;
+    while (str.length < length) str = `0${str}`;
+    return str;
+}
+
+/**
+ * Generate a random string
+ * @param length Length of the string
+ * @param chars Available characters to use in the string
+ */
+export function randomString(length: number, chars: string = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') {
+    let str = '';
+    for (let i = 0; i < length; i++) {
+        str += chars[randomInt(chars.length)];
+    }
+    return str;
+}
+
 export async function openConfirmModal(
     data: ConfirmModalData,
     dialog: MatDialog

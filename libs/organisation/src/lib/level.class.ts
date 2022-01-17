@@ -16,6 +16,8 @@ export class BuildingLevel {
     public readonly number: string;
     /** URL of the map associated with the level */
     public readonly map_id: string;
+    /** URL of the map associated with the level */
+    public readonly tags: string[];
     /** Settings overrides associated with the level */
     public readonly settings: HashMap = {};
     /** List of points of interest for the level */
@@ -29,6 +31,7 @@ export class BuildingLevel {
         this.map_id = _data.map_id || '';
         this.capacity = _data.capacity || 0;
         this.locations = _data.locations || [];
+        this.tags = _data.tags || [];
         const parts = this.display_name.split(' ');
         this.number =
             (parts.length >= 2

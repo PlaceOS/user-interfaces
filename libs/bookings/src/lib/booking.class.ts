@@ -33,6 +33,8 @@ export class Booking {
     public readonly user_name: string;
     /** Identifier of the physical asset assocated with the booking */
     public readonly asset_id: string;
+    /** Name of the physical asset assocated with the booking */
+    public readonly asset_name: string;
     /** Zones associated with the asset ID */
     public readonly zones: string[];
     /** Type of booking */
@@ -73,6 +75,7 @@ export class Booking {
     constructor(data: Partial<Booking> = {}) {
         this.id = data.id || '';
         this.asset_id = data.asset_id || '';
+        this.asset_name = data.asset_name || data.extension_data?.asset_name || '';
         this.zones = data.zones || [];
         this.booking_start =
             data.date / 1000 ||
@@ -109,6 +112,9 @@ export class Booking {
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
         this.approved = !!data.approved;
+        this.booked_by_id = data.booked_by_id || '';
+        this.booked_by_name = data.booked_by_name || '';
+        this.booked_by_email = data.booked_by_email || '';
         this.approver_id = data.approver_id || '';
         this.approver_email = data.approver_email || '';
         this.approver_name = data.approver_name || '';

@@ -1,6 +1,7 @@
-import { predictableRandomInt } from '@placeos/common';
+import { padString, predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_MENU } from './catering.data';
+import { MOCK_STAFF } from './users.data';
 import { MOCK_ORGS, MOCK_LEVELS, MOCK_BUILDINGS } from './zone.data';
 
 const MOCK_METADATA = {
@@ -28,6 +29,8 @@ const MOCK_METADATA = {
     },
 };
 
+export const PARKING_SPACES = {};
+
 export const ZONE_MOCKS = registerMocks();
 
 function registerMocks() {
@@ -46,12 +49,6 @@ function registerMocks() {
             throw { status: 404, message: 'Zones not found' };
         },
     });
-
-    function padString(str: string | number, length: number = 5) {
-        str = `${str}`;
-        while (str.length < length) str = `0${str}`;
-        return str;
-    }
 
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
@@ -79,6 +76,11 @@ function registerMocks() {
                 const parts = request.route_params.id.split('-');
                 const id = parts[parts.length - 1];
                 return generateMockDeskMetadata(id);
+            }
+            if (request.query_params.name === 'parking-spaces') {
+                const parts = request.route_params.id.split('-');
+                const id = parts[parts.length - 1];
+                return generateParkingSpaces(id);
             }
             if (request.query_params.name === 'map_regions') {
                 return {
@@ -156,6 +158,36 @@ function registerMocks() {
                 })),
             },
         };
+    }
+
+    function generateParkingSpaces(id: string) {
+        if (!PARKING_SPACES[id]) {
+            PARKING_SPACES[id] = {
+                'parking-spaces': {
+                    details: new Array(18 * 6).fill(0).map((_, idx) => {
+                        const position = padString(
+                            (idx % 18) + 1 + Math.floor(idx / 18) * 100,
+                            3
+                        );
+                        const assignee =
+                            predictableRandomInt(9999) % 4 === 0
+                                ? MOCK_STAFF[
+                                      predictableRandomInt(MOCK_STAFF.length)
+                                  ]
+                                : ({} as any);
+                        return {
+                            id: `park-${position}`,
+                            map_id: `park-${position}`,
+                            name: `${position}`,
+                            bookable: predictableRandomInt(9999) % 4 !== 0,
+                            assigned_to: assignee.email || '',
+                            assigned_name: assignee.name || '',
+                        };
+                    }),
+                },
+            };
+        }
+        return PARKING_SPACES[id];
     }
 
     registerMockEndpoint({
