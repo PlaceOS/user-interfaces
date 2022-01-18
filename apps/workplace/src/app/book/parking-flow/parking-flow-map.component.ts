@@ -7,7 +7,7 @@ import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, format, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: 'space-ping',
@@ -56,7 +56,9 @@ class SpacePingComponent extends BaseClass {
                     (click)="setDate(date.id)"
                 >
                     <p class="mb-2 font-medium">{{ date.name }}</p>
-                    <p class="text-2xl">{{ ((counts | async) || {})[date.id] || '0' }}</p>
+                    <p class="text-2xl">
+                        {{ ((counts | async) || {})[date.id] || '0' }}
+                    </p>
                     <p class="text-sm">Available</p>
                 </button>
             </div>
@@ -122,6 +124,10 @@ class SpacePingComponent extends BaseClass {
                     <p>
                         Parking Bay No.
                         {{ (active_space | async).name }} selected.
+                    </p>
+                    <p class="p-2 rounded text-sm max-w-[20rem] text-center text-pending leading-tight" *ngIf="(existing | async)?.length">
+                        Note that your existing parking space reservation will
+                        be replaced
                     </p>
                     <button mat-button (click)="reserveSpace()">
                         Reserve Space
@@ -192,6 +198,8 @@ export class ParkingFlowMapComponent extends BaseClass {
 
     public readonly options = this._parking.options;
 
+    public readonly existing = this._parking.existing_event;
+
     public readonly loading = this._booking.loading;
 
     public readonly active_space = new BehaviorSubject(null);
@@ -223,6 +231,10 @@ export class ParkingFlowMapComponent extends BaseClass {
 
     public readonly setLevel = (l) => this._state.setLevel(l);
     public readonly reserveSpace = async () => {
+        const events = await this._parking.existing_event
+            .pipe(take(1))
+            .toPromise();
+        if (events.length) this._booking.form.patchValue({ id: events[0].id }); // Prevent booking duplicate parking spaces
         await this._booking.postForm();
         this._router.navigate(['book', 'parking', 'success']);
     };

@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { queryBookings } from '@placeos/bookings';
-import { BaseClass, flatten, SettingsService } from '@placeos/common';
+import {
+    BaseClass,
+    currentUser,
+    flatten,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import {
@@ -16,6 +21,7 @@ import { DEFAULT_COLOURS, ExploreStateService } from '..';
 
 export interface ExploreParkingOptions {
     date: number;
+    user?: string;
 }
 
 @Injectable()
@@ -44,6 +50,18 @@ export class ExploreParkingService extends BaseClass {
                 period_end: getUnixTime(endOfDay(_.date)),
                 type: 'parking',
                 zones: bld?.id,
+            })
+        ),
+        shareReplay(1)
+    );
+    /** Any event that the selected user has for the current date */
+    public readonly existing_event = combineLatest([this._options]).pipe(
+        switchMap(([_]) =>
+            queryBookings({
+                period_start: getUnixTime(startOfDay(_.date)),
+                period_end: getUnixTime(endOfDay(_.date)),
+                type: 'parking',
+                email: _?.user || currentUser()?.email,
             })
         ),
         shareReplay(1)
@@ -136,7 +154,6 @@ export class ExploreParkingService extends BaseClass {
     }
 
     private _updateParkingSpaces(spaces, available) {
-        console.log('Update parking spaces.', spaces, available);
         const styles = {};
         const labels = [];
         const colours = this._settings.get('app.explore.colors') || {};
