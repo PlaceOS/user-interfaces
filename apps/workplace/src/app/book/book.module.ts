@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Route, RouterModule } from '@angular/router';
 
+import { SharedExploreModule } from '@placeos/explore';
+
 import { BookComponent } from './book.component';
 import { BookCodeFlowComponent } from './code-flow.component';
 import { BookDeskFlowComponent } from './desk-flow.component';
@@ -19,6 +21,9 @@ import { SpaceFlowFindItemComponent } from './space-flow/find-item.component';
 import { SpaceFlowFindComponent } from './space-flow/find.component';
 import { SpaceFlowFormComponent } from './space-flow/form.component';
 import { SharedComponentModule } from '../components/shared.module';
+import { BookParkingFlowComponent } from './parking-flow.component';
+import { ParkingFlowMapComponent } from './parking-flow/parking-flow-map.component';
+import { ParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
 
 const ROUTES: Route[] = [
     {
@@ -30,6 +35,8 @@ const ROUTES: Route[] = [
             { path: 'desks/:step', component: BookDeskFlowComponent },
             { path: 'spaces', redirectTo: 'spaces/form' },
             { path: 'spaces/:step', component: BookSpaceFlowComponent },
+            { path: 'parking', redirectTo: 'parking/form' },
+            { path: 'parking/:step', component: BookParkingFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
         ],
     },
@@ -51,12 +58,16 @@ const ROUTES: Route[] = [
         DeskFlowMapComponent,
         DeskFlowConfirmComponent,
         BookCodeFlowComponent,
+        BookParkingFlowComponent,
+        ParkingFlowMapComponent,
+        ParkingFlowConfirmComponent,
         FlowSuccessComponent,
     ],
     imports: [
         CommonModule,
         SharedComponentModule,
         FormsModule,
+        SharedExploreModule,
         ReactiveFormsModule,
         MatButtonToggleModule,
         RouterModule.forChild(ROUTES),

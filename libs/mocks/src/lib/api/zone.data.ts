@@ -71,13 +71,13 @@ export const MOCK_LEVELS = MOCK_BUILDINGS.map((bld) =>
         id: 'test',
         parent_id: 'bld-01',
         name: 'Test',
-        map_id: 'assets/maps/test.svg',
+        map_id: 'assets/maps/l16.svg',
     },
     {
         id: 'level-p1',
         parent_id: 'bld-01',
         name: 'Level P1',
         tags: ['level', 'parking'],
-        map_id: 'assets/maps/parking_level-1.svg',
+        map_id: 'assets/maps/level_P1.svg',
     },
 ]);

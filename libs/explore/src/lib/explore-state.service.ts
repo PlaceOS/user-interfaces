@@ -224,11 +224,17 @@ export class ExploreStateService extends BaseClass {
         });
     }
 
+    public reset() {
+        this._styles.next({});
+        this._features.next({});
+        this._labels.next({});
+        this._actions.next({});
+        this.setPositions(1, { x: .5, y: .5 });
+    }
+
     public setLevel(zone_id: string) {
         const lvl = this._org.levelWithID([zone_id]);
-        if (lvl) {
-            this._level.next(lvl);
-        }
+        if (lvl) this._level.next(lvl);
     }
 
     public setStyles(name: string, styles: ViewerStyles) {

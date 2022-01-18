@@ -166,7 +166,7 @@ function registerMocks() {
                 'parking-spaces': {
                     details: new Array(18 * 6).fill(0).map((_, idx) => {
                         const position = padString(
-                            (idx % 18) + 1 + Math.floor(idx / 18) * 100,
+                            (idx % 18) + Math.floor(idx / 18) * 100,
                             3
                         );
                         const assignee =

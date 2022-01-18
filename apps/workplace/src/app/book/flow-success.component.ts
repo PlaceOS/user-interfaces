@@ -13,7 +13,7 @@ import { currentUser } from '@placeos/common';
             </div>
             <div class="text-center text-lg text-white mb-4">
                 Thank you, you {{ type }} booking was successful!<br />
-                An event has been added to {{ is_host ? 'your' : 'the host\'s'}} calendar
+                An event has been added to {{ is_host ? 'your' : 'the host\'s' }} calendar
             </div>
             <div class="flex items-center space-x-2">
                 <a

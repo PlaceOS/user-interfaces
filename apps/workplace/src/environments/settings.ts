@@ -144,7 +144,7 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
-    features: ['spaces', 'desks', 'explore', 'help', 'schedule'],
+    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule'],
     can_deliver: true,
     general,
     help,

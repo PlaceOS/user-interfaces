@@ -109,6 +109,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
+        this._state.reset();
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
         this.toggleZones(false);
         this.subscription(

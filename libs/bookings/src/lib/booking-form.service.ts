@@ -281,7 +281,7 @@ export class BookingFormService extends BaseClass {
             ),
         });
         this.setOptions({
-            zone_id: this._org.building.id,
+            zone_id: this._org.building?.id,
             ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}'
             ),

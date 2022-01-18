@@ -595,4 +595,10 @@ custom-table[header-dark] {
     .cdk-overlay-pane {
         max-width: none !important;
     }
+
+    .svg-viewer__label {
+        top: -200%;
+        left: -200%;
+        line-height: 1.1;
+    }
 }
