@@ -59,7 +59,7 @@ import { OrganisationService } from '@placeos/organisation';
 
             a {
                 width: 5.5em;
-                height: 5em;
+                height: 4.5em;
                 margin: 0.5em 0 0.5em 0.5em;
                 border-radius: 0.25em 0 0 0.25em;
                 text-decoration: none;
