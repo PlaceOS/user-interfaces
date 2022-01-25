@@ -12,7 +12,7 @@ import { OrganisationService } from '@placeos/organisation';
         <div class="logo h-20 w-24 flex items-center justify-center">
             <img class="object-center object-contain" [src]="logo.src" />
         </div>
-        <div class="flex-1 overflow-auto w-24">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden w-24">
             <ng-container *ngFor="let tile of links">
                 <a
                     class="flex flex-col justify-center items-center"
