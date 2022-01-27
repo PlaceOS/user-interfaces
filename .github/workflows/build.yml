@@ -16,7 +16,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
               with:
-                  fetch-depth: '2'
+                  fetch-depth: 0
 
             - name: Cache node modules
               id: cache
@@ -51,14 +51,10 @@ jobs:
               shell: bash
               id: build_ext
               run: |
-                    if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
+                    if [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
                     then
                         echo "::set-output name=configuration::production"
                         echo "::set-output name=deploy_branch::prod"
-                    elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
-                    then
-                        echo "::set-output name=configuration::staging"
-                        echo "::set-output name=deploy_branch::uat"
                     else
                         echo "::set-output name=configuration::staging"
                         echo "::set-output name=deploy_branch::dev"
