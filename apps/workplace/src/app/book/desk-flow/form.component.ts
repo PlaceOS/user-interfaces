@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, findNearbyDesk } from '@placeos/bookings';
+import { currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-flow-form',
@@ -36,6 +37,7 @@ import { first } from 'rxjs/operators';
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     find
                     mat-button
+                    *ngIf="!auto_allocation; else alloc_button"
                     (click)="findDesk()"
                 >
                     <div class="flex items-center justify-center">
@@ -47,6 +49,16 @@ import { first } from 'rxjs/operators';
                 </button>
             </div>
         </section>
+        <ng-template #alloc_button>
+            <button
+                class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
+                find
+                mat-button
+                (click)="allocateDesk()"
+            >
+                {{ is_edit ? 'Update Desk' : 'Book Desk' }}
+            </button>
+        </ng-template>
     `,
     styles: [
         `
@@ -82,6 +94,10 @@ export class DeskFlowFormComponent implements OnInit {
         return !!this.form?.get('id')?.value;
     }
 
+    public get auto_allocation() {
+        return !!this._settings.get('app.desks.auto_allocation');
+    }
+
     public get form() {
         return this._state.form;
     }
@@ -95,7 +111,8 @@ export class DeskFlowFormComponent implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 
     public async ngOnInit() {
@@ -126,5 +143,39 @@ export class DeskFlowFormComponent implements OnInit {
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
         this._router.navigate(['/book', 'desks', 'map']);
+    }
+
+    public async allocateDesk() {
+        this.form.markAllAsTouched();
+        if (!this.form.valid) return;
+        // Find nearby desk for user's department
+        const settings = this._settings.get('app.departments') || {};
+        const group = currentUser().groups.find(_ => _ in settings);
+        if (!group) {
+            this._router.navigate(['/book', 'desks', 'map']);
+            return;
+        }
+        const { level, centered_at } = settings[group];
+        const lvl = this._org.levelWithID([level]);
+        if (!level) {
+            this._router.navigate(['/book', 'desks', 'map']);
+            return;
+        }
+        const desk_list = await this._state.available_assets.pipe(take(1)).toPromise()
+        const desk_id = await findNearbyDesk(lvl.map_id, centered_at, desk_list.map(_ => _.map_id || _.id));
+        const desk = desk_list.find(_ => _.map_id === desk_id || _.id === desk_id);
+        if (!desk) {
+            this._router.navigate(['/book', 'desks', 'map']);
+            return;
+        }
+        this._state.form.patchValue({
+            asset_id: desk?.id,
+            asset_name: desk.name,
+            map_id: desk?.map_id || desk?.id,
+            description: desk.name,
+            booking_type: 'desk',
+            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+        });
+        this._state.confirmPost();
     }
 }

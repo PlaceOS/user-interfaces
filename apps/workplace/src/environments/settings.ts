@@ -154,7 +154,8 @@ const app: any = {
     explore,
     desks: {
         can_book_for_others: true,
-        allow_groups: true
+        allow_groups: true,
+        auto_allocation: true
     },
     analytics: {
         enabled: true,
@@ -162,6 +163,9 @@ const app: any = {
     },
     hide_contacts: false,
     schedule,
+    departments: {
+        'user': { level: 'bld-01_lvl-10', centered_at: 'table-10.008' }
+    }
 };
 
 /**

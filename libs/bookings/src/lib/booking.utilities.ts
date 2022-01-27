@@ -1,5 +1,6 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import { currentUser } from '@placeos/common';
+import { createViewer, getViewer, Point, removeViewer } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
 
 export function generateBookingForm(booking: Booking = {} as any) {
@@ -37,4 +38,36 @@ export function generateBookingForm(booking: Booking = {} as any) {
             : '';
     });
     return form;
+}
+
+export async function findNearbyDesk(map_url: string, centered_at: Point | string, desk_ids: string[] = []): Promise<string> {
+    const element = document.createElement('div');
+    element.style.position = 'absolute';
+    element.style.top = '-9999px';
+    element.style.width = '1000px';
+    element.style.height = '1000px';
+    document.body.appendChild(element);
+    const id = await createViewer({
+        url: map_url,
+        element
+    });
+    const viewer = getViewer(id);
+    const point = (typeof centered_at === 'string' ? viewer.mappings[centered_at] : centered_at) || { x: .5, y: .5 };
+    let dist = 10;
+    let closest = '';
+    console.log(`Desks:`, desk_ids);
+    console.log(`Mappings:`, viewer.mappings);
+    console.log(`Point:`, point);
+    for (const desk of desk_ids) {
+        const { x, y } = viewer.mappings[desk] || { x: 2, y: 2 };
+        const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+        console.log(`Desk ${desk}:`, viewer.mappings[desk], d);
+        if (d < dist) {
+            dist = d;
+            closest = desk;
+        }
+    }
+    document.body.removeChild(element);
+    removeViewer(id);
+    return closest;
 }
