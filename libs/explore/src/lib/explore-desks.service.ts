@@ -238,6 +238,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const actions = [];
         const options = this._options.getValue();
         for (const desk of desks) {
+            if (!desk.at_location && this._statuses[desk.map_id]) this._statuses[desk.map_id] = 'pending';
             list.push({
                 location: desk.id,
                 content: ExploreDeskInfoComponent,
