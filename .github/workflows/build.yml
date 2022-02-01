@@ -6,7 +6,7 @@ name: BUILD
 # events but only for the master branch
 on:
     push:
-        branches: [develop, release/**]
+        branches: [develop, release/**, master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -16,7 +16,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
               with:
-                  fetch-depth: 2
+                  fetch-depth: '2'
 
             - name: Cache node modules
               id: cache
@@ -32,7 +32,7 @@ jobs:
             - name: Setup Node.js environment
               uses: actions/setup-node@v1.4.4
               with:
-                  node-version: '14'
+                  node-version: '13'
 
             - name: NPM install
               if: steps.cache.outputs.cache-hit != 'true'
@@ -51,10 +51,14 @@ jobs:
               shell: bash
               id: build_ext
               run: |
-                    if [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                    if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
                     then
                         echo "::set-output name=configuration::production"
                         echo "::set-output name=deploy_branch::prod"
+                    elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                    then
+                        echo "::set-output name=configuration::staging"
+                        echo "::set-output name=deploy_branch::uat"
                     else
                         echo "::set-output name=configuration::staging"
                         echo "::set-output name=deploy_branch::dev"
@@ -63,6 +67,7 @@ jobs:
               id: affected_apps
               run: |
                 echo "::set-output name=affected_apps::$(node ./tools/get-affected.js ${{ github.ref }})"
+
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
             configuration: ${{ steps.build_ext.outputs.configuration }}
@@ -98,6 +103,7 @@ jobs:
                     ${{ runner.os }}-build-${{ env.cache-name }}-
                     ${{ runner.os }}-build-
                     ${{ runner.os }}-
+
             - name: Cache nx build cahce
               id: cache-nx
               uses: actions/cache@v2
@@ -107,6 +113,7 @@ jobs:
                 restore-keys: |
                     ${{ runner.os }}-nx-${{matrix.package}}-
                     ${{ runner.os }}-nx-
+
             - name: Setup version
               run: npm run postinstall
 
@@ -120,6 +127,7 @@ jobs:
             - name: Build affected applications
               run: |
                 npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+
             - name: Deploy the application(${{ matrix.package }})
               uses: MrYuion/gha-publish-to-git@v1.1
               continue-on-error: true
