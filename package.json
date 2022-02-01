@@ -43,6 +43,7 @@
         "@angular/router": "13.1.2",
         "@angular/service-worker": "13.1.2",
         "@nrwl/angular": "13.4.4",
+        "nx": "^13.7.1",
         "qr-scanner": "^1.2.0",
         "rxjs": "~6.6.3",
         "tslib": "^2.0.0",
