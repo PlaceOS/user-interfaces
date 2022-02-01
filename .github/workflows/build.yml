@@ -32,7 +32,7 @@ jobs:
             - name: Setup Node.js environment
               uses: actions/setup-node@v1.4.4
               with:
-                  node-version: '13'
+                  node-version: '14'
 
             - name: NPM install
               if: steps.cache.outputs.cache-hit != 'true'
