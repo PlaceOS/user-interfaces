@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
     selector: 'dashboard',
     templateUrl: './dashboard.component.html',
-    styles: [''],
+    styles: [``],
 })
 export class DashboardComponent implements OnInit {
     constructor() {}
