@@ -95,6 +95,10 @@ export function updateLocations(
                 .fill(0)
                 .map(() => generateLocation(lvl, mod[`${lvl.id}:desk_ids`])),
         };
+        for (const area of mod[`${lvl.id}:areas`].value) {
+            area.count = randomInt(10);
+        }
+        mod[`${lvl.id}:areas`] = { ...mod[`${lvl.id}:areas`] };
     }
 }
 

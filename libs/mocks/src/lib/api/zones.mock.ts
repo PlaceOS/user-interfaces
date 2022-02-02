@@ -93,6 +93,14 @@ function registerMocks() {
                                         capacity: 100,
                                         label_location: { x: 0.36, y: 0.33 },
                                     },
+                                    geometry: {
+                                        coordinates: [
+                                            [0.4,0.4],
+                                            [0.6,0.4],
+                                            [0.6,0.6],
+                                            [0.4,0.6]
+                                        ]
+                                    }
                                 },
                                 {
                                     id: 'zone-10.B',

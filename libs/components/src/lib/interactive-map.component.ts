@@ -132,6 +132,19 @@ export class InteractiveMapComponent
     public viewer: string;
     /** Observable for changes on the SVG viewer */
     private _on_changes: BehaviorSubject<Viewer> = new BehaviorSubject(null);
+    
+    private _extra_data = {
+        ratio$: this._on_changes.pipe(
+            map((_) => _.ratio)
+        ),
+        svg_ratio$: this._on_changes.pipe(
+            map((_) => _.svg_ratio)
+        ),
+        zoom$: this._on_changes.pipe(map((_) => _.zoom)),
+        position: this._on_changes.pipe(
+            map((_) => _.center)
+        ),
+    }
 
     @ViewChild('outlet') private _outlet_el: ElementRef<HTMLDivElement>;
     @ViewChildren('feature') private _feature_list: QueryList<
@@ -189,16 +202,7 @@ export class InteractiveMapComponent
                             provide: MAP_FEATURE_DATA,
                             useValue: {
                                 ...f.data,
-                                ratio$: this._on_changes.pipe(
-                                    map((_) => _.ratio)
-                                ),
-                                svg_ratio$: this._on_changes.pipe(
-                                    map((_) => _.svg_ratio)
-                                ),
-                                zoom$: this._on_changes.pipe(map((_) => _.zoom)),
-                                position: this._on_changes.pipe(
-                                    map((_) => _.center)
-                                ),
+                                ...this._extra_data
                             },
                         },
                     ],

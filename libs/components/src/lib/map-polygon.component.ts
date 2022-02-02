@@ -26,7 +26,7 @@ export interface MapPolygonData {
         <div
             polygon
             class="absolute w-full h-full transform -translate-x-1/2 -translate-y-1/2 -top-1 -left-1"
-            [style.transform]="'scale(' + scale + ')'"
+            [style.transform]="'scale(' + scale * zoom + ')'"
         >
             <div
                 class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -34,7 +34,12 @@ export interface MapPolygonData {
                 [style.height]="height + '%'"
             >
                 <svg
-                    [attr.viewBox]="'0 0 '+ (this.width / 20 || 1) +' ' + (this.height / 20 || 1)"
+                    [attr.viewBox]="
+                        '0 0 ' +
+                        (this.width / 20 || 1) +
+                        ' ' +
+                        (this.height / 20 || 1)
+                    "
                     preserveAspectRatio="none"
                     class="relative w-full h-full"
                 >
@@ -63,6 +68,10 @@ export interface MapPolygonData {
     `,
     styles: [
         `
+            [polygon] {
+                will-change: transform;
+            }
+
             polygon {
                 stroke-width: 2;
             }
@@ -90,7 +99,11 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
     public readonly svg_scale = 20;
 
     public get scale() {
-        return (this._details.svg_ratio || 1);
+        return this._details.svg_ratio || 1;
+    }
+
+    public get zoom() {
+        return this._details.zoom_value || 1;
     }
 
     /** List of points for drawing the polygon */
@@ -126,10 +139,9 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
         );
         this.subscription(
             'zoom',
-            this._details.zoom$?.subscribe((_) => {
-                this._details.zoom_value = _;
-                this.processPoints(this._details.points);
-            })
+            this._details.zoom$?.subscribe(
+                (_) => (this._details.zoom_value = _)
+            )
         );
         this.subscription(
             'svg_ratio',
@@ -159,29 +171,24 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
             x: diff.x_max - diff.x_min,
             y: diff.y_max - diff.y_min,
         };
-        const { ratio, zoom_value } = this._details;
-        this.width = range.x * 100 * zoom_value;
-        this.height = range.y * 100 * (ratio || 1) * zoom_value;
-        const edge_padding = this.padding / 4;
+        const { ratio } = this._details;
+        this.width = range.x * 100;
+        this.height = range.y * 100 * (ratio || 1);
         this.width = Math.floor(this.width * 100);
         this.height = Math.floor(this.height * 100);
         this.points = points
             .reduce(
                 (s, [x, y]) =>
                     `${s}${s ? ' ' : ''}${
-                        ((x - diff.x_min) / range.x) * this.width / 20
-                    },${
-                        ((y - diff.y_min) / range.y) * this.height / 20
-                    }`,
+                        (((x - diff.x_min) / range.x) * this.width) / 20
+                    },${(((y - diff.y_min) / range.y) * this.height) / 20}`,
                 ''
             )
             .replace(/NaN/g, '0');
         this.point_list = points.map(([x, y]) => [
-            ((x - diff.x_min) / range.x) * this.width / 20,
-            ((y - diff.y_min) / range.y) * this.height / 20,
+            (((x - diff.x_min) / range.x) * this.width) / 20,
+            (((y - diff.y_min) / range.y) * this.height) / 20,
         ]);
-        // this.width = this.width + this.padding + 8;
-        // this.height = this.height + this.padding + 8;
         this._cdr.detectChanges();
     }
 }

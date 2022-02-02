@@ -74,43 +74,30 @@ export class ExploreZonesService extends BaseClass {
                 showMetadata(bld.id, 'map_regions').toPromise()
             )
         );
-        const features = [];
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
-            if (areas) {
-                for (const area of areas) {
-                    const {
-                        capacity,
-                        hide_label,
-                        label_location,
-                        draw_polygon,
-                    } = area.properties || {};
-                    const { coordinates } = area.geometry || {};
-                    this._capacity[area.id] = capacity || 100;
-                    this._location[area.id] =
-                        hide_label === false
-                            ? label_location ||
-                              (coordinates?.length
-                                  ? getCenterPoint(coordinates)
-                                  : null)
-                            : null;
-                    this._draw[area.id] = !!draw_polygon;
-                    this._points[area.id] = coordinates || [];
-                    if (this._draw[area.id]) {
-                        features.push({
-                            location: getCenterPoint(this._points[area.id]),
-                            content: MapPolygonComponent,
-                            data: {
-                                color: DEFAULT_COLOURS['not-bookable'],
-                                points: this._points[area.id],
-                            },
-                            z_index: 10,
-                        });
-                    }
-                }
+            if (!areas) continue;
+            for (const area of areas) {
+                const {
+                    capacity,
+                    hide_label,
+                    label_location,
+                    draw_polygon,
+                } = area.properties || {};
+                const { coordinates } = area.geometry || {};
+                this._capacity[area.id] = capacity || 100;
+                this._location[area.id] =
+                    hide_label === false
+                        ? label_location ||
+                            (coordinates?.length
+                                ? getCenterPoint(coordinates)
+                                : null)
+                        : null;
+                this._draw[area.id] = !!draw_polygon;
+                this._points[area.id] = coordinates || [];
             }
         }
-        this._state.setFeatures('zones', features);
+        this.updateStatus();
         this.subscription('bind', this._bind.subscribe());
     }
 
@@ -145,7 +132,7 @@ export class ExploreZonesService extends BaseClass {
             labels.push(this._labels[zone.area_id]);
         }
         this._state.setLabels('zones', labels);
-        this.timeout('update', () => this.updateStatus(), 100);
+        this.updateStatus();
     }
 
     private updateStatus() {
