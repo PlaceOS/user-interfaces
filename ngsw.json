@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1640920845589,
+  "timestamp": 1643844706732,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -36,6 +36,7 @@
         "./assets/icons/building-outline.svg",
         "./assets/icons/car-filled.svg",
         "./assets/icons/car-outline.svg",
+        "./assets/icons/car.svg",
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
         "./assets/icons/home-filled.svg",
@@ -62,6 +63,8 @@
         "./assets/maps/level_11.svg",
         "./assets/maps/level_2.svg",
         "./assets/maps/level_3.svg",
+        "./assets/maps/level_P1.svg",
+        "./assets/maps/test.svg",
         "./assets/not-supported.html",
         "./assets/support/chrome-logo.svg",
         "./assets/support/edge-logo.svg",
@@ -78,6 +81,7 @@
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
     "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
+    "./assets/icons/car.svg": "2369f881099a2a3967987685891a974af32276b7",
     "./assets/icons/desk-filled.svg": "09e40cda715246db7f24adb6334964d8c9825e26",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
@@ -104,6 +108,8 @@
     "./assets/maps/level_11.svg": "f8d26e93d084287b9bf3e4409b94f7991e1f702e",
     "./assets/maps/level_2.svg": "9a6f3cf8a7cefa4c41187294cb8747b80db8e04d",
     "./assets/maps/level_3.svg": "017bd15f1d17e947d3cde810ded6f09d26c27bd9",
+    "./assets/maps/level_P1.svg": "d143761b1d22330cb22c6d29ac1b0eb2dc37d29e",
+    "./assets/maps/test.svg": "6b8cf2e8673469599a1a6d246b5e13650477aa2e",
     "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
     "./assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
     "./assets/support/edge-logo.svg": "28d8691fd6c19223a3d99dd8732416d32a82d496",
@@ -111,15 +117,15 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "789c8c853178ac55f65af8504bbc517ac13b01b4",
-    "./main.js": "f6d974ab6ad92d9c3a2a006fd49773b8656b18e8",
+    "./index.html": "30c436a2c3e11ffb49f9651d569f95aa8e99df19",
+    "./main.js": "acd90d91f2330623dceb7651a0e8966317218e2e",
     "./manifest.webmanifest": "b77d510a22ab8c2bbb2bd38f11b3b266666784f3",
-    "./node_modules_node-fetch_browser_js.js": "c57149c6ef8dde14ddad078108f5a00e45837894",
-    "./node_modules_websocket_lib_browser_js.js": "ce1c4373186bd3fc5cdf7ebad6e6fe9c0fe14bb7",
-    "./polyfills.js": "6bf16b25040920d159c0fea0c5204df8330c6332",
-    "./runtime.js": "48f95feb2fd06f332a426fce96113bc2045408d2",
-    "./styles.css": "535485f955cb31975dcc6155428d53c8f52d3767",
-    "./vendor.js": "dc2b9006673a75c5112fb4b960781f2ff7bf30f2"
+    "./node_modules_node-fetch_browser_js.js": "771b25195fccb531f96de4abaecc4a32cd7e327a",
+    "./node_modules_websocket_lib_browser_js.js": "79260a5b923137f1a2dcecae15915180e35e7b1e",
+    "./polyfills.js": "3bc1592d6969a4a102934984c5bbf4b79f0a0014",
+    "./runtime.js": "c5c91e16707b9b4c347f1d406228d0c240ac0ab2",
+    "./styles.css": "783eec7b2c916e802e3173a02c58c1aaa224e45f",
+    "./vendor.js": "b175c39d6580b7a724fa9aae8df8044c087d75b4"
   },
   "navigationUrls": [
     {
