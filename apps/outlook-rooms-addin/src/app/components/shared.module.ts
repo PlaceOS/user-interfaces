@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,14 +24,17 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatIconModule } from '@angular/material/icon';
 
 const COMPONENTS: Type<any>[] = [];
 
 const MATERIAL_MODULES: any[] = [
     MatButtonModule,
     MatSnackBarModule,
+    MatDatepickerModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
@@ -45,7 +49,6 @@ const MATERIAL_MODULES: any[] = [
     MatBadgeModule,
     MatTooltipModule,
     MatRadioModule,
-
     MatSliderModule,
 ];
 

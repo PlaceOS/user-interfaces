@@ -9,8 +9,26 @@ import { RoomDetailsComponent } from '../rooms/room-details/room-details.compone
 import { RoomAttendeesComponent } from '../rooms/room-attendees/room-attendees.component';
 
 import { SharedComponentModule } from '../components/shared.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    MatNativeDateModule,
+    NativeDateModule,
+    MAT_DATE_FORMATS,
+} from '@angular/material/core';
 
 const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
+
+const DATE_FORMATS = {
+    parse: {
+        dateInput: 'LL',
+    },
+    display: {
+        dateInput: 'DD MMMM YYYY',
+        dateA11yLabel: 'LL',
+        monthYearLabel: 'MMM YYYY',
+        monthYearA11yLabel: 'MMMM YYYY',
+    },
+};
 
 @NgModule({
     declarations: [
@@ -24,6 +42,11 @@ const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
         CommonModule,
         RouterModule.forChild(ROUTES),
         SharedComponentModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatNativeDateModule,
+        NativeDateModule,
     ],
+    providers: [{ provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS }],
 })
 export class DashboardModule {}
