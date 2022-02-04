@@ -8,6 +8,8 @@ import { RoomBookingComponent } from '../rooms/room-booking.component';
 import { RoomDetailsComponent } from '../rooms/room-details/room-details.component';
 import { RoomAttendeesComponent } from '../rooms/room-attendees/room-attendees.component';
 
+import { SharedComponentModule } from '../components/shared.module';
+
 const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
 
 @NgModule({
@@ -18,6 +20,10 @@ const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
         RoomDetailsComponent,
         RoomAttendeesComponent,
     ],
-    imports: [CommonModule, RouterModule.forChild(ROUTES)],
+    imports: [
+        CommonModule,
+        RouterModule.forChild(ROUTES),
+        SharedComponentModule,
+    ],
 })
 export class DashboardModule {}
