@@ -25,6 +25,7 @@ const moment = _rollupMoment || _moment;
 })
 export class RoomDetailsComponent implements OnInit {
     date = new FormControl(moment());
+    minDate: Date = new Date();
 
     constructor() {}
 

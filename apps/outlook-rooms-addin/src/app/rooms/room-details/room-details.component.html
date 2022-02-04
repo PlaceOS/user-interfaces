@@ -9,7 +9,7 @@
     <div class="mt-4">
         <div class="text-sm font-bold text-gray-700">Add Title*</div>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="w-[460px]">
             <input matInput placeholder="e.g Team meeting" />
             <mat-hint></mat-hint>
         </mat-form-field>
@@ -22,8 +22,10 @@
             <input
                 matInput
                 [matDatepicker]="picker"
+                [min]="minDate"
                 [formControl]
                 formControlName="datePicker"
+                placeholder="Select a date"
             />
             <mat-datepicker-toggle
                 matSuffix
@@ -31,7 +33,6 @@
             ></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
-        <!-- <button mat-raised-button (click)="picker.open()">Open</button> -->
     </div>
 
     <div class="-mt-2 flex flex-row">
