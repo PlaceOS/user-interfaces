@@ -23,7 +23,7 @@ export const MOCK_BUILDINGS = [
         parent_id: 'zone-EmWFTjuYExK',
         triggers: [],
         id: 'bld-01',
-        levels: ['lvl-10', 'lvl-11'],
+        levels: ['lvl-G', 'lvl-1'],
     },
     {
         name: 'Brisbane',
@@ -42,7 +42,7 @@ const mockLevel = (
     id: string,
     idx: number,
     building: any,
-    num: number = 10
+    num: string = '10'
 ): any => {
     let map_id = id.substr(4);
     map_id = `assets/maps/level_${num}.svg`;
@@ -64,7 +64,7 @@ const mockLevel = (
 
 export const MOCK_LEVELS = MOCK_BUILDINGS.map((bld) =>
     bld.levels.map((level, idx) =>
-        mockLevel(level, idx, bld, +level.split('-')[1])
+        mockLevel(level, idx, bld, level.split('-')[1])
     )
 ).reduce((p, c) => p.concat(c), [
     {

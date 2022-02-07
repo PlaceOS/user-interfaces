@@ -13,34 +13,34 @@ const randomSpaceFeatures = () => {
 
 export const MOCK_SPACES = [
     {
-        name: 'Conference Room 10.01',
-        map_id: 'area-10.01-status',
-        zones: ['bld-01', 'bld-01_lvl-10'],
+        name: '1.01 Operations Room',
+        map_id: 'area-1.01-status',
+        zones: ['bld-01', 'bld-01_lvl-1'],
     },
     {
-        name: 'Conference Room 10.02',
-        map_id: 'area-10.02-status',
-        zones: ['bld-01', 'bld-01_lvl-10'],
+        name: '1.03 Sydney Boardroom',
+        map_id: 'area-1.03-status',
+        zones: ['bld-01', 'bld-01_lvl-1'],
     },
     {
-        name: 'Conference Room 10.03',
-        map_id: 'area-10.03-status',
-        zones: ['bld-01', 'bld-01_lvl-10'],
+        name: '1.04 The Studio',
+        map_id: 'area-1.04-status',
+        zones: ['bld-01', 'bld-01_lvl-1'],
     },
     {
-        name: 'Conference Room 11.01',
-        map_id: 'area-11.01-status',
-        zones: ['bld-01', 'bld-01_lvl-11'],
+        name: 'Jam Board',
+        map_id: 'area-1.02-status',
+        zones: ['bld-01', 'bld-01_lvl-1'],
     },
     {
-        name: 'Conference Room 11.02',
-        map_id: 'area-11.02-status',
-        zones: ['bld-01', 'bld-01_lvl-11'],
+        name: 'G.01 Cisco Room',
+        map_id: 'area-G.01-status',
+        zones: ['bld-01', 'bld-01_lvl-1'],
     },
     {
-        name: 'Conference Room 11.03',
-        map_id: 'area-11.03-status',
-        zones: ['bld-01', 'bld-01_lvl-11'],
+        name: 'G.02 The Lab',
+        map_id: 'area-G.02-status',
+        zones: ['bld-01', 'bld-01_lvl-1'],
     },
     {
         name: 'Conference Room 2.01',
