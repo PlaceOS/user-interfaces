@@ -7,6 +7,7 @@ import { DashboardAvailabilityComponent } from './dashboard-availability/dashboa
 import { RoomBookingComponent } from '../rooms/room-booking.component';
 import { RoomDetailsComponent } from '../rooms/room-details/room-details.component';
 import { RoomAttendeesComponent } from '../rooms/room-attendees/room-attendees.component';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 import { SharedComponentModule } from '../components/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -46,6 +47,7 @@ const DATE_FORMATS = {
         ReactiveFormsModule,
         MatNativeDateModule,
         NativeDateModule,
+        FormFieldsModule,
     ],
     providers: [{ provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS }],
 })
