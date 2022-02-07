@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { catchError, first, map, switchMap } from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import {
@@ -55,7 +55,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 type: 'desk',
                 zones: lvl.id,
             })
-        )
+        ),
+        shareReplay(1)
     );
 
     public readonly desk_list = this._state.level.pipe(
@@ -68,7 +69,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 )
             )
         ),
-        catchError((e) => [])
+        catchError((e) => []),
+        shareReplay(1)
     );
 
     private _bind = this._state.level.pipe(
@@ -118,12 +120,12 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
-                const is_reserved = reserved.some((i) => id === i);
+                const has_presence = reserved.some((i) => id === i);
                 this._statuses[id] = bookable
                     ? !is_used
                         ? 'free'
-                        : is_reserved
-                        ? 'reserved'
+                        : !has_presence
+                        ? 'pending'
                         : 'busy'
                     : 'not-bookable';
             }
@@ -238,7 +240,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const actions = [];
         const options = this._options.getValue();
         for (const desk of desks) {
-            if (!desk.at_location && this._statuses[desk.map_id]) this._statuses[desk.map_id] = 'pending';
             list.push({
                 location: desk.id,
                 content: ExploreDeskInfoComponent,

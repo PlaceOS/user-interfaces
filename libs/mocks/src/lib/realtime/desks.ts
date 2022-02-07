@@ -111,7 +111,7 @@ export function generateLocation(
     return fixed
         ? {
               location: 'desk',
-              at_location: predictableRandomInt(9999) % 5 !== 0,
+              at_location: predictableRandomInt(9999) % 2 !== 0,
               map_id: desks[predictableRandomInt(desks.length)],
               mac: Md5.hashStr(users[predictableRandomInt(users.length)].email),
               level: lvl.id,
