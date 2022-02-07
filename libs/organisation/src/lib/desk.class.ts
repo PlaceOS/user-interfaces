@@ -15,6 +15,8 @@ export class Desk {
     public readonly groups: string[];
     /** QR code image data */
     public readonly qr_code: string;
+    /** List of features associated with the desk */
+    public readonly features: string[];
 
     constructor(data: Partial<Desk> = {}) {
         this.id = data.id || '';
@@ -24,15 +26,17 @@ export class Desk {
         this.zone = data.zone || new PlaceZone();
         this.groups = data.groups || [];
         this.qr_code = data.qr_code || '';
+        this.features = data.features || [];
     }
 
     public format() {
-        const { id, name, bookable, groups } = this;
+        const { id, name, bookable, groups, features } = this;
         return {
             id,
             name,
             bookable,
             groups,
+            features
         };
     }
 
