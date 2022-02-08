@@ -31,7 +31,6 @@ export interface DeviceInfoData {
     template: `
         <div
             name="radius"
-            (mouseenter)="loadUser()"
             class="radius absolute center bg-blue-600 bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
@@ -49,6 +48,7 @@ export interface DeviceInfoData {
             [xPosition]="x_pos"
             [yPosition]="y_pos"
             [hover]="true"
+            (mouseenter)="loadUser()"
             class="absolute inset-0 pointer-events-auto"
         ></div>
 
@@ -179,13 +179,12 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
     public async loadUser() {
         if (this.username) return;
         const mod = getModule(this._details.system, 'LocationServices');
-        if (mod) {
-            this.username = 'Loading...';
-            const details = await mod
-                .execute('check_ownership_of', [this.mac])
-                .catch((_) => null);
-            this.username =
-                details && details.assigned_to ? details.assigned_to : '';
-        }
+        if (!mod) return
+        this.username = 'Loading...';
+        const details = await mod
+            .execute('check_ownership_of', [this.mac])
+            .catch((_) => null);
+        this.username =
+            details && details.assigned_to ? details.assigned_to : '';
     }
 }

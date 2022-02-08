@@ -51,6 +51,7 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
         description: type === 'parking' ? position : `Desk ${index}`,
         title: `${type} Booking ${index}`,
         type,
+        booking_type: type,
         checked_in: predictableRandomInt(999999) % 3 === 0,
         access: predictableRandomInt(999999) % 3 === 0,
         approved: approved === 0,

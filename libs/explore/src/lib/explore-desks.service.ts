@@ -157,7 +157,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         );
     }
 
-    public startPolling(delay: number = 30 * 1000) {
+    public startPolling(delay: number = 10 * 1000) {
         this.subscription(
             'desks_in_use_bookings',
             this._desk_bookings.subscribe((_) =>
@@ -169,6 +169,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             () => this._poll.next(new Date().valueOf()),
             delay
         );
+        return () => this.stopPolling();
     }
 
     public stopPolling() {
@@ -191,7 +192,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 v.location === 'desk' ||
                 (v.location === 'booking' && v.type === 'desk')
         );
-        this._in_use.next(desks.map((v) => v.map_id || v.asset_id));
+        // this._in_use.next(desks.map((v) => v.map_id || v.asset_id));
         this._reserved.next(
             desks
                 .filter((v) => !v.at_location)
@@ -274,6 +275,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                         : [],
                 });
                 await this._bookings.confirmPost();
+                this._users[desk.map_id] = (options.host || currentUser())?.name;
                 notifySuccess(
                     `Successfull booked desk ${desk.name || desk.id}`
                 );

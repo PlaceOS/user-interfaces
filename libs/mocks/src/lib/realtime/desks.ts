@@ -21,7 +21,7 @@ export interface ZoneOverview {
     recommendation: number;
 }
 
-export class MockLocationServicesModule implements HashMap {
+export class MockAreaManagementModule implements HashMap {
     /** Overview of the zones */
     overview: HashMap<ZoneOverview> = {};
 
@@ -31,6 +31,22 @@ export class MockLocationServicesModule implements HashMap {
     }
 
     $locate_user(email: string, username: string) {}
+
+    $update() {
+        updateLocations(this, MOCK_LEVELS);
+    }
+}
+
+const MAC_LOOKUP = {};
+
+export class MockLocationServicesModule implements HashMap {
+    $check_ownership_of(mac_address: string) {
+        if (!MAC_LOOKUP[mac_address]) {
+            const staff = randomInt(999_999) % 3 === 0 ? MOCK_STAFF[randomInt(MOCK_STAFF.length)] : { name: '' };
+            MAC_LOOKUP[mac_address] = { assigned_to: staff.name };
+        }
+        return MAC_LOOKUP[mac_address]
+    }   
 }
 
 function padZero(no: number, len: number = 3) {
@@ -41,11 +57,11 @@ function padZero(no: number, len: number = 3) {
     return str;
 }
 
-export function createLocationServicesModule(
+export function createAreaManagementModule(
     space: HashMap,
     overrides: HashMap = {}
 ) {
-    const mod = new MockLocationServicesModule();
+    const mod = new MockAreaManagementModule();
     for (const lvl of MOCK_LEVELS) {
         mod.overview[lvl.id] = {
             desk_count: 100,
@@ -80,13 +96,11 @@ export function createLocationServicesModule(
             ],
         };
     }
-    updateLocations(mod, MOCK_LEVELS);
-    setInterval(() => updateLocations(mod, MOCK_LEVELS), 60 * 1000);
     return mod;
 }
 
 export function updateLocations(
-    mod: MockLocationServicesModule,
+    mod: MockAreaManagementModule,
     levels: HashMap[]
 ) {
     for (const lvl of levels) {

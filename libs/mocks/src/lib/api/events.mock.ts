@@ -1,5 +1,5 @@
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_EVENTS } from './events.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
@@ -58,6 +58,10 @@ function registerMocks() {
                 ];
             }
             MOCK_EVENTS.push(new_event);
+
+
+            const system = mockSystem(new_event.system.id);
+            system?.Bookings[0]?.$poll_bookings();
             return new_event;
         },
     });
