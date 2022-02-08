@@ -23,6 +23,7 @@ export class MockBookingModule {
     current_booking = null;
     next_booking = null;
     /** Current status of the space */
+    room_image = 'assets/boardroom.jpg'
     status = 'free';
     _space = null;
 

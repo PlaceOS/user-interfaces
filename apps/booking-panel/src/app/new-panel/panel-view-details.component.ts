@@ -55,7 +55,7 @@ export class PanelViewDetailsComponent {
     }
 
     public get room_image() {
-        return this._state.setting('image');
+        return this._state.setting('room_image');
     }
 
     public get checkin() {
