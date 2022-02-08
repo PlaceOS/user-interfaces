@@ -62,7 +62,6 @@ function registerMocks() {
             };
         const new_event = { ...data };
         const removed = MOCK_BOOKINGS.splice(index, 1, new_event);
-        console.log('Removed:', removed);
         return new_event;
     };
 

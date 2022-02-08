@@ -1,4 +1,4 @@
-import { registerSystem } from '@placeos/ts-client';
+import { mockSystem, registerSystem } from '@placeos/ts-client';
 import { HashMap } from '@placeos/common';
 
 import { createSystemModule } from './realtime/control';
@@ -25,4 +25,9 @@ export function createSystem(space: HashMap) {
         MeetingPush: [createMeetingPushModule()],
         VidConf: [createVideoConferenceModule()]
     });
+
+    const system = mockSystem(space.id);
+
+    system.Bookings[0].$poll_bookings();
+    setInterval(() => system.Bookings[0].$poll_bookings(), 10 * 1000);
 }
