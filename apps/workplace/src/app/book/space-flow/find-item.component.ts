@@ -74,7 +74,6 @@ export class SpaceFlowFindItemComponent {
 
     public viewLocation() {
         this._dialog.open(MapLocateModalComponent, {
-            width: '32em',
             maxWidth: '95vw',
             maxHeight: '95vh',
             data: { item: this.space },
