@@ -7,6 +7,7 @@ import { DashboardAvailabilityComponent } from './dashboard-availability/dashboa
 import { RoomBookingComponent } from '../rooms/room-booking.component';
 import { RoomDetailsComponent } from '../rooms/room-details/room-details.component';
 import { RoomAttendeesComponent } from '../rooms/room-attendees/room-attendees.component';
+import { ConfirmComponent } from '../rooms/confirm/confirm.component';
 import { FormFieldsModule } from '@placeos/form-fields';
 
 import { SharedComponentModule } from '../components/shared.module';
@@ -38,6 +39,7 @@ const DATE_FORMATS = {
         RoomBookingComponent,
         RoomDetailsComponent,
         RoomAttendeesComponent,
+        ConfirmComponent,
     ],
     imports: [
         CommonModule,
