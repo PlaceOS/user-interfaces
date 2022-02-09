@@ -7,44 +7,50 @@
     </div>
 
     <div class="mt-4">
-        <div class="text-sm font-bold text-gray-700 mb-1">Add Title*</div>
+        <div [formGroup]="detailsFormGroup">
+            <div class="text-sm font-bold text-gray-700 mb-1">Add Title*</div>
 
-        <mat-form-field appearance="outline" class="w-[460px]">
-            <input matInput placeholder="e.g Team meeting" />
-            <mat-hint></mat-hint>
-        </mat-form-field>
-    </div>
+            <mat-form-field appearance="outline" class="w-[460px]">
+                <input matInput placeholder="e.g Team meeting" />
+                <mat-hint></mat-hint>
+            </mat-form-field>
 
-    <div class="-mt-2">
-        <div class="text-sm font-bold text-gray-700 mb-1">Date*</div>
+            <div class="-mt-2">
+                <div class="text-sm font-bold text-gray-700 mb-1">Date*</div>
 
-        <mat-form-field appearance="outline" class="w-[460px]">
-            <input
-                matInput
-                [matDatepicker]="picker"
-                [min]="minDate"
-                [formControl]
-                formControlName="datePicker"
-                placeholder="Select a date"
-            />
-            <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-    </div>
+                <mat-form-field appearance="outline" class="w-[460px]">
+                    <input
+                        matInput
+                        [matDatepicker]="picker"
+                        [min]="minDate"
+                        [formControl]
+                        formControlName="datePicker"
+                        placeholder="Select a date"
+                    />
+                    <mat-datepicker-toggle
+                        matSuffix
+                        [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+            </div>
 
-    <div class="-mt-2 flex flex-row">
-        <div class="flex flex-col mr-5">
-            <div class="text-sm font-bold text-gray-700 mb-1">Start Time*</div>
+            <div class="-mt-2 flex flex-row">
+                <div class="flex flex-col mr-5">
+                    <div class="text-sm font-bold text-gray-700 mb-1">
+                        Start Time*
+                    </div>
 
-            <a-time-field class="w-[220px]"></a-time-field>
-        </div>
-        <div class="flex flex-col">
-            <div class="text-sm font-bold text-gray-700 mb-1">End Time*</div>
+                    <a-time-field class="w-[220px]"></a-time-field>
+                </div>
+                <div class="flex flex-col">
+                    <div class="text-sm font-bold text-gray-700 mb-1">
+                        End Time*
+                    </div>
 
-            <a-time-field class="w-[220px]"></a-time-field>
+                    <a-time-field class="w-[220px]"></a-time-field>
+                </div>
+            </div>
         </div>
     </div>
 </div>

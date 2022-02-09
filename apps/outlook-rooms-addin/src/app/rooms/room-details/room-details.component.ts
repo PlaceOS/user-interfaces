@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import {
     MomentDateAdapter,
     MAT_MOMENT_DATE_ADAPTER_OPTIONS,
@@ -25,6 +25,13 @@ const moment = _rollupMoment || _moment;
 })
 export class RoomDetailsComponent implements OnInit {
     date = new FormControl(moment());
+
+    detailsFormGroup = new FormGroup({
+        title: new FormControl(''),
+        datePicker: new FormControl(''),
+        startTimePicker: new FormControl(''),
+        endTimePicker: new FormControl(''),
+    });
     minDate: Date = new Date();
 
     constructor() {}

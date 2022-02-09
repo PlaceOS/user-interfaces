@@ -1,12 +1,15 @@
 <div class="flex flex-col border border-gray-300 top-box-shadow p-3">
-    <a button class="bg-secondary border-secondary w-[460px]" mat-button>
-        <div class="flex items-center justify-center">
-            <span class="ml-2 mx-4">Go to confirm</span>
-        </div>
-    </a>
-    <a button class="bg-white border-secondary w-[460px] my-3" mat-button>
-        <div class="flex items-center justify-center">
-            <span class="ml-2 mx-4 button-text">Clear form</span>
-        </div>
-    </a>
+    <button
+        mat-button
+        (click)="openRoomConfirm()"
+        class="bg-secondary border-secondary w-[460px] ml-2 mx-4"
+    >
+        <span class="">Go to confirm</span>
+    </button>
+    <button
+        mat-button
+        class="bg-white text-secondary border-secondary w-[460px] my-3 ml-2 mx-4"
+    >
+        Clear form
+    </button>
 </div>

@@ -12,3 +12,14 @@ body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+.mat-bottom-sheet-container {
+    width: 800px;
+    min-width: 300px;
+}
+
+.top-box-shadow {
+    -webkit-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
+    -moz-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
+    box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
+}

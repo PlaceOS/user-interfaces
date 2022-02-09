@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
+import {
+    MatBottomSheet,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 
 @Component({
     selector: 'confirm',
@@ -8,17 +13,15 @@ import { Component, OnInit } from '@angular/core';
             .button-text {
                 color: var(--secondary);
             }
-
-            .top-box-shadow {
-                -webkit-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
-                -moz-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
-                box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
-            }
         `,
     ],
 })
 export class ConfirmComponent implements OnInit {
-    constructor() {}
+    constructor(private _bottomSheet: MatBottomSheet) {}
 
     ngOnInit(): void {}
+
+    openRoomConfirm() {
+        this._bottomSheet.open(RoomConfirmComponent);
+    }
 }

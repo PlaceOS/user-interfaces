@@ -4,9 +4,10 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { SharedComponentModule } from '../app/components/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RoomConfirmComponent } from './rooms/room-confirm/room-confirm.component';
 
 @NgModule({
-    declarations: [AppComponent],
+    declarations: [AppComponent, RoomConfirmComponent],
     imports: [
         BrowserModule,
         AppRoutingModule,

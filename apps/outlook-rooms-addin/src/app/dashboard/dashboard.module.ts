@@ -17,6 +17,7 @@ import {
     NativeDateModule,
     MAT_DATE_FORMATS,
 } from '@angular/material/core';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 const ROUTES: Route[] = [{ path: '', component: DashboardComponent }];
 
@@ -50,6 +51,7 @@ const DATE_FORMATS = {
         MatNativeDateModule,
         NativeDateModule,
         FormFieldsModule,
+        MatBottomSheetModule,
     ],
     providers: [{ provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS }],
 })
