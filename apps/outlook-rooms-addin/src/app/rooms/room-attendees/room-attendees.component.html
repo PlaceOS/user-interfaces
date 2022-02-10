@@ -7,7 +7,7 @@
     </div>
 
     <div class="mt-4">
-        <div [formGroup]="attendeesFormGroup">
+        <form *ngIf="attendeesFormGroup" [formGroup]="attendeesFormGroup">
             <div class="text-sm font-bold text-gray-700 mb-1">
                 Add Attendees
             </div>
@@ -20,7 +20,7 @@
                 ></textarea>
                 <mat-hint></mat-hint>
             </mat-form-field>
-        </div>
+        </form>
 
         <div class="flex flex-row w-[460px] justify-between -mt-2 mb-3">
             <a

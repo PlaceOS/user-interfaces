@@ -29,8 +29,6 @@ export class RoomDetailsComponent implements OnInit {
     detailsFormGroup = new FormGroup({
         title: new FormControl('title'),
         datePicker: new FormControl('datePicker'),
-        startTimePicker: new FormControl('startTimePicker'),
-        endTimePicker: new FormControl('endTimePicker'),
     });
     minDate: Date = new Date();
 

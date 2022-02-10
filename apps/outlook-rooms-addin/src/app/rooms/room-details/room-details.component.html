@@ -7,7 +7,7 @@
     </div>
 
     <div class="mt-4">
-        <div [formGroup]="detailsFormGroup">
+        <form *ngIf="detailsFormGroup" [formGroup]="detailsFormGroup">
             <div class="text-sm font-bold text-gray-700 mb-1">Add Title*</div>
 
             <mat-form-field appearance="outline" class="w-[460px]">
@@ -44,22 +44,16 @@
                         Start Time*
                     </div>
 
-                    <a-time-field
-                        class="w-[220px]"
-                        formControlName="startTimePicker"
-                    ></a-time-field>
+                    <a-time-field class="w-[220px]"></a-time-field>
                 </div>
                 <div class="flex flex-col">
                     <div class="text-sm font-bold text-gray-700 mb-1">
                         End Time*
                     </div>
 
-                    <a-time-field
-                        class="w-[220px]"
-                        formControlName="endTimePicker"
-                    ></a-time-field>
+                    <a-time-field class="w-[220px]"></a-time-field>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
