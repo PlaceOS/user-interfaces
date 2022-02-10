@@ -14,8 +14,7 @@ body {
 }
 
 .mat-bottom-sheet-container {
-    width: 800px;
-    min-width: 300px;
+    min-width: 400px;
 }
 
 .top-box-shadow {
