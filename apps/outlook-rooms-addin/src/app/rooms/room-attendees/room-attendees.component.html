@@ -1,4 +1,4 @@
-<div class="flex border border-gray-300 p-3 pt-6 flex-col">
+<div class="flex border-b border-gray-300 p-5 flex-col">
     <div class="flex flex-row">
         <div class="border border-black rounded-full w-7 h-7 text-center">
             <span>2</span>
@@ -7,33 +7,41 @@
     </div>
 
     <div class="mt-4">
-        <div class="text-sm font-bold text-gray-700 mb-1">Add Attendees</div>
+        <div [formGroup]="attendeesFormGroup">
+            <div class="text-sm font-bold text-gray-700 mb-1">
+                Add Attendees
+            </div>
 
-        <mat-form-field appearance="outline" class="w-[460px]">
-            <textarea matInput placeholder="Type an email or name"></textarea>
-            <mat-hint></mat-hint>
-        </mat-form-field>
-    </div>
+            <mat-form-field appearance="outline" class="w-[460px]">
+                <textarea
+                    matInput
+                    placeholder="Type an email or name"
+                    formControlName="attendees"
+                ></textarea>
+                <mat-hint></mat-hint>
+            </mat-form-field>
+        </div>
 
-    <div class="flex flex-row w-[460px] justify-between -mt-2 mb-3">
-        <a
-            button
-            mat-flat-button
-            class="w-[150px] bg-gray-300 border-none text-black"
-        >
-            Add external
-        </a>
-        <a
-            button
-            mat-flat-button
-            class="w-[150px] bg-gray-300 border-none text-black"
-            >Upload CSV</a
-        >
-        <a
-            button
-            mat-flat-button
-            class="w-[150px] bg-gray-300 border-none text-black"
-            >CSV Template</a
-        >
+        <div class="flex flex-row w-[460px] justify-between -mt-2 mb-3">
+            <a
+                button
+                mat-flat-button
+                class="w-[150px] bg-gray-300 border-none text-black"
+            >
+                Add external
+            </a>
+            <a
+                button
+                mat-flat-button
+                class="w-[150px] bg-gray-300 border-none text-black"
+                >Upload CSV</a
+            >
+            <a
+                button
+                mat-flat-button
+                class="w-[150px] bg-gray-300 border-none text-black"
+                >CSV Template</a
+            >
+        </div>
     </div>
 </div>
