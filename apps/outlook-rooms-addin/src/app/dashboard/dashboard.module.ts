@@ -1,13 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Route } from '@angular/router';
-
 import { DashboardComponent } from './dashboard.component';
 import { DashboardAvailabilityComponent } from './dashboard-availability/dashboard-availability.component';
 import { RoomBookingComponent } from '../rooms/room-booking.component';
 import { RoomConfirmComponent } from '../rooms/room-confirm/room-confirm.component';
 import { FormFieldsModule } from '@placeos/form-fields';
-
 import { SharedComponentModule } from '../components/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
