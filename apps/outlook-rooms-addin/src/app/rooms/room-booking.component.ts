@@ -55,6 +55,11 @@ export class RoomBookingComponent implements OnInit {
     ngOnInit(): void {}
 
     openRoomConfirm() {
-        this._bottomSheet.open(RoomConfirmComponent);
+        this.form.markAllAsTouched();
+        if (!this.form.controls.title.valid || !this.form.controls.date.valid)
+            return;
+        this._bottomSheet.open(RoomConfirmComponent, {
+            data: this.form,
+        });
     }
 }

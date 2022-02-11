@@ -21,7 +21,7 @@
                     <input
                         matInput
                         placeholder="e.g Team meeting"
-                        [formControl]="form.title"
+                        formControlName="title"
                     />
                 </mat-form-field>
 
@@ -31,7 +31,7 @@
                     </div>
                     <a-date-field
                         [from]="minDate"
-                        [formControl]="form.date"
+                        formControlName="date"
                     ></a-date-field>
                 </div>
 
@@ -41,13 +41,17 @@
                             Start Time*
                         </div>
 
-                        <a-time-field class="w-[220px]"></a-time-field>
+                        <a-time-field
+                            class="w-[220px]"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                        ></a-time-field>
                     </div>
                     <div class="flex flex-col">
                         <div class="text-sm font-bold text-gray-700 mb-1">
                             End Time*
                         </div>
                         <a-duration-field
+                            [time]="form.get('date')?.value"
                             class="w-[220px]"
                             [max]="12 * 60"
                             [min]="60"
@@ -73,7 +77,7 @@
                     Add Attendees
                 </div>
                 <a-user-list-field
-                    [formControl]="form.attendees"
+                    formControlName="attendees"
                 ></a-user-list-field>
             </div>
         </section>

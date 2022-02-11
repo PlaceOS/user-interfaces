@@ -3,10 +3,12 @@
         <span class="mt-5 text-2xl font-bold"> Confirm Room Booking</span>
         <div class="border-b border-gray-300">
             <span class="flex mt-5 text-xl font-bold text-gray-700"
-                >Title
+                >{{ data.controls.title.value }}
             </span>
 
-            <span class="flex mt-4 text-base">Date</span>
+            <span class="flex mt-4 text-base">
+                {{ unixTime | date: 'dd MMMM yyyy' }}
+            </span>
             <span class="flex mt-2 mb-5 text-base">Time</span>
         </div>
         <div class="border-b border-gray-300">
