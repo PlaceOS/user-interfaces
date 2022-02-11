@@ -130,7 +130,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
 
     public ngOnInit(): void {
         this.form = new FormGroup({
-            // organiser: new FormControl(null, [Validators.required]),
+            organiser: new FormControl(null, [Validators.required]),
             room_ids: new FormControl([this._data.space?.email || '']),
             date: new FormControl(this._data.date || new Date().valueOf()),
             duration: new FormControl(30),
