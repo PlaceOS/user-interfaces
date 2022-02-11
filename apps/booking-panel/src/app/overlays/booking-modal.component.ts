@@ -149,7 +149,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             this.loading = true;
             this.event.emit({
                 reason: 'done',
-                metadata: new CalendarEvent({ ...this.form.value }),
+                metadata: this.form.value,
             });
         } else {
             console.log('Invalid form fields. Valid states:', this.form);

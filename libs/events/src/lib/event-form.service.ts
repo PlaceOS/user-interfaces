@@ -162,10 +162,10 @@ export class EventFormService extends BaseClass {
         });
     }
 
-    public async postForm() {
+    public async postForm(force: boolean = false) {
         const form = this._form.getValue();
         if (!form) throw 'No form for event';
-        if (!form.valid)
+        if (!form.valid && !force)
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
