@@ -3,7 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormBuilder, Validators } from '@angular/forms';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import {
     MomentDateAdapter,
@@ -38,13 +38,10 @@ export class RoomBookingComponent implements OnInit {
     date = new FormControl(moment());
     minDate: Date = new Date();
 
-    form = new FormGroup({
-        title: new FormControl('title'),
-        datePicker: new FormControl('datePicker'),
-        attendee: new FormControl('attendees'),
-    });
-
-    constructor(private _bottomSheet: MatBottomSheet) {}
+    constructor(
+        private _bottomSheet: MatBottomSheet,
+        private formBuilder: FormBuilder
+    ) {}
 
     ngOnInit(): void {}
 

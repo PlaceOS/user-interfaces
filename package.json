@@ -57,7 +57,7 @@
         "@angular/cli": "13.2.1",
         "@angular/compiler-cli": "13.2.0",
         "@angular/language-service": "13.2.0",
-        "@angular/localize": "13.2.0",
+        "@angular/localize": "^13.2.0",
         "@ngneat/spectator": "^9.0.0",
         "@ngneat/tailwind": "^7.0.3",
         "@nrwl/cli": "13.7.1",

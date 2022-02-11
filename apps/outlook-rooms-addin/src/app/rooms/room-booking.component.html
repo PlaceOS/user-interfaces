@@ -1,140 +1,82 @@
-<form *ngIf="form" [formGroup]="form">
-    <div class="flex flex-col">
-        <div class="font-bold text-xl m-5">Book Room</div>
+<!-- <form *ngIf="" [formGroup]=""> -->
+<!-- <form> -->
+<div class="flex flex-col">
+    <div class="font-bold text-xl m-5">Book Room</div>
 
-        <section class="flex border border-gray-300 p-5 flex-col">
-            <div class="flex flex-row">
-                <div
-                    class="border border-black rounded-full w-7 h-7 text-center"
-                >
-                    <span>1</span>
-                </div>
-                <div class="ml-2 text-lg">Details</div>
+    <section class="flex border border-gray-300 p-5 flex-col">
+        <div class="flex flex-row">
+            <div class="border border-black rounded-full w-7 h-7 text-center">
+                <span>1</span>
+            </div>
+            <div class="ml-2 text-lg">Details</div>
+        </div>
+
+        <div class="mt-4">
+            <div class="text-sm font-bold text-gray-700 mb-1">Add Title*</div>
+
+            <mat-form-field appearance="outline" class="w-[460px]">
+                <input matInput placeholder="e.g Team meeting" />
+            </mat-form-field>
+
+            <div class="-mt-2">
+                <div class="text-sm font-bold text-gray-700 mb-1">Date*</div>
+                <a-date-field [from]="minDate"></a-date-field>
             </div>
 
-            <div class="mt-4">
-                <div class="text-sm font-bold text-gray-700 mb-1">
-                    Add Title*
-                </div>
-
-                <mat-form-field appearance="outline" class="w-[460px]">
-                    <input
-                        matInput
-                        formControlName="title"
-                        placeholder="e.g Team meeting"
-                    />
-                    <mat-hint></mat-hint>
-                </mat-form-field>
-
-                <div class="-mt-2">
+            <div class="-mt-2 flex flex-row">
+                <div class="flex flex-col mr-5">
                     <div class="text-sm font-bold text-gray-700 mb-1">
-                        Date*
+                        Start Time*
                     </div>
 
-                    <mat-form-field appearance="outline" class="w-[460px]">
-                        <input
-                            matInput
-                            [matDatepicker]="picker"
-                            [min]="minDate"
-                            formControlName="datePicker"
-                            placeholder="Select a date"
-                        />
-                        <mat-datepicker-toggle
-                            matSuffix
-                            [for]="picker"
-                        ></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
-                    </mat-form-field>
+                    <a-time-field class="w-[220px]"></a-time-field>
                 </div>
-
-                <div class="-mt-2 flex flex-row">
-                    <div class="flex flex-col mr-5">
-                        <div class="text-sm font-bold text-gray-700 mb-1">
-                            Start Time*
-                        </div>
-
-                        <a-time-field class="w-[220px]"></a-time-field>
-                    </div>
-                    <div class="flex flex-col">
-                        <div class="text-sm font-bold text-gray-700 mb-1">
-                            End Time*
-                        </div>
-
-                        <a-time-field class="w-[220px]"></a-time-field>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="flex border-b border-gray-300 p-5 flex-col">
-            <div class="flex flex-row">
-                <div
-                    class="border border-black rounded-full w-7 h-7 text-center"
-                >
-                    <span>2</span>
-                </div>
-                <div class="ml-2 text-lg">Attendees</div>
-            </div>
-
-            <div class="mt-4">
-                <form
-                    *ngIf="attendeesFormGroup"
-                    [formGroup]="attendeesFormGroup"
-                >
+                <div class="flex flex-col">
                     <div class="text-sm font-bold text-gray-700 mb-1">
-                        Add Attendees
+                        End Time*
                     </div>
-
-                    <mat-form-field appearance="outline" class="w-[460px]">
-                        <textarea
-                            matInput
-                            placeholder="Type an email or name"
-                            formControlName="attendees"
-                        ></textarea>
-                        <mat-hint></mat-hint>
-                    </mat-form-field>
-                </form>
-
-                <div class="flex flex-row w-[460px] justify-between -mt-2 mb-3">
-                    <a
-                        button
-                        mat-flat-button
-                        class="w-[150px] bg-gray-300 border-none text-black"
-                    >
-                        Add external
-                    </a>
-                    <a
-                        button
-                        mat-flat-button
-                        class="w-[150px] bg-gray-300 border-none text-black"
-                        >Upload CSV</a
-                    >
-                    <a
-                        button
-                        mat-flat-button
-                        class="w-[150px] bg-gray-300 border-none text-black"
-                        >CSV Template</a
-                    >
+                    <a-duration-field
+                        class="w-[220px]"
+                        [max]="12 * 60"
+                        [min]="60"
+                        [step]="60"
+                    ></a-duration-field>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section
-            class="flex flex-col border border-gray-300 top-box-shadow p-3"
+    <section class="flex border-b border-gray-300 p-5 flex-col">
+        <div class="flex flex-row">
+            <div class="border border-black rounded-full w-7 h-7 text-center">
+                <span>2</span>
+            </div>
+            <div class="ml-2 text-lg">Attendees</div>
+        </div>
+
+        <div class="mt-4">
+            <div class="text-sm font-bold text-gray-700 mb-1">
+                Add Attendees
+            </div>
+            <a-user-list-field></a-user-list-field>
+        </div>
+    </section>
+
+    <section class="flex flex-col border border-gray-300 top-box-shadow p-3">
+        <button
+            mat-button
+            type="submit"
+            (click)="openRoomConfirm()"
+            class="bg-secondary border-secondary w-[460px] ml-2 mx-4"
         >
-            <button
-                mat-button
-                (click)="openRoomConfirm()"
-                class="bg-secondary border-secondary w-[460px] ml-2 mx-4"
-            >
-                <span class="">Go to confirm</span>
-            </button>
-            <button
-                mat-button
-                class="bg-white text-secondary border-secondary w-[460px] my-3 ml-2 mx-4"
-            >
-                Clear form
-            </button>
-        </section>
-    </div>
-</form>
+            <span class="">Go to confirm</span>
+        </button>
+        <button
+            mat-button
+            class="bg-white text-secondary border-secondary w-[460px] my-3 ml-2 mx-4"
+        >
+            Clear form
+        </button>
+    </section>
+</div>
+<!-- </form> -->
