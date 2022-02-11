@@ -30,7 +30,7 @@ export async function openBookingModal(
     ]).catch((_) => ({}));
     return {
         ...result,
-        close: ref.close,
+        close: () => ref.close(),
     };
 }
 
