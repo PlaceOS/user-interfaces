@@ -26,8 +26,6 @@ export class RoomConfirmComponent implements OnInit {
         const durationMinutes: number = this.data?.controls?.duration?.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
-
-        console.log(this.data.controls.attendees.value, 'attendees');
         this.attendees = this.data?.controls?.attendees?.value;
     }
 
@@ -35,5 +33,9 @@ export class RoomConfirmComponent implements OnInit {
         this._bottomSheetRef.dismiss();
 
         event.preventDefault();
+    }
+
+    closeModal() {
+        this._bottomSheetRef.dismiss();
     }
 }
