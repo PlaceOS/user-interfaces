@@ -11,19 +11,25 @@ import {
 })
 export class RoomConfirmComponent implements OnInit {
     unixTime: number;
+    startTime;
+    endTime;
+
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>
     ) {}
 
     ngOnInit(): void {
-        console.log(this.data);
-
         this.unixTime = this.data?.controls?.date?.value;
+        this.startTime = new Date(this.unixTime).toLocaleTimeString();
+        const durationMinutes: number = this.data?.controls?.duration?.value;
+        const end = this.unixTime + durationMinutes * 60 * 1000;
+        this.endTime = new Date(end).toLocaleTimeString();
     }
 
     openLink(event: MouseEvent) {
         this._bottomSheetRef.dismiss();
+
         event.preventDefault();
     }
 }

@@ -13,11 +13,24 @@
                     >{{ data.controls.title.value }}
                 </span>
 
-                <span class="flex mt-4 text-base">
-                    <mat-icon>calendar_today</mat-icon>
-                    {{ unixTime | date: 'dd MMMM yyyy' }}
-                </span>
-                <span class="flex mt-2 mb-5 text-base">Time</span>
+                <div class="flex mt-4 text-base items-center text-gray-700">
+                    <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                        >calendar_today</mat-icon
+                    >
+                    <span class="flex">
+                        {{ unixTime | date: 'dd MMMM yyyy' }}
+                    </span>
+                </div>
+                <div
+                    class="flex mt-2 mb-5 text-base items-center text-gray-700"
+                >
+                    <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                        >schedule</mat-icon
+                    >
+                    <span class="flex"
+                        >{{ this.startTime }} -{{ this.endTime }}</span
+                    >
+                </div>
             </div>
         </section>
 

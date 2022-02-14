@@ -38,6 +38,9 @@ import { EventFormService } from '@placeos/events';
 export class RoomBookingComponent implements OnInit {
     // date = new FormControl(moment());
     minDate: Date = new Date();
+    unixTime;
+    startTime;
+    endTime;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -56,10 +59,19 @@ export class RoomBookingComponent implements OnInit {
 
     openRoomConfirm() {
         this.form.markAllAsTouched();
-        if (!this.form.controls.title.valid || !this.form.controls.date.valid)
+        if (
+            !this.form?.controls?.title.valid ||
+            !this.form?.controls?.date.valid
+        )
             return;
+
         this._bottomSheet.open(RoomConfirmComponent, {
             data: this.form,
         });
+    }
+
+    test(e) {
+        console.log(e, 'event');
+        console.log('method');
     }
 }
