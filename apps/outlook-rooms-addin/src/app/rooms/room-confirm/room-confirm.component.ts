@@ -13,6 +13,7 @@ export class RoomConfirmComponent implements OnInit {
     unixTime: number;
     startTime;
     endTime;
+    attendees: string[];
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -25,6 +26,9 @@ export class RoomConfirmComponent implements OnInit {
         const durationMinutes: number = this.data?.controls?.duration?.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
+
+        console.log(this.data.controls.attendees.value, 'attendees');
+        this.attendees = this.data?.controls?.attendees?.value;
     }
 
     openLink(event: MouseEvent) {
