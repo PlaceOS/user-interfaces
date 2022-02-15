@@ -4,7 +4,7 @@ import {
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { FormControl, FormGroup } from '@angular/forms';
-import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
 
 // import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
@@ -70,11 +70,12 @@ export class RoomBookingComponent implements OnInit {
         this.form.markAllAsTouched();
         if (
             !this.form?.controls?.title.valid ||
-            !this.form?.controls?.date.valid
+            !this.form?.controls?.date.valid ||
+            !this.form?.controls?.duration.valid
         )
             return;
 
-        this._bottomSheet.open(RoomConfirmComponent, {
+        this._bottomSheet.open(FindSpaceComponent, {
             data: this.form,
         });
     }
