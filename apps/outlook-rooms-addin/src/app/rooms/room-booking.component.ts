@@ -45,6 +45,10 @@ import { EventFormService } from '@placeos/events';
     // ],
 })
 export class RoomBookingComponent implements OnInit {
+    public show_spaces = false;
+    public show_people = false;
+    public loading = false;
+
     // date = new FormControl(moment());
     minDate: Date = new Date();
     unixTime;
@@ -66,7 +70,7 @@ export class RoomBookingComponent implements OnInit {
 
     ngOnInit(): void {}
 
-    openRoomConfirm() {
+    async openRoomConfirm() {
         this.form.markAllAsTouched();
         if (
             !this.form?.controls?.title.valid ||
@@ -75,8 +79,14 @@ export class RoomBookingComponent implements OnInit {
         )
             return;
 
+        this.loading = true;
+        await this._state.postForm().catch((err) => console.log(err));
+
+        this.loading = false;
+
         this._bottomSheet.open(FindSpaceComponent, {
             data: this.form,
         });
+        console.log(this.form.controls);
     }
 }

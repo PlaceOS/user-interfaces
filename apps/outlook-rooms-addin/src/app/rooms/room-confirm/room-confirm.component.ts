@@ -31,7 +31,6 @@ export class RoomConfirmComponent implements OnInit {
 
     openLink(event: MouseEvent) {
         this._bottomSheetRef.dismiss();
-
         event.preventDefault();
     }
 

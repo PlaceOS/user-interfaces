@@ -3,6 +3,7 @@ import {
     MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
+import { EventFormService } from '@placeos/events';
 
 @Component({
     selector: 'find-space',
@@ -17,7 +18,8 @@ export class FindSpaceComponent implements OnInit {
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<FindSpaceComponent>
+        private _bottomSheetRef: MatBottomSheetRef<FindSpaceComponent>,
+        private _state: EventFormService
     ) {}
 
     ngOnInit(): void {
@@ -30,5 +32,10 @@ export class FindSpaceComponent implements OnInit {
 
     closeModal() {
         this._bottomSheetRef.dismiss();
+    }
+
+    public get form() {
+        console.log(this._state.form);
+        return this._state.form;
     }
 }
