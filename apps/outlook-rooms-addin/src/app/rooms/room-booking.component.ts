@@ -25,6 +25,15 @@ import { EventFormService } from '@placeos/events';
             .button-text {
                 color: var(--secondary);
             }
+
+            ::ng-deep.mat-form-field-appearance-outline
+                .mat-form-field-outline-start,
+            ::ng-deep.mat-form-field-appearance-outline
+                .mat-form-field-outline-gap,
+            ::ng-deep.mat-form-field-appearance-outline
+                .mat-form-field-outline-end {
+                background-color: white;
+            }
         `,
     ],
     // providers: [
@@ -68,10 +77,5 @@ export class RoomBookingComponent implements OnInit {
         this._bottomSheet.open(RoomConfirmComponent, {
             data: this.form,
         });
-    }
-
-    test(e) {
-        console.log(e, 'event');
-        console.log('method');
     }
 }

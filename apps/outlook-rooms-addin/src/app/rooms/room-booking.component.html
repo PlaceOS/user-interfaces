@@ -24,41 +24,38 @@
                         formControlName="title"
                     />
                 </mat-form-field>
+            </div>
+            <div class="-mt-2 w-[460px]">
+                <div class="text-sm font-bold text-gray-700 mb-1">Date*</div>
+                <a-date-field
+                    [from]="minDate"
+                    formControlName="date"
+                ></a-date-field>
+            </div>
 
-                <div class="-mt-2 w-[460px]">
+            <div class="-mt-2 flex flex-row">
+                <div class="flex flex-col mr-5">
                     <div class="text-sm font-bold text-gray-700 mb-1">
-                        Date*
+                        Start Time*
                     </div>
-                    <a-date-field
-                        [from]="minDate"
+
+                    <a-time-field
+                        class="w-[220px]"
                         formControlName="date"
-                    ></a-date-field>
+                    ></a-time-field>
                 </div>
-
-                <div class="-mt-2 flex flex-row">
-                    <div class="flex flex-col mr-5">
-                        <div class="text-sm font-bold text-gray-700 mb-1">
-                            Start Time*
-                        </div>
-
-                        <a-time-field
-                            class="w-[220px]"
-                            formControlName="date"
-                        ></a-time-field>
+                <div class="flex flex-col">
+                    <div class="text-sm font-bold text-gray-700 mb-1">
+                        End Time*
                     </div>
-                    <div class="flex flex-col">
-                        <div class="text-sm font-bold text-gray-700 mb-1">
-                            End Time*
-                        </div>
-                        <a-duration-field
-                            [time]="form.get('date')?.value"
-                            class="w-[220px]"
-                            [max]="12 * 60"
-                            [min]="60"
-                            [step]="60"
-                            formControlName="duration"
-                        ></a-duration-field>
-                    </div>
+                    <a-duration-field
+                        [time]="form.get('date')?.value"
+                        class="w-[220px]"
+                        [max]="12 * 60"
+                        [min]="60"
+                        [step]="60"
+                        formControlName="duration"
+                    ></a-duration-field>
                 </div>
             </div>
         </section>
