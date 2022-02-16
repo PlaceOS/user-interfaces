@@ -12,8 +12,8 @@ import { currentUser } from '@placeos/common';
                 <app-icon>done</app-icon>
             </div>
             <div class="text-center text-lg text-white mb-4">
-                Thank you, you {{ type }} booking was successful!<br />
-                An event has been added to {{ is_host ? 'your' : 'the host\'s' }} calendar
+                Thank you, your {{ type }} booking was successful!<br/>
+                An event has been added to {{ title }} calendar 
             </div>
             <div class="flex items-center space-x-2">
                 <a
@@ -44,7 +44,11 @@ export class FlowSuccessComponent {
     @Input() public route = 'spaces';
     @Input() public type = 'space';
 
-    public get is_host() {
+    public get is_host():boolean {
         return this.calendar === currentUser()?.email;
+    }
+
+    public get title(){
+        return this.is_host ? 'your' : 'the host\'';
     }
 }
