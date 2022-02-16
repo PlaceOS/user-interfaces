@@ -1,8 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@placeos/spaces';
+import { addDays, addMonths, isSameDay } from 'date-fns';
+import { map, tap } from 'rxjs/operators';
 
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { BookingLike, ScheduleStateService } from '../schedule/schedule-state.service';
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
@@ -72,12 +75,27 @@ import { DashboardStateService } from './dashboard-state.service';
                 >Join Call</a
             >
         </div>
+
+        <!-- Add scheduled Bookings -->
+        <div class="w-full flex-1 overflow-hidden">
+            <div
+                scheduled-item
+                *ngFor="
+                    let item of event_list | async;
+                    trackBy: trackByFn
+                "
+                [item] = "item"
+            >
+            </div>
+        </div>
+
         <p
-            *ngIf="!(upcoming_events | async).length"
+            *ngIf="!((upcoming_events | async).length + (event_list | async).length)"
             class="text-dark-fade text-center w-full"
         >
             No upcoming events for today
         </p>
+
     `,
     styles: [
         `
@@ -113,24 +131,34 @@ import { DashboardStateService } from './dashboard-state.service';
     ],
 })
 export class DashboardUpcomingComponent implements OnInit, OnDestroy {
+    public readonly today = new Date();
+    public readonly max_date = addMonths(this.today, 4);
     public readonly upcoming_events = this._state.upcoming_events;
+    public readonly event_list = this._schedule.events;
 
     constructor(
         private _state: DashboardStateService,
+        private _schedule: ScheduleStateService,
         private _dialog: MatDialog
     ) {}
 
     public ngOnInit() {
         this._state.pollUpcomingEvents();
+        this._schedule.startPolling();
     }
 
     public ngOnDestroy() {
         this._state.stopPollingUpcomingEvents();
+        this._schedule.stopPolling();
     }
 
     public locateSpace(space: Space) {
         this._dialog.open(MapLocateModalComponent, {
             data: { item: { ...space, level: null } },
         });
+    }
+
+    public trackByFn(idx: number, event: BookingLike) {
+        return event ? `${event.id}|${event.date}` : undefined;
     }
 }
