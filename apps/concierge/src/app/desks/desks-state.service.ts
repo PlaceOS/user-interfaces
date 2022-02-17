@@ -193,7 +193,7 @@ export class DesksStateService extends BaseClass {
             : notifySuccess(
                   `Approved desk booking for ${desk.user_name} on ${format(
                       desk.date,
-                      'MMM Do'
+                      'MMM do'
                   )}.`
               );
     }
@@ -207,7 +207,7 @@ export class DesksStateService extends BaseClass {
             : notifySuccess(
                   `Rejected desk booking for ${desk.user_name} on ${format(
                       desk.date,
-                      'MMM Do'
+                      'MMM do'
                   )}.`
               );
     }
