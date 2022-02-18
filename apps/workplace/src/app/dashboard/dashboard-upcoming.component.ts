@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@placeos/spaces';
-import { addDays, addMonths, isSameDay } from 'date-fns';
-import { map, tap } from 'rxjs/operators';
-
+import { addMonths, isPast, isSameDay } from 'date-fns';
+import { map } from 'rxjs/operators';
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 import { BookingLike, ScheduleStateService } from '../schedule/schedule-state.service';
 import { DashboardStateService } from './dashboard-state.service';
+
 
 @Component({
     selector: 'a-dashboard-upcoming',
@@ -90,7 +90,7 @@ import { DashboardStateService } from './dashboard-state.service';
         </div>
 
         <p
-            *ngIf="!((upcoming_events | async).length + (event_list | async).length)"
+            *ngIf="!(upcoming_events | async)?.length && !(event_list | async)?.length"
             class="text-dark-fade text-center w-full"
         >
             No upcoming events for today
@@ -134,7 +134,12 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly today = new Date();
     public readonly max_date = addMonths(this.today, 4);
     public readonly upcoming_events = this._state.upcoming_events;
-    public readonly event_list = this._schedule.events;
+    public readonly event_list = this._schedule.events.pipe(
+        map(events => {
+            const start = new Date(this.today);
+            return events.filter( e => isSameDay(start, e.date) && !isPast(e.date))
+        })
+    );
 
     constructor(
         private _state: DashboardStateService,
