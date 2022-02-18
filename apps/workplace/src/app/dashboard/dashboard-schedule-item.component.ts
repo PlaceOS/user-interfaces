@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { isAfter } from 'date-fns';
 import { BookingLike } from '../schedule/schedule-state.service';
@@ -8,14 +8,14 @@ import { BookingLike } from '../schedule/schedule-state.service';
   template: `
     <a
         mat-button
-        class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
+        class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-24 bg-white hover:shadow p-0"
         [class.opacity-50]="has_ended"
         [routerLink]="['/schedule', 'view', item?.id, type]"
     >
         <div class="flex items-center border border-gray-200 rounded-lg">
             <div
                 status
-                class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"
+                class="h-24 w-20 flex flex-col items-center justify-center text-white leading-tight"
                 [class.bg-success]="status === 'approved'"
                 [class.bg-pending]="status === 'tentative'"
                 [class.bg-error]="status === 'declined'"
@@ -36,11 +36,15 @@ import { BookingLike } from '../schedule/schedule-state.service';
                 <div class="text-xl pl-1">
                     {{ item?.title || 'Untitled Event' }}
                 </div>
+                <div class="flex items-center font-normal leading-normal space-x-1">
+                    <app-icon class="text-lg">today</app-icon>
+                    <span class="text-sm">{{item?.date | date: 'MMMM d'}}</span>
+                </div>
                 <div
-                    class="flex items-center font-normal"
+                    class="flex items-center font-normal leading-normal space-x-1"
                     *ngIf="item?.location || item?.description"
                 >
-                    <app-icon class="text-lg mr-1">place</app-icon>
+                    <app-icon class="text-lg">place</app-icon>
                     <span>
                         {{
                             item?.location || item?.description
