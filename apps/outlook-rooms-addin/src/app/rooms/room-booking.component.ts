@@ -70,7 +70,7 @@ export class RoomBookingComponent implements OnInit {
 
     ngOnInit(): void {}
 
-    async openRoomConfirm() {
+    async findSpace() {
         this.form.markAllAsTouched();
         if (
             !this.form?.controls?.title.valid ||
@@ -80,13 +80,16 @@ export class RoomBookingComponent implements OnInit {
             return;
 
         this.loading = true;
-        await this._state.postForm().catch((err) => console.log(err));
+        const result = await this._state
+            .postForm()
+            .catch((err) => console.log(err));
 
         this.loading = false;
 
         this._bottomSheet.open(FindSpaceComponent, {
             data: this.form,
         });
-        console.log(this.form.controls);
+
+        console.log(this.form.get('host'), 'host');
     }
 }

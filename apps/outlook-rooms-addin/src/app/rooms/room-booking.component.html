@@ -78,6 +78,25 @@
                     formControlName="attendees"
                 ></a-user-list-field>
             </div>
+
+            <!-- <input
+                type="hidden"
+                formControlName="host"
+                name="host"
+                value="test"
+            /> -->
+            <input
+                type="hidden"
+                formControlName="creator"
+                name="creator"
+                value="test"
+            />
+            <input
+                type="hidden"
+                formControlName="organiser"
+                name="organiser"
+                value="{}"
+            />
         </section>
 
         <section
@@ -86,7 +105,7 @@
             <button
                 mat-button
                 type="submit"
-                (click)="openRoomConfirm()"
+                (click)="findSpace()"
                 class="bg-secondary border-secondary w-[460px] ml-2 mx-4"
             >
                 <span class="">Find room</span>
