@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { combineLatest, timer } from 'rxjs';
+import { combineLatest, interval } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
@@ -75,7 +75,7 @@ export class PanelViewStatusComponent {
     public readonly current = this._state.current;
     public readonly next = this._state.next;
 
-    public readonly event_state = combineLatest([this.current, this.next, timer(5000)]).pipe(
+    public readonly event_state = combineLatest([this.current, this.next, interval(5000)]).pipe(
         map(([c, n]) => ({
             current: currentPeriod(c, n),
             next: nextPeriod(n),
