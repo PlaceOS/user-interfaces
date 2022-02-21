@@ -24,6 +24,7 @@ import { CalendarEvent, queryEvents } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
+import { Booking, queryBookings } from '@placeos/bookings';
 
 export interface DashboardOptions {
     search?: string;
@@ -37,7 +38,7 @@ export class DashboardStateService extends BaseClass {
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
-    private _upcoming_events = new BehaviorSubject<CalendarEvent[]>([]);
+    private _upcoming_events = new BehaviorSubject<(CalendarEvent | Booking)[]>([]);
     /**  */
     private _contacts = new BehaviorSubject<User[]>([]);
     /**  */
@@ -187,7 +188,14 @@ export class DashboardStateService extends BaseClass {
             period_end,
             calendars: currentUser().email,
         }).toPromise();
-        this._upcoming_events.next(events);
+        const bookings = await queryBookings({
+            period_start,
+            period_end,
+            type: 'desk',
+            user: currentUser().email,
+        }).toPromise();
+        const event_list = [...events, ...bookings].sort((a, b) => a.date - b.date);
+        this._upcoming_events.next(event_list);
     }
 
     private async updateBuildingMetadata() {

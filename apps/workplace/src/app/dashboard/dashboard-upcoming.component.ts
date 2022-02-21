@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Space } from '@placeos/spaces';
-import { addMonths, isPast, isSameDay } from 'date-fns';
-import { map } from 'rxjs/operators';
+import { addMonths } from 'date-fns';
+
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 import { BookingLike, ScheduleStateService } from '../schedule/schedule-state.service';
 import { DashboardStateService } from './dashboard-state.service';
-
 
 @Component({
     selector: 'a-dashboard-upcoming',
@@ -17,7 +16,7 @@ import { DashboardStateService } from './dashboard-state.service';
             *ngFor="let event of upcoming_events | async | slice: 0:3"
             class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4"
         >
-            <div name="status" class="absolute rounded-lg"></div>
+            <div name="status" class="absolute rounded-lg" [class.bg-primary]="event.asset_id"></div>
             <div name="details" class="flex-1 mr-2">
                 <div name="time" class="text-sm text-bold mb-2">
                     {{ event.date | date: 'shortTime' }}
@@ -32,13 +31,13 @@ import { DashboardStateService } from './dashboard-state.service';
                     ></app-icon>
                     <a
                         class="text-black"
-                        [class.underline]="!!event.space"
+                        [class.underline]="!!event.space || !!event.asset_id"
                         [matTooltip]="event.space ? 'Locate Space' : ''"
-                        (click)="event.space ? locateSpace(event.space) : ''"
+                        (click)="event.space || event.asset_id ? locateSpace(event.space || event) : ''"
                     >
                         {{
                             event.space?.display_name ||
-                                event.space?.name ||
+                                event.space?.name || event.asset_name ||
                                 '&lt;No Location&gt;'
                         }}
                         {{
@@ -50,16 +49,16 @@ import { DashboardStateService } from './dashboard-state.service';
                         }}
                     </a>
                 </div>
-                <div name="attendees" class="text-xs flex items-center mb-2">
+                <div name="attendees" class="text-xs flex items-center mb-2" *ngIf="event.guests">
                     <app-icon
                         class="mr-2"
                         [icon]="{ class: 'material-icons', content: 'group' }"
                     ></app-icon>
-                    {{ event.guests.length }} Guest{{
-                        event.guests.length === 1 ? '' : 's'
+                    {{ event.guests?.length }} Guest{{
+                        event.guests?.length === 1 ? '' : 's'
                     }}
                 </div>
-                <div name="guests" class="flex space-x-2 text-sm">
+                <div name="guests" class="flex space-x-2 text-sm" *ngIf="event.guests">
                     <a-user-avatar
                         *ngFor="let guest of event.guests"
                         [user]="guest"
@@ -75,26 +74,6 @@ import { DashboardStateService } from './dashboard-state.service';
                 >Join Call</a
             >
         </div>
-
-        <!-- Add scheduled Bookings -->
-        <div class="w-full flex-1 overflow-hidden">
-            <div
-                scheduled-item
-                *ngFor="
-                    let item of event_list | async;
-                    trackBy: trackByFn
-                "
-                [item] = "item"
-            >
-            </div>
-        </div>
-
-        <p
-            *ngIf="!(upcoming_events | async)?.length && !(event_list | async)?.length"
-            class="text-dark-fade text-center w-full"
-        >
-            No upcoming events for today
-        </p>
 
     `,
     styles: [
@@ -134,12 +113,7 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly today = new Date();
     public readonly max_date = addMonths(this.today, 4);
     public readonly upcoming_events = this._state.upcoming_events;
-    public readonly event_list = this._schedule.events.pipe(
-        map(events => {
-            const start = new Date(this.today);
-            return events.filter( e => isSameDay(start, e.date) && !isPast(e.date))
-        })
-    );
+    public readonly event_list = this._schedule.events;
 
     constructor(
         private _state: DashboardStateService,

@@ -24,6 +24,7 @@ const TYPES = ['desk', 'parking', 'asset-request'];
 const TRACKING = ['in_storage', 'in_transit', 'at_location']
 
 export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
+    const throw_away = predictableRandomInt(999999) % 3 === 0;
     const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
     const type = TYPES[predictableRandomInt(TYPES.length)];
     const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
