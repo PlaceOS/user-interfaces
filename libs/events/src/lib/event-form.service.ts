@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { BaseClass, getInvalidFields } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -169,22 +170,10 @@ export class EventFormService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
+        const { date, duration } = form.value;
         const spaces = form.get('resources')?.value || [];
-        const space_list = spaces.length
-            ? await querySpaceFreeBusy({
-                  period_start: getUnixTime(form.get('date').value),
-                  period_end: getUnixTime(
-                      form.get('date').value +
-                          form.get('duration').value * 60 * 1000
-                  ),
-                  system_ids: spaces.map((_) => _.id).join(','),
-              }).toPromise()
-            : [];
-        if (space_list.length !== spaces.length)
-            throw `${
-                spaces.length - space_list.length
-            } space(s) are not available at the selected time`;
-            console.log('Save Event', saveEvent);
+        await this.checkSelectedSpacesAreAvailable(spaces, date, duration);
+        console.log('Save Event', saveEvent);
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value)
         ).toPromise();
@@ -196,5 +185,23 @@ export class EventFormService extends BaseClass {
         );
         this.setView('success');
         return result;
+    }
+
+    private async checkSelectedSpacesAreAvailable(
+        spaces: Space[],
+        date: number,
+        duration: number
+    ) {
+        const space_list = spaces.length
+            ? await querySpaceFreeBusy({
+                  period_start: getUnixTime(date),
+                  period_end: getUnixTime(date + duration * 60 * 1000),
+                  system_ids: spaces.map((_) => _.id).join(','),
+              }).toPromise()
+            : [];
+        if (space_list.length !== spaces.length)
+            throw `${
+                spaces.length - space_list.length
+            } space(s) are not available at the selected time`;
     }
 }
