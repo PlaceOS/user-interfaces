@@ -4,10 +4,9 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { SharedComponentModule } from '../app/components/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FindSpaceItemComponent } from './rooms/find-space/find-space-item/find-space-item.component';
 
 @NgModule({
-    declarations: [AppComponent, FindSpaceItemComponent],
+    declarations: [AppComponent],
     imports: [
         BrowserModule,
         AppRoutingModule,

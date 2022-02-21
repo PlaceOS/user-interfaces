@@ -1,4 +1,4 @@
-<div class="w-full bg-white">
+<div class="w-full min-h-[800px] bg-white">
     <div class="flex flex-col mx-6">
         <div class="flex flex-row border-b mr-auto mt-3 w-full">
             <button (click)="this.closeModal()">
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <div class="flex flex-row">
+        <div class="flex flex-row mt-3">
             <button mat-flat-button class="block mt-3 bg-gray-200 w-[350px]">
                 Filter
             </button>
@@ -43,10 +43,10 @@
             </mat-chip-list>
         </section>
 
-        <section class="flex flex-row mt-6 border-t">
+        <section class="flex flex-row my-6 border-t">
             <div class="flex flex-col">
-                <span class="text-xl font-bold"> Results</span>
-                <span class="text-sm text-gray-500">
+                <span class="text-xl font-bold mt-3"> Results</span>
+                <span class="text-sm text-gray-500 mt-3">
                     {{ form.get('resources')?.value?.length }} results
                     found</span
                 >
@@ -135,5 +135,16 @@
                 </p>
             </div>
         </ng-template>
+
+        <section>
+            <button
+                mat-button
+                type="submit"
+                (click)="confirm()"
+                class="bg-secondary border-secondary w-[460px] my-3"
+            >
+                <span class="">Confirm</span>
+            </button>
+        </section>
     </div>
 </div>

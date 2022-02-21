@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import {
+    MatBottomSheet,
     MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
@@ -9,6 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { Observable, combineLatest } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
+import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
 
 @Component({
     selector: 'find-space',
@@ -59,7 +61,8 @@ export class FindSpaceComponent implements OnInit {
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<FindSpaceComponent>,
+        private _bottomSheet: MatBottomSheet,
+        private _bottomSheetRef: MatBottomSheetRef<any>,
         private _org: OrganisationService,
         private _state: EventFormService,
         private _spaces: SpacesService
@@ -68,7 +71,6 @@ export class FindSpaceComponent implements OnInit {
     public async ngOnInit() {
         console.log(this._spaces.space_list, 'space list');
         this.buildings.subscribe((i) => console.log(i));
-
         this.unixTime = this.data?.controls?.date?.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
         const durationMinutes: number = this.data?.controls?.duration?.value;
@@ -86,6 +88,12 @@ export class FindSpaceComponent implements OnInit {
 
     closeModal() {
         this._bottomSheetRef.dismiss();
+    }
+
+    confirm() {
+        this._bottomSheet.open(RoomConfirmComponent, {
+            data: this.form,
+        });
     }
 
     public get form() {
