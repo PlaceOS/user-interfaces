@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'reports-menu,[reports-menu]',
@@ -6,6 +8,7 @@ import { Component } from '@angular/core';
         <a
             [routerLink]="['/reports', 'desks']"
             matRipple
+            *ngIf="features.includes('desks')"
             class="h-64 w-64 m-4 p-4 flex flex-col items-center justify-center bg-white rounded shadow hover:bg-gray-100"
         >
             <app-icon class="text-8xl">room</app-icon>
@@ -18,6 +21,7 @@ import { Component } from '@angular/core';
         <a
             [routerLink]="['/reports', 'spaces']"
             matRipple
+            *ngIf="features.includes('spaces')"
             class="h-64 w-64 m-4 p-4 flex flex-col items-center justify-center bg-white rounded shadow hover:bg-gray-100"
         >
             <app-icon class="text-8xl">meeting_room</app-icon>
@@ -30,6 +34,7 @@ import { Component } from '@angular/core';
         <a
             [routerLink]="['/reports', 'catering']"
             matRipple
+            *ngIf="features.includes('catering')"
             class="h-64 w-64 m-4 p-4 flex flex-col items-center justify-center bg-white rounded shadow hover:bg-gray-100"
         >
             <app-icon class="text-8xl">room_service</app-icon>
@@ -42,6 +47,7 @@ import { Component } from '@angular/core';
         <a
             [routerLink]="['/reports', 'contact-tracing']"
             matRipple
+            *ngIf="features.includes('contact-tracing')"
             class="h-64 w-64 m-4 p-4 flex flex-col items-center justify-center bg-white rounded shadow hover:bg-gray-100"
         >
             <app-icon class="text-8xl">connect_without_contact</app-icon>
@@ -63,4 +69,14 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class ReportsMenuComponent {}
+export class ReportsMenuComponent {
+
+    public features: string[] = [];
+
+    constructor(private _settings: SettingsService) {}
+
+    public async ngOnInit() {
+        await this._settings.initialised.pipe(first(_ => !!_)).toPromise();
+        this.features = this._settings.get('app.reports.features') || ["desks", "spaces", "catering", "contact-tracing"];
+    }
+}
