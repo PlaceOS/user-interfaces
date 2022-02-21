@@ -42,10 +42,11 @@ export class FindSpaceComponent implements OnInit {
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
 
-        await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
+        // await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
         const resources = this._state.form?.get('resources')?.value || [];
         this.book_space = {};
         resources.forEach((_) => (this.book_space[_.id] = true));
+
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
 

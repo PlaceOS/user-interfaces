@@ -56,10 +56,10 @@
         <div class="flex-1 w-full bg-gray-100 overflow-auto">
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container
-                    *ngIf="(spaces | async)?.length > 0; else empty_state"
+                    *ngIf="(spaces$ | async)?.length > 0; else empty_state"
                 >
                     <find-space-item
-                        *ngFor="let space of spaces | async"
+                        *ngFor="let space of spaces$ | async"
                         class="w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                         [space]="space"
                         [multiple]="multiple"
