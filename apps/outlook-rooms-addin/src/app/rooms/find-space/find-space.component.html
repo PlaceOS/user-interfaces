@@ -53,6 +53,51 @@
             </div>
         </section>
 
+        <!-- test -->
+
+        <mat-form-field
+            overlay
+            buildings
+            class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
+            *ngIf="(buildings | async)?.length > 1"
+            appearance="outline"
+        >
+            <mat-select
+                placeholder="Select Building..."
+                [ngModel]="building | async"
+                (ngModelChange)="setBuilding($event)"
+            >
+                <mat-option *ngFor="let bld of buildings | async" [value]="bld">
+                    {{ bld.display_name || bld.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field
+            class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
+            overlay
+            *ngIf="(levels | async)?.length > 0"
+            appearance="outline"
+        >
+            <mat-select
+                placeholder="Level"
+                [ngModel]="
+                    (options | async)?.zone_ids?.length
+                        ? (options | async)?.zone_ids[0]
+                        : ''
+                "
+                (ngModelChange)="setOptions({ zone_ids: [$event] })"
+            >
+                <mat-option
+                    *ngFor="let item of levels | async"
+                    [value]="item.id"
+                >
+                    {{ item.display_name || item.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <!-- test -->
+
         <div class="flex-1 w-full bg-gray-100 overflow-auto">
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container

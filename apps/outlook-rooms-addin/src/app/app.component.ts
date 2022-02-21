@@ -9,6 +9,6 @@ export class AppComponent implements OnInit {
     title = 'outlook-rooms-addin';
 
     ngOnInit() {
-        // localStorage.setItem('mock', 'true');
+        localStorage.setItem('mock', 'true');
     }
 }
