@@ -9,6 +9,7 @@ const routes: Routes = [
                 (m) => m.DashboardModule
             ),
     },
+
     { path: '**', redirectTo: '/dashboard', pathMatch: 'full' },
 ];
 

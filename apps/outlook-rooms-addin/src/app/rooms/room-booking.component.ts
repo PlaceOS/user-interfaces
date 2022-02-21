@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -7,7 +8,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
 import { currentUser } from '../../../../../libs/common/src/lib/user-state';
-import { Observable } from 'rxjs';
+import { Observable, pipe } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 // import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 // import {
@@ -57,8 +59,6 @@ export class RoomBookingComponent implements OnInit {
     startTime;
     endTime;
 
-    readonly available_spaces$: Observable<any> = this._state.available_spaces;
-
     public get form(): FormGroup {
         return this._state.form;
     }
@@ -72,22 +72,19 @@ export class RoomBookingComponent implements OnInit {
         private _state: EventFormService
     ) {}
 
-    ngOnInit(): void {
-        console.log(currentUser.name, 'current User');
-    }
+    ngOnInit(): void {}
 
     async findSpace() {
         this.form.markAllAsTouched();
+        if (
+            !this.form?.controls?.title.valid ||
+            !this.form?.controls?.date.valid ||
+            !this.form?.controls?.duration.valid
+        )
+            return;
 
-        this.available_spaces$.subscribe((i) =>
-            console.log(i, 'available spaces')
-        );
-        // if (
-        //     !this.form?.controls?.title.valid ||
-        //     !this.form?.controls?.date.valid ||
-        //     !this.form?.controls?.duration.valid
-        // )
-        //     return;
+        //move to Confirm Component:
+
         // this.form.controls.host.setErrors(null);
         // this.form.controls.creator.setErrors(null);
         // this.form.controls.host.clearValidators();

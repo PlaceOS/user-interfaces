@@ -52,5 +52,43 @@
                 >
             </div>
         </section>
+
+        <div class="flex-1 w-full bg-gray-100 overflow-auto">
+            <ng-container *ngIf="!(loading | async); else load_state">
+                <ng-container
+                    *ngIf="(spaces | async)?.length > 0; else empty_state"
+                >
+                    <find-space-item
+                        *ngFor="let space of spaces | async"
+                        class="w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                        [space]="space"
+                        [multiple]="multiple"
+                        [(book)]="book_space[space.id]"
+                        (bookChange)="handleBookEvent(space, $event)"
+                    ></find-space-item>
+                    <p class="p-4 text-center opacity-60">
+                        End of available spaces list
+                    </p>
+                </ng-container>
+            </ng-container>
+        </div>
+
+        <ng-template #load_state>
+            <div
+                class="h-full w-full flex flex-col items-center justify-center space-y-2"
+            >
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p>Retrieving available spaces...</p>
+            </div>
+        </ng-template>
+        <ng-template #empty_state>
+            <div
+                class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center"
+            >
+                <p>
+                    No available spaces for selected time, capacity or level(s)
+                </p>
+            </div>
+        </ng-template>
     </div>
 </div>

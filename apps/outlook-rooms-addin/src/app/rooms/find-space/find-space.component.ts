@@ -4,6 +4,8 @@ import {
     MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
+import { Observable } from 'rxjs';
+import { Space, SpacesService } from '@placeos/spaces';
 
 @Component({
     selector: 'find-space',
@@ -15,6 +17,11 @@ export class FindSpaceComponent implements OnInit {
     startTime;
     durationMinutes;
     endTime;
+
+    public readonly available_spaces$: Observable<Space[]> =
+        this._state.available_spaces;
+
+    public readonly loading = this._state.loading;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
