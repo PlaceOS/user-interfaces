@@ -6,6 +6,7 @@ import {
 import { FormControl, FormGroup } from '@angular/forms';
 import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
+import { currentUser } from '../../../../../libs/common/src/lib/user-state';
 
 // import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 // import {
@@ -68,7 +69,9 @@ export class RoomBookingComponent implements OnInit {
         private _state: EventFormService
     ) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log(currentUser.name, 'current User');
+    }
 
     async findSpace() {
         this.form.markAllAsTouched();
@@ -78,18 +81,30 @@ export class RoomBookingComponent implements OnInit {
             !this.form?.controls?.duration.valid
         )
             return;
+        this.form.controls.host.setErrors(null);
+        this.form.controls.creator.setErrors(null);
+        this.form.controls.host.clearValidators();
+        this.form.controls.creator.clearValidators();
+        console.log(this.form.get('host'), 'host');
+        // let host = this.form.get('host');
+        // host = currentUser as any;
+
+        // let creator = this.form.get('creator');
+        // creator = currentUser as any;
+
+        // let organiser = this.form.get('organiser');
+        // organiser = currentUser as any;
 
         this.loading = true;
         const result = await this._state
             .postForm()
             .catch((err) => console.log(err));
 
+        console.log(result, 'result');
         this.loading = false;
 
         this._bottomSheet.open(FindSpaceComponent, {
             data: this.form,
         });
-
-        console.log(this.form.get('host'), 'host');
     }
 }
