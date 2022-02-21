@@ -138,17 +138,18 @@ export class PanelStateService extends BaseClass {
      * @param date Start time of the new booking
      */
     public async newBooking(date: number = new Date().valueOf()) {
+        const space = this._spaces.find(this.system);
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
-                space: this._spaces.find(this.system),
+                space,
                 date,
             },
             this._dialog
         );
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
-        this._events.form.patchValue({ ...details.metadata });
+        this._events.form.patchValue({ ...details.metadata, resources: [space], system: space });
         await this._events.postForm();
         details.close();
     }
