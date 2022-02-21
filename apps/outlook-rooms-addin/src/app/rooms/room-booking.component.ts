@@ -7,6 +7,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
 import { currentUser } from '../../../../../libs/common/src/lib/user-state';
+import { Observable } from 'rxjs';
 
 // import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 // import {
@@ -56,6 +57,8 @@ export class RoomBookingComponent implements OnInit {
     startTime;
     endTime;
 
+    readonly available_spaces$: Observable<any> = this._state.available_spaces;
+
     public get form(): FormGroup {
         return this._state.form;
     }
@@ -75,33 +78,25 @@ export class RoomBookingComponent implements OnInit {
 
     async findSpace() {
         this.form.markAllAsTouched();
-        if (
-            !this.form?.controls?.title.valid ||
-            !this.form?.controls?.date.valid ||
-            !this.form?.controls?.duration.valid
-        )
-            return;
-        this.form.controls.host.setErrors(null);
-        this.form.controls.creator.setErrors(null);
-        this.form.controls.host.clearValidators();
-        this.form.controls.creator.clearValidators();
-        console.log(this.form.get('host'), 'host');
-        // let host = this.form.get('host');
-        // host = currentUser as any;
 
-        // let creator = this.form.get('creator');
-        // creator = currentUser as any;
+        this.available_spaces$.subscribe((i) =>
+            console.log(i, 'available spaces')
+        );
+        // if (
+        //     !this.form?.controls?.title.valid ||
+        //     !this.form?.controls?.date.valid ||
+        //     !this.form?.controls?.duration.valid
+        // )
+        //     return;
+        // this.form.controls.host.setErrors(null);
+        // this.form.controls.creator.setErrors(null);
+        // this.form.controls.host.clearValidators();
+        // this.form.controls.creator.clearValidators();
 
-        // let organiser = this.form.get('organiser');
-        // organiser = currentUser as any;
+        // this.loading = true;
+        // await this._state.postForm().catch((err) => console.log(err));
 
-        this.loading = true;
-        const result = await this._state
-            .postForm()
-            .catch((err) => console.log(err));
-
-        console.log(result, 'result');
-        this.loading = false;
+        // this.loading = false;
 
         this._bottomSheet.open(FindSpaceComponent, {
             data: this.form,

@@ -35,7 +35,6 @@ export class FindSpaceComponent implements OnInit {
     }
 
     public get form() {
-        console.log(this._state.form);
         return this._state.form;
     }
 }
