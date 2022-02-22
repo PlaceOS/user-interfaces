@@ -7,6 +7,7 @@ const general: any = {
         type: 'info',
         content: ``
     },
+    search: true,
     copyright: 'PlaceOS',
     position: 'right',
 };
