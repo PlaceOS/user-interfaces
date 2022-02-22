@@ -53,6 +53,8 @@ const QR_CODES = {};
                     features: list_edit_template,
                     actions: action_template
                 }"
+                [pagination]="true"
+                [page_size]="30"
                 [empty]="
                     (filters | async)?.search
                         ? 'No matching desks'
