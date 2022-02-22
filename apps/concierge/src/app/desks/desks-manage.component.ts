@@ -136,6 +136,7 @@ const QR_CODES = {};
                     <button
                         mat-icon-button
                         [matMenuTriggerFor]="menu"
+                        (click)="loadQrCode(row)"
                     >
                         <app-icon>qr_code</app-icon>
                     </button>
@@ -143,7 +144,7 @@ const QR_CODES = {};
                         <div
                             class="p-2 mx-4 my-2 rounded-lg border border-black"
                         >
-                            <img class="w-48" [src]="qrCode(row.id)" />
+                            <img class="w-48" [src]="row.qr_code" />
                         </div>
                         <div mat-menu-item class="underline">
                             <button mat-button class="w-full">
@@ -232,13 +233,12 @@ export class DesksManageComponent extends BaseClass {
         this.changes = {};
     }
 
-    public qrCode(id: string) {
-        QR_CODES[id] = QR_CODES[id] || generateQRCode(
+    public loadQrCode(item: any) {
+        item.qr_code = generateQRCode(
             `${location.origin}/workplace/#/book/code?checkin=${encodeURIComponent(
-                id
+                item.id
             )}`
-        )
-        return QR_CODES[id];
+        );
     }
 
     constructor(
