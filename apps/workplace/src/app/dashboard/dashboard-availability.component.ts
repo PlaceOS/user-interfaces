@@ -8,7 +8,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <h3 class="m-0 font-medium text-xl">Available Now</h3>
         <div class="flex flex-col items-center p-2 bg-white shadow my-4 rounded-lg">
             <div class="flex items-center w-full mb-2">
-                <div>Spaces</div>
+                <div>Building Levels</div>
             </div>
             <div free-levels class="items space-y-2 w-full">
                 <a
@@ -26,7 +26,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 <span
                     *ngIf="!(levels_free | async).length"
                     class="text-dark-fade text-sm mb-2"
-                    >No free spaces</span
+                    >No free spaces in building</span
                 >
             </div>
         </div>
@@ -35,7 +35,7 @@ import { DashboardStateService } from './dashboard-state.service';
             class="flex items-center flex-col rounded-lg bg-white shadow my-4 p-2"
         >
             <div class="flex items-center w-full mb-2">
-                <div>Rooms</div>
+                <div>Spaces</div>
             </div>
             <div class="items space-y-2 w-full">
                 <a
@@ -53,7 +53,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 <span
                     *ngIf="!(space_list | async).length"
                     class="text-dark-fade text-sm mb-2"
-                    >No free rooms</span
+                    >No free spaces</span
                 >
             </div>
         </div>

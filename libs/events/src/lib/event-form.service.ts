@@ -85,9 +85,7 @@ export class EventFormService extends BaseClass {
                     space.availability.find((_) => _.status !== 'busy')
             )
         ),
-        tap((_) => {
-            this._loading.next('');
-        }),
+        tap((_) => this._loading.next('')),
         shareReplay(1)
     );
 
@@ -173,7 +171,6 @@ export class EventFormService extends BaseClass {
         const { date, duration } = form.value;
         const spaces = form.get('resources')?.value || [];
         await this.checkSelectedSpacesAreAvailable(spaces, date, duration);
-        console.log('Save Event', saveEvent);
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value)
         ).toPromise();
