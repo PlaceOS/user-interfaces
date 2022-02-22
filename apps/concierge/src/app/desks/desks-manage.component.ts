@@ -135,10 +135,9 @@ const QR_CODES = {};
                     </button>
                     <button
                         mat-icon-button
-                        [disabled]="!(qrCode(row.id) | async)"
                         [matMenuTriggerFor]="menu"
                     >
-                        <app-icon *ngIf="qrCode(row.id) | async">qr_code</app-icon>
+                        <app-icon>qr_code</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <div
