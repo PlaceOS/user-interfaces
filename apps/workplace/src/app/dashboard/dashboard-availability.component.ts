@@ -33,6 +33,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <div
             free-spaces
             class="flex items-center flex-col rounded-lg bg-white shadow my-4 p-2"
+            *ngIf="(space_list | async)?.length"
         >
             <div class="flex items-center w-full mb-2">
                 <div>Spaces</div>
