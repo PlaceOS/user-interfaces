@@ -17,7 +17,7 @@ import { randomInt } from '@placeos/common';
                 (ngModelChange)="updateZones([$event])"
                 placeholder="All Levels"
             >
-                <mat-option value="All">All Levels</mat-option>
+                <mat-option value="All" *ngIf="!is_map">All Levels</mat-option>
                 <mat-option
                     *ngFor="let level of levels | async"
                     [value]="level.id"
@@ -72,6 +72,7 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
     public readonly filters = this._desks.filters;
 
     public manage = false;
+    public is_map = false;
     /** Set filtered date */
     public readonly setDate = (date) => this._desks.setFilters({ date });
     public readonly setFilters = (o) => this._desks.setFilters(o);
@@ -119,6 +120,7 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                     this.reject(params.get('reject'));
                 }
                 this.manage = this._router.url.includes('manage');
+                this.is_map = this._router.url.includes('map');
             })
         );
         this.subscription(
