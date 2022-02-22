@@ -13,7 +13,7 @@ import { randomInt } from '@placeos/common';
     template: `
         <mat-form-field appearance="outline">
             <mat-select
-                [ngModel]="(filters | async).zones[0]"
+                [ngModel]="(filters | async).zones ? (filters | async).zones[0] : 'All'"
                 (ngModelChange)="updateZones([$event])"
                 placeholder="All Levels"
             >

@@ -143,7 +143,7 @@ const QR_CODES = {};
                         <div
                             class="p-2 mx-4 my-2 rounded-lg border border-black"
                         >
-                            <img class="w-48" [src]="qrCode(row.id) | async" />
+                            <img class="w-48" [src]="qrCode(row.id)" />
                         </div>
                         <div mat-menu-item class="underline">
                             <button mat-button class="w-full">
@@ -232,7 +232,7 @@ export class DesksManageComponent extends BaseClass {
         this.changes = {};
     }
 
-    public async qrCode(id: string) {
+    public qrCode(id: string) {
         QR_CODES[id] = QR_CODES[id] || generateQRCode(
             `${location.origin}/workplace/#/book/code?checkin=${encodeURIComponent(
                 id
