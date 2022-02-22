@@ -13,7 +13,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <h3 class="m-0 mb-4 font-medium text-xl">Your Bookings</h3>
         <div
             name="event"
-            *ngFor="let event of upcoming_events | async | slice: 0:3"
+            *ngFor="let event of event_list | async | slice: 0:3"
             class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4"
         >
             <div name="status" class="absolute rounded-lg" [class.bg-primary]="event.asset_id"></div>
