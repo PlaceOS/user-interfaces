@@ -13,9 +13,8 @@ import { randomInt } from '@placeos/common';
     template: `
         <mat-form-field appearance="outline">
             <mat-select
-                multiple
-                [ngModel]="(filters | async).zones || []"
-                (ngModelChange)="updateZones($event)"
+                [ngModel]="(filters | async).zones[0]"
+                (ngModelChange)="updateZones([$event])"
                 placeholder="All Levels"
             >
                 <mat-option value="All">All Levels</mat-option>
