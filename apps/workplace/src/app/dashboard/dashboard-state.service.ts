@@ -187,13 +187,13 @@ export class DashboardStateService extends BaseClass {
             period_start,
             period_end,
             calendars: currentUser().email,
-        }).toPromise();
+        }).toPromise().catch(_ => []);
         const bookings = await queryBookings({
             period_start,
             period_end,
             type: 'desk',
             user: currentUser().email,
-        }).toPromise();
+        }).toPromise().catch(_ => []);
         const event_list = [...events, ...bookings].sort((a, b) => a.date - b.date);
         this._upcoming_events.next(event_list);
     }

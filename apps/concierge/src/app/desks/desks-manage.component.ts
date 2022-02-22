@@ -5,7 +5,8 @@ import {
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
-    randomInt
+    randomInt,
+    unique
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
@@ -214,9 +215,9 @@ export class DesksManageComponent extends BaseClass {
     public async save() {
         this.loading = 'Saving changes to desks...';
         const desks = await this.desks.pipe(take(1)).toPromise();
-        const updated_desks = desks.map((_) =>
+        const updated_desks = unique(desks.map((_) =>
             new Desk({ ..._, ...(this.changes[_.id] || {}) }).toJSON()
-        );
+        ), 'id');
         const filters = await this.filters.pipe(take(1)).toPromise();
         const level = this._org.levelWithID(filters.zones);
         await updateMetadata(level.id, {
