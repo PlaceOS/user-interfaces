@@ -9,9 +9,12 @@ import {
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
+
+const QR_CODES = {};
 
 @Component({
     selector: 'desks-manage',
@@ -132,16 +135,16 @@ import { DesksStateService } from './desks-state.service';
                     </button>
                     <button
                         mat-icon-button
-                        [disabled]="!row.qr_code"
+                        [disabled]="!(qrCode(row.id) | async)"
                         [matMenuTriggerFor]="menu"
                     >
-                        <app-icon *ngIf="row.qr_code">qr_code</app-icon>
+                        <app-icon *ngIf="qrCode(row.id) | async">qr_code</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <div
                             class="p-2 mx-4 my-2 rounded-lg border border-black"
                         >
-                            <img class="w-48" [src]="row.qr_code" />
+                            <img class="w-48" [src]="qrCode(row.id) | async" />
                         </div>
                         <div mat-menu-item class="underline">
                             <button mat-button class="w-full">
@@ -228,6 +231,15 @@ export class DesksManageComponent extends BaseClass {
         notifySuccess('Successfully updated desks');
         this.loading = '';
         this.changes = {};
+    }
+
+    public async qrCode(id: string) {
+        QR_CODES[id] = QR_CODES[id] || generateQRCode(
+            `${location.origin}/workplace/#/book/code?checkin=${encodeURIComponent(
+                id
+            )}`
+        )
+        return QR_CODES[id];
     }
 
     constructor(

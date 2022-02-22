@@ -80,11 +80,7 @@ export class DesksStateService extends BaseClass {
                 (i) =>
                     new Desk({
                         ...i,
-                        qr_code: generateQRCode(
-                            `${location.origin}/workplace/#/book/code?checkin=${encodeURIComponent(
-                                i.id
-                            )}`
-                        ),
+                        qr_code: "",
                     })
             );
             return this._desks;
