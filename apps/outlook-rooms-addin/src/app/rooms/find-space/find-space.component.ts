@@ -47,6 +47,7 @@ export class FindSpaceComponent implements OnInit {
     public readonly options = this._state.options;
 
     public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
+
     public async setBuilding(bld) {
         const opts = await this.options.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
@@ -69,8 +70,6 @@ export class FindSpaceComponent implements OnInit {
     ) {}
 
     public async ngOnInit() {
-        console.log(this._spaces.space_list, 'space list');
-        this.buildings.subscribe((i) => console.log(i));
         this.unixTime = this.data?.controls?.date?.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
         const durationMinutes: number = this.data?.controls?.duration?.value;
@@ -79,6 +78,7 @@ export class FindSpaceComponent implements OnInit {
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
+
         this.setBuilding(this._org.building);
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
