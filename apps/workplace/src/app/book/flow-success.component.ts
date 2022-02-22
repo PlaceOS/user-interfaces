@@ -32,7 +32,7 @@ import { currentUser } from '@placeos/common';
                     [routerLink]="['/schedule']"
                     [queryParams]="{ email: calendar }"
                 >
-                    My Day
+                    Your Bookings
                 </a>
             </div>
         </div>
