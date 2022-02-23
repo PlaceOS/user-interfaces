@@ -123,7 +123,7 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
                 ({
                     ..._,
                     space: {
-                        name: _.asset_name,
+                        name: _.asset_name || _.asset_id,
                         map_id: _.asset_id,
                         level: this._org.levelWithID(_.zones),
                         zones: _.zones
