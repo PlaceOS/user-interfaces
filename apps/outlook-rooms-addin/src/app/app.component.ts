@@ -1,21 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Integrations } from '@sentry/tracing';
 import { first } from 'rxjs/operators';
-import {
-    clientId,
-    invalidateToken,
-    isMock,
-    refreshToken,
-    token,
-} from '@placeos/ts-client';
+import { invalidateToken, isMock } from '@placeos/ts-client';
 import {
     BaseClass,
     current_user,
     currentUser,
-    HotkeysService,
-    notifySuccess,
     setAppName,
     setNotifyOutlet,
     SettingsService,
@@ -27,6 +18,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { addHours } from 'date-fns';
 
 import * as MOCKS from '@placeos/mocks';
 
@@ -43,15 +35,13 @@ export class AppComponent extends BaseClass implements OnInit {
         private _org: OrganisationService, // For init
         private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
-        private _snackbar: MatSnackBar,
-        private _hotkey: HotkeysService,
-        private _clipboard: Clipboard
+        private _snackbar: MatSnackBar
     ) {
         super();
     }
 
     public async ngOnInit() {
-        localStorage.setItem('mock', 'true');
+        log('APP', 'MOCKS:', MOCKS);
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
