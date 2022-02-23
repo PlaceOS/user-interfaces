@@ -40,6 +40,8 @@ export class BindingDirective<T = any>
     /** Emitter for changes to the value of the binding */
     @Output() public modelChange = new EventEmitter<T>();
 
+    private _binding = false;
+
     constructor(
         private _element: ElementRef<HTMLElement>,
         private _renderer: Renderer2
@@ -78,9 +80,11 @@ export class BindingDirective<T = any>
 
     /** Bind to set status variable */
     private bindVariable() {
-        if (authority() && this.bind && this.sys && this.mod) {
+
+        if (authority() && this.bind && this.sys && this.mod && !this._binding) {
             const module = getModule(this.sys, this.mod, this.index);
             const binding = module.binding(this.bind);
+            this._binding = true;
             this.subscription('binding', binding.bind());
             this.subscription(
                 'on_changes',
@@ -91,6 +95,7 @@ export class BindingDirective<T = any>
                     }, 10)
                 )
             );
+            this.timeout('bound', () => this._binding = false, 200);
         }
     }
 
@@ -98,7 +103,7 @@ export class BindingDirective<T = any>
     private execute() {
         if (authority() && this.exec && this.sys && this.mod) {
             const module = getModule(this.sys, this.mod, this.index);
-            if (this.bind) this.params = [this.model];
+            if (this.bind) this.params = this.params || [this.model];
             module.execute(this.exec, this.params).then((result) => {
                 // Emit exec result if not bound to status variable
                 if (!this.bind) {
