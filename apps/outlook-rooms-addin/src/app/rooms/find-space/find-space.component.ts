@@ -11,6 +11,7 @@ import { HashMap } from '@placeos/common';
 import { Observable, combineLatest } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
+import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
 
 @Component({
     selector: 'find-space',
@@ -86,17 +87,27 @@ export class FindSpaceComponent implements OnInit {
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
 
-    closeModal() {
-        this._bottomSheetRef.dismiss();
+    public handleBookEvent(space: Space, book: boolean = true) {
+        this.book_space = {};
+        this.book_space[space.id] = book;
+        this.confirm();
+
+        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
+    }
+
+    public get form() {
+        return this._state.form;
     }
 
     confirm() {
+        const spaces = this._spaces.filter((s) => this.book_space[s.id]);
+        this._state.form.patchValue({ resources: spaces, system: spaces[0] });
         this._bottomSheet.open(RoomConfirmComponent, {
             data: this.form,
         });
     }
 
-    public get form() {
-        return this._state.form;
+    closeModal() {
+        this._bottomSheetRef.dismiss();
     }
 }

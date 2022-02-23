@@ -12,47 +12,6 @@
             </div>
         </div>
 
-        <div class="flex flex-row mt-3">
-            <button mat-flat-button class="block mt-3 bg-gray-200 w-[350px]">
-                Filter
-            </button>
-            <button
-                mat-flat-button
-                class="block mt-3 bg-gray-200 w-[100px] ml-3"
-            >
-                Map
-            </button>
-        </div>
-
-        <section class="flex flex-row">
-            <mat-chip-list class="mt-3">
-                <mat-chip class="text-gray-700">
-                    {{ this.data.controls.date.value | date: 'dd MMMM yyyy' }}
-                </mat-chip>
-
-                <div *ngIf="this.data.controls.attendees.value.length > 0">
-                    <mat-chip class="text-gray-700">
-                        {{ this.data.controls.attendees.value.length }}
-                        People
-                    </mat-chip>
-                </div>
-
-                <mat-chip class="text-gray-700">
-                    {{ this.startTime }} - {{ this.endTime }}
-                </mat-chip>
-            </mat-chip-list>
-        </section>
-
-        <section class="flex flex-row my-6 border-t">
-            <div class="flex flex-col">
-                <span class="text-xl font-bold mt-3"> Results</span>
-                <span class="text-sm text-gray-500 mt-3">
-                    {{ form.get('resources')?.value?.length }} results
-                    found</span
-                >
-            </div>
-        </section>
-
         <!-- test -->
 
         <mat-form-field
@@ -97,6 +56,47 @@
             </mat-select>
         </mat-form-field>
         <!-- test -->
+
+        <div class="flex flex-row mt-3">
+            <button mat-flat-button class="block mt-3 bg-gray-200 w-[350px]">
+                Filter
+            </button>
+            <button
+                mat-flat-button
+                class="block mt-3 bg-gray-200 w-[100px] ml-3"
+            >
+                Map
+            </button>
+        </div>
+
+        <section class="flex flex-row">
+            <mat-chip-list class="mt-3">
+                <mat-chip class="text-gray-700">
+                    {{ this.data.controls.date.value | date: 'dd MMMM yyyy' }}
+                </mat-chip>
+
+                <div *ngIf="this.data.controls.attendees.value.length > 0">
+                    <mat-chip class="text-gray-700">
+                        {{ this.data.controls.attendees.value.length }}
+                        People
+                    </mat-chip>
+                </div>
+
+                <mat-chip class="text-gray-700">
+                    {{ this.startTime }} - {{ this.endTime }}
+                </mat-chip>
+            </mat-chip-list>
+        </section>
+
+        <section class="flex flex-row my-6 border-t">
+            <div class="flex flex-col">
+                <span class="text-xl font-bold mt-3"> Results</span>
+                <span class="text-sm text-gray-500 mt-3">
+                    {{ form.get('resources')?.value?.length }} results
+                    found</span
+                >
+            </div>
+        </section>
 
         <div class="flex-1 w-full bg-gray-100 overflow-auto">
             <ng-container *ngIf="!(loading | async); else load_state">
