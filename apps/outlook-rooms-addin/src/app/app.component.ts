@@ -28,22 +28,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
-import * as Sentry from '@sentry/angular';
 import * as MOCKS from '@placeos/mocks';
-
-export function initSentry(dsn: string, sample_rate: number = 0.2) {
-    if (!dsn) return;
-    Sentry.init({
-        dsn,
-        integrations: [
-            new Integrations.BrowserTracing({
-                tracingOrigins: ['localhost', location.origin],
-                routingInstrumentation: Sentry.routingInstrumentation,
-            }),
-        ],
-        tracesSampleRate: sample_rate,
-    });
-}
 
 @Component({
     selector: 'app-root',
@@ -54,7 +39,6 @@ export class AppComponent extends BaseClass implements OnInit {
     title = 'outlook-rooms-addin';
 
     constructor(
-        private _tracing: Sentry.TraceService,
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _spaces: SpacesService, // For init
@@ -90,7 +74,6 @@ export class AppComponent extends BaseClass implements OnInit {
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
-        initSentry(this._settings.get('app.sentry_dsn'));
     }
 
     private onInitError() {
