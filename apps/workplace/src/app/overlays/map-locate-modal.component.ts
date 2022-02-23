@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
 import { BaseClass } from '@placeos/common';
-import { BuildingLevel, Organisation, OrganisationService } from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { MapPinComponent } from '@placeos/components';
 
 export interface Locatable {

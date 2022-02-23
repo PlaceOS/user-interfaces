@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { CalendarEvent } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { addMonths } from 'date-fns';
+import { map } from 'rxjs/operators';
 
 import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
 import { BookingLike, ScheduleStateService } from '../schedule/schedule-state.service';
@@ -113,9 +116,24 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly today = new Date();
     public readonly max_date = addMonths(this.today, 4);
     public readonly upcoming_events = this._state.upcoming_events;
-    public readonly event_list = this._schedule.events;
+    public readonly event_list = this._schedule.events.pipe(map(list => {
+        const updated_list = list.map(_ => (
+            _.space 
+                ? _ : 
+                ({
+                    ..._,
+                    space: {
+                        name: _.asset_name,
+                        map_id: _.asset_id,
+                        level: this._org.levelWithID(_.zones)
+                    }
+                })
+        ));
+        return updated_list;
+    }));
 
     constructor(
+        private _org: OrganisationService,
         private _state: DashboardStateService,
         private _schedule: ScheduleStateService,
         private _dialog: MatDialog
