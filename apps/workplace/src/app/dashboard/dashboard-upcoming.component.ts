@@ -117,7 +117,7 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly max_date = addMonths(this.today, 4);
     public readonly upcoming_events = this._state.upcoming_events;
     public readonly event_list = this._schedule.events.pipe(map(list => {
-        const updated_list = list.map(_ => (
+        const updated_list = list.filter(_ => _.state !== 'done' && _.is_done !== true).map(_ => (
             _.space 
                 ? _ : 
                 ({
