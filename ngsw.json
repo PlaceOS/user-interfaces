@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1645593092921,
+  "timestamp": 1645674663728,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -100,7 +100,7 @@
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "3b0cc3dbd50f643345f72239a5849237ae4d353f",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "0849360a30be6ae001bb997f6f6779a048129253",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "703dd851ca141b7ff489395361bc2d7b5814adb4",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "a5c0166da742c67a5a37537832c031ebb5bf69e5",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "43346bdad658957ddf9cd84f0282acde1ac6524c",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "d238b924de977c230f69c32757e28c09fff655c2",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "ba5290f2ea38c5a5a28d70b036d0ad3f62298e19",
     "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "d4b8f54c64842ae50c303928890e9e61a4b17070",
@@ -151,14 +151,14 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "dfba897a2caff6e8212e9987fd8a81f0f6e14ebc",
-    "./default-libs_bookings_src_index_ts.js": "fa67ed7b57a3e588754b58763a010122ec46f65b",
+    "./default-libs_bookings_src_index_ts.js": "32d62234972ff0c4f0fa2a4dec75a8d95c9fbc72",
     "./default-libs_catering_src_index_ts.js": "39963d47c8599394f30b4c1e4d36bdd9a6984064",
     "./default-libs_explore_src_index_ts.js": "777570781317899a229975881d8dfb5f1bb21222",
     "./default-node_modules_angular_material_fesm2015_radio_mjs.js": "b5fed5bb1365586f1ec2b7b3c6c4ac1a0702c2bf",
     "./default-node_modules_angular_material_fesm2015_tabs_mjs.js": "6daabaadb13c93c8fc0fe9f55dd68e694ba37295",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "b843a564c180edc7b5b608bf0c552287f9cf67b0",
-    "./main.js": "e3de3f40eb7139c5645150cc33fcd7851c1fac09",
+    "./main.js": "79c09994688c392fa09da3301fb57ee9f7de5551",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./node_modules_node-fetch_browser_js.js": "9d040a6c2569246eee36c3ed48803b1560ce107d",
     "./node_modules_websocket_lib_browser_js.js": "0743bae7ea3cc380063f877abc80ef501f4bc152",
