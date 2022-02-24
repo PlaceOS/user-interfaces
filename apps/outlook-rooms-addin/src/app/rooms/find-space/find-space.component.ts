@@ -83,6 +83,7 @@ export class FindSpaceComponent implements OnInit {
     ) {}
 
     public async ngOnInit() {
+        this._state.setView('find');
         this.unixTime = this.form?.controls?.date?.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
         const durationMinutes: number = this.form?.controls?.duration?.value;
