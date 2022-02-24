@@ -7,6 +7,7 @@ export function generateBookingForm(booking: Booking = {} as any) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         date: new FormControl(booking.date, []),
+        all_day: new FormControl(booking.all_day ?? false),
         duration: new FormControl(booking.duration),
         booking_type: new FormControl(booking.booking_type),
         zones: new FormControl(booking.zones),
