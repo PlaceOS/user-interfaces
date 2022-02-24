@@ -1,4 +1,4 @@
-<div class="flex-1 flex sm:flex-row flex-col-reverse bg-gray-100 h-full">
+<div class="flex-1 flex sm:flex-row flex-col-reverse bg-gray-50 h-full">
     <div class="relative z-0 flex flex-col flex-1 sm:h-auto overflow-hidden">
         <form *ngIf="form" [formGroup]="form">
             <div class="flex flex-col">
@@ -62,6 +62,11 @@
                             ></a-duration-field>
                         </div>
                     </div>
+
+                    <label>Host</label>
+                    <a-user-search-field
+                        formControlName="organiser"
+                    ></a-user-search-field>
                 </section>
 
                 <section class="flex border-b border-gray-300 p-5 flex-col">

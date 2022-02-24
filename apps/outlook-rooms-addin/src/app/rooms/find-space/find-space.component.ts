@@ -29,6 +29,13 @@ export class FindSpaceComponent implements OnInit {
 
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
+    public quick_capacities = [
+        { name: 'Any Capacity', value: 0 },
+        { name: 'Small (1 - 4)', value: 1 },
+        { name: 'Medium (5 - 12)', value: 5 },
+        { name: 'Large (13 - 32)', value: 13 },
+        { name: 'Huge (32+)', value: 33 },
+    ];
 
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
@@ -50,7 +57,8 @@ export class FindSpaceComponent implements OnInit {
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
 
-    public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
+    public readonly spaces$ = this._state.available_spaces;
+    public readonly features = this._spaces.features;
 
     public async setBuilding(bld) {
         const opts = await this.options.pipe(take(1)).toPromise();
@@ -67,8 +75,8 @@ export class FindSpaceComponent implements OnInit {
     constructor(
         private _bottomSheet: MatBottomSheet,
         private _org: OrganisationService,
-        private _state: EventFormService,
         private _spaces: SpacesService,
+        private _state: EventFormService,
         // private route: ActivatedRoute,
         private router: Router,
         private location: Location
@@ -84,7 +92,15 @@ export class FindSpaceComponent implements OnInit {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
 
-        console.log(this._org.buildings);
+        console.log(this._org.buildings, 'buildings');
+
+        this._org.active_building.subscribe((i) =>
+            console.log(i, 'active building')
+        );
+        console.log(this.form, 'form');
+        console.log(this._spaces.space_list, 'space list');
+
+        await this._state.available_spaces.pipe(take(1)).toPromise();
 
         this.setBuilding(this._org.building);
         this.book_space = {};

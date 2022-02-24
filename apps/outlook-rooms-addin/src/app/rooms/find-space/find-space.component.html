@@ -1,18 +1,16 @@
-<div class="w-full min-h-[800px] bg-white">
+<div class="w-full min-h-[800px] bg-gray-50">
     <div class="flex flex-col mx-6">
         <div class="flex flex-row border-b mr-auto mt-3 w-full">
             <button (click)="this.closeModal()">
                 <mat-icon class="text-3xl text-gray-700">close</mat-icon>
             </button>
 
-            <div class="flex w-full justify-center">
+            <div class="flex w-full justify-center w-[460px]">
                 <span class="flex items-center text-xl font-bold">
                     Find Space</span
                 >
             </div>
         </div>
-
-        <!-- test -->
 
         <mat-form-field
             overlay
@@ -55,19 +53,18 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
-        <!-- test -->
 
         <div class="flex flex-row mt-3">
             <button
                 mat-flat-button
                 (click)="openFilter()"
-                class="block mt-3 bg-gray-200 w-[350px]"
+                class="block mt-3 bg-gray-300 w-[350px]"
             >
                 Filter
             </button>
             <button
                 mat-flat-button
-                class="block mt-3 bg-gray-200 w-[100px] ml-3"
+                class="block mt-3 bg-gray-300 w-[100px] ml-3"
             >
                 Map
             </button>
@@ -102,7 +99,7 @@
             </div>
         </section>
 
-        <div class="flex-1 w-full bg-gray-100 overflow-auto">
+        <div class="flex-1 w-full bg-gray-100 overflow-auto w-[460px]">
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container
                     *ngIf="(spaces$ | async)?.length > 0; else empty_state"
@@ -120,26 +117,26 @@
                     </p>
                 </ng-container>
             </ng-container>
+
+            <ng-template #load_state>
+                <div
+                    class="h-full w-full flex flex-col items-center justify-center space-y-2"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>Retrieving available spaces...</p>
+                </div>
+            </ng-template>
+            <ng-template #empty_state>
+                <div
+                    class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center"
+                >
+                    <p>
+                        No available spaces for selected time, capacity or
+                        level(s)
+                    </p>
+                </div>
+            </ng-template>
         </div>
-
-        <ng-template #load_state>
-            <div
-                class="h-full w-full flex flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Retrieving available spaces...</p>
-            </div>
-        </ng-template>
-        <ng-template #empty_state>
-            <div
-                class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center"
-            >
-                <p>
-                    No available spaces for selected time, capacity or level(s)
-                </p>
-            </div>
-        </ng-template>
-
         <section>
             <button
                 mat-button
