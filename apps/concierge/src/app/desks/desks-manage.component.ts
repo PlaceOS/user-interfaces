@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
     BaseClass,
     csvToJson,
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
+    openConfirmModal,
     randomInt,
     unique
 } from '@placeos/common';
@@ -212,6 +214,35 @@ export class DesksManageComponent extends BaseClass {
         return Object.keys(this.changes).length + this._state.new_desk_count;
     }
 
+    public async removeDesk(desk: Desk) {
+        const resp = await openConfirmModal({
+            title: 'Remove desk',
+            content: `Remove desk ${desk.name}?`,
+            icon: { content: 'delete' }
+        }, this._dialog);
+        if (resp.reason !== 'done') return;
+        resp.close();
+        const desks = await this.desks.pipe(take(1)).toPromise();
+        const updated_desks = desks.filter(_ => _.id !== desk.id);
+        const filters = await this.filters.pipe(take(1)).toPromise();
+        const level = this._org.levelWithID(filters.zones);
+        this.loading = 'Removing desk...';
+        await updateMetadata(level.id, {
+            name: 'desks',
+            description: 'desks',
+            details: updated_desks,
+        })
+            .toPromise()
+            .catch((e) => {
+                this.loading = '';
+                notifyError(`Error saving desk data. Error: ${e.message || e}`);
+                throw e;
+            });
+        notifySuccess('Successfully updated desks');
+        this.loading = '';
+        this.changes = {};
+    }
+
     public async save() {
         this.loading = 'Saving changes to desks...';
         const desks = await this.desks.pipe(take(1)).toPromise();
@@ -246,7 +277,8 @@ export class DesksManageComponent extends BaseClass {
 
     constructor(
         private _state: DesksStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {
         super();
     }
