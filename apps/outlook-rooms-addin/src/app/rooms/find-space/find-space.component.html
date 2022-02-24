@@ -58,7 +58,11 @@
         <!-- test -->
 
         <div class="flex flex-row mt-3">
-            <button mat-flat-button class="block mt-3 bg-gray-200 w-[350px]">
+            <button
+                mat-flat-button
+                (click)="openFilter()"
+                class="block mt-3 bg-gray-200 w-[350px]"
+            >
                 Filter
             </button>
             <button
@@ -72,12 +76,12 @@
         <section class="flex flex-row">
             <mat-chip-list class="mt-3">
                 <mat-chip class="text-gray-700">
-                    {{ this.data.controls.date.value | date: 'dd MMMM yyyy' }}
+                    {{ this.form?.controls.date.value | date: 'dd MMMM yyyy' }}
                 </mat-chip>
 
-                <div *ngIf="this.data.controls.attendees.value.length > 0">
+                <div *ngIf="this.form?.controls.attendees.value.length > 0">
                     <mat-chip class="text-gray-700">
-                        {{ this.data.controls.attendees.value.length }}
+                        {{ this.form?.controls.attendees.value.length }}
                         People
                     </mat-chip>
                 </div>

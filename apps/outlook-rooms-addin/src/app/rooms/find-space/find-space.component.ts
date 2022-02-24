@@ -12,6 +12,9 @@ import { Observable, combineLatest } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
 import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
+import { FilterSpaceComponent } from '../filter-space/filter-space.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
     selector: 'find-space',
@@ -62,23 +65,26 @@ export class FindSpaceComponent implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
-        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheet: MatBottomSheet,
-        private _bottomSheetRef: MatBottomSheetRef<any>,
         private _org: OrganisationService,
         private _state: EventFormService,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
+        // private route: ActivatedRoute,
+        private router: Router,
+        private location: Location
     ) {}
 
     public async ngOnInit() {
-        this.unixTime = this.data?.controls?.date?.value;
+        this.unixTime = this.form?.controls?.date?.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
-        const durationMinutes: number = this.data?.controls?.duration?.value;
+        const durationMinutes: number = this.form?.controls?.duration?.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
+
+        console.log(this._org.buildings);
 
         this.setBuilding(this._org.building);
         this.book_space = {};
@@ -99,6 +105,10 @@ export class FindSpaceComponent implements OnInit {
         return this._state.form;
     }
 
+    openFilter() {
+        this._bottomSheet.open(FilterSpaceComponent, { data: this.form });
+    }
+
     confirm() {
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
         this._state.form.patchValue({ resources: spaces, system: spaces[0] });
@@ -108,6 +118,7 @@ export class FindSpaceComponent implements OnInit {
     }
 
     closeModal() {
-        this._bottomSheetRef.dismiss();
+        // this.router.navigate(['book']);
+        this.location.back();
     }
 }

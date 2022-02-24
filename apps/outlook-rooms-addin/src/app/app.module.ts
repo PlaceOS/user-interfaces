@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { BookModule } from './rooms/book.module';
 import { SharedComponentModule } from '../app/components/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
@@ -16,6 +17,7 @@ import { environment } from '../environments/environment';
     imports: [
         BrowserModule,
         AppRoutingModule,
+        BookModule,
         SharedComponentModule,
         BrowserAnimationsModule,
         HttpClientModule,

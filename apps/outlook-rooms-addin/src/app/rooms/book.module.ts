@@ -2,6 +2,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+    MatNativeDateModule,
+    NativeDateModule,
+    MAT_DATE_FORMATS,
+} from '@angular/material/core';
 
 import { RoomBookingComponent } from '../rooms/room-booking.component';
 import { RoomConfirmComponent } from '../rooms/room-confirm/room-confirm.component';
@@ -9,17 +15,14 @@ import { FindSpaceComponent } from '../rooms/find-space/find-space.component';
 import { FindSpaceItemComponent } from './find-space-item/find-space-item.component';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedComponentModule } from '../components/shared.module';
-import {
-    MatNativeDateModule,
-    NativeDateModule,
-    MAT_DATE_FORMATS,
-} from '@angular/material/core';
+
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { FilterSpaceComponent } from './filter-space/filter-space.component';
 
 const ROUTES: Route[] = [
     {
-        path: '',
-        component: RoomBookingComponent,
+        path: 'find',
+        component: FindSpaceComponent,
     },
 ];
 
@@ -29,6 +32,7 @@ const ROUTES: Route[] = [
         RoomConfirmComponent,
         FindSpaceComponent,
         FindSpaceItemComponent,
+        FilterSpaceComponent,
     ],
     imports: [
         CommonModule,
@@ -40,6 +44,8 @@ const ROUTES: Route[] = [
         NativeDateModule,
         FormFieldsModule,
         MatBottomSheetModule,
+        MatNativeDateModule,
+        MatSnackBarModule,
     ],
 })
 export class BookModule {}

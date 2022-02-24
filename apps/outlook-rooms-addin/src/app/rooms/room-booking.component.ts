@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
-import {
-    MatBottomSheet,
-    MatBottomSheetRef,
-} from '@angular/material/bottom-sheet';
+// import {
+//     MatBottomSheet,
+//     MatBottomSheetRef,
+// } from '@angular/material/bottom-sheet';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
 import { currentUser } from '../../../../../libs/common/src/lib/user-state';
@@ -68,7 +69,9 @@ export class RoomBookingComponent implements OnInit {
     };
 
     constructor(
-        private _bottomSheet: MatBottomSheet,
+        private route: ActivatedRoute,
+        private router: Router,
+        // private _bottomSheet: MatBottomSheet,
         private _state: EventFormService
     ) {}
 
@@ -95,8 +98,10 @@ export class RoomBookingComponent implements OnInit {
 
         // this.loading = false;
 
-        this._bottomSheet.open(FindSpaceComponent, {
-            data: this.form,
-        });
+        this.router.navigate(['/find']);
+
+        // this._bottomSheet.open(FindSpaceComponent, {
+        //     data: this.form,
+        // });
     }
 }
