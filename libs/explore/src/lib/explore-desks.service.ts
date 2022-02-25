@@ -212,7 +212,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     colours[`desk-${this._statuses[desk_id]}`] ||
                     colours[`${this._statuses[desk_id]}`] ||
                     DEFAULT_COLOURS[`${this._statuses[desk_id]}`],
-                opacity: 0.6,
             };
         }
         this._state.setStyles('desks', style_map);
