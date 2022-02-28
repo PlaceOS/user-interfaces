@@ -1,90 +1,78 @@
 <div class="flex flex-1 flex-col z-0 bg-gray-50 h-full overflow-hidden">
     <form *ngIf="form" [formGroup]="form">
-        <div
-            class="flex flex-row my-5 ml-8 font-bold text-xl w-[calc(100% - 2rem)] max-w-[calc(100%-2rem)] sm:mx-auto md:mx-auto"
-        >
-            Book Room
-        </div>
-
         <section class="flex flex-col border border-gray-300 py-5">
-            <div
-                class="flex flex-row m-5 w-[380px] max-w-[calc(100%-2rem)] mx-auto"
-            >
-                <div
-                    class="border border-black rounded-full w-7 h-7 text-center"
-                >
-                    <span>1</span>
-                </div>
-                <div class="ml-2 text-lg">Details</div>
-            </div>
-            <div class="-mt-2 w-[380px] max-w-[calc(100%-2rem)] mx-auto">
-                <div class="text-sm font-bold text-gray-700 mb-1">
-                    Add Title*
-                </div>
+            <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+                <span class="flex text-xl font-bold mb-5"> Book Room</span>
 
-                <mat-form-field appearance="outline" class="w-full">
-                    <input
-                        matInput
-                        placeholder="e.g Team meeting"
-                        formControlName="title"
-                    />
-                </mat-form-field>
-            </div>
-
-            <div class="-mt-2 w-[380px] max-w-[calc(100%-2rem)] mx-auto">
-                <div class="text-sm font-bold text-gray-700 mb-1">Date*</div>
-                <a-date-field
-                    [from]="minDate"
-                    formControlName="date"
-                ></a-date-field>
-            </div>
-
-            <div
-                class="-mt-2 flex flex-row w-[380px] max-w-[calc(100%-2rem)] mx-auto"
-            >
-                <div class="flex flex-col mr-5">
+                <div class="flex flex-row">
                     <div
-                        class="w-[175px] max-w-[calc(100% / 2 - 4rem)] mx-auto"
+                        class="border border-black rounded-full w-7 h-7 text-center"
                     >
-                        <div class="text-sm font-bold text-gray-700 mb-1">
-                            Start Time*
-                        </div>
-
-                        <a-time-field formControlName="date"></a-time-field>
+                        <span>1</span>
                     </div>
+                    <div class="ml-2 mb-4 text-lg">Details</div>
                 </div>
 
-                <div class="w-[175px] max-w-[calc(100% / 2 - 4rem)] mx-auto">
-                    <div class="text-sm font-bold text-gray-700 mb-1">
-                        End Time*
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-700 mb-1"
+                        >Add Title*</label
+                    >
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            placeholder="e.g Team meeting"
+                            formControlName="title"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-700 mb-1"
+                        >Date*</label
+                    >
+                    <a-date-field
+                        [from]="minDate"
+                        formControlName="date"
+                    ></a-date-field>
+                </div>
+                <div class="flex flex-row">
+                    <div class="flex flex-col w-5/12 mr-2/12">
+                        <label class="text-sm font-bold text-gray-700 mb-1">
+                            Start Time*
+                        </label>
+
+                        <a-time-field></a-time-field>
                     </div>
-                    <a-duration-field
-                        [time]="form.get('date')?.value"
-                        [max]="12 * 60"
-                        [min]="60"
-                        [step]="60"
-                        formControlName="duration"
-                    ></a-duration-field>
+                    <div class="flex flex-col w-5/12 ml-auto">
+                        <label class="text-sm font-bold text-gray-700 mb-1">
+                            End Time*
+                        </label>
+                        <a-duration-field
+                            [time]="form.get('date')?.value"
+                            [max]="12 * 60"
+                            [min]="60"
+                            [step]="60"
+                            formControlName="duration"
+                        ></a-duration-field>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section class="flex flex-col py-5 border-b border-gray-300">
-            <div
-                class="flex flex-row m-5 w-[380px] max-w-[calc(100%-2rem)] mx-auto"
-            >
-                <div
-                    class="border border-black rounded-full w-7 h-7 text-center"
-                >
-                    <span>2</span>
-                </div>
-                <div class="ml-2 text-lg">Attendees</div>
-            </div>
-            <div class="mt-4 w-[380px] max-w-[calc(100% - 2rem)] mx-auto">
-                <div class="flex flex-col">
-                    <div class="text-sm font-bold text-gray-700 mb-1">
-                        Add Attendees
+            <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+                <div class="flex flex-row">
+                    <div
+                        class="border border-black rounded-full w-7 h-7 text-center"
+                    >
+                        <span>2</span>
                     </div>
+                    <div class="ml-2 mb-4 text-lg">Attendees</div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-700 mb-1">
+                        Add Attendees
+                    </label>
 
                     <a-user-list-field
                         formControlName="attendees"
@@ -100,14 +88,14 @@
                 mat-button
                 type="submit"
                 (click)="findSpace()"
-                class="bg-secondary border-secondary w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
+                class="bg-secondary border-secondary min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
             >
                 <span class="">Find room</span>
             </button>
             <button
                 mat-button
                 (click)="clearForm()"
-                class="bg-white text-secondary border-secondary my-3 w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
+                class="bg-white text-secondary border-secondary my-3 min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
             >
                 Clear form
             </button>
