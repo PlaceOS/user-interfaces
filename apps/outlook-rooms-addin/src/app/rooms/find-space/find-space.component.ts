@@ -123,7 +123,13 @@ export class FindSpaceComponent implements OnInit {
     }
 
     openFilter() {
-        this._bottomSheet.open(FilterSpaceComponent, { data: this.form });
+        const bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
+            data: this.buildings,
+        });
+
+        bottomSheetRef.afterDismissed().subscribe((childOutput) => {
+            console.log(childOutput, 'child component output');
+        });
     }
 
     confirm() {

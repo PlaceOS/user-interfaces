@@ -1,1 +1,133 @@
-<p>filter-space works!</p>
+<div
+    class="w-full min-h-[800px] min-w-[400px] flex flex-1 flex-col z-0 overflow-hidden"
+>
+    <section class="flex flex-col border-b border-gray-300 py-5">
+        <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+            <div class="flex flex-row items-center">
+                <button (click)="this.closeModal()">
+                    <mat-icon class="text-3xl text-gray-700">close</mat-icon>
+                </button>
+
+                <span class="flex items-center text-xl font-bold ml-6">
+                    Space Filters</span
+                >
+            </div>
+        </div>
+    </section>
+    <section class="flex flex-col border-b border-gray-300">
+        <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+            <div class="my-2 text-lg">Details</div>
+
+            <div class="flex flex-col">
+                <label class="text-sm font-bold text-gray-700 mb-1">
+                    Location
+                </label>
+
+                <mat-form-field
+                    overlay
+                    buildings
+                    class="w-full"
+                    *ngIf="(buildings | async)?.length > 1"
+                    appearance="outline"
+                >
+                    <mat-select
+                        placeholder="Select Building..."
+                        [ngModel]="building | async"
+                        (ngModelChange)="setBuilding($event)"
+                    >
+                        <mat-option
+                            *ngFor="let bld of buildings | async"
+                            [value]="bld"
+                        >
+                            {{ bld.display_name || bld.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-700 mb-1">
+                        Date
+                    </label>
+                    <a-date-field
+                        [from]="minDate"
+                        formControlName="date"
+                    ></a-date-field>
+
+                    <div class="flex flex-row">
+                        <div class="flex flex-col w-5/12 mr-2/12">
+                            <label class="text-sm font-bold text-gray-700 mb-1">
+                                Start Time*
+                            </label>
+
+                            <a-time-field></a-time-field>
+                        </div>
+                        <div class="flex flex-col w-5/12 ml-auto">
+                            <label class="text-sm font-bold text-gray-700 mb-1">
+                                End Time*
+                            </label>
+                            <a-duration-field
+                                [time]="form.get('date')?.value"
+                                [max]="12 * 60"
+                                [min]="60"
+                                [step]="60"
+                                formControlName="duration"
+                            ></a-duration-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="flex flex-col border-b border-gray-300">
+        <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+            <div class="my-2 text-lg">Favourites</div>
+            <div class="flex flex-row mb-2">
+                <span>Only show favourite rooms</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+        </div>
+    </section>
+
+    <section class="flex flex-col border-b border-gray-300">
+        <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+            <div class="my-2 text-lg">Facilities</div>
+
+            <div class="flex flex-row mb-1">
+                <span>Video Conference (VC)</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+            <div class="flex flex-row mb-1">
+                <span>Conference phone</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+            <div class="flex flex-row mb-1">
+                <span>Wireless content sharing</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+            <div class="flex flex-row mb-1">
+                <span>Video wall</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+            <div class="flex flex-row mb-1">
+                <span>Whiteboard</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+            <div class="flex flex-row mb-1">
+                <span>Jamboard</span>
+                <mat-checkbox class="ml-auto"></mat-checkbox>
+            </div>
+        </div>
+    </section>
+
+    <section class="flex flex-col py-3 border border-gray-300 top-box-shadow">
+        <button
+            mat-button
+            type="submit"
+            (click)="applyFilters()"
+            class="bg-secondary border-secondary min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
+        >
+            <span class="">Apply Filters</span>
+        </button>
+    </section>
+</div>
