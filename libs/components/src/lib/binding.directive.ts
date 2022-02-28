@@ -13,7 +13,7 @@ import {
 import { onlineState, authority, getModule } from '@placeos/ts-client';
 
 import { BaseClass } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { filter, first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
@@ -80,22 +80,38 @@ export class BindingDirective<T = any>
 
     /** Bind to set status variable */
     private bindVariable() {
-
-        if (authority() && this.bind && this.sys && this.mod && !this._binding) {
-            const module = getModule(this.sys, this.mod, this.index);
-            const binding = module.binding(this.bind);
-            this._binding = true;
-            this.subscription('binding', binding.bind());
-            this.subscription(
-                'on_changes',
-                binding.listen().subscribe((value) =>
-                    setTimeout(() => {
-                        this.model = value;
-                        this.modelChange.emit(this.model);
-                    }, 10)
-                )
+        if (
+            authority() &&
+            this.bind &&
+            this.sys &&
+            this.mod &&
+            !this._binding
+        ) {
+            this.timeout(
+                'bind',
+                () => {
+                    const module = getModule(this.sys, this.mod, this.index);
+                    const binding = module.binding(this.bind);
+                    this._binding = true;
+                    this.subscription('binding', binding.bind());
+                    this.subscription(
+                        'on_changes',
+                        binding
+                            .listen()
+                            .pipe(filter((_) => _ != null))
+                            .subscribe((value) => {
+                                setTimeout(() => {
+                                    this._binding = false;
+                                    this.clearTimeout('bound');
+                                    this.model = value;
+                                    this.modelChange.emit(this.model);
+                                }, 10);
+                            })
+                    );
+                    this.timeout('bound', () => (this._binding = false), 200);
+                },
+                20
             );
-            this.timeout('bound', () => this._binding = false, 200);
         }
     }
 
