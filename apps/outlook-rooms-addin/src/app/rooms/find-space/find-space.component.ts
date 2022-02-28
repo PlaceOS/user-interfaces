@@ -15,6 +15,7 @@ import { FindSpaceItemComponent } from '../find-space-item/find-space-item.compo
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { FormDataService } from '../form-data.service';
 
 @Component({
     selector: 'find-space',
@@ -77,16 +78,17 @@ export class FindSpaceComponent implements OnInit {
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
-        // private route: ActivatedRoute,
         private router: Router,
-        private location: Location
+        private location: Location,
+        private _formDataService: FormDataService
     ) {}
 
     public async ngOnInit() {
         this._state.setView('find');
-        this.unixTime = this.form?.controls?.date?.value;
+        this.unixTime = this._formDataService.form?.controls?.date?.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
-        const durationMinutes: number = this.form?.controls?.duration?.value;
+        const durationMinutes: number =
+            this._formDataService.form?.controls?.duration?.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
 
@@ -98,7 +100,7 @@ export class FindSpaceComponent implements OnInit {
         this._org.active_building.subscribe((i) =>
             console.log(i, 'active building')
         );
-        console.log(this.form, 'form');
+
         console.log(this._spaces.space_list, 'space list');
 
         await this._state.available_spaces.pipe(take(1)).toPromise();
@@ -119,7 +121,7 @@ export class FindSpaceComponent implements OnInit {
     }
 
     public get form() {
-        return this._state.form;
+        return this._formDataService.form;
     }
 
     openFilter() {

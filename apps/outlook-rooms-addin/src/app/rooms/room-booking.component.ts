@@ -1,16 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-
-// import {
-//     MatBottomSheet,
-//     MatBottomSheetRef,
-// } from '@angular/material/bottom-sheet';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
 import { currentUser } from '../../../../../libs/common/src/lib/user-state';
-import { Observable, pipe } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { FormDataService } from './form-data.service';
 
 // import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 // import {
@@ -56,9 +50,6 @@ export class RoomBookingComponent implements OnInit {
 
     // date = new FormControl(moment());
     minDate: Date = new Date();
-    unixTime;
-    startTime;
-    endTime;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -71,8 +62,8 @@ export class RoomBookingComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        // private _bottomSheet: MatBottomSheet,
-        private _state: EventFormService
+        private _state: EventFormService,
+        private _formDataService: FormDataService
     ) {}
 
     ngOnInit(): void {}
@@ -98,10 +89,8 @@ export class RoomBookingComponent implements OnInit {
 
         // this.loading = false;
 
-        this.router.navigate(['/find']);
+        this._formDataService.form = this.form;
 
-        // this._bottomSheet.open(FindSpaceComponent, {
-        //     data: this.form,
-        // });
+        this.router.navigate(['/find']);
     }
 }

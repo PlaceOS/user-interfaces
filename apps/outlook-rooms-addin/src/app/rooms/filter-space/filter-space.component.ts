@@ -5,6 +5,7 @@ import {
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
+import { FormDataService } from '../form-data.service';
 
 @Component({
     selector: 'placeos-filter-space',
@@ -12,27 +13,30 @@ import { EventFormService } from '@placeos/events';
     styles: [``],
 })
 export class FilterSpaceComponent implements OnInit {
-    date;
     buildings;
     minDate: Date = new Date();
+
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
         private _bottomsheetRef: MatBottomSheetRef<any>,
-        private _state: EventFormService
+        private _formDataService: FormDataService
     ) {}
 
     ngOnInit() {
         this.buildings = this.data;
+        console.log(this.form.controls.duration.value, 'duration in filter');
+        console.log(this.form.controls.date.value, 'date in filter');
     }
 
     public get form() {
-        return this._state.form;
+        return this._formDataService.form;
     }
 
-    applyFilters() {}
+    applyFilters() {
+        this._bottomsheetRef.dismiss(this.form);
+    }
 
     closeModal() {
-        this._state.form.patchValue({ date: this.date });
-        this._bottomsheetRef.dismiss(this.form);
+        this._bottomsheetRef.dismiss();
     }
 }

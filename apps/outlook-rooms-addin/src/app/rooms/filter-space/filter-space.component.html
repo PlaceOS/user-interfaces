@@ -51,6 +51,7 @@
                     <a-date-field
                         [from]="minDate"
                         formControlName="date"
+                        [ngModel]="'this.form.controls.date.value'"
                     ></a-date-field>
 
                     <div class="flex flex-row">
@@ -59,7 +60,13 @@
                                 Start Time*
                             </label>
 
-                            <a-time-field></a-time-field>
+                            <a-time-field
+                                [ngModel]="form?.controls.date.value"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            ></a-time-field>
                         </div>
                         <div class="flex flex-col w-5/12 ml-auto">
                             <label class="text-sm font-bold text-gray-700 mb-1">
@@ -89,7 +96,7 @@
         </div>
     </section>
 
-    <section class="flex flex-col border-b border-gray-300">
+    <section class="flex flex-col border-gray-300">
         <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
             <div class="my-2 text-lg">Facilities</div>
 
@@ -120,7 +127,9 @@
         </div>
     </section>
 
-    <section class="flex flex-col py-3 border border-gray-300 top-box-shadow">
+    <section
+        class="flex flex-col w-full py-3 mt-5 border-t border-gray-300 top-box-shadow"
+    >
         <button
             mat-button
             type="submit"

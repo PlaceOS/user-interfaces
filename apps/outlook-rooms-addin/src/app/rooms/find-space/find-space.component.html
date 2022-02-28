@@ -28,20 +28,22 @@
                 <mat-chip-list class="mt-3">
                     <mat-chip class="text-gray-700">
                         {{
-                            this.form?.controls.date.value
+                            this.form?.controls?.date?.value
                                 | date: 'dd MMMM yyyy'
                         }}
                     </mat-chip>
 
                     <div *ngIf="this.form?.controls.attendees.value.length > 0">
                         <mat-chip class="text-gray-700">
-                            {{ this.form?.controls.attendees.value.length }}
+                            {{ this.form?.controls?.attendees?.value.length }}
                             People
                         </mat-chip>
                     </div>
 
                     <mat-chip class="text-gray-700">
-                        {{ this.startTime }} - {{ this.endTime }}
+                        <span>{{ this.startTime }}</span>
+                        -
+                        <span> {{ this.endTime }}</span>
                     </mat-chip>
                 </mat-chip-list>
             </section>
@@ -92,17 +94,19 @@
                     </div>
                 </ng-template>
             </div>
-            <section class="flex flex-col items-center justify-center">
-                <button
-                    mat-button
-                    type="submit"
-                    (click)="confirm()"
-                    class="bg-secondary border-secondary w-[460px] my-3"
-                >
-                    <span class="">Confirm</span>
-                </button>
-            </section>
         </div>
+        <section
+            class="flex flex-col py-3 border-t border-gray-300 top-box-shadow items-center justify-center"
+        >
+            <button
+                mat-button
+                type="submit"
+                (click)="confirm()"
+                class="bg-secondary border-secondary w-[460px] my-3"
+            >
+                <span class="">Confirm</span>
+            </button>
+        </section>
     </section>
 
     <div class="flex flex-col mx-6">

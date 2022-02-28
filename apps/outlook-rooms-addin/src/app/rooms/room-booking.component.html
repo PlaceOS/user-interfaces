@@ -40,7 +40,11 @@
                             Start Time*
                         </label>
 
-                        <a-time-field></a-time-field>
+                        <a-time-field
+                            [ngModel]="form.value.date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                        ></a-time-field>
                     </div>
                     <div class="flex flex-col w-5/12 ml-auto">
                         <label class="text-sm font-bold text-gray-700 mb-1">
@@ -82,20 +86,20 @@
         </section>
 
         <section
-            class="flex flex-col py-3 border border-gray-300 top-box-shadow"
+            class="flex flex-col py-3 border border-gray-300 top-box-shadow items-center justify-center"
         >
             <button
                 mat-button
                 type="submit"
                 (click)="findSpace()"
-                class="bg-secondary border-secondary min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
+                class="bg-secondary border-secondary min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto"
             >
                 <span class="">Find room</span>
             </button>
             <button
                 mat-button
                 (click)="clearForm()"
-                class="bg-white text-secondary border-secondary my-3 min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto text-center"
+                class="bg-white text-secondary border-secondary my-3 min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto"
             >
                 Clear form
             </button>
