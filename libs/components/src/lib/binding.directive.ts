@@ -22,23 +22,23 @@ export class BindingDirective<T = any>
     extends BaseClass
     implements OnInit, OnChanges, OnDestroy {
     /** ID of the system to bind */
-    @Input() public sys: string;
+    @Input() public sys: string = '';
     /** Class name of the module to bind */
-    @Input() public mod: string;
+    @Input() public mod: string = '';
     /** Index of the system to bind */
     @Input() public index = 1;
     /** Status variable to bind to */
-    @Input() public bind: string;
+    @Input() public bind: string = '';
     /** Method to execute */
-    @Input() public exec: string;
+    @Input() public exec: string = '';
     /** Event to listen for on the parent */
-    @Input('onEvent') public on_event: string;
+    @Input('onEvent') public on_event: string = '';
     /** ID of the system to bind to */
     @Input() public params: any[] = [];
     /** Current value of the binding */
-    @Input() public model: T;
+    @Input() public model: T | null = null;
     /** Emitter for changes to the value of the binding */
-    @Output() public modelChange = new EventEmitter<T>();
+    @Output() public modelChange = new EventEmitter<T | null>();
 
     private _binding = false;
 
