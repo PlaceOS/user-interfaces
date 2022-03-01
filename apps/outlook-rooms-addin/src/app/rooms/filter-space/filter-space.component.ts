@@ -6,6 +6,8 @@ import {
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { FormDataService } from '../form-data.service';
+import { FeaturesFilterService } from '../features-filter.service';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'placeos-filter-space',
@@ -16,14 +18,18 @@ export class FilterSpaceComponent implements OnInit {
     buildings;
     minDate: Date = new Date();
 
+    features$: Observable<Array<{}>>;
+
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
         private _bottomsheetRef: MatBottomSheetRef<any>,
-        private _formDataService: FormDataService
+        private _formDataService: FormDataService,
+        private _featuresFilterService: FeaturesFilterService
     ) {}
 
     ngOnInit() {
         this.buildings = this.data;
+        this.features$ = this._featuresFilterService.features;
     }
 
     public get form() {
@@ -37,5 +43,9 @@ export class FilterSpaceComponent implements OnInit {
 
     closeModal() {
         this._bottomsheetRef.dismiss();
+    }
+
+    searchFeature() {
+        console.log('search feature');
     }
 }

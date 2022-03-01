@@ -107,29 +107,14 @@
             <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
                 <div class="my-2 text-lg">Facilities</div>
 
-                <div class="flex flex-row mb-1">
-                    <span>Video Conference (VC)</span>
-                    <mat-checkbox class="ml-auto"></mat-checkbox>
-                </div>
-                <div class="flex flex-row mb-1">
-                    <span>Conference phone</span>
-                    <mat-checkbox class="ml-auto"></mat-checkbox>
-                </div>
-                <div class="flex flex-row mb-1">
-                    <span>Wireless content sharing</span>
-                    <mat-checkbox class="ml-auto"></mat-checkbox>
-                </div>
-                <div class="flex flex-row mb-1">
-                    <span>Video wall</span>
-                    <mat-checkbox class="ml-auto"></mat-checkbox>
-                </div>
-                <div class="flex flex-row mb-1">
-                    <span>Whiteboard</span>
-                    <mat-checkbox class="ml-auto"></mat-checkbox>
-                </div>
-                <div class="flex flex-row mb-1">
-                    <span>Jamboard</span>
-                    <mat-checkbox class="ml-auto"></mat-checkbox>
+                <div *ngFor="let feature of features$ | async">
+                    <div class="flex flex-row mb-1">
+                        <span> {{ feature.name }}</span>
+                        <mat-checkbox
+                            [(ngModel)]="feature.id"
+                            class="ml-auto"
+                        ></mat-checkbox>
+                    </div>
                 </div>
             </div>
         </section>
