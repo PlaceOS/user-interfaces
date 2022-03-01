@@ -16,6 +16,7 @@ import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormDataService } from '../form-data.service';
+import { FeaturesFilterService } from '../features-filter.service';
 
 @Component({
     selector: 'find-space',
@@ -57,7 +58,7 @@ export class FindSpaceComponent implements OnInit {
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
 
-    public readonly spaces$ = this._state.available_spaces;
+    public spaces$ = this._state.available_spaces;
     public readonly features = this._spaces.features;
 
     public async setBuilding(bld) {
@@ -79,7 +80,8 @@ export class FindSpaceComponent implements OnInit {
         private _state: EventFormService,
         private router: Router,
         private location: Location,
-        private _formDataService: FormDataService
+        private _formDataService: FormDataService,
+        private _featuresFilterService: FeaturesFilterService
     ) {}
 
     public async ngOnInit() {
@@ -126,6 +128,7 @@ export class FindSpaceComponent implements OnInit {
 
         bottomSheetRef.afterDismissed().subscribe((childOutput) => {
             this.setTimeChips();
+            this.updateSpaces();
         });
     }
 
@@ -148,6 +151,21 @@ export class FindSpaceComponent implements OnInit {
         this.endTime$ = of(new Date(end).toLocaleTimeString());
     }
 
+    async updateSpaces() {
+        let filtered_spaces: Space[];
+
+        let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
+
+        current_spaces.map((space) => {
+            if (
+                this._featuresFilterService.selected_features?.includes(space)
+            ) {
+                filtered_spaces.push(space);
+            }
+        });
+
+        this.spaces$ = of(filtered_spaces);
+    }
     closeModal() {
         // this.router.navigate(['book']);
         this.location.back();
