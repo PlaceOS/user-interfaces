@@ -24,8 +24,6 @@ export class FilterSpaceComponent implements OnInit {
 
     ngOnInit() {
         this.buildings = this.data;
-        console.log(this.form.controls.duration.value, 'duration in filter');
-        console.log(this.form.controls.date.value, 'date in filter');
     }
 
     public get form() {
@@ -33,6 +31,7 @@ export class FilterSpaceComponent implements OnInit {
     }
 
     applyFilters() {
+        this._formDataService.form = this.form;
         this._bottomsheetRef.dismiss(this.form);
     }
 

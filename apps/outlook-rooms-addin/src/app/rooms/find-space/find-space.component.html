@@ -41,9 +41,9 @@
                     </div>
 
                     <mat-chip class="text-gray-700">
-                        <span>{{ this.startTime }}</span>
+                        <span>{{ this.startTime$ | async }}</span>
                         -
-                        <span> {{ this.endTime }}</span>
+                        <span> {{ this.endTime$ | async }}</span>
                     </mat-chip>
                 </mat-chip-list>
             </section>

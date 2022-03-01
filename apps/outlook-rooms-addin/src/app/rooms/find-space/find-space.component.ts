@@ -8,7 +8,7 @@ import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, combineLatest, of } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
 import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
@@ -23,10 +23,9 @@ import { FormDataService } from '../form-data.service';
     styles: [``],
 })
 export class FindSpaceComponent implements OnInit {
-    unixTime;
-    startTime;
-    durationMinutes;
-    endTime;
+    startTime$: Observable<any>;
+    durationMinutes: number;
+    endTime$: Observable<any>;
 
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
@@ -85,12 +84,8 @@ export class FindSpaceComponent implements OnInit {
 
     public async ngOnInit() {
         this._state.setView('find');
-        this.unixTime = this._formDataService.form?.controls?.date?.value;
-        this.startTime = new Date(this.unixTime).toLocaleTimeString();
-        const durationMinutes: number =
-            this._formDataService.form?.controls?.duration?.value;
-        const end = this.unixTime + durationMinutes * 60 * 1000;
-        this.endTime = new Date(end).toLocaleTimeString();
+
+        this.setTimeChips();
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
@@ -130,7 +125,7 @@ export class FindSpaceComponent implements OnInit {
         });
 
         bottomSheetRef.afterDismissed().subscribe((childOutput) => {
-            console.log(childOutput, 'child component output');
+            this.setTimeChips();
         });
     }
 
@@ -140,6 +135,17 @@ export class FindSpaceComponent implements OnInit {
         this._bottomSheet.open(RoomConfirmComponent, {
             data: this.form,
         });
+    }
+
+    setTimeChips() {
+        this.startTime$ = of(
+            new Date(this.form?.controls?.date?.value).toLocaleTimeString()
+        );
+        this.durationMinutes = this.form?.controls?.duration?.value;
+
+        const end =
+            this.form?.controls?.date?.value + this.durationMinutes * 60 * 1000;
+        this.endTime$ = of(new Date(end).toLocaleTimeString());
     }
 
     closeModal() {
