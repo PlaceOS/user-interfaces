@@ -111,8 +111,9 @@
                     <div class="flex flex-row mb-1">
                         <span> {{ feature.name }}</span>
                         <mat-checkbox
-                            [(ngModel)]="feature.id"
+                            [(ngModel)]="feature.value"
                             class="ml-auto"
+                            [ngModelOptions]="{ standalone: true }"
                         ></mat-checkbox>
                     </div>
                 </div>

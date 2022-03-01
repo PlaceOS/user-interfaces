@@ -38,6 +38,7 @@ export class FilterSpaceComponent implements OnInit {
 
     applyFilters() {
         this._formDataService.form = this.form;
+        this._featuresFilterService.applyFeatureFilter();
         this._bottomsheetRef.dismiss(this.form);
     }
 
