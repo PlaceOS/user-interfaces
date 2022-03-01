@@ -32,7 +32,7 @@ const QR_CODES = {};
                 [dataSource]="desks"
                 [filter]="(filters | async)?.search"
                 [columns]="[
-                    'id',
+                    'map_id',
                     'bookable',
                     'name',
                     'groups',
@@ -49,7 +49,7 @@ const QR_CODES = {};
                 ]"
                 [column_size]="['8r', '6r', '12r', 'flex', '16r', '10r']"
                 [template]="{
-                    id: text_edit_template,
+                    map_id: text_edit_template,
                     name: text_edit_template,
                     bookable: bookable_edit_template,
                     groups: list_edit_template,
@@ -76,15 +76,11 @@ const QR_CODES = {};
                     [placeholder]="
                         key === 'groups' ? 'User Groups' : 'Features'
                     "
+                    [name]="key"
                     [ngModel]="
-                        (changes[row.id] ? changes[row.id][key] : null) ?? data
+                        (changes[row.id] ? changes[row.id][key] : null) || data
                     "
-                    (ngModelChange)="
-                        changes[row.id] && changes[row.id][key]
-                            ? ''
-                            : (changes[row.id] = {});
-                        changes[row.id][key] = $event
-                    "
+                    (ngModelChange)="setRowValue(row.id, key, $event)"
                 >
                 </item-list-field>
             </ng-template>
@@ -99,17 +95,13 @@ const QR_CODES = {};
                         <input
                             matInput
                             [placeholder]="key"
+                            [name]="key"
                             [ngModel]="
                                 (changes[row.id]
                                     ? changes[row.id][key]
-                                    : null) ?? data
+                                    : null) || data
                             "
-                            (ngModelChange)="
-                                changes[row.id] && changes[row.id][key]
-                                    ? ''
-                                    : (changes[row.id] = {});
-                                changes[row.id][key] = $event
-                            "
+                            (ngModelChange)="setRowValue(row.id, key, $event)"
                         />
                     </mat-form-field>
                 </div>
@@ -118,11 +110,7 @@ const QR_CODES = {};
                 <div class="flex items-center justify-center pl-4">
                     <mat-checkbox
                         [ngModel]="changes[row.id]?.bookable ?? data"
-                        (ngModelChange)="
-                            changes[row.id]
-                                ? (changes[row.id].bookable = $event)
-                                : (changes[row.id] = { bookable: $event })
-                        "
+                        (ngModelChange)="setRowValue(row.id, 'bookable', $event)"
                     ></mat-checkbox>
                 </div>
             </ng-template>
@@ -214,6 +202,11 @@ export class DesksManageComponent extends BaseClass {
         return Object.keys(this.changes).length + this._state.new_desk_count;
     }
 
+    public setRowValue(id: string, key: string, value: any) {
+        if (!this.changes[id]) this.changes[id] = {};
+        this.changes[id][key] = value;
+    }
+
     public async removeDesk(desk: Desk) {
         const resp = await openConfirmModal({
             title: 'Remove desk',
@@ -263,6 +256,7 @@ export class DesksManageComponent extends BaseClass {
                 throw e;
             });
         notifySuccess('Successfully updated desks');
+        this._state.clearNewDesks();
         this.loading = '';
         this.changes = {};
     }

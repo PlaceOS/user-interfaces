@@ -139,6 +139,8 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 this.updateZones(zones);
             })
         );
+        this.manage = this._router.url.includes('manage');
+        this.is_map = this._router.url.includes('map');
     }
 
     public newDesk() {
