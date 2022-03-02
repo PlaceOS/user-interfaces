@@ -120,7 +120,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
-                const has_presence = reserved.some((i) => id === i);
+                const has_presence = !reserved.some((i) => id === i);
                 this._statuses[id] = bookable
                     ? !is_used && !has_presence
                         ? 'free'
