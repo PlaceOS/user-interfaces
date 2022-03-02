@@ -271,7 +271,7 @@ export class DeskFlowDetailedFormComponent {
         return this._settings.get('app.desks.needs_reason') === true;
     }
 
-    public get allow_time_changes() {
+    public get allow_time_changes() { 
         return !!this._settings.get('app.desks.allow_time_changes');
     }
 

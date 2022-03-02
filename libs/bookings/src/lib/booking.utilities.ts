@@ -41,7 +41,7 @@ export function generateBookingForm(booking: Booking = {} as any) {
     return form;
 }
 
-export async function findNearbyDesk(map_url: string, centered_at: Point | string, desk_ids: string[] = []): Promise<string> {
+export async function findNearbyFeature(map_url: string, centered_at: Point | string, desk_ids: string[] = []): Promise<string> {
     const element = document.createElement('div');
     element.style.position = 'absolute';
     element.style.top = '-9999px';
