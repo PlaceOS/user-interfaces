@@ -29,7 +29,7 @@ export class FilterSpaceComponent implements OnInit {
 
     ngOnInit() {
         this.buildings = this.data;
-        this.features$ = this._featuresFilterService.features;
+        this.features$ = this._featuresFilterService.features$;
     }
 
     public get form() {
@@ -38,7 +38,6 @@ export class FilterSpaceComponent implements OnInit {
 
     applyFilters() {
         this._formDataService.form = this.form;
-        this._featuresFilterService.applyFeatureFilter();
         this._bottomsheetRef.dismiss(this.form);
     }
 
