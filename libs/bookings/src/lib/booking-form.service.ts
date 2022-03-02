@@ -316,40 +316,18 @@ export class BookingFormService extends BaseClass {
         details.close();
     }
 
-    public async postForm() {
+    public async postForm(ignore_check = false) {
         const form = this._form.getValue();
         if (!form) throw 'No form for booking';
         if (!form.valid)
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
-        const asset_id = form.get('asset_id').value;
-        const bookings = await queryBookings({
-            period_start: getUnixTime(form.value.date),
-            period_end: getUnixTime(
-                form.value.date + form.value.duration * 60 * 1000
-            ),
-            type: this._options.getValue().type,
-        }).toPromise();
-        if (bookings.find((_) => _.asset_id === asset_id)) {
-            throw `${asset_id} is not available at the selected time`;
-        }
-        const allowed_bookings =
-            this._settings.get(
-                `app.booking.allowed_daily_${
-                    this._options.getValue().type
-                }_count`
-            ) ?? 1;
-        if (
-            allowed_bookings > 0 &&
-            bookings.filter(
-                (_) =>
-                    _.user_email ===
-                        (form.value.user_email || currentUser()?.email) &&
-                    _.status !== 'declined'
-            ).length >= allowed_bookings
-        ) {
-            throw `You already have a desk booked`;
+        if (!ignore_check) {
+            await this.checkResourceAvailable(
+                form.value,
+                this._options.getValue().type
+            );
         }
         if (form.value.duration > 23 * 60 || form.value.all_day) {
             form.patchValue({
@@ -385,5 +363,34 @@ export class BookingFormService extends BaseClass {
             if (form[key]) throw 'User failed questionaire';
         }
         ref.close();
+    }
+
+    /** Check if the given resource is available for the selected user to book */
+    private async checkResourceAvailable(
+        { asset_id, date, duration, user_email }: Partial<Booking>,
+        type: string
+    ) {
+        const bookings = await queryBookings({
+            period_start: getUnixTime(date),
+            period_end: getUnixTime(date + duration * 60 * 1000),
+            type,
+        }).toPromise();
+        if (bookings.find((_) => _.asset_id === asset_id)) {
+            throw `${asset_id} is not available at the selected time`;
+        }
+        const allowed_bookings =
+            this._settings.get(`app.booking.allowed_daily_${type}_count`) ?? 1;
+        if (
+            allowed_bookings > 0 &&
+            bookings.filter(
+                (_) =>
+                    _.user_email === (user_email || currentUser()?.email) &&
+                    _.status !== 'declined'
+            ).length >= allowed_bookings
+        ) {
+            const current = user_email === currentUser().email;
+            throw `${current ? 'You' : user_email} already ${current ? 'have' : 'has'} a desk booked`;
+        }
+        return true;
     }
 }
