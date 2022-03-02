@@ -67,7 +67,7 @@
     "@nrwl/tao": "13.7.1",
     "@nrwl/workspace": "13.7.1",
     "@placeos/cloud-uploads": "^0.0.8-dev",
-    "@placeos/svg-viewer": "^0.3.20-dev",
+    "@placeos/svg-viewer": "^0.3.21-dev",
     "@placeos/ts-client": "^3.10.17",
     "@sentry/angular": "^6.14.3",
     "@sentry/tracing": "^6.14.3",
