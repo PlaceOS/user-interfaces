@@ -7,9 +7,10 @@ export function generateReportForDeskBookings(
     util_period: number = 1,
     counts: HashMap<number> = {}
 ) {
+    util_period = Math.max(1, util_period);
     const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
     const utilisation =
-        Math.floor((bookings.length / total / util_period) * 100) / 100;
+        Math.floor((bookings.length / total / util_period) * 10000) / 10000;
     return {
         total,
         count: bookings.length,
