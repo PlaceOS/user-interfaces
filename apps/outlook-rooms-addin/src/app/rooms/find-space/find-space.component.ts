@@ -8,7 +8,7 @@ import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest, of, from } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
 import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
@@ -161,41 +161,46 @@ export class FindSpaceComponent implements OnInit {
             .pipe(take(1))
             .toPromise();
 
-        let selected_features_list =
-            await this._featuresFilterService.selected_features$
-                .pipe(take(1))
-                .toPromise();
+        this.spaces$ = await this._featuresFilterService.applyFilter(
+            current_spaces
+        );
+        this.spaces$.subscribe((i) => console.log(i, 'spaces%'));
 
-        if (
-            selected_features_list &&
-            (selected_features_list as any).length > 0
-        ) {
-            selected_features_list = selected_features_list?.map(
-                (item) => item.id
-            );
-            current_spaces?.forEach((space: Space) => {
-                if (space) {
-                    if (
-                        JSON.stringify(space?.feature_list.sort()) ==
-                            JSON.stringify(selected_features_list.sort()) ||
-                        space?.feature_list
-                            .sort()
-                            .join()
-                            .includes(selected_features_list.sort().join())
-                    ) {
-                        this.filtered_spaces.push(space);
-                    }
-                }
-            });
-            this.spaces$ = of(this.filtered_spaces);
+        // let selected_features_list =
+        //     await this._featuresFilterService.selected_features$
+        //         .pipe(take(1))
+        //         .toPromise();
 
-            if (
-                selected_features_list &&
-                (selected_features_list as any).length == 0
-            ) {
-                this.spaces$ = this._state.available_spaces;
-            }
-        }
+        // if (
+        //     selected_features_list &&
+        //     (selected_features_list as any).length > 0
+        // ) {
+        //     selected_features_list = selected_features_list?.map(
+        //         (item) => item.id
+        //     );
+        //     current_spaces?.forEach((space: Space) => {
+        //         if (space) {
+        //             if (
+        //                 JSON.stringify(space?.feature_list.sort()) ==
+        //                     JSON.stringify(selected_features_list.sort()) ||
+        //                 space?.feature_list
+        //                     .sort()
+        //                     .join()
+        //                     .includes(selected_features_list.sort().join())
+        //             ) {
+        //                 this.filtered_spaces.push(space);
+        //             }
+        //         }
+        //     });
+        //     this.spaces$ = of(this.filtered_spaces);
+
+        //     if (
+        //         selected_features_list &&
+        //         (selected_features_list as any).length == 0
+        //     ) {
+        //         this.spaces$ = this._state.available_spaces;
+        //     }
+        // }
     }
     closeModal() {
         // this.router.navigate(['book']);
