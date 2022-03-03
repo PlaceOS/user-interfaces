@@ -29,6 +29,7 @@ export class FindSpaceComponent implements OnInit {
     durationMinutes: number;
     endTime$: Observable<any>;
     selected_features$: Observable<any>;
+    filtered_spaces: Space[] = [];
 
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
@@ -156,28 +157,45 @@ export class FindSpaceComponent implements OnInit {
     }
 
     async updateSpaces() {
-        console.log('update spaces');
-        this.selected_features$?.subscribe((i) => console.log(i, 'sel feat'));
+        const current_spaces: Space[] = await this.spaces$
+            .pipe(take(1))
+            .toPromise();
 
-        let filtered_spaces: Space[];
+        let selected_features_list =
+            await this._featuresFilterService.selected_features$
+                .pipe(take(1))
+                .toPromise();
 
-        let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
+        if (
+            selected_features_list &&
+            (selected_features_list as any).length > 0
+        ) {
+            selected_features_list = selected_features_list?.map(
+                (item) => item.id
+            );
+            current_spaces?.forEach((space: Space) => {
+                if (space) {
+                    if (
+                        JSON.stringify(space?.feature_list.sort()) ==
+                            JSON.stringify(selected_features_list.sort()) ||
+                        space?.feature_list
+                            .sort()
+                            .join()
+                            .includes(selected_features_list.sort().join())
+                    ) {
+                        this.filtered_spaces.push(space);
+                    }
+                }
+            });
+            this.spaces$ = of(this.filtered_spaces);
 
-        // if (this._featuresFilterService.selected_features?.length > 0) {
-        //     current_spaces.map((space) => {
-        //         if (
-        //             this._featuresFilterService.selected_features?.includes(
-        //                 space
-        //             )
-        //         ) {
-        //             filtered_spaces.push(space);
-        //         }
-        //         this.spaces$ = of(filtered_spaces);
-        //     });
-        // }
-        // if (this._featuresFilterService.selected_features?.length == 0) {
-        //     this.spaces$ = this._state.available_spaces;
-        // }
+            if (
+                selected_features_list &&
+                (selected_features_list as any).length == 0
+            ) {
+                this.spaces$ = this._state.available_spaces;
+            }
+        }
     }
     closeModal() {
         // this.router.navigate(['book']);

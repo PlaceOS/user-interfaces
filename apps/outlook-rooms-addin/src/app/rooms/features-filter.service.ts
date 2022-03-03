@@ -28,6 +28,7 @@ export class FeaturesFilterService {
         { name: 'Whiteboard', id: 'Whiteboard', value: false },
         { name: 'Jamboard', id: 'Jamboard', value: false },
         { name: 'Projector', id: 'Projector', value: false },
+        { name: 'Views', id: 'Views', value: false },
     ]);
 
     constructor() {
