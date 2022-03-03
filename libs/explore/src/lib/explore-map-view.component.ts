@@ -217,6 +217,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = locations[0].position;
         const { coordinates_from } = locations[0];
+        console.log('Locations:', locations);
         const feature: any = {
             location:
                 locations[0].type === 'wireless'
