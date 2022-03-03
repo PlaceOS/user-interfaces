@@ -241,6 +241,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 last_seen: locations[0].last_seen,
             },
         };
+        console.log('Location Feature:', feature);
         this.timeout('update_location', () => {
             this._state.setFeatures('_located', [feature]);
         });
