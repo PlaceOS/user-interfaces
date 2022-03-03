@@ -189,8 +189,9 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private async locateUser(user: User) {
-        let locate_details: any = this._org.organisation.bindings
-            .location_services;
+        let locate_details: any =
+            this._org.building?.bindings.location_services ||
+            this._org.organisation.bindings.location_services;
         if (!locate_details) return;
         if (typeof locate_details === 'string') {
             locate_details = {
