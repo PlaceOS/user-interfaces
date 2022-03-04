@@ -7,7 +7,9 @@ import {
 import { EventFormService } from '@placeos/events';
 import { FormDataService } from '../form-data.service';
 import { FeaturesFilterService } from '../features-filter.service';
-import { Observable } from 'rxjs';
+import { Space } from '@placeos/spaces';
+import { Observable, pipe } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-filter-space',
@@ -36,9 +38,10 @@ export class FilterSpaceComponent implements OnInit {
         return this._formDataService.form;
     }
 
-    applyFilters() {
+    async applyFilters() {
         this._formDataService.form = this.form;
         this._bottomsheetRef.dismiss(this.form);
+        this._featuresFilterService.applyFilter();
     }
 
     closeModal() {

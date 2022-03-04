@@ -141,7 +141,7 @@ export class FindSpaceComponent implements OnInit {
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
         this._state.form.patchValue({ resources: spaces, system: spaces[0] });
         this._bottomSheet.open(RoomConfirmComponent, {
-            data: this.form,
+            data: this.spaces$,
         });
     }
 
@@ -157,14 +157,9 @@ export class FindSpaceComponent implements OnInit {
     }
 
     async updateSpaces() {
-        const current_spaces: Space[] = await this.spaces$
-            .pipe(take(1))
-            .toPromise();
+        this.spaces$ = await this._featuresFilterService.applyFilter();
 
-        this.spaces$ = await this._featuresFilterService.applyFilter(
-            current_spaces
-        );
-        this.spaces$.subscribe((i) => console.log(i, 'spaces%'));
+        this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
 
         // let selected_features_list =
         //     await this._featuresFilterService.selected_features$

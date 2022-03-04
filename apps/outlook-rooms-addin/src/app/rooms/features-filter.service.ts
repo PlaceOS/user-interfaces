@@ -2,17 +2,19 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { take, map, filter } from 'rxjs/operators';
 import { Space } from '@placeos/spaces';
+import { EventFormService } from '@placeos/events';
 
 @Injectable({
     providedIn: 'root',
 })
 export class FeaturesFilterService {
+    public spaces$ = this._state.available_spaces;
     selected_features$: Observable<any>;
     features_list: Array<string> = [];
     filtered_spaces: Space[] = [];
     _features: BehaviorSubject<any> = new BehaviorSubject<any>([]);
 
-    readonly features$: Observable<any> = this._features.asObservable();
+    features$: Observable<any> = this._features.asObservable();
 
     set features(feature) {
         this._features.next(feature);
@@ -33,55 +35,55 @@ export class FeaturesFilterService {
         { name: 'Views', id: 'Views', value: false },
     ]);
 
-    constructor() {
+    constructor(private _state: EventFormService) {
         this.features$ = this.Features;
+        this._getSelectedFeatures();
+    }
 
+    private _getSelectedFeatures() {
         this.selected_features$ = this.features$.pipe(
             map((arr) => arr.filter((item) => item.value == true))
         );
     }
-
-    async applyFilter(current_spaces: Space[]) {
-        console.log(current_spaces, 'param');
+    async applyFilter() {
         let selected_features_list = await this.selected_features$
             .pipe(take(1))
             .toPromise();
 
-        selected_features_list.length > 0
-            ? (this.features_list = selected_features_list.map(
-                  (item) => item.id
-              ))
-            : [];
+        console.log(selected_features_list, 'select feats');
 
-        if (this.features_list && this.features_list.length > 0) {
-            current_spaces.forEach((space: Space) => {
-                if (space) {
-                    const sorted_feat_list: String = space?.feature_list
-                        .sort()
-                        .join();
-                    const sorted_selected_features: string = this.features_list
-                        .sort()
-                        .join();
+        this.features_list = selected_features_list.map((item) => item.id);
 
-                    console.log(sorted_feat_list, 'space');
-                    console.log(sorted_selected_features[0], 'feat list');
+        let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
 
-                    console.log(
-                        sorted_feat_list.includes(sorted_selected_features),
-                        'second'
-                    );
+        current_spaces?.forEach((space: Space) => {
+            this.filtered_spaces = [];
+            if (space) {
+                const sorted_feat_list: String = space?.feature_list
+                    .sort()
+                    .join();
+                const sorted_selected_features: string = this.features_list
+                    .sort()
+                    .join();
 
-                    if (sorted_feat_list.includes(sorted_selected_features)) {
-                        this.filtered_spaces.push(space);
-                    }
+                console.log(sorted_feat_list, 'space');
+                console.log(sorted_selected_features, 'feat list');
+
+                console.log(
+                    sorted_feat_list.includes(sorted_selected_features),
+                    'second'
+                );
+
+                if (sorted_feat_list.includes(sorted_selected_features)) {
+                    this.filtered_spaces.push(space);
                 }
-            });
-            console.log(this.filtered_spaces, 'filt spaces');
-            return of(this.filtered_spaces);
-        }
-
-        // if (this.features_list && this.features_list.length == 0) {
-        //     return of(current_spaces);
-        // }
+            }
+        });
+        console.log(this.filtered_spaces, 'filt spaces');
+        return of(this.filtered_spaces);
     }
+
+    // if (this.features_list && this.features_list.length == 0) {
+    //     return of(current_spaces);
+    // }
 }
