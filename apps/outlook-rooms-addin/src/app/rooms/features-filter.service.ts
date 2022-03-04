@@ -82,8 +82,4 @@ export class FeaturesFilterService {
         console.log(this.filtered_spaces, 'filt spaces');
         return of(this.filtered_spaces);
     }
-
-    // if (this.features_list && this.features_list.length == 0) {
-    //     return of(current_spaces);
-    // }
 }
