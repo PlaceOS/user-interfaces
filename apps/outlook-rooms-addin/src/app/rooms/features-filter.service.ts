@@ -42,6 +42,7 @@ export class FeaturesFilterService {
     }
 
     async applyFilter(current_spaces: Space[]) {
+        console.log(current_spaces, 'param');
         let selected_features_list = await this.selected_features$
             .pipe(take(1))
             .toPromise();
@@ -54,21 +55,28 @@ export class FeaturesFilterService {
 
         if (this.features_list && this.features_list.length > 0) {
             current_spaces.forEach((space: Space) => {
-                console.log(space, 'space');
                 if (space) {
-                    if (
-                        JSON.stringify(space?.feature_list.sort()) ==
-                            JSON.stringify(selected_features_list.sort()) ||
-                        space?.feature_list
-                            .sort()
-                            .join()
-                            .includes(selected_features_list.sort().join())
-                    ) {
+                    const sorted_feat_list: String = space?.feature_list
+                        .sort()
+                        .join();
+                    const sorted_selected_features: string = this.features_list
+                        .sort()
+                        .join();
+
+                    console.log(sorted_feat_list, 'space');
+                    console.log(sorted_selected_features[0], 'feat list');
+
+                    console.log(
+                        sorted_feat_list.includes(sorted_selected_features),
+                        'second'
+                    );
+
+                    if (sorted_feat_list.includes(sorted_selected_features)) {
                         this.filtered_spaces.push(space);
                     }
                 }
             });
-
+            console.log(this.filtered_spaces, 'filt spaces');
             return of(this.filtered_spaces);
         }
 
