@@ -30,7 +30,7 @@ export function createSystem(space: HashMap) {
     const system = mockSystem(space.id);
 
     system.Bookings[0].$poll_bookings();
-    setInterval(() => system.Bookings[0].$poll_bookings(), 10 * 1000);
+    setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1000);
 
     system.AreaManagement[0].$update();
     setInterval(() => system.AreaManagement[0].$update(), 30 * 1000);

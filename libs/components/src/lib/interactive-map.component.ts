@@ -35,7 +35,9 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
+export const MAP_FEATURE_DATA = new InjectionToken<any>(
+    'Data for Map Features'
+);
 
 @Component({
     selector: `i-map,interactive-map`,
@@ -51,7 +53,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
                 *ngFor="
                     let element of features;
                     let i = index;
-                    trackBy: element?.location
+                    trackBy: trackByFn
                 "
             >
                 <div *ngIf="element">
@@ -60,6 +62,7 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
                         class="pointer-events-none"
                         [attr.no-scale]="element.no_scale"
                         [attr.el-id]="element.location"
+                        [attr.track-id]="element.track_id"
                         [attr.view-id]="viewer"
                         [ngSwitch]="type(element.content)"
                     >
@@ -104,7 +107,8 @@ export const MAP_FEATURE_DATA = new InjectionToken('Data for Map Features');
 })
 export class InteractiveMapComponent
     extends BaseClass
-    implements AfterViewInit, OnChanges, OnInit, OnDestroy {
+    implements AfterViewInit, OnChanges, OnInit, OnDestroy
+{
     /** URL to the SVG file */
     @Input() public src: string;
     /** Custom CSS styles to apply to the SVG file */
@@ -128,23 +132,19 @@ export class InteractiveMapComponent
 
     public injectors: Injector[] = [];
 
+    public feature_list: ViewerFeature[] = [];
+
     /** ID of the active SVG Viewer */
     public viewer: string;
     /** Observable for changes on the SVG viewer */
     private _on_changes: BehaviorSubject<Viewer> = new BehaviorSubject(null);
-    
+
     private _extra_data = {
-        ratio$: this._on_changes.pipe(
-            map((_) => _.ratio)
-        ),
-        svg_ratio$: this._on_changes.pipe(
-            map((_) => _.svg_ratio)
-        ),
+        ratio$: this._on_changes.pipe(map((_) => _.ratio)),
+        svg_ratio$: this._on_changes.pipe(map((_) => _.svg_ratio)),
         zoom$: this._on_changes.pipe(map((_) => _.zoom)),
-        position: this._on_changes.pipe(
-            map((_) => _.center)
-        ),
-    }
+        position: this._on_changes.pipe(map((_) => _.center)),
+    };
 
     @ViewChild('outlet') private _outlet_el: ElementRef<HTMLDivElement>;
     @ViewChildren('feature') private _feature_list: QueryList<
@@ -167,15 +167,6 @@ export class InteractiveMapComponent
             : 'component';
     }
 
-    public get feature_list() {
-        return (this.features || [])
-            .map((f, idx) => ({
-                ...f,
-                content: this._feature_list.toArray()[idx]?.nativeElement,
-            }))
-            .filter((f) => f.content);
-    }
-
     constructor(private _injector: Injector) {
         super();
     }
@@ -195,20 +186,7 @@ export class InteractiveMapComponent
             this.createView();
         }
         if (changes.features) {
-            this.injectors = (this.features || []).map((f: any) =>
-                Injector.create({
-                    providers: [
-                        {
-                            provide: MAP_FEATURE_DATA,
-                            useValue: {
-                                ...f.data,
-                                ...this._extra_data
-                            },
-                        },
-                    ],
-                    parent: this._injector,
-                })
-            );
+            this.updateInjectors();
         }
         if (this.viewer) {
             if (changes.focus && this.focus) {
@@ -222,7 +200,7 @@ export class InteractiveMapComponent
                 changes.labels ||
                 changes.actions
             ) {
-                this.timeout('update_view', () => this.updateView(), 100);
+                this.timeout('update_view', () => this.updateView());
             }
         }
     }
@@ -237,6 +215,11 @@ export class InteractiveMapComponent
             if (!getViewer(this.viewer) || this.loading) {
                 return this.timeout('update_view', () => this.updateView());
             }
+            this.updateFeatureList();
+            console.log(
+                'Features:',
+                this.feature_list.map((_) => _.track_id)
+            );
             updateViewer(this.viewer, {
                 styles: this.styles,
                 features: this.feature_list,
@@ -288,9 +271,10 @@ export class InteractiveMapComponent
             this.loading = false;
             this.subscription(
                 'view_changes',
-                listenToViewerChanges(this.viewer)?.subscribe((v) =>{
-                    const box = this._outlet_el.nativeElement.getBoundingClientRect();
-                    this._on_changes.next({ ...v } as any)
+                listenToViewerChanges(this.viewer)?.subscribe((v) => {
+                    const box =
+                        this._outlet_el.nativeElement.getBoundingClientRect();
+                    this._on_changes.next({ ...v } as any);
                 })
             );
             if (this.focus) this.focusOn(this.focus);
@@ -313,5 +297,42 @@ export class InteractiveMapComponent
             y: 1 - (rect.y + rect.h / 4),
         };
         this.updateDisplay();
+    }
+
+    /* istanbul ignore next */
+    public trackByFn(index: number, feature: ViewerFeature) {
+        return feature ? feature.track_id : undefined;
+    }
+
+    private updateFeatureList() {
+        this.feature_list = (this.features || [])
+            .map((f, idx) => ({
+                ...f,
+                content: this._feature_list.toArray()[idx]?.nativeElement,
+            }))
+            .filter((f) => f.content);
+    }
+
+    private updateInjectors() {
+        const old_injectors = this.injectors || [];
+        this.injectors = (this.features || []).map(
+            (f: any) =>
+                old_injectors.find(
+                    (_) => _.get(MAP_FEATURE_DATA)?.track_id === f.track_id
+                ) ||
+                Injector.create({
+                    providers: [
+                        {
+                            provide: MAP_FEATURE_DATA,
+                            useValue: {
+                                track_id: f.track_id,
+                                ...f.data,
+                                ...this._extra_data,
+                            },
+                        },
+                    ],
+                    parent: this._injector,
+                })
+        );
     }
 }
