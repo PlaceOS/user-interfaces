@@ -62,13 +62,21 @@
                     <ng-container
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
                     >
-                        <find-space-item
-                            *ngFor="let space of spaces$ | async"
-                            [space]="space"
-                            [multiple]="multiple"
-                            [(book)]="book_space[space.id]"
-                            (bookChange)="handleBookEvent(space, $event)"
-                        ></find-space-item>
+                        <mat-button-toggle-group
+                            name="selectSpace"
+                            #group="matButtonToggleGroup"
+                            aria-label="Space selection"
+                            class="flex flex-col"
+                        >
+                            <find-space-item
+                                *ngFor="let space of spaces$ | async"
+                                [space]="space"
+                                [multiple]="multiple"
+                                [(book)]="book_space[space.id]"
+                                (bookChange)="handleBookEvent(space, $event)"
+                            >
+                            </find-space-item>
+                        </mat-button-toggle-group>
                         <p class="p-4 text-center opacity-60">
                             End of available spaces list
                         </p>

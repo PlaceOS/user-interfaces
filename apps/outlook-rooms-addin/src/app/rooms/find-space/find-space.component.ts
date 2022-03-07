@@ -117,7 +117,7 @@ export class FindSpaceComponent implements OnInit {
     public handleBookEvent(space: Space, book: boolean = true) {
         this.book_space = {};
         this.book_space[space.id] = book;
-        this.confirm();
+        // this.confirm();
 
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }

@@ -37,4 +37,14 @@ export class RoomConfirmComponent implements OnInit {
     closeModal() {
         this._bottomSheetRef.dismiss();
     }
+
+    // this.form.controls.host.setErrors(null);
+    // this.form.controls.creator.setErrors(null);
+    // this.form.controls.host.clearValidators();
+    // this.form.controls.creator.clearValidators();
+
+    // this.loading = true;
+    // await this._state.postForm().catch((err) => console.log(err));
+
+    // this.loading = false;
 }

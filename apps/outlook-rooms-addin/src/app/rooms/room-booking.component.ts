@@ -77,18 +77,6 @@ export class RoomBookingComponent implements OnInit {
         )
             return;
 
-        //move to Confirm Component:
-
-        // this.form.controls.host.setErrors(null);
-        // this.form.controls.creator.setErrors(null);
-        // this.form.controls.host.clearValidators();
-        // this.form.controls.creator.clearValidators();
-
-        // this.loading = true;
-        // await this._state.postForm().catch((err) => console.log(err));
-
-        // this.loading = false;
-
         this._formDataService.form = this.form;
 
         this.router.navigate(['/find']);

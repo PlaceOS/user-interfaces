@@ -24,6 +24,7 @@ import { environment } from '../environments/environment';
         FormsModule,
         MatNativeDateModule,
         MatSnackBarModule,
+
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
