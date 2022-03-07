@@ -30,6 +30,8 @@ export class FindSpaceComponent implements OnInit {
     endTime$: Observable<any>;
     selected_features$: Observable<any>;
     filtered_spaces: Space[] = [];
+    showConfirm$: Observable<boolean> = of(false);
+    selectedSpace: Space;
 
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
@@ -117,9 +119,10 @@ export class FindSpaceComponent implements OnInit {
     public handleBookEvent(space: Space, book: boolean = true) {
         this.book_space = {};
         this.book_space[space.id] = book;
-        // this.confirm();
+        this.showConfirm$ = of(true);
+        this.selectedSpace = space;
 
-        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
+        console.log(this._state.form, 'form in state');
     }
 
     public get form() {
@@ -131,17 +134,26 @@ export class FindSpaceComponent implements OnInit {
             data: this.buildings,
         });
 
-        bottomSheetRef.afterDismissed().subscribe((childOutput) => {
+        bottomSheetRef.afterDismissed().subscribe(() => {
             this.setTimeChips();
             this.updateSpaces();
         });
     }
 
     confirm() {
+        console.log(this.selectedSpace, 'selected space');
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
+
         this._state.form.patchValue({ resources: spaces, system: spaces[0] });
-        this._bottomSheet.open(RoomConfirmComponent, {
-            data: this.spaces$,
+        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
+        const confirmRef = this._bottomSheet.open(RoomConfirmComponent, {
+            data: this.selectedSpace,
+        });
+
+        confirmRef.afterDismissed().subscribe(() => {
+            console.log('confirm closed');
+
+            this.postForm();
         });
     }
 
@@ -160,6 +172,16 @@ export class FindSpaceComponent implements OnInit {
         this.spaces$ = await this._featuresFilterService.applyFilter();
 
         this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
+    }
+
+    async postForm() {
+        this.form.controls.host.setErrors(null);
+        this.form.controls.host.clearValidators();
+        this.form.controls.creator.setErrors(null);
+        this.form.controls.creator.clearValidators();
+        console.log(this.form, 'form post');
+
+        await this._state.postForm().catch((err) => console.log(err));
     }
     closeModal() {
         this.location.back();

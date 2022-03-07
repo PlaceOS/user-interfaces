@@ -3,6 +3,9 @@ import {
     MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
+import { Space } from '@placeos/spaces';
+import { EventFormService } from '@placeos/events';
+import { FormDataService } from '../form-data.service';
 
 @Component({
     selector: 'room-confirm',
@@ -14,19 +17,31 @@ export class RoomConfirmComponent implements OnInit {
     startTime;
     endTime;
     attendees: string[];
+    space: Space;
+    title;
+
+    public get form() {
+        return this._formDataService.form;
+    }
+    public loading = this._state.loading;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>
+        private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
+        private _state: EventFormService,
+        private _formDataService: FormDataService
     ) {}
 
     ngOnInit(): void {
-        this.unixTime = this.data?.controls?.date?.value;
+        this.unixTime = this._formDataService.form?.controls?.date.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
-        const durationMinutes: number = this.data?.controls?.duration?.value;
+        const durationMinutes: number =
+            this._formDataService.form?.controls?.duration.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
-        this.attendees = this.data?.controls?.attendees?.value;
+        this.attendees = this._formDataService.form?.controls?.attendees.value;
+        this.space = this.data;
+        this.title = this._formDataService.form?.controls?.title.value;
     }
 
     openLink(event: MouseEvent) {
@@ -38,13 +53,7 @@ export class RoomConfirmComponent implements OnInit {
         this._bottomSheetRef.dismiss();
     }
 
-    // this.form.controls.host.setErrors(null);
-    // this.form.controls.creator.setErrors(null);
-    // this.form.controls.host.clearValidators();
-    // this.form.controls.creator.clearValidators();
-
-    // this.loading = true;
-    // await this._state.postForm().catch((err) => console.log(err));
-
-    // this.loading = false;
+    confirmBooking() {
+        this._bottomSheetRef.dismiss();
+    }
 }

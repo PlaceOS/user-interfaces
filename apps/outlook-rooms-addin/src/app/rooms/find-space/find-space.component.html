@@ -106,56 +106,16 @@
         <section
             class="flex flex-col py-3 border-t border-gray-300 top-box-shadow items-center justify-center"
         >
-            <button
-                mat-button
-                type="submit"
-                (click)="confirm()"
-                class="bg-secondary border-secondary w-[460px] my-3"
-            >
-                <span class="">Confirm</span>
-            </button>
+            <div *ngIf="this.showConfirm$ | async">
+                <button
+                    mat-button
+                    type="submit"
+                    (click)="confirm()"
+                    class="bg-secondary border-secondary w-[460px] my-3"
+                >
+                    <span class="">Confirm</span>
+                </button>
+            </div>
         </section>
     </section>
-
-    <div class="flex flex-col mx-6">
-        <!-- <mat-form-field
-            overlay
-            buildings
-            class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
-            *ngIf="(buildings | async)?.length > 1"
-            appearance="outline"
-        >
-            <mat-select
-                placeholder="Select Building..."
-                [ngModel]="building | async"
-                (ngModelChange)="setBuilding($event)"
-            >
-                <mat-option *ngFor="let bld of buildings | async" [value]="bld">
-                    {{ bld.display_name || bld.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <mat-form-field
-            class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
-            *ngIf="(levels | async)?.length > 0"
-        >
-            <mat-select
-                placeholder="Level"
-                [ngModel]="
-                    (options | async)?.zone_ids?.length
-                        ? (options | async)?.zone_ids[0]
-                        : ''
-                "
-                (ngModelChange)="setOptions({ zone_ids: [$event] })"
-            >
-                <mat-option
-                    *ngFor="let item of levels | async"
-                    [value]="item.id"
-                >
-                    {{ item.display_name || item.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field> -->
-    </div>
 </div>

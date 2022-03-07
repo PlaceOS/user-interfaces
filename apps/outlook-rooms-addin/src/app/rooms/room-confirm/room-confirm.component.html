@@ -22,7 +22,7 @@
         </div>
         <div class="flex flex-col ml-6">
             <span class="flex text-xl font-bold text-gray-700"
-                >{{ data.controls.title.value }}
+                >{{ this.title }}
             </span>
 
             <div class="flex mt-4 text-base items-center text-gray-700">
@@ -78,10 +78,24 @@
             </span>
         </div>
         <div class="flex flex-col ml-6">
-            <span class="flex mt-5 text-xl font-bold text-gray-700">Room </span>
+            <span class="flex mt-5 text-xl font-bold text-gray-700"
+                >Rooms
+            </span>
 
-            <!-- <span class="flex mt-4 text-base">Room name</span>
-                <span class="flex mt-2 mb-5 text-base">Address</span> -->
+            <div class="flex mt-4 text-base items-center text-gray-700">
+                <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                    >meeting_room</mat-icon
+                >
+                <span class="flex">
+                    {{ this.space.name }}
+                </span>
+            </div>
+            <div class="flex mt-2 mb-5 text-base items-center text-gray-700">
+                <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                    >room</mat-icon
+                >
+                <span class="flex"> {{ this.space.level.name }}</span>
+            </div>
         </div>
     </section>
 
@@ -90,6 +104,7 @@
     >
         <button
             mat-button
+            (click)="confirmBooking()"
             class="bg-secondary border-secondary w-[460px] ml-2 mx-4"
         >
             <span class="">Confirm</span>
