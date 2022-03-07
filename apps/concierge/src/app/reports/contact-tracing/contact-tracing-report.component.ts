@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
@@ -12,19 +10,22 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             class="border-b border-gray-200 flex items-center justify-between px-4"
         >
             <h2 class="py-2 text-xl font-medium">Contact Events</h2>
-            <mat-form-field appearance="outline" class="h-[3.25rem]">
-                <input
-                    matInput
-                    [ngModel]="search | async"
-                    (ngModelChange)="search.next($event)"
-                    placeholder="Search for user..."
-                />
-            </mat-form-field>
+            <a-user-search-field
+                class="w-64 h-12 mb-2 mt-1"
+                [ngModel]="(options | async)?.user"
+                (ngModelChange)="setOptions({ user: $event })"
+            ></a-user-search-field>
         </div>
         <custom-table
             class="w-full h-full"
             [dataSource]="tracing_events"
-            [columns]="['date', 'user', 'contact', 'location_name', 'distance']"
+            [columns]="[
+                'date',
+                'user_id',
+                'contact_id',
+                'location_name',
+                'distance'
+            ]"
             [display_column]="[
                 'Time of Contact',
                 'Person',
@@ -36,7 +37,9 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             [template]="{
                 options: option_state,
                 date: date_state,
-                distance: distance_state
+                distance: distance_state,
+                user_id: user_state,
+                contact_id: user_state
             }"
             [pagination]="true"
             empty="No contact records for selected period"
@@ -50,6 +53,9 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 {{ data.length }} option(s)
             </span>
         </ng-template>
+        <ng-template #user_state let-data="data">{{
+            data | user | async
+        }}</ng-template>
         <ng-template #date_state let-data="data">
             {{ data | date: 'mediumDate' }}, {{ data | date: 'shortTime' }}
         </ng-template>
@@ -58,15 +64,9 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
     styles: [``],
 })
 export class ContactTracingReportComponent {
-    public readonly search = new BehaviorSubject('');
-    public readonly tracing_events = combineLatest([
-        this.search.pipe(map((_) => _.toLowerCase())),
-        this._state.events,
-    ]).pipe(
-        map(([search, events]) =>
-            events.filter((_) => _.user.toLowerCase().includes(search))
-        )
-    );
+    public readonly options = this._state.options;
+    public readonly tracing_events = this._state.events;
+    public readonly setOptions = (_) => this._state.setOptions(_);
 
     constructor(private _state: ContactTracingStateService) {}
 }
