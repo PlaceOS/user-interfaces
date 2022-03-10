@@ -444,9 +444,10 @@ export class BookingFormService extends BaseClass {
 
     /** Check if the given resource is available for the selected user to book */
     private async checkResourceAvailable(
-        { asset_id, date, duration, user_email }: Partial<Booking>,
+        { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
         type: string
     ) {
+        duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
