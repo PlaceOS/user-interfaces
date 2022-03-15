@@ -1438,7 +1438,8 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
                         "proxyConfig": "config/proxy.conf.js",
-                        "browserTarget": "outlook-rooms-addin:build"
+                        "browserTarget": "outlook-rooms-addin:build",
+                        "ssl": true
                     },
                     "configurations": {
                         "production": {
