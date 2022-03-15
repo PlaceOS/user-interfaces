@@ -2,15 +2,15 @@
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
   <Id>28ff1819-77f1-476b-9cff-e59b3fecc655</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>ACA Projects</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="My Office Add-in"/>
-  <Description DefaultValue="A template to get started."/>
+  <DisplayName DefaultValue="Room booking"/>
+  <Description DefaultValue="This add-in allows you to book rooms in your building via the PlaceOS API"/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://www.contoso.com/help"/>
+  <SupportUrl DefaultValue="https://place.technology/contact"/>
   <AppDomains>
-    <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>https://localhost:4200</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
@@ -23,8 +23,11 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <!-- <SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/> -->
-         <SourceLocation DefaultValue="https://localhost:3000/"/>
+         <SourceLocation DefaultValue="https://localhost:4200"/>
+
+<!-- Test with deployed app: -->
+     <!-- <SourceLocation DefaultValue="https://portal-dev.placeos.run"/> -->
+         
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -44,6 +47,7 @@
       <Host xsi:type="MailHost">
         <DesktopFormFactor>
           <FunctionFile resid="functionFile"/>
+          <!-- <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface"> -->
           <ExtensionPoint xsi:type="MessageReadCommandSurface">
             <OfficeTab id="TabDefault">
               <Group id="msgReadGroup">
@@ -63,21 +67,7 @@
                     <SourceLocation resid="Taskpane.Url"/>
                   </Action>
                 </Control>
-                <Control xsi:type="Button" id="ActionButton">
-                  <Label resid="ActionButton.Label"/>
-                  <Supertip>
-                    <Title resid="ActionButton.Label"/>
-                    <Description resid="ActionButton.Tooltip"/>
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16x16"/>
-                    <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
-                  </Icon>
-                  <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
-                  </Action>
-                </Control>
+              
               </Group>
             </OfficeTab>
           </ExtensionPoint>
@@ -94,16 +84,17 @@
         <!-- <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html"/> -->
               <bt:Url id="functionFile" DefaultValue="https://localhost:3000/function-file/function-file.html"/>
         <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/> -->
-           <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/"/>
+           <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:4200"/>
+             <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://portal-dev.placeos.run/#/"/> -->
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="Contoso Add-in"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Show Taskpane"/>
-        <bt:String id="ActionButton.Label" DefaultValue="Perform an action"/>
+   
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Opens a pane displaying all available properties."/>
-        <bt:String id="ActionButton.Tooltip" DefaultValue="Perform an action when clicked."/>
+   
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
