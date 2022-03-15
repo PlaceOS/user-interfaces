@@ -24,7 +24,7 @@
     <Form xsi:type="ItemRead">
       <DesktopSettings>
         <!-- <SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/> -->
-         <SourceLocation DefaultValue="https://localhost:3000/index.html"/>
+         <SourceLocation DefaultValue="https://localhost:3000/"/>
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -43,7 +43,7 @@
     <Hosts>
       <Host xsi:type="MailHost">
         <DesktopFormFactor>
-          <FunctionFile resid="Commands.Url"/>
+          <FunctionFile resid="functionFile"/>
           <ExtensionPoint xsi:type="MessageReadCommandSurface">
             <OfficeTab id="TabDefault">
               <Group id="msgReadGroup">
@@ -92,9 +92,9 @@
       </bt:Images>
       <bt:Urls>
         <!-- <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html"/> -->
-              <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/index.html"/>
+              <bt:Url id="functionFile" DefaultValue="https://localhost:3000/function-file/function-file.html"/>
         <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/> -->
-           <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/index.html"/>
+           <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="Contoso Add-in"/>
