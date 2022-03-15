@@ -28,12 +28,13 @@
     "dependencies": {
         "@microsoft/office-js": "^1.1.73",
         "core-js": "^3.9.1",
+        "office-js": "^0.1.0",
         "regenerator-runtime": "^0.13.7"
     },
     "devDependencies": {
         "@babel/core": "^7.13.10",
         "@babel/preset-typescript": "^7.13.0",
-        "@types/office-js": "^1.0.180",
+        "@types/office-js": "^1.0.240",
         "@types/office-runtime": "^1.0.17",
         "acorn": "^8.5.0",
         "babel-loader": "^8.2.2",
