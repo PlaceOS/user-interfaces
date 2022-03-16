@@ -7,7 +7,7 @@
   <DisplayName DefaultValue="Room booking"/>
   <Description DefaultValue="This add-in allows you to book rooms in your building via the PlaceOS API"/>
   <IconUrl DefaultValue="https://127.0.0.1:3000/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultVa127.0.0.1lue="https://127.0.0.1:3000/assets/icon-128.png"/>
+  <HighResolutionIconUrl DefaultValue="https://127.0.0.1:3000/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://place.technology/contact"/>
   <AppDomains>
     <AppDomain>https://127.0.0.1:4200</AppDomain>
