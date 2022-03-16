@@ -216,10 +216,6 @@ export class InteractiveMapComponent
                 return this.timeout('update_view', () => this.updateView());
             }
             this.updateFeatureList();
-            console.log(
-                'Features:',
-                this.feature_list.map((_) => _.track_id)
-            );
             updateViewer(this.viewer, {
                 styles: this.styles,
                 features: this.feature_list,
