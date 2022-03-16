@@ -150,7 +150,9 @@ export class PanelStateService extends BaseClass {
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
         this._events.form.patchValue({ ...details.metadata, resources: [space], system: space });
-        await this._events.postForm();
+        await this._events.postForm().catch((e) => {
+            notifyError(`Error creating booking. ${e}`);
+        });
         details.close();
     }
 
