@@ -249,6 +249,18 @@ export class PanelStateService extends BaseClass {
     }
 
     /**
+     * Execute the logic on the engine driver to call waiting staff
+     */
+    public async checkin() {
+        const module = getModule(this.system, 'Bookings');
+        if (module) {
+            await module
+                .execute('checkin', [Date.now()])
+                .catch((e) => notifyError(`Error checking in booking. ${e}`));
+        }
+    }
+
+    /**
      * Open confirmation modal for calling waiter
      */
     public async confirmWaiter() {

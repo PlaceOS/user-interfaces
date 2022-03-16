@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { combineLatest, interval } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
 
@@ -13,7 +13,10 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-pending]="(state | async) === 'pending'"
-                (click)="can_book ? book() : ''"
+                (click)="
+                    can_book 
+                        ? action()
+                        : ''"
             >
                 <div
                     [innerHTML]="
@@ -87,6 +90,12 @@ export class PanelViewStatusComponent {
     }
 
     public readonly book = () => this._state.newBooking();
+    public readonly checkin = () => this._state.checkin();
+
+    public async action() {
+        const pending = await this.state.pipe(take(1)).toPromise() === 'pending';
+        pending ? this.checkin() : this.book();
+    }
 
     public readonly free_svg = `
     <svg width="129" height="117" viewBox="0 0 129 117" fill="none" xmlns="http://www.w3.org/2000/svg">
