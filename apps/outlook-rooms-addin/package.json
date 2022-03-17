@@ -9,21 +9,10 @@
     "config": {
         "app_to_debug": "outlook",
         "app_type_to_debug": "desktop",
-        "dev_server_port": 3000
+        "dev_server_port": 5000
     },
     "scripts": {
-        "build": "webpack --mode production",
-        "build:dev": "webpack --mode development",
-        "dev-server": "webpack serve --mode development",
-        "lint": "office-addin-lint check",
-        "lint:fix": "office-addin-lint fix",
-        "prettier": "office-addin-lint prettier",
-        "start": "office-addin-debugging start manifest.xml",
-        "start:desktop": "office-addin-debugging start manifest.xml desktop",
-        "start:web": "office-addin-debugging start manifest.xml web",
-        "stop": "office-addin-debugging stop manifest.xml",
-        "validate": "office-addin-manifest validate manifest.xml",
-        "watch": "webpack --mode development --watch"
+        "dev-server": "webpack serve --mode development"
     },
     "dependencies": {
         "@microsoft/office-js": "^1.1.73",
@@ -53,12 +42,10 @@
         "process": "^0.11.10",
         "source-map-loader": "^3.0.0",
         "ts-loader": "^9.2.5",
-        "typescript": "^4.3.5",
         "webpack": "^5.50.0",
         "webpack-cli": "^4.8.0",
         "webpack-dev-server": "4.7.3"
     },
-    "prettier": "office-addin-prettier-config",
     "browserslist": [
         "ie 11"
     ]
