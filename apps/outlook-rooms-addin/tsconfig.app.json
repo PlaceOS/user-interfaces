@@ -11,6 +11,6 @@
     "ts-node": {
         "files": true
     },
-
+    "types": ["office-js"],
     "files": ["src/main.ts", "src/polyfills.ts"]
 }
