@@ -1,8 +1,10 @@
 {
     "extends": "../../tsconfig.base.json",
     "files": [],
-    "include": [],
-    "exclude": ["node_modules", "dist", "lib", "lib-amd"],
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "noEmitOnError": true
+    },
     "references": [
         {
             "path": "./tsconfig.app.json"
