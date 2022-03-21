@@ -75,6 +75,7 @@
         "@tinymce/tinymce-angular": "^4.2.2",
         "@types/jest": "27.0.2",
         "@types/node": "14.14.33",
+        "@types/office-js": "^1.0.241",
         "@typescript-eslint/eslint-plugin": "5.10.2",
         "@typescript-eslint/parser": "5.10.2",
         "autoprefixer": "^10.4.0",
