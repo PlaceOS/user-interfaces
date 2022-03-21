@@ -13,10 +13,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-pending]="(state | async) === 'pending'"
-                (click)="
-                    can_book 
-                        ? action()
-                        : ''"
+                (click)="can_book ? action() : ''"
             >
                 <div
                     [innerHTML]="
@@ -52,10 +49,8 @@ import { currentPeriod, nextPeriod } from './helpers';
             >
                 <div
                     [innerHTML]="
-                        (!(event_state | async)?.next
-                            ? free_svg
-                            : in_use_svg
-                        ) | safe
+                        (!(event_state | async)?.next ? free_svg : in_use_svg)
+                            | safe
                     "
                 ></div>
                 <h3 class="text-4xl uppercase font-medium">Next</h3>
@@ -78,7 +73,11 @@ export class PanelViewStatusComponent {
     public readonly current = this._state.current;
     public readonly next = this._state.next;
 
-    public readonly event_state = combineLatest([this.current, this.next, interval(5000)]).pipe(
+    public readonly event_state = combineLatest([
+        this.current,
+        this.next,
+        interval(5000),
+    ]).pipe(
         map(([c, n]) => ({
             current: currentPeriod(c, n),
             next: nextPeriod(n),
@@ -93,7 +92,8 @@ export class PanelViewStatusComponent {
     public readonly checkin = () => this._state.checkin();
 
     public async action() {
-        const pending = await this.state.pipe(take(1)).toPromise() === 'pending';
+        const pending =
+            (await this.state.pipe(take(1)).toPromise()) === 'pending';
         pending ? this.checkin() : this.book();
     }
 
