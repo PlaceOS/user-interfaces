@@ -9,12 +9,35 @@ import { PanelStateService } from '../panel-state.service';
         <div class="flex flex-col items-center h-full w-full overflow-hidden">
             <panel-view-details class="flex-1 w-full"> </panel-view-details>
             <panel-view-status class="flex-1 w-full"> </panel-view-status>
+            <div
+                *ngIf="show_offline"
+                class="absolute inset-0 bg-contain bg-center bg-no-repeat"
+                [style.background-color]="offline_color"
+                [style.background-image]="
+                    'url(' + offline_image + ')' | safe: 'resource'
+                "
+            ></div>
         </div>
     `,
     styles: [``],
     providers: [PanelStateService],
 })
 export class PanelViewComponent extends BaseClass {
+    public get show_offline() {
+        return (
+            !this._state.setting('bookable') &&
+            this._state.setting('offline_image')
+        );
+    }
+
+    public get offline_image() {
+        return this._state.setting('offline_image');
+    }
+
+    public get offline_color() {
+        return this._state.setting('offline_color');
+    }
+
     constructor(
         private _state: PanelStateService,
         private _route: ActivatedRoute

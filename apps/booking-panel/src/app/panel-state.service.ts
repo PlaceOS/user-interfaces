@@ -18,6 +18,10 @@ import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal
 import { addSeconds, getUnixTime } from 'date-fns';
 
 export interface PanelSettings {
+    /** URL for the image to display when system is not bookable */
+    offline_image?: string;
+    /** Background color to display when system is not bookable */
+    offline_color?: string;
     /** Custom URL for the QR code */
     custom_qr_url?: string;
     /**  */
@@ -38,6 +42,12 @@ export interface PanelSettings {
     control_ui?: string;
     /** URI to the catering UI for this space */
     catering_ui?: string;
+    /** Whether the QR code should be shown */
+    show_qr_code?: boolean;
+    /** URL of the image to display for the space */
+    room_image?: string;
+    /** Whether space is bookable */
+    bookable?: boolean;
 }
 
 export function currentBooking(
@@ -86,7 +96,7 @@ export class PanelStateService extends BaseClass {
         this._system.next(value);
     }
 
-    public setting<T = any>(name: string): T {
+    public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
         return this._settings.getValue()[name];
     }
     /** List of current bookings for active system */
@@ -131,6 +141,7 @@ export class PanelStateService extends BaseClass {
                 'pending_before',
                 'room_image',
                 'show_qr_code',
+                'bookable'
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
