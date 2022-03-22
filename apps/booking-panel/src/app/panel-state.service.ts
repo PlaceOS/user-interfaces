@@ -18,6 +18,8 @@ import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal
 import { addSeconds, getUnixTime } from 'date-fns';
 
 export interface PanelSettings {
+    /** Custom URL for the QR code */
+    custom_qr_url?: string;
     /**  */
     status?: string;
     /** Whether booking has a pending state */
@@ -119,6 +121,7 @@ export class PanelStateService extends BaseClass {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
+                'custom_qr_url',
                 'disable_book_now',
                 'pending',
                 'status',

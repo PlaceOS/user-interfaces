@@ -32,5 +32,11 @@ export class PanelViewComponent extends BaseClass {
                 }
             })
         );
+        document.body.parentElement.classList.add('showing-panel');
+    }
+
+    public ngOnDestroy(): void {
+        super.ngOnDestroy();
+        document.body.parentElement.classList.remove('showing-panel');
     }
 }
