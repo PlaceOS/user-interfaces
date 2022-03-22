@@ -63,7 +63,7 @@ export interface SpaceInfoData {
                             {{ available_until }}
                         </div>
                     </div>
-                    <div features *ngIf="space.features?.length > 0">
+                    <div features *ngIf="space.features?.length > 0 && show_features">
                         <h4 class="m-0 mb-2">Room Features</h4>
                         <ul class="pl-2">
                             <li
