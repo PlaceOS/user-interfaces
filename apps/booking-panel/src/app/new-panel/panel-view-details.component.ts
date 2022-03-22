@@ -64,8 +64,14 @@ export class PanelViewDetailsComponent {
 
     constructor(private _state: PanelStateService) {}
 
-    public ngOnInit() {
-        const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-        this.qr_code = generateQRCode(url, '#fff0', '#fff');
+    public async ngOnInit() {
+        this._state.settings.subscribe(({ custom_qr_url }) => {
+            if (custom_qr_url) {
+                this.qr_code = generateQRCode(custom_qr_url, '#fff0', '#fff');
+            } else if (!this.qr_code) {
+                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
+                this.qr_code = generateQRCode(url, '#fff0', '#fff');
+            }
+        });
     }
 }
