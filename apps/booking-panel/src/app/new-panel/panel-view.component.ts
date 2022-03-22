@@ -25,7 +25,7 @@ import { PanelStateService } from '../panel-state.service';
 export class PanelViewComponent extends BaseClass {
     public get show_offline() {
         return (
-            !this._state.setting('bookable') &&
+            !this._state.setting('disable_book_now') &&
             this._state.setting('offline_image')
         );
     }
