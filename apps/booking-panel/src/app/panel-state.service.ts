@@ -48,6 +48,8 @@ export interface PanelSettings {
     room_image?: string;
     /** Whether space is bookable */
     bookable?: boolean;
+    /** Whether sensors detect presence in the space */
+    presence?: boolean;
 }
 
 export function currentBooking(
@@ -141,7 +143,8 @@ export class PanelStateService extends BaseClass {
                 'pending_before',
                 'room_image',
                 'show_qr_code',
-                'bookable'
+                'bookable',
+                'presence'
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
