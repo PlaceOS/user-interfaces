@@ -147,12 +147,13 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 no_scale: true,
                 content: ExploreSpaceInfoComponent,
                 data: {
-                    space,
+                    space: new Space(space),
                     events: this._bookings[space.id],
                     status: this._statuses[space.id],
                 },
             } as any);
         }
+        console.log('Features:', features);
         this._state.setFeatures('spaces', features);
     }
 
