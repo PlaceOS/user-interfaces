@@ -1,4 +1,5 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
@@ -114,8 +115,13 @@ export class ExploreSpaceInfoComponent implements OnInit {
 
     public x_pos: 'start' | 'end';
 
+    public get show_features() {
+        return !this._settings.get('app.spaces.hide_features');
+    }
+
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
+        private _settings: SettingsService,
         private _element: ElementRef<HTMLElement>
     ) {}
 
