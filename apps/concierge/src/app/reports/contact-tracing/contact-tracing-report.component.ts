@@ -22,16 +22,14 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             [columns]="[
                 'date',
                 'user_id',
-                'contact_id',
-                'distance'
+                'contact_id'
             ]"
             [display_column]="[
                 'Time of Contact',
                 'Person',
-                'Close Contact',
-                'Distance'
+                'Close Contact'
             ]"
-            [column_size]="['12r', '12r', 'flex']"
+            [column_size]="['12r', '14r', 'flex']"
             [template]="{
                 options: option_state,
                 date: date_state,
