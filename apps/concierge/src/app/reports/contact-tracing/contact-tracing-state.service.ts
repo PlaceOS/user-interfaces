@@ -72,7 +72,7 @@ export class ContactTracingStateService {
             );
         }),
         catchError((err) => {
-            notifyError(`${err}`);
+            notifyError(`${err?.msg || JSON.stringify(err)}`);
             return of([]);
         }),
         shareReplay(1)
