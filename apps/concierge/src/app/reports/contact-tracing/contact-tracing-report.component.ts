@@ -48,8 +48,8 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     {{ data.length }} option(s)
                 </span>
             </ng-template>
-            <ng-template #user_state let-data="data">{{
-                (data | user | async)?.name
+            <ng-template #user_state let-data="data" let-row="row">{{
+                (data | user | async)?.name || row.mac_address
             }}</ng-template>
             <ng-template #date_state let-data="data">
                 {{ data | date: 'mediumDate' }}, {{ data | date: 'shortTime' }}

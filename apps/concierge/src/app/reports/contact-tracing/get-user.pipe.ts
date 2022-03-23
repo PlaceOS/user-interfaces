@@ -14,6 +14,7 @@ export class GetUserPipe implements PipeTransform {
      * @param id ID, Email or Staff ID of the user
      */
     public transform(id: string): Observable<StaffUser> {
+        if (!id) return of(null);
         if (!USER_LIST[id]) {
             USER_LIST[id] = searchStaff(id).pipe(
                 map((_) => _[0] || new StaffUser({ id, name: id })),
