@@ -20,7 +20,8 @@ export interface ContactTracingOptions {
 }
 
 export interface ContactEvent {
-    id: string;
+    id?: string;
+    mac_address?: string;
     date: number;
     duration: number;
     user_id: string;
@@ -60,7 +61,7 @@ export class ContactTracingStateService {
             return list.map(
                 (_) =>
                     ({
-                        id: _.mac_address || `contact-${randomInt(9999_9999)}`,
+                        mac_address: _.mac_address,
                         date: _.contact_time * 1000,
                         duration: _.duration / 60,
                         user_id: user.id,
@@ -96,14 +97,31 @@ export class ContactTracingStateService {
     }
 
     public async downloadReport() {
-        const { start, end } = await this._reports.options.pipe(take(1)).toPromise();
+        const { start, end } = await this._reports.options
+            .pipe(take(1))
+            .toPromise();
         const events = await this.events.pipe(take(1)).toPromise();
+        const pipe = new GetUserPipe();
+        const processed_events = await Promise.all(
+            events.map(async (_) => ({
+                'MAC Address': _.mac_address,
+                Date: format(_.date, 'dd MMM yyyy, h:mm a'),
+                'User Name': _.user,
+                'Contact Name':
+                    (await pipe.transform(_.contact_id).toPromise())?.name ||
+                    _.contact_id !== 'null'
+                        ? _.contact_id
+                        : null || _.mac_address,
+                Duration: Math.round(_.duration),
+                Distance: _.distance,
+            }))
+        );
         downloadFile(
             `report+contact-tracing+${format(start, 'yyyy-MM-dd')}+${format(
                 end,
                 'yyyy-MM-dd'
             )}.csv`,
-            jsonToCsv(events)
+            jsonToCsv(processed_events)
         );
     }
 }
