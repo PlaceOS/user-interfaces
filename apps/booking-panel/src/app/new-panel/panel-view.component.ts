@@ -16,13 +16,30 @@ import { PanelStateService } from '../panel-state.service';
                 [style.background-image]="
                     'url(' + offline_image + ')' | safe: 'resource'
                 "
-            ></div>
+            >
+                <div
+                    class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-8 text-3xl bg-pending rounded shadow"
+                >
+                    {{
+                        (system | async)?.display_name ||
+                            (system | async)?.name ||
+                            '&lt;Unknown Space&gt;'
+                    }}
+                </div>
+                <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%]">
+                    <div class="">Please ensure that no more than</div>
+                    <div class="">{{ capacity }}</div>
+                    <div class="">people are using this meeting space at any one time</div>
+                </div>
+            </div>
         </div>
     `,
     styles: [``],
     providers: [PanelStateService],
 })
 export class PanelViewComponent extends BaseClass {
+    public readonly system = this._state.space;
+
     public get show_offline() {
         return (
             this._state.setting('disable_book_now') &&
@@ -36,6 +53,10 @@ export class PanelViewComponent extends BaseClass {
 
     public get offline_color() {
         return this._state.setting('offline_color');
+    }
+
+    public get capacity() {
+        return this._state.setting('room_capacity');
     }
 
     constructor(
