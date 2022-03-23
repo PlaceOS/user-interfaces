@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { searchStaff, StaffUser } from '@placeos/users';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 
 const USER_LIST = {};
@@ -21,5 +21,9 @@ export class GetUserPipe implements PipeTransform {
             );
         }
         return USER_LIST[id];
+    }
+
+    public static addUser(user: StaffUser) {
+        USER_LIST[user.id] = of(user).pipe(shareReplay(1));
     }
 }

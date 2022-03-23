@@ -1,11 +1,17 @@
 import { Injectable } from '@angular/core';
-import { currentUser, notifyError, randomInt } from '@placeos/common';
+import {
+    currentUser,
+    downloadFile,
+    jsonToCsv,
+    notifyError,
+    randomInt,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
-import { getUnixTime } from 'date-fns';
+import { getUnixTime, format } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';
 
@@ -39,6 +45,7 @@ export class ContactTracingStateService {
         switchMap(([{ user }, { start, end }]) => {
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
+            GetUserPipe.addUser(user);
             return this.system_id && mod
                 ? mod.execute('close_contacts', [
                       user.email,
@@ -63,7 +70,7 @@ export class ContactTracingStateService {
                     } as ContactEvent)
             );
         }),
-        catchError(err => {
+        catchError((err) => {
             notifyError(`${err}`);
             return [];
         }),
@@ -86,5 +93,17 @@ export class ContactTracingStateService {
 
     public setOptions(options: Partial<ContactTracingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public async downloadReport() {
+        const { start, end } = await this._reports.options.pipe(take(1)).toPromise();
+        const events = await this.events.pipe(take(1)).toPromise();
+        downloadFile(
+            `report+contact-tracing+${format(start, 'yyyy-MM-dd')}+${format(
+                end,
+                'yyyy-MM-dd'
+            )}.csv`,
+            jsonToCsv(events)
+        );
     }
 }
