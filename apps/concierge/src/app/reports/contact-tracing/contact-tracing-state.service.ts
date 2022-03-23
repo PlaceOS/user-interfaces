@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { currentUser, randomInt } from '@placeos/common';
+import { currentUser, notifyError, randomInt } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
 import { getUnixTime } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
+import { GetUserPipe } from './get-user.pipe';
 
 export interface ContactTracingOptions {
     user?: StaffUser;
@@ -38,6 +39,7 @@ export class ContactTracingStateService {
         switchMap(([{ user }, { start, end }]) => {
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
+            GetUserPipe.addUser(user);
             return this.system_id && mod
                 ? mod.execute('close_contacts', [
                       user.email,
@@ -61,6 +63,10 @@ export class ContactTracingStateService {
                         distance: 1,
                     } as ContactEvent)
             );
+        }),
+        catchError(err => {
+            notifyError(`${err}`);
+            return [];
         }),
         shareReplay(1)
     );
