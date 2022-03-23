@@ -16,7 +16,8 @@ export class GetUserPipe implements PipeTransform {
     public async transform(id: string): Promise<StaffUser | null> {
         let user = USER_LIST.find(_ => _.id === id || _.email === id || _.staff_id === id);
         if (!user) {
-            const users = await searchStaff(id);
+            USER_LIST.push(new StaffUser({ id, name: id }));
+            const users = await searchStaff(id).toPromise();
             user = users[0];
         }
         if (user) USER_LIST.push(user);
