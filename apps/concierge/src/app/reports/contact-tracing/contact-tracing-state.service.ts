@@ -39,7 +39,6 @@ export class ContactTracingStateService {
         switchMap(([{ user }, { start, end }]) => {
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
-            GetUserPipe.addUser(user);
             return this.system_id && mod
                 ? mod.execute('close_contacts', [
                       user.email,
