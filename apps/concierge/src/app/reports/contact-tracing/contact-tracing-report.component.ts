@@ -23,14 +23,12 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 'date',
                 'user_id',
                 'contact_id',
-                'location_name',
                 'distance'
             ]"
             [display_column]="[
                 'Time of Contact',
                 'Person',
                 'Close Contact',
-                'Location',
                 'Distance'
             ]"
             [column_size]="['12r', '12r', 'flex']"
@@ -42,6 +40,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 contact_id: user_state
             }"
             [pagination]="true"
+            [page_size]="30"
             empty="No contact records for selected period"
         ></custom-table>
         <ng-template #option_state let-data="data">
@@ -54,7 +53,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             </span>
         </ng-template>
         <ng-template #user_state let-data="data">{{
-            data | user | async
+            (data | user | async)?.name
         }}</ng-template>
         <ng-template #date_state let-data="data">
             {{ data | date: 'mediumDate' }}, {{ data | date: 'shortTime' }}
