@@ -49,6 +49,7 @@ import { ReportsStateService } from './reports-state.service';
         <button
             mat-button
             class="ml-4"
+            *ngIf="!page.includes('contact-tracing')"
             [disabled]="!!(loading | async) || !(options | async)?.zones?.length"
             (click)="generateReport()"
         >
@@ -58,7 +59,7 @@ import { ReportsStateService } from './reports-state.service';
         <button
             mat-button
             class="ml-4"
-            *ngIf="page.includes('contact-tracing')"
+            *ngIf="!page.includes('contact-tracing')"
             [disabled]="!(bookings | async)?.length"
             (click)="downloadReport()"
         >
@@ -138,10 +139,13 @@ export class ReportsOptionsComponent extends BaseClass {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.page = this._router.url;
+        this.subscription('routing', this._router.events.subscribe(() => {
+            this.page = this._router.url;
+        }));
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                this.page = this._router.url;
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {

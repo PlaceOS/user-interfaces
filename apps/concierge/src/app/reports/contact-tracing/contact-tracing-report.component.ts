@@ -57,8 +57,13 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 {{ data }}m
             </ng-template>
         </div>
-        <button mat-icon-button class="bg-white absolute bottom-2 right-2" matTooltip="Download Report" (click)="downloadReport()">
-            <app-icon>dowload</app-icon>
+        <button
+            mat-icon-button
+            class="bg-white absolute bottom-2 left-2 shadow"
+            matTooltip="Download Report"
+            (click)="downloadReport()"
+        >
+            <app-icon>download</app-icon>
         </button>
     `,
     styles: [``],
