@@ -20,11 +20,12 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             <custom-table
                 class="w-full h-full"
                 [dataSource]="tracing_events"
-                [columns]="['date', 'user_id', 'contact_id']"
+                [columns]="['date', 'user_id', 'contact_id', 'duration']"
                 [display_column]="[
                     'Time of Contact',
                     'Person',
-                    'Close Contact'
+                    'Close Contact',
+                    'Duration'
                 ]"
                 [column_size]="['12r', '14r', 'flex']"
                 [template]="{
