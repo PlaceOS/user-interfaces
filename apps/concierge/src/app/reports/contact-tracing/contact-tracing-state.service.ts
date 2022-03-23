@@ -109,9 +109,8 @@ export class ContactTracingStateService {
                 'User Name': _.user,
                 'Contact Name':
                     (await pipe.transform(_.contact_id).toPromise())?.name ||
-                    _.contact_id !== 'null'
-                        ? _.contact_id
-                        : null || _.mac_address,
+                    (_.contact_id !== 'null' ? _.contact_id : null) ||
+                    _.mac_address,
                 Duration: Math.round(_.duration),
                 Distance: _.distance,
             }))
