@@ -41,7 +41,7 @@ export class ContactTracingStateService {
             return this.system_id && mod
                 ? mod.execute('close_contacts', [
                       user.email,
-                      user.staff_id,
+                      user.username,
                       getUnixTime(start),
                       getUnixTime(end),
                   ])
