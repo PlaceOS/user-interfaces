@@ -63,7 +63,7 @@ export class ContactTracingStateService {
                     ({
                         mac_address: _.mac_address,
                         date: _.contact_time * 1000,
-                        duration: _.duration / 60,
+                        duration: Math.floor(_.duration / 60),
                         user_id: user.id,
                         user: user.name,
                         contact_id: _.username,
