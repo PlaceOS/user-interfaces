@@ -111,7 +111,7 @@ export class ContactTracingStateService {
                     (await pipe.transform(_.contact_id).toPromise())?.name ||
                     (_.contact_id !== 'null' ? _.contact_id : null) ||
                     _.mac_address,
-                Duration: Math.round(_.duration),
+                Duration: `${Math.floor(_.duration / 60) ? Math.floor(_.duration / 60) + 'h ' : ''}${Math.floor(_.duration % 60) + 'm'}`,
                 Distance: _.distance,
             }))
         );
