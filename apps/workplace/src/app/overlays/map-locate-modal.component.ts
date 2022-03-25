@@ -71,8 +71,12 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
         return this.item.level || this._org.levelWithID(this.item.zones || []);
     }
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: { item: Locatable }, private _org: OrganisationService) {
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: { item: Locatable },
+        private _org: OrganisationService
+    ) {
         super();
+        console.log('Locate Data:', this._data);
     }
 
     public ngOnInit(): void {
