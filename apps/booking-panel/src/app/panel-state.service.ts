@@ -24,6 +24,8 @@ export interface PanelSettings {
     offline_color?: string;
     /** Custom URL for the QR code */
     custom_qr_url?: string;
+    /** Custom color for the display QR code */
+    custom_qr_color?: string;
     /**  */
     status?: string;
     /** Whether booking has a pending state */
@@ -134,6 +136,7 @@ export class PanelStateService extends BaseClass {
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
                 'custom_qr_url',
+                'custom_qr_color',
                 'disable_book_now',
                 'pending',
                 'status',

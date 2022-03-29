@@ -11,7 +11,7 @@ import { PanelStateService } from '../panel-state.service';
             <panel-view-status class="flex-1 w-full"> </panel-view-status>
             <div
                 *ngIf="show_offline"
-                class="absolute inset-0 bg-contain bg-center bg-no-repeat"
+                class="absolute inset-0 bg-contain bg-center bg-no-repeat z-40"
                 [style.background-color]="offline_color"
                 [style.background-image]="
                     'url(' + offline_image + ')' | safe: 'resource'
@@ -28,7 +28,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
                 <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%] text-center">
                     <div class="text-8xl">{{ capacity }}</div>
-                    <div class="text-3xl">Room Capacity</div>
+                    <div class="text-3xl">Room capacity</div>
                 </div>
             </div>
         </div>

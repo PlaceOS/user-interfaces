@@ -24,10 +24,10 @@ import { PanelStateService } from '../panel-state.service';
             <div
                 qr-checkin
                 *ngIf="checkin"
-                class="absolute top-4 right-4 text-xl w-40 space-y-4"
+                class="absolute top-4 right-4 text-xl w-40 space-y-4 z-50"
             >
                 <img class="w-full" [src]="qr_code" />
-                <div class="w-full text-lg">
+                <div class="w-full text-lg" *ngIf="!custom_qr">
                     Scan QR code to book this room or view details
                 </div>
             </div>
@@ -62,15 +62,19 @@ export class PanelViewDetailsComponent {
         return this._state.setting('show_qr_code') !== false;
     }
 
+    public get custom_qr() {
+        return !!this._state.setting('custom_qr_url');
+    }
+
     constructor(private _state: PanelStateService) {}
 
     public async ngOnInit() {
-        this._state.settings.subscribe(({ custom_qr_url }) => {
+        this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {
             if (custom_qr_url) {
-                this.qr_code = generateQRCode(custom_qr_url, '#fff0', '#fff');
+                this.qr_code = generateQRCode(custom_qr_url, '#fff0', custom_qr_color || '#fff');
             } else if (!this.qr_code) {
                 const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                this.qr_code = generateQRCode(url, '#fff0', '#fff');
+                this.qr_code = generateQRCode(url, '#fff0', custom_qr_color || '#fff');
             }
         });
     }
