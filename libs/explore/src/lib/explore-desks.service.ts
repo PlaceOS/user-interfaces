@@ -38,8 +38,7 @@ export interface DesksStats {
 export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
-    private _desks = new BehaviorSubject<string[]>([]);
-    private _reserved = new BehaviorSubject<string[]>([]);
+    private _presence = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
     private _users: HashMap<string> = {};
     private _poll = new BehaviorSubject<number>(0);
@@ -92,29 +91,21 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     )
             );
             this.subscription('lvl-in_use_bind', binding.bind());
-            binding = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}:desk_ids`
-            );
-            this.subscription(
-                `lvl-desks_list`,
-                binding.listen().subscribe((d) => this._desks.next(d || []))
-            );
-            this.subscription('lvl-desk_list_bind', binding.bind());
         })
     );
 
     private _state_change = combineLatest([
         this.desk_list,
         this._in_use,
-        this._reserved,
+        this._presence,
         this._options,
     ]).pipe(
         // debounceTime(50),
-        map(([desks, in_use, reserved]) => {
+        map(([desks, in_use, presence]) => {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
-                const has_presence = !reserved.some((i) => id === i);
+                const has_presence = !presence.some((i) => id === i);
                 this._statuses[id] = bookable
                     ? !is_used && !has_presence
                         ? 'free'
@@ -187,9 +178,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 (v.location === 'booking' && v.type === 'desk')
         );
         // this._in_use.next(desks.map((v) => v.map_id || v.asset_id));
-        this._reserved.next(
+        this._presence.next(
             desks
-                .filter((v) => !v.at_location)
+                .filter((v) => v.at_location)
                 .map((v) => v.map_id || v.asset_id)
         );
         this.processDevices(devices, system_id);
