@@ -18,7 +18,7 @@ import { PanelStateService } from '../panel-state.service';
                 "
             >
                 <div
-                    class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-8 text-3xl bg-pending rounded shadow"
+                    class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-4 text-5xl bg-pending rounded shadow text-white font-medium"
                 >
                     {{
                         (system | async)?.display_name ||
@@ -27,9 +27,8 @@ import { PanelStateService } from '../panel-state.service';
                     }}
                 </div>
                 <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%] text-center">
-                    <div class="text-xl">Please ensure that no more than</div>
-                    <div class="text-6xl">{{ capacity }}</div>
-                    <div class="text-xl">people are using this meeting space at any one time</div>
+                    <div class="text-8xl">{{ capacity }}</div>
+                    <div class="text-3xl">Room Capacity</div>
                 </div>
             </div>
         </div>
