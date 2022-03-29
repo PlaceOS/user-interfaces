@@ -85,7 +85,7 @@ export class PanelViewStatusComponent {
     );
 
     public get can_book() {
-        return !this._state.setting('disable_book_now');
+        return this._state.setting('disable_book_now') !== true;
     }
 
     public readonly book = () => this._state.newBooking();

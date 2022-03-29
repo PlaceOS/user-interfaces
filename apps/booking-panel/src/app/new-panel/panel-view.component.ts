@@ -43,12 +43,12 @@ export class PanelViewComponent extends BaseClass {
     public get show_offline() {
         return (
             this._state.setting('disable_book_now') &&
-            this._state.setting('offline_image')
+            this.offline_image
         );
     }
 
     public get offline_image() {
-        return this._state.setting('offline_image');
+        return this._state.setting('offline_image') || this._state.setting('room_image');
     }
 
     public get offline_color() {

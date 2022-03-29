@@ -46,8 +46,6 @@ export interface PanelSettings {
     show_qr_code?: boolean;
     /** URL of the image to display for the space */
     room_image?: string;
-    /** Whether space is bookable */
-    bookable?: boolean;
     /** Whether sensors detect presence in the space */
     presence?: boolean;
     /** Capacity for the space */
@@ -144,8 +142,8 @@ export class PanelStateService extends BaseClass {
                 'pending_period',
                 'pending_before',
                 'room_image',
+                'offline_image',
                 'show_qr_code',
-                'bookable',
                 'presence',
                 'room_capacity'
             ];
