@@ -26,10 +26,10 @@ import { PanelStateService } from '../panel-state.service';
                             '&lt;Unknown Space&gt;'
                     }}
                 </div>
-                <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%]">
-                    <div class="">Please ensure that no more than</div>
-                    <div class="">{{ capacity }}</div>
-                    <div class="">people are using this meeting space at any one time</div>
+                <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%] text-center">
+                    <div class="text-xl">Please ensure that no more than</div>
+                    <div class="text-6xl">{{ capacity }}</div>
+                    <div class="text-xl">people are using this meeting space at any one time</div>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@ export class PanelViewComponent extends BaseClass {
     }
 
     public get offline_color() {
-        return this._state.setting('offline_color');
+        return this._state.setting('offline_color') || '#FFFFFF';
     }
 
     public get capacity() {
