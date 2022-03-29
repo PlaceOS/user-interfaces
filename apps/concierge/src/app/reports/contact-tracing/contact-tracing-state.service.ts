@@ -81,10 +81,7 @@ export class ContactTracingStateService {
     public readonly options = this._options.asObservable();
 
     private get system_id() {
-        return (
-            this._org.organisation?.bindings?.contact_tracing ||
-            this._org.building?.bindings?.contact_tracing
-        );
+        return this._org.binding('contact_tracing');
     }
 
     constructor(
@@ -111,7 +108,11 @@ export class ContactTracingStateService {
                     (await pipe.transform(_.contact_id).toPromise())?.name ||
                     (_.contact_id !== 'null' ? _.contact_id : null) ||
                     _.mac_address,
-                Duration: `${Math.floor(_.duration / 60) ? Math.floor(_.duration / 60) + 'h ' : ''}${Math.floor(_.duration % 60) + 'm'}`,
+                Duration: `${
+                    Math.floor(_.duration / 60)
+                        ? Math.floor(_.duration / 60) + 'h '
+                        : ''
+                }${Math.floor(_.duration % 60) + 'm'}`,
                 Distance: _.distance,
             }))
         );

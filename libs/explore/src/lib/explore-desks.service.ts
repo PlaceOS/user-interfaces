@@ -78,13 +78,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             this._statuses = {};
             this.unsubWith('lvl');
             if (!lvl) return;
-            const building = this._org.buildings.find(
-                (bld) => bld.id === lvl.parent_id
-            );
-            if (!building) return;
-            const system_id =
-                building.bindings?.area_management ||
-                this._org.organisation.bindings?.area_management;
+            const system_id = this._org.binding('area_management');
             if (!system_id) return;
             let binding = getModule(system_id, 'AreaManagement').binding(
                 lvl.id

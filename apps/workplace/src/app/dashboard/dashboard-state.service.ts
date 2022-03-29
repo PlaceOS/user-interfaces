@@ -38,7 +38,9 @@ export class DashboardStateService extends BaseClass {
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
-    private _upcoming_events = new BehaviorSubject<(CalendarEvent | Booking)[]>([]);
+    private _upcoming_events = new BehaviorSubject<(CalendarEvent | Booking)[]>(
+        []
+    );
     /**  */
     private _contacts = new BehaviorSubject<User[]>([]);
     /**  */
@@ -79,11 +81,9 @@ export class DashboardStateService extends BaseClass {
                 .pipe(filter((bld) => !!bld))
                 .subscribe(() => this.updateBuildingMetadata())
         );
-        if (!this._org.organisation.bindings.area_management) return;
-        const binding = getModule(
-            this._org.organisation.bindings.area_management,
-            'AreaManagement'
-        ).binding('overview');
+        let sys_id = this._org.binding('contact_tracing');
+        if (!sys_id) return;
+        const binding = getModule(sys_id, 'AreaManagement').binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
     }
@@ -187,20 +187,29 @@ export class DashboardStateService extends BaseClass {
             period_start,
             period_end,
             calendars: currentUser().email,
-        }).toPromise().catch(_ => []);
+        })
+            .toPromise()
+            .catch((_) => []);
         const bookings = await queryBookings({
             period_start,
             period_end,
             type: 'desk',
             user: currentUser().email,
-        }).toPromise().catch(_ => []);
-        const event_list = [...events, ...bookings].sort((a, b) => a.date - b.date);
+        })
+            .toPromise()
+            .catch((_) => []);
+        const event_list = [...events, ...bookings].sort(
+            (a, b) => a.date - b.date
+        );
         this._upcoming_events.next(event_list);
     }
 
     private async updateBuildingMetadata() {
         const building = this._org.building;
-        const metadata = await showMetadata(building.id, 'bindings').toPromise();
+        const metadata = await showMetadata(
+            building.id,
+            'bindings'
+        ).toPromise();
         if (!(metadata.details as HashMap).occupancy) return;
         const details = (metadata.details as HashMap).occupancy;
         const module = getModule(details.sys, details.module, details.index);

@@ -39,13 +39,7 @@ export class ExploreZonesService extends BaseClass {
         map((lvl) => {
             if (!lvl) return;
             this._statuses = {};
-            const building = this._org.buildings.find(
-                (bld) => bld.id === lvl.parent_id
-            );
-            if (!building) return;
-            const system_id =
-                building.bindings.area_management ||
-                this._org.organisation.bindings.area_management;
+            let system_id: any = this._org.binding('area_management');
             if (!system_id) return;
             const binding = getModule(system_id, 'AreaManagement').binding(
                 `${lvl.id}:areas`
