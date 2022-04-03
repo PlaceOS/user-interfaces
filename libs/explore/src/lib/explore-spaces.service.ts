@@ -76,6 +76,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
     }
 
     public bookSpace(space: Space) {
+        console.debug('Book Space:', space);
         if (this._statuses[space.id] === 'busy' || !space.bookable) {
             return notifyError(
                 `${
