@@ -14,6 +14,7 @@ import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     distinctUntilChanged,
+    filter,
     map,
     shareReplay,
     switchMap,
@@ -49,13 +50,17 @@ export interface ContactEvent {
 })
 export class ContactTracingStateService {
     private _loading = new BehaviorSubject<string>('');
+    private _generate = new BehaviorSubject<number>(0);
     private _options = new BehaviorSubject<ContactTracingOptions>({
         start: startOfDay(Date.now()),
         end: endOfDay(Date.now()),
     });
 
-    public readonly events = combineLatest([this._options]).pipe(
+    public readonly events = combineLatest([this._options, this._generate]).pipe(
+        distinctUntilChanged((a, b) => a[1] !== b[1]),
+        filter(([_, gen]) => !!gen),
         switchMap(([{ start, end, user }]) => {
+            if (!user) return of([]);
             this._loading.next('Loading contact events...');
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
@@ -70,7 +75,7 @@ export class ContactTracingStateService {
                       ])
                       .catch((err) => {
                           notifyError(`${err?.msg || JSON.stringify(err)}`);
-                          return of([]);
+                          return [];
                       })
                 : of([]);
         }),
@@ -111,6 +116,10 @@ export class ContactTracingStateService {
 
     public setOptions(options: Partial<ContactTracingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public generateReport() {
+        this._generate.next(Date.now());
     }
 
     public async downloadReport() {

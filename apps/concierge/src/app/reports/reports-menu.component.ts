@@ -64,6 +64,7 @@ const DEFAULT_FEATURES = ["desks", "spaces", "catering", "contact-tracing"];
         `
             :host {
                 display: flex;
+                flex-direction: row !important;
                 align-items: center;
                 justify-content: center;
                 background: var(--bg);

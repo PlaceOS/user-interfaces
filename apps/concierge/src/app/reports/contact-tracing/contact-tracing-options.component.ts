@@ -5,7 +5,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
     selector: 'contact-tracing-options',
     template: `
         <div class="flex items-center space-x-2 w-full p-2 bg-white shadow">
-            <mat-form-field appearance="outline" class="w-64">
+            <mat-form-field appearance="outline" class="w-[18rem]">
                 <mat-date-range-input [rangePicker]="picker">
                     <input
                         matStartDate
@@ -39,6 +39,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 [ngModel]="(options | async)?.user"
                 (ngModelChange)="setOptions({ user: $event })"
             ></a-user-search-field>
+            <button mat-button (click)="generate()">Generate Report</button>
         </div>
     `,
     styles: [
@@ -52,6 +53,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
 export class ContactTracingOptionsComponent {
     public readonly options = this._state.options;
     public readonly setOptions = (_) => this._state.setOptions(_);
+    public readonly generate = () => this._state.generateReport();
 
     constructor(private _state: ContactTracingStateService) {}
 }
