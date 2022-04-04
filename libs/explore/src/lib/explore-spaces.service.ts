@@ -61,8 +61,10 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 );
                 this.subscription(`s-bind-${space.id}`, binding.bind());
             }
-            this.updateActions(list);
-            this.updateHoverElements(list);
+            this.timeout('after_bind', () => {
+                this.updateActions(list);
+                this.updateHoverElements(list);
+            });
         })
     );
 
