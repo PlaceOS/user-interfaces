@@ -11,7 +11,15 @@ import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
 import { getUnixTime, format, startOfDay, endOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, distinctUntilChanged, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import {
+    catchError,
+    distinctUntilChanged,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';
 
@@ -43,7 +51,7 @@ export class ContactTracingStateService {
     private _loading = new BehaviorSubject<string>('');
     private _options = new BehaviorSubject<ContactTracingOptions>({
         start: startOfDay(Date.now()),
-        end: endOfDay(Date.now())
+        end: endOfDay(Date.now()),
     });
 
     public readonly events = combineLatest([this._options]).pipe(
@@ -53,12 +61,17 @@ export class ContactTracingStateService {
             user = user || currentUser();
             GetUserPipe.addUser(user);
             return this.system_id && mod
-                ? mod.execute('close_contacts', [
-                      user.email,
-                      user.username,
-                      getUnixTime(start),
-                      getUnixTime(end),
-                  ])
+                ? mod
+                      .execute('close_contacts', [
+                          user.email,
+                          user.username,
+                          getUnixTime(start),
+                          getUnixTime(end),
+                      ])
+                      .catch((err) => {
+                          notifyError(`${err?.msg || JSON.stringify(err)}`);
+                          return of([]);
+                      })
                 : of([]);
         }),
         map((list) => {
@@ -80,7 +93,7 @@ export class ContactTracingStateService {
             notifyError(`${err?.msg || JSON.stringify(err)}`);
             return of([]);
         }),
-        tap(_ => this._loading.next('')),
+        tap((_) => this._loading.next('')),
         shareReplay(1)
     );
 
