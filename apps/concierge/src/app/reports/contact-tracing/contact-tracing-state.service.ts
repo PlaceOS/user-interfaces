@@ -9,13 +9,16 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
-import { getUnixTime, format } from 'date-fns';
+import { getUnixTime, format, startOfDay, endOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';
 
 export interface ContactTracingOptions {
+    start: number | Date;
+    end: number | Date;
+    zones?: string[];
     user?: StaffUser;
 }
 
@@ -37,13 +40,13 @@ export interface ContactEvent {
     providedIn: 'root',
 })
 export class ContactTracingStateService {
-    private _options = new BehaviorSubject<ContactTracingOptions>({});
+    private _options = new BehaviorSubject<ContactTracingOptions>({
+        start: startOfDay(Date.now()),
+        end: endOfDay(Date.now())
+    });
 
-    public readonly events = combineLatest([
-        this._options,
-        this._reports.options,
-    ]).pipe(
-        switchMap(([{ user }, { start, end }]) => {
+    public readonly events = combineLatest([this._options]).pipe(
+        switchMap(([{ start, end, user }]) => {
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
             GetUserPipe.addUser(user);

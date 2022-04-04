@@ -49,7 +49,6 @@ import { ReportsStateService } from './reports-state.service';
         <button
             mat-button
             class="ml-4"
-            *ngIf="!page.includes('contact-tracing')"
             [disabled]="!!(loading | async) || !(options | async)?.zones?.length"
             (click)="generateReport()"
         >
@@ -59,7 +58,6 @@ import { ReportsStateService } from './reports-state.service';
         <button
             mat-button
             class="ml-4"
-            *ngIf="!page.includes('contact-tracing')"
             [disabled]="!(bookings | async)?.length"
             (click)="downloadReport()"
         >
