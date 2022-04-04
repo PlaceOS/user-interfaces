@@ -80,8 +80,10 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.processFeature();
-        this.processStyles();
+        this.timeout('init', () => {
+            this.processFeature();
+            this.processStyles();
+        });
     }
 
     public processStyles(): void {
@@ -98,6 +100,7 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
         if (!this.item) return null;
         const focus = {
             location: this.item.map_id,
+            track_id: `focus_item`,
             content: MapPinComponent,
             data: {
                 name: this.item.name,
@@ -105,6 +108,7 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
             z_index: 99,
             zoom: 100,
         };
+        console.log('Feature:', focus);
         this.features = [focus];
     }
 }

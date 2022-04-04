@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { addMonths } from 'date-fns';
 import { map } from 'rxjs/operators';
 
-import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { MapLocateModalComponent } from '@placeos/components';
 import { BookingLike, ScheduleStateService } from '../schedule/schedule-state.service';
 import { DashboardStateService } from './dashboard-state.service';
 

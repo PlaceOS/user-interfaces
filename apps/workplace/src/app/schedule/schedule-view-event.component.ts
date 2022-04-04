@@ -15,7 +15,7 @@ import {
 } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { formatDuration } from 'date-fns';
-import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { MapLocateModalComponent } from '@placeos/components';
 
 @Component({
     selector: 'schedule-view-event',

@@ -212,6 +212,7 @@ export class InteractiveMapComponent
     /** Update overlays, styles and actions of viewer */
     private updateView() {
         try {
+            console.log('Loading:', this.loading);
             if (!getViewer(this.viewer) || this.loading) {
                 return this.timeout('update_view', () => this.updateView());
             }
@@ -223,6 +224,7 @@ export class InteractiveMapComponent
                 actions: this.actions,
                 options: this.options,
             });
+            console.log('Set features:', this.feature_list);
         } catch (e) {}
     }
 

@@ -15,7 +15,7 @@ import {
     openConfirmModal,
 } from '@placeos/common';
 import { addMinutes, formatDuration, isAfter } from 'date-fns';
-import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { MapLocateModalComponent } from '@placeos/components';
 
 @Component({
     selector: 'schedule-view-booking',
