@@ -119,7 +119,9 @@ export class BookingFormService extends BaseClass {
             for (const asset of assets) {
                 asset.features?.forEach((_) => list.push(_));
             }
-            return unique(list).sort((a, b) => a.localeCompare(b));
+            const feature_list = unique(list).sort((a, b) => a.localeCompare(b));
+            console.log('Asset Features:', feature_list);
+            return feature_list;
         }),
         shareReplay(1)
     );
