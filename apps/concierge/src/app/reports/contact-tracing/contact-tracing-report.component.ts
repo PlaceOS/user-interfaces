@@ -31,7 +31,8 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                         date: date_state,
                         distance: distance_state,
                         user_id: user_state,
-                        contact_id: user_state
+                        contact_id: user_state,
+                        duration: duration_state
                     }"
                     [pagination]="true"
                     [page_size]="30"
@@ -52,6 +53,9 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 <ng-template #date_state let-data="data">
                     {{ data | date: 'mediumDate' }},
                     {{ data | date: 'shortTime' }}
+                </ng-template>
+                <ng-template #duration_state let-data="data">
+                    {{ data | duration }}
                 </ng-template>
                 <ng-template #distance_state let-data="data">
                     {{ data }}m

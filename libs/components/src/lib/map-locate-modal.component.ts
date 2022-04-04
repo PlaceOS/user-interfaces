@@ -83,7 +83,7 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
         this.timeout('init', () => {
             this.processFeature();
             this.processStyles();
-        });
+        }, 1000);
     }
 
     public processStyles(): void {
