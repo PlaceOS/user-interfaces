@@ -57,7 +57,7 @@ export class ContactTracingStateService {
     });
 
     public readonly events = combineLatest([this._options, this._generate]).pipe(
-        distinctUntilChanged((a, b) => a[1] !== b[1]),
+        distinctUntilChanged((a, b) => a[1] === b[1]),
         filter(([_, gen]) => !!gen),
         switchMap(([{ start, end, user }]) => {
             if (!user) return of([]);
