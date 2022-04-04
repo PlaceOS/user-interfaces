@@ -11,7 +11,7 @@ import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
 import { getUnixTime, format, startOfDay, endOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, distinctUntilChanged, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';
 
@@ -40,6 +40,7 @@ export interface ContactEvent {
     providedIn: 'root',
 })
 export class ContactTracingStateService {
+    private _loading = new BehaviorSubject<string>('');
     private _options = new BehaviorSubject<ContactTracingOptions>({
         start: startOfDay(Date.now()),
         end: endOfDay(Date.now())
@@ -47,6 +48,7 @@ export class ContactTracingStateService {
 
     public readonly events = combineLatest([this._options]).pipe(
         switchMap(([{ start, end, user }]) => {
+            this._loading.next('Loading contact events...');
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
             GetUserPipe.addUser(user);
@@ -78,10 +80,12 @@ export class ContactTracingStateService {
             notifyError(`${err?.msg || JSON.stringify(err)}`);
             return of([]);
         }),
+        tap(_ => this._loading.next('')),
         shareReplay(1)
     );
 
     public readonly options = this._options.asObservable();
+    public readonly loading = this._loading.asObservable();
 
     private get system_id() {
         return this._org.binding('contact_tracing');

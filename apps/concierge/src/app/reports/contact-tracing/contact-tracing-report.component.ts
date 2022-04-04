@@ -16,6 +16,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 </div>
                 <custom-table
                     class="w-full h-full"
+                    *ngIf="!(loading | async); else load_state"
                     [dataSource]="tracing_events"
                     [columns]="['date', 'user_id', 'contact_id', 'duration']"
                     [display_column]="[
@@ -65,10 +66,18 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         >
             <app-icon>download</app-icon>
         </button>
+        <ng-template #load_state>
+            <div class="p-8 flex flex-col items-center justify-center space-y-2">
+                <map-spinner diameter="32"></map-spinner>
+                <p>{{ loading | async }}</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
 export class ContactTracingReportComponent {
+    
+    public readonly loading = this._state.loading;
     public readonly options = this._state.options;
     public readonly tracing_events = this._state.events;
     public readonly setOptions = (_) => this._state.setOptions(_);
