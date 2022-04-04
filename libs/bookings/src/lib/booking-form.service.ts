@@ -116,12 +116,12 @@ export class BookingFormService extends BaseClass {
     public readonly features: Observable<string[]> = this.assets.pipe(
         map((assets) => {
             const list: string[] = [];
-            for (const asset of assets) {
-                asset.features?.forEach((_) => list.push(_));
+            for (const { features } of assets) {
+                features instanceof Array
+                    ? features.forEach((_) => list.push(_))
+                    : null;
             }
-            const feature_list = unique(list).sort((a, b) => a.localeCompare(b));
-            console.log('Asset Features:', feature_list);
-            return feature_list;
+            return unique(list).sort((a, b) => a.localeCompare(b));
         }),
         shareReplay(1)
     );
