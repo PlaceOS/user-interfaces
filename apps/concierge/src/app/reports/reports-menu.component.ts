@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
+const DEFAULT_FEATURES = ["desks", "spaces", "catering", "contact-tracing"];
+
 @Component({
     selector: 'reports-menu,[reports-menu]',
     template: `
@@ -71,12 +73,9 @@ import { first } from 'rxjs/operators';
 })
 export class ReportsMenuComponent {
 
-    public features: string[] = [];
+    public get features() {
+        return this._settings.get('app.reports.features') || DEFAULT_FEATURES;
+    }
 
     constructor(private _settings: SettingsService) {}
-
-    public async ngOnInit() {
-        await this._settings.initialised.pipe(first(_ => !!_)).toPromise();
-        this.features = this._settings.get('app.reports.features') || ["desks", "spaces", "catering", "contact-tracing"];
-    }
 }
