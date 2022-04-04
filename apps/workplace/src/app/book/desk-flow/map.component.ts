@@ -260,9 +260,9 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
                                           this.active_desk.map_id ||
                                           this.active_desk.id,
                                       content: `
-                    <span class="flex h-2 w-2 rounded-full absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2" >
+                    <span class="flex h-4 w-4 rounded-full absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 border-[3px] border-white shadow" >
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        <span class="relative inline-flex rounded-full h-full w-full bg-primary"></span>
                     </span>`,
                                   },
                               ]
