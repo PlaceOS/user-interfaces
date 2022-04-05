@@ -26,7 +26,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                         'Close Contact',
                         'Duration'
                     ]"
-                    [column_size]="['12r', '14r', 'flex']"
+                    [column_size]="['12r', '14r', 'flex', '10r']"
                     [template]="{
                         options: option_state,
                         date: date_state,
@@ -56,7 +56,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     {{ data | date: 'shortTime' }}
                 </ng-template>
                 <ng-template #duration_state let-data="data">
-                    {{ formatDuration(data || 0) }}
+                    {{ formatDuration(data || 0) || 'Less than a minute' }}
                 </ng-template>
                 <ng-template #distance_state let-data="data">
                     {{ data }}m
