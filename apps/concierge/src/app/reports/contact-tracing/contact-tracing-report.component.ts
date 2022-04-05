@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { formatDuration } from 'date-fns';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
@@ -55,7 +56,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     {{ data | date: 'shortTime' }}
                 </ng-template>
                 <ng-template #duration_state let-data="data">
-                    {{ (data || 0) | duration }}
+                    {{ formatDuration(data || 0) }}
                 </ng-template>
                 <ng-template #distance_state let-data="data">
                     {{ data }}m
@@ -93,6 +94,8 @@ export class ContactTracingReportComponent {
     public readonly tracing_events = this._state.events;
     public readonly setOptions = (_) => this._state.setOptions(_);
     public readonly downloadReport = () => this._state.downloadReport();
+
+    public readonly formatDuration = (d) => formatDuration({ hours: Math.floor(d / 60), minutes: d % 60 });
 
     constructor(private _state: ContactTracingStateService) {}
 }
