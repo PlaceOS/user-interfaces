@@ -55,7 +55,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     {{ data | date: 'shortTime' }}
                 </ng-template>
                 <ng-template #duration_state let-data="data">
-                    {{ data | duration }}
+                    {{ (data || 0) | duration }}
                 </ng-template>
                 <ng-template #distance_state let-data="data">
                     {{ data }}m
