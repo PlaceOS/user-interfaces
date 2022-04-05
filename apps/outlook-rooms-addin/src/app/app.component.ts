@@ -41,6 +41,8 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
+        window.history.replaceState = (data: null, unused: null) => {};
+
         log('APP', 'MOCKS:', MOCKS);
 
         setNotifyOutlet(this._snackbar);
