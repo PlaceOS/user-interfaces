@@ -2,6 +2,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FindSpaceComponent } from './rooms/find-space/find-space.component';
 import { RoomBookingComponent } from './rooms/room-booking.component';
+import {
+    AuthorisedUserGuard,
+    UnauthorisedComponent,
+} from '@placeos/components';
 
 const routes: Routes = [
     // {
@@ -14,9 +18,20 @@ const routes: Routes = [
 
     // { path: '**', redirectTo: '/dashboard', pathMatch: 'full' },
 
-    { path: 'book', component: RoomBookingComponent },
+    { path: 'unauthorised', component: UnauthorisedComponent },
+    {
+        path: 'book',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        component: RoomBookingComponent,
+    },
 
-    { path: 'find', component: FindSpaceComponent },
+    {
+        path: 'find',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        component: FindSpaceComponent,
+    },
 
     { path: '**', redirectTo: '/book', pathMatch: 'full' },
 ];

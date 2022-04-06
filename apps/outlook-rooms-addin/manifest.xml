@@ -10,7 +10,7 @@
   <HighResolutionIconUrl DefaultValue="https://127.0.0.1:3000/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://place.technology/contact"/>
   <AppDomains>
-    <AppDomain>https://127.0.0.1:4200</AppDomain>
+    <AppDomain>https://127.0.0.1:4200/</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
@@ -23,7 +23,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-         <SourceLocation DefaultValue="https://127.0.0.1:4200"/>
+         <SourceLocation DefaultValue="https://127.0.0.1:4200/"/>
 
 <!-- Test with deployed app: -->
      <!-- <SourceLocation DefaultValue="https://portal-dev.placeos.run"/> -->
@@ -82,7 +82,7 @@
       </bt:Images>
       <bt:Urls>
         <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200/"/>
         <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://portal-dev.placeos.run/#/"/> -->
       </bt:Urls>
       <bt:ShortStrings>
