@@ -8,16 +8,6 @@ import {
 } from '@placeos/components';
 
 const routes: Routes = [
-    // {
-    //     path: 'dashboard',
-    //     loadChildren: () =>
-    //         import('./dashboard/dashboard.module').then(
-    //             (m) => m.DashboardModule
-    //         ),
-    // },
-
-    // { path: '**', redirectTo: '/dashboard', pathMatch: 'full' },
-
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'book',
@@ -25,14 +15,12 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         component: RoomBookingComponent,
     },
-
     {
         path: 'find',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         component: FindSpaceComponent,
     },
-
     { path: '**', redirectTo: '/book', pathMatch: 'full' },
 ];
 
