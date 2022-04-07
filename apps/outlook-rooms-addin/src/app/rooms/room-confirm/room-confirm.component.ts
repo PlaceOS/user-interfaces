@@ -6,6 +6,8 @@ import {
 import { Space } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
 import { FormDataService } from '../form-data.service';
+import { current_user } from '@placeos/common';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'room-confirm',
@@ -19,9 +21,10 @@ export class RoomConfirmComponent implements OnInit {
     attendees: string[];
     space: Space;
     title;
+    user;
 
     public get form() {
-        return this._formDataService.form;
+        return this.formDataService.form;
     }
     public loading = this._state.loading;
 
@@ -29,19 +32,19 @@ export class RoomConfirmComponent implements OnInit {
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
         private _state: EventFormService,
-        private _formDataService: FormDataService
+        public formDataService: FormDataService
     ) {}
 
-    ngOnInit(): void {
-        this.unixTime = this._formDataService.form?.controls?.date.value;
+    ngOnInit() {
+        this.unixTime = this.formDataService.form?.controls?.date.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
         const durationMinutes: number =
-            this._formDataService.form?.controls?.duration.value;
+            this.formDataService.form?.controls?.duration.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
-        this.attendees = this._formDataService.form?.controls?.attendees.value;
+        this.attendees = this.formDataService.form?.controls?.attendees.value;
         this.space = this.data;
-        this.title = this._formDataService.form?.controls?.title.value;
+        this.title = this._state.form?.controls?.title.value;
     }
 
     openLink(event: MouseEvent) {

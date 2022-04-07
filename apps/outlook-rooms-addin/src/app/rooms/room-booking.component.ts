@@ -77,6 +77,8 @@ export class RoomBookingComponent implements OnInit {
         )
             return;
 
+        console.log(this._state.form, 'form in room-booking component');
+
         this._formDataService.form = this.form;
 
         this.router.navigate(['/find']);

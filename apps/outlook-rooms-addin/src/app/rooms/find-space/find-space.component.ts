@@ -150,6 +150,7 @@ export class FindSpaceComponent implements OnInit {
             data: this.selectedSpace,
         });
 
+        console.log(this.form.controls.title.value, 'title value in this form');
         confirmRef.afterDismissed().subscribe(() => {
             console.log('confirm closed');
 
@@ -179,9 +180,14 @@ export class FindSpaceComponent implements OnInit {
         this.form.controls.host.clearValidators();
         this.form.controls.creator.setErrors(null);
         this.form.controls.creator.clearValidators();
-        console.log(this.form, 'form post');
+        console.log(this._state.form, 'form to be posted');
 
         await this._state.postForm().catch((err) => console.log(err));
+        console.log(
+            this._state.form.controls?.title?.value,
+            'title value posted'
+        );
+        console.log('form posted');
     }
     closeModal() {
         this.location.back();
