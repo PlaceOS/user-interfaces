@@ -17,7 +17,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormDataService } from '../form-data.service';
 import { FeaturesFilterService } from '../features-filter.service';
-import { T } from '@angular/cdk/keycodes';
 
 @Component({
     selector: 'find-space',
@@ -32,6 +31,10 @@ export class FindSpaceComponent implements OnInit {
     filtered_spaces: Space[] = [];
     showConfirm$: Observable<boolean> = of(false);
     selectedSpace: Space;
+
+    public get form() {
+        return this._state.form;
+    }
 
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
@@ -90,6 +93,9 @@ export class FindSpaceComponent implements OnInit {
     ) {}
 
     public async ngOnInit() {
+        // this._state.form.setValue(this._formDataService.form);
+        console.log(this.form, 'form on init of find-space');
+
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
         this._state.setView('find');
@@ -122,11 +128,7 @@ export class FindSpaceComponent implements OnInit {
         this.showConfirm$ = of(true);
         this.selectedSpace = space;
 
-        console.log(this._state.form, 'form in state');
-    }
-
-    public get form() {
-        return this._formDataService.form;
+        console.log(this._state.form, 'form in handleBookEvent in find');
     }
 
     openFilter() {
@@ -150,10 +152,10 @@ export class FindSpaceComponent implements OnInit {
             data: this.selectedSpace,
         });
 
-        console.log(this.form.controls.title.value, 'title value in this form');
         confirmRef.afterDismissed().subscribe(() => {
             console.log('confirm closed');
 
+            console.log(this._state.form, 'form to be posted');
             this.postForm();
         });
     }
@@ -176,17 +178,13 @@ export class FindSpaceComponent implements OnInit {
     }
 
     async postForm() {
-        this.form.controls.host.setErrors(null);
-        this.form.controls.host.clearValidators();
-        this.form.controls.creator.setErrors(null);
-        this.form.controls.creator.clearValidators();
-        console.log(this._state.form, 'form to be posted');
-
+        // this.form.controls.host.setErrors(null);
+        // this.form.controls.host.clearValidators();
+        // this.form.controls.creator.setErrors(null);
+        // this.form.controls.creator.clearValidators();
+        console.log(this.form?.controls?.title?.value, 'title value posted');
         await this._state.postForm().catch((err) => console.log(err));
-        console.log(
-            this._state.form.controls?.title?.value,
-            'title value posted'
-        );
+
         console.log('form posted');
     }
     closeModal() {

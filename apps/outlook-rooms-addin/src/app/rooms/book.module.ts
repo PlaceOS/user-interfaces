@@ -18,6 +18,7 @@ import { SharedComponentModule } from '../components/shared.module';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { FilterSpaceComponent } from './filter-space/filter-space.component';
+import { EventFormService } from '@placeos/events';
 
 const ROUTES: Route[] = [
     {
