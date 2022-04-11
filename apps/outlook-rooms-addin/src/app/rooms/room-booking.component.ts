@@ -66,7 +66,10 @@ export class RoomBookingComponent implements OnInit {
         private _formDataService: FormDataService
     ) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this._state.newForm();
+        this._state.form.patchValue({ booking_type: 'room' });
+    }
 
     async findSpace() {
         this.form.markAllAsTouched();
@@ -78,6 +81,7 @@ export class RoomBookingComponent implements OnInit {
             return;
 
         console.log(this._state.form, 'form in room-booking component');
+        await this._state.storeForm();
 
         this._formDataService.form = this.form;
 

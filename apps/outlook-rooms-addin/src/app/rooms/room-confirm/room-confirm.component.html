@@ -90,14 +90,14 @@
                     >meeting_room</mat-icon
                 >
                 <span class="flex">
-                    {{ this.space.name }}
+                    {{ this.space?.name }}
                 </span>
             </div>
             <div class="flex mt-2 mb-5 text-base items-center text-gray-700">
                 <mat-icon class="material-icons-outlined flex text-lg mb-2"
                     >room</mat-icon
                 >
-                <span class="flex"> {{ this.space.level.name }}</span>
+                <span class="flex"> {{ this.space?.level?.name }}</span>
             </div>
         </div>
     </section>

@@ -25,6 +25,7 @@ export class RoomConfirmComponent implements OnInit {
 
     public get form() {
         return this.formDataService.form;
+        // return this._state.form;
     }
     public loading = this._state.loading;
 
@@ -35,7 +36,7 @@ export class RoomConfirmComponent implements OnInit {
         public formDataService: FormDataService
     ) {}
 
-    ngOnInit() {
+    async ngOnInit() {
         this.unixTime = this.formDataService.form?.controls?.date.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
         const durationMinutes: number =

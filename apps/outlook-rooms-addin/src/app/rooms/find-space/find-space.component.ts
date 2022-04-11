@@ -8,6 +8,7 @@ import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
+import { FormGroup } from '@angular/forms';
 import { Observable, combineLatest, of, from } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
@@ -32,8 +33,8 @@ export class FindSpaceComponent implements OnInit {
     showConfirm$: Observable<boolean> = of(false);
     selectedSpace: Space;
 
-    public get form() {
-        return this._state.form;
+    public get form(): FormGroup {
+        return this._formDataService.form;
     }
 
     public book_space: HashMap<boolean> = {};
@@ -93,9 +94,6 @@ export class FindSpaceComponent implements OnInit {
     ) {}
 
     public async ngOnInit() {
-        // this._state.form.setValue(this._formDataService.form);
-        console.log(this.form, 'form on init of find-space');
-
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
         this._state.setView('find');
@@ -104,6 +102,19 @@ export class FindSpaceComponent implements OnInit {
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
+
+        this._state.form.controls.creator =
+            this._formDataService.form?.controls?.creator;
+        this._state.form.controls.date =
+            this._formDataService.form?.controls?.date;
+        this._state.form.controls.duration =
+            this._formDataService.form?.controls?.duration;
+        this._state.form.controls.host =
+            this._formDataService.form?.controls?.host;
+        this._state.form.controls.title =
+            this._formDataService.form?.controls?.title;
+        this._state.form.controls.time =
+            this._formDataService.form?.controls?.time;
 
         console.log(this._org.buildings, 'buildings');
 
@@ -117,7 +128,8 @@ export class FindSpaceComponent implements OnInit {
 
         this.setBuilding(this._org.building);
         this.book_space = {};
-        const resources = this._state.form?.get('resources')?.value || [];
+        // const resources = this._state.form?.get('resources')?.value || [];
+        const resources = this.form?.get('resources')?.value || [];
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
@@ -127,8 +139,6 @@ export class FindSpaceComponent implements OnInit {
         this.book_space[space.id] = book;
         this.showConfirm$ = of(true);
         this.selectedSpace = space;
-
-        console.log(this._state.form, 'form in handleBookEvent in find');
     }
 
     openFilter() {
@@ -146,7 +156,7 @@ export class FindSpaceComponent implements OnInit {
         console.log(this.selectedSpace, 'selected space');
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
 
-        this._state.form.patchValue({ resources: spaces, system: spaces[0] });
+        this.form.patchValue({ resources: spaces, system: spaces[0] });
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
         const confirmRef = this._bottomSheet.open(RoomConfirmComponent, {
             data: this.selectedSpace,
@@ -155,7 +165,7 @@ export class FindSpaceComponent implements OnInit {
         confirmRef.afterDismissed().subscribe(() => {
             console.log('confirm closed');
 
-            console.log(this._state.form, 'form to be posted');
+            console.log(this.form, 'form to be posted');
             this.postForm();
         });
     }
@@ -178,10 +188,19 @@ export class FindSpaceComponent implements OnInit {
     }
 
     async postForm() {
-        // this.form.controls.host.setErrors(null);
-        // this.form.controls.host.clearValidators();
-        // this.form.controls.creator.setErrors(null);
-        // this.form.controls.creator.clearValidators();
+        this._state.form.controls.creator =
+            this._formDataService.form?.controls?.creator;
+        this._state.form.controls.date =
+            this._formDataService.form?.controls?.date;
+        this._state.form.controls.duration =
+            this._formDataService.form?.controls?.duration;
+        this._state.form.controls.host =
+            this._formDataService.form?.controls?.host;
+        this._state.form.controls.title =
+            this._formDataService.form?.controls?.title;
+        this._state.form.controls.time =
+            this._formDataService.form?.controls?.time;
+
         console.log(this.form?.controls?.title?.value, 'title value posted');
         await this._state.postForm().catch((err) => console.log(err));
 
