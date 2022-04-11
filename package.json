@@ -96,7 +96,7 @@
     "postcss-preset-env": "^6.7.0",
     "prettier": "2.5.1",
     "standard-version": "^9.3.2",
-    "tailwindcss": "^2.2.19",
+    "tailwindcss": "^3.0.23",
     "ts-jest": "27.0.5",
     "ts-md5": "^1.2.7",
     "ts-node": "~9.1.1",
