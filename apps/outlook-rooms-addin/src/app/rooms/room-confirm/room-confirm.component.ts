@@ -37,15 +37,14 @@ export class RoomConfirmComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        this.unixTime = this.formDataService.form?.controls?.date.value;
+        this.unixTime = this.form?.controls?.date.value;
         this.startTime = new Date(this.unixTime).toLocaleTimeString();
-        const durationMinutes: number =
-            this.formDataService.form?.controls?.duration.value;
+        const durationMinutes: number = this.form?.controls?.duration.value;
         const end = this.unixTime + durationMinutes * 60 * 1000;
         this.endTime = new Date(end).toLocaleTimeString();
-        this.attendees = this.formDataService.form?.controls?.attendees.value;
+        this.attendees = this.form?.controls?.attendees.value;
         this.space = this.data;
-        this.title = this._state.form?.controls?.title.value;
+        this.title = this.form?.controls?.title.value;
     }
 
     openLink(event: MouseEvent) {
