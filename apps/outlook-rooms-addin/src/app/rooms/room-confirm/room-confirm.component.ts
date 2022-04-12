@@ -52,16 +52,11 @@ export class RoomConfirmComponent implements OnInit {
         this.title = this.form?.controls?.title.value;
     }
 
-    openLink(event: MouseEvent) {
-        this._bottomSheetRef.dismiss();
-        event.preventDefault();
-    }
-
     closeModal() {
-        this._bottomSheetRef.dismiss();
+        this._bottomSheetRef.dismiss('cancel');
     }
 
     confirmBooking() {
-        this._bottomSheetRef.dismiss();
+        this._bottomSheetRef.dismiss('confirm');
     }
 }

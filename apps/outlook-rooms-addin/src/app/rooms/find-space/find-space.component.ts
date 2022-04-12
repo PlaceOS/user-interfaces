@@ -147,12 +147,11 @@ export class FindSpaceComponent implements OnInit {
             data: this.selectedSpace,
         });
 
-        confirmRef.afterDismissed().subscribe(() => {
-            console.log('confirm closed');
-
+        confirmRef.afterDismissed().subscribe((dataFromModal) => {
             console.log(this.form, 'form to be posted');
-            this.postForm();
-            this.router.navigate(['/confirm/success']);
+
+            if (dataFromModal === 'cancel') return;
+            if (dataFromModal === 'confirm') this.postForm();
         });
     }
 
@@ -164,7 +163,6 @@ export class FindSpaceComponent implements OnInit {
             )
         );
         this.durationMinutes = this.form?.controls?.duration?.value;
-
         const end =
             this.form?.controls?.date?.value + this.durationMinutes * 60 * 1000;
         this.endTime$ = of(
@@ -184,7 +182,10 @@ export class FindSpaceComponent implements OnInit {
 
     async postForm() {
         await this._state.postForm().catch((err) => console.log(err));
+        if (this._state.last_success)
+            this.router.navigate(['/confirm/success']);
     }
+
     closeModal() {
         this.location.back();
     }
