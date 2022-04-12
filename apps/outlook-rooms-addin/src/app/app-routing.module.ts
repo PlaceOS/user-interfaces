@@ -10,18 +10,18 @@ import {
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
-        path: 'book',
+        path: 'book/spaces',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         component: RoomBookingComponent,
     },
     {
-        path: 'find',
+        path: 'schedule/view',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         component: FindSpaceComponent,
     },
-    { path: '**', redirectTo: '/book', pathMatch: 'full' },
+    { path: '**', redirectTo: 'book/spaces', pathMatch: 'full' },
 ];
 
 @NgModule({

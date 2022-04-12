@@ -5,7 +5,6 @@ import {
 } from '@angular/material/bottom-sheet';
 import { Space } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
-import { FormDataService } from '../form-data.service';
 import { current_user } from '@placeos/common';
 import { take } from 'rxjs/operators';
 
@@ -24,16 +23,14 @@ export class RoomConfirmComponent implements OnInit {
     user;
 
     public get form() {
-        return this.formDataService.form;
-        // return this._state.form;
+        return this._state.form;
     }
     public loading = this._state.loading;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
-        private _state: EventFormService,
-        public formDataService: FormDataService
+        private _state: EventFormService
     ) {}
 
     async ngOnInit() {

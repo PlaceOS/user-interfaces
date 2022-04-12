@@ -16,7 +16,7 @@ import { FindSpaceItemComponent } from '../find-space-item/find-space-item.compo
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { FormDataService } from '../form-data.service';
+
 import { FeaturesFilterService } from '../features-filter.service';
 
 @Component({
@@ -34,7 +34,7 @@ export class FindSpaceComponent implements OnInit {
     selectedSpace: Space;
 
     public get form(): FormGroup {
-        return this._formDataService.form;
+        return this._state.form;
     }
 
     public book_space: HashMap<boolean> = {};
@@ -89,7 +89,6 @@ export class FindSpaceComponent implements OnInit {
         private _state: EventFormService,
         private router: Router,
         private location: Location,
-        private _formDataService: FormDataService,
         private _featuresFilterService: FeaturesFilterService
     ) {}
 
@@ -102,8 +101,6 @@ export class FindSpaceComponent implements OnInit {
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
-
-        await this.getFormDataFromStore();
 
         console.log(this._org.buildings, 'buildings');
 
@@ -175,27 +172,7 @@ export class FindSpaceComponent implements OnInit {
         this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
     }
 
-    getFormDataFromStore() {
-        this._state.form.controls.creator =
-            this._formDataService.form?.controls?.creator;
-        this._state.form.controls.date =
-            this._formDataService.form?.controls?.date;
-        this._state.form.controls.duration =
-            this._formDataService.form?.controls?.duration;
-        this._state.form.controls.host =
-            this._formDataService.form?.controls?.host;
-        this._state.form.controls.title =
-            this._formDataService.form?.controls?.title;
-        this._state.form.controls.time =
-            this._formDataService.form?.controls?.time;
-        this._state.form.controls.resources =
-            this._formDataService.form?.controls?.resources;
-        this._state.form.controls.system =
-            this._formDataService.form?.controls?.system;
-    }
-
     async postForm() {
-        await this.getFormDataFromStore();
         await this._state.postForm().catch((err) => console.log(err));
 
         console.log(this._state.form, 'form posted');

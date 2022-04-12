@@ -4,7 +4,6 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FindSpaceComponent } from './find-space/find-space.component';
 import { EventFormService } from '@placeos/events';
 import { currentUser } from '../../../../../libs/common/src/lib/user-state';
-import { FormDataService } from './form-data.service';
 
 // import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 // import {
@@ -62,8 +61,7 @@ export class RoomBookingComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private _state: EventFormService,
-        private _formDataService: FormDataService
+        private _state: EventFormService
     ) {}
 
     ngOnInit(): void {
@@ -83,8 +81,6 @@ export class RoomBookingComponent implements OnInit {
         console.log(this._state.form, 'form in room-booking component');
         await this._state.storeForm();
 
-        this._formDataService.form = this.form;
-
-        this.router.navigate(['/find']);
+        this.router.navigate(['/schedule/view']);
     }
 }
