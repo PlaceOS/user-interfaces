@@ -8,7 +8,7 @@ import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, combineLatest, of, from } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
@@ -16,13 +16,24 @@ import { FindSpaceItemComponent } from '../find-space-item/find-space-item.compo
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-
 import { FeaturesFilterService } from '../features-filter.service';
 
 @Component({
     selector: 'find-space',
     templateUrl: './find-space.component.html',
-    styles: [``],
+    styles: [
+        `
+            .mat-button-toggle-checked {
+                border: 1px solid var(--primary);
+                border-radius: 5px;
+                box-shadow: none;
+            }
+
+            .mat-focus-indicator {
+                border: none;
+            }
+        `,
+    ],
 })
 export class FindSpaceComponent implements OnInit {
     startTime$: Observable<any>;
@@ -32,6 +43,8 @@ export class FindSpaceComponent implements OnInit {
     filtered_spaces: Space[] = [];
     showConfirm$: Observable<boolean> = of(false);
     selectedSpace: Space;
+    spaceViewControl = new FormControl();
+    spaceView?: string;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -93,6 +106,7 @@ export class FindSpaceComponent implements OnInit {
     ) {}
 
     public async ngOnInit() {
+        this.spaceView = 'listView';
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
         this._state.setView('find');

@@ -11,17 +11,35 @@
                 >
             </div>
 
-            <div class="flex flex-row mt-3">
-                <button
-                    mat-flat-button
-                    (click)="openFilter()"
-                    class="mt-3 bg-gray-300 w-7/12"
-                >
-                    Filter
-                </button>
-                <button mat-flat-button class="mt-3 bg-gray-300 w-4/12 ml-auto">
-                    Map
-                </button>
+            <div class="flex flex-row justify-between mt-3">
+                <div class="flex w-7/12">
+                    <button
+                        mat-flat-button
+                        (click)="openFilter()"
+                        class="mt-3 bg-gray-300 w-full h-12"
+                    >
+                        Filter
+                    </button>
+                </div>
+
+                <div class="flex w-4/12">
+                    <mat-button-toggle-group
+                        aria-label="Map or list view"
+                        [(ngModel)]="spaceView"
+                        class="flex w-full ml-auto mr-0 border-none"
+                    >
+                        <mat-button-toggle
+                            value="mapView"
+                            class="mt-3 bg-gray-300 w-1/2 rounded"
+                            >Map</mat-button-toggle
+                        >
+                        <mat-button-toggle
+                            value="listView"
+                            class="mt-3 bg-gray-300 w-1/2 rounded"
+                            >List</mat-button-toggle
+                        >
+                    </mat-button-toggle-group>
+                </div>
             </div>
 
             <section class="flex flex-row">
