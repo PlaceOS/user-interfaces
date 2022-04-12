@@ -5,7 +5,6 @@ import {
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
-import { FormDataService } from '../form-data.service';
 import { FeaturesFilterService } from '../features-filter.service';
 import { Space } from '@placeos/spaces';
 import { Observable, pipe } from 'rxjs';
@@ -25,8 +24,8 @@ export class FilterSpaceComponent implements OnInit {
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
         private _bottomsheetRef: MatBottomSheetRef<any>,
-        private _formDataService: FormDataService,
-        private _featuresFilterService: FeaturesFilterService
+        private _featuresFilterService: FeaturesFilterService,
+        private _state: EventFormService
     ) {}
 
     ngOnInit() {
@@ -35,11 +34,10 @@ export class FilterSpaceComponent implements OnInit {
     }
 
     public get form() {
-        return this._formDataService.form;
+        return this._state.form;
     }
 
     async applyFilters() {
-        this._formDataService.form = this.form;
         this._bottomsheetRef.dismiss(this.form);
         this._featuresFilterService.applyFilter();
     }
