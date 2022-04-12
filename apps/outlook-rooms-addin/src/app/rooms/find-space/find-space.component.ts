@@ -158,13 +158,22 @@ export class FindSpaceComponent implements OnInit {
 
     setTimeChips() {
         this.startTime$ = of(
-            new Date(this.form?.controls?.date?.value).toLocaleTimeString()
+            new Date(this.form?.controls?.date?.value).toLocaleTimeString(
+                'en-US',
+                { hour: 'numeric', minute: 'numeric', hour12: true }
+            )
         );
         this.durationMinutes = this.form?.controls?.duration?.value;
 
         const end =
             this.form?.controls?.date?.value + this.durationMinutes * 60 * 1000;
-        this.endTime$ = of(new Date(end).toLocaleTimeString());
+        this.endTime$ = of(
+            new Date(end).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+            })
+        );
     }
 
     async updateSpaces() {
