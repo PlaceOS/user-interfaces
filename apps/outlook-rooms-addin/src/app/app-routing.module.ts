@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FindSpaceComponent } from './rooms/find-space/find-space.component';
 import { RoomBookingComponent } from './rooms/room-booking.component';
+import { BookingConfirmedComponent } from './rooms/booking-confirmed/booking-confirmed.component';
 import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
@@ -20,6 +21,12 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         component: FindSpaceComponent,
+    },
+    {
+        path: 'confirm/success',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        component: BookingConfirmedComponent,
     },
     { path: '**', redirectTo: 'book/spaces', pathMatch: 'full' },
 ];

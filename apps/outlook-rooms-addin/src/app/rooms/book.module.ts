@@ -19,6 +19,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { FilterSpaceComponent } from './filter-space/filter-space.component';
 import { EventFormService } from '@placeos/events';
+import { BookingConfirmedComponent } from './booking-confirmed/booking-confirmed.component';
 
 const ROUTES: Route[] = [
     {
@@ -34,6 +35,7 @@ const ROUTES: Route[] = [
         FindSpaceComponent,
         FindSpaceItemComponent,
         FilterSpaceComponent,
+        BookingConfirmedComponent,
     ],
     imports: [
         CommonModule,

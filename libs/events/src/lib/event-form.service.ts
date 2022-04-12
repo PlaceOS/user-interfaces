@@ -18,7 +18,7 @@ import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
 import { generateEventForm } from './utilities';
 
-const BOOKING_URLS = ['book/spaces', 'schedule/view'];
+const BOOKING_URLS = ['book/spaces', 'schedule/view', 'confirm/success'];
 
 export type EventFlowView =
     | 'form'
@@ -184,7 +184,7 @@ export class EventFormService extends BaseClass {
             throw `${
                 spaces.length - space_list.length
             } space(s) are not available at the selected time`;
-            console.log('Save Event', saveEvent);
+        console.log('Save Event', saveEvent);
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value)
         ).toPromise();

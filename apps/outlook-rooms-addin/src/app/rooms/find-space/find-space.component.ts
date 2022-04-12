@@ -152,6 +152,7 @@ export class FindSpaceComponent implements OnInit {
 
             console.log(this.form, 'form to be posted');
             this.postForm();
+            this.router.navigate(['/confirm/success']);
         });
     }
 
@@ -174,8 +175,6 @@ export class FindSpaceComponent implements OnInit {
 
     async postForm() {
         await this._state.postForm().catch((err) => console.log(err));
-
-        console.log(this._state.form, 'form posted');
     }
     closeModal() {
         this.location.back();
