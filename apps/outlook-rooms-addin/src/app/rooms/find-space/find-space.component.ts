@@ -6,7 +6,7 @@ import {
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService, BuildingLevel } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, combineLatest, of, from } from 'rxjs';
@@ -17,6 +17,7 @@ import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
+import { MapService } from '../map.service';
 
 @Component({
     selector: 'find-space',
@@ -102,7 +103,8 @@ export class FindSpaceComponent implements OnInit {
         private _state: EventFormService,
         private router: Router,
         private location: Location,
-        private _featuresFilterService: FeaturesFilterService
+        private _featuresFilterService: FeaturesFilterService,
+        private _mapService: MapService
     ) {}
 
     public async ngOnInit() {
@@ -131,6 +133,8 @@ export class FindSpaceComponent implements OnInit {
         const resources = this._state.form?.get('resources')?.value || [];
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
+
+        this._mapService.locateMaps(this.spaces$);
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {

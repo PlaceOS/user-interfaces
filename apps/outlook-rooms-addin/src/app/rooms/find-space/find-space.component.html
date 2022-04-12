@@ -16,7 +16,7 @@
                     <button
                         mat-flat-button
                         (click)="openFilter()"
-                        class="mt-3 bg-gray-300 w-full h-12"
+                        class="mt-3 bg-gray-300 w-full h-12 text-base"
                     >
                         Filter
                     </button>
@@ -30,12 +30,12 @@
                     >
                         <mat-button-toggle
                             value="mapView"
-                            class="mt-3 bg-gray-300 w-1/2 rounded"
+                            class="mt-3 bg-gray-300 w-1/2 rounded text-base"
                             >Map</mat-button-toggle
                         >
                         <mat-button-toggle
                             value="listView"
-                            class="mt-3 bg-gray-300 w-1/2 rounded"
+                            class="mt-3 bg-gray-300 w-1/2 rounded text-base"
                             >List</mat-button-toggle
                         >
                     </mat-button-toggle-group>
@@ -80,21 +80,38 @@
                     <ng-container
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
                     >
-                        <mat-button-toggle-group
-                            name="selectSpace"
-                            #group="matButtonToggleGroup"
-                            aria-label="Space selection"
-                            class="flex flex-col"
-                        >
-                            <find-space-item
-                                *ngFor="let space of spaces$ | async"
-                                [space]="space"
-                                [multiple]="multiple"
-                                [(book)]="book_space[space.id]"
-                                (bookChange)="handleBookEvent(space, $event)"
+                        <div *ngIf="this.spaceView == 'listView'">
+                            <mat-button-toggle-group
+                                name="selectSpace"
+                                #group="matButtonToggleGroup"
+                                aria-label="Space selection"
+                                class="flex flex-col"
                             >
-                            </find-space-item>
-                        </mat-button-toggle-group>
+                                <find-space-item
+                                    *ngFor="let space of spaces$ | async"
+                                    [space]="space"
+                                    [multiple]="multiple"
+                                    [(book)]="book_space[space.id]"
+                                    (bookChange)="
+                                        handleBookEvent(space, $event)
+                                    "
+                                >
+                                </find-space-item>
+                            </mat-button-toggle-group>
+                        </div>
+                        <div *ngIf="this.spaceView == 'mapView'">
+                            Map goes here
+                            <div *ngIf="this.level">
+                                <i-map
+                                    [src]="this.selectedSpace.level.map_id"
+                                    [styles]="style_map"
+                                    [features]="features"
+                                >
+                                    <mat-spinner diameter="64"></mat-spinner>
+                                </i-map>
+                            </div>
+                        </div>
+
                         <p class="p-4 text-center opacity-60">
                             End of available spaces list
                         </p>
