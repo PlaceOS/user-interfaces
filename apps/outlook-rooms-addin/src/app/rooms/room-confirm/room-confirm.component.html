@@ -26,7 +26,7 @@
             </span>
 
             <div class="flex mt-4 text-base items-center text-gray-700">
-                <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                <mat-icon class="material-icons-outlined flex text-lg mb-1"
                     >calendar_today</mat-icon
                 >
                 <span class="flex">
@@ -34,7 +34,7 @@
                 </span>
             </div>
             <div class="flex mt-2 mb-5 text-base items-center text-gray-700">
-                <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                <mat-icon class="material-icons-outlined flex text-lg mb-1"
                     >schedule</mat-icon
                 >
                 <span class="flex"
@@ -55,20 +55,27 @@
             <span class="flex mt-5 text-xl font-bold text-gray-700"
                 >Attendees
             </span>
-            <mat-chip-list
-                *ngIf="attendees?.length"
-                #chipList
-                class="my-1 mr-3"
-                aria-label="attendees list"
-            >
-                <mat-chip
-                    *ngFor="let attendee of attendees"
-                    [selectable]="true"
+
+            <div class="flex mt-4 text-base items-center text-gray-700">
+                <mat-icon class="material-icons-outlined flex text-lg mb-1"
+                    >people</mat-icon
                 >
-                    {{ attendee.name }}
-                </mat-chip>
-            </mat-chip-list>
-            <span>{{ this.form?.controls?.creator?.value }}</span>
+
+                <mat-chip-list
+                    *ngIf="attendees?.length"
+                    #chipList
+                    class="my-1 mr-3"
+                    aria-label="attendees list"
+                >
+                    <mat-chip
+                        *ngFor="let attendee of attendees"
+                        [selectable]="true"
+                    >
+                        {{ attendee.name }}
+                    </mat-chip>
+                </mat-chip-list>
+                <span>{{ this.form?.controls?.creator?.value }}</span>
+            </div>
         </div>
     </section>
 
@@ -84,7 +91,7 @@
             </span>
 
             <div class="flex mt-4 text-base items-center text-gray-700">
-                <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                <mat-icon class="material-icons-outlined flex text-lg mb-1"
                     >meeting_room</mat-icon
                 >
                 <span class="flex">
@@ -92,7 +99,7 @@
                 </span>
             </div>
             <div class="flex mt-2 mb-5 text-base items-center text-gray-700">
-                <mat-icon class="material-icons-outlined flex text-lg mb-2"
+                <mat-icon class="material-icons-outlined flex text-lg mb-1"
                     >room</mat-icon
                 >
                 <span class="flex"> {{ this.space?.level?.name }}</span>
