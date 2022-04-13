@@ -10,11 +10,13 @@ import { createMicrophoneModule } from './realtime/microphone';
 import { createCaptureModule } from './realtime/capture';
 import { createMeetingPushModule } from './realtime/meeting';
 import { createVideoConferenceModule } from './realtime/video-conference';
+import { createContactTracingModule } from './realtime/contact-tracing';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {
         System: [createSystemModule(space)],
         Bookings: [createBookingsModule(space)],
+        ContactTracing: [createContactTracingModule(space)],
         AreaManagement: [createAreaManagementModule(space)],
         LocationServices: [new MockLocationServicesModule()],
         Camera: new Array(10).fill(0).map((_) => createCameraModule(space)),
