@@ -61,6 +61,7 @@ function registerMocks() {
                         details: {
                             area_management: 'space-0',
                             location_services: 'space-0',
+                            contact_tracing: 'space-0',
                         },
                     },
                 };
