@@ -1,5 +1,5 @@
 <div class="w-full h-full flex flex-1 flex-col z-0 bg-gray-50 overflow-hidden">
-    <section class="flex flex-col border border-gray-300 py-5">
+    <section class="flex flex-col py-5">
         <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
             <div class="flex flex-row items-center">
                 <button (click)="this.closeModal()">
@@ -101,11 +101,16 @@
                         </div>
                         <div
                             *ngIf="this.spaceView == 'mapView'"
-                            class="text-center"
+                            class="text-center min-h-min ovrflow-hidden"
                         >
-                            Map goes here
-
-                            <img [src]="'/assets/level_10.svg'" />
+                            <div
+                                *ngFor="let map of this.maps_list"
+                                class="mb-6"
+                            >
+                                <span>Location: {{ map.level }} </span>
+                                <!-- <i-map [src]="map.map_id"></i-map> -->
+                                <img [src]="map.map_id" />
+                            </div>
                         </div>
 
                         <p class="p-4 text-center opacity-60">

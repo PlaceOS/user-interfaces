@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
@@ -22,37 +22,53 @@ export class MapService {
     public style_map: ViewerStyles = {};
     public item: Locatable;
     public features: ViewerFeature[];
-    public svg_list: string[] = [];
+    public locatable_spaces: Locatable[] = [];
+    public maps_list: any[] = [];
+
+    //Store of map_id urls for available_spaces
+    private _map_urls: BehaviorSubject<[]> = new BehaviorSubject<any>([]);
+
+    map_urls$: Observable<any> = this._map_urls.asObservable();
+
+    set map_urls(url) {
+        this._map_urls.next(url);
+    }
+
+    get map_urls() {
+        return this._map_urls.getValue();
+    }
 
     constructor() {}
 
-    public processStyles(): void {
-        const styles: ViewerStyles = {};
-        if (this.item?.map_id) {
-            styles[`#zones`] = { display: 'none' };
-            styles[`#Zones`] = { display: 'none' };
-        }
-        this.style_map = styles;
-    }
+    //filter available_spaces into Locatable_spaces
 
-    public processFeature(): void {
-        if (!this.item) return null;
-        const focus = {
-            location: this.item.map_id,
-            content: MapPinComponent,
-            data: {
-                name: this.item.name,
-            },
-            z_index: 99,
-            zoom: 100,
-        };
-        this.features = [focus];
-    }
-
-    locateMaps(spaceList: Observable<Space[]>) {
-        spaceList.subscribe((spaces) =>
-            spaces.map((space) => this.svg_list.push(space.level.map_id))
+    async locateSpaces(available_spaces: Observable<Space[]>) {
+        await available_spaces.pipe(take(1)).toPromise();
+        await available_spaces.subscribe((spaces) =>
+            spaces?.map((space) => {
+                this.locatable_spaces.push({
+                    id: space.id,
+                    name: space.name,
+                    map_id: space.level.map_id,
+                    level: space.level,
+                });
+            })
         );
-        this.svg_list = [...new Set(this.svg_list)];
+
+        this.locatable_spaces = [
+            ...new Set(this.locatable_spaces.map((space) => space)),
+        ];
+
+        this.maps_list = this.locatable_spaces.map((map) => ({
+            map_id: map.map_id,
+            level: map.level.name,
+        }));
+
+        //filter maps_list to remove same maps
+        this.maps_list = [
+            ...new Map(this.maps_list.map((v) => [v.map_id, v])).values(),
+        ];
+
+        console.log(this.maps_list, 'maps list');
     }
 }

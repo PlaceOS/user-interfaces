@@ -18,6 +18,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService } from '../map.service';
+import { Locatable } from '../map.service';
 
 @Component({
     selector: 'find-space',
@@ -46,6 +47,9 @@ export class FindSpaceComponent implements OnInit {
     selectedSpace: Space;
     spaceViewControl = new FormControl();
     spaceView?: string;
+    svg;
+    locatable_spaces: Locatable[] = [];
+    maps_list: any[] = [];
 
     public get form(): FormGroup {
         return this._state.form;
@@ -109,6 +113,9 @@ export class FindSpaceComponent implements OnInit {
 
     public async ngOnInit() {
         this.spaceView = 'listView';
+
+        this.svg = '../../assets/maps/level_10.svg';
+
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
         this._state.setView('find');
@@ -134,7 +141,10 @@ export class FindSpaceComponent implements OnInit {
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
 
-        this._mapService.locateMaps(this.spaces$);
+        this._mapService.locateSpaces(this.spaces$);
+        this.locatable_spaces = this._mapService.locatable_spaces;
+        this.maps_list = this._mapService.maps_list;
+        console.log(this.locatable_spaces, 'locatable spaces in find-space');
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {
@@ -194,7 +204,6 @@ export class FindSpaceComponent implements OnInit {
 
     async updateSpaces() {
         this.spaces$ = await this._featuresFilterService.applyFilter();
-
         this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
     }
 

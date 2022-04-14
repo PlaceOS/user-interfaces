@@ -15,6 +15,7 @@ import { FindSpaceComponent } from '../rooms/find-space/find-space.component';
 import { FindSpaceItemComponent } from './find-space-item/find-space-item.component';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedComponentModule } from '../components/shared.module';
+import { ComponentsModule } from '@placeos/components';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { FilterSpaceComponent } from './filter-space/filter-space.component';
@@ -50,6 +51,7 @@ const ROUTES: Route[] = [
         MatNativeDateModule,
         MatSnackBarModule,
         MatButtonToggleModule,
+        ComponentsModule,
     ],
 })
 export class BookModule {}
