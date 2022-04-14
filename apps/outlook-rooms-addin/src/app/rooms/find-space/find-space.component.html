@@ -70,7 +70,7 @@
                 <div class="flex flex-col">
                     <span class="text-xl font-bold mt-3"> Results</span>
                     <span class="text-sm text-gray-500 mt-3">
-                        {{ (spaces$ | async)?.length }} results found</span
+                        {{ (spaces$ | async)?.length || 0 }} results found</span
                     >
                 </div>
             </section>
@@ -99,17 +99,13 @@
                                 </find-space-item>
                             </mat-button-toggle-group>
                         </div>
-                        <div *ngIf="this.spaceView == 'mapView'">
+                        <div
+                            *ngIf="this.spaceView == 'mapView'"
+                            class="text-center"
+                        >
                             Map goes here
-                            <div *ngIf="this.level">
-                                <i-map
-                                    [src]="this.selectedSpace.level.map_id"
-                                    [styles]="style_map"
-                                    [features]="features"
-                                >
-                                    <mat-spinner diameter="64"></mat-spinner>
-                                </i-map>
-                            </div>
+
+                            <img [src]="'/assets/level_10.svg'" />
                         </div>
 
                         <p class="p-4 text-center opacity-60">
@@ -120,7 +116,7 @@
 
                 <ng-template #load_state>
                     <div
-                        class="h-full w-full flex flex-col items-center justify-center space-y-2"
+                        class="h-full w-full flex flex-col items-center justify-center space-y-4 my-6"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
                         <p>Retrieving available spaces...</p>
@@ -128,7 +124,7 @@
                 </ng-template>
                 <ng-template #empty_state>
                     <div
-                        class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center"
+                        class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center my-6"
                     >
                         <p>
                             No available spaces for selected time, capacity or
