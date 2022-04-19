@@ -103,13 +103,39 @@
                             *ngIf="this.spaceView == 'mapView'"
                             class="text-center h-full overflow-hidden"
                         >
+                            <div *ngIf="(this.maps_list$ | async)?.length > 1">
+                                <!-- <div
+                                    *ngFor="let map of this.maps_list$ | async"
+                                > -->
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="flex ml-auto m-6"
+                                >
+                                    <mat-label>Select a level</mat-label>
+                                    <mat-select
+                                        [(ngModel)]="selectedLevel"
+                                        (ngModelChange)="
+                                            updateSelectedLevel($event)
+                                        "
+                                    >
+                                        <mat-option
+                                            *ngFor="
+                                                let map of this.maps_list$
+                                                    | async
+                                            "
+                                            [value]="map"
+                                            >{{ map.level }}</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                                <!-- </div> -->
+                            </div>
                             <div
-                                *ngFor="let map of this.maps_list$ | async"
-                                class="overflow-hidden m-6 h-full w-full bg-red-300 relative"
+                                *ngIf="this.selectedMap$ | async"
+                                class="m-6 h-96 w-full relative"
                             >
-                                <span>Location: {{ map?.level }} </span>
                                 <i-map
-                                    [src]="map?.map_id"
+                                    [src]="(this.selectedMap$ | async)?.map_id"
                                     class="m-6 w-full"
                                 ></i-map>
                                 <!-- <img [src]="map.map_id" /> -->

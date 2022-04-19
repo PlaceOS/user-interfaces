@@ -49,6 +49,7 @@ export class FindSpaceComponent implements OnInit {
     spaceView?: string;
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<any>;
+    selectedMap$: Observable<any>;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -138,7 +139,11 @@ export class FindSpaceComponent implements OnInit {
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
 
-        await this._mapService.locateSpaces(this.spaces$);
+        //REINSTATE AFTER TESTING
+        // await this._mapService.locateSpaces(this.spaces$);
+
+        await this._mapService.locateSpaces(of(this._spaces.space_list));
+
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
         this.locatable_spaces$.subscribe((i) =>
@@ -204,6 +209,11 @@ export class FindSpaceComponent implements OnInit {
     async updateSpaces() {
         this.spaces$ = await this._featuresFilterService.applyFilter();
         this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
+    }
+
+    updateSelectedLevel(e) {
+        console.log(e, 'event$ selected level');
+        this.selectedMap$ = of(e);
     }
 
     async postForm() {
