@@ -47,7 +47,6 @@ export class FindSpaceComponent implements OnInit {
     selectedSpace: Space;
     spaceViewControl = new FormControl();
     spaceView?: string;
-    svg;
     locatable_spaces: Locatable[] = [];
     maps_list: any[] = [];
 
@@ -113,8 +112,6 @@ export class FindSpaceComponent implements OnInit {
 
     public async ngOnInit() {
         this.spaceView = 'listView';
-
-        this.svg = '../../assets/maps/level_10.svg';
 
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
