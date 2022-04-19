@@ -48,7 +48,7 @@ export class FindSpaceComponent implements OnInit {
     spaceViewControl = new FormControl();
     spaceView?: string;
     locatable_spaces: Locatable[] = [];
-    maps_list: any[] = [];
+    maps_list$: Observable<any>;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -140,7 +140,7 @@ export class FindSpaceComponent implements OnInit {
 
         this._mapService.locateSpaces(this.spaces$);
         this.locatable_spaces = this._mapService.locatable_spaces;
-        this.maps_list = this._mapService.maps_list;
+        this.maps_list$ = this._mapService.maps_list$;
         console.log(this.locatable_spaces, 'locatable spaces in find-space');
     }
 

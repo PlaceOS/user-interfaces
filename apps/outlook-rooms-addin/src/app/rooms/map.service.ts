@@ -23,19 +23,19 @@ export class MapService {
     public item: Locatable;
     public features: ViewerFeature[];
     public locatable_spaces: Locatable[] = [];
-    public maps_list: any[] = [];
+    public maps_arr: any[] = [];
 
-    //Store of map_id urls for available_spaces
-    private _map_urls: BehaviorSubject<[]> = new BehaviorSubject<any>([]);
+    //Store of map_id urls & level names for available_spaces
+    private _maps_list: BehaviorSubject<[]> = new BehaviorSubject<any>([]);
 
-    map_urls$: Observable<any> = this._map_urls.asObservable();
+    maps_list$: Observable<any> = this._maps_list.asObservable();
 
-    set map_urls(url) {
-        this._map_urls.next(url);
+    set maps_list(map) {
+        this._maps_list.next(map);
     }
 
-    get map_urls() {
-        return this._map_urls.getValue();
+    get maps_list() {
+        return this._maps_list.getValue();
     }
 
     constructor() {}
@@ -59,16 +59,18 @@ export class MapService {
             ...new Set(this.locatable_spaces.map((space) => space)),
         ];
 
-        this.maps_list = this.locatable_spaces.map((map) => ({
+        this.maps_arr = this.locatable_spaces.map((map) => ({
             map_id: map.map_id,
             level: map.level.name,
         }));
 
         //filter maps_list to remove same maps
-        this.maps_list = [
-            ...new Map(this.maps_list.map((v) => [v.map_id, v])).values(),
+        this.maps_arr = [
+            ...new Map(this.maps_arr.map((v) => [v.map_id, v])).values(),
         ];
 
-        console.log(this.maps_list, 'maps list');
+        this.maps_list = this.maps_arr as any;
+
+        console.log(this.maps_list$, 'maps list');
     }
 }
