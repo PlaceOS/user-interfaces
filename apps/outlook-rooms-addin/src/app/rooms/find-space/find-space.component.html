@@ -101,16 +101,16 @@
                         </div>
                         <div
                             *ngIf="this.spaceView == 'mapView'"
-                            class="text-center min-h-min ovrflow-hidden"
+                            class="text-center h-full overflow-hidden"
                         >
                             <div
                                 *ngFor="let map of this.maps_list$ | async"
-                                class="overflow-hidden m-6 h-12 w-12 bg-red-300"
+                                class="overflow-hidden m-6 h-full w-full bg-red-300 relative"
                             >
-                                <span>Location: {{ map.level }} </span>
+                                <span>Location: {{ map?.level }} </span>
                                 <i-map
-                                    [src]="map.map_id"
-                                    class="m-6 overflow-hidden"
+                                    [src]="map?.map_id"
+                                    class="m-6 w-full"
                                 ></i-map>
                                 <!-- <img [src]="map.map_id" /> -->
                             </div>

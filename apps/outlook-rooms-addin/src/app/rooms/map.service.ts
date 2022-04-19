@@ -22,8 +22,23 @@ export class MapService {
     public style_map: ViewerStyles = {};
     public item: Locatable;
     public features: ViewerFeature[];
-    public locatable_spaces: Locatable[] = [];
+    // public locatable_spaces: Locatable[] = [];
     public maps_arr: any[] = [];
+
+    //Store of Locatable Spaces
+    private _locatable_spaces: BehaviorSubject<Locatable[]> =
+        new BehaviorSubject<Locatable[]>([]);
+
+    locatable_spaces$: Observable<Locatable[]> =
+        this._locatable_spaces.asObservable();
+
+    set locatable_spaces(space) {
+        this._locatable_spaces.next(space);
+    }
+
+    get locatable_spaces() {
+        return this._locatable_spaces.getValue();
+    }
 
     //Store of map_id urls & level names for available_spaces
     private _maps_list: BehaviorSubject<[]> = new BehaviorSubject<any>([]);
@@ -44,33 +59,33 @@ export class MapService {
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         await available_spaces.pipe(take(1)).toPromise();
-        await available_spaces.subscribe((spaces) =>
-            spaces?.map((space) => {
-                this.locatable_spaces.push({
+        await available_spaces.subscribe(
+            (spaces) =>
+                (this.locatable_spaces = spaces?.map((space) => ({
                     id: space.id,
                     name: space.name,
                     map_id: space.level.map_id,
                     level: space.level,
-                });
-            })
+                })))
         );
 
-        this.locatable_spaces = [
-            ...new Set(this.locatable_spaces.map((space) => space)),
-        ];
+        this.maps_list$ = this.locatable_spaces$.pipe(
+            map((spaces) =>
+                spaces.map((space) => ({
+                    map_id: space.map_id,
+                    level: space.level.name,
+                }))
+            )
+        );
 
-        this.maps_arr = this.locatable_spaces.map((map) => ({
-            map_id: map.map_id,
-            level: map.level.name,
-        }));
-
+        await this.maps_list$.pipe(take(1)).toPromise();
         //filter maps_list to remove same maps
-        this.maps_arr = [
-            ...new Map(this.maps_arr.map((v) => [v.map_id, v])).values(),
-        ];
+        this.maps_list$ = this.maps_list$.pipe(
+            map((mapsList: Locatable[]) => [
+                ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
+            ])
+        );
 
-        this.maps_list = this.maps_arr as any;
-
-        console.log(this.maps_list$, 'maps list');
+        this.maps_list$.subscribe((i) => console.log(i, 'maps list'));
     }
 }
