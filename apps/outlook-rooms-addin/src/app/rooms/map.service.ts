@@ -69,33 +69,33 @@ export class MapService {
                 })))
         );
 
-        // this.maps_list$ = this.locatable_spaces$.pipe(
-        //     map((spaces) =>
-        //         spaces.map((space) => ({
-        //             map_id: space.map_id,
-        //             level: space.level.name,
-        //         }))
-        //     )
-        // );
-
-        //testing multiple maps
-        available_spaces.subscribe((i) => console.log(i, 'list'));
-        this.maps_list$ = available_spaces.pipe(
+        this.maps_list$ = this.locatable_spaces$.pipe(
             map((spaces) =>
-                spaces.map((_) => ({
-                    map_id: _.level.map_id,
-                    level: _.level.name,
+                spaces.map((space) => ({
+                    map_id: space.map_id,
+                    level: space.level.name,
                 }))
             )
         );
 
+        //testing multiple maps
+        // available_spaces.subscribe((i) => console.log(i, 'list'));
+        // this.maps_list$ = available_spaces.pipe(
+        //     map((spaces) =>
+        //         spaces.map((_) => ({
+        //             map_id: _.level.map_id,
+        //             level: _.level.name,
+        //         }))
+        //     )
+        // );
+
         await this.maps_list$.pipe(take(1)).toPromise();
         //filter maps_list to remove same maps
-        // this.maps_list$ = this.maps_list$.pipe(
-        //     map((mapsList: Locatable[]) => [
-        //         ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
-        //     ])
-        // );
+        this.maps_list$ = this.maps_list$.pipe(
+            map((mapsList: Locatable[]) => [
+                ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
+            ])
+        );
 
         this.maps_list$.subscribe((i) => console.log(i, 'maps list'));
     }

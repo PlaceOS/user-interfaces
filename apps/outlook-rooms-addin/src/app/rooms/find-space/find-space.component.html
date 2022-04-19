@@ -131,11 +131,17 @@
                                 <!-- </div> -->
                             </div>
                             <div
-                                *ngIf="this.selectedMap$ | async"
+                                *ngIf="
+                                    (this.selectedMap$ | async) ||
+                                    (this.maps_list$ | async)
+                                "
                                 class="m-6 h-96 w-full relative"
                             >
                                 <i-map
-                                    [src]="(this.selectedMap$ | async)?.map_id"
+                                    [src]="
+                                        (this.selectedMap$ | async)?.map_id ||
+                                        (this.maps_list$ | async)[0]?.map_id
+                                    "
                                     class="m-6 w-full"
                                 ></i-map>
                                 <!-- <img [src]="map.map_id" /> -->

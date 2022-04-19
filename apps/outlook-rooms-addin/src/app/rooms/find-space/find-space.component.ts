@@ -139,10 +139,10 @@ export class FindSpaceComponent implements OnInit {
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
 
-        //REINSTATE AFTER TESTING
-        // await this._mapService.locateSpaces(this.spaces$);
+        await this._mapService.locateSpaces(this.spaces$);
 
-        await this._mapService.locateSpaces(of(this._spaces.space_list));
+        //Testing multiple maps
+        // await this._mapService.locateSpaces(of(this._spaces.space_list));
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
