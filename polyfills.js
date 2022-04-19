@@ -1,6 +1,6 @@
 "use strict";(self.webpackChunkmap_kiosk=self.webpackChunkmap_kiosk||[]).push([["polyfills"],{1526:(De,de,Te)=>{
 /**
-       * @license Angular v13.2.0
+       * @license Angular v13.3.3
        * (c) 2010-2022 Google LLC. https://angular.io/
        * License: MIT
        */
