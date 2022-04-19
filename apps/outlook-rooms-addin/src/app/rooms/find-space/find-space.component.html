@@ -104,9 +104,6 @@
                             class="text-center h-full overflow-hidden"
                         >
                             <div *ngIf="(this.maps_list$ | async)?.length > 1">
-                                <!-- <div
-                                    *ngFor="let map of this.maps_list$ | async"
-                                > -->
                                 <mat-form-field
                                     appearance="outline"
                                     class="flex ml-auto m-6"
@@ -128,7 +125,6 @@
                                         >
                                     </mat-select>
                                 </mat-form-field>
-                                <!-- </div> -->
                             </div>
                             <div
                                 *ngIf="
@@ -144,7 +140,6 @@
                                     "
                                     class="m-6 w-full"
                                 ></i-map>
-                                <!-- <img [src]="map.map_id" /> -->
                             </div>
                         </div>
 

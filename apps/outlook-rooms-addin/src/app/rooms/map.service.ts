@@ -22,7 +22,6 @@ export class MapService {
     public style_map: ViewerStyles = {};
     public item: Locatable;
     public features: ViewerFeature[];
-    // public locatable_spaces: Locatable[] = [];
     public maps_arr: any[] = [];
 
     //Store of Locatable Spaces
@@ -55,8 +54,6 @@ export class MapService {
 
     constructor() {}
 
-    //filter available_spaces into Locatable_spaces
-
     async locateSpaces(available_spaces: Observable<Space[]>) {
         await available_spaces.pipe(take(1)).toPromise();
         await available_spaces.subscribe(
@@ -67,15 +64,6 @@ export class MapService {
                     map_id: space.level.map_id,
                     level: space.level,
                 })))
-        );
-
-        this.maps_list$ = this.locatable_spaces$.pipe(
-            map((spaces) =>
-                spaces.map((space) => ({
-                    map_id: space.map_id,
-                    level: space.level.name,
-                }))
-            )
         );
 
         //testing multiple maps
@@ -89,14 +77,12 @@ export class MapService {
         //     )
         // );
 
+        //filter duplicate maps
         await this.maps_list$.pipe(take(1)).toPromise();
-        //filter maps_list to remove same maps
-        this.maps_list$ = this.maps_list$.pipe(
+        this.maps_list$ = this.locatable_spaces$.pipe(
             map((mapsList: Locatable[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
-
-        this.maps_list$.subscribe((i) => console.log(i, 'maps list'));
     }
 }
