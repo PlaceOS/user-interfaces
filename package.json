@@ -57,7 +57,7 @@
     "@angular/compiler-cli": "13.3.3",
     "@angular/language-service": "13.3.3",
     "@angular/localize": "13.3.3",
-    "@ngneat/spectator": "^9.0.0",
+    "@ngneat/spectator": "^10.0.1",
     "@ngneat/tailwind": "^7.0.3",
     "@nrwl/cli": "13.10.2",
     "@nrwl/cypress": "13.10.2",
@@ -68,7 +68,7 @@
     "@placeos/cloud-uploads": "^0.0.8-dev",
     "@placeos/svg-viewer": "^0.3.27-dev",
     "@placeos/ts-client": "^3.10.17",
-    "@sentry/angular": "^6.14.3",
+    "@sentry/angular": "^6.19.6",
     "@sentry/tracing": "^6.14.3",
     "@tinymce/tinymce-angular": "^4.2.2",
     "@types/jest": "27.0.2",
@@ -91,6 +91,7 @@
     "marked": "^4.0.10",
     "material-design-icons": "^3.0.1",
     "ng-mocks": "^13.4.2",
+    "nx": "13.10.2",
     "postcss": "^8.4.4",
     "postcss-preset-env": "^6.7.0",
     "prettier": "2.5.1",
@@ -99,7 +100,6 @@
     "ts-jest": "27.0.5",
     "ts-md5": "^1.2.7",
     "ts-node": "~9.1.1",
-    "typescript": "4.6.3",
-    "nx": "13.10.2"
+    "typescript": "4.6.3"
   }
 }

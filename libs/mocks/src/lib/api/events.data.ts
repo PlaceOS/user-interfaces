@@ -41,7 +41,6 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
     const event_end = nextEventTime();
     const meeting_url =
         predictableRandomInt(9999) % 3 === 0 ? 'https://meet.place.tech' : '';
-    console.log(unique(attendees, 'email') || []);
     return {
         id: `cal-event-${index}`,
         status: randomStatus(),

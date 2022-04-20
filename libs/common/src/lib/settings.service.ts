@@ -114,9 +114,7 @@ export class SettingsService extends BaseClass {
             this._user_settings.subscribe((_) => this._applyUserSettings(_))
         );
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
-        console.log('User:', user);
         const data = await showMetadata(user.id, 'settings').toPromise();
-        console.log('Data:', data);
         this._user_settings.next(data.details || {});
     }
 

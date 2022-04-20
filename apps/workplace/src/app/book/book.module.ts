@@ -24,6 +24,9 @@ import { SharedComponentModule } from '../components/shared.module';
 import { BookParkingFlowComponent } from './parking-flow.component';
 import { ParkingFlowMapComponent } from './parking-flow/parking-flow-map.component';
 import { ParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
+import { NewBookSpaceFlowComponent } from './new-space-flow.component';
+import { NewSpaceFlowFormComponent } from './new-space-flow/space-flow-form.component';
+import { SpaceFormDetailsComponent } from './new-space-flow/space-form-details.component';
 
 const ROUTES: Route[] = [
     {
@@ -35,6 +38,8 @@ const ROUTES: Route[] = [
             { path: 'desks/:step', component: BookDeskFlowComponent },
             { path: 'spaces', redirectTo: 'spaces/form' },
             { path: 'spaces/:step', component: BookSpaceFlowComponent },
+            { path: 'new-spaces', redirectTo: 'new-spaces/form' },
+            { path: 'new-spaces/:step', component: NewBookSpaceFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: BookParkingFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
@@ -62,6 +67,9 @@ const ROUTES: Route[] = [
         ParkingFlowMapComponent,
         ParkingFlowConfirmComponent,
         FlowSuccessComponent,
+        NewBookSpaceFlowComponent,
+        NewSpaceFlowFormComponent,
+        SpaceFormDetailsComponent,
     ],
     imports: [
         CommonModule,

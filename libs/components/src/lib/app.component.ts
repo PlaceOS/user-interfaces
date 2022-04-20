@@ -39,12 +39,6 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
     Sentry.init({
         dsn,
-        integrations: [
-            new Integrations.BrowserTracing({
-                tracingOrigins: ['localhost', location.origin],
-                routingInstrumentation: Sentry.routingInstrumentation,
-            }),
-        ],
         tracesSampleRate: sample_rate,
     });
 }
