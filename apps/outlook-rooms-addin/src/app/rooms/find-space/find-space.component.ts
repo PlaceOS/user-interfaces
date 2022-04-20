@@ -17,8 +17,9 @@ import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
-import { MapService } from '../map.service';
-import { Locatable } from '../map.service';
+import { MapService, Locatable } from '../map.service';
+import { ViewerFeature } from '@placeos/svg-viewer';
+import { InteractiveMapComponent, MapPinComponent } from '@placeos/components';
 
 @Component({
     selector: 'find-space',
@@ -50,6 +51,14 @@ export class FindSpaceComponent implements OnInit {
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<any>;
     selectedMap$: Observable<any>;
+    mapFeatures$: Observable<ViewerFeature[]> = of([
+        {
+            content: MapPinComponent,
+            location: { x: 0.3, y: 0.1 },
+        },
+        { content: MapPinComponent, location: { x: 0.4, y: 0.9 } },
+        { content: MapPinComponent, location: { x: 0.2, y: 0.1 } },
+    ]);
 
     public get form(): FormGroup {
         return this._state.form;

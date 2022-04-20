@@ -21,7 +21,7 @@ export class MapService {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
-    public features: ViewerFeature[];
+    public mapFeatures: ViewerFeature[];
     public maps_arr: any[] = [];
 
     //Store of Locatable Spaces

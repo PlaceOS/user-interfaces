@@ -138,6 +138,7 @@
                                         (this.selectedMap$ | async)?.map_id ||
                                         (this.maps_list$ | async)[0]?.map_id
                                     "
+                                    [features]="mapFeatures$ | async"
                                     class="m-6 w-full"
                                 ></i-map>
                             </div>
