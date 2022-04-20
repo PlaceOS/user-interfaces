@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1650332234362,
+  "timestamp": 1650432540887,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -141,15 +141,15 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "0075e52b96c314cccbd6f3d660d49cff4963ac5b",
-    "./apps_workplace_src_app_control_control_module_ts.js": "293fb3f0ae3debb3e1eba628518bca7fb71d2004",
+    "./apps_workplace_src_app_book_book_module_ts.js": "a2a4e61c79cf33d360b77405444f92afcc87294f",
+    "./apps_workplace_src_app_control_control_module_ts.js": "59df5444fb48d1e26c7fa7209b7e43f6373f27c8",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "de9bf76d2496b9e83cec212bab4f78b69afc63bb",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "98270e19aa147ebd221064ccabbf6a1b8148979f",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "3f8454074e59def4649b9891e0fb62aee8c11fff",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "c438857c924b3c0b84aa0cdfeb6c22f8bd4a8fb4",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "55096e35ae6880e26a88282a80fd5d827e09cebb",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "af9e48c4c566ce414357ce70eb1b63454cfc1a6a",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "cb042e7992d7477cd6dbc088314ed7df146fa58e",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "113030b9be417d83d2b41e30f2b8c74344785cf6",
-    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "65100bf8fb7015c180199ca06e62800f91cf7fc9",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "3b65979d1582cfe5c9a35ed946d1a40bed363565",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "ca469eed135303d9dd16e5625ac1097d59936c49",
+    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "98f76877a15c2166dba4d698597956d7ef38aacc",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -248,12 +248,12 @@
     "./common.js": "827148d86a3e44039836a5229ede5110c9e82884",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "a6c1aed48faee4c5d02dbf8e3eeff2d1f575747a",
-    "./main.js": "0a0ce0d8744763551144811edd1bfd69f3445f62",
+    "./main.js": "1a345adcc6cd0667c90cb0f512abd9160dba90a8",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "ec149ae7853814ece8632670a6d73df407d5347c",
     "./runtime.js": "860b89a9ba42ff65b1db00543f136bdd42a7a950",
-    "./styles.css": "657aecfc9db7d483e45c6482df3c3e7dff51131c",
-    "./vendor.js": "d4c87b47b8273c73f45c227075b0e8b2476ffddf"
+    "./styles.css": "11a64f58c4099299abbc011e7fccc3dcd96ee64b",
+    "./vendor.js": "c487d1fb9fcb8062b0f564e9a3bfc7173c0013ef"
   },
   "navigationUrls": [
     {
