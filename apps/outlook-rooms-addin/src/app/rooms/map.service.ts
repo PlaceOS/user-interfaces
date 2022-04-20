@@ -21,7 +21,7 @@ export class MapService {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
-    public mapFeatures: ViewerFeature[];
+    public mapFeatures$: Observable<ViewerFeature[]>;
     public maps_arr: any[] = [];
 
     //Store of Locatable Spaces
@@ -64,6 +64,16 @@ export class MapService {
                     map_id: space.level.map_id,
                     level: space.level,
                 })))
+        );
+
+        this.mapFeatures$ = available_spaces.pipe(
+            map((spaces) =>
+                spaces.map((space) => ({
+                    content: MapPinComponent,
+                    location: space.map_id,
+                    z_index: 20,
+                }))
+            )
         );
 
         //testing multiple maps

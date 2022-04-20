@@ -51,23 +51,7 @@ export class FindSpaceComponent implements OnInit {
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<any>;
     selectedMap$: Observable<any>;
-    mapFeatures$: Observable<ViewerFeature[]> = of([
-        {
-            content: MapPinComponent,
-            location: 'area-10.01-status',
-            z_index: 20,
-        },
-        {
-            content: MapPinComponent,
-            location: 'area-10.02-status',
-            z_index: 20,
-        },
-        {
-            content: MapPinComponent,
-            location: 'area-10.03-status',
-            z_index: 20,
-        },
-    ]);
+    mapFeatures$: Observable<ViewerFeature[]>;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -164,6 +148,7 @@ export class FindSpaceComponent implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
+        this.mapFeatures$ = this._mapService.mapFeatures$;
         this.locatable_spaces$.subscribe((i) =>
             console.log(i, 'locatable spaces')
         );
