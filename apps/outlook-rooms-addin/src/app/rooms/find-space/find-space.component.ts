@@ -54,10 +54,19 @@ export class FindSpaceComponent implements OnInit {
     mapFeatures$: Observable<ViewerFeature[]> = of([
         {
             content: MapPinComponent,
-            location: { x: 0.3, y: 0.1 },
+            location: 'area-10.01-status',
+            z_index: 20,
         },
-        { content: MapPinComponent, location: { x: 0.4, y: 0.9 } },
-        { content: MapPinComponent, location: { x: 0.2, y: 0.1 } },
+        {
+            content: MapPinComponent,
+            location: 'area-10.02-status',
+            z_index: 20,
+        },
+        {
+            content: MapPinComponent,
+            location: 'area-10.03-status',
+            z_index: 20,
+        },
     ]);
 
     public get form(): FormGroup {
