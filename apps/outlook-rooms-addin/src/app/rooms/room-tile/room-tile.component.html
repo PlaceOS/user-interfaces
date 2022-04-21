@@ -7,7 +7,9 @@
         <div
             class="flex flex-col bg-white h-full w-full border rounded-lg mx-4"
         >
-            <div class="flex h-44 bg-gray-200 rounded-lg m-3 text-gray-500">
+            <div
+                class="flex items-center justify-center h-44 bg-gray-200 rounded-lg m-3 text-gray-500"
+            >
                 <img
                     *ngIf="this.space?.image?.length > 0"
                     src=" this.space.image "
@@ -16,26 +18,39 @@
                     height="100%"
                     class="z-20 rounded-lg"
                 />
-                <img
-                    *ngIf="this.space?.image?.length == 0"
-                    src=" assets/icons/building-outline.svg "
-                    alt="svg of building"
-                    width="100%"
-                    height="100%"
-                    class="bg-black bg-opacity-25 z-20 rounded-lg"
-                />
+
+                <div *ngIf="this.space?.image?.length == 0">
+                    <mat-icon
+                        class="flex items-center justify-center material-icons-outlined text-[8rem]"
+                        >image</mat-icon
+                    >
+                </div>
             </div>
             <div class="mb-4 flex flex-col">
-                <span class="text-2xl font-bold mt-1 mx-3">
+                <span class="text-xl font-bold mt-1 mx-3">
                     {{ this.space?.name }}</span
                 >
-                <span class="text-base text-gray-700 mt-1 mx-3">
-                    {{ this.space?.level?.name }},
-                    {{ this.space?.level?.parent_id }}</span
-                >
-                <span class="text-base text-gray-700 mt-1 mx-3">
-                    {{ this.space?.capacity }}</span
-                >
+
+                <div class="flex flex-row items-center text-base mt-1 mx-3">
+                    <mat-icon
+                        class="flex items-center material-icons-outlined blue-icon"
+                        >room</mat-icon
+                    >
+                    <span class="text-gray-500">
+                        {{ this.space?.level?.name }},
+                        {{ this.space?.level?.parent_id }}</span
+                    >
+                </div>
+
+                <div class="flex flex-row items-center text-base mt-1 mx-3">
+                    <mat-icon
+                        class="flex items-center material-icons-outlined blue-icon"
+                        >people</mat-icon
+                    >
+                    <span class="text-gray-500">
+                        {{ this.space?.capacity }}</span
+                    >
+                </div>
             </div>
         </div>
     </div>
