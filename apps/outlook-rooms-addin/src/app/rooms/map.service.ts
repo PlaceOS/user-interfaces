@@ -87,8 +87,7 @@ export class MapService {
                             id: space.map_id,
                             action: 'click',
                             callback: () => {
-                                // console.log('do something with', space.map_id);
-                                this.openRoomDetails(space.map_id);
+                                this.openRoomDetails(space);
                             },
                         } as ViewAction)
                 )
@@ -117,11 +116,12 @@ export class MapService {
         );
     }
 
-    openRoomDetails(space) {
+    openRoomDetails(space: Space) {
         console.log('do something with', space);
 
         const bottomSheetRef = this._bottomSheet.open(RoomTileComponent, {
             panelClass: 'bottom-sheet-transparent',
+            data: space,
         });
 
         bottomSheetRef.afterDismissed().subscribe(() => {});
