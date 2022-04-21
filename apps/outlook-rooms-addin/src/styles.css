@@ -17,6 +17,10 @@ body {
     min-width: 400px;
 }
 
+.bottom-sheet-transparent {
+    background-color: transparent;
+}
+
 .top-box-shadow {
     -webkit-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
     -moz-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);

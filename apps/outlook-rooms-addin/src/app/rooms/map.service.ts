@@ -120,7 +120,9 @@ export class MapService {
     openRoomDetails(space) {
         console.log('do something with', space);
 
-        const bottomSheetRef = this._bottomSheet.open(RoomTileComponent);
+        const bottomSheetRef = this._bottomSheet.open(RoomTileComponent, {
+            panelClass: 'bottom-sheet-transparent',
+        });
 
         bottomSheetRef.afterDismissed().subscribe(() => {});
     }
