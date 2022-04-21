@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
-import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
 import { Space } from '@placeos/spaces';
 
@@ -23,6 +23,7 @@ export class MapService {
     public item: Locatable;
     public mapFeatures$: Observable<ViewerFeature[]>;
     public maps_arr: any[] = [];
+    public mapActions$: Observable<ViewAction[]>;
 
     //Store of Locatable Spaces
     private _locatable_spaces: BehaviorSubject<Locatable[]> =
@@ -76,6 +77,24 @@ export class MapService {
             )
         );
 
+        this.mapActions$ = available_spaces.pipe(
+            map((spaces) =>
+                spaces.map(
+                    (space) =>
+                        ({
+                            id: space.map_id,
+                            action: 'click',
+                            callback: () => {
+                                // console.log('do something with', space.map_id);
+                                this.openRoomDetails(space.map_id);
+                            },
+                        } as ViewAction)
+                )
+            )
+        );
+
+        this.mapActions$.subscribe((i) => console.log(i, 'map actions'));
+
         //testing multiple maps
         // available_spaces.subscribe((i) => console.log(i, 'list'));
         // this.maps_list$ = available_spaces.pipe(
@@ -94,5 +113,9 @@ export class MapService {
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
+    }
+
+    openRoomDetails(space) {
+        console.log('do something with', space);
     }
 }

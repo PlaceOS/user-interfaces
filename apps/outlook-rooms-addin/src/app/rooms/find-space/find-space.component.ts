@@ -18,7 +18,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
-import { ViewerFeature } from '@placeos/svg-viewer';
+import { ViewerFeature, ViewAction } from '@placeos/svg-viewer';
 import { InteractiveMapComponent, MapPinComponent } from '@placeos/components';
 
 @Component({
@@ -52,6 +52,7 @@ export class FindSpaceComponent implements OnInit {
     maps_list$: Observable<any>;
     selectedMap$: Observable<any>;
     mapFeatures$: Observable<ViewerFeature[]>;
+    mapActions$: Observable<ViewAction[]>;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -149,6 +150,8 @@ export class FindSpaceComponent implements OnInit {
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
         this.mapFeatures$ = this._mapService.mapFeatures$;
+        this.mapActions$ = this._mapService.mapActions$;
+
         this.locatable_spaces$.subscribe((i) =>
             console.log(i, 'locatable spaces')
         );
@@ -207,6 +210,10 @@ export class FindSpaceComponent implements OnInit {
                 hour12: true,
             })
         );
+    }
+
+    openRoomDetails(e) {
+        // console.log(e, 'event data');
     }
 
     async updateSpaces() {
