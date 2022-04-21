@@ -21,6 +21,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { FilterSpaceComponent } from './filter-space/filter-space.component';
 import { EventFormService } from '@placeos/events';
 import { BookingConfirmedComponent } from './booking-confirmed/booking-confirmed.component';
+import { RoomTileComponent } from './room-tile/room-tile.component';
 
 const ROUTES: Route[] = [
     {
@@ -37,6 +38,7 @@ const ROUTES: Route[] = [
         FindSpaceItemComponent,
         FilterSpaceComponent,
         BookingConfirmedComponent,
+        RoomTileComponent,
     ],
     imports: [
         CommonModule,

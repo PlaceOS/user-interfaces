@@ -1,0 +1,27 @@
+<div
+    class="w-full min-h-[300px] min-w-[400px] flex flex-1 flex-col z-0 overflow-hidden"
+>
+    <div
+        class="flex w-[calc(100%-4rem)] max-w-[768px] mx-auto items-center justify-content"
+    >
+        <div
+            class="flex flex-col bg-gray-100 mt-6 h-full w-full border rounded-lg"
+        >
+            <div class="flex h-40 bg-black rounded-lg m-3">Picture</div>
+            <span class="text-2xl font-bold mt-1 mx-3"> [Room name]</span>
+            <span class="text-base text-gray-700 mt-1 mx-3"> [location]</span>
+            <span class="text-base text-gray-700 mt-1 mx-3"> [details]</span>
+        </div>
+    </div>
+</div>
+<div
+    class="flex flex-col border-t border-gray-300 top-box-shadow p-3 mt-5 mb-10 -mx-4 items-center"
+>
+    <button
+        mat-button
+        (click)="this.cancel()"
+        class="bg-white border-secondary w-[460px] ml-2 mx-4"
+    >
+        <span class="text-secondary">Back</span>
+    </button>
+</div>

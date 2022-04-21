@@ -5,6 +5,8 @@ import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
 import { Space } from '@placeos/spaces';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { RoomTileComponent } from './room-tile/room-tile.component';
 
 export interface Locatable {
     id: string;
@@ -53,7 +55,7 @@ export class MapService {
         return this._maps_list.getValue();
     }
 
-    constructor() {}
+    constructor(private _bottomSheet: MatBottomSheet) {}
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         await available_spaces.pipe(take(1)).toPromise();
@@ -117,5 +119,9 @@ export class MapService {
 
     openRoomDetails(space) {
         console.log('do something with', space);
+
+        const bottomSheetRef = this._bottomSheet.open(RoomTileComponent);
+
+        bottomSheetRef.afterDismissed().subscribe(() => {});
     }
 }
