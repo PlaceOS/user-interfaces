@@ -33,4 +33,6 @@ body {
 
 .material-icons.blue-icon {
     color: var(--blueIcon);
+    display: flex;
+    align-items: center;
 }

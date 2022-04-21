@@ -1,0 +1,109 @@
+<div
+    class="w-full min-h-[800px] min-w-[400px] flex flex-1 flex-col z-0 overflow-hidden"
+>
+    <section
+        class="flex bg-gray-300 min-h-[350px] justify-center items-center text-gray-500"
+    >
+        <img
+            *ngIf="this.space?.image?.length > 0"
+            src=" this.space.image "
+            alt="image of building "
+            width="100%"
+            height="100%"
+            class="flex z-20 rounded-lg"
+        />
+
+        <div *ngIf="this.space?.image?.length == 0">
+            <mat-icon
+                class="flex items-center justify-center material-icons-outlined text-[8rem]"
+                >image</mat-icon
+            >
+        </div>
+    </section>
+    <section class="flex flex-col border-b border-gray-300">
+        <span class="text-xl font-bold mt-3"> {{ this.space?.name }}</span>
+        <button
+            mat-button
+            class="bg-secondary border-secondary w-full mx-auto my-3"
+        >
+            <span class="text-white">+ Add this room</span>
+        </button>
+    </section>
+    <section class="flex flex-col border-b border-gray-300 p-3 pl-0">
+        <span class="text-xl font-bold">Details</span>
+        <div class="flex flex-row items-center text-base mt-3">
+            <mat-icon class="material-icons-outlined blue-icon"
+                >people</mat-icon
+            >
+            <span class="text-gray-500">
+                {{ this.space?.capacity }} People</span
+            >
+        </div>
+        <div class="flex flex-row items-center text-base mt-1">
+            <mat-icon class="material-icons-outlined blue-icon">room</mat-icon>
+            <span class="text-gray-500">
+                {{ this.space?.level?.name }},
+                {{ this.space?.level?.parent_id }}</span
+            >
+        </div>
+    </section>
+    <section
+        class="flex flex-col py-3"
+        *ngIf="this.space?.feature_list.length > 0"
+    >
+        <span class="text-xl font-bold mb-3">Room Facilities</span>
+
+        <div
+            *ngFor="let facility of this.space?.feature_list"
+            class="flex flex-row w-full mb-1"
+        >
+            <div [ngSwitch]="facility">
+                <div *ngSwitchCase="'Views'">
+                    <mat-icon class="material-symbols-outlined blue-icon"
+                        >panorama</mat-icon
+                    >
+                </div>
+                <div *ngSwitchCase="'Projector'">
+                    <mat-icon class="material-symbols-outlined blue-icon"
+                        >video_camera_front</mat-icon
+                    >
+                </div>
+                <div *ngSwitchCase="'VidConf'">
+                    <mat-icon class="material-symbols-outlined blue-icon"
+                        >contact_phone</mat-icon
+                    >
+                </div>
+                <div *ngSwitchCase="'Whiteboard'">
+                    <mat-icon class="material-symbols-outlined blue-icon"
+                        >drive_file_rename_outline</mat-icon
+                    >
+                </div>
+                <div *ngSwitchCase="'Jamboard'">
+                    <mat-icon class="material-symbols-outlined blue-icon"
+                        >draw</mat-icon
+                    >
+                </div>
+                <div *ngSwitchCase="'Wifi'">
+                    <mat-icon class="material-symbols-outlined blue-icon"
+                        >nest_remote_comfort_sensor</mat-icon
+                    >
+                </div>
+            </div>
+
+            <span class="text-base text-gray-500">
+                {{ facility }}
+            </span>
+        </div>
+    </section>
+    <div
+        class="flex flex-col bg-white border-t border-gray-300 top-box-shadow p-3"
+    >
+        <button
+            mat-button
+            class="bg-white border-secondary w-full mx-auto"
+            (click)="this.cancel()"
+        >
+            <span class="text-secondary">Back</span>
+        </button>
+    </div>
+</div>
