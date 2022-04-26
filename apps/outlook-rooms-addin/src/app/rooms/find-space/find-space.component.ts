@@ -212,7 +212,7 @@ export class FindSpaceComponent implements OnInit {
         );
     }
 
-    openRoomDetails(e) {
+    openRoomTile(e) {
         // console.log(e, 'event data');
     }
 

@@ -29,14 +29,17 @@ export class RoomTileComponent implements OnInit {
         const bottomSheetRef = this._bottomSheet.open(RoomDetailsComponent, {
             data: this.space,
         });
-        bottomSheetRef.afterDismissed().subscribe(() => {
+        bottomSheetRef.afterDismissed().subscribe((data) => {
+            console.log(data, 'data received from Room Details component');
             this.updateSelectedSpace();
         });
+
+        this._bottomSheetRef.dismiss(this.space);
     }
 
     updateSelectedSpace() {}
 
     cancel() {
-        this._bottomSheetRef.dismiss();
+        this._bottomSheetRef.dismiss(this.space);
     }
 }
