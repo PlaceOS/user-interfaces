@@ -10,7 +10,7 @@ import { OrganisationService, BuildingLevel } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, combineLatest, of, from } from 'rxjs';
-import { first, take, filter, map } from 'rxjs/operators';
+import { first, take, filter, map, isEmpty } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
 import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
@@ -52,7 +52,7 @@ export class FindSpaceComponent implements OnInit {
     maps_list$: Observable<any>;
     selectedMap$: Observable<any>;
     mapFeatures$: Observable<ViewerFeature[]>;
-    mapActions$: Observable<ViewAction[]>;
+    mapActions$: Observable<ViewAction[]> = null;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -176,6 +176,11 @@ export class FindSpaceComponent implements OnInit {
     }
 
     confirm() {
+        if (this._mapService?.selectedSpace$) {
+            this.selectedSpace = this._mapService?.selectedSpace$ as any;
+            this.handleBookEvent(this.selectedSpace);
+        }
+
         console.log(this.selectedSpace, 'selected space');
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
 

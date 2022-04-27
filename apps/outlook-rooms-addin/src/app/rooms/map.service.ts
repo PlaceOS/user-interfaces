@@ -27,6 +27,18 @@ export class MapService {
     public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
 
+    private _selectedSpace: BehaviorSubject<Space> = new BehaviorSubject<Space>(
+        null
+    );
+    selectedSpace$: Observable<Space> = this._selectedSpace.asObservable();
+
+    set selectedSpace(space: Space) {
+        this._selectedSpace.next(space);
+    }
+    get selectedSpace() {
+        return this._selectedSpace.getValue();
+    }
+
     //Store of Locatable Spaces
     private _locatable_spaces: BehaviorSubject<Locatable[]> =
         new BehaviorSubject<Locatable[]>([]);
@@ -124,8 +136,8 @@ export class MapService {
             data: space,
         });
 
-        bottomSheetRef.afterDismissed().subscribe((data) => {
-            console.log(data, 'data received from Room Tile Component');
-        });
+        bottomSheetRef
+            .afterDismissed()
+            .subscribe((data) => console.log(data, 'data in map'));
     }
 }

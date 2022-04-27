@@ -27,9 +27,6 @@ export class RoomDetailsComponent implements OnInit {
 
     selectRoom() {
         this.roomAdded = !this.roomAdded;
-        console.log('button pressed');
-
-        // this._bottomSheetRef.dismiss(this.space);
     }
 
     back() {
