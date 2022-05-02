@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import { Space } from '@placeos/spaces';
 import { RoomDetailsComponent } from '../room-details/room-details.component';
 import { MapService } from '../map.service';
+import { RoomConfirmService } from '../room-confirm.service';
 
 @Component({
     selector: 'placeos-room-tile',
@@ -20,7 +21,8 @@ export class RoomTileComponent implements OnInit {
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheet: MatBottomSheet,
         private _bottomSheetRef: MatBottomSheetRef<RoomTileComponent>,
-        private _mapService: MapService
+        // private _mapService: MapService,
+        private _roomConfirmService: RoomConfirmService
     ) {}
 
     ngOnInit() {
@@ -28,17 +30,7 @@ export class RoomTileComponent implements OnInit {
     }
 
     openRoomDetail() {
-        const bottomSheetRef = this._bottomSheet.open(RoomDetailsComponent, {
-            data: this.space,
-        });
-        bottomSheetRef.afterDismissed().subscribe((data) => {
-            console.log(data, 'data in room tile');
-            if (data == 'cancel') {
-                this.cancel();
-            } else {
-                this._mapService.selectedSpace$ = data;
-            }
-        });
+        this._roomConfirmService.openRoomDetail(this.space);
     }
 
     cancel() {

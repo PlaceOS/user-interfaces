@@ -19,7 +19,7 @@ import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
 import { ViewerFeature, ViewAction } from '@placeos/svg-viewer';
-import { InteractiveMapComponent, MapPinComponent } from '@placeos/components';
+import { RoomConfirmService } from '../room-confirm.service';
 
 @Component({
     selector: 'find-space',
@@ -111,7 +111,8 @@ export class FindSpaceComponent implements OnInit {
         private router: Router,
         private location: Location,
         private _featuresFilterService: FeaturesFilterService,
-        private _mapService: MapService
+        private _mapService: MapService,
+        private _roomConfirmService: RoomConfirmService
     ) {}
 
     public async ngOnInit() {
@@ -175,6 +176,10 @@ export class FindSpaceComponent implements OnInit {
         });
     }
 
+    openRoomDetails() {
+        this._roomConfirmService.openRoomDetail(this.selectedSpace);
+    }
+
     confirm() {
         if (this._mapService?.selectedSpace$) {
             this.selectedSpace = this._mapService?.selectedSpace$ as any;
@@ -186,16 +191,16 @@ export class FindSpaceComponent implements OnInit {
 
         this.form.patchValue({ resources: spaces, system: spaces[0] });
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
-        const confirmRef = this._bottomSheet.open(RoomConfirmComponent, {
-            data: this.selectedSpace,
-        });
+        // const confirmRef = this._bottomSheet.open(RoomConfirmComponent, {
+        //     data: this.selectedSpace,
+        // });
 
-        confirmRef.afterDismissed().subscribe((dataFromModal) => {
-            console.log(this.form, 'form to be posted');
+        // confirmRef.afterDismissed().subscribe((dataFromModal) => {
+        //     console.log(this.form, 'form to be posted');
 
-            if (dataFromModal === 'cancel') return;
-            if (dataFromModal === 'confirm') this.postForm();
-        });
+        //     if (dataFromModal === 'cancel') return;
+        //     if (dataFromModal === 'confirm') this.postForm();
+        // });
     }
 
     setTimeChips() {
