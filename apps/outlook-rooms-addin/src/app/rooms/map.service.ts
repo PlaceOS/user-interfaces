@@ -130,8 +130,6 @@ export class MapService {
             data: space,
         });
 
-        bottomSheetRef
-            .afterDismissed()
-            .subscribe((data) => console.log(data, 'data in map'));
+        this._roomConfirmService.handleBookEvent(space, true);
     }
 }

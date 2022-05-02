@@ -34,6 +34,6 @@ export class RoomTileComponent implements OnInit {
     }
 
     cancel() {
-        this._bottomSheetRef.dismiss('cancel');
+        this._bottomSheetRef.dismiss(null);
     }
 }
