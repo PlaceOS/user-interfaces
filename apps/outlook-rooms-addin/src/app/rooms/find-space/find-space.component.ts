@@ -172,7 +172,12 @@ export class FindSpaceComponent implements OnInit {
 
     openRoomDetails() {
         this._roomConfirmService.openRoomDetail(this.selectedSpace);
-        console.log('done');
+    }
+
+    resetSpace() {
+        console.log('triggered');
+        this.showRoomDetails$ = of(false);
+        this.selectedSpace = null;
     }
 
     setTimeChips() {
