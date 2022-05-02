@@ -144,7 +144,7 @@ export class FindSpaceComponent implements OnInit {
 
     openFilter() {
         const bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
-            data: this.buildings,
+            data: this.buildings as OrganisationService['building_list'],
         });
 
         bottomSheetRef.afterDismissed().subscribe(() => {

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EventFormService } from '@placeos/events';
-import { of } from 'rxjs';
+import { CalendarEvent } from '@placeos/events';
+import { of, Observable } from 'rxjs';
 
 @Component({
     selector: 'booking-confirmed',
@@ -12,16 +13,15 @@ export class BookingConfirmedComponent implements OnInit {
         return this._state.form;
     }
 
-    location;
-    date;
-    startTime$;
-    endTime$;
-    duration;
+    location: CalendarEvent['location'];
+    date: Observable<CalendarEvent['date']>;
+    startTime$: Observable<string>;
+    endTime$: Observable<string>;
+    duration: CalendarEvent['duration'];
 
     constructor(private _state: EventFormService) {}
 
     ngOnInit() {
-        console.log(this._state.last_success, 'form in success modal');
         this.location = this._state.last_success?.location;
         this.date = of(this._state.last_success?.date);
         this.startTime$ = of(
@@ -44,7 +44,5 @@ export class BookingConfirmedComponent implements OnInit {
                 hour12: true,
             })
         );
-
-        this.endTime$.subscribe((i) => console.log(i, 'end time'));
     }
 }

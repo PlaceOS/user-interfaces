@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import {
-    MatBottomSheet,
     MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
@@ -16,7 +15,6 @@ export class RoomTileComponent implements OnInit {
     space: Space;
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheet: MatBottomSheet,
         private _bottomSheetRef: MatBottomSheetRef<RoomTileComponent>,
         private _roomConfirmService: RoomConfirmService
     ) {}

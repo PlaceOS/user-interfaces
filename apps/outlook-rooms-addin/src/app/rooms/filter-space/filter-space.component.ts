@@ -6,8 +6,8 @@ import {
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { FeaturesFilterService } from '../features-filter.service';
-
-import { Observable, pipe } from 'rxjs';
+import { OrganisationService } from '@placeos/organisation';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'placeos-filter-space',
@@ -15,9 +15,8 @@ import { Observable, pipe } from 'rxjs';
     styles: [``],
 })
 export class FilterSpaceComponent implements OnInit {
-    buildings;
+    buildings: OrganisationService['building_list'];
     minDate: Date = new Date();
-
     features$: Observable<Array<{}>>;
 
     constructor(
@@ -28,7 +27,6 @@ export class FilterSpaceComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.buildings = this.data;
         this.features$ = this._featuresFilterService.features$;
     }
 
@@ -44,6 +42,4 @@ export class FilterSpaceComponent implements OnInit {
     closeModal() {
         this._bottomsheetRef.dismiss();
     }
-
-    searchFeature() {}
 }

@@ -6,6 +6,7 @@ import {
 import { Space } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
 import { RoomConfirmService } from '../room-confirm.service';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'room-confirm',
@@ -14,12 +15,11 @@ import { RoomConfirmService } from '../room-confirm.service';
 })
 export class RoomConfirmComponent implements OnInit {
     unixTime: number;
-    startTime;
-    endTime;
+    startTime: string;
+    endTime: string;
     attendees: string[];
     space: Space;
-    title;
-    user;
+    title: CalendarEvent['title'];
 
     public get form() {
         return this._state.form;
