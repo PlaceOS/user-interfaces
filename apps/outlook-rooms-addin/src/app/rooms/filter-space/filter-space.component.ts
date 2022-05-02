@@ -1,14 +1,13 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { FeaturesFilterService } from '../features-filter.service';
-import { Space } from '@placeos/spaces';
+
 import { Observable, pipe } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-filter-space',
@@ -46,7 +45,5 @@ export class FilterSpaceComponent implements OnInit {
         this._bottomsheetRef.dismiss();
     }
 
-    searchFeature() {
-        console.log('search feature');
-    }
+    searchFeature() {}
 }

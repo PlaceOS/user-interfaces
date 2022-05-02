@@ -57,7 +57,6 @@ export class RoomConfirmComponent implements OnInit {
     }
 
     confirmBooking() {
-        // this._bottomSheetRef.dismiss('confirm');
         this._roomConfirmService.bookRoom(this.space);
     }
 }

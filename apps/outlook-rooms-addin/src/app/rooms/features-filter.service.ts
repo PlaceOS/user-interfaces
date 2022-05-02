@@ -50,8 +50,6 @@ export class FeaturesFilterService {
             .pipe(take(1))
             .toPromise();
 
-        // console.log(selected_features_list, 'select feats');
-
         this.features_list = selected_features_list.map((item) => item.id);
 
         let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
@@ -66,20 +64,12 @@ export class FeaturesFilterService {
                     .sort()
                     .join();
 
-                // console.log(sorted_feat_list, 'space');
-                // console.log(sorted_selected_features, 'feat list');
-
-                // console.log(
-                //     sorted_feat_list.includes(sorted_selected_features),
-                //     'second'
-                // );
-
                 if (sorted_feat_list.includes(sorted_selected_features)) {
                     this.filtered_spaces.push(space);
                 }
             }
         });
-        // console.log(this.filtered_spaces, 'filt spaces');
+
         return of(this.filtered_spaces);
     }
 }

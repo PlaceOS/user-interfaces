@@ -1,18 +1,12 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import {
-    MatBottomSheet,
-    MatBottomSheetRef,
-    MAT_BOTTOM_SHEET_DATA,
-} from '@angular/material/bottom-sheet';
+import { Component, OnInit } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
-import { OrganisationService, BuildingLevel } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { FormGroup, FormControl } from '@angular/forms';
-import { Observable, combineLatest, of, from } from 'rxjs';
-import { first, take, filter, map, isEmpty } from 'rxjs/operators';
-import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
-import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
+import { Observable, combineLatest, of } from 'rxjs';
+import { first, take, filter, map } from 'rxjs/operators';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
@@ -107,7 +101,6 @@ export class FindSpaceComponent implements OnInit {
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
-
         private location: Location,
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
@@ -126,12 +119,6 @@ export class FindSpaceComponent implements OnInit {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
 
-        console.log(this._org.buildings, 'buildings');
-
-        this._org.active_building.subscribe((i) =>
-            console.log(i, 'active building')
-        );
-
         await this._state.available_spaces.pipe(take(1)).toPromise();
 
         this.setBuilding(this._org.building);
@@ -146,10 +133,6 @@ export class FindSpaceComponent implements OnInit {
         this.maps_list$ = this._mapService.maps_list$;
         this.mapFeatures$ = this._mapService.mapFeatures$;
         this.mapActions$ = this._mapService.mapActions$;
-
-        this.locatable_spaces$.subscribe((i) =>
-            console.log(i, 'locatable spaces')
-        );
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {
@@ -175,7 +158,6 @@ export class FindSpaceComponent implements OnInit {
     }
 
     resetSpace() {
-        console.log('triggered');
         this.showRoomDetails$ = of(false);
         this.selectedSpace = null;
     }
@@ -201,11 +183,9 @@ export class FindSpaceComponent implements OnInit {
 
     async updateSpaces() {
         this.spaces$ = await this._featuresFilterService.applyFilter();
-        this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
     }
 
     updateSelectedLevel(e) {
-        console.log(e, 'event$ selected level');
         this.selectedMap$ = of(e);
     }
 

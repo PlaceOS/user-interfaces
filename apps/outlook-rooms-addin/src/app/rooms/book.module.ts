@@ -3,11 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import {
-    MatNativeDateModule,
-    NativeDateModule,
-    MAT_DATE_FORMATS,
-} from '@angular/material/core';
+import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
 
 import { RoomBookingComponent } from '../rooms/room-booking.component';
 import { RoomConfirmComponent } from '../rooms/room-confirm/room-confirm.component';

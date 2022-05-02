@@ -1,19 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { FindSpaceComponent } from './find-space/find-space.component';
+import { FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
-import { currentUser } from '../../../../../libs/common/src/lib/user-state';
-
-// import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
-// import {
-//     MomentDateAdapter,
-//     MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-// } from '@angular/material-moment-adapter';
-// import * as _moment from 'moment';
-// import * as _rollupMoment from 'moment';
-
-// const moment = _rollupMoment || _moment;
 
 @Component({
     selector: 'room-booking',
@@ -34,20 +22,12 @@ import { currentUser } from '../../../../../libs/common/src/lib/user-state';
             }
         `,
     ],
-    // providers: [
-    //     {
-    //         provide: DateAdapter,
-    //         useClass: MomentDateAdapter,
-    //         deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
-    //     },
-    // ],
 })
 export class RoomBookingComponent implements OnInit {
     public show_spaces = false;
     public show_people = false;
     public loading = false;
 
-    // date = new FormControl(moment());
     minDate: Date = new Date();
 
     public get form(): FormGroup {
@@ -58,11 +38,7 @@ export class RoomBookingComponent implements OnInit {
         this._state.clearForm();
     };
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private _state: EventFormService
-    ) {}
+    constructor(private router: Router, private _state: EventFormService) {}
 
     ngOnInit(): void {
         this._state.newForm();
@@ -78,7 +54,6 @@ export class RoomBookingComponent implements OnInit {
         )
             return;
 
-        console.log(this._state.form, 'form in room-booking component');
         await this._state.storeForm();
 
         this.router.navigate(['/schedule/view']);

@@ -100,8 +100,6 @@ export class MapService {
             )
         );
 
-        this.mapActions$.subscribe((i) => console.log(i, 'map actions'));
-
         //testing multiple maps
         // available_spaces.subscribe((i) => console.log(i, 'list'));
         // this.maps_list$ = available_spaces.pipe(
@@ -113,7 +111,6 @@ export class MapService {
         //     )
         // );
 
-        //filter duplicate maps
         await this.maps_list$.pipe(take(1)).toPromise();
         this.maps_list$ = this.locatable_spaces$.pipe(
             map((mapsList: Locatable[]) => [
@@ -123,8 +120,6 @@ export class MapService {
     }
 
     openRoomTile(space: Space) {
-        console.log('do something with', space);
-
         const bottomSheetRef = this._bottomSheet.open(RoomTileComponent, {
             panelClass: 'bottom-sheet-transparent',
             data: space,

@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Space } from '@placeos/spaces';
-import { MatButtonToggleGroup } from '@angular/material/button-toggle';
-import { NgModelGroup } from '@angular/forms';
 
 @Component({
     selector: 'find-space-item',
@@ -18,8 +16,6 @@ export class FindSpaceItemComponent implements OnInit {
     ngOnInit(): void {}
 
     bookSpace(spaceId) {
-        console.log(spaceId, 'selected space');
-        // this.bookChange.emit(this.book);
         this.bookChange.emit(this.book);
     }
 }

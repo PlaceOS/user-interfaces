@@ -76,7 +76,6 @@ export class RoomConfirmService {
         this.book_space[space.id] = book;
     }
     bookRoom(space) {
-        console.log('book space:', space);
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
         this.form.patchValue({ resources: spaces, system: spaces[0] });
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
