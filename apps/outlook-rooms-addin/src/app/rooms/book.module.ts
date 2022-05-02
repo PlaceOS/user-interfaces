@@ -19,7 +19,6 @@ import { ComponentsModule } from '@placeos/components';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { FilterSpaceComponent } from './filter-space/filter-space.component';
-import { EventFormService } from '@placeos/events';
 import { BookingConfirmedComponent } from './booking-confirmed/booking-confirmed.component';
 import { RoomTileComponent } from './room-tile/room-tile.component';
 import { RoomDetailsComponent } from './room-details/room-details.component';
