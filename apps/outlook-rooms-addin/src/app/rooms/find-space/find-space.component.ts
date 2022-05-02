@@ -14,7 +14,6 @@ import { first, take, filter, map, isEmpty } from 'rxjs/operators';
 import { RoomConfirmComponent } from '../room-confirm/room-confirm.component';
 import { FindSpaceItemComponent } from '../find-space-item/find-space-item.component';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
-import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
@@ -44,7 +43,7 @@ export class FindSpaceComponent implements OnInit {
     endTime$: Observable<any>;
     selected_features$: Observable<any>;
     filtered_spaces: Space[] = [];
-    showConfirm$: Observable<boolean> = of(false);
+    showRoomDetails$: Observable<boolean> = of(false);
     selectedSpace: Space;
     spaceViewControl = new FormControl();
     spaceView?: string;
@@ -108,7 +107,7 @@ export class FindSpaceComponent implements OnInit {
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
-        private router: Router,
+
         private location: Location,
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
@@ -133,15 +132,10 @@ export class FindSpaceComponent implements OnInit {
             console.log(i, 'active building')
         );
 
-        console.log(this._spaces.space_list, 'space list');
-
         await this._state.available_spaces.pipe(take(1)).toPromise();
 
         this.setBuilding(this._org.building);
         this.book_space = {};
-        const resources = this._state.form?.get('resources')?.value || [];
-        resources.forEach((_) => (this.book_space[_.id] = true));
-        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
 
         await this._mapService.locateSpaces(this.spaces$);
 
@@ -159,10 +153,10 @@ export class FindSpaceComponent implements OnInit {
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {
-        this.book_space = {};
-        this.book_space[space.id] = book;
-        this.showConfirm$ = of(true);
-        this.selectedSpace = space;
+        this._roomConfirmService.book_space = this.book_space;
+        this._roomConfirmService.handleBookEvent(space, book);
+        this.showRoomDetails$ = of(true);
+        this._roomConfirmService.updateSelectedSpace(space);
     }
 
     openFilter() {
@@ -178,29 +172,7 @@ export class FindSpaceComponent implements OnInit {
 
     openRoomDetails() {
         this._roomConfirmService.openRoomDetail(this.selectedSpace);
-    }
-
-    confirm() {
-        if (this._mapService?.selectedSpace$) {
-            this.selectedSpace = this._mapService?.selectedSpace$ as any;
-            this.handleBookEvent(this.selectedSpace);
-        }
-
-        console.log(this.selectedSpace, 'selected space');
-        const spaces = this._spaces.filter((s) => this.book_space[s.id]);
-
-        this.form.patchValue({ resources: spaces, system: spaces[0] });
-        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
-        // const confirmRef = this._bottomSheet.open(RoomConfirmComponent, {
-        //     data: this.selectedSpace,
-        // });
-
-        // confirmRef.afterDismissed().subscribe((dataFromModal) => {
-        //     console.log(this.form, 'form to be posted');
-
-        //     if (dataFromModal === 'cancel') return;
-        //     if (dataFromModal === 'confirm') this.postForm();
-        // });
+        console.log('done');
     }
 
     setTimeChips() {
@@ -222,10 +194,6 @@ export class FindSpaceComponent implements OnInit {
         );
     }
 
-    openRoomTile(e) {
-        // console.log(e, 'event data');
-    }
-
     async updateSpaces() {
         this.spaces$ = await this._featuresFilterService.applyFilter();
         this.spaces$?.subscribe((i) => console.log(i, 'spaces'));
@@ -234,12 +202,6 @@ export class FindSpaceComponent implements OnInit {
     updateSelectedLevel(e) {
         console.log(e, 'event$ selected level');
         this.selectedMap$ = of(e);
-    }
-
-    async postForm() {
-        await this._state.postForm().catch((err) => console.log(err));
-        if (this._state.last_success)
-            this.router.navigate(['/confirm/success']);
     }
 
     closeModal() {

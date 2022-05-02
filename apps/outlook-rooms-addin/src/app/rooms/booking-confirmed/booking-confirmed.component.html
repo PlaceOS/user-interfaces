@@ -19,7 +19,7 @@
                     >Your room booking for
                     {{ this.location }}
                     has been successfully booked for the
-                    {{ this.date | date: 'dd MMMM yyyy' }} at
+                    {{ this.date | async | date: 'dd MMMM yyyy' }} at
                     {{ this.startTime$ | async }} - {{ this.endTime$ | async }}
                 </span>
             </div>

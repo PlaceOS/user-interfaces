@@ -33,7 +33,7 @@ export class RoomDetailsComponent implements OnInit {
         if (this.roomAdded) {
             this._bottomSheetRef.dismiss(this.space);
         } else {
-            this._bottomSheetRef.dismiss('cancel');
+            this._bottomSheetRef.dismiss(null);
         }
     }
 }

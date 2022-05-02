@@ -5,8 +5,7 @@ import {
 } from '@angular/material/bottom-sheet';
 import { Space } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
-import { current_user } from '@placeos/common';
-import { take } from 'rxjs/operators';
+import { RoomConfirmService } from '../room-confirm.service';
 
 @Component({
     selector: 'room-confirm',
@@ -30,7 +29,8 @@ export class RoomConfirmComponent implements OnInit {
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
-        private _state: EventFormService
+        private _state: EventFormService,
+        private _roomConfirmService: RoomConfirmService
     ) {}
 
     async ngOnInit() {
@@ -57,6 +57,7 @@ export class RoomConfirmComponent implements OnInit {
     }
 
     confirmBooking() {
-        this._bottomSheetRef.dismiss('confirm');
+        // this._bottomSheetRef.dismiss('confirm');
+        this._roomConfirmService.bookRoom(this.space);
     }
 }

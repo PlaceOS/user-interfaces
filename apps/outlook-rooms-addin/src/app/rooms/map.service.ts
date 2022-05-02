@@ -7,6 +7,7 @@ import { MapPinComponent } from '@placeos/components';
 import { Space } from '@placeos/spaces';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { RoomTileComponent } from './room-tile/room-tile.component';
+import { RoomConfirmService } from './room-confirm.service';
 
 export interface Locatable {
     id: string;
@@ -27,17 +28,7 @@ export class MapService {
     public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
 
-    private _selectedSpace: BehaviorSubject<Space> = new BehaviorSubject<Space>(
-        null
-    );
-    selectedSpace$: Observable<Space> = this._selectedSpace.asObservable();
-
-    set selectedSpace(space: Space) {
-        this._selectedSpace.next(space);
-    }
-    get selectedSpace() {
-        return this._selectedSpace.getValue();
-    }
+    selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
 
     //Store of Locatable Spaces
     private _locatable_spaces: BehaviorSubject<Locatable[]> =
@@ -67,7 +58,10 @@ export class MapService {
         return this._maps_list.getValue();
     }
 
-    constructor(private _bottomSheet: MatBottomSheet) {}
+    constructor(
+        private _bottomSheet: MatBottomSheet,
+        private _roomConfirmService: RoomConfirmService
+    ) {}
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         await available_spaces.pipe(take(1)).toPromise();
