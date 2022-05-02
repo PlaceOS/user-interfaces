@@ -113,12 +113,10 @@ export class FindSpaceComponent implements OnInit {
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
         this._state.setView('find');
-
         this.setTimeChips();
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
-
         await this._state.available_spaces.pipe(take(1)).toPromise();
 
         this.setBuilding(this._org.building);
@@ -159,7 +157,6 @@ export class FindSpaceComponent implements OnInit {
 
     resetSpace() {
         this.showRoomDetails$ = of(false);
-        this.selectedSpace = null;
     }
 
     setTimeChips() {
