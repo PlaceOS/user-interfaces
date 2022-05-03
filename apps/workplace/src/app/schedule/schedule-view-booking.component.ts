@@ -144,7 +144,7 @@ export class ScheduleViewBookingComponent extends BaseClass {
     }
 
     public get duration() {
-        return formatDuration({
+        return this.event.all_day || this.event.duration >= 12 * 60 ? 'All Day' : formatDuration({
             hours: Math.floor(this.event?.duration / 60),
             minutes: this.event?.duration % 60,
         });

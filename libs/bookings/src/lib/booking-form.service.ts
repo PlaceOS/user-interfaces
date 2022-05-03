@@ -348,10 +348,10 @@ export class BookingFormService extends BaseClass {
                 this._options.getValue().type
             );
         }
-        if (form.value.duration > 23 * 60 || form.value.all_day) {
+        if (form.value.duration >= 12 * 60 || form.value.all_day) {
             form.patchValue({
-                date: set(form.value.date, { hours: 12, minutes: 0 }),
-                duration: 60,
+                date: set(form.value.date, { hours: 11, minutes: 59 }),
+                duration: 12 * 60,
             });
         }
         const result = await saveBooking(new Booking(form.value)).toPromise();

@@ -50,12 +50,12 @@ import { MapLocateModalComponent } from '@placeos/components';
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
-                        {{ event.date | date: 'longDate' }} at
+                        {{ event.date | date: 'longDate' }} <span *ngIf="!event.all_day">at
                         {{ event.date | date: 'shortTime' }} ~
                         {{
                             event.date + event.duration * 60 * 1000
                                 | date: 'shortTime'
-                        }}
+                        }}</span>
                     </div>
                 </div>
                 <div
@@ -240,7 +240,7 @@ export class ScheduleViewEventComponent extends BaseClass {
     }
 
     public get duration() {
-        return formatDuration({
+        return this.event.all_day ? 'All Day' : formatDuration({
             hours: Math.floor(this.event?.duration / 60),
             minutes: this.event?.duration % 60,
         });
