@@ -13,7 +13,7 @@ import {
     removeEvent,
     showEvent,
 } from '@placeos/events';
-import { Space } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import { formatDuration } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
 
@@ -250,7 +250,8 @@ export class ScheduleViewEventComponent extends BaseClass {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _events: EventFormService
+        private _events: EventFormService,
+        private _spaces: SpacesService
     ) {
         super();
     }
@@ -272,6 +273,7 @@ export class ScheduleViewEventComponent extends BaseClass {
     }
 
     public viewLocation(space: Space) {
+        space = this._spaces.find(space.id || space.email) || space;
         this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',
             maxHeight: '95vh',
