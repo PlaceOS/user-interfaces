@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1651623756723,
+  "timestamp": 1651663422783,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -148,7 +148,7 @@
     "./apps_workplace_src_app_explore_explore_module_ts.js": "55096e35ae6880e26a88282a80fd5d827e09cebb",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "af9e48c4c566ce414357ce70eb1b63454cfc1a6a",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "3b65979d1582cfe5c9a35ed946d1a40bed363565",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "58ca01ff463c3caf2bb2cd8737cb2603a50aea3b",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "1d0e3e9304faa7dede1495e679e2e2870c01e8e0",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "98f76877a15c2166dba4d698597956d7ef38aacc",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -248,11 +248,11 @@
     "./common.js": "827148d86a3e44039836a5229ede5110c9e82884",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "9b82ce87f65d098168657278e71ca685a979e903",
-    "./main.js": "1334eb57a7cd8bb8e4edbb206ed0be16bf9bd704",
+    "./main.js": "4188e2b31a34275379ba0615cde7c5714af16799",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "ec149ae7853814ece8632670a6d73df407d5347c",
     "./runtime.js": "860b89a9ba42ff65b1db00543f136bdd42a7a950",
-    "./styles.css": "b3851523ee00c8c9683641626c16154b3d716038",
+    "./styles.css": "b0d2ddd54a425d91b26d53bf3e0e6ac56d740ea8",
     "./vendor.js": "2c250801eeafd86c5565f4d8ac735c8368c9f709"
   },
   "navigationUrls": [
