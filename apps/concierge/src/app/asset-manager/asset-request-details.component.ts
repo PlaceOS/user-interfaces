@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AssetManagerStateService, AssetRequest } from './asset-manager-state.service';
+import {
+    AssetManagerStateService,
+    AssetRequest,
+} from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-request-details',
@@ -106,7 +109,11 @@ import { AssetManagerStateService, AssetRequest } from './asset-manager-state.se
                         <div class="font-medium">Floor</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{ request.extension_data?.space?.level?.display_name || request.extension_data?.space?.level?.name }}
+                        {{
+                            request.extension_data?.space?.level
+                                ?.display_name ||
+                                request.extension_data?.space?.level?.name
+                        }}
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -117,7 +124,10 @@ import { AssetManagerStateService, AssetRequest } from './asset-manager-state.se
                         <div class="font-medium">Room</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{ request.extension_data?.space?.display_name || request.extension_data?.space?.name }}
+                        {{
+                            request.extension_data?.space?.display_name ||
+                                request.extension_data?.space?.name
+                        }}
                     </div>
                     <div class="absolute top-4 right-4 text-sm">
                         <button
@@ -125,30 +135,32 @@ import { AssetManagerStateService, AssetRequest } from './asset-manager-state.se
                             class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2 mb-4"
                             [class.bg-green-600]="request.status === 'approved'"
                             [class.bg-red-600]="request.status === 'declined'"
-                            [class.bg-yellow-400]="request.status === 'tentative'"
+                            [class.bg-yellow-400]="
+                                request.status === 'tentative'
+                            "
                             [matMenuTriggerFor]="menu"
                             [disabled]="loading"
                         >
-                            <div
-                                class="h-5 w-5 rounded-full text-white flex items-center justify-center"
-                                [class.bg-green-600]="
+                            <app-icon
+                                class="text-xl"
+                                [class.text-green-600]="
                                     request.status === 'approved'
                                 "
-                                [class.bg-red-600]="
+                                [class.text-red-600]="
                                     request.status === 'declined'
                                 "
-                                [class.bg-yellow-400]="
+                                [class.text-yellow-400]="
                                     request.status === 'tentative'
                                 "
                             >
-                                <app-icon>{{
+                                {{
                                     request.status === 'approved'
                                         ? 'done'
                                         : request.status === 'declined'
                                         ? 'close'
                                         : 'warning'
-                                }}</app-icon>
-                            </div>
+                                }}
+                            </app-icon>
                             <div class="capitalize flex-1">
                                 {{ request.status }}
                             </div>

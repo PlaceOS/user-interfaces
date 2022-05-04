@@ -89,10 +89,16 @@ import {
             {{ row.date | date: 'mediumDate' }}
         </ng-template>
         <ng-template #space_template let-row="row">
-            {{ row.extension_data?.space?.display_name || row.extension_data?.space?.name  }}
+            {{
+                row.extension_data?.space?.display_name ||
+                    row.extension_data?.space?.name
+            }}
         </ng-template>
         <ng-template #level_template let-row="row">
-            {{ row.extension_data?.space?.level?.display_name || row.extension_data?.space?.level?.name  }}
+            {{
+                row.extension_data?.space?.level?.display_name ||
+                    row.extension_data?.space?.level?.name
+            }}
         </ng-template>
         <ng-template #period_template let-row="row">
             {{ row.date | date: 'shortTime' }} &ndash;
@@ -109,20 +115,20 @@ import {
                 (click)="$event.stopPropagation()"
                 [disabled]="loading[row.id]"
             >
-                <div
-                    class="h-5 w-5 rounded-full text-white flex items-center justify-center"
-                    [class.bg-green-600]="row.status === 'approved'"
-                    [class.bg-red-600]="row.status === 'declined'"
-                    [class.bg-yellow-400]="row.status === 'tentative'"
+                <app-icon
+                    class="text-xl"
+                    [class.text-green-600]="row.status === 'approved'"
+                    [class.text-red-600]="row.status === 'declined'"
+                    [class.text-yellow-400]="row.status === 'tentative'"
                 >
-                    <app-icon>{{
+                    {{
                         row.status === 'approved'
                             ? 'done'
                             : row.status === 'declined'
                             ? 'close'
                             : 'warning'
-                    }}</app-icon>
-                </div>
+                    }}
+                </app-icon>
                 <div class="capitalize flex-1">{{ row.status }}</div>
                 <app-icon class="text-2xl">expand_more</app-icon>
             </button>
