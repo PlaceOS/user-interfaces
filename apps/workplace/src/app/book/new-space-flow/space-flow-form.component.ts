@@ -36,7 +36,7 @@ import { EventFormService } from '@placeos/events';
                         <a-user-list-field formControlName="attendees"></a-user-list-field>
                     </section>
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="space-x-2 flex items-center mb-4">
                             <div
                                 class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
                             >
@@ -44,6 +44,7 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Room</div>
                         </h3>
+                        <space-form-roomlist [form]="form"></space-form-roomlist>
                     </section>
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
@@ -56,7 +57,7 @@ import { EventFormService } from '@placeos/events';
                         </h3>
                     </section>
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="space-x-2 flex items-center mb-4">
                             <div
                                 class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
                             >
@@ -64,6 +65,12 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Notes</div>
                         </h3>
+                            <div class="w-full flex flex-col">
+                                <label>General information for attendees</label>
+                                <mat-form-field appearance="outline">
+                                    <textarea matInput formControlName="body" placeholder="Notes..."></textarea>
+                                </mat-form-field>
+                            </div>
                     </section>
                 </form>
             </div>

@@ -27,6 +27,7 @@ import { ParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm
 import { NewBookSpaceFlowComponent } from './new-space-flow.component';
 import { NewSpaceFlowFormComponent } from './new-space-flow/space-flow-form.component';
 import { SpaceFormDetailsComponent } from './new-space-flow/space-form-details.component';
+import { SpaceFormRoomlistComponent } from './new-space-flow/space-form-roomlist.component';
 
 const ROUTES: Route[] = [
     {
@@ -70,6 +71,7 @@ const ROUTES: Route[] = [
         NewBookSpaceFlowComponent,
         NewSpaceFlowFormComponent,
         SpaceFormDetailsComponent,
+        SpaceFormRoomlistComponent
     ],
     imports: [
         CommonModule,
