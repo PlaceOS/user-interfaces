@@ -6,12 +6,10 @@ import { EventFormService } from '@placeos/events';
 @Component({
     selector: 'placeos-book-new-space-flow',
     template: `
-        <div class="bg-white h-full w-full">
-            <ng-container [ngSwitch]="view">
-                <ng-container *ngSwitchDefault>
-                    <new-space-flow-form></new-space-flow-form>
-                </ng-container>
-            </ng-container>
+        <div class="bg-white h-full w-full" [ngSwitch]="view">
+            <new-space-flow-success *ngSwitchCase="'success'">
+            </new-space-flow-success>
+            <new-space-flow-form *ngSwitchDefault></new-space-flow-form>
         </div>
     `,
     styles: [
@@ -51,8 +49,7 @@ export class NewBookSpaceFlowComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success'))
-                    this._state.setView(param.get('success') as any);
+                if (param.has('success')) this._state.setView('success');
             })
         );
     }
