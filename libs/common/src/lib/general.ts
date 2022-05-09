@@ -113,7 +113,10 @@ export function padString(str: string | number, length: number = 5) {
  * @param length Length of the string
  * @param chars Available characters to use in the string
  */
-export function randomString(length: number, chars: string = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') {
+export function randomString(
+    length: number,
+    chars: string = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+) {
     let str = '';
     for (let i = 0; i < length; i++) {
         str += chars[randomInt(chars.length)];
@@ -177,6 +180,29 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         return element;
     });
     return elements;
+}
+
+export function loadTextFileFromInputEvent(event: InputEvent) {
+    return new Promise<string>((resolve, reject) => {
+        /* istanbul ignore else */
+        if (event.target) {
+            const element = event.target as HTMLInputElement;
+            const file = element.files[0];
+            /* istanbul ignore else */
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.addEventListener('load', (evt) => {
+                    resolve((evt.srcElement as any).result);
+                    element.value = '';
+                });
+                reader.addEventListener('error', (_) => {
+                    this.loading = '';
+                    reject(['Error loading file', _]);
+                });
+            }
+        }
+    });
 }
 
 /**

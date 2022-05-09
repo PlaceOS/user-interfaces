@@ -24,6 +24,8 @@ import { CateringReportOrdersComponent } from './catering/catering-report-orders
 import { CateringReportItemsComponent } from './catering/catering-report-items.component';
 import { ReportDesksChartsComponent } from './desks/report-desks-charts.component';
 import { ContactTracingReportComponent } from './contact-tracing/contact-tracing-report.component';
+import { GetUserPipe } from './contact-tracing/get-user.pipe';
+import { ContactTracingOptionsComponent } from './contact-tracing/contact-tracing-options.component';
 
 const ROUTES: Route[] = [
     {
@@ -61,7 +63,9 @@ const ROUTES: Route[] = [
         CateringReportOrdersComponent,
         CateringReportItemsComponent,
 
-        ContactTracingReportComponent
+        ContactTracingReportComponent,
+        ContactTracingOptionsComponent,
+        GetUserPipe
     ],
     imports: [
         CommonModule,

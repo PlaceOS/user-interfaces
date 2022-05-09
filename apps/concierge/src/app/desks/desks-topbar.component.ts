@@ -2,22 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, take } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { BaseClass, csvToJson, loadTextFileFromInputEvent, notifyError, notifySuccess } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { DesksStateService } from './desks-state.service';
 import { showBooking } from '@placeos/bookings';
+import { randomInt } from '@placeos/common';
 
 @Component({
     selector: 'desks-topbar',
     template: `
         <mat-form-field appearance="outline">
             <mat-select
-                multiple
-                [ngModel]="(filters | async).zones || []"
-                (ngModelChange)="updateZones($event)"
+                [ngModel]="(filters | async).zones ? (filters | async).zones[0] : 'All'"
+                (ngModelChange)="updateZones([$event])"
                 placeholder="All Levels"
             >
-                <mat-option value="All">All Levels</mat-option>
+                <mat-option value="All" *ngIf="!is_map">All Levels</mat-option>
                 <mat-option
                     *ngFor="let level of levels | async"
                     [value]="level.id"
@@ -26,6 +26,15 @@ import { showBooking } from '@placeos/bookings';
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <button mat-button *ngIf="manage" class="mx-2 w-32" (click)="newDesk()">New Desk</button>
+        <button mat-button *ngIf="manage" class="relative w-32">
+            Upload CSV
+            <input
+                type="file"
+                class="absolute inset-0 opacity-0"
+                (change)="loadCSVData($event)"
+            />
+        </button>
         <div class="flex-1 w-2"></div>
         <searchbar
             class="mr-2"
@@ -61,6 +70,9 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */
     public readonly filters = this._desks.filters;
+
+    public manage = false;
+    public is_map = false;
     /** Set filtered date */
     public readonly setDate = (date) => this._desks.setFilters({ date });
     public readonly setFilters = (o) => this._desks.setFilters(o);
@@ -107,6 +119,8 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 } else if (params.has('reject')) {
                     this.reject(params.get('reject'));
                 }
+                this.manage = this._router.url.includes('manage');
+                this.is_map = this._router.url.includes('map');
             })
         );
         this.subscription(
@@ -125,6 +139,34 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 this.updateZones(zones);
             })
         );
+        this.manage = this._router.url.includes('manage');
+        this.is_map = this._router.url.includes('map');
+    }
+
+    public newDesk() {
+        this._desks.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
+        notifySuccess('New desk added to local data. Make sure to save the desk before using it.')
+    }
+
+    public async loadCSVData(event: InputEvent) {
+        const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
+            notifyError(m);
+            throw e;
+        });
+        try {
+            const list = csvToJson(data) || [];
+            this._desks.addDesks(
+                list.map(
+                    (_) =>
+                        new Desk({
+                            ..._,
+                            id: _.id || `desk-${randomInt(999_999)}`,
+                        })
+                )
+            );
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /**

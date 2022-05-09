@@ -167,7 +167,7 @@ export class CheckinViewComponent extends BaseClass {
     }
 
     public get room_image() {
-        return this._state.setting('image');
+        return this._state.setting('room_image');
     }
 
     constructor(

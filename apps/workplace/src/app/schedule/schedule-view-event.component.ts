@@ -13,9 +13,9 @@ import {
     removeEvent,
     showEvent,
 } from '@placeos/events';
-import { Space } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import { formatDuration } from 'date-fns';
-import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { MapLocateModalComponent } from '@placeos/components';
 
 @Component({
     selector: 'schedule-view-event',
@@ -50,12 +50,12 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
-                        {{ event.date | date: 'longDate' }} at
+                        {{ event.date | date: 'longDate' }} <span *ngIf="!event.all_day">at
                         {{ event.date | date: 'shortTime' }} ~
                         {{
                             event.date + event.duration * 60 * 1000
                                 | date: 'shortTime'
-                        }}
+                        }}</span>
                     </div>
                 </div>
                 <div
@@ -240,7 +240,7 @@ export class ScheduleViewEventComponent extends BaseClass {
     }
 
     public get duration() {
-        return formatDuration({
+        return this.event.all_day ? 'All Day' : formatDuration({
             hours: Math.floor(this.event?.duration / 60),
             minutes: this.event?.duration % 60,
         });
@@ -250,7 +250,8 @@ export class ScheduleViewEventComponent extends BaseClass {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _events: EventFormService
+        private _events: EventFormService,
+        private _spaces: SpacesService
     ) {
         super();
     }
@@ -272,6 +273,7 @@ export class ScheduleViewEventComponent extends BaseClass {
     }
 
     public viewLocation(space: Space) {
+        space = this._spaces.find(space.id || space.email) || space;
         this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',
             maxHeight: '95vh',

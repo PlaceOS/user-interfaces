@@ -20,7 +20,7 @@ import { UserControlsComponent } from './user-controls.component';
             <div class="flex-1 flex items-center justify-center h-full w-1/2">
                 <top-menu class="hidden sm:block"></top-menu>
             </div>
-            <global-search></global-search>
+            <global-search *ngIf="search"></global-search>
             <button
                 matRipple
                 class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
@@ -43,7 +43,6 @@ import { UserControlsComponent } from './user-controls.component';
                 </div>
             </button>
         </mat-menu>
-        <ng-template #search> </ng-template>
     `,
     styles: [``],
 })
@@ -58,6 +57,11 @@ export class TopbarComponent {
     /** Text to display for page title */
     public get title(): string {
         return this._settings.value('page_title');
+    }
+
+    /** Text to display for page title */
+    public get search(): boolean {
+        return this._settings.get('app.general.search') !== false;
     }
 
     public get user() {

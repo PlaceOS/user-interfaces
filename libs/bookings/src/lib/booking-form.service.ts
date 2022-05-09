@@ -23,6 +23,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
 
@@ -31,6 +32,7 @@ import { Booking } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
+import { findNearbyFeature } from '..';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -114,8 +116,10 @@ export class BookingFormService extends BaseClass {
     public readonly features: Observable<string[]> = this.assets.pipe(
         map((assets) => {
             const list: string[] = [];
-            for (const asset of assets) {
-                asset.features?.forEach((_) => list.push(_));
+            for (const { features } of assets) {
+                features instanceof Array
+                    ? features.forEach((_) => list.push(_))
+                    : null;
             }
             return unique(list).sort((a, b) => a.localeCompare(b));
         }),
@@ -151,7 +155,11 @@ export class BookingFormService extends BaseClass {
                             (!options.zone_id ||
                                 options.zone_id === asset.zone?.id ||
                                 options.zone_id === asset.zone?.parent_id) &&
-                            !bookings.find((bkn) => bkn.asset_id === asset.id && bkn.status !== 'declined')
+                            !bookings.find(
+                                (bkn) =>
+                                    bkn.asset_id === asset.id &&
+                                    bkn.status !== 'declined'
+                            )
                     )
                 )
             )
@@ -292,69 +300,58 @@ export class BookingFormService extends BaseClass {
         await this.checkQuestions();
         const options = this._options.getValue();
         const form = this._form.getValue();
+        let content = `Would you like to book the ${options.type} ${
+            form.value.asset_name
+        } for ${format(form.value.date, 'dd MMM yyyy')}${
+            form.value.duration < 12 * 60
+                ? ' at ' + format(form.value.date, 'h:mm a')
+                : ''
+        }`;
+        if (options.group) {
+            content = `${content}.<br>You group members will be assigned desks nearby your selected desk.`;
+        }
         const details = await openConfirmModal(
             {
                 title: `Book ${options.type}`,
-                content: `Would you like to book the ${options.type} ${
-                    form.value.asset_name
-                } for ${format(form.value.date, 'dd MMM yyyy')}${
-                    form.value.duration < 12 * 60
-                        ? ' at ' + format(form.value.date, 'h:mm a')
-                        : ''
-                }`,
+                content,
                 icon: { content: 'event_available' },
             },
             this._dialog
         );
         if (details?.reason !== 'done') throw 'User cancelled';
         details.loading('Performing booking request...');
-        await this.postForm().catch((_) => {
-            notifyError(_);
-            details.close();
-            throw _;
-        });
+        if (options.group) {
+            await this.postFormForGroup().catch((_) => {
+                notifyError(_);
+                details.close();
+                throw _;
+            });
+        } else
+            await this.postForm().catch((_) => {
+                notifyError(_);
+                details.close();
+                throw _;
+            });
         details.close();
     }
 
-    public async postForm() {
+    public async postForm(ignore_check = false) {
         const form = this._form.getValue();
         if (!form) throw 'No form for booking';
         if (!form.valid)
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
-        const asset_id = form.get('asset_id').value;
-        const bookings = await queryBookings({
-            period_start: getUnixTime(form.value.date),
-            period_end: getUnixTime(
-                form.value.date + form.value.duration * 60 * 1000
-            ),
-            type: this._options.getValue().type,
-        }).toPromise();
-        if (bookings.find((_) => _.asset_id === asset_id)) {
-            throw `${asset_id} is not available at the selected time`;
+        if (!ignore_check) {
+            await this.checkResourceAvailable(
+                form.value,
+                this._options.getValue().type
+            );
         }
-        const allowed_bookings =
-            this._settings.get(
-                `app.booking.allowed_daily_${
-                    this._options.getValue().type
-                }_count`
-            ) ?? 1;
-        if (
-            allowed_bookings > 0 &&
-            bookings.filter(
-                (_) =>
-                    _.user_email ===
-                        (form.value.user_email || currentUser()?.email) &&
-                    _.status !== 'declined'
-            ).length >= allowed_bookings
-        ) {
-            throw `You already have a desk booked`;
-        }
-        if (form.value.duration > 23 * 60 || form.value.all_day) {
+        if (form.value.duration >= 12 * 60 || form.value.all_day) {
             form.patchValue({
-                date: set(form.value.date, { hours: 12, minutes: 0 }),
-                duration: 60,
+                date: set(form.value.date, { hours: 11, minutes: 59 }),
+                duration: 12 * 60,
             });
         }
         const result = await saveBooking(new Booking(form.value)).toPromise();
@@ -368,6 +365,66 @@ export class BookingFormService extends BaseClass {
         );
         this.setView('success');
         return result;
+    }
+
+    public async postFormForGroup() {
+        const { members, group, type } = this._options.getValue();
+        if (!group) throw 'No group available to book for';
+        const extra_members = members.filter(
+            (_) => _.email !== currentUser().email
+        );
+        if (extra_members.length <= 0)
+            throw 'No members in your group to book for.';
+        const form = this._form.getValue().value;
+        const asset_list = await this.available_assets
+            .pipe(take(1))
+            .toPromise();
+        const active_asset = asset_list.find(
+            (_) => _.id === form.asset_id || _.map_id === form.asset_id
+        );
+        const level = this._org.levelWithID([active_asset.zone?.id]);
+        const assets = [
+            active_asset,
+            ...(await this._getNearbyResources(
+                level.map_id,
+                form.asset_id,
+                asset_list,
+                extra_members.length
+            )),
+        ];
+        console.log('Selected Assets:', assets);
+        const group_members = [currentUser(), ...extra_members];
+        await Promise.all(
+            group_members.map((_, idx) =>
+                this.checkResourceAvailable(
+                    {
+                        ...form,
+                        asset_id: assets[idx].map_id || assets[idx].id,
+                        user_email: _.email,
+                    },
+                    type
+                )
+            )
+        );
+        for (let i = 0; i < group_members.length; i++) {
+            const user = group_members[i];
+            const asset = assets[i];
+            this._form
+                .getValue()
+                .patchValue({
+                    ...form,
+                    user,
+                    asset_id: asset?.id,
+                    asset_name: asset.name,
+                    map_id: asset?.map_id || asset?.id,
+                    description: asset.name,
+                    zones: asset.zone
+                        ? [asset.zone?.parent_id, asset.zone?.id]
+                        : [],
+                });
+            console.log('Form Value:', this._form.getValue().value);
+            this.postForm(true);
+        }
     }
 
     private async checkQuestions() {
@@ -385,5 +442,65 @@ export class BookingFormService extends BaseClass {
             if (form[key]) throw 'User failed questionaire';
         }
         ref.close();
+    }
+
+    /** Check if the given resource is available for the selected user to book */
+    private async checkResourceAvailable(
+        { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
+        type: string
+    ) {
+        duration = all_day ? 12 * 60 : duration || 60;
+        const bookings = await queryBookings({
+            period_start: getUnixTime(date),
+            period_end: getUnixTime(date + duration * 60 * 1000),
+            type,
+        }).toPromise();
+        if (bookings.find((_) => _.asset_id === asset_id)) {
+            throw `${asset_id} is not available at the selected time`;
+        }
+        const allowed_bookings =
+            this._settings.get(`app.booking.allowed_daily_${type}_count`) ?? 1;
+        if (
+            allowed_bookings > 0 &&
+            bookings.filter(
+                (_) =>
+                    _.user_email === (user_email || currentUser()?.email) &&
+                    _.status !== 'declined'
+            ).length >= allowed_bookings
+        ) {
+            const current = user_email === currentUser().email;
+            throw `${current ? 'You' : user_email} already ${
+                current ? 'have' : 'has'
+            } a desk booked`;
+        }
+        return true;
+    }
+
+    private async _getNearbyResources(
+        map_url: string,
+        id: string,
+        assets: BookingAsset[],
+        count: number
+    ): Promise<BookingAsset[]> {
+        const nearby_assets = [];
+        let asset_list = assets.filter((_) => _.id !== id && _.map_id !== id);
+        console.log('Assets:', assets, asset_list, id);
+        for (let i = 0; i < count; i++) {
+            const item = await findNearbyFeature(
+                map_url,
+                id,
+                asset_list.map((_) => _.map_id || _.id)
+            );
+            if (item) {
+                nearby_assets.push(
+                    assets.find((_) => _.id === item || _.map_id === item)
+                );
+                asset_list = asset_list.filter(
+                    (_) => _.id !== item && _.map_id !== item
+                );
+            }
+            console.log('Asset List:', asset_list);
+        }
+        return nearby_assets;
     }
 }

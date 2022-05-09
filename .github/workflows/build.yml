@@ -6,7 +6,7 @@ name: BUILD
 # events but only for the master branch
 on:
     push:
-        branches: [develop, release/**]
+        branches: [develop, release/**, master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -16,7 +16,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
               with:
-                  fetch-depth: 0
+                  fetch-depth: '2'
 
             - name: Cache node modules
               id: cache
@@ -51,32 +51,18 @@ jobs:
               shell: bash
               id: build_ext
               run: |
-                    if [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                    if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
                     then
                         echo "::set-output name=configuration::production"
                         echo "::set-output name=deploy_branch::prod"
+                    elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                    then
+                        echo "::set-output name=configuration::staging"
+                        echo "::set-output name=deploy_branch::uat"
                     else
                         echo "::set-output name=configuration::staging"
                         echo "::set-output name=deploy_branch::dev"
                     fi
-
-            - name: Update version
-              run: |
-                git config user.email $(git show -s --format='%ae' HEAD)
-                git config user.name CI_USER
-                export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
-                echo $VERSION
-                npm run version
-                export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
-                if gh release create $VERSION
-                then echo Created new version $VERSION
-                fi
-                gh release upload $VERSION CHANGELOG.md --clobber
-                git tag -d $VERSION
-                git reset --hard origin/${{ steps.branch_name.outputs.name }}
-                git tag -a $VERSION && git push origin $VERSION
-              if: ${{ steps.build_ext.outputs.configuration == 'production' }}
-
             - name: List affected applications
               id: affected_apps
               run: |
@@ -145,31 +131,14 @@ jobs:
               run: |
                 npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
-            - name: Compress build Artifacts
-              run: |
-                tar -czvf ${{ matrix.package }}.tar.gz dist/apps/${{ matrix.package }}/*
-                echo $GITHUB_SHA > ${{ matrix.package }}.txt
-
-            - name: Deploy the application(production)
+            - name: Deploy the application(${{ matrix.package }})
+              uses: s0/git-publish-subdir-action@develop
               env:
-                GITHUB_TOKEN: ${{ secrets.API_GITHUB_TOKEN }}
-              run: | 
-                export VERSION=$(git tag --sort=v:refname | grep -E 'v[0-9]' | tail -1)
-                echo $VERSION
-                gh release upload $VERSION ${{ matrix.package}}.tar.gz --clobber
-                gh release upload $VERSION ${{ matrix.package }}.txt --clobber
-              if: ${{ env.configuration == 'production' }}
-
-            - name: Deploy the application(develop)
-              env:
-                GITHUB_TOKEN: ${{ secrets.API_GITHUB_TOKEN }}
-              run: | 
-                if gh release create develop
-                then echo Created new version develop
-                fi
-                gh release upload develop ${{ matrix.package}}.tar.gz --clobber
-                gh release upload develop ${{ matrix.package }}.txt --clobber
-              if: ${{ env.configuration != 'production' }}
+                REPO: self
+                BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }} # The branch name where you want to push the assets
+                FOLDER: dist/apps/${{ matrix.package }} # The directory where your assets are generated
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+                MESSAGE: "build(${{ matrix.package }}): CI build from {sha}" # The commit message
 
             - name: Update Pipeline Chat Status
               uses: fjogeleit/http-request-action@master

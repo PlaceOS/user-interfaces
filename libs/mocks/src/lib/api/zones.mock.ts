@@ -61,6 +61,7 @@ function registerMocks() {
                         details: {
                             area_management: 'space-0',
                             location_services: 'space-0',
+                            contact_tracing: 'space-0',
                         },
                     },
                 };
@@ -92,7 +93,16 @@ function registerMocks() {
                                     properties: {
                                         capacity: 100,
                                         label_location: { x: 0.36, y: 0.33 },
+                                        // draw_polygon: true
                                     },
+                                    geometry: {
+                                        coordinates: [
+                                            [0.0,0.0],
+                                            [0.0,0.5],
+                                            [0.5,0.5],
+                                            [0.5,0.0]
+                                        ]
+                                    }
                                 },
                                 {
                                     id: 'zone-10.B',

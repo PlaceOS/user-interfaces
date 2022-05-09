@@ -44,9 +44,7 @@ export class GlobalBannerComponent {
         return this._settings.get('app.general.banner');
     }
 
-    constructor(private _settings: SettingsService) {
-        console.log('Banner:', this.banner);
-    }
+    constructor(private _settings: SettingsService) {}
 
     public close() {
         localStorage.setItem('PLACE.last_banner', this.banner?.id || '');

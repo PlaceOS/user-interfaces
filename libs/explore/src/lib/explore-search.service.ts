@@ -38,7 +38,8 @@ export class ExploreSearchService {
     /** Whether results are being loaded */
     private _loading = new BehaviorSubject<boolean>(false);
 
-    public readonly emergency_contacts = this._emergency_contacts.asObservable();
+    public readonly emergency_contacts =
+        this._emergency_contacts.asObservable();
 
     private _user_search: Observable<StaffUser[]> = this._filter.pipe(
         debounceTime(400),
@@ -114,10 +115,9 @@ export class ExploreSearchService {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        const mod = getModule(
-            this._org.organisation.bindings?.location_services,
-            'LocationServices'
-        );
+        let sys_id: any = this._org.binding('location_services');
+        if (!sys_id) return;
+        const mod = getModule(sys_id, 'LocationServices');
         if (mod) {
             const binding = mod.binding('emergency_contacts');
             binding.listen().subscribe((contacts_map) => {

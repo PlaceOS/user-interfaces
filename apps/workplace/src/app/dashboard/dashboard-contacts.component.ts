@@ -23,10 +23,10 @@ import { DashboardStateService } from './dashboard-state.service';
                 <div name="contact-name" class="text-sm mb-2">
                     {{ user.name }}
                 </div>
-                <div name="location" class="flex items-center text-sm">
+                <!-- <div name="location" class="flex items-center text-sm">
                     <div name="dot" class="mr-2"></div>
                     Level 12
-                </div>
+                </div> -->
                 <button mat-icon-button name="close" (click)="removeUser(user)">
                     <app-icon
                         [icon]="{ class: 'material-icons', content: 'close' }"

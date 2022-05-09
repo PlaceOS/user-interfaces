@@ -13,6 +13,7 @@ export interface Attachment {
 export interface UserComplete extends User {
     sys_admin?: boolean;
     support?: boolean;
+    department?: string;
 }
 
 export type EventResponseStatus =
@@ -74,13 +75,13 @@ export class User {
         this.photo = data.photo || '';
         this.username = data.username || '';
         this.organizer = !!data.organizer;
-        this.groups = data.groups || [];
         this.checked_in = !!data.checked_in;
         this.required = data.required ?? true;
         this.response_status = data.response_status || '';
         const groups = data.groups || [];
         if (data.sys_admin) groups.push('placeos_admin');
         if (data.support) groups.push('placeos_support');
+        if (data.department) groups.push(data.department);
         this.groups = groups;
         this.extension_data = data.extension_data || {};
         this.extension_data.assistance_required =

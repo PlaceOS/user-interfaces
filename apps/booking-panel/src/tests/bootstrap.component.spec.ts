@@ -79,7 +79,7 @@ describe('BootstrapComponent', () => {
         spectator.click('button');
         spectator.detectChanges();
         const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0']);
+        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], { queryParamsHandling: "preserve" });
     });
 
     it('should auto bootstrap if there is a system query parameter', () => {
@@ -87,7 +87,7 @@ describe('BootstrapComponent', () => {
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
         const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0']);
+        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], { queryParamsHandling: "preserve" });
     });
 
     it('should clear bootstrap if there is a clear query parameter', () => {

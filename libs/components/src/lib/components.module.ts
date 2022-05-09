@@ -41,6 +41,7 @@ import { GlobalLoadingComponent } from './global-loading.component';
 import { MatSortModule } from '@angular/material/sort';
 import { MapPolygonComponent } from './map-polygon.component';
 import { GlobalBannerComponent } from './global-banner.component';
+import { MapLocateModalComponent } from './map-locate-modal.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -62,6 +63,7 @@ export * from './safe.pipe';
 export * from './sanitise.pipe';
 export * from './virtual-keyboard.component';
 export * from './global-loading.component';
+export * from './map-locate-modal.component';
 
 export * from './authorised-admin.guard';
 export * from './authorised-user.guard';
@@ -103,6 +105,7 @@ const COMPONENTS: Type<any>[] = [
     VirtualKeyboardComponent,
     GlobalLoadingComponent,
     GlobalBannerComponent,
+    MapLocateModalComponent,
 
     FixedPipe,
     SafePipe,

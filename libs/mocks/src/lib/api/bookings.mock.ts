@@ -18,7 +18,7 @@ function registerMocks() {
                         _.query_params.period_end,
                         event.booking_start,
                         event.booking_end
-                    ) && event.type === _.query_params.type
+                    ) && (event.type === _.query_params.type || event.booking_type === _.query_params.type)
             );
             return events;
         },
@@ -48,6 +48,7 @@ function registerMocks() {
                 ...request.body,
                 id: `-booking-${predictableRandomInt(999)}`,
             };
+            console.log('New Booking:', new_event);
             MOCK_BOOKINGS.push(new_event);
             return new_event;
         },
@@ -62,7 +63,6 @@ function registerMocks() {
             };
         const new_event = { ...data };
         const removed = MOCK_BOOKINGS.splice(index, 1, new_event);
-        console.log('Removed:', removed);
         return new_event;
     };
 

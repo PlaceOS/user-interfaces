@@ -61,8 +61,10 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 );
                 this.subscription(`s-bind-${space.id}`, binding.bind());
             }
-            this.updateActions(list);
-            this.updateHoverElements(list);
+            this.timeout('after_bind', () => {
+                this.updateActions(list);
+                this.updateHoverElements(list);
+            });
         })
     );
 
@@ -76,6 +78,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
     }
 
     public bookSpace(space: Space) {
+        console.debug('Book Space:', space);
         if (this._statuses[space.id] === 'busy' || !space.bookable) {
             return notifyError(
                 `${
@@ -143,16 +146,18 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
         for (const space of spaces) {
             features.push({
                 location: space.map_id,
+                track_id: `${space.map_id}-info-hover`,
                 full_size: true,
                 no_scale: true,
                 content: ExploreSpaceInfoComponent,
                 data: {
-                    space,
+                    space: new Space(space),
                     events: this._bookings[space.id],
                     status: this._statuses[space.id],
                 },
             } as any);
         }
+        console.log('Features:', features);
         this._state.setFeatures('spaces', features);
     }
 

@@ -1,4 +1,5 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
@@ -27,12 +28,13 @@ export interface SpaceInfoData {
             [yPosition]="'center'"
             [hover]="true"
             [attr.id]="space?.map_id || space?.id"
+            *ngIf="space"
             class="h-full w-full pointer-events-auto relative"
         ></div>
         <ng-template #space_tooltip>
             <div
                 name="space-info"
-                [id]="space.id"
+                [id]="space?.id"
                 class="
                     absolute rounded bg-white p-4 top-0 left-0 transform shadow pointer-events-none
                 "
@@ -62,7 +64,7 @@ export interface SpaceInfoData {
                             {{ available_until }}
                         </div>
                     </div>
-                    <div features *ngIf="space.features?.length > 0">
+                    <div features *ngIf="space.features?.length > 0 && show_features">
                         <h4 class="m-0 mb-2">Room Features</h4>
                         <ul class="pl-2">
                             <li
@@ -114,8 +116,13 @@ export class ExploreSpaceInfoComponent implements OnInit {
 
     public x_pos: 'start' | 'end';
 
+    public get show_features() {
+        return !this._settings.get('app.spaces.hide_features');
+    }
+
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
+        private _settings: SettingsService,
         private _element: ElementRef<HTMLElement>
     ) {}
 

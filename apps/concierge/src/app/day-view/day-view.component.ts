@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ApplicationLinkInternal, SettingsService } from '@placeos/common';
 
 @Component({
     selector: '[app-dayview]',
@@ -22,4 +24,17 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class DayViewComponent {}
+export class DayViewComponent implements OnInit {
+
+    public get links(): ApplicationLinkInternal[] {
+        return this._settings.get('app.general.menu') || [];
+    }
+
+    constructor(private _settings: SettingsService, private _router: Router) {}
+
+    public ngOnInit() {
+        if (!this.links.find(_ => _.route.includes('day-view'))) {
+            this._router.navigate([`/${this.links[0].route}`]);
+        }
+    }
+}

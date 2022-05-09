@@ -46,7 +46,7 @@ describe('BookingModalComponent', () => {
     });
 
     it('should allow for submitting the form', () => {
-        spectator.component.form.patchValue({ title: 'Test title' });
+        spectator.component.form.patchValue({ title: 'Test title', organiser: { email: 'j@b.com' } });
         const button: HTMLButtonElement = spectator.query(
             'button[name="save"]'
         );

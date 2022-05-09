@@ -6,13 +6,16 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: '[report-spaces]',
     template: `
-        <ng-container *ngIf="!(loading | async); else load_state">
-            <ng-container *ngIf="total_count | async; else empty_state">
-                <report-spaces-overall></report-spaces-overall>
-                <report-spaces-space-listing></report-spaces-space-listing>
-                <report-spaces-user-listing></report-spaces-user-listing>
+        <reports-options></reports-options>
+        <div class="flex-1 h-1/2 w-full overflow-auto">
+            <ng-container *ngIf="!(loading | async); else load_state">
+                <ng-container *ngIf="total_count | async; else empty_state">
+                    <report-spaces-overall></report-spaces-overall>
+                    <report-spaces-space-listing></report-spaces-space-listing>
+                    <report-spaces-user-listing></report-spaces-user-listing>
+                </ng-container>
             </ng-container>
-        </ng-container>
+        </div>
         <ng-template #load_state>
             <div class="h-full w-full flex flex-col items-center p-8">
                 <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
@@ -27,10 +30,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </ng-template>
     `,
-    styles: [
-        `
-        `,
-    ],
+    styles: [``],
 })
 export class ReportSpacesComponent {
     public readonly total_count = this._state.stats.pipe(

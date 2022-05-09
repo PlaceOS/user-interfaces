@@ -7,6 +7,7 @@ export function generateBookingForm(booking: Booking = {} as any) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         date: new FormControl(booking.date, []),
+        all_day: new FormControl(booking.all_day ?? false),
         duration: new FormControl(booking.duration),
         booking_type: new FormControl(booking.booking_type),
         zones: new FormControl(booking.zones),
@@ -40,7 +41,7 @@ export function generateBookingForm(booking: Booking = {} as any) {
     return form;
 }
 
-export async function findNearbyDesk(map_url: string, centered_at: Point | string, desk_ids: string[] = []): Promise<string> {
+export async function findNearbyFeature(map_url: string, centered_at: Point | string, desk_ids: string[] = []): Promise<string> {
     const element = document.createElement('div');
     element.style.position = 'absolute';
     element.style.top = '-9999px';

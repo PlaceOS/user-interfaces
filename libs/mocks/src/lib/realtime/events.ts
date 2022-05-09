@@ -20,46 +20,14 @@ export class MockBookingModule {
     catering_ui = '';
     /** Time of the last booking started by a user */
     last_booking_started = 0;
-
-    get current_booking() {
-        return this.bookings.find((_) =>
-            timePeriodsIntersect(
-                Date.now(),
-                Date.now(),
-                _.event_start * 1000,
-                _.event_end * 1000
-            )
-        );
-    }
-
-    get next_booking() {
-        return this.bookings.find((_) => _.event_start * 1000 > Date.now());
-    }
-
+    current_booking = null;
+    next_booking = null;
     /** Current status of the space */
-    get status(): 'pending' | 'busy' | 'free' | 'not-bookable' {
-        const date = new Date();
-        const { current_booking, next_booking } = this;
-        const start = new Date((current_booking || next_booking)?.event_start);
-        const pending = timePeriodsIntersect(
-            date,
-            date,
-            subSeconds(start, this.pending_before),
-            addSeconds(start, this.pending_period)
-        );
-        return this._space?.bookable
-            ? current_booking
-                ? 'busy'
-                : pending
-                ? 'pending'
-                : 'free'
-            : 'not-bookable';
-    }
+    room_image = 'assets/boardroom.jpg'
+    status = 'free';
+    _space = null;
 
-    constructor(private _space, _data: Partial<MockBookingModule>) {
-        updateBookings(_space, this);
-        setInterval(() => updateBookings(_space, this), 15 * 1000);
-    }
+    constructor(space, _data: Partial<MockBookingModule>) { this._space = space }
 
     /** Start the meeting at the given time */
     $start_meeting(t: number) {
@@ -69,21 +37,52 @@ export class MockBookingModule {
     $end_meeting(t: number) {}
     /** Book meeting for the current time */
     $book_now(len: number, t?: string, o?: string) {}
+
+    $poll_bookings() {
+        updateBookings(this._space, this);
+    }
 }
 
-export function createBookingsModule(
+export const createBookingsModule = (
     space: HashMap,
     overrides: Partial<MockBookingModule> = {}
-) {
-    const mod = new MockBookingModule(space, overrides);
-    return mod;
-}
+) => new MockBookingModule(space, overrides);
 
 function updateBookings(space: HashMap, mod: HashMap) {
     const bookings =
         MOCK_EVENTS.filter((event) =>
-            event.attendees?.find((u) => u.email === space.email)
+            event.attendees?.find(
+                (u) =>
+                    u.email === space.email ||
+                    u.id === space.id ||
+                    event.system?.id === space.id
+            )
         ) || [];
     bookings.sort((a, b) => a.event_start - b.event_start);
     mod.bookings = bookings;
+    mod.current_booking = bookings.find((_) =>
+        timePeriodsIntersect(
+            Date.now(),
+            Date.now(),
+            _.event_start * 1000,
+            _.event_end * 1000
+        )
+    );
+    mod.next_booking = bookings.find((_) => _.event_start * 1000 > Date.now());
+    const date = new Date();
+    const { current_booking, next_booking } = mod;
+    const start = new Date((current_booking || next_booking)?.event_start);
+    const pending = timePeriodsIntersect(
+        date,
+        date,
+        subSeconds(start, mod.pending_before),
+        addSeconds(start, mod.pending_period)
+    );
+    mod.status = space?.bookable
+        ? current_booking
+            ? 'busy'
+            : pending
+            ? 'pending'
+            : 'free'
+        : 'not-bookable';
 }

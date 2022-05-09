@@ -47,7 +47,7 @@ import { SettingsService } from '@placeos/common';
                     ></a-user-search-field>
                 </div>
                 <div
-                    class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                    class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-2"
                 >
                     <label>Attendees</label>
                     <a-user-list-field

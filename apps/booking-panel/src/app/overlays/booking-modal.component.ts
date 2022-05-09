@@ -22,13 +22,15 @@ export async function openBookingModal(
     const ref = dialog.open(BookingModalComponent, {
         data,
     });
-    const result = (await Promise.race([
-        ref.componentInstance.event.pipe(first((_) => _.reason === 'done')).toPromise(),
+    const result = await Promise.race([
+        ref.componentInstance.event
+            .pipe(first((_) => _.reason === 'done'))
+            .toPromise(),
         ref.afterClosed().toPromise(),
-    ])).catch(_ => ({}))
+    ]).catch((_) => ({}));
     return {
         ...result,
-        close: ref.close,
+        close: () => ref.close(),
     };
 }
 
@@ -128,7 +130,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
 
     public ngOnInit(): void {
         this.form = new FormGroup({
-            // organiser: new FormControl(null, [Validators.required]),
+            organiser: new FormControl(null, [Validators.required]),
             room_ids: new FormControl([this._data.space?.email || '']),
             date: new FormControl(this._data.date || new Date().valueOf()),
             duration: new FormControl(30),
@@ -147,7 +149,7 @@ export class BookingModalComponent extends BaseClass implements OnInit {
             this.loading = true;
             this.event.emit({
                 reason: 'done',
-                metadata: new CalendarEvent({ ...this.form.value }),
+                metadata: this.form.value,
             });
         } else {
             console.log('Invalid form fields. Valid states:', this.form);

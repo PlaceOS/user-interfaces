@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BookingFormService, findNearbyDesk } from '@placeos/bookings';
+import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import { currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
@@ -162,7 +162,7 @@ export class DeskFlowFormComponent implements OnInit {
             return;
         }
         const desk_list = await this._state.available_assets.pipe(take(1)).toPromise()
-        const desk_id = await findNearbyDesk(lvl.map_id, centered_at, desk_list.map(_ => _.map_id || _.id));
+        const desk_id = await findNearbyFeature(lvl.map_id, centered_at, desk_list.map(_ => _.map_id || _.id));
         const desk = desk_list.find(_ => _.map_id === desk_id || _.id === desk_id);
         if (!desk) {
             this._router.navigate(['/book', 'desks', 'map']);

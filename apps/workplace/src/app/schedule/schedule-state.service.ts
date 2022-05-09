@@ -63,8 +63,8 @@ export class ScheduleStateService extends BaseClass {
                     )
             );
             return forkJoin([
-                queryEvents({ ...query }),
-                queryBookings({ ...query, type: 'desk' }),
+                queryEvents({ ...query }).pipe(catchError((_) => [])),
+                queryBookings({ ...query, type: 'desk' }).pipe(catchError((_) => [])),
             ]);
         }),
         map(([events, bookings]) => {

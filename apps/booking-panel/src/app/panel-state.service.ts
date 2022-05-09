@@ -18,6 +18,14 @@ import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal
 import { addSeconds, getUnixTime } from 'date-fns';
 
 export interface PanelSettings {
+    /** URL for the image to display when system is not bookable */
+    offline_image?: string;
+    /** Background color to display when system is not bookable */
+    offline_color?: string;
+    /** Custom URL for the QR code */
+    custom_qr_url?: string;
+    /** Custom color for the display QR code */
+    custom_qr_color?: string;
     /**  */
     status?: string;
     /** Whether booking has a pending state */
@@ -36,6 +44,14 @@ export interface PanelSettings {
     control_ui?: string;
     /** URI to the catering UI for this space */
     catering_ui?: string;
+    /** Whether the QR code should be shown */
+    show_qr_code?: boolean;
+    /** URL of the image to display for the space */
+    room_image?: string;
+    /** Whether sensors detect presence in the space */
+    presence?: boolean;
+    /** Capacity for the space */
+    room_capacity?: number;
 }
 
 export function currentBooking(
@@ -84,7 +100,7 @@ export class PanelStateService extends BaseClass {
         this._system.next(value);
     }
 
-    public setting<T = any>(name: string): T {
+    public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
         return this._settings.getValue()[name];
     }
     /** List of current bookings for active system */
@@ -119,6 +135,8 @@ export class PanelStateService extends BaseClass {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
+                'custom_qr_url',
+                'custom_qr_color',
                 'disable_book_now',
                 'pending',
                 'status',
@@ -127,7 +145,10 @@ export class PanelStateService extends BaseClass {
                 'pending_period',
                 'pending_before',
                 'room_image',
+                'offline_image',
                 'show_qr_code',
+                'presence',
+                'room_capacity'
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
@@ -138,18 +159,21 @@ export class PanelStateService extends BaseClass {
      * @param date Start time of the new booking
      */
     public async newBooking(date: number = new Date().valueOf()) {
+        const space = this._spaces.find(this.system);
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
-                space: this._spaces.find(this.system),
+                space,
                 date,
             },
             this._dialog
         );
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
-        this._events.form.patchValue({ ...details.metadata });
-        await this._events.postForm();
+        this._events.form.patchValue({ ...details.metadata, resources: [space], system: space });
+        await this._events.postForm().catch((e) => {
+            notifyError(`Error creating booking. ${e}`);
+        });
         details.close();
     }
 
@@ -243,6 +267,18 @@ export class PanelStateService extends BaseClass {
         this._dialog.open(EmbeddedControlModalComponent, {
             data: { control_url },
         });
+    }
+
+    /**
+     * Execute the logic on the engine driver to call waiting staff
+     */
+    public async checkin() {
+        const module = getModule(this.system, 'Bookings');
+        if (module) {
+            await module
+                .execute('checkin', [Date.now()])
+                .catch((e) => notifyError(`Error checking in booking. ${e}`));
+        }
     }
 
     /**

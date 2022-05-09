@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { BaseClass, Identity } from '@placeos/common';
@@ -112,6 +112,8 @@ export class ReportsOptionsComponent extends BaseClass {
 
     public readonly options = this._state.options;
 
+    public page = '';
+
     public readonly generateReport = () => this._state.generateReport();
 
     public readonly downloadReport = () => this._state.downloadReport();
@@ -127,13 +129,18 @@ export class ReportsOptionsComponent extends BaseClass {
     constructor(
         private _state: ReportsStateService,
         private _org: OrganisationService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         super();
     }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.page = this._router.url;
+        this.subscription('routing', this._router.events.subscribe(() => {
+            this.page = this._router.url;
+        }));
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

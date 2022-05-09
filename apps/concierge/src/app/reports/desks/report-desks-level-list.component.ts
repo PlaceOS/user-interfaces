@@ -54,7 +54,7 @@ export class ReportDesksLevelListComponent {
     ]).pipe(
         map(([options, stats, counts]) => {
             const { start, end, zones } = options;
-            const duration = differenceInDays(end, start);
+            const duration = differenceInDays(end, start) || 1;
             const levels = [];
             for (const zone of zones) {
                 if (zone === 'All') continue;
@@ -70,10 +70,12 @@ export class ReportDesksLevelListComponent {
                 levels.push({
                     name: lvl?.display_name || lvl?.name,
                     free,
+                    approved: events.filter(_ => _.approved).length || 0,
+                    avg_usage: events.length / duration,
                     total: count,
                     count: events.length,
                     utilisation: (
-                        (events.length / (count * duration)) * 100 || 0
+                        (events.length / ((count || 1) * duration)) * 100 || 0
                     ).toFixed(2),
                 });
             }

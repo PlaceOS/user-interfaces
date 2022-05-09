@@ -77,6 +77,7 @@ export class DeskMapViewComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
+        this.subscription('desk_polling', this._desks_state.startPolling());
         this.subscription(
             'date',
             this._desk.filters.subscribe((opts) => {
