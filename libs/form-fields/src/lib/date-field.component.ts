@@ -1,24 +1,24 @@
 import {
     Component,
-
     forwardRef,
-
-    Injectable, Input, OnInit
+    Injectable,
+    Input,
+    OnInit,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
     DateAdapter,
     MatDateFormats,
     MAT_DATE_FORMATS,
-    NativeDateAdapter
+    NativeDateAdapter,
 } from '@angular/material/core';
 import {
     addYears,
-
     endOfDay,
     format,
     formatISO,
-    set, startOfDay
+    set,
+    startOfDay,
 } from 'date-fns';
 import { BaseClass } from 'libs/common/src/lib/base.class';
 import { HashMap } from 'libs/common/src/lib/types';
@@ -84,7 +84,8 @@ const FIELD_DATE_FORMATS: MatDateFormats = {
 })
 export class DateFieldComponent
     extends BaseClass
-    implements OnInit, ControlValueAccessor {
+    implements OnInit, ControlValueAccessor
+{
     /** Earliest date available the user is allowed to pick */
     @Input('from') public _from: number = new Date().valueOf();
     /** Latest date available the user is allowed to pick */

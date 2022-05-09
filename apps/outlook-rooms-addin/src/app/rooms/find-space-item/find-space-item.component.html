@@ -1,0 +1,30 @@
+<div
+    class="flex bg-white p-2 my-2 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
+>
+    <div class="flex flex-col flex-1 space-y-2">
+        <mat-button-toggle
+            class="w-full flex"
+            (click)="this.bookSpace(space.id)"
+        >
+            <div class="flex items-center">
+                <div
+                    class="items-center p-2 h-10 w-10 rounded-full bg-gray-300 mr-2"
+                >
+                    <mat-icon>meeting_room</mat-icon>
+                </div>
+                <span
+                    >{{ space?.level?.display_name || space?.level?.name }},
+                    {{ space?.display_name || space?.name }}</span
+                >
+            </div>
+            <div class="flex">
+                <div
+                    class="items-center p-2 h-10 w-10 rounded-full bg-gray-300 mr-2"
+                >
+                    <mat-icon>group</mat-icon>
+                </div>
+                <span>{{ space?.capacity || 0 }} People</span>
+            </div>
+        </mat-button-toggle>
+    </div>
+</div>

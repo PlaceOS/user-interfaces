@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "../../dist/out-tsc",
+        "types": ["office-js"],
+        "experimentalDecorators": true,
+        "noEmitOnError": true,
+        "sourceMap": true,
+        "module": "commonjs"
+    },
+    "ts-node": {
+        "files": true
+    },
+    "types": ["office-js"],
+    "files": ["src/main.ts", "src/polyfills.ts"]
+}

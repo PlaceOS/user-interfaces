@@ -1,0 +1,28 @@
+<div class="flex flex-1 flex-col z-0 bg-gray-50 h-full overflow-hidden">
+    <section
+        class="flex border-b border-gray-300 py-5 items-center justify-content h-full"
+    >
+        <div
+            class="flex flex-col items-center mx-auto w-[calc(100%-4rem)] max-w-[768px]"
+        >
+            <div class="mb-3">
+                <span class="text-3xl font-bold mr-auto text-gray-700">
+                    Booking Confirmed!</span
+                >
+            </div>
+            <div>
+                <img src="../../../assets/tick_success.svg" />
+            </div>
+
+            <div class="mx-10">
+                <span
+                    >Your room booking for
+                    {{ this.location }}
+                    has been successfully booked for the
+                    {{ this.date | async | date: 'dd MMMM yyyy' }} at
+                    {{ this.startTime$ | async }} - {{ this.endTime$ | async }}
+                </span>
+            </div>
+        </div>
+    </section>
+</div>

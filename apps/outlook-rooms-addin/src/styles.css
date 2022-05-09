@@ -1,0 +1,38 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+    --blueIcon: #5295f7;
+}
+
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.mat-bottom-sheet-container {
+    min-width: 400px;
+}
+
+.bottom-sheet-transparent {
+    background-color: transparent;
+}
+
+.top-box-shadow {
+    -webkit-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
+    -moz-box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
+    box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
+}
+
+.material-icons.blue-icon {
+    color: var(--blueIcon);
+    display: flex;
+    align-items: center;
+}
