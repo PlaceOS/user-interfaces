@@ -14,13 +14,27 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    first,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
-import { NewUserModalComponent, User, USER_DOMAIN } from '@placeos/users';
+import {
+    NewUserModalComponent,
+    searchStaff,
+    User,
+    USER_DOMAIN,
+} from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { BehaviorSubject, of } from 'rxjs';
 
 function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const re =
+        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 }
 
@@ -33,22 +47,53 @@ function validateEmail(email) {
             [attr.disabled]="disabled"
         >
             <div search>
-                <a-user-search-field
-                    [(ngModel)]="search_user"
-                    [guests]="guests"
-                    [filter]="filter"
-                    error="Click on Add External to add an attendee."
-                    [empty_fn]="emptyClick"
-                    [validate]="validFn"
-                    (ngModelChange)="addUser($event)"
-                ></a-user-search-field>
+                <mat-form-field
+                    class="w-full"
+                    appearance="outline"
+                    matAutocompleteOrigin
+                    #origin="matAutocompleteOrigin"
+                >
+                    <mat-chip-list #chipList aria-label="Fruit selection">
+                        <mat-chip
+                            *ngFor="let user of active_list"
+                            (removed)="removeUser(user)"
+                        >
+                            <app-icon class="mr-2">business</app-icon>
+                            {{ user.name || user.email }}
+                            <button matChipRemove>
+                                <app-icon>cancel</app-icon>
+                            </button>
+                        </mat-chip>
+                        <input
+                            placeholder="Type a name or email"
+                            name="user_email"
+                            [ngModel]="search$.getValue()"
+                            (ngModelChange)="search$.next($event)"
+                            [matAutocomplete]="auto"
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                            (matChipInputTokenEnd)="addUserFromEmail($event)"
+                        />
+                        <mat-spinner *ngIf="loading" diameter="24" matSuffix></mat-spinner>
+                    </mat-chip-list>
+                </mat-form-field>
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option
+                        *ngFor="let user of user_list$ | async"
+                        (click)="addUser(user)"
+                        class="leading-tight"
+                    >
+                        {{ user.name }}<br />
+                        <span class="text-xs">{{ user.email }}</span>
+                    </mat-option>
+                </mat-autocomplete>
             </div>
-            <div class="flex items-center" *ngIf="!hide_actions">
+            <div class="flex items-center space-x-2 -mt-4" *ngIf="!hide_actions">
                 <button
                     mat-button
                     type="button"
                     name="new-contact"
-                    class="clear underline flex-1"
+                    class="inverse"
                     (click)="openNewUserModal()"
                     i18n="Add new external attendee"
                 >
@@ -57,8 +102,8 @@ function validateEmail(email) {
                 <button
                     mat-button
                     type="button"
-                    class="clear underline flex-1 relative"
                     name="upload-csv"
+                    class="inverse"
                     i18n="Upload attendee list from CSV file"
                 >
                     Upload CSV
@@ -71,126 +116,19 @@ function validateEmail(email) {
                 <button
                     mat-button
                     type="button"
-                    class="clear underline flex-1"
                     name="download-template"
+                    class="inverse"
                     (click)="downloadCSVTemplate()"
                     i18n="Download template CSV file"
                 >
                     CSV Template
                 </button>
             </div>
-            <div
-                class="flex flex-col py-2"
-                *ngIf="active_list?.length; else empty_state"
-            >
-                <div
-                    user
-                    [id]="user.email"
-                    *ngFor="let user of active_list"
-                    class="flex items-center space-x-2 p-2 hover:bg-black hover:bg-opacity-5 rounded"
-                    (click)="user.is_external ? openNewUserModal(user) : ''"
-                >
-                    <a-user-avatar
-                        [user]="user"
-                        [attr.icon]="!user.is_external"
-                        [matTooltip]="
-                            user.is_external
-                                ? 'External Attendee'
-                                : 'Staff Attendee'
-                        "
-                        matTooltipPosition="right"
-                    >
-                        <div class="h-full w-full bg-success text-white">
-                            <app-icon>done</app-icon>
-                        </div>
-                    </a-user-avatar>
-                    <div class="flex-1 w-1/4">
-                        <div class="truncate">{{ user.name }}</div>
-                        <div class="text-xs truncate">{{ user.email }}</div>
-                    </div>
-                    <button
-                        mat-icon-button
-                        type="button"
-                        (click)="
-                            user.required = !user.required;
-                            $event.stopPropagation();
-                            setValue(active_list)
-                        "
-                        [class.bg-success]="user.required"
-                        [class.text-white]="user.required"
-                        matTooltip="Required"
-                        matTooltipPosition="left"
-                    >
-                        <app-icon>{{
-                            user.required ? 'person' : 'person_outline'
-                        }}</app-icon>
-                    </button>
-                    <button
-                        mat-icon-button
-                        type="button"
-                        [disabled]="!user.is_external"
-                        (click)="
-                            user.visit_expected = !user.visit_expected;
-                            $event.stopPropagation();
-                            setValue(active_list)
-                        "
-                        [class.bg-success]="
-                            user.is_external && user.visit_expected
-                        "
-                        [class.text-white]="
-                            user.is_external && user.visit_expected
-                        "
-                        matTooltip="Physical visit expected"
-                        matTooltipPosition="left"
-                    >
-                        <app-icon>meeting_room</app-icon>
-                    </button>
-                    <button
-                        mat-icon-button
-                        type="button"
-                        [disabled]="!user.is_external"
-                        (click)="
-                            user.assistance_required = !user.assistance_required;
-                            $event.stopPropagation();
-                            setValue(active_list)
-                        "
-                        [class.bg-success]="user.assistance_required"
-                        [class.text-white]="user.assistance_required"
-                        matTooltip="Assistance Required"
-                        matTooltipPosition="left"
-                    >
-                        <app-icon *ngIf="user.is_external"
-                            >contact_support</app-icon
-                        >
-                    </button>
-                    <button
-                        mat-icon-button
-                        remove
-                        type="button"
-                        (click)="removeUser(user); $event.stopPropagation()"
-                    >
-                        <app-icon>close</app-icon>
-                    </button>
-                </div>
-            </div>
         </div>
-        <ng-template #empty_state>
-            <div class="m-2 opacity-50 text-center" i18n="Attendee empty state">
-                None
-            </div>
-        </ng-template>
     `,
     styles: [
         `
-            button {
-                background: transparent;
-                border-top: none !important;
-                border-bottom: none !important;
-            }
-
             [search] {
-                height: 3.5rem;
-                margin-top: -0.25rem;
             }
         `,
     ],
@@ -204,7 +142,8 @@ function validateEmail(email) {
 })
 export class UserListFieldComponent
     extends BaseClass
-    implements ControlValueAccessor {
+    implements ControlValueAccessor
+{
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Number of characters needed before a search will start */
@@ -218,14 +157,24 @@ export class UserListFieldComponent
     /** Emitter for action to make a new user */
     @Output() public new_user = new EventEmitter<void>();
 
-    public search_user: User;
+    readonly separatorKeysCodes = [ENTER, COMMA] as const;
+
+    /** Whether user list is loading */
+    public loading = false;
+
+    public readonly search$ = new BehaviorSubject('');
 
     /** User list to display */
-    public user_list: User[] = [];
+    public user_list$ = this.search$.pipe(
+        debounceTime(300),
+        switchMap((_) => {
+            this.loading = true;
+            return _ ? searchStaff(_).pipe(catchError((_) => [])) : of([]);
+        }),
+        tap((_) => (this.loading = false))
+    );
     /** List of active selected users on the list */
     public active_list: User[] = [];
-    /** Whether user list is loading */
-    public loading: boolean;
 
     /** Form control on change handler */
     private _onChange: (_: User[]) => void;
@@ -240,6 +189,14 @@ export class UserListFieldComponent
         private _settings: SettingsService
     ) {
         super();
+    }
+
+    public addUserFromEmail(email: string) {
+        validateEmail(email)
+            ? this.addUser(
+                  new User({ id: email, email, name: email.split('@')[0] })
+              )
+            : '';
     }
 
     /**
@@ -259,7 +216,7 @@ export class UserListFieldComponent
                         : null) ?? true,
             }),
         ]);
-        this.timeout('clear_user', () => (this.search_user = null), 10);
+        this.timeout('clear_search', () => this.search$.next(''));
     }
 
     /**

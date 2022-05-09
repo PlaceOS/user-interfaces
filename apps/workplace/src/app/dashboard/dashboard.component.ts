@@ -13,6 +13,7 @@ import { SettingsService } from '@placeos/common';
                     class="flex flex-1 px-0 sm:px-8 flex-wrap overflow-auto h-px sm:h-auto"
                 >
                     <a-dashboard-availability
+                        *ngIf="!hide_availability"
                         class="flex-1 min-w-64"
                     ></a-dashboard-availability>
                     <a-dashboard-upcoming
@@ -65,6 +66,10 @@ import { SettingsService } from '@placeos/common';
 })
 export class DashboardComponent {
     constructor(private _settings: SettingsService) {}
+
+    public get hide_availability() {
+        return this._settings.get('app.hide_availability') !== false;
+    }
 
     public get hide_contacts() {
         return this._settings.get('app.hide_contacts') !== false;

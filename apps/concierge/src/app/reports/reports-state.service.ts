@@ -232,6 +232,7 @@ export class ReportsStateService {
                     const details = bkn.toJSON();
                     delete details.zones;
                     delete details.server_names;
+                    delete details.extension_data;
                     return details;
                 })
             )

@@ -112,6 +112,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         this._state.reset();
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
         this.toggleZones(false);
+        this.subscription('desks', this._desks.startPolling());
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
@@ -160,6 +161,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         const has_coordinates = id.includes(',');
         const parts = id.split(',');
         const feature: any = {
+            track_id: `locate-${id}`,
             location: has_coordinates
                 ? { x: parseFloat(parts[0]), y: parseFloat(parts[1]) }
                 : id,
@@ -175,6 +177,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     private locateSpace(space: Space) {
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
+            track_id: `locate-${space.id}`,
             location: space.map_id,
             content: MapPinComponent,
             z_index: 99,
@@ -188,8 +191,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
     }
 
     private async locateUser(user: User) {
-        let locate_details: any = this._org.organisation.bindings
-            .location_services;
+        let locate_details: any = this._org.binding('location_services');
         if (!locate_details) return;
         if (typeof locate_details === 'string') {
             locate_details = {
@@ -216,6 +218,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         const pos: any = locations[0].position;
         const { coordinates_from } = locations[0];
         const feature: any = {
+            track_id: `locate-${user.id}`,
             location:
                 locations[0].type === 'wireless'
                     ? {

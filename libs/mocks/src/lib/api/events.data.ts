@@ -47,7 +47,7 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
         host: attendees[0].email,
         calendar: 'calendar_id',
         creator: 'optional@fake.com',
-        attendees: unique(attendees, 'email').map((_, idx) => ({
+        attendees: (unique(attendees, 'email') || []).map((_, idx) => ({
             ..._,
             organizer: idx === 0,
             checked_in: predictableRandomInt(99999) % 2 === 0,
@@ -65,7 +65,7 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
         event_end,
         timezone: 'Australia/Sydney',
         all_day: false,
-        location: `${space.name}`,
+        location: `${space?.name}`,
         recurring: false,
         recurrence: {},
         attachments: {},

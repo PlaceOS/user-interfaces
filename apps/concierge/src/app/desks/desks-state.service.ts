@@ -43,9 +43,14 @@ export interface DeskFilters {
 })
 export class DesksStateService extends BaseClass {
     private _filters = new BehaviorSubject<DeskFilters>({});
+    private _new_desks = new BehaviorSubject<Desk[]>([]);
     private _desk_bookings: Booking[] = [];
     private _desks: Desk[] = [];
     private _loading = new BehaviorSubject<boolean>(false);
+
+    public readonly new_desks = this._new_desks.asObservable();
+
+    public get new_desk_count() { return this._new_desks.getValue()?.length || 0; }
 
     public readonly loading = this._loading.asObservable();
 
@@ -75,18 +80,13 @@ export class DesksStateService extends BaseClass {
                 (i) =>
                     new Desk({
                         ...i,
-                        qr_code: generateQRCode(
-                            `${location.origin}/workplace/#/book/code?checkin=${encodeURIComponent(
-                                i.id
-                            )}`
-                        ),
+                        qr_code: "",
                     })
             );
             return this._desks;
         }),
-        shareReplay()
+        shareReplay(1)
     );
-
     public readonly bookings = this._filters.pipe(
         debounceTime(500),
         switchMap((filters) => {
@@ -126,7 +126,7 @@ export class DesksStateService extends BaseClass {
             this._loading.next(false);
             return list;
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     constructor(private _org: OrganisationService, private _dialog: MatDialog) {
@@ -163,6 +163,14 @@ export class DesksStateService extends BaseClass {
         this.clearInterval('poll');
     }
 
+    public addDesks(list: Desk[]) {
+        this._new_desks.next(this._new_desks.getValue().concat(list));
+    }
+
+    public clearNewDesks() {
+        this._new_desks.next([]);
+    }
+
     public async checkinDesk(desk: Booking) {
         const success = await checkinBooking(desk.id, true)
             .toPromise()
@@ -181,7 +189,7 @@ export class DesksStateService extends BaseClass {
             : notifySuccess(
                   `Approved desk booking for ${desk.user_name} on ${format(
                       desk.date,
-                      'MMM Do'
+                      'MMM do'
                   )}.`
               );
     }
@@ -195,7 +203,7 @@ export class DesksStateService extends BaseClass {
             : notifySuccess(
                   `Rejected desk booking for ${desk.user_name} on ${format(
                       desk.date,
-                      'MMM Do'
+                      'MMM do'
                   )}.`
               );
     }

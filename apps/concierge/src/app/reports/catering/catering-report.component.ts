@@ -5,29 +5,32 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'catering-report',
     template: `
-        <ng-container *ngIf="!(loading | async); else load_state">
-            <div
-                class="h-full w-full"
-                *ngIf="total_count | async; else empty_state"
-            >
-                <catering-report-overall></catering-report-overall>
-                <catering-report-orders></catering-report-orders>
-                <catering-report-items></catering-report-items>
-            </div>
-        </ng-container>
-        <ng-template #load_state>
-            <div class="h-full w-full flex flex-col items-center p-8">
-                <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                <p simple>Loading report data...</p>
-            </div>
-        </ng-template>
-        <ng-template #empty_state>
-            <div class="h-full w-full flex flex-col items-center p-8">
-                <p simple>
-                    Select levels and time period to generate a report.
-                </p>
-            </div>
-        </ng-template>
+        <reports-options></reports-options>
+        <div class="flex-1 h-1/2 w-full overflow-auto">
+            <ng-container *ngIf="!(loading | async); else load_state">
+                <div
+                    class="h-full w-full"
+                    *ngIf="total_count | async; else empty_state"
+                >
+                    <catering-report-overall></catering-report-overall>
+                    <catering-report-orders></catering-report-orders>
+                    <catering-report-items></catering-report-items>
+                </div>
+            </ng-container>
+            <ng-template #load_state>
+                <div class="h-full w-full flex flex-col items-center p-8">
+                    <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
+                    <p simple>Loading report data...</p>
+                </div>
+            </ng-template>
+            <ng-template #empty_state>
+                <div class="h-full w-full flex flex-col items-center p-8">
+                    <p simple>
+                        Select levels and time period to generate a report.
+                    </p>
+                </div>
+            </ng-template>
+        </div>
     `,
     styles: [``],
 })

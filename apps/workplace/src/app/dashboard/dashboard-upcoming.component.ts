@@ -1,8 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
+import { addMonths } from 'date-fns';
+import { map } from 'rxjs/operators';
 
-import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { MapLocateModalComponent } from '@placeos/components';
+import { BookingLike, ScheduleStateService } from '../schedule/schedule-state.service';
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
@@ -11,10 +15,10 @@ import { DashboardStateService } from './dashboard-state.service';
         <h3 class="m-0 mb-4 font-medium text-xl">Your Bookings</h3>
         <div
             name="event"
-            *ngFor="let event of upcoming_events | async | slice: 0:3"
+            *ngFor="let event of event_list | async | slice: 0:3"
             class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4"
         >
-            <div name="status" class="absolute rounded-lg"></div>
+            <div name="status" class="absolute rounded-lg" [class.bg-primary]="event.asset_id"></div>
             <div name="details" class="flex-1 mr-2">
                 <div name="time" class="text-sm text-bold mb-2">
                     {{ event.date | date: 'shortTime' }}
@@ -29,13 +33,13 @@ import { DashboardStateService } from './dashboard-state.service';
                     ></app-icon>
                     <a
                         class="text-black"
-                        [class.underline]="!!event.space"
+                        [class.underline]="!!event.space || !!event.asset_id"
                         [matTooltip]="event.space ? 'Locate Space' : ''"
-                        (click)="event.space ? locateSpace(event.space) : ''"
+                        (click)="event.space || event.asset_id ? locateSpace(event.space || event) : ''"
                     >
                         {{
                             event.space?.display_name ||
-                                event.space?.name ||
+                                event.space?.name || event.asset_name ||
                                 '&lt;No Location&gt;'
                         }}
                         {{
@@ -47,16 +51,16 @@ import { DashboardStateService } from './dashboard-state.service';
                         }}
                     </a>
                 </div>
-                <div name="attendees" class="text-xs flex items-center mb-2">
+                <div name="attendees" class="text-xs flex items-center mb-2" *ngIf="event.guests">
                     <app-icon
                         class="mr-2"
                         [icon]="{ class: 'material-icons', content: 'group' }"
                     ></app-icon>
-                    {{ event.guests.length }} Guest{{
-                        event.guests.length === 1 ? '' : 's'
+                    {{ event.guests?.length }} Guest{{
+                        event.guests?.length === 1 ? '' : 's'
                     }}
                 </div>
-                <div name="guests" class="flex space-x-2 text-sm">
+                <div name="guests" class="flex space-x-2 text-sm" *ngIf="event.guests">
                     <a-user-avatar
                         *ngFor="let guest of event.guests"
                         [user]="guest"
@@ -72,12 +76,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 >Join Call</a
             >
         </div>
-        <p
-            *ngIf="!(upcoming_events | async).length"
-            class="text-dark-fade text-center w-full"
-        >
-            No upcoming events for today
-        </p>
+
     `,
     styles: [
         `
@@ -113,24 +112,50 @@ import { DashboardStateService } from './dashboard-state.service';
     ],
 })
 export class DashboardUpcomingComponent implements OnInit, OnDestroy {
+    public readonly today = new Date();
+    public readonly max_date = addMonths(this.today, 4);
     public readonly upcoming_events = this._state.upcoming_events;
+    public readonly event_list = this._schedule.events.pipe(map(list => {
+        const updated_list = list.filter(_ => _.state !== 'done' && _.is_done !== true).map(_ => (
+            _.space 
+                ? _ : 
+                ({
+                    ..._,
+                    space: {
+                        name: _.asset_name || _.asset_id,
+                        map_id: _.asset_id,
+                        level: this._org.levelWithID(_.zones),
+                        zones: _.zones
+                    }
+                })
+        ));
+        return updated_list;
+    }));
 
     constructor(
+        private _org: OrganisationService,
         private _state: DashboardStateService,
+        private _schedule: ScheduleStateService,
         private _dialog: MatDialog
     ) {}
 
     public ngOnInit() {
         this._state.pollUpcomingEvents();
+        this._schedule.startPolling();
     }
 
     public ngOnDestroy() {
         this._state.stopPollingUpcomingEvents();
+        this._schedule.stopPolling();
     }
 
     public locateSpace(space: Space) {
         this._dialog.open(MapLocateModalComponent, {
             data: { item: { ...space, level: null } },
         });
+    }
+
+    public trackByFn(idx: number, event: BookingLike) {
+        return event ? `${event.id}|${event.date}` : undefined;
     }
 }

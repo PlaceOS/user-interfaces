@@ -15,7 +15,7 @@ import {
     openConfirmModal,
 } from '@placeos/common';
 import { addMinutes, formatDuration, isAfter } from 'date-fns';
-import { MapLocateModalComponent } from '../overlays/map-locate-modal.component';
+import { MapLocateModalComponent } from '@placeos/components';
 
 @Component({
     selector: 'schedule-view-booking',
@@ -50,12 +50,18 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
-                        {{ event.date | date: 'longDate' }} at
-                        {{ event.date | date: 'shortTime' }} ~
-                        {{
-                            event.date + event.duration * 60 * 1000
-                                | date: 'shortTime'
-                        }}
+                        {{ event.date | date: 'longDate' }}
+                        <span
+                            *ngIf="
+                                !event.all_day && event.duration < 12 * 60;
+                            "
+                        >
+                            at {{ event.date | date: 'shortTime' }} ~
+                            {{
+                                event.date + event.duration * 60 * 1000
+                                    | date: 'shortTime'
+                            }}
+                        </span>
                     </div>
                 </div>
                 <div
@@ -64,7 +70,7 @@ import { MapLocateModalComponent } from '../overlays/map-locate-modal.component'
                     <div class="p-2 rounded-full bg-gray-300 mr-2">
                         <app-icon>schedule</app-icon>
                     </div>
-                    <div class="flex-1 truncate">{{ duration }}</div>
+                    <div class="flex-1 truncate">{{ !event.all_day && event.duration < 12 * 60 ? duration : 'All Day' }}</div>
                 </div>
                 <div
                     class="flex items-center py-2 space-x-2 w-full"
@@ -138,7 +144,7 @@ export class ScheduleViewBookingComponent extends BaseClass {
     }
 
     public get duration() {
-        return formatDuration({
+        return this.event.all_day || this.event.duration >= 12 * 60 ? 'All Day' : formatDuration({
             hours: Math.floor(this.event?.duration / 60),
             minutes: this.event?.duration % 60,
         });

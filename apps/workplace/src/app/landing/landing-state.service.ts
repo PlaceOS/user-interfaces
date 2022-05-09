@@ -78,11 +78,9 @@ export class LandingStateService extends BaseClass {
                 .pipe(filter((bld) => !!bld))
                 .subscribe(() => this.updateBuildingMetadata())
         );
-        if (!this._org.organisation.bindings.area_management) return;
-        const binding = getModule(
-            this._org.organisation.bindings.area_management,
-            'AreaManagement'
-        ).binding('overview');
+        let sys_id = this._org.binding('area_management');
+        if (!sys_id) return;
+        const binding = getModule(sys_id, 'AreaManagement').binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
     }
@@ -192,7 +190,10 @@ export class LandingStateService extends BaseClass {
 
     private async updateBuildingMetadata() {
         const building = this._org.building;
-        const metadata = await showMetadata(building.id, 'bindings').toPromise();
+        const metadata = await showMetadata(
+            building.id,
+            'bindings'
+        ).toPromise();
         if (!(metadata.details as HashMap).occupancy) return;
         const details = (metadata.details as HashMap).occupancy;
         const module = getModule(details.sys, details.module, details.index);

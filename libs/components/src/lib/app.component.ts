@@ -39,12 +39,6 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
     Sentry.init({
         dsn,
-        integrations: [
-            new Integrations.BrowserTracing({
-                tracingOrigins: ['localhost', location.origin],
-                routingInstrumentation: Sentry.routingInstrumentation,
-            }),
-        ],
         tracesSampleRate: sample_rate,
     });
 }
@@ -136,7 +130,6 @@ export class AppComponent extends BaseClass implements OnInit {
 
     private onInitError() {
         if (isMock() || currentUser()?.is_logged_in) return;
-        
         console.error('Error initialising user.');
         invalidateToken();
         location.reload();

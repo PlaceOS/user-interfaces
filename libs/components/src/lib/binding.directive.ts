@@ -13,7 +13,7 @@ import {
 import { onlineState, authority, getModule } from '@placeos/ts-client';
 
 import { BaseClass } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { filter, first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
@@ -22,23 +22,25 @@ export class BindingDirective<T = any>
     extends BaseClass
     implements OnInit, OnChanges, OnDestroy {
     /** ID of the system to bind */
-    @Input() public sys: string;
+    @Input() public sys: string = '';
     /** Class name of the module to bind */
-    @Input() public mod: string;
+    @Input() public mod: string = '';
     /** Index of the system to bind */
     @Input() public index = 1;
     /** Status variable to bind to */
-    @Input() public bind: string;
+    @Input() public bind: string = '';
     /** Method to execute */
-    @Input() public exec: string;
+    @Input() public exec: string = '';
     /** Event to listen for on the parent */
-    @Input('onEvent') public on_event: string;
+    @Input('onEvent') public on_event: string = '';
     /** ID of the system to bind to */
     @Input() public params: any[] = [];
     /** Current value of the binding */
-    @Input() public model: T;
+    @Input() public model: T | null = null;
     /** Emitter for changes to the value of the binding */
-    @Output() public modelChange = new EventEmitter<T>();
+    @Output() public modelChange = new EventEmitter<T | null>();
+
+    private _binding = false;
 
     constructor(
         private _element: ElementRef<HTMLElement>,
@@ -78,18 +80,37 @@ export class BindingDirective<T = any>
 
     /** Bind to set status variable */
     private bindVariable() {
-        if (authority() && this.bind && this.sys && this.mod) {
-            const module = getModule(this.sys, this.mod, this.index);
-            const binding = module.binding(this.bind);
-            this.subscription('binding', binding.bind());
-            this.subscription(
-                'on_changes',
-                binding.listen().subscribe((value) =>
-                    setTimeout(() => {
-                        this.model = value;
-                        this.modelChange.emit(this.model);
-                    }, 10)
-                )
+        if (
+            authority() &&
+            this.bind &&
+            this.sys &&
+            this.mod &&
+            !this._binding
+        ) {
+            this.timeout(
+                'bind',
+                () => {
+                    const module = getModule(this.sys, this.mod, this.index);
+                    const binding = module.binding(this.bind);
+                    this._binding = true;
+                    this.subscription('binding', binding.bind());
+                    this.subscription(
+                        'on_changes',
+                        binding
+                            .listen()
+                            .pipe(filter((_) => _ != null))
+                            .subscribe((value) => {
+                                setTimeout(() => {
+                                    this._binding = false;
+                                    this.clearTimeout('bound');
+                                    this.model = value;
+                                    this.modelChange.emit(this.model);
+                                }, 10);
+                            })
+                    );
+                    this.timeout('bound', () => (this._binding = false), 200);
+                },
+                20
             );
         }
     }
@@ -98,7 +119,7 @@ export class BindingDirective<T = any>
     private execute() {
         if (authority() && this.exec && this.sys && this.mod) {
             const module = getModule(this.sys, this.mod, this.index);
-            if (this.bind) this.params = [this.model];
+            if (this.bind) this.params = this.params || [this.model];
             module.execute(this.exec, this.params).then((result) => {
                 // Emit exec result if not bound to status variable
                 if (!this.bind) {

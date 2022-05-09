@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
 import { CalendarEvent, generateEventForm, saveEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { querySpaceAvailability } from '@placeos/calendar';
@@ -54,6 +54,8 @@ export interface ExploreBookingModalData {
                         <label>Duration:</label>
                         <a-duration-field
                             formControlName="duration"
+                            [time]="form.value.date"
+                            [max]="max_duration"
                         ></a-duration-field>
                     </div>
                 </div>
@@ -87,8 +89,13 @@ export class ExploreBookingModalComponent implements OnInit {
     public form: FormGroup;
     public loading = '';
 
+    public get max_duration() {
+        return this._settings.get('app.events.max_duration') || 4 * 60;
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
+        private _settings: SettingsService,
         private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>
     ) {}
 

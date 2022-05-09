@@ -12,7 +12,7 @@ import { CustomTooltipData } from '@placeos/components';
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="">Display & Accessibility</div>
             </div>
-            <div
+            <!-- <div
                 action
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"
             >
@@ -26,7 +26,7 @@ import { CustomTooltipData } from '@placeos/components';
                     [ngModel]="dark_mode"
                     (ngModelChange)="applySetting('dark_mode', $event)"
                 ></mat-slide-toggle>
-            </div>
+            </div> -->
             <div
                 action
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"

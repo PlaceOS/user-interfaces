@@ -91,6 +91,11 @@ export class OrganisationService {
         ];
     }
 
+    /** Get binding value from the building/organisation */
+    public binding(name: string) {
+        return this.building?.bindings[name] || this._organisation?.bindings[name];
+    }
+
     /** Get building by id */
     public find(id: string) {
         return this.buildings.find((i) => i.id === id);

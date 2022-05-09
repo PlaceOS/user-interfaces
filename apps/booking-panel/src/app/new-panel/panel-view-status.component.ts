@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { combineLatest, timer } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, interval } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
 
@@ -13,7 +13,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-pending]="(state | async) === 'pending'"
-                (click)="can_book ? book() : ''"
+                (click)="can_book ? action() : ''"
             >
                 <div
                     [innerHTML]="
@@ -49,10 +49,8 @@ import { currentPeriod, nextPeriod } from './helpers';
             >
                 <div
                     [innerHTML]="
-                        (!(event_state | async)?.next
-                            ? free_svg
-                            : in_use_svg
-                        ) | safe
+                        (!(event_state | async)?.next ? free_svg : in_use_svg)
+                            | safe
                     "
                 ></div>
                 <h3 class="text-4xl uppercase font-medium">Next</h3>
@@ -75,7 +73,11 @@ export class PanelViewStatusComponent {
     public readonly current = this._state.current;
     public readonly next = this._state.next;
 
-    public readonly event_state = combineLatest([this.current, this.next, timer(5000)]).pipe(
+    public readonly event_state = combineLatest([
+        this.current,
+        this.next,
+        interval(5000),
+    ]).pipe(
         map(([c, n]) => ({
             current: currentPeriod(c, n),
             next: nextPeriod(n),
@@ -83,10 +85,17 @@ export class PanelViewStatusComponent {
     );
 
     public get can_book() {
-        return !this._state.setting('disable_book_now');
+        return this._state.setting('disable_book_now') !== true;
     }
 
     public readonly book = () => this._state.newBooking();
+    public readonly checkin = () => this._state.checkin();
+
+    public async action() {
+        const pending =
+            (await this.state.pipe(take(1)).toPromise()) === 'pending';
+        pending ? this.checkin() : this.book();
+    }
 
     public readonly free_svg = `
     <svg width="129" height="117" viewBox="0 0 129 117" fill="none" xmlns="http://www.w3.org/2000/svg">

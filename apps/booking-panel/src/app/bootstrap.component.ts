@@ -143,7 +143,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             if (system_id) {
-                this._router.navigate(['panel', system_id]);
+                this._router.navigate(['panel', system_id], { queryParamsHandling: 'preserve' });
                 return;
             }
         }
@@ -161,7 +161,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
-        this._router.navigate(['panel', system_id]);
+        this._router.navigate(['panel', system_id], { queryParamsHandling: 'preserve' });
         this.loading = false;
     }
 
