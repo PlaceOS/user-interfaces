@@ -24,10 +24,11 @@ import { SharedComponentModule } from '../components/shared.module';
 import { BookParkingFlowComponent } from './parking-flow.component';
 import { ParkingFlowMapComponent } from './parking-flow/parking-flow-map.component';
 import { ParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
-import { NewBookSpaceFlowComponent } from './new-space-flow.component';
-import { NewSpaceFlowFormComponent } from './new-space-flow/space-flow-form.component';
-import { SpaceFormDetailsComponent } from './new-space-flow/space-form-details.component';
-import { SpaceFormRoomlistComponent } from './new-space-flow/space-form-roomlist.component';
+import { BookMeetingFlowComponent } from './meeting-flow.component';
+import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.component';
+import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details.component';
+import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
+import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 
 const ROUTES: Route[] = [
     {
@@ -39,8 +40,8 @@ const ROUTES: Route[] = [
             { path: 'desks/:step', component: BookDeskFlowComponent },
             { path: 'spaces', redirectTo: 'spaces/form' },
             { path: 'spaces/:step', component: BookSpaceFlowComponent },
-            { path: 'new-spaces', redirectTo: 'new-spaces/form' },
-            { path: 'new-spaces/:step', component: NewBookSpaceFlowComponent },
+            { path: 'meeting', redirectTo: 'meeting/form' },
+            { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: BookParkingFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
@@ -68,10 +69,11 @@ const ROUTES: Route[] = [
         ParkingFlowMapComponent,
         ParkingFlowConfirmComponent,
         FlowSuccessComponent,
-        NewBookSpaceFlowComponent,
-        NewSpaceFlowFormComponent,
-        SpaceFormDetailsComponent,
-        SpaceFormRoomlistComponent
+        BookMeetingFlowComponent,
+        MeetingFlowFormComponent,
+        MeetingFormDetailsComponent,
+        MeetingFlowConfirmComponent,
+        MeetingFlowSuccessComponent
     ],
     imports: [
         CommonModule,

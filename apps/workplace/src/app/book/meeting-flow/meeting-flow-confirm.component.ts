@@ -1,10 +1,10 @@
 import { Component } from "@angular/core";
 
 @Component({
-    selector: 'new-space-flow-success',
+    selector: 'meeting-flow-confirm',
     template: ``,
     styles: [``]
 })
-export class NewSpaceFlowSuccessComponent {
-    
+export class MeetingFlowConfirmComponent {
+
 }

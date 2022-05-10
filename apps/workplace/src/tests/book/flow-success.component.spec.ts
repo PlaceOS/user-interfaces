@@ -17,12 +17,8 @@ describe('FlowSuccessComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should link to Schedule', () => {
-        expect('a').toContainText('My Day');
+        expect('a').toContainText('Your Bookings');
     });
 
     it('should link to new booking', () => {

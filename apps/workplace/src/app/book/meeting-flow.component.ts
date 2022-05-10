@@ -4,12 +4,14 @@ import { BaseClass } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
 @Component({
-    selector: 'placeos-book-new-space-flow',
+    selector: 'placeos-book-meeting-flow',
     template: `
         <div class="bg-white h-full w-full" [ngSwitch]="view">
-            <new-space-flow-success *ngSwitchCase="'success'">
-            </new-space-flow-success>
-            <new-space-flow-form *ngSwitchDefault></new-space-flow-form>
+            <meeting-flow-success *ngSwitchCase="'success'">
+            </meeting-flow-success>
+            <meeting-flow-confirm *ngSwitchCase="'confirm'">
+            </meeting-flow-confirm>
+            <meeting-flow-form *ngSwitchDefault></meeting-flow-form>
         </div>
     `,
     styles: [
@@ -21,7 +23,7 @@ import { EventFormService } from '@placeos/events';
         `,
     ],
 })
-export class NewBookSpaceFlowComponent extends BaseClass implements OnInit {
+export class BookMeetingFlowComponent extends BaseClass implements OnInit {
     public get view() {
         return this._state.view;
     }
