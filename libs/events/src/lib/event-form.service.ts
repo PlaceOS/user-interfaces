@@ -168,9 +168,9 @@ export class EventFormService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
-        const { date, duration } = form.value;
+        const { id, date, duration } = form.value;
         const spaces = form.get('resources')?.value || [];
-        await this.checkSelectedSpacesAreAvailable(spaces, date, duration);
+        await this.checkSelectedSpacesAreAvailable(spaces, date, duration, id);
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value)
         ).toPromise();
@@ -187,14 +187,17 @@ export class EventFormService extends BaseClass {
     private async checkSelectedSpacesAreAvailable(
         spaces: Space[],
         date: number,
-        duration: number
+        duration: number,
+        ignore?: string
     ) {
+        const query: any = {
+            period_start: getUnixTime(date),
+            period_end: getUnixTime(date + duration * 60 * 1000),
+            system_ids: spaces.map((_) => _.id).join(','),
+        };
+        if (ignore) query.ignore = ignore;
         const space_list = spaces.length
-            ? await querySpaceFreeBusy({
-                  period_start: getUnixTime(date),
-                  period_end: getUnixTime(date + duration * 60 * 1000),
-                  system_ids: spaces.map((_) => _.id).join(','),
-              }).toPromise()
+            ? await querySpaceFreeBusy(query).toPromise()
             : [];
         if (space_list.length !== spaces.length)
             throw `${
