@@ -170,7 +170,18 @@ export class EventFormService extends BaseClass {
             )}]`;
         const { id, date, duration } = form.value;
         const spaces = form.get('resources')?.value || [];
-        await this.checkSelectedSpacesAreAvailable(spaces, date, duration, id);
+        if (
+            !id ||
+            date !== this.event.date ||
+            duration !== this.event.duration
+        ) {
+            await this.checkSelectedSpacesAreAvailable(
+                spaces,
+                date,
+                duration,
+                id
+            );
+        }
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value)
         ).toPromise();
