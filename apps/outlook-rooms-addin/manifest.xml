@@ -2,7 +2,7 @@
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
   <Id>28ff1819-77f1-476b-9cff-e59b3fecc655</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>ACA Projects</ProviderName>
+  <ProviderName>PLACEOS</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Room booking"/>
   <Description DefaultValue="This add-in allows you to book rooms in your building via the PlaceOS API"/>
@@ -70,7 +70,21 @@
                     <SourceLocation resid="Taskpane.Url"/>
                   </Action>
                 </Control>
-              
+                <Control xsi:type="Button" id="BookingsButton">
+                  <Label resid="BookingsButton.Label"/>
+                  <Supertip>
+                    <Title resid="BookingsButton.Label"/>
+                    <Description resid="BookingsButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="BookingsButton.Url"/>
+                  </Action>
+                </Control>
               </Group>
             </OfficeTab>
           </ExtensionPoint>
@@ -86,14 +100,17 @@
       <bt:Urls>
         <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200/"/>
+        <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/bookings"/>
         <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://portal-dev.placeos.run/#/"/> -->
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GroupLabel" DefaultValue="Contoso Add-in"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Show Taskpane"/>
+        <bt:String id="GroupLabel" DefaultValue="PlaceOS | Room Booking"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Book a room"/>
+        <bt:String id="BookingsButton.Label" DefaultValue="Upcoming bookings"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Opens a pane displaying all available properties."/>
+        <bt:String id="BookingsButton.Tooltip" DefaultValue="Opens a pane displaying all available properties."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
