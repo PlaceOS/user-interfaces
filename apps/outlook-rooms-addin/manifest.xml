@@ -100,7 +100,7 @@
       <bt:Urls>
         <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200/"/>
-        <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/bookings"/>
+        <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/upcoming"/>
         <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://portal-dev.placeos.run/#/"/> -->
       </bt:Urls>
       <bt:ShortStrings>
