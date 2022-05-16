@@ -1361,7 +1361,12 @@
                                 "output": "/"
                             },
                             "apps/outlook-rooms-addin/src/manifest.webmanifest",
-                            "apps/outlook-rooms-addin/manifest.xml"
+
+                            {
+                                "glob": "manifest.xml",
+                                "input": "apps/outlook-rooms-addin/",
+                                "output": "/"
+                            }
                         ],
                         "styles": [
                             "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
