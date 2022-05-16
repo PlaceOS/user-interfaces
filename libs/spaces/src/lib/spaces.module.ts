@@ -3,7 +3,7 @@ import { NgModule, Type } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 
 import { ComponentsModule } from '@placeos/components';
-import { NewSpaceSelectModalComponent } from './new-space-select-modal.component';
+import { NewSpaceSelectModalComponent } from './space-select-modal/new-space-select-modal.component';
 
 import { SpaceSelectItemComponent } from './space-select-item.component';
 import { SpaceSelectModalComponent } from './space-select-modal.component';
@@ -11,7 +11,7 @@ import { SpaceSelectModalComponent } from './space-select-modal.component';
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
     SpaceSelectItemComponent,
-    NewSpaceSelectModalComponent
+    NewSpaceSelectModalComponent,
 ];
 
 @NgModule({
