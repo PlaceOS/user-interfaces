@@ -12,7 +12,6 @@
   <AppDomains>
    <AppDomain>https://microsoft.poc.placeos.com/outlook/</AppDomain>
     <!-- <AppDomain>https://127.0.0.1:4200/</AppDomain> -->
-        <!-- <AppDomain>https://microsoft.poc.placeos.com/workplace/</AppDomain> -->
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
@@ -27,11 +26,7 @@
       <DesktopSettings>
 
         <SourceLocation DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>
-        <!-- <SourceLocation DefaultValue="https://127.0.0.1:4200/"/> -->
-
-<!-- Test with deployed app: -->
-     <!-- <SourceLocation DefaultValue="https://portal-dev.placeos.run"/> -->
-         
+        <!-- <SourceLocation DefaultValue="https://127.0.0.1:4200/"/> -->         
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -105,7 +100,6 @@
         <!-- <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200/"/>
         <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/upcoming"/> -->
-        <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://portal-dev.placeos.run/#/"/> -->
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="PlaceOS | Room Booking"/>
