@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
@@ -27,6 +27,7 @@ export class MapService {
     public mapFeatures$: Observable<ViewerFeature[]>;
     public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
+    protected mapLoaded$: Observable<boolean> = of(false);
 
     selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
 
@@ -64,6 +65,9 @@ export class MapService {
     ) {}
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
+        this.mapLoaded$ = of(false);
+        await this.loadMap();
+
         await available_spaces.pipe(take(1)).toPromise();
         await available_spaces.subscribe(
             (spaces) =>
@@ -117,6 +121,11 @@ export class MapService {
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
+    }
+
+    loadMap() {
+        //
+        this.mapLoaded$ = of(true);
     }
 
     openRoomTile(space: Space) {

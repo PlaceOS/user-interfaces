@@ -10,7 +10,8 @@
   <HighResolutionIconUrl DefaultValue="https://127.0.0.1:3000/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://place.technology/contact"/>
   <AppDomains>
-    <AppDomain>https://127.0.0.1:4200/</AppDomain>
+   <AppDomain>https://microsoft.poc.placeos.com/outlook/</AppDomain>
+    <!-- <AppDomain>https://127.0.0.1:4200/</AppDomain> -->
         <!-- <AppDomain>https://microsoft.poc.placeos.com/workplace/</AppDomain> -->
   </AppDomains>
   <Hosts>
@@ -25,8 +26,8 @@
     <Form xsi:type="ItemRead">
       <DesktopSettings>
 
-        <!-- <SourceLocation DefaultValue="https://microsoft.poc.placeos.com/workplace/"/> -->
-        <SourceLocation DefaultValue="https://127.0.0.1:4200/"/>
+        <SourceLocation DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>
+        <!-- <SourceLocation DefaultValue="https://127.0.0.1:4200/"/> -->
 
 <!-- Test with deployed app: -->
      <!-- <SourceLocation DefaultValue="https://portal-dev.placeos.run"/> -->
@@ -98,9 +99,12 @@
         <bt:Image id="Icon.80x80" DefaultValue="https://127.0.0.1:3000/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
+      <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html"/> 
+        <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>
+        <bt:Url id="BookingsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/upcoming"/>
+        <!-- <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200/"/>
-        <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/upcoming"/>
+        <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/upcoming"/> -->
         <!-- <bt:Url id="Taskpane.Url" DefaultValue="https://portal-dev.placeos.run/#/"/> -->
       </bt:Urls>
       <bt:ShortStrings>

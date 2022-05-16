@@ -1366,6 +1366,16 @@
                                 "glob": "manifest.xml",
                                 "input": "apps/outlook-rooms-addin/",
                                 "output": "/"
+                            },
+                            {
+                                "glob": "function-file.html",
+                                "input": "apps/outlook-rooms-addin/src/function-file/",
+                                "output": "/function-file"
+                            },
+                            {
+                                "glob": "function-file.ts",
+                                "input": "apps/outlook-rooms-addin/src/function-file/",
+                                "output": "/function-file"
                             }
                         ],
                         "styles": [
