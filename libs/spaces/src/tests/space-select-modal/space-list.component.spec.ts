@@ -74,27 +74,12 @@ describe('SpaceListComponent', () => {
         spectator.click('[space] button[select]');
     });
 
-    it('should allow favouriting a space', () => {
+    it('should allow favouriting a space', (done) => {
         (spectator.inject(EventFormService).available_spaces as any).next([
             new Space({ id: '1' }),
         ]);
         spectator.detectChanges();
+        spectator.component.toggleFav.subscribe(() => done());
         spectator.click('[space] button[fav]');
-        expect(
-            spectator.inject(SettingsService).saveUserSetting
-        ).toBeCalledWith('user.favourite_spaces', ['1']);
-
-    });
-
-    it('should allow un-favouriting a space', () => {
-        spectator.inject(SettingsService).get.mockImplementation(() => ['1']);
-        (spectator.inject(EventFormService).available_spaces as any).next([
-            new Space({ id: '1' }),
-        ]);
-        spectator.detectChanges();
-        spectator.click('[space] button[fav]');
-        expect(
-            spectator.inject(SettingsService).saveUserSetting
-        ).toBeCalledWith('user.favourite_spaces', []);
     });
 });

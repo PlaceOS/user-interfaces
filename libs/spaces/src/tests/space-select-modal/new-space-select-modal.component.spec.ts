@@ -1,16 +1,24 @@
 import { createRoutingFactory, Spectator } from "@ngneat/spectator/jest";
+import { SettingsService } from "@placeos/common";
 import { MockComponent } from "ng-mocks";
 import { NewSpaceSelectModalComponent } from "../../lib/space-select-modal/new-space-select-modal.component";
 import { SpaceDetailsComponent } from "../../lib/space-select-modal/space-details.component";
 import { SpaceFiltersDisplayComponent } from "../../lib/space-select-modal/space-filters-display.component";
 import { SpaceFiltersComponent } from "../../lib/space-select-modal/space-filters.component";
 import { SpaceListComponent } from "../../lib/space-select-modal/space-list.component";
+import { Space } from "../../lib/spaces";
 
 describe('NewSpaceSelectModalComponent', () => {
     let spectator: Spectator<NewSpaceSelectModalComponent>;
     const createComponent = createRoutingFactory({
         component: NewSpaceSelectModalComponent,
-        providers: [],
+        providers: [{
+            provide: SettingsService,
+            useValue: {
+                get: jest.fn(),
+                saveUserSetting: jest.fn()
+            }
+        }],
         declarations: [
             MockComponent(SpaceDetailsComponent),
             MockComponent(SpaceListComponent),
@@ -34,4 +42,20 @@ describe('NewSpaceSelectModalComponent', () => {
     it('should allow closing the modal', () => expect('header [mat-dialog-close]').toExist());
 
     it('should allow saving the list items', () => expect('button[save]').toExist())
+
+    it('should allow favouriting a space', () => {
+        spectator.component.toggleFavourite(new Space({ id: '1' }))
+        expect(
+            spectator.inject(SettingsService).saveUserSetting
+        ).toBeCalledWith('user.favourite_spaces', ['1']);
+
+    });
+
+    it('should allow un-favouriting a space', () => {
+        spectator.inject(SettingsService).get.mockImplementation(() => ['1']);
+        spectator.component.toggleFavourite(new Space({ id: '1' }))
+        expect(
+            spectator.inject(SettingsService).saveUserSetting
+        ).toBeCalledWith('user.favourite_spaces', []);
+    });
 });
