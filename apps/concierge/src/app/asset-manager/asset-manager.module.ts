@@ -10,7 +10,6 @@ import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
 import { AssetManagerComponent } from './asset-manager.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AssetViewComponent } from './asset-view.component';
-import { ImageCarouselComponent } from './image-carousel.component';
 import { AssetFlowComponent } from './asset-flow.component';
 import { AssetFlowConsumablesComponent } from './asset-flow-consumables.component';
 import { AssetFlowDetailsComponent } from './asset-flow-details.component';
@@ -35,7 +34,6 @@ const COMPONENTS = [
     AssetFlowDetailsComponent,
     AssetFlowPurchasesComponent,
     AssetFlowSpecsComponent,
-    ImageCarouselComponent,
     AssetRequestListComponent,
     AssetItemListComponent,
     AssetRequestDetailsComponent,

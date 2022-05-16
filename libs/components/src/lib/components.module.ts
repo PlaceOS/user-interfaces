@@ -42,6 +42,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MapPolygonComponent } from './map-polygon.component';
 import { GlobalBannerComponent } from './global-banner.component';
 import { MapLocateModalComponent } from './map-locate-modal.component';
+import { ImageCarouselComponent } from './image-carousel.component';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -106,6 +107,7 @@ const COMPONENTS: Type<any>[] = [
     GlobalLoadingComponent,
     GlobalBannerComponent,
     MapLocateModalComponent,
+    ImageCarouselComponent,
 
     FixedPipe,
     SafePipe,
