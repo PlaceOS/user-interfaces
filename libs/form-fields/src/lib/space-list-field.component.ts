@@ -1,8 +1,7 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Space } from '@placeos/spaces';
-import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/new-space-select-modal.component';
+import { Space, NewSpaceSelectModalComponent } from '@placeos/spaces';
 
 @Component({
     selector: `space-list-field`,
@@ -80,7 +79,7 @@ import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/new-space-sele
                         </button>
                     </div>
                 </div>
-                <button mat-icon-button class="absolute top-1 right-1">
+                <button mat-icon-button fav class="absolute top-1 right-1">
                     <app-icon>favorite_border</app-icon>
                 </button>
             </div>
