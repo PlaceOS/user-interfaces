@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { take } from 'rxjs/operators';
 import { Space } from '../space.class';
 
 @Component({
@@ -71,7 +72,9 @@ import { Space } from '../space.class';
             <div empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30">No available spaces for selected time and/or filters</p>
+                <p class="opacity-30 text-center">
+                    No available spaces for selected time and/or filters
+                </p>
             </div>
         </ng-template>
         <ng-template #load_state>
@@ -89,6 +92,7 @@ import { Space } from '../space.class';
                 width: 100%;
                 height: 100%;
                 padding: 0.5rem;
+                background: rgba(0,0,0,0.05);
             }
         `,
     ],
@@ -101,6 +105,7 @@ export class SpaceListComponent {
 
     public readonly available_spaces = this._event_form.available_spaces;
     public readonly loading = this._event_form.loading;
+
     constructor(
         private _event_form: EventFormService
     ) {}

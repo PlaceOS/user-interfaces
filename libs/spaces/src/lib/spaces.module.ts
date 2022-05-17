@@ -10,12 +10,13 @@ import { SpaceSelectModalComponent } from './space-select-modal.component';
 import { SpaceDetailsComponent } from './space-select-modal/space-details.component';
 import { SpaceListComponent } from './space-select-modal/space-list.component';
 import { SpaceFiltersDisplayComponent } from './space-select-modal/space-filters-display.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
     SpaceSelectItemComponent,
     NewSpaceSelectModalComponent,
-    
+
     SpaceDetailsComponent,
     SpaceListComponent,
     SpaceFiltersDisplayComponent,
@@ -23,7 +24,12 @@ const COMPONENTS: Type<any>[] = [
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [CommonModule, MatDialogModule, ComponentsModule],
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        ComponentsModule,
+        MatBottomSheetModule,
+    ],
     providers: [],
     exports: [...COMPONENTS],
 })

@@ -19,7 +19,7 @@ import { Space } from '../space.class';
             >
                 <space-filters class="h-full"></space-filters>
                 <div class="flex flex-col items-center flex-1 w-1/2 h-full">
-                    <space-filters-display></space-filters-display>
+                    <space-filters-display class="w-full border-b border-gray-200"></space-filters-display>
                     <space-list
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
