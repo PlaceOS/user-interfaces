@@ -27,7 +27,7 @@ export class MapService {
     public mapFeatures$: Observable<ViewerFeature[]>;
     public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
-    protected mapLoaded$: Observable<boolean> = of(false);
+    public mapLoaded$: Observable<boolean> = of(false);
 
     selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
 
@@ -66,7 +66,6 @@ export class MapService {
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         this.mapLoaded$ = of(false);
-        await this.loadMap();
 
         await available_spaces.pipe(take(1)).toPromise();
         await available_spaces.subscribe(
@@ -78,7 +77,9 @@ export class MapService {
                     level: space.level,
                 })))
         );
+        await this.loadMap();
 
+        console.log('applying map features');
         this.mapFeatures$ = available_spaces.pipe(
             map((spaces) =>
                 spaces.map((space) => ({
@@ -103,7 +104,9 @@ export class MapService {
                 )
             )
         );
+    }
 
+    async loadMap() {
         //testing multiple maps
         // available_spaces.subscribe((i) => console.log(i, 'list'));
         // this.maps_list$ = available_spaces.pipe(
@@ -115,17 +118,13 @@ export class MapService {
         //     )
         // );
 
-        await this.maps_list$.pipe(take(1)).toPromise();
         this.maps_list$ = this.locatable_spaces$.pipe(
             map((mapsList: Locatable[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
-    }
-
-    loadMap() {
-        //
         this.mapLoaded$ = of(true);
+        console.log('map loaded');
     }
 
     openRoomTile(space: Space) {
