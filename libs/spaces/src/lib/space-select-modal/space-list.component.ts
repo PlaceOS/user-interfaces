@@ -18,24 +18,24 @@ import { Space } from '../space.class';
                 <li
                     space
                     *ngFor="let space of available_spaces | async"
-                    class="relative p-2 rounded-lg w-full shadow border border-gray-200"
+                    class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
                 >
                     <button
                         matRipple
                         select
-                        class="absolute inset-0 flex items-center"
+                        class="w-full h-full flex items-center"
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-24 h-24 rounded-xl bg-black/20 mr-4"
+                            class="relative w-20 h-20 rounded-xl bg-black/20 mr-4"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-12 w-12 flex items-center justify-center text-white"
+                                class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
                             >
                                 <app-icon>done</app-icon>
                             </div>
                         </div>
-                        <div class="space-y-2 pb-4">
+                        <div class="space-y-2">
                             <div class="font-medium">
                                 {{ space.name || 'Meeting Space' }}
                             </div>

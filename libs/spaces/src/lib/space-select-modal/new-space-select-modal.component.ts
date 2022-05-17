@@ -9,7 +9,7 @@ import { Space } from '../space.class';
             class="absolute inset-0 sm:relative sm:inset-none bg-white flex flex-col"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button mat-icon-button mat-dialog-close class="z-20">
+                <button mat-icon-button mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
                 <h3>Find Space</h3>
@@ -29,13 +29,12 @@ import { Space } from '../space.class';
                 </div>
                 <space-details
                     [space]="displayed"
-                    class="h-full sm:relative sm:block"
+                    class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20"
                     [class.hidden]="!displayed"
-                    [class.absolute]="displayed"
-                    [class.inset-x-0]="displayed"
-                    [class.top-0]="displayed"
-                    [class.bottom-20]="displayed"
+                    [class.inset-0]="displayed"
+                    [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
+                    (close)="displayed = null"
                 ></space-details>
             </main>
             <footer
@@ -69,7 +68,7 @@ export class NewSpaceSelectModalComponent {
     public selected: Space[] = [];
 
     public get favorites() {
-        return this._settings.get<string[]>('user.favourite_spaces') || [];
+        return this._settings.get<string[]>('favourite_spaces') || [];
     }
 
     constructor(private _settings: SettingsService) {}
@@ -78,13 +77,13 @@ export class NewSpaceSelectModalComponent {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting('user.favourite_spaces', [
+            this._settings.saveUserSetting('favourite_spaces', [
                 ...fav_list,
                 space.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                'user.favourite_spaces',
+                'favourite_spaces',
                 fav_list.filter((_) => _ !== space.id)
             );
         }

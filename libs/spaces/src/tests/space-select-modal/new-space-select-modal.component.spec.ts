@@ -47,7 +47,7 @@ describe('NewSpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }))
         expect(
             spectator.inject(SettingsService).saveUserSetting
-        ).toBeCalledWith('user.favourite_spaces', ['1']);
+        ).toBeCalledWith('favourite_spaces', ['1']);
 
     });
 
@@ -56,6 +56,6 @@ describe('NewSpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }))
         expect(
             spectator.inject(SettingsService).saveUserSetting
-        ).toBeCalledWith('user.favourite_spaces', []);
+        ).toBeCalledWith('favourite_spaces', []);
     });
 });
