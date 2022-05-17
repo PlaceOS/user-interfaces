@@ -74,7 +74,11 @@ function validateEmail(email) {
                             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                             (matChipInputTokenEnd)="addUserFromEmail($event)"
                         />
-                        <mat-spinner *ngIf="loading" diameter="24" matSuffix></mat-spinner>
+                        <mat-spinner
+                            *ngIf="loading"
+                            diameter="24"
+                            matSuffix
+                        ></mat-spinner>
                     </mat-chip-list>
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
@@ -88,25 +92,28 @@ function validateEmail(email) {
                     </mat-option>
                 </mat-autocomplete>
             </div>
-            <div class="flex items-center space-x-2 -mt-4" *ngIf="!hide_actions">
+            <div
+                class="flex items-center space-x-2 -mt-4"
+                *ngIf="!hide_actions"
+            >
                 <button
                     mat-button
                     type="button"
                     name="new-contact"
-                    class="inverse"
+                    class="inverse flex-1 sm:flex-none"
                     (click)="openNewUserModal()"
                     i18n="Add new external attendee"
                 >
-                    Add External
+                    Add <span class="hidden sm:inline">External</span>
                 </button>
                 <button
                     mat-button
                     type="button"
                     name="upload-csv"
-                    class="inverse"
+                    class="inverse flex-1 sm:flex-none"
                     i18n="Upload attendee list from CSV file"
                 >
-                    Upload CSV
+                    Upload <span class="hidden sm:inline">CSV</span>
                     <input
                         class="opacity-0 absolute inset-0"
                         type="file"
@@ -117,11 +124,11 @@ function validateEmail(email) {
                     mat-button
                     type="button"
                     name="download-template"
-                    class="inverse"
+                    class="inverse flex-1 sm:flex-none"
                     (click)="downloadCSVTemplate()"
                     i18n="Download template CSV file"
                 >
-                    CSV Template
+                    <span class="hidden sm:inline">CSV</span> Template
                 </button>
             </div>
         </div>

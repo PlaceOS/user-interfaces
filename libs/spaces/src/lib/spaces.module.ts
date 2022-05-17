@@ -9,6 +9,7 @@ import { SpaceSelectItemComponent } from './space-select-item.component';
 import { SpaceSelectModalComponent } from './space-select-modal.component';
 import { SpaceDetailsComponent } from './space-select-modal/space-details.component';
 import { SpaceListComponent } from './space-select-modal/space-list.component';
+import { SpaceFiltersDisplayComponent } from './space-select-modal/space-filters-display.component';
 
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
@@ -17,6 +18,7 @@ const COMPONENTS: Type<any>[] = [
     
     SpaceDetailsComponent,
     SpaceListComponent,
+    SpaceFiltersDisplayComponent,
 ];
 
 @NgModule({

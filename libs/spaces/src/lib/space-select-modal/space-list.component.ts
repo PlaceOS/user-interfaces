@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { Space } from '../space.class';
 
@@ -60,9 +59,10 @@ import { Space } from '../space.class';
                         mat-icon-button
                         fav
                         class="absolute top-1 right-1"
-                        (click)="toggleFavourite(space)"
+                        [class.text-blue-600]="isFavourite(space.id)"
+                        (click)="toggleFav.emit(space)"
                     >
-                        <app-icon>favorite_border</app-icon>
+                        <app-icon>{{ isFavourite(space.id) ? 'favorite' : 'favorite_border' }}</app-icon>
                     </button>
                 </li>
             </ul>
@@ -95,13 +95,14 @@ import { Space } from '../space.class';
 })
 export class SpaceListComponent {
     @Input() public selected: string[] = [];
+    @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
+    @Output() public toggleFav = new EventEmitter<Space>();
 
     public readonly available_spaces = this._event_form.available_spaces;
     public readonly loading = this._event_form.loading;
     constructor(
-        private _event_form: EventFormService,
-        private _settings: SettingsService
+        private _event_form: EventFormService
     ) {}
 
     public ngOnInit() {
@@ -109,29 +110,10 @@ export class SpaceListComponent {
     }
 
     public isFavourite(space_id: string) {
-        const fav_list =
-            this._settings.get<string[]>('user.favourite_spaces') || [];
-        return fav_list.includes(space_id);
+        return this.favorites.includes(space_id);
     }
 
     public selectSpace(space: Space) {
         this.onSelect.emit(space);
-    }
-
-    public toggleFavourite(space: Space) {
-        const fav_list =
-            this._settings.get<string[]>('user.favourite_spaces') || [];
-        const new_state = !fav_list.includes(space.id);
-        if (new_state) {
-            this._settings.saveUserSetting('user.favourite_spaces', [
-                ...fav_list,
-                space.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'user.favourite_spaces',
-                fav_list.filter((_) => _ !== space.id)
-            );
-        }
     }
 }

@@ -29,6 +29,7 @@ import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.compo
 import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 const ROUTES: Route[] = [
     {
@@ -82,6 +83,7 @@ const ROUTES: Route[] = [
         SharedExploreModule,
         ReactiveFormsModule,
         MatButtonToggleModule,
+        MatBottomSheetModule,
         RouterModule.forChild(ROUTES),
     ],
 })

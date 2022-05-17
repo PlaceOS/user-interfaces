@@ -15,7 +15,7 @@ import { EventFormService } from '@placeos/events';
                     Book Meeting
                 </h2>
                 <form
-                    class="p-4 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
+                    class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
                     [formGroup]="form"
                 >
                     <section class="p-2">
@@ -98,14 +98,14 @@ import { EventFormService } from '@placeos/events';
                             </mat-form-field>
                         </div>
                     </section>
-                    <section>
-                        <button mat-button confirm (click)="toConfirmPage()">
+                    <section class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2">
+                        <button mat-button confirm class="mb-2 sm:mb-0 w-full sm:w-auto" (click)="toConfirmPage()">
                             Go to Confirm
                         </button>
                         <button
                             mat-button
                             clear-form
-                            class="inverse"
+                            class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
                             Clear Form
