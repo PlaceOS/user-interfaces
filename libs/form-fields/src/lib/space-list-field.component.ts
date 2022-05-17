@@ -116,16 +116,13 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     constructor(private _dialog: MatDialog) {}
 
     /** Add or edit selected spaces */
-    public changeSpaces(edit_space?: Space) {
+    public changeSpaces() {
         const ref = this._dialog.open(NewSpaceSelectModalComponent, {
-            data: edit_space,
+            data: this.spaces,
         });
-        ref.afterClosed().subscribe((space?: Space) => {
-            if (!space) return;
-            this.setValue([
-                ...this.spaces.filter((_) => _.id !== space.id),
-                space,
-            ]);
+        ref.afterClosed().subscribe((spaces?: Space[]) => {
+            if (!spaces) return;
+            this.setValue(spaces);
         });
     }
 

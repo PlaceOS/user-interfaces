@@ -30,7 +30,7 @@ import { Space } from '../space.class';
                     mat-icon-button
                     fav
                     [class.text-white]="!fav"
-                    [class.text-blue-600]="fav"
+                    [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
                     class="absolute top-2 right-2 bg-black/40"
                 >
@@ -84,6 +84,7 @@ import { Space } from '../space.class';
                     class="w-[calc(100vw-2rem)] mx-auto h-64 relative border border-gray-200 overflow-hidden rounded"
                 >
                     <interactive-map
+                        class="pointer-events-none"
                         [src]="map_url"
                         [features]="features"
                         [options]="{ disable_pan: true, disable_zoom: true }"

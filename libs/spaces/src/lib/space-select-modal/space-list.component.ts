@@ -31,6 +31,7 @@ import { Space } from '../space.class';
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                *ngIf="selected.includes(space.id)"
                             >
                                 <app-icon>done</app-icon>
                             </div>
@@ -60,7 +61,7 @@ import { Space } from '../space.class';
                         mat-icon-button
                         fav
                         class="absolute top-1 right-1"
-                        [class.text-blue-600]="isFavourite(space.id)"
+                        [class.text-blue-400]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
                         <app-icon>{{ isFavourite(space.id) ? 'favorite' : 'favorite_border' }}</app-icon>
@@ -98,7 +99,7 @@ import { Space } from '../space.class';
     ],
 })
 export class SpaceListComponent {
-    @Input() public selected: string[] = [];
+    @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();

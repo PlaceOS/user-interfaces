@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { Space } from '../space.class';
 
@@ -19,8 +20,11 @@ import { Space } from '../space.class';
             >
                 <space-filters class="h-full"></space-filters>
                 <div class="flex flex-col items-center flex-1 w-1/2 h-full">
-                    <space-filters-display class="w-full border-b border-gray-200"></space-filters-display>
+                    <space-filters-display
+                        class="w-full border-b border-gray-200"
+                    ></space-filters-display>
                     <space-list
+                        [selected]="selected_ids"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
@@ -32,6 +36,8 @@ import { Space } from '../space.class';
                     class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
+                    [active]="selected_ids.includes(displayed?.id)"
+                    (activeChange)="setSelected(displayed, $event)"
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (close)="displayed = null"
@@ -67,11 +73,26 @@ export class NewSpaceSelectModalComponent {
     public displayed?: Space;
     public selected: Space[] = [];
 
+    public get selected_ids() {
+        return this.selected.map(_ => _.id).join(',');
+    }
+
     public get favorites() {
         return this._settings.get<string[]>('favourite_spaces') || [];
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        @Inject(MAT_DIALOG_DATA) _spaces: Space[]
+    ) {
+        this.selected = [...(_spaces || [])];
+    }
+
+    public setSelected(space: Space, state: boolean) {
+        const list = this.selected.filter(_ => _.id !== space.id);
+        if (state) list.push(space);
+        this.selected = list;
+    }
 
     public toggleFavourite(space: Space) {
         const fav_list = this.favorites;
