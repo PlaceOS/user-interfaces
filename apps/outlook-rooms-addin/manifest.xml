@@ -11,7 +11,6 @@
   <SupportUrl DefaultValue="https://place.technology/contact"/>
   <AppDomains>
    <AppDomain>https://microsoft.poc.placeos.com/outlook/</AppDomain>
-    <!-- <AppDomain>https://127.0.0.1:4200/</AppDomain> -->
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
@@ -24,9 +23,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-
-        <SourceLocation DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>
-        <!-- <SourceLocation DefaultValue="https://127.0.0.1:4200/"/> -->         
+        <SourceLocation DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>    
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -97,9 +94,6 @@
       <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html"/> 
         <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>
         <bt:Url id="BookingsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/upcoming"/>
-        <!-- <bt:Url id="functionFile" DefaultValue="https://127.0.0.1:3000/function-file/function-file.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://127.0.0.1:4200/"/>
-        <bt:Url id="BookingsButton.Url" DefaultValue="https://127.0.0.1:4200/upcoming"/> -->
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="PlaceOS | Room Booking"/>
