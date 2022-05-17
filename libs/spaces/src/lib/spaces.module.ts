@@ -9,7 +9,9 @@ import { SpaceSelectItemComponent } from './space-select-item.component';
 import { SpaceSelectModalComponent } from './space-select-modal.component';
 import { SpaceDetailsComponent } from './space-select-modal/space-details.component';
 import { SpaceListComponent } from './space-select-modal/space-list.component';
+import { SpaceFiltersComponent } from './space-select-modal/space-filters.component';
 import { SpaceFiltersDisplayComponent } from './space-select-modal/space-filters-display.component';
+import { SpaceMapComponent } from './space-select-modal/space-map.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 const COMPONENTS: Type<any>[] = [
@@ -19,7 +21,9 @@ const COMPONENTS: Type<any>[] = [
 
     SpaceDetailsComponent,
     SpaceListComponent,
+    SpaceFiltersComponent,
     SpaceFiltersDisplayComponent,
+    SpaceMapComponent,
 ];
 
 @NgModule({
