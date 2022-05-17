@@ -27,7 +27,11 @@ export class MapService {
     public mapFeatures$: Observable<ViewerFeature[]>;
     public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
-    public mapLoaded$: Observable<boolean> = of(false);
+
+    private _mapLoaded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+        false
+    );
+    readonly mapLoaded$: Observable<boolean> = this._mapLoaded.asObservable();
 
     selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
 
@@ -65,7 +69,7 @@ export class MapService {
     ) {}
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
-        this.mapLoaded$ = of(false);
+        this._mapLoaded.next(false);
 
         await available_spaces.pipe(take(1)).toPromise();
         await available_spaces.subscribe(
@@ -123,7 +127,7 @@ export class MapService {
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
-        this.mapLoaded$ = of(true);
+        this._mapLoaded.next(true);
         console.log('map loaded');
     }
 
