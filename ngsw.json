@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1652665168448,
+  "timestamp": 1652760179770,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -141,15 +141,15 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "8d90ea6554eed60408b97037541280f90279fa84",
-    "./apps_workplace_src_app_control_control_module_ts.js": "59df5444fb48d1e26c7fa7209b7e43f6373f27c8",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "de9bf76d2496b9e83cec212bab4f78b69afc63bb",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "c438857c924b3c0b84aa0cdfeb6c22f8bd4a8fb4",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "55096e35ae6880e26a88282a80fd5d827e09cebb",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "af9e48c4c566ce414357ce70eb1b63454cfc1a6a",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "3b65979d1582cfe5c9a35ed946d1a40bed363565",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "1d0e3e9304faa7dede1495e679e2e2870c01e8e0",
-    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "95a4268ee849c9c7484a4d2cbf0a4e5f1c9a7f49",
+    "./apps_workplace_src_app_book_book_module_ts.js": "c3ffd591092207636df908be44d424d03fa1d04c",
+    "./apps_workplace_src_app_control_control_module_ts.js": "d78652dae6d1e6348bf67446b39b6638a9617d05",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "9af3b8b9dbbe927ce6bdf892d374e736309d299a",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "a70fbeef198c4961d419ed405892b73c5fc7f283",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "e41448476944420959d52ba6185e2c95be00ada8",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "62a69b60671cfba58413575fc8d47154c8bd5c03",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "379a022c67713d9f3ccb573d113e5e6ffcd6a196",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "85658d4f007a5017a823ceae3059c4d92190169f",
+    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "202979920acdbaae0382a849d0ab505c7ea2e391",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -248,12 +248,12 @@
     "./common.js": "827148d86a3e44039836a5229ede5110c9e82884",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "848ed98f33b013c0d9bc3c4cb60f4c449f077048",
-    "./main.js": "7038005884338dd3d7d215ef3e50c4be011d8c74",
+    "./main.js": "ce6b9db846adb143783fb6dc0d607a3eb86e36d4",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "ec149ae7853814ece8632670a6d73df407d5347c",
     "./runtime.js": "860b89a9ba42ff65b1db00543f136bdd42a7a950",
-    "./styles.css": "89a9be69188d9fe43ae600c05f9cb219220ff2ad",
-    "./vendor.js": "32de6f8dfcde49995917efe7cadd86e2d24bc552"
+    "./styles.css": "65ac383de425bced910391cb47b3b88bc7368c4d",
+    "./vendor.js": "4caabb6a7cb58c9fc54ced5973d84077804270a8"
   },
   "navigationUrls": [
     {
