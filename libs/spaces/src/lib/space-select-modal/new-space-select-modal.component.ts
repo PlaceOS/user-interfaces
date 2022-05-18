@@ -18,7 +18,7 @@ import { Space } from '../space.class';
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 min-h-[65vh] h-[65vh] w-full"
             >
-                <space-filters class="h-full"></space-filters>
+                <space-filters class="h-full hidden sm:block"></space-filters>
                 <div class="flex flex-col items-center flex-1 w-1/2 h-full">
                     <space-filters-display
                         class="w-full border-b border-gray-200"

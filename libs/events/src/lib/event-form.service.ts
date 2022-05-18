@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { BaseClass, getInvalidFields } from '@placeos/common';
+import { BaseClass, getInvalidFields, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
+    catchError,
     debounceTime,
     filter,
     map,
@@ -37,6 +38,8 @@ export interface EventFlowOptions {
     zone_ids?: string[];
     /** Minimum number of attendees to filter space on */
     capacity?: number;
+    /** Whether to only show favourite rooms */
+    show_fav?: boolean;
 }
 
 @Injectable({
@@ -76,13 +79,15 @@ export class EventFormService extends BaseClass {
                     capacity: options.capacity,
                 },
                 this._org
-            );
+            ).pipe(catchError((_) => []));
         }),
         map((_) =>
             _.filter(
                 (space) =>
-                    !space.availability?.length ||
-                    space.availability.find((_) => _.status !== 'busy')
+                    (!space.availability?.length ||
+                        space.availability.find((_) => _.status !== 'busy')) &&
+                    (!this._options.getValue()?.show_fav ||
+                        this.favorite_spaces.includes(space.id))
             )
         ),
         tap((_) => this._loading.next('')),
@@ -99,7 +104,15 @@ export class EventFormService extends BaseClass {
         return this._event.getValue();
     }
 
-    constructor(private _org: OrganisationService, private _router: Router) {
+    public get favorite_spaces() {
+        return this._settings.get<string[]>('favourite_spaces') || [];
+    }
+
+    constructor(
+        private _org: OrganisationService,
+        private _router: Router,
+        private _settings: SettingsService
+    ) {
         super();
         this.available_spaces.subscribe();
         this.subscription(

@@ -13,6 +13,9 @@ import { SpaceFiltersComponent } from './space-select-modal/space-filters.compon
 import { SpaceFiltersDisplayComponent } from './space-select-modal/space-filters-display.component';
 import { SpaceMapComponent } from './space-select-modal/space-map.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormFieldsModule } from '@placeos/form-fields';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
@@ -32,7 +35,11 @@ const COMPONENTS: Type<any>[] = [
         CommonModule,
         MatDialogModule,
         ComponentsModule,
+        FormFieldsModule,
         MatBottomSheetModule,
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule
     ],
     providers: [],
     exports: [...COMPONENTS],

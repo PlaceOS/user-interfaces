@@ -1,13 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventFormService } from '@placeos/events';
-import { take } from 'rxjs/operators';
 import { Space } from '../space.class';
 
 @Component({
     selector: `space-list`,
     template: `
         <h3 class="font-bold">Results</h3>
-        <p count class="text-sm opacity-60">
+        <p count class="text-sm opacity-60 mb-4">
             {{ (available_spaces | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async); else load_state">
