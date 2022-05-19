@@ -24,7 +24,21 @@ export class MapService {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
-    public mapFeatures$: Observable<ViewerFeature[]>;
+
+    private _mapFeatures: BehaviorSubject<any[]> = new BehaviorSubject<any[]>(
+        []
+    );
+    public mapFeatures$: Observable<any[]> = this._mapFeatures.asObservable();
+
+    get mapFeatures() {
+        return this._mapFeatures.getValue();
+    }
+
+    set mapFeatures(features) {
+        this._mapFeatures.next(features);
+    }
+    // public mapFeatures$: Observable<ViewerFeature[]>;
+
     public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
 
@@ -84,15 +98,25 @@ export class MapService {
         await this.loadMap();
 
         console.log('applying map features');
-        this.mapFeatures$ = available_spaces.pipe(
+        // this.mapFeatures$ = available_spaces.pipe(
+        //     map((spaces) =>
+        //         spaces.map((space) => ({
+        //             content: MapPinComponent,
+        //             location: space.map_id,
+        //             z_index: 99,
+        //         }))
+        //     )
+        // );
+
+        this.mapFeatures = available_spaces.pipe(
             map((spaces) =>
                 spaces.map((space) => ({
                     content: MapPinComponent,
                     location: space.map_id,
-                    z_index: 20,
+                    z_index: 99,
                 }))
             )
-        );
+        ) as any;
 
         this.mapActions$ = available_spaces.pipe(
             map((spaces) =>
