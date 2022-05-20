@@ -25,10 +25,10 @@ export class MapService {
     public style_map: ViewerStyles = {};
     public item: Locatable;
 
-    private _mapFeatures: BehaviorSubject<any[]> = new BehaviorSubject<any[]>(
-        []
-    );
-    public mapFeatures$: Observable<any[]> = this._mapFeatures.asObservable();
+    private _mapFeatures: BehaviorSubject<ViewerFeature[]> =
+        new BehaviorSubject<ViewerFeature[]>([]);
+    public mapFeatures$: Observable<ViewerFeature[]> =
+        this._mapFeatures.asObservable();
 
     get mapFeatures() {
         return this._mapFeatures.getValue();
