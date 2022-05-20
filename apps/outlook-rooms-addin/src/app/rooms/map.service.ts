@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable, BehaviorSubject, of, combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
@@ -24,6 +24,7 @@ export class MapService {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
+    private _ping = new BehaviorSubject(null);
 
     private _mapFeatures: BehaviorSubject<ViewerFeature[]> =
         new BehaviorSubject<ViewerFeature[]>([]);
@@ -80,7 +81,9 @@ export class MapService {
     constructor(
         private _bottomSheet: MatBottomSheet,
         private _roomConfirmService: RoomConfirmService
-    ) {}
+    ) {
+        this.setTimer();
+    }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         this._mapLoaded.next(false);
@@ -108,15 +111,25 @@ export class MapService {
         //     )
         // );
 
-        this.mapFeatures = available_spaces.pipe(
-            map((spaces) =>
+        this.mapFeatures = combineLatest([available_spaces, this._ping]).pipe(
+            map(([spaces]) => {
                 spaces.map((space) => ({
                     content: MapPinComponent,
                     location: space.map_id,
                     z_index: 99,
-                }))
-            )
+                }));
+            })
         ) as any;
+
+        // available_spaces.pipe(
+        //     map((spaces) =>
+        //         spaces.map((space) => ({
+        //             content: MapPinComponent,
+        //             location: space.map_id,
+        //             z_index: 99,
+        //         }))
+        //     )
+        // ) as any;
 
         this.mapActions$ = available_spaces.pipe(
             map((spaces) =>
@@ -162,5 +175,12 @@ export class MapService {
         });
 
         this._roomConfirmService.handleBookEvent(space, true);
+    }
+
+    setTimer() {
+        setTimeout(() => {
+            this._ping.next(Date.now());
+            console.log('timer going off');
+        }, 6000);
     }
 }
