@@ -81,9 +81,7 @@ export class MapService {
     constructor(
         private _bottomSheet: MatBottomSheet,
         private _roomConfirmService: RoomConfirmService
-    ) {
-        this.setTimer();
-    }
+    ) {}
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         this._mapLoaded.next(false);
@@ -99,6 +97,7 @@ export class MapService {
                 })))
         );
         await this.loadMap();
+        this.setTimer();
 
         console.log('applying map features');
         // this.mapFeatures$ = available_spaces.pipe(
@@ -112,7 +111,7 @@ export class MapService {
         // );
 
         this.mapFeatures = combineLatest([available_spaces, this._ping]).pipe(
-            map(([spaces]) => {
+            map(([spaces, timer]) => {
                 spaces.map((space) => ({
                     content: MapPinComponent,
                     location: space.map_id,
