@@ -13,10 +13,11 @@ import { Component, Input } from '@angular/core';
                 <img class="h-full object-contain" *ngIf="image" [src]="image.url || image" />
             </div>
             <div
-                class="h-full w-full relative flex items-center justify-center opacity-30"
+                class="h-full w-full relative flex flex-col items-center justify-center opacity-30 space-y-2"
                 *ngIf="!images?.length"
             >
-                <p>No Images for Asset</p>
+                <app-icon class="text-5xl">image_not_supported</app-icon>
+                <p>No images</p>
             </div>
             <button
                 mat-icon-button

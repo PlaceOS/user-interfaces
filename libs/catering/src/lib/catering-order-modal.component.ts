@@ -262,17 +262,17 @@ export function cateringItemAvailable(
                 border-bottom: 1px solid #ccc;
                 outline: none;
                 font-size: 1em;
+            }
+            
+            input:focus {
+                border: none;
+                border-top: 2px solid var(--primary);
+                border-bottom: 2px solid var(--primary);
+                box-shadow: none;
+            }
 
-                &:focus {
-                    border: none;
-                    border-top: 2px solid var(--primary);
-                    border-bottom: 2px solid var(--primary);
-                    box-shadow: none;
-                }
-
-                &.error::placeholder {
-                    color: rgba(var(--error), 0.45);
-                }
+            input.error::placeholder {
+                color: rgba(var(--error), 0.45);
             }
         `,
     ],

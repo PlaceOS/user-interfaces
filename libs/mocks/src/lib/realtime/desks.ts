@@ -26,9 +26,13 @@ export class MockAreaManagementModule implements HashMap {
     overview: HashMap<ZoneOverview> = {};
 
     emergency_contacts = {
-        "First Aid": MOCK_STAFF.filter(_ => predictableRandomInt(9999) % 5 === 0),
-        "Fire Warden": MOCK_STAFF.filter(_ => predictableRandomInt(9999) % 5 === 0),
-    }
+        'First Aid': MOCK_STAFF.filter(
+            (_) => predictableRandomInt(9999) % 5 === 0
+        ),
+        'Fire Warden': MOCK_STAFF.filter(
+            (_) => predictableRandomInt(9999) % 5 === 0
+        ),
+    };
 
     $locate_user(email: string, username: string) {}
 
@@ -42,11 +46,14 @@ const MAC_LOOKUP = {};
 export class MockLocationServicesModule implements HashMap {
     $check_ownership_of(mac_address: string) {
         if (!MAC_LOOKUP[mac_address]) {
-            const staff = randomInt(999_999) % 3 === 0 ? MOCK_STAFF[randomInt(MOCK_STAFF.length)] : { name: '' };
+            const staff =
+                randomInt(999_999) % 3 === 0
+                    ? MOCK_STAFF[randomInt(MOCK_STAFF.length)]
+                    : { name: '' };
             MAC_LOOKUP[mac_address] = { assigned_to: staff.name };
         }
-        return MAC_LOOKUP[mac_address]
-    }   
+        return MAC_LOOKUP[mac_address];
+    }
 }
 
 function padZero(no: number, len: number = 3) {
@@ -80,18 +87,38 @@ export function createAreaManagementModule(
             value: [
                 {
                     area_id: 'zone-10.B',
-                    count: predictableRandomInt(100),
+                    count: randomInt(100),
                     name: '.L1 IFS IT',
                 },
                 {
                     area_id: 'zone-10.A',
-                    count: predictableRandomInt(100),
+                    count: randomInt(100),
                     name: '.L1 IFS IT',
                 },
                 {
                     area_id: 'zone-10.C',
-                    count: predictableRandomInt(50),
+                    count: randomInt(50),
                     name: '.L1 IFS IT',
+                },
+                {
+                    area_id: 'zone-02.D',
+                    count: randomInt(100),
+                    name: 'Quite Work',
+                },
+                {
+                    area_id: 'zone-02.B',
+                    count: randomInt(100),
+                    name: 'Meeting Area A',
+                },
+                {
+                    area_id: 'zone-02.A',
+                    count: randomInt(100),
+                    name: 'Meeting Area B',
+                },
+                {
+                    area_id: 'zone-02.C',
+                    count: randomInt(50),
+                    name: 'Casual Work',
                 },
             ],
         };
@@ -110,7 +137,7 @@ export function updateLocations(
                 .map(() => generateLocation(lvl, mod[`${lvl.id}:desk_ids`])),
         };
         for (const area of mod[`${lvl.id}:areas`].value) {
-            area.count = randomInt(10);
+            area.count = randomInt(100);
         }
         mod[`${lvl.id}:areas`] = { ...mod[`${lvl.id}:areas`] };
     }

@@ -4,14 +4,14 @@ import { BaseClass } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
 @Component({
-    selector: 'placeos-book-new-space-flow',
+    selector: 'placeos-book-meeting-flow',
     template: `
-        <div class="bg-white h-full w-full">
-            <ng-container [ngSwitch]="view">
-                <ng-container *ngSwitchDefault>
-                    <new-space-flow-form></new-space-flow-form>
-                </ng-container>
-            </ng-container>
+        <div class="bg-white h-full w-full" [ngSwitch]="view">
+            <meeting-flow-success *ngSwitchCase="'success'">
+            </meeting-flow-success>
+            <meeting-flow-confirm *ngSwitchCase="'confirm'">
+            </meeting-flow-confirm>
+            <meeting-flow-form *ngSwitchDefault></meeting-flow-form>
         </div>
     `,
     styles: [
@@ -23,7 +23,7 @@ import { EventFormService } from '@placeos/events';
         `,
     ],
 })
-export class NewBookSpaceFlowComponent extends BaseClass implements OnInit {
+export class BookMeetingFlowComponent extends BaseClass implements OnInit {
     public get view() {
         return this._state.view;
     }
@@ -51,8 +51,7 @@ export class NewBookSpaceFlowComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success'))
-                    this._state.setView(param.get('success') as any);
+                if (param.has('success')) this._state.setView('success');
             })
         );
     }

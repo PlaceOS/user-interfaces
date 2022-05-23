@@ -19,8 +19,12 @@ import { UserSearchFieldComponent } from './user-search-field.component';
 import { ItemListFieldComponent } from './item-list-field.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 import { UploadListFieldComponent } from './upload-list-field.component';
 import { UploadFileFieldComponent } from './upload-file-field.component';
+import { AssetListFieldComponent } from './asset-list-field.component';
+import { CateringListFieldComponent } from './catering-list-field.component';
+import { SpaceListFieldComponent } from './space-list-field.component';
 
 export * from './action-field.component';
 export * from './counter.component';
@@ -40,8 +44,12 @@ const COMPONENTS: Type<any>[] = [
     UserSearchFieldComponent,
     ItemListFieldComponent,
     UploadListFieldComponent,
-    UploadFileFieldComponent
+    UploadFileFieldComponent,
+    AssetListFieldComponent,
+    CateringListFieldComponent,
+    SpaceListFieldComponent
 ];
+
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
@@ -54,6 +62,7 @@ const COMPONENTS: Type<any>[] = [
         MatAutocompleteModule,
         MatTooltipModule,
         MatCheckboxModule,
+        MatRadioModule,
         ComponentsModule,
     ],
     exports: [...COMPONENTS],

@@ -3,15 +3,16 @@ import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
 
 @Component({
-    selector: 'space-form-details',
+    selector: 'meeting-form-details',
     template: `
         <div *ngIf="form" [formGroup]="form">
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label>Add Title<span>*</span></label>
+                    <label for="title">Add Title<span>*</span></label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
+                            name="title"
                             formControlName="title"
                             placeholder="e.g. Team Meeting"
                         />
@@ -19,24 +20,26 @@ import { SettingsService } from '@placeos/common';
                     </mat-form-field>
                 </div>
                 <div class="flex-1 min-w-[256px]">
-                    <label>Date<span>*</span></label>
-                    <a-date-field formControlName="date">
+                    <label for="date">Date<span>*</span></label>
+                    <a-date-field name="date" formControlName="date">
                         Date and time must be in the future
                     </a-date-field>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
                 <div class="flex-1 w-1/3">
-                    <label>Start Time<span>*</span></label>
+                    <label for="start-time">Start Time<span>*</span></label>
                     <a-time-field
+                        name="start-time"
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3">
-                    <label>End Time<span>*</span></label>
+                    <label for="end-time">End Time<span>*</span></label>
                     <a-duration-field
+                        name="end-time"
                         formControlName="duration"
                         [time]="form?.value?.date"
                         [max]="max_duration"
@@ -48,11 +51,11 @@ import { SettingsService } from '@placeos/common';
     `,
     styles: [],
 })
-export class SpaceFormDetailsComponent {
+export class MeetingFormDetailsComponent {
     @Input() public form: FormGroup;
 
     public get max_duration() {
-        return 480;
+        return this._settings.get('app.event.max_duration') || 480;
     }
 
     constructor(private _settings: SettingsService) {}
