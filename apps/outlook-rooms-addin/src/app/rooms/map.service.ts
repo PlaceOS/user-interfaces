@@ -12,6 +12,7 @@ import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
 import { Space } from '@placeos/spaces';
+import { BaseClass } from '@placeos/common';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { RoomTileComponent } from './room-tile/room-tile.component';
 import { RoomConfirmService } from './room-confirm.service';
@@ -27,7 +28,7 @@ export interface Locatable {
 @Injectable({
     providedIn: 'root',
 })
-export class MapService {
+export class MapService extends BaseClass {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
@@ -93,7 +94,17 @@ export class MapService {
     constructor(
         private _bottomSheet: MatBottomSheet,
         private _roomConfirmService: RoomConfirmService
-    ) {}
+    ) {
+        super();
+        this._featuresLoaded.next(false);
+        this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+            },
+            1000
+        );
+    }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         this._mapLoaded.next(false);
@@ -113,20 +124,6 @@ export class MapService {
         await this.loadMap();
 
         await this.locatable_spaces$.pipe(first((_) => !!_)).toPromise();
-
-        console.log('applying map features');
-
-        this._featuresLoaded.next(false);
-        this.locatable_spaces$.subscribe((spaces) =>
-            spaces
-                ? (this.mapFeatures = spaces?.map((space) => ({
-                      content: MapPinComponent,
-                      location: space.map_id,
-                      z_index: 99,
-                  })))
-                : []
-        );
-        this._featuresLoaded.next(true);
 
         this.mapFeatures$.subscribe((i) =>
             console.log(i, 'map feats in service')
@@ -167,6 +164,26 @@ export class MapService {
         this.maps_list$.subscribe((i) => console.log(i, 'maps list'));
 
         this._mapLoaded.next(true);
+    }
+
+    public processFeature(): void {
+        let focus;
+        this.locatable_spaces$.subscribe((spaces) =>
+            spaces
+                ? (focus = spaces?.map((space) => ({
+                      location: space.map_id,
+                      track_id: 'focus_item',
+                      content: MapPinComponent,
+                      data: { name: space.name },
+                      z_index: 99,
+                      zoom: 100,
+                  })))
+                : []
+        );
+
+        console.log('feature:', focus);
+        this.mapFeatures = focus;
+        this._featuresLoaded.next(true);
     }
 
     openRoomTile(space: Space) {
