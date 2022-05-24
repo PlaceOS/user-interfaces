@@ -5,7 +5,7 @@ import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { FormGroup, FormControl } from '@angular/forms';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Location } from '@angular/common';
@@ -13,6 +13,7 @@ import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
 import { ViewerFeature, ViewAction } from '@placeos/svg-viewer';
 import { RoomConfirmService } from '../room-confirm.service';
+import { MapPinComponent } from '@placeos/components';
 
 @Component({
     selector: 'find-space',
@@ -45,6 +46,9 @@ export class FindSpaceComponent implements OnInit {
     maps_list$: Observable<any>;
     selectedMap$: Observable<any>;
     mapFeatures$: Observable<ViewerFeature[]>;
+    _mapFeatures: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
+        ViewerFeature[]
+    >(null);
     mapActions$: Observable<ViewAction[]> = null;
 
     public get form(): FormGroup {
@@ -124,14 +128,15 @@ export class FindSpaceComponent implements OnInit {
 
         await this._mapService.locateSpaces(this.spaces$);
 
-        //Testing multiple maps
-        // await this._mapService.locateSpaces(of(this._spaces.space_list));
-
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
 
-        await this._mapService.mapLoaded$.pipe(first((_) => !!_)).toPromise();
-        this.mapFeatures$ = this._mapService.mapFeatures$;
+        await this._mapService.featuresLoaded$
+            .pipe(first((_) => !!_))
+            .toPromise();
+
+        this._mapFeatures.next(this._mapService.mapFeatures);
+        this.mapFeatures$ = this._mapFeatures.asObservable();
 
         this.mapFeatures$.subscribe((i) =>
             console.log(i, 'map feats in find-space')

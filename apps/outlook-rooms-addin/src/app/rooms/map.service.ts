@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of, combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import {
+    map,
+    take,
+    switchMap,
+    debounceTime,
+    mergeMap,
+    first,
+} from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
@@ -48,6 +55,11 @@ export class MapService {
     );
     readonly mapLoaded$: Observable<boolean> = this._mapLoaded.asObservable();
 
+    private _featuresLoaded: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
+    readonly featuresLoaded$: Observable<boolean> =
+        this._featuresLoaded.asObservable();
+
     selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
 
     //Store of Locatable Spaces
@@ -87,7 +99,8 @@ export class MapService {
         this._mapLoaded.next(false);
 
         await available_spaces.pipe(take(1)).toPromise();
-        await available_spaces.subscribe(
+
+        available_spaces.subscribe(
             (spaces) =>
                 (this.locatable_spaces = spaces?.map((space) => ({
                     id: space.id,
@@ -96,39 +109,28 @@ export class MapService {
                     level: space.level,
                 })))
         );
+
         await this.loadMap();
-        this.setTimer();
+
+        await this.locatable_spaces$.pipe(first((_) => !!_)).toPromise();
 
         console.log('applying map features');
-        // this.mapFeatures$ = available_spaces.pipe(
-        //     map((spaces) =>
-        //         spaces.map((space) => ({
-        //             content: MapPinComponent,
-        //             location: space.map_id,
-        //             z_index: 99,
-        //         }))
-        //     )
-        // );
 
-        this.mapFeatures = combineLatest([available_spaces, this._ping]).pipe(
-            map(([spaces, timer]) => {
-                spaces.map((space) => ({
-                    content: MapPinComponent,
-                    location: space.map_id,
-                    z_index: 99,
-                }));
-            })
-        ) as any;
+        this._featuresLoaded.next(false);
+        this.locatable_spaces$.subscribe((spaces) =>
+            spaces
+                ? (this.mapFeatures = spaces?.map((space) => ({
+                      content: MapPinComponent,
+                      location: space.map_id,
+                      z_index: 99,
+                  })))
+                : []
+        );
+        this._featuresLoaded.next(true);
 
-        // available_spaces.pipe(
-        //     map((spaces) =>
-        //         spaces.map((space) => ({
-        //             content: MapPinComponent,
-        //             location: space.map_id,
-        //             z_index: 99,
-        //         }))
-        //     )
-        // ) as any;
+        this.mapFeatures$.subscribe((i) =>
+            console.log(i, 'map feats in service')
+        );
 
         this.mapActions$ = available_spaces.pipe(
             map((spaces) =>
@@ -147,24 +149,24 @@ export class MapService {
     }
 
     async loadMap() {
-        //testing multiple maps
-        // available_spaces.subscribe((i) => console.log(i, 'list'));
-        // this.maps_list$ = available_spaces.pipe(
-        //     map((spaces) =>
-        //         spaces.map((_) => ({
-        //             map_id: _.level.map_id,
-        //             level: _.level.name,
-        //         }))
-        //     )
-        // );
-
         this.maps_list$ = this.locatable_spaces$.pipe(
+            map((spaces) =>
+                spaces.map((space) => ({
+                    map_id: space.level.map_id,
+                    level: space.level.name,
+                }))
+            )
+        );
+
+        this.maps_list$ = this.maps_list$.pipe(
             map((mapsList: Locatable[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
+
+        this.maps_list$.subscribe((i) => console.log(i, 'maps list'));
+
         this._mapLoaded.next(true);
-        console.log('map loaded');
     }
 
     openRoomTile(space: Space) {
@@ -174,12 +176,5 @@ export class MapService {
         });
 
         this._roomConfirmService.handleBookEvent(space, true);
-    }
-
-    setTimer() {
-        setTimeout(() => {
-            this._ping.next(Date.now());
-            console.log('timer going off');
-        }, 6000);
     }
 }
