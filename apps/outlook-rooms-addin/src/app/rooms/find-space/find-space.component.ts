@@ -129,7 +129,13 @@ export class FindSpaceComponent implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
+
+        await this._mapService.mapLoaded$.pipe(first((_) => !!_)).toPromise();
         this.mapFeatures$ = this._mapService.mapFeatures$;
+
+        this.mapFeatures$.subscribe((i) =>
+            console.log(i, 'map feats in find-space')
+        );
         this.mapActions$ = this._mapService.mapActions$;
     }
 

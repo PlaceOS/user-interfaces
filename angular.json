@@ -1360,7 +1360,23 @@
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
                             },
-                            "apps/outlook-rooms-addin/src/manifest.webmanifest"
+                            "apps/outlook-rooms-addin/src/manifest.webmanifest",
+
+                            {
+                                "glob": "manifest.xml",
+                                "input": "apps/outlook-rooms-addin/",
+                                "output": "/"
+                            },
+                            {
+                                "glob": "function-file.html",
+                                "input": "apps/outlook-rooms-addin/src/function-file/",
+                                "output": "/function-file"
+                            },
+                            {
+                                "glob": "function-file.ts",
+                                "input": "apps/outlook-rooms-addin/src/function-file/",
+                                "output": "/function-file"
+                            }
                         ],
                         "styles": [
                             "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
