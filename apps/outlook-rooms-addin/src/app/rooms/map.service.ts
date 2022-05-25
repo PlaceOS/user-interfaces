@@ -96,19 +96,9 @@ export class MapService extends BaseClass {
         private _roomConfirmService: RoomConfirmService
     ) {
         super();
-        this._featuresLoaded.next(false);
-        this.timeout(
-            'init',
-            () => {
-                this.processFeature();
-            },
-            1000
-        );
     }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
-        this._mapLoaded.next(false);
-
         await available_spaces.pipe(take(1)).toPromise();
 
         available_spaces.subscribe(
@@ -120,10 +110,10 @@ export class MapService extends BaseClass {
                     level: space.level,
                 })))
         );
-
-        await this.loadMap();
-
         await this.locatable_spaces$.pipe(first((_) => !!_)).toPromise();
+        await this.loadMap();
+        await this.processFeature();
+        await this.processStyles();
 
         this.mapFeatures$.subscribe((i) =>
             console.log(i, 'map feats in service')
@@ -146,6 +136,7 @@ export class MapService extends BaseClass {
     }
 
     async loadMap() {
+        this._mapLoaded.next(false);
         this.maps_list$ = this.locatable_spaces$.pipe(
             map((spaces) =>
                 spaces.map((space) => ({
@@ -167,6 +158,7 @@ export class MapService extends BaseClass {
     }
 
     public processFeature(): void {
+        this._featuresLoaded.next(false);
         let focus;
         this.locatable_spaces$.subscribe((spaces) =>
             spaces
@@ -186,6 +178,12 @@ export class MapService extends BaseClass {
         this._featuresLoaded.next(true);
     }
 
+    public processStyles(): void {
+        const styles: ViewerStyles = {};
+        styles[`#zones`] = { display: 'none' };
+        styles[`#Zones`] = { display: 'none' };
+        this.style_map = styles;
+    }
     openRoomTile(space: Space) {
         const bottomSheetRef = this._bottomSheet.open(RoomTileComponent, {
             panelClass: 'bottom-sheet-transparent',

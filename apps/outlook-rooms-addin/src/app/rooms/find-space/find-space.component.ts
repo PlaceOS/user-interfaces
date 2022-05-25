@@ -11,9 +11,10 @@ import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
-import { ViewerFeature, ViewAction } from '@placeos/svg-viewer';
+import { ViewerFeature, ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { RoomConfirmService } from '../room-confirm.service';
 import { MapPinComponent } from '@placeos/components';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'find-space',
@@ -32,7 +33,7 @@ import { MapPinComponent } from '@placeos/components';
         `,
     ],
 })
-export class FindSpaceComponent implements OnInit {
+export class FindSpaceComponent extends BaseClass implements OnInit {
     startTime$: Observable<any>;
     durationMinutes: number;
     endTime$: Observable<any>;
@@ -50,6 +51,7 @@ export class FindSpaceComponent implements OnInit {
         ViewerFeature[]
     >(null);
     mapActions$: Observable<ViewAction[]> = null;
+    mapStyles$: Observable<ViewerStyles[]> = null;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -109,7 +111,9 @@ export class FindSpaceComponent implements OnInit {
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
         private _roomConfirmService: RoomConfirmService
-    ) {}
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         this.spaceView = 'listView';
@@ -134,6 +138,15 @@ export class FindSpaceComponent implements OnInit {
         await this._mapService.featuresLoaded$
             .pipe(first((_) => !!_))
             .toPromise();
+
+        this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+                this.processStyles();
+            },
+            1500
+        );
 
         this._mapFeatures.next(this._mapService.mapFeatures);
         this.mapFeatures$ = this._mapFeatures.asObservable();
@@ -195,6 +208,14 @@ export class FindSpaceComponent implements OnInit {
 
     updateSelectedLevel(e) {
         this.selectedMap$ = of(e);
+    }
+
+    processFeature() {
+        this.mapFeatures$ = this._mapService.mapFeatures$;
+    }
+
+    processStyles() {
+        this.mapStyles$ = of([this._mapService.style_map]);
     }
 
     closeModal() {

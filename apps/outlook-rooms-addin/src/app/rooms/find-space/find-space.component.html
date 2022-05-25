@@ -139,6 +139,7 @@
                                         (this.selectedMap$ | async)?.map_id ||
                                         (this.maps_list$ | async)[0]?.map_id
                                     "
+                                    [styles]="this.mapStyles$ | async"
                                     [features]="this.mapFeatures$ | async"
                                     [actions]="this.mapActions$ | async"
                                     class="m-6 w-full"
