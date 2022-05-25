@@ -112,7 +112,14 @@ export class MapService extends BaseClass {
         );
         await this.locatable_spaces$.pipe(first((_) => !!_)).toPromise();
         await this.loadMap();
-        await this.processFeature();
+        await this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+            },
+            1000
+        );
+
         await this.processStyles();
 
         this.mapFeatures$.subscribe((i) =>
