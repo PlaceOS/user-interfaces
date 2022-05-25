@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of, combineLatest } from 'rxjs';
-import {
-    map,
-    take,
-    switchMap,
-    debounceTime,
-    mergeMap,
-    first,
-} from 'rxjs/operators';
+import { map, take, first } from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
@@ -25,6 +18,11 @@ export interface Locatable {
     zones?: string[];
 }
 
+export interface mapsList {
+    map_id: string;
+    level: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -32,7 +30,6 @@ export class MapService extends BaseClass {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
-    private _ping = new BehaviorSubject(null);
 
     private _mapFeatures: BehaviorSubject<ViewerFeature[]> =
         new BehaviorSubject<ViewerFeature[]>([]);
@@ -43,12 +40,10 @@ export class MapService extends BaseClass {
         return this._mapFeatures.getValue();
     }
 
-    set mapFeatures(features) {
+    set mapFeatures(features: ViewerFeature[]) {
         this._mapFeatures.next(features);
     }
-    // public mapFeatures$: Observable<ViewerFeature[]>;
 
-    public maps_arr: any[] = [];
     public mapActions$: Observable<ViewAction[]>;
 
     private _mapLoaded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
@@ -70,7 +65,7 @@ export class MapService extends BaseClass {
     locatable_spaces$: Observable<Locatable[]> =
         this._locatable_spaces.asObservable();
 
-    set locatable_spaces(space) {
+    set locatable_spaces(space: Locatable[]) {
         this._locatable_spaces.next(space);
     }
 
@@ -79,11 +74,13 @@ export class MapService extends BaseClass {
     }
 
     //Store of map_id urls & level names for available_spaces
-    private _maps_list: BehaviorSubject<[]> = new BehaviorSubject<any>([]);
+    private _maps_list: BehaviorSubject<mapsList[]> = new BehaviorSubject<any>(
+        []
+    );
 
     maps_list$: Observable<any> = this._maps_list.asObservable();
 
-    set maps_list(map) {
+    set maps_list(map: mapsList[]) {
         this._maps_list.next(map);
     }
 
@@ -122,14 +119,10 @@ export class MapService extends BaseClass {
 
         await this.processStyles();
 
-        this.mapFeatures$.subscribe((i) =>
-            console.log(i, 'map feats in service')
-        );
-
         this.mapActions$ = available_spaces.pipe(
-            map((spaces) =>
+            map((spaces: Space[]) =>
                 spaces.map(
-                    (space) =>
+                    (space: Space) =>
                         ({
                             id: space.map_id,
                             action: 'click',
@@ -145,8 +138,8 @@ export class MapService extends BaseClass {
     async loadMap() {
         this._mapLoaded.next(false);
         this.maps_list$ = this.locatable_spaces$.pipe(
-            map((spaces) =>
-                spaces.map((space) => ({
+            map((spaces: Locatable[]) =>
+                spaces.map((space: Locatable) => ({
                     map_id: space.level.map_id,
                     level: space.level.name,
                 }))
@@ -154,19 +147,17 @@ export class MapService extends BaseClass {
         );
 
         this.maps_list$ = this.maps_list$.pipe(
-            map((mapsList: Locatable[]) => [
+            map((mapsList: mapsList[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
-
-        this.maps_list$.subscribe((i) => console.log(i, 'maps list'));
 
         this._mapLoaded.next(true);
     }
 
     public processFeature(): void {
         this._featuresLoaded.next(false);
-        let focus;
+        let focus: any;
         this.locatable_spaces$.subscribe((spaces) =>
             spaces
                 ? (focus = spaces?.map((space) => ({
@@ -178,8 +169,6 @@ export class MapService extends BaseClass {
                   })))
                 : []
         );
-
-        console.log('feature:', focus);
         this.mapFeatures = focus;
         this._featuresLoaded.next(true);
     }

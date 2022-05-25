@@ -150,10 +150,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this._mapFeatures.next(this._mapService.mapFeatures);
         this.mapFeatures$ = this._mapFeatures.asObservable();
-
-        this.mapFeatures$.subscribe((i) =>
-            console.log(i, 'map feats in find-space')
-        );
         this.mapActions$ = this._mapService.mapActions$;
     }
 
