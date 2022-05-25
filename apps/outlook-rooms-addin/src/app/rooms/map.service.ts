@@ -106,7 +106,7 @@ export class MapService extends BaseClass {
                 (this.locatable_spaces = spaces?.map((space) => ({
                     id: space.id,
                     name: space.name,
-                    map_id: space.level.map_id,
+                    map_id: space.map_id,
                     level: space.level,
                 })))
         );
@@ -171,7 +171,6 @@ export class MapService extends BaseClass {
             spaces
                 ? (focus = spaces?.map((space) => ({
                       location: space.map_id,
-                      track_id: 'focus_item',
                       content: MapPinComponent,
                       data: { name: space.name },
                       z_index: 99,
