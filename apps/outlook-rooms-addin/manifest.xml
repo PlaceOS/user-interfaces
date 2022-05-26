@@ -43,8 +43,8 @@
       <Host xsi:type="MailHost">
         <DesktopFormFactor>
           <FunctionFile resid="functionFile"/>
-          <!-- <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface"> -->
-          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+          <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+          <!-- <ExtensionPoint xsi:type="MessageReadCommandSurface"> -->
             <OfficeTab id="TabDefault">
               <Group id="msgReadGroup">
                 <Label resid="GroupLabel"/>
