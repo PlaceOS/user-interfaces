@@ -103,7 +103,7 @@
                         <div
                             *ngIf="
                                 this.spaceView == 'mapView' &&
-                                (this.mapFeatures$ | async).length > 0
+                                (this.mapFeatures$ | async)?.length > 0
                             "
                             class="text-center h-full overflow-hidden"
                         >

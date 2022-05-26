@@ -4,13 +4,18 @@
             Your Bookings</span
         >
         <ng-container *ngIf="!(loading | async); else load_state">
-            <ng-container
+            <!-- <ng-container
                 *ngIf="(bookings$ | async)?.length > 0; else empty_state"
+            > -->
+            <div
+                class="flex bg-white p-2 my-4 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
             >
-                <div *ngFor="let booking of bookings$ | async">
-                    {{ booking }}
-                </div>
-            </ng-container>
+                Test booking
+            </div>
+            <div *ngFor="let booking of bookings$ | async">
+                {{ booking }}
+            </div>
+            <!-- </ng-container> -->
         </ng-container>
 
         <ng-template #load_state>
@@ -21,7 +26,6 @@
                 <p>Retrieving bookings...</p>
             </div>
         </ng-template>
-
         <ng-template #empty_state>
             <div
                 class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center my-6"
