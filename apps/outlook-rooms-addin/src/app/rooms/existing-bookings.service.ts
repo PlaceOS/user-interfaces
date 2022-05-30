@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseClass } from '@placeos/common';
 import { queryBookings } from '@placeos/bookings';
+import { queryEvents } from '@placeos/events';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { CalendarEvent } from '@placeos/events';
 
@@ -12,7 +13,6 @@ export class ExistingBookingsService extends BaseClass {
         false
     );
     public loading$: Observable<boolean> = this._loading.asObservable();
-    private _date: BehaviorSubject<number> = new BehaviorSubject(Date.now());
 
     private _bookings: BehaviorSubject<CalendarEvent[]> = new BehaviorSubject<
         CalendarEvent[]
@@ -28,9 +28,31 @@ export class ExistingBookingsService extends BaseClass {
         this._bookings.next(bookings);
     }
 
+    private _date: BehaviorSubject<number> = new BehaviorSubject<number>(
+        Date.now()
+    );
+
+    date$: Observable<number> = this._date.asObservable();
+
+    get date() {
+        return this._date.getValue();
+    }
+
+    set date(date) {
+        this._date.next(date);
+    }
+
     constructor() {
         super();
     }
 
-    getBookings() {}
+    getBookings() {
+        let result;
+        result = queryEvents({
+            period_start: 1653904580,
+            period_end: 1753909580,
+        });
+
+        console.log(result);
+    }
 }
