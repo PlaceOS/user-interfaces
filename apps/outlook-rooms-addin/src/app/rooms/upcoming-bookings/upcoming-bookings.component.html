@@ -8,13 +8,14 @@
                 *ngIf="(bookings$ | async)?.length > 0; else empty_state"
             > -->
             <div
+                *ngFor="let booking of bookings$ | async"
                 class="flex bg-white p-2 my-4 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
             >
-                Test booking
+                {{ booking?.title }}
+                {{ booking?.event_start }} - {{ booking?.event_end }}
+                {{ booking.location }}
             </div>
-            <div *ngFor="let booking of bookings$ | async">
-                {{ booking }}
-            </div>
+
             <!-- </ng-container> -->
         </ng-container>
 
