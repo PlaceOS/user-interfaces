@@ -9,11 +9,16 @@
             > -->
             <div
                 *ngFor="let booking of bookings$ | async"
-                class="flex bg-white p-2 my-4 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
+                class="flex flex-col bg-white p-4 my-4 shadow w-[640px] max-w-[calc(100%-4rem)] mx-auto rounded"
             >
-                {{ booking?.title }}
-                {{ booking?.event_start }} - {{ booking?.event_end }}
-                {{ booking.location }}
+                <span class="flex font-bold"> {{ booking?.title }}</span>
+                <span class="flex">
+                    {{ booking?.date | date: 'dd MMMM yyyy' }}</span
+                >
+                <span class="flex">
+                    {{ booking?.start_time }} - {{ booking?.end_time }}</span
+                >
+                <span class="flex"> {{ booking.location }}</span>
             </div>
 
             <!-- </ng-container> -->

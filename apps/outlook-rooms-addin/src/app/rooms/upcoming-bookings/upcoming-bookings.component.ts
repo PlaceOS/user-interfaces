@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { EventFormService, CalendarEvent } from '@placeos/events';
 import { Observable, of } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, switchMap } from 'rxjs/operators';
 import { ExistingBookingsService } from '../existing-bookings.service';
+import { getTime } from 'date-fns';
 
 @Component({
     selector: 'placeos-upcoming-bookings',
@@ -10,7 +11,7 @@ import { ExistingBookingsService } from '../existing-bookings.service';
     styles: [``],
 })
 export class UpcomingBookingsComponent implements OnInit {
-    bookings$: Observable<CalendarEvent[]>;
+    bookings$: Observable<any[]>;
     loading: Observable<boolean>;
 
     constructor(
@@ -31,6 +32,26 @@ export class UpcomingBookingsComponent implements OnInit {
             console.log(i, 'events')
         );
 
-        this.bookings$ = this._existingBookingsService.events;
+        this.bookings$ = this._existingBookingsService.events?.pipe(
+            switchMap((bookings) => [
+                bookings.map((booking) => ({
+                    title: booking.title,
+                    date: booking.date,
+                    start_time: this._convertTime(1654059600 * 1000),
+                    end_time: this._convertTime(1654053300 * 1000),
+                    location: booking.location,
+                })),
+            ])
+        );
+
+        this.bookings$.subscribe((i) => console.log(i, 'bookings$'));
+    }
+
+    private _convertTime(unixTime: number) {
+        return new Date(unixTime).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true,
+        });
     }
 }
