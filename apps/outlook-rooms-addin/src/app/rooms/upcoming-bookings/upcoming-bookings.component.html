@@ -3,25 +3,25 @@
         <span class="flex items-center text-xl font-bold ml-6">
             Your Bookings</span
         >
-        <ng-container *ngIf="!(loading | async); else load_state">
-            <!-- <ng-container
+        <ng-container *ngIf="!(loading$ | async); else load_state">
+            <ng-container
                 *ngIf="(bookings$ | async)?.length > 0; else empty_state"
-            > -->
-            <div
-                *ngFor="let booking of bookings$ | async"
-                class="flex flex-col bg-white p-4 my-4 shadow w-[640px] max-w-[calc(100%-4rem)] mx-auto rounded"
             >
-                <span class="flex font-bold"> {{ booking?.title }}</span>
-                <span class="flex">
-                    {{ booking?.date | date: 'dd MMMM yyyy' }}</span
+                <div
+                    *ngFor="let booking of bookings$ | async"
+                    class="flex flex-col bg-white p-4 my-4 shadow w-[640px] max-w-[calc(100%-4rem)] mx-auto rounded"
                 >
-                <span class="flex">
-                    {{ booking?.start_time }} - {{ booking?.end_time }}</span
-                >
-                <span class="flex"> {{ booking.location }}</span>
-            </div>
-
-            <!-- </ng-container> -->
+                    <span class="flex font-bold"> {{ booking?.title }}</span>
+                    <span class="flex">
+                        {{ booking?.date | date: 'dd MMMM yyyy' }}</span
+                    >
+                    <span class="flex">
+                        {{ booking?.start_time }} -
+                        {{ booking?.end_time }}</span
+                    >
+                    <span class="flex"> {{ booking.location }}</span>
+                </div>
+            </ng-container>
         </ng-container>
 
         <ng-template #load_state>

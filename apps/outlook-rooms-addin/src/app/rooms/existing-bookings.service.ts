@@ -48,7 +48,6 @@ export class ExistingBookingsService extends BaseClass {
 
     constructor() {
         super();
-        this.getBookings();
     }
 
     getBookings() {
