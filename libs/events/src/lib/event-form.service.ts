@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -57,7 +57,7 @@ export class EventFormService extends BaseClass {
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
-    public readonly available_spaces = combineLatest([
+    public readonly available_spaces: Observable<Space[]> = combineLatest([
         this._view,
         this._options,
         this._form,

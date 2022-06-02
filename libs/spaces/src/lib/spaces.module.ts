@@ -16,6 +16,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SpaceLocationPinComponent } from './space-select-modal/space-location-pin.component';
 
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
@@ -27,6 +28,7 @@ const COMPONENTS: Type<any>[] = [
     SpaceFiltersComponent,
     SpaceFiltersDisplayComponent,
     SpaceMapComponent,
+    SpaceLocationPinComponent
 ];
 
 @NgModule({

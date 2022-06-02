@@ -22,8 +22,10 @@ import { Space } from '../space.class';
                 <div class="flex flex-col items-center flex-1 w-1/2 h-full">
                     <space-filters-display
                         class="w-full border-b border-gray-200"
+                        [(view)]="view"
                     ></space-filters-display>
                     <space-list
+                        *ngIf="view === 'list'; else map_view"
                         [selected]="selected_ids"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
@@ -66,15 +68,24 @@ import { Space } from '../space.class';
                 </button>
             </footer>
         </div>
+        <ng-template #map_view>
+            <space-map
+                class="flex-1 h-1/2 w-full"
+                [selected]="selected_ids"
+                (onSelect)="displayed = $event"
+            >
+            </space-map>
+        </ng-template>
     `,
     styles: [``],
 })
 export class NewSpaceSelectModalComponent {
     public displayed?: Space;
     public selected: Space[] = [];
+    public view = 'list';
 
     public get selected_ids() {
-        return this.selected.map(_ => _.id).join(',');
+        return this.selected.map((_) => _.id).join(',');
     }
 
     public get favorites() {
@@ -89,7 +100,7 @@ export class NewSpaceSelectModalComponent {
     }
 
     public setSelected(space: Space, state: boolean) {
-        const list = this.selected.filter(_ => _.id !== space.id);
+        const list = this.selected.filter((_) => _.id !== space.id);
         if (state) list.push(space);
         this.selected = list;
     }
