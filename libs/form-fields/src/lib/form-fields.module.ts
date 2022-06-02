@@ -25,6 +25,7 @@ import { UploadFileFieldComponent } from './upload-file-field.component';
 import { AssetListFieldComponent } from './asset-list-field.component';
 import { CateringListFieldComponent } from './catering-list-field.component';
 import { SpaceListFieldComponent } from './space-list-field.component';
+import { RichTextInputComponent } from './rich-text-input.component';
 
 export * from './action-field.component';
 export * from './counter.component';
@@ -47,7 +48,8 @@ const COMPONENTS: Type<any>[] = [
     UploadFileFieldComponent,
     AssetListFieldComponent,
     CateringListFieldComponent,
-    SpaceListFieldComponent
+    SpaceListFieldComponent,
+    RichTextInputComponent
 ];
 
 @NgModule({

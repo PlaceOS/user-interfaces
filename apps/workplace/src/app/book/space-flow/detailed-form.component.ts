@@ -69,15 +69,12 @@ import { SettingsService } from '@placeos/common';
                             <mat-error>Meeting Subject is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col resize-y">
+                    <div class="flex flex-col resize-y mb-4">
                         <label>Notes</label>
-                        <mat-form-field appearance="outline">
-                            <textarea
-                                matInput
-                                formControlName="body"
-                                placeholder="Add meeting notes here..."
-                            ></textarea>
-                        </mat-form-field>
+                        <rich-text-input
+                            formControlName="body"
+                            placeholder="Add meeting notes here..."
+                        ></rich-text-input>
                     </div>
                     <div class="flex flex-col mb-4" *ngIf="has_catering">
                         <label>Catering</label>
