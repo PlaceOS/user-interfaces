@@ -51,7 +51,7 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Room</div>
                         </h3>
-                        <space-list-field formControlName="spaces"></space-list-field>
+                        <space-list-field formControlName="resources"></space-list-field>
                     </section>
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">

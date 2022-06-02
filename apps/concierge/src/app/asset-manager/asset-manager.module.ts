@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { UIModule } from '../ui/ui.module';
 
@@ -22,7 +23,6 @@ import { SplitJoinPipe } from './split-join.pipe';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { DurationFormatPipe } from './duration.pipe';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 const COMPONENTS = [
     AssetManagerComponent,

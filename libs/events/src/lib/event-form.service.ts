@@ -184,9 +184,10 @@ export class EventFormService extends BaseClass {
         const { id, date, duration } = form.value;
         const spaces = form.get('resources')?.value || [];
         if (
-            !id ||
+            (!id ||
             date !== this.event.date ||
-            duration !== this.event.duration
+            duration !== this.event.duration) &&
+            spaces.length
         ) {
             await this.checkSelectedSpacesAreAvailable(
                 spaces,
