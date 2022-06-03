@@ -41,7 +41,7 @@ export class UpcomingBookingsComponent implements OnInit {
     }
 
     filterBookings(booking) {
-        if (booking.organiser?.name == currentUser().name) {
+        if (booking.organiser?.name === currentUser().name) {
             return {
                 title: booking.title,
                 organiser: booking.organiser?.name,
@@ -50,6 +50,8 @@ export class UpcomingBookingsComponent implements OnInit {
                 end_time: this._convertTime(booking.event_end * 1000),
                 location: booking.location,
             };
+        } else {
+            return null;
         }
     }
 
