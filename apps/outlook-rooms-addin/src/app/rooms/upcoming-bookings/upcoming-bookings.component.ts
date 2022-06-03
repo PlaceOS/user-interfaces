@@ -21,9 +21,7 @@ export class UpcomingBookingsComponent implements OnInit {
     constructor(private _existingBookingsService: ExistingBookingsService) {}
 
     async ngOnInit() {
-        // this.currentUser$ = this._state......
-
-        // console.log(currentUser, 'current user');
+        console.log(currentUser().name, 'current user');
 
         await this._existingBookingsService.events
             ?.pipe(first((_) => !!_))
@@ -35,16 +33,26 @@ export class UpcomingBookingsComponent implements OnInit {
     public getBookingsFromService() {
         this.bookings$ = this._existingBookingsService.events?.pipe(
             switchMap((bookings) => [
-                bookings.map((booking) => ({
-                    title: booking.title,
-                    date: booking.date,
-                    start_time: this._convertTime(booking.event_start * 1000),
-                    end_time: this._convertTime(booking.event_end * 1000),
-                    location: booking.location,
-                })),
+                bookings.map((booking) => this.filterBookings(booking)),
             ])
         );
+
+        this.bookings$.subscribe((i) => console.log(i, 'bookings'));
     }
+
+    filterBookings(booking) {
+        if (booking.organiser?.name == currentUser().name) {
+            return {
+                title: booking.title,
+                organiser: booking.organiser?.name,
+                date: booking.date,
+                start_time: this._convertTime(booking.event_start * 1000),
+                end_time: this._convertTime(booking.event_end * 1000),
+                location: booking.location,
+            };
+        }
+    }
+
     private _convertTime(unixTime: number) {
         return new Date(unixTime).toLocaleTimeString(this.timeZone, {
             hour: 'numeric',

@@ -62,5 +62,7 @@ export class ExistingBookingsService extends BaseClass {
             )
         );
         this._loading.next(false);
+
+        this.events.subscribe((i) => console.log(i, 'events'));
     }
 }
