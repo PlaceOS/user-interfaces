@@ -52,7 +52,7 @@ export class ExistingBookingsService extends BaseClass {
 
     getBookings() {
         this.events = this._date.pipe(
-            switchMap((date) =>
+            switchMap(() =>
                 queryEvents({
                     period_start: getUnixTime(startOfDay(this.date)),
                     period_end: getUnixTime(endOfDay(this.date)),

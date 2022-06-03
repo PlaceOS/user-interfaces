@@ -14,7 +14,7 @@ import { currentUser } from '@placeos/common';
 export class UpcomingBookingsComponent implements OnInit {
     bookings$: Observable<any[]>;
     private _loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-        null
+        true
     );
     public loading$: Observable<boolean> = this._loading.asObservable();
     currentUser$: Observable<any>;
