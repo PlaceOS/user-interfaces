@@ -3,7 +3,7 @@ import { BaseClass } from '@placeos/common';
 import { queryBookings } from '@placeos/bookings';
 import { queryEvents } from '@placeos/events';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, take } from 'rxjs/operators';
 import { CalendarEvent } from '@placeos/events';
 import { getUnixTime, startOfDay, endOfDay } from 'date-fns';
 
@@ -12,7 +12,7 @@ import { getUnixTime, startOfDay, endOfDay } from 'date-fns';
 })
 export class ExistingBookingsService extends BaseClass {
     private _loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-        false
+        null
     );
     public loading$: Observable<boolean> = this._loading.asObservable();
 
@@ -48,9 +48,11 @@ export class ExistingBookingsService extends BaseClass {
 
     constructor() {
         super();
+        this.getBookings();
     }
 
-    getBookings() {
+    async getBookings() {
+        this._loading.next(true);
         this.events = this._date.pipe(
             switchMap(() =>
                 queryEvents({
@@ -59,5 +61,6 @@ export class ExistingBookingsService extends BaseClass {
                 })
             )
         );
+        this._loading.next(false);
     }
 }

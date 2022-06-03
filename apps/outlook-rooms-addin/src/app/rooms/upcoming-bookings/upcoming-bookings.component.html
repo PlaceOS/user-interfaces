@@ -3,7 +3,12 @@
         <span class="flex items-center text-xl font-bold ml-6">
             Your Bookings</span
         >
-        <ng-container *ngIf="loading$ | async; else load_state">
+        <ng-container
+            *ngIf="
+                (this.loading$ | async) == false && (bookings$ | async);
+                else load_state
+            "
+        >
             <ng-container
                 *ngIf="(bookings$ | async)?.length > 0; else empty_state"
             >
