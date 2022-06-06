@@ -1,5 +1,6 @@
-module.exports = {
-    displayName: 'control',
+/* eslint-disable */
+export default {
+    displayName: 'spaces',
     preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
     globals: {
@@ -9,7 +10,7 @@ module.exports = {
             tsconfig: '<rootDir>/tsconfig.spec.json',
         },
     },
-    coverageDirectory: '../../coverage/apps/control',
+    coverageDirectory: '../../coverage/libs/spaces',
     snapshotSerializers: [
         'jest-preset-angular/build/serializers/no-ng-attributes',
         'jest-preset-angular/build/serializers/ng-snapshot',

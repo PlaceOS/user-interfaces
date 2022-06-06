@@ -1,5 +1,6 @@
-module.exports = {
-    displayName: 'mocks',
+/* eslint-disable */
+export default {
+    displayName: 'workplace',
     preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
     globals: {
@@ -9,7 +10,7 @@ module.exports = {
             tsconfig: '<rootDir>/tsconfig.spec.json',
         },
     },
-    coverageDirectory: '../../coverage/libs/mocks',
+    coverageDirectory: '../../coverage/apps/workplace',
     snapshotSerializers: [
         'jest-preset-angular/build/serializers/no-ng-attributes',
         'jest-preset-angular/build/serializers/ng-snapshot',

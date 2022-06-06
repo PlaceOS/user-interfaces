@@ -1,5 +1,6 @@
-module.exports = {
-    displayName: 'visitor-kiosk',
+/* eslint-disable */
+export default {
+    displayName: 'mocks',
     preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
     globals: {
@@ -9,7 +10,7 @@ module.exports = {
             tsconfig: '<rootDir>/tsconfig.spec.json',
         },
     },
-    coverageDirectory: '../../coverage/apps/visitor-kiosk',
+    coverageDirectory: '../../coverage/libs/mocks',
     snapshotSerializers: [
         'jest-preset-angular/build/serializers/no-ng-attributes',
         'jest-preset-angular/build/serializers/ng-snapshot',

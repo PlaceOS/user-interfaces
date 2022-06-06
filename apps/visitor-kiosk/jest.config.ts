@@ -1,5 +1,6 @@
-module.exports = {
-    displayName: 'components',
+/* eslint-disable */
+export default {
+    displayName: 'visitor-kiosk',
     preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
     globals: {
@@ -9,7 +10,7 @@ module.exports = {
             tsconfig: '<rootDir>/tsconfig.spec.json',
         },
     },
-    coverageDirectory: '../../coverage/libs/components',
+    coverageDirectory: '../../coverage/apps/visitor-kiosk',
     snapshotSerializers: [
         'jest-preset-angular/build/serializers/no-ng-attributes',
         'jest-preset-angular/build/serializers/ng-snapshot',

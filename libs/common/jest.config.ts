@@ -1,5 +1,6 @@
-module.exports = {
-    displayName: 'explore',
+/* eslint-disable */
+export default {
+    displayName: 'common',
     preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
     globals: {
@@ -9,7 +10,7 @@ module.exports = {
             tsconfig: '<rootDir>/tsconfig.spec.json',
         },
     },
-    coverageDirectory: '../../coverage/libs/explore',
+    coverageDirectory: '../../coverage/libs/common',
     snapshotSerializers: [
         'jest-preset-angular/build/serializers/no-ng-attributes',
         'jest-preset-angular/build/serializers/ng-snapshot',

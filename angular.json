@@ -141,7 +141,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/booking-panel"],
                     "options": {
-                        "jestConfig": "apps/booking-panel/jest.config.js",
+                        "jestConfig": "apps/booking-panel/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -199,7 +199,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/bookings"],
                     "options": {
-                        "jestConfig": "libs/bookings/jest.config.js",
+                        "jestConfig": "libs/bookings/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -226,7 +226,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/calendar"],
                     "options": {
-                        "jestConfig": "libs/calendar/jest.config.js",
+                        "jestConfig": "libs/calendar/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -373,7 +373,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/caterer-ui"],
                     "options": {
-                        "jestConfig": "apps/caterer-ui/jest.config.js",
+                        "jestConfig": "apps/caterer-ui/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -429,7 +429,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/catering"],
                     "options": {
-                        "jestConfig": "libs/catering/jest.config.js",
+                        "jestConfig": "libs/catering/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -456,7 +456,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/common"],
                     "options": {
-                        "jestConfig": "libs/common/jest.config.js",
+                        "jestConfig": "libs/common/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -483,7 +483,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/components"],
                     "options": {
-                        "jestConfig": "libs/components/jest.config.js",
+                        "jestConfig": "libs/components/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -630,7 +630,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/concierge"],
                     "options": {
-                        "jestConfig": "apps/concierge/jest.config.js",
+                        "jestConfig": "apps/concierge/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -806,7 +806,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/control"],
                     "options": {
-                        "jestConfig": "apps/control/jest.config.js",
+                        "jestConfig": "apps/control/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -979,7 +979,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/enrolment"],
                     "options": {
-                        "jestConfig": "apps/enrolment/jest.config.js",
+                        "jestConfig": "apps/enrolment/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1035,7 +1035,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/events"],
                     "options": {
-                        "jestConfig": "libs/events/jest.config.js",
+                        "jestConfig": "libs/events/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1062,7 +1062,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/explore"],
                     "options": {
-                        "jestConfig": "libs/explore/jest.config.js",
+                        "jestConfig": "libs/explore/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1089,7 +1089,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/form-fields"],
                     "options": {
-                        "jestConfig": "libs/form-fields/jest.config.js",
+                        "jestConfig": "libs/form-fields/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1236,7 +1236,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/map-kiosk"],
                     "options": {
-                        "jestConfig": "apps/map-kiosk/jest.config.js",
+                        "jestConfig": "apps/map-kiosk/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1292,7 +1292,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/mocks"],
                     "options": {
-                        "jestConfig": "libs/mocks/jest.config.js",
+                        "jestConfig": "libs/mocks/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1319,7 +1319,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/organisation"],
                     "options": {
-                        "jestConfig": "libs/organisation/jest.config.js",
+                        "jestConfig": "libs/organisation/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1361,7 +1361,6 @@
                                 "output": "/"
                             },
                             "apps/outlook-rooms-addin/src/manifest.webmanifest",
-
                             {
                                 "glob": "manifest.xml",
                                 "input": "apps/outlook-rooms-addin/",
@@ -1476,7 +1475,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/outlook-rooms-addin"],
                     "options": {
-                        "jestConfig": "apps/outlook-rooms-addin/jest.config.js",
+                        "jestConfig": "apps/outlook-rooms-addin/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1534,7 +1533,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/spaces"],
                     "options": {
-                        "jestConfig": "libs/spaces/jest.config.js",
+                        "jestConfig": "libs/spaces/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1672,7 +1671,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/timetable"],
                     "options": {
-                        "jestConfig": "apps/timetable/jest.config.js",
+                        "jestConfig": "apps/timetable/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1728,7 +1727,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/users"],
                     "options": {
-                        "jestConfig": "libs/users/jest.config.js",
+                        "jestConfig": "libs/users/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1875,7 +1874,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/visitor-kiosk"],
                     "options": {
-                        "jestConfig": "apps/visitor-kiosk/jest.config.js",
+                        "jestConfig": "apps/visitor-kiosk/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -2053,7 +2052,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/workplace"],
                     "options": {
-                        "jestConfig": "apps/workplace/jest.config.js",
+                        "jestConfig": "apps/workplace/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
