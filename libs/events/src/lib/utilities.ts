@@ -42,6 +42,7 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
         catering: new FormControl(event.extension_data?.catering || []),
+        assets: new FormControl(event.extension_data?.assets || []),
         // has_catering: new FormControl(event.has_catering || false),
         visitor_type: new FormControl(event.extension_data?.visitor_type),
         location: new FormControl(event.location),

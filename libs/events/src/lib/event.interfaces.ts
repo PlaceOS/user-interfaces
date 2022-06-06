@@ -3,6 +3,7 @@ import { Space } from '@placeos/spaces';
 import { User } from '@placeos/users';
 
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
+import { Asset } from 'libs/form-fields/src/lib/asset-list-field.component';
 
 export interface FileDetails {
     /** Name of the file */
@@ -21,6 +22,8 @@ export interface EventExtensionData {
     cleaned?: boolean;
     /** Catering */
     catering?: CateringOrder[];
+    /** List of assets assigned to event */
+    assets?: Asset[];
     /** Parking */
     needs_parking?: boolean;
     /** Configuration */
