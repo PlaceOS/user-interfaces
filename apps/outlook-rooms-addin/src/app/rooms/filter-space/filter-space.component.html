@@ -5,7 +5,7 @@
         <section class="flex flex-col border-b border-gray-300 py-5">
             <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
                 <div class="flex flex-row items-center">
-                    <button (click)="this.closeModal()">
+                    <button (click)="closeModal()">
                         <mat-icon class="text-3xl text-gray-700"
                             >close</mat-icon
                         >
@@ -66,7 +66,7 @@
                                 </label>
 
                                 <a-time-field
-                                    [ngModel]="this.form?.value.date"
+                                    [ngModel]="form?.value.date"
                                     (ngModelChange)="
                                         form.patchValue({ date: $event })
                                     "
@@ -80,7 +80,7 @@
                                     End Time*
                                 </label>
                                 <a-duration-field
-                                    [time]="this.form?.get('date')?.value"
+                                    [time]="form?.get('date')?.value"
                                     [max]="12 * 60"
                                     [min]="60"
                                     [step]="60"

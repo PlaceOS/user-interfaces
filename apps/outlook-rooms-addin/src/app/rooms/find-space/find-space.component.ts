@@ -5,14 +5,16 @@ import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { FormGroup, FormControl } from '@angular/forms';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { first, take, filter, map } from 'rxjs/operators';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
-import { ViewerFeature, ViewAction } from '@placeos/svg-viewer';
+import { ViewerFeature, ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { RoomConfirmService } from '../room-confirm.service';
+import { MapPinComponent } from '@placeos/components';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'find-space',
@@ -31,21 +33,25 @@ import { RoomConfirmService } from '../room-confirm.service';
         `,
     ],
 })
-export class FindSpaceComponent implements OnInit {
-    startTime$: Observable<any>;
-    durationMinutes: number;
-    endTime$: Observable<any>;
+export class FindSpaceComponent extends BaseClass implements OnInit {
+    start_time$: Observable<any>;
+    duration_minutes: number;
+    end_time$: Observable<any>;
     selected_features$: Observable<any>;
     filtered_spaces: Space[] = [];
-    showRoomDetails$: Observable<boolean> = of(false);
-    selectedSpace: Space;
-    spaceViewControl = new FormControl();
-    spaceView?: string;
+    show_room_details$: Observable<boolean> = of(false);
+    selected_space: Space;
+    space_view_control = new FormControl();
+    space_view?: string;
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<any>;
-    selectedMap$: Observable<any>;
-    mapFeatures$: Observable<ViewerFeature[]>;
-    mapActions$: Observable<ViewAction[]> = null;
+    selected_map$: Observable<any>;
+    map_features$: Observable<ViewerFeature[]>;
+    _map_features: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
+        ViewerFeature[]
+    >(null);
+    map_actions$: Observable<ViewAction[]> = null;
+    map_styles$: Observable<ViewerStyles[]> = null;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -105,10 +111,12 @@ export class FindSpaceComponent implements OnInit {
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
         private _roomConfirmService: RoomConfirmService
-    ) {}
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
-        this.spaceView = 'listView';
+        this.space_view = 'listView';
 
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
@@ -124,19 +132,31 @@ export class FindSpaceComponent implements OnInit {
 
         await this._mapService.locateSpaces(this.spaces$);
 
-        //Testing multiple maps
-        // await this._mapService.locateSpaces(of(this._spaces.space_list));
-
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
-        this.mapFeatures$ = this._mapService.mapFeatures$;
-        this.mapActions$ = this._mapService.mapActions$;
+
+        await this._mapService.features_loaded$
+            .pipe(first((_) => !!_))
+            .toPromise();
+
+        this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+                this.processStyles();
+            },
+            1500
+        );
+
+        this._map_features.next(this._mapService.map_features);
+        this.map_features$ = this._map_features.asObservable();
+        this.map_actions$ = this._mapService.map_actions$;
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {
         this._roomConfirmService.book_space = this.book_space;
         this._roomConfirmService.handleBookEvent(space, book);
-        this.showRoomDetails$ = of(true);
+        this.show_room_details$ = of(true);
         this._roomConfirmService.updateSelectedSpace(space);
     }
 
@@ -152,24 +172,25 @@ export class FindSpaceComponent implements OnInit {
     }
 
     openRoomDetails() {
-        this._roomConfirmService.openRoomDetail(this.selectedSpace);
+        this._roomConfirmService.openRoomDetail(this.selected_space);
     }
 
     resetSpace() {
-        this.showRoomDetails$ = of(false);
+        this.show_room_details$ = of(false);
     }
 
     setTimeChips() {
-        this.startTime$ = of(
+        this.start_time$ = of(
             new Date(this.form?.controls?.date?.value).toLocaleTimeString(
                 'en-US',
                 { hour: 'numeric', minute: 'numeric', hour12: true }
             )
         );
-        this.durationMinutes = this.form?.controls?.duration?.value;
+        this.duration_minutes = this.form?.controls?.duration?.value;
         const end =
-            this.form?.controls?.date?.value + this.durationMinutes * 60 * 1000;
-        this.endTime$ = of(
+            this.form?.controls?.date?.value +
+            this.duration_minutes * 60 * 1000;
+        this.end_time$ = of(
             new Date(end).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: 'numeric',
@@ -183,7 +204,15 @@ export class FindSpaceComponent implements OnInit {
     }
 
     updateSelectedLevel(e) {
-        this.selectedMap$ = of(e);
+        this.selected_map$ = of(e);
+    }
+
+    processFeature() {
+        this.map_features$ = this._mapService.map_features$;
+    }
+
+    processStyles() {
+        this.map_styles$ = of([this._mapService.style_map]);
     }
 
     closeModal() {
