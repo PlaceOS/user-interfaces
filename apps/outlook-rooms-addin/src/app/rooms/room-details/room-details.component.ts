@@ -14,7 +14,7 @@ import { scan } from 'rxjs/operators';
 })
 export class RoomDetailsComponent implements OnInit {
     space: Space;
-    roomAdded: Boolean = false;
+    room_added: Boolean = false;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -26,11 +26,11 @@ export class RoomDetailsComponent implements OnInit {
     }
 
     selectRoom() {
-        this.roomAdded = !this.roomAdded;
+        this.room_added = !this.room_added;
     }
 
     back() {
-        if (this.roomAdded) {
+        if (this.room_added) {
             this._bottomSheetRef.dismiss(this.space);
         } else {
             this._bottomSheetRef.dismiss(null);

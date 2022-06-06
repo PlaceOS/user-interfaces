@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
-import { Observable, of, BehaviorSubject, combineLatest } from 'rxjs';
-import { take, switchMap, first } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { switchMap, first } from 'rxjs/operators';
 import { ExistingBookingsService } from '../existing-bookings.service';
-import { getTime } from 'date-fns';
 import { currentUser } from '@placeos/common';
 
 @Component({
@@ -15,8 +13,7 @@ export class UpcomingBookingsComponent implements OnInit {
     bookings$: Observable<any[]>;
     public loading$: Observable<boolean> =
         this._existingBookingsService.loading$;
-    currentUser$: Observable<any>;
-    timeZone: string = 'en-US';
+    time_zone: string = 'en-US';
 
     constructor(private _existingBookingsService: ExistingBookingsService) {}
 
@@ -56,7 +53,7 @@ export class UpcomingBookingsComponent implements OnInit {
     }
 
     private _convertTime(unixTime: number) {
-        return new Date(unixTime).toLocaleTimeString(this.timeZone, {
+        return new Date(unixTime).toLocaleTimeString(this.time_zone, {
             hour: 'numeric',
             minute: 'numeric',
             hour12: true,

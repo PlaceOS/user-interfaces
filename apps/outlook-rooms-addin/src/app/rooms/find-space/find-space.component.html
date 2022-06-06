@@ -25,7 +25,7 @@
                 <div class="flex w-4/12">
                     <mat-button-toggle-group
                         aria-label="Map or list view"
-                        [(ngModel)]="spaceView"
+                        [(ngModel)]="space_view"
                         (change)="this.resetSpace()"
                         class="flex w-full ml-auto mr-0 border-none"
                     >
@@ -60,9 +60,9 @@
                     </div>
 
                     <mat-chip class="text-gray-700">
-                        <span>{{ this.startTime$ | async }}</span>
+                        <span>{{ this.start_time$ | async }}</span>
                         -
-                        <span> {{ this.endTime$ | async }}</span>
+                        <span> {{ this.end_time$ | async }}</span>
                     </mat-chip>
                 </mat-chip-list>
             </section>
@@ -81,7 +81,7 @@
                     <ng-container
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
                     >
-                        <div *ngIf="this.spaceView == 'listView'">
+                        <div *ngIf="this.space_view == 'listView'">
                             <mat-button-toggle-group
                                 name="selectSpace"
                                 #group="matButtonToggleGroup"
@@ -102,8 +102,8 @@
                         </div>
                         <div
                             *ngIf="
-                                this.spaceView == 'mapView' &&
-                                (this.mapFeatures$ | async)?.length > 0
+                                this.space_view == 'mapView' &&
+                                (this.map_features$ | async)?.length > 0
                             "
                             class="text-center h-full overflow-hidden"
                         >
@@ -132,19 +132,19 @@
                             </div>
                             <div
                                 *ngIf="
-                                    (this.selectedMap$ | async) ||
+                                    (this.selected_map$ | async) ||
                                     (this.maps_list$ | async)
                                 "
                                 class="m-6 h-96 w-full relative"
                             >
                                 <i-map
                                     [src]="
-                                        (this.selectedMap$ | async)?.map_id ||
+                                        (this.selected_map$ | async)?.map_id ||
                                         (this.maps_list$ | async)[0]?.map_id
                                     "
-                                    [styles]="this.mapStyles$ | async"
-                                    [features]="this.mapFeatures$ | async"
-                                    [actions]="this.mapActions$ | async"
+                                    [styles]="this.map_styles$ | async"
+                                    [features]="this.map_features$ | async"
+                                    [actions]="this.map_actions$ | async"
                                     class="m-6 w-full"
                                 >
                                 </i-map>
@@ -180,7 +180,7 @@
         <section
             class="flex flex-col py-3 border-t border-gray-300 top-box-shadow items-center justify-center"
         >
-            <div *ngIf="this.showRoomDetails$ | async">
+            <div *ngIf="this.show_room_details$ | async">
                 <button
                     mat-button
                     type="submit"

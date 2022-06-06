@@ -15,8 +15,8 @@ export class BookingConfirmedComponent implements OnInit {
 
     location: CalendarEvent['location'];
     date: Observable<CalendarEvent['date']>;
-    startTime$: Observable<string>;
-    endTime$: Observable<string>;
+    start_time$: Observable<string>;
+    end_time$: Observable<string>;
     duration: CalendarEvent['duration'];
 
     constructor(private _state: EventFormService) {}
@@ -24,7 +24,7 @@ export class BookingConfirmedComponent implements OnInit {
     ngOnInit() {
         this.location = this._state.last_success?.location;
         this.date = of(this._state.last_success?.date);
-        this.startTime$ = of(
+        this.start_time$ = of(
             new Date(this._state.last_success?.date).toLocaleTimeString(
                 'en-US',
                 {
@@ -35,7 +35,7 @@ export class BookingConfirmedComponent implements OnInit {
             )
         );
         this.duration = this._state.last_success?.duration;
-        this.endTime$ = of(
+        this.end_time$ = of(
             new Date(
                 this._state.last_success?.date + this.duration * 60 * 1000
             ).toLocaleTimeString('en-US', {

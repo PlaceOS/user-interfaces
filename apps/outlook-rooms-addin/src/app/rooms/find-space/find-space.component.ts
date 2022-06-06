@@ -34,24 +34,24 @@ import { BaseClass } from '@placeos/common';
     ],
 })
 export class FindSpaceComponent extends BaseClass implements OnInit {
-    startTime$: Observable<any>;
-    durationMinutes: number;
-    endTime$: Observable<any>;
+    start_time$: Observable<any>;
+    duration_minutes: number;
+    end_time$: Observable<any>;
     selected_features$: Observable<any>;
     filtered_spaces: Space[] = [];
-    showRoomDetails$: Observable<boolean> = of(false);
-    selectedSpace: Space;
-    spaceViewControl = new FormControl();
-    spaceView?: string;
+    show_room_details$: Observable<boolean> = of(false);
+    selected_space: Space;
+    space_view_control = new FormControl();
+    space_view?: string;
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<any>;
-    selectedMap$: Observable<any>;
-    mapFeatures$: Observable<ViewerFeature[]>;
-    _mapFeatures: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
+    selected_map$: Observable<any>;
+    map_features$: Observable<ViewerFeature[]>;
+    _map_features: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
         ViewerFeature[]
     >(null);
-    mapActions$: Observable<ViewAction[]> = null;
-    mapStyles$: Observable<ViewerStyles[]> = null;
+    map_actions$: Observable<ViewAction[]> = null;
+    map_styles$: Observable<ViewerStyles[]> = null;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -116,7 +116,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
-        this.spaceView = 'listView';
+        this.space_view = 'listView';
 
         this.selected_features$ =
             this._featuresFilterService.selected_features$;
@@ -135,7 +135,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
         this.maps_list$ = this._mapService.maps_list$;
 
-        await this._mapService.featuresLoaded$
+        await this._mapService.features_loaded$
             .pipe(first((_) => !!_))
             .toPromise();
 
@@ -148,15 +148,15 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
             1500
         );
 
-        this._mapFeatures.next(this._mapService.mapFeatures);
-        this.mapFeatures$ = this._mapFeatures.asObservable();
-        this.mapActions$ = this._mapService.mapActions$;
+        this._map_features.next(this._mapService.map_features);
+        this.map_features$ = this._map_features.asObservable();
+        this.map_actions$ = this._mapService.map_actions$;
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {
         this._roomConfirmService.book_space = this.book_space;
         this._roomConfirmService.handleBookEvent(space, book);
-        this.showRoomDetails$ = of(true);
+        this.show_room_details$ = of(true);
         this._roomConfirmService.updateSelectedSpace(space);
     }
 
@@ -172,24 +172,25 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     openRoomDetails() {
-        this._roomConfirmService.openRoomDetail(this.selectedSpace);
+        this._roomConfirmService.openRoomDetail(this.selected_space);
     }
 
     resetSpace() {
-        this.showRoomDetails$ = of(false);
+        this.show_room_details$ = of(false);
     }
 
     setTimeChips() {
-        this.startTime$ = of(
+        this.start_time$ = of(
             new Date(this.form?.controls?.date?.value).toLocaleTimeString(
                 'en-US',
                 { hour: 'numeric', minute: 'numeric', hour12: true }
             )
         );
-        this.durationMinutes = this.form?.controls?.duration?.value;
+        this.duration_minutes = this.form?.controls?.duration?.value;
         const end =
-            this.form?.controls?.date?.value + this.durationMinutes * 60 * 1000;
-        this.endTime$ = of(
+            this.form?.controls?.date?.value +
+            this.duration_minutes * 60 * 1000;
+        this.end_time$ = of(
             new Date(end).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: 'numeric',
@@ -203,15 +204,15 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     updateSelectedLevel(e) {
-        this.selectedMap$ = of(e);
+        this.selected_map$ = of(e);
     }
 
     processFeature() {
-        this.mapFeatures$ = this._mapService.mapFeatures$;
+        this.map_features$ = this._mapService.map_features$;
     }
 
     processStyles() {
-        this.mapStyles$ = of([this._mapService.style_map]);
+        this.map_styles$ = of([this._mapService.style_map]);
     }
 
     closeModal() {

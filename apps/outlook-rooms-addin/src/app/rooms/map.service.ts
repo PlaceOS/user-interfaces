@@ -18,7 +18,7 @@ export interface Locatable {
     zones?: string[];
 }
 
-export interface mapsList {
+export interface MapsList {
     map_id: string;
     level: string;
 }
@@ -31,32 +31,32 @@ export class MapService extends BaseClass {
     public style_map: ViewerStyles = {};
     public item: Locatable;
 
-    private _mapFeatures: BehaviorSubject<ViewerFeature[]> =
+    private _map_features: BehaviorSubject<ViewerFeature[]> =
         new BehaviorSubject<ViewerFeature[]>([]);
-    public mapFeatures$: Observable<ViewerFeature[]> =
-        this._mapFeatures.asObservable();
+    public map_features$: Observable<ViewerFeature[]> =
+        this._map_features.asObservable();
 
-    get mapFeatures() {
-        return this._mapFeatures.getValue();
+    get map_features() {
+        return this._map_features.getValue();
     }
 
-    set mapFeatures(features: ViewerFeature[]) {
-        this._mapFeatures.next(features);
+    set map_features(features: ViewerFeature[]) {
+        this._map_features.next(features);
     }
 
-    public mapActions$: Observable<ViewAction[]>;
+    public map_actions$: Observable<ViewAction[]>;
 
-    private _mapLoaded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-        false
-    );
-    readonly mapLoaded$: Observable<boolean> = this._mapLoaded.asObservable();
-
-    private _featuresLoaded: BehaviorSubject<boolean> =
+    private _map_loaded: BehaviorSubject<boolean> =
         new BehaviorSubject<boolean>(false);
-    readonly featuresLoaded$: Observable<boolean> =
-        this._featuresLoaded.asObservable();
+    readonly map_loaded$: Observable<boolean> = this._map_loaded.asObservable();
 
-    selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
+    private _features_loaded: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
+    readonly features_loaded$: Observable<boolean> =
+        this._features_loaded.asObservable();
+
+    selected_space$: Observable<Space> =
+        this._roomConfirmService.selected_space$;
 
     //Store of Locatable Spaces
     private _locatable_spaces: BehaviorSubject<Locatable[]> =
@@ -74,13 +74,13 @@ export class MapService extends BaseClass {
     }
 
     //Store of map_id urls & level names for available_spaces
-    private _maps_list: BehaviorSubject<mapsList[]> = new BehaviorSubject<any>(
+    private _maps_list: BehaviorSubject<MapsList[]> = new BehaviorSubject<any>(
         []
     );
 
     maps_list$: Observable<any> = this._maps_list.asObservable();
 
-    set maps_list(map: mapsList[]) {
+    set maps_list(map: MapsList[]) {
         this._maps_list.next(map);
     }
 
@@ -119,7 +119,7 @@ export class MapService extends BaseClass {
 
         await this.processStyles();
 
-        this.mapActions$ = available_spaces.pipe(
+        this.map_actions$ = available_spaces.pipe(
             map((spaces: Space[]) =>
                 spaces.map(
                     (space: Space) =>
@@ -136,7 +136,7 @@ export class MapService extends BaseClass {
     }
 
     async loadMap() {
-        this._mapLoaded.next(false);
+        this._map_loaded.next(false);
         this.maps_list$ = this.locatable_spaces$.pipe(
             map((spaces: Locatable[]) =>
                 spaces.map((space: Locatable) => ({
@@ -147,16 +147,16 @@ export class MapService extends BaseClass {
         );
 
         this.maps_list$ = this.maps_list$.pipe(
-            map((mapsList: mapsList[]) => [
+            map((mapsList: MapsList[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
 
-        this._mapLoaded.next(true);
+        this._map_loaded.next(true);
     }
 
     public processFeature(): void {
-        this._featuresLoaded.next(false);
+        this._features_loaded.next(false);
         let focus: any;
         this.locatable_spaces$.subscribe((spaces) =>
             spaces
@@ -169,8 +169,8 @@ export class MapService extends BaseClass {
                   })))
                 : []
         );
-        this.mapFeatures = focus;
-        this._featuresLoaded.next(true);
+        this.map_features = focus;
+        this._features_loaded.next(true);
     }
 
     public processStyles(): void {

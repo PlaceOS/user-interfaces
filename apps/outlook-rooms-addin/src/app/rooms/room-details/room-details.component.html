@@ -25,7 +25,7 @@
 
         <div (click)="this.selectRoom()">
             <button
-                *ngIf="this.roomAdded == false"
+                *ngIf="this.room_added == false"
                 mat-button
                 class="bg-secondary border-secondary w-full mx-auto my-3"
             >
@@ -33,7 +33,7 @@
             </button>
 
             <button
-                *ngIf="this.roomAdded == true"
+                *ngIf="this.room_added == true"
                 mat-button
                 class="bg-gray-300 border-gray-300 w-full mx-auto my-3"
             >
@@ -111,7 +111,7 @@
         class="flex flex-col bg-white border-t border-gray-300 top-box-shadow p-3"
     >
         <button
-            *ngIf="!this.roomAdded"
+            *ngIf="!this.room_added"
             mat-button
             class="bg-white border-secondary w-full mx-auto"
             (click)="this.back()"
@@ -119,7 +119,7 @@
             <span class="text-secondary">Back</span>
         </button>
         <button
-            *ngIf="this.roomAdded"
+            *ngIf="this.room_added"
             mat-button
             class="bg-secondary border-secondary w-full mx-auto"
             (click)="this.back()"

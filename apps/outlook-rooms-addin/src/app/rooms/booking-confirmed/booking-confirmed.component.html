@@ -20,7 +20,8 @@
                     {{ this.location }}
                     has been successfully booked for the
                     {{ this.date | async | date: 'dd MMMM yyyy' }} at
-                    {{ this.startTime$ | async }} - {{ this.endTime$ | async }}
+                    {{ this.start_time$ | async }} -
+                    {{ this.end_time$ | async }}
                 </span>
             </div>
         </div>

@@ -31,7 +31,7 @@
                     >calendar_today</mat-icon
                 >
                 <span class="flex">
-                    {{ unixTime | date: 'dd MMMM yyyy' }}
+                    {{ unix_time | date: 'dd MMMM yyyy' }}
                 </span>
             </div>
             <div class="flex mt-2 mb-5 text-base items-center text-gray-700">
@@ -40,7 +40,7 @@
                     >schedule</mat-icon
                 >
                 <span class="flex"
-                    >{{ this.startTime }} -{{ this.endTime }}</span
+                    >{{ this.start_time }} -{{ this.end_time }}</span
                 >
             </div>
         </div>
