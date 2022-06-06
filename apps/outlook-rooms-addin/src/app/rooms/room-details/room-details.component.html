@@ -5,15 +5,15 @@
         class="flex bg-gray-300 min-h-[350px] justify-center items-center text-gray-500"
     >
         <img
-            *ngIf="this.space?.image?.length > 0"
-            src=" this.space.image "
+            *ngIf="space?.image?.length > 0"
+            src=" space.image "
             alt="image of building "
             width="100%"
             height="100%"
             class="flex z-20 rounded-lg"
         />
 
-        <div *ngIf="this.space?.image?.length == 0">
+        <div *ngIf="space?.image?.length == 0">
             <mat-icon
                 class="flex items-center justify-center material-icons-outlined text-[8rem]"
                 >image</mat-icon
@@ -21,11 +21,11 @@
         </div>
     </section>
     <section class="flex flex-col border-b border-gray-300">
-        <span class="text-xl font-bold mt-3"> {{ this.space?.name }}</span>
+        <span class="text-xl font-bold mt-3"> {{ space?.name }}</span>
 
-        <div (click)="this.selectRoom()">
+        <div (click)="selectRoom()">
             <button
-                *ngIf="this.room_added == false"
+                *ngIf="room_added == false"
                 mat-button
                 class="bg-secondary border-secondary w-full mx-auto my-3"
             >
@@ -33,7 +33,7 @@
             </button>
 
             <button
-                *ngIf="this.room_added == true"
+                *ngIf="room_added == true"
                 mat-button
                 class="bg-gray-300 border-gray-300 w-full mx-auto my-3"
             >
@@ -47,26 +47,20 @@
             <mat-icon class="material-icons-outlined blue-icon"
                 >people</mat-icon
             >
-            <span class="text-gray-500">
-                {{ this.space?.capacity }} People</span
-            >
+            <span class="text-gray-500"> {{ space?.capacity }} People</span>
         </div>
         <div class="flex flex-row items-center text-base mt-1">
             <mat-icon class="material-icons-outlined blue-icon">room</mat-icon>
             <span class="text-gray-500">
-                {{ this.space?.level?.name }},
-                {{ this.space?.level?.parent_id }}</span
+                {{ space?.level?.name }}, {{ space?.level?.parent_id }}</span
             >
         </div>
     </section>
-    <section
-        class="flex flex-col py-3"
-        *ngIf="this.space?.feature_list.length > 0"
-    >
+    <section class="flex flex-col py-3" *ngIf="space?.feature_list.length > 0">
         <span class="text-xl font-bold mb-3">Room Facilities</span>
 
         <div
-            *ngFor="let facility of this.space?.feature_list"
+            *ngFor="let facility of space?.feature_list"
             class="flex flex-row w-full mb-1"
         >
             <div [ngSwitch]="facility">
@@ -111,18 +105,18 @@
         class="flex flex-col bg-white border-t border-gray-300 top-box-shadow p-3"
     >
         <button
-            *ngIf="!this.room_added"
+            *ngIf="!room_added"
             mat-button
             class="bg-white border-secondary w-full mx-auto"
-            (click)="this.back()"
+            (click)="back()"
         >
             <span class="text-secondary">Back</span>
         </button>
         <button
-            *ngIf="this.room_added"
+            *ngIf="room_added"
             mat-button
             class="bg-secondary border-secondary w-full mx-auto"
-            (click)="this.back()"
+            (click)="back()"
         >
             <span class="text-white">Confirm</span>
         </button>

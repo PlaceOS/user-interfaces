@@ -5,7 +5,7 @@
         >
         <ng-container
             *ngIf="
-                (this.loading$ | async) == false && (bookings$ | async);
+                (loading$ | async) == false && (bookings$ | async);
                 else load_state
             "
         >

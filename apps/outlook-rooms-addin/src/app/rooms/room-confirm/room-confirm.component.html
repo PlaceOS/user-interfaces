@@ -4,7 +4,7 @@
     <section class="flex flex-col border-b border-gray-300 py-5">
         <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
             <div class="flex flex-row items-center justify-content">
-                <button class="mr-auto" (click)="this.closeModal()">
+                <button class="mr-auto" (click)="closeModal()">
                     <mat-icon class="text-3xl text-gray-700">close</mat-icon>
                 </button>
                 <span class="text-2xl font-bold mr-auto">
@@ -22,7 +22,7 @@
         </div>
         <div class="flex flex-col ml-6">
             <span class="flex text-xl font-bold text-gray-700"
-                >{{ this.title }}
+                >{{ title }}
             </span>
 
             <div class="flex mt-4 text-base items-center text-gray-700">
@@ -39,9 +39,7 @@
                     class="flex items-center material-icons-outlined flex text-lg"
                     >schedule</mat-icon
                 >
-                <span class="flex"
-                    >{{ this.start_time }} -{{ this.end_time }}</span
-                >
+                <span class="flex">{{ start_time }} -{{ end_time }}</span>
             </div>
         </div>
     </section>
@@ -77,7 +75,7 @@
                         {{ attendee.name }}
                     </mat-chip>
                 </mat-chip-list>
-                <span>{{ this.form?.controls?.creator?.value }}</span>
+                <span>{{ form?.controls?.creator?.value }}</span>
             </div>
         </div>
     </section>
@@ -99,7 +97,7 @@
                     >meeting_room</mat-icon
                 >
                 <span class="flex">
-                    {{ this.space?.name }}
+                    {{ space?.name }}
                 </span>
             </div>
             <div class="flex mt-2 mb-5 text-base items-center text-gray-700">
@@ -107,7 +105,7 @@
                     class="flex items-center material-icons-outlined flex text-lg"
                     >room</mat-icon
                 >
-                <span class="flex"> {{ this.space?.level?.name }}</span>
+                <span class="flex"> {{ space?.level?.name }}</span>
             </div>
         </div>
     </section>
