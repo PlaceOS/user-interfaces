@@ -20,7 +20,12 @@ import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
 import { generateEventForm } from './utilities';
 
-const BOOKING_URLS = ['book/spaces', 'schedule/view', 'confirm/success'];
+const BOOKING_URLS = [
+    'book/spaces',
+    'schedule/view',
+    'confirm/success',
+    'upcoming',
+];
 
 export type EventFlowView =
     | 'form'

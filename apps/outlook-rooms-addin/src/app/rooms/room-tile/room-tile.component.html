@@ -3,7 +3,7 @@
 >
     <div
         class="flex w-[calc(100%-4rem)] max-w-[768px] mx-auto items-center justify-content"
-        (click)="this.openRoomDetail()"
+        (click)="openRoomDetail()"
     >
         <div
             class="flex flex-col bg-white h-full w-full border rounded-lg mx-4"
@@ -12,15 +12,15 @@
                 class="flex items-center justify-center h-44 bg-gray-200 rounded-lg m-3 text-gray-500"
             >
                 <img
-                    *ngIf="this.space?.image?.length > 0"
-                    src=" this.space.image "
+                    *ngIf="space?.image?.length > 0"
+                    src=" space.image "
                     alt="image of building "
                     width="100%"
                     height="100%"
                     class="flex z-20 rounded-lg"
                 />
 
-                <div *ngIf="this.space?.image?.length == 0">
+                <div *ngIf="space?.image?.length == 0">
                     <mat-icon
                         class="flex items-center justify-center material-icons-outlined text-[8rem]"
                         >image</mat-icon
@@ -29,7 +29,7 @@
             </div>
             <div class="mb-4 flex flex-col">
                 <span class="text-xl font-bold mt-1 mx-3">
-                    {{ this.space?.name }}</span
+                    {{ space?.name }}</span
                 >
 
                 <div class="flex flex-row items-center text-base mt-1 mx-3">
@@ -38,8 +38,8 @@
                         >room</mat-icon
                     >
                     <span class="text-gray-500">
-                        {{ this.space?.level?.name }},
-                        {{ this.space?.level?.parent_id }}</span
+                        {{ space?.level?.name }},
+                        {{ space?.level?.parent_id }}</span
                     >
                 </div>
 
@@ -48,9 +48,7 @@
                         class="flex items-center material-icons-outlined blue-icon"
                         >people</mat-icon
                     >
-                    <span class="text-gray-500">
-                        {{ this.space?.capacity }}</span
-                    >
+                    <span class="text-gray-500"> {{ space?.capacity }}</span>
                 </div>
             </div>
         </div>
@@ -61,7 +59,7 @@
 >
     <button
         mat-button
-        (click)="this.cancel()"
+        (click)="cancel()"
         class="bg-white border-secondary w-[460px] ml-2 mx-4"
     >
         <span class="text-secondary">Back</span>

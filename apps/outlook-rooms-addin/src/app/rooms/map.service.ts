@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of, combineLatest } from 'rxjs';
+import { map, take, first } from 'rxjs/operators';
 import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
 import { Space } from '@placeos/spaces';
+import { BaseClass } from '@placeos/common';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { RoomTileComponent } from './room-tile/room-tile.component';
 import { RoomConfirmService } from './room-confirm.service';
@@ -17,18 +18,45 @@ export interface Locatable {
     zones?: string[];
 }
 
+export interface MapsList {
+    map_id: string;
+    level: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
-export class MapService {
+export class MapService extends BaseClass {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;
-    public mapFeatures$: Observable<ViewerFeature[]>;
-    public maps_arr: any[] = [];
-    public mapActions$: Observable<ViewAction[]>;
 
-    selectedSpace$: Observable<Space> = this._roomConfirmService.selectedSpace$;
+    private _map_features: BehaviorSubject<ViewerFeature[]> =
+        new BehaviorSubject<ViewerFeature[]>([]);
+    public map_features$: Observable<ViewerFeature[]> =
+        this._map_features.asObservable();
+
+    get map_features() {
+        return this._map_features.getValue();
+    }
+
+    set map_features(features: ViewerFeature[]) {
+        this._map_features.next(features);
+    }
+
+    public map_actions$: Observable<ViewAction[]>;
+
+    private _map_loaded: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
+    readonly map_loaded$: Observable<boolean> = this._map_loaded.asObservable();
+
+    private _features_loaded: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
+    readonly features_loaded$: Observable<boolean> =
+        this._features_loaded.asObservable();
+
+    selected_space$: Observable<Space> =
+        this._roomConfirmService.selected_space$;
 
     //Store of Locatable Spaces
     private _locatable_spaces: BehaviorSubject<Locatable[]> =
@@ -37,7 +65,7 @@ export class MapService {
     locatable_spaces$: Observable<Locatable[]> =
         this._locatable_spaces.asObservable();
 
-    set locatable_spaces(space) {
+    set locatable_spaces(space: Locatable[]) {
         this._locatable_spaces.next(space);
     }
 
@@ -46,11 +74,13 @@ export class MapService {
     }
 
     //Store of map_id urls & level names for available_spaces
-    private _maps_list: BehaviorSubject<[]> = new BehaviorSubject<any>([]);
+    private _maps_list: BehaviorSubject<MapsList[]> = new BehaviorSubject<any>(
+        []
+    );
 
     maps_list$: Observable<any> = this._maps_list.asObservable();
 
-    set maps_list(map) {
+    set maps_list(map: MapsList[]) {
         this._maps_list.next(map);
     }
 
@@ -61,34 +91,38 @@ export class MapService {
     constructor(
         private _bottomSheet: MatBottomSheet,
         private _roomConfirmService: RoomConfirmService
-    ) {}
+    ) {
+        super();
+    }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
         await available_spaces.pipe(take(1)).toPromise();
-        await available_spaces.subscribe(
+
+        available_spaces.subscribe(
             (spaces) =>
                 (this.locatable_spaces = spaces?.map((space) => ({
                     id: space.id,
                     name: space.name,
-                    map_id: space.level.map_id,
+                    map_id: space.map_id,
                     level: space.level,
                 })))
         );
-
-        this.mapFeatures$ = available_spaces.pipe(
-            map((spaces) =>
-                spaces.map((space) => ({
-                    content: MapPinComponent,
-                    location: space.map_id,
-                    z_index: 20,
-                }))
-            )
+        await this.locatable_spaces$.pipe(first((_) => !!_)).toPromise();
+        await this.loadMap();
+        await this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+            },
+            1000
         );
 
-        this.mapActions$ = available_spaces.pipe(
-            map((spaces) =>
+        await this.processStyles();
+
+        this.map_actions$ = available_spaces.pipe(
+            map((spaces: Space[]) =>
                 spaces.map(
-                    (space) =>
+                    (space: Space) =>
                         ({
                             id: space.map_id,
                             action: 'click',
@@ -99,26 +133,52 @@ export class MapService {
                 )
             )
         );
+    }
 
-        //testing multiple maps
-        // available_spaces.subscribe((i) => console.log(i, 'list'));
-        // this.maps_list$ = available_spaces.pipe(
-        //     map((spaces) =>
-        //         spaces.map((_) => ({
-        //             map_id: _.level.map_id,
-        //             level: _.level.name,
-        //         }))
-        //     )
-        // );
-
-        await this.maps_list$.pipe(take(1)).toPromise();
+    async loadMap() {
+        this._map_loaded.next(false);
         this.maps_list$ = this.locatable_spaces$.pipe(
-            map((mapsList: Locatable[]) => [
+            map((spaces: Locatable[]) =>
+                spaces.map((space: Locatable) => ({
+                    map_id: space.level.map_id,
+                    level: space.level.name,
+                }))
+            )
+        );
+
+        this.maps_list$ = this.maps_list$.pipe(
+            map((mapsList: MapsList[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])
         );
+
+        this._map_loaded.next(true);
     }
 
+    public processFeature(): void {
+        this._features_loaded.next(false);
+        let focus: any;
+        this.locatable_spaces$.subscribe((spaces) =>
+            spaces
+                ? (focus = spaces?.map((space) => ({
+                      location: space.map_id,
+                      content: MapPinComponent,
+                      data: { name: space.name },
+                      z_index: 99,
+                      zoom: 100,
+                  })))
+                : []
+        );
+        this.map_features = focus;
+        this._features_loaded.next(true);
+    }
+
+    public processStyles(): void {
+        const styles: ViewerStyles = {};
+        styles[`#zones`] = { display: 'none' };
+        styles[`#Zones`] = { display: 'none' };
+        this.style_map = styles;
+    }
     openRoomTile(space: Space) {
         const bottomSheetRef = this._bottomSheet.open(RoomTileComponent, {
             panelClass: 'bottom-sheet-transparent',

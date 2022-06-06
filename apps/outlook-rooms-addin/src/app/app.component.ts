@@ -18,7 +18,6 @@ import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
-import { addHours } from 'date-fns';
 
 import * as MOCKS from '@placeos/mocks';
 

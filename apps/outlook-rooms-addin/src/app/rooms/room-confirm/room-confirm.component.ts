@@ -14,9 +14,9 @@ import { CalendarEvent } from '@placeos/events';
     styles: [``],
 })
 export class RoomConfirmComponent implements OnInit {
-    unixTime: number;
-    startTime: string;
-    endTime: string;
+    unix_time: number;
+    start_time: string;
+    end_time: string;
     attendees: string[];
     space: Space;
     title: CalendarEvent['title'];
@@ -34,15 +34,15 @@ export class RoomConfirmComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        this.unixTime = this.form?.controls?.date.value;
-        this.startTime = new Date(this.unixTime).toLocaleTimeString('en-US', {
+        this.unix_time = this.form?.controls?.date.value;
+        this.start_time = new Date(this.unix_time).toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
             hour12: true,
         });
         const durationMinutes: number = this.form?.controls?.duration.value;
-        const end = this.unixTime + durationMinutes * 60 * 1000;
-        this.endTime = new Date(end).toLocaleTimeString('en-US', {
+        const end = this.unix_time + durationMinutes * 60 * 1000;
+        this.end_time = new Date(end).toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
             hour12: true,

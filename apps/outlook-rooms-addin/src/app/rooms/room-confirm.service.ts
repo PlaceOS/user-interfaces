@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
     MatBottomSheet,
     MAT_BOTTOM_SHEET_DATA,
@@ -20,15 +20,15 @@ export class RoomConfirmService {
     public book_space: HashMap<boolean> = {};
     public space_list: Space[] = [];
 
-    _selectedSpace: BehaviorSubject<Space> = new BehaviorSubject<Space>(null);
-    selectedSpace$: Observable<Space> = this._selectedSpace.asObservable();
+    _selected_space: BehaviorSubject<Space> = new BehaviorSubject<Space>(null);
+    selected_space$: Observable<Space> = this._selected_space.asObservable();
 
-    get selectedSpace() {
-        return this._selectedSpace.getValue();
+    get selected_space() {
+        return this._selected_space.getValue();
     }
 
-    set selectedSpace(space) {
-        this._selectedSpace.next(space);
+    set selected_space(space) {
+        this._selected_space.next(space);
     }
 
     public get form(): FormGroup {
@@ -47,12 +47,12 @@ export class RoomConfirmService {
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
 
-    async openRoomDetail(space = this.selectedSpace) {
-        const roomDetailsRef = this._bottomSheet.open(RoomDetailsComponent, {
+    async openRoomDetail(space = this.selected_space) {
+        const room_details_ref = this._bottomSheet.open(RoomDetailsComponent, {
             data: space,
         });
 
-        await roomDetailsRef
+        await room_details_ref
             .afterDismissed()
             .subscribe((selectedSpace) =>
                 selectedSpace ? this.openRoomConfirm(selectedSpace) : null
@@ -61,21 +61,21 @@ export class RoomConfirmService {
 
     openRoomConfirm(space?) {
         if (space) {
-            const confirmRef = this._bottomSheet.open(RoomConfirmComponent, {
+            const confirm_ref = this._bottomSheet.open(RoomConfirmComponent, {
                 data: space,
             });
         }
     }
 
     updateSelectedSpace(space?) {
-        if (space) this.selectedSpace = space;
+        if (space) this.selected_space = space;
     }
 
     handleBookEvent(space: Space, book: boolean = true) {
         this.book_space = {};
         this.book_space[space.id] = book;
     }
-    bookRoom(space) {
+    bookRoom(space?) {
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
         this.form.patchValue({ resources: spaces, system: spaces[0] });
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);

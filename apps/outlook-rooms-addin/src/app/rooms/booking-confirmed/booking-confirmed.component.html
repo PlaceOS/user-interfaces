@@ -17,10 +17,11 @@
             <div class="mx-10">
                 <span
                     >Your room booking for
-                    {{ this.location }}
+                    {{ location }}
                     has been successfully booked for the
-                    {{ this.date | async | date: 'dd MMMM yyyy' }} at
-                    {{ this.startTime$ | async }} - {{ this.endTime$ | async }}
+                    {{ date | async | date: 'dd MMMM yyyy' }} at
+                    {{ start_time$ | async }} -
+                    {{ end_time$ | async }}
                 </span>
             </div>
         </div>

@@ -28,7 +28,7 @@ export class RoomBookingComponent implements OnInit {
     public show_people = false;
     public loading = false;
 
-    minDate: Date = new Date();
+    min_date: Date = new Date();
 
     public get form(): FormGroup {
         return this._state.form;

@@ -18,6 +18,7 @@ import { FilterSpaceComponent } from './filter-space/filter-space.component';
 import { BookingConfirmedComponent } from './booking-confirmed/booking-confirmed.component';
 import { RoomTileComponent } from './room-tile/room-tile.component';
 import { RoomDetailsComponent } from './room-details/room-details.component';
+import { UpcomingBookingsComponent } from './upcoming-bookings/upcoming-bookings.component';
 
 const ROUTES: Route[] = [
     {
@@ -36,6 +37,7 @@ const ROUTES: Route[] = [
         BookingConfirmedComponent,
         RoomTileComponent,
         RoomDetailsComponent,
+        UpcomingBookingsComponent,
     ],
     imports: [
         CommonModule,
