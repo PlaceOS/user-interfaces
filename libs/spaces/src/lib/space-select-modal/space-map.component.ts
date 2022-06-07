@@ -10,24 +10,27 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
     selector: `space-map`,
     template: `
         <i-map
+            *ngIf="!is_displayed"
             [src]="map_url"
             [features]="features | async"
             [actions]="actions | async"
             [(zoom)]="zoom"
             [(center)]="center"
         ></i-map>
-        <mat-form-field
-            overlay
-            levels
-            appearance="outline"
-            class="absolute top-2 left-2"
+        <div
+            class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
         >
-            <mat-select [(ngModel)]="level">
-                <mat-option *ngFor="let opt of levels | async" [value]="opt">
-                    {{ opt.display_name || opt.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+            <mat-form-field levels appearance="outline" class="w-full h-[3.25rem]">
+                <mat-select [(ngModel)]="level">
+                    <mat-option
+                        *ngFor="let opt of levels | async"
+                        [value]="opt"
+                    >
+                        {{ opt.display_name || opt.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
         <div
             zoom
             class="absolute bottom-2 right-2 rounded-lg border border-gray-200 bg-white flex flex-col overflow-hidden"
@@ -54,6 +57,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
             :host {
                 position: relative;
                 background: rgba(0, 0, 0, 0.05);
+                padding-top: 4rem;
             }
 
             button {
@@ -64,6 +68,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
 })
 export class SpaceSelectMapComponent extends BaseClass {
     @Input() public selected: string[] = [];
+    @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<Space>();
 
     public zoom = 1;
@@ -91,7 +96,7 @@ export class SpaceSelectMapComponent extends BaseClass {
                     selected: this.selected.includes(space.id),
                 },
             }))
-        ),
+        )
     );
 
     public readonly actions = this._event_form.available_spaces.pipe(
@@ -110,7 +115,7 @@ export class SpaceSelectMapComponent extends BaseClass {
 
     public ngOnInit() {
         this.subscription(
-            '',
+            'spaces',
             this._event_form.available_spaces.subscribe((_) => {
                 if (!this.level && _.length) this.level = _[0].level;
             })

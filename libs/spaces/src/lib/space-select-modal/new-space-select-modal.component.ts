@@ -72,6 +72,7 @@ import { Space } from '../space.class';
             <space-map
                 class="flex-1 h-1/2 w-full"
                 [selected]="selected_ids"
+                [is_displayed]="!!displayed"
                 (onSelect)="displayed = $event"
             >
             </space-map>
