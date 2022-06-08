@@ -177,6 +177,17 @@ import { MapLocateModalComponent } from '@placeos/components';
                             ></span>
                         </div>
                     </div>
+                <div
+                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+                    *ngIf="event.body"
+                >
+                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                        <app-icon>event_note</app-icon>
+                    </div>
+                    <div class="flex-1 w-1/2 overflow-auto" notes [innerHTML]="event.body | sanitize">
+
+                    </div>
+                </div>
                 </div>
                 <div
                     class="flex items-center justify-center space-x-2 mt-4"

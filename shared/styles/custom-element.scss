@@ -243,6 +243,22 @@ mat-dialog-container.mat-dialog-container {
     }
 }
 
+[notes] {
+    a {
+        color: #3344dd;
+        text-decoration: underline;
+        
+        &:hover, &:focus, &:active {
+            color: #bb1122;
+            text-decoration: none;
+        }
+        
+        &:visited {
+            color: #884488
+        }
+    }
+}
+
 mat-form-field {
     &.mat-form-field-appearance-outline.mat-focused {
         .mat-form-field-outline-thick {
