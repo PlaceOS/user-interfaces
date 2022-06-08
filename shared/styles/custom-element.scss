@@ -190,6 +190,10 @@ mat-slide-toggle {
             background-color: var(--primary);
         }
     }
+
+    .mat-checkbox-label {
+        font-weight: normal;
+    }
 }
 
 [bg='white'] .mat-form-field-outline {
