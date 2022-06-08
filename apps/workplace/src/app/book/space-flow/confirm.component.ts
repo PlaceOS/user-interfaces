@@ -201,7 +201,13 @@ export class SpaceFlowConfirmComponent {
 
     public readonly postForm = async () => {
         this.loading = true;
-        await this._state.postForm().catch((_) => notifyError(_));
+        await this._state
+            .postForm()
+            .catch((_) =>
+                notifyError(
+                    _ instanceof Object ? _.message || 'Bad Request' : _
+                )
+            );
         this.loading = false;
     };
 

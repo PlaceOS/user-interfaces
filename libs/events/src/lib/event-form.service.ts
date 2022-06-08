@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { BaseClass, getInvalidFields, SettingsService } from '@placeos/common';
+import { BaseClass, currentUser, getInvalidFields, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
 import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
@@ -115,6 +115,7 @@ export class EventFormService extends BaseClass {
 
     constructor(
         private _org: OrganisationService,
+        private _spaces: SpacesService,
         private _router: Router,
         private _settings: SettingsService
     ) {
@@ -186,7 +187,7 @@ export class EventFormService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
-        const { id, date, duration } = form.value;
+        const { id, host, date, duration, creator } = form.value;
         const spaces = form.get('resources')?.value || [];
         if (
             (!id ||
@@ -201,8 +202,12 @@ export class EventFormService extends BaseClass {
                 id
             );
         }
+        const is_owner = host === currentUser()?.email || creator === currentUser()?.email;
+        const space_id = this._spaces.find(spaces[0].email)?.id;
+        const query = id ? is_owner ? { calendar: host || creator } : { system_id: space_id } : {}
         const result = await saveEvent(
-            new CalendarEvent(this._form.getValue().value)
+            new CalendarEvent(this._form.getValue().value),
+            query
         ).toPromise();
         this.clearForm();
         this.last_success = result;
