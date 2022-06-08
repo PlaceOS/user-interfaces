@@ -196,11 +196,12 @@ export class EventFormService extends BaseClass {
             duration !== this.event.duration) &&
             spaces.length
         ) {
+            const start = getUnixTime(this.event.date);
             await this.checkSelectedSpacesAreAvailable(
                 spaces,
                 date,
                 duration,
-                id
+                id ? { start, end: start + this.event.duration * 60 } : undefined
             );
         }
         const is_owner = host === currentUser()?.email || creator === currentUser()?.email;
@@ -224,7 +225,7 @@ export class EventFormService extends BaseClass {
         spaces: Space[],
         date: number,
         duration: number,
-        ignore?: string
+        exclude?: { start: number, end: number }
     ) {
         const space_ids = spaces.map(s => this._spaces.find(s?.email)?.id);
         const query: any = {
@@ -232,7 +233,7 @@ export class EventFormService extends BaseClass {
             period_end: getUnixTime(date + duration * 60 * 1000),
             system_ids: space_ids.join(','),
         };
-        if (ignore) query.ignore = ignore;
+        if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         const space_list = spaces.length
             ? await querySpaceAvailability(query).toPromise()
             : [];
