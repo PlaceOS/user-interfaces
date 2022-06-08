@@ -5,7 +5,7 @@ import { BaseClass, currentUser, getInvalidFields, SettingsService } from '@plac
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
-import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
+import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     catchError,
@@ -74,7 +74,7 @@ export class EventFormService extends BaseClass {
             this._loading.next('Retrieving available spaces...');
             const start = form.value.date;
             const end = form.value.date + form.value.duration * 60 * 1000;
-            return querySpaceFreeBusy(
+            return querySpaceAvailability(
                 {
                     period_start: getUnixTime(start),
                     period_end: getUnixTime(end),
@@ -188,6 +188,7 @@ export class EventFormService extends BaseClass {
                 ', '
             )}]`;
         const { id, host, date, duration, creator } = form.value;
+        console.log('Time:', date, duration);
         const spaces = form.get('resources')?.value || [];
         if (
             (!id ||
@@ -203,7 +204,7 @@ export class EventFormService extends BaseClass {
             );
         }
         const is_owner = host === currentUser()?.email || creator === currentUser()?.email;
-        const space_id = this._spaces.find(spaces[0].email)?.id;
+        const space_id = this._spaces.find(spaces[0]?.email)?.id;
         const query = id ? is_owner ? { calendar: host || creator } : { system_id: space_id } : {}
         const result = await saveEvent(
             new CalendarEvent(this._form.getValue().value),
@@ -225,14 +226,15 @@ export class EventFormService extends BaseClass {
         duration: number,
         ignore?: string
     ) {
+        const space_ids = spaces.map(s => this._spaces.find(s?.email)?.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
-            system_ids: spaces.map((_) => _.id).join(','),
+            system_ids: space_ids.join(','),
         };
         if (ignore) query.ignore = ignore;
         const space_list = spaces.length
-            ? await querySpaceFreeBusy(query).toPromise()
+            ? await querySpaceAvailability(query).toPromise()
             : [];
         if (space_list.length !== spaces.length)
             throw `${
