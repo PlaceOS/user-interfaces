@@ -61,9 +61,9 @@ import { OrganisationService } from '@placeos/organisation';
                         placeholder="Issue Description"
                         formControlName="description"
                     ></rich-text-input>
-                    <mat-error class="text-xs my-2" *ngIf="desc_error"
-                        >Description is required</mat-error
-                    >
+                    <mat-error class="text-xs my-2" *ngIf="desc_error">
+                        Description is required
+                    </mat-error>
                 </div>
             </form>
             <div class="italic text-center text-xs mb-2">
