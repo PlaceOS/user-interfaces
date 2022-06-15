@@ -15,6 +15,7 @@ import { ViewerFeature, ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { RoomConfirmService } from '../room-confirm.service';
 import { MapPinComponent } from '@placeos/components';
 import { BaseClass } from '@placeos/common';
+import { MapsList } from '../map.service';
 
 @Component({
     selector: 'find-space',
@@ -44,7 +45,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     space_view_control = new FormControl();
     space_view?: string;
     locatable_spaces$: Observable<Locatable[]>;
-    maps_list$: Observable<any>;
+    maps_list$: Observable<MapsList[]>;
     selected_map$: Observable<any>;
     map_features$: Observable<ViewerFeature[]>;
     _map_features: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
@@ -52,6 +53,8 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     >(null);
     map_actions$: Observable<ViewAction[]> = null;
     map_styles$: Observable<ViewerStyles[]> = null;
+
+    selected_level: any;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -87,7 +90,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
 
-    public spaces$ = this._state.available_spaces;
+    public spaces$: Observable<Space[]>;
     public readonly features = this._spaces.features;
 
     public async setBuilding(bld) {
@@ -126,6 +129,9 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
         await this._state.available_spaces.pipe(take(1)).toPromise();
+        this.spaces$ = this._state.available_spaces;
+
+        this.spaces$.subscribe((i) => console.log(i, 'avail spaces'));
 
         this.setBuilding(this._org.building);
         this.book_space = {};
@@ -133,7 +139,22 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._mapService.locateSpaces(this.spaces$);
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
-        this.maps_list$ = this._mapService.maps_list$;
+
+        //testing multiple levels//
+        // this.maps_list$ = this._mapService.maps_list$;
+
+        this.maps_list$ = of([
+            {
+                map_id: 'assets/maps/level_1.svg',
+                level: 'Level 1',
+            },
+            {
+                map_id: 'assets/maps/level_2.svg',
+                level: 'Level 2',
+            },
+        ]);
+
+        //end of testing multiple levels//
 
         await this._mapService.features_loaded$
             .pipe(first((_) => !!_))
@@ -204,6 +225,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     updateSelectedLevel(e) {
+        console.log(e, 'selected level');
         this.selected_map$ = of(e);
     }
 

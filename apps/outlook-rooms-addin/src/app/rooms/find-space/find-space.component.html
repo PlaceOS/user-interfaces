@@ -109,13 +109,16 @@
                                     appearance="outline"
                                     class="flex ml-auto m-6"
                                 >
-                                    <mat-label>Select a level</mat-label>
+                                    <mat-label>Select a Level</mat-label>
                                     <mat-select
                                         [(ngModel)]="selectedLevel"
                                         (ngModelChange)="
                                             updateSelectedLevel($event)
                                         "
                                     >
+                                        <mat-option [value]="maps_list$ | async"
+                                            >All Levels</mat-option
+                                        >
                                         <mat-option
                                             *ngFor="
                                                 let map of maps_list$ | async
@@ -126,6 +129,7 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
+
                             <div
                                 *ngIf="
                                     (selected_map$ | async) ||
@@ -133,17 +137,39 @@
                                 "
                                 class="m-6 h-96 w-full relative"
                             >
-                                <i-map
-                                    [src]="
-                                        (selected_map$ | async)?.map_id ||
-                                        (maps_list$ | async)[0]?.map_id
-                                    "
-                                    [styles]="map_styles$ | async"
-                                    [features]="map_features$ | async"
-                                    [actions]="map_actions$ | async"
-                                    class="m-6 w-full"
+                                <div
+                                    *ngIf="(selected_map$ | async)?.length > 1"
                                 >
-                                </i-map>
+                                    <div
+                                        *ngFor="
+                                            let map of selected_map$ | async
+                                        "
+                                    >
+                                        {{ map?.map_id | async }}
+                                        <i-map
+                                            [src]="map?.map_id"
+                                            [styles]="map_styles$ | async"
+                                            [features]="map_features$ | async"
+                                            [actions]="map_actions$ | async"
+                                            class="m-6 h-96 w-full relative"
+                                        >
+                                        </i-map>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="selected_map$ | async">
+                                    <i-map
+                                        [src]="
+                                            (selected_map$ | async)?.map_id ||
+                                            (maps_list$ | async)[0]?.map_id
+                                        "
+                                        [styles]="map_styles$ | async"
+                                        [features]="map_features$ | async"
+                                        [actions]="map_actions$ | async"
+                                        class="m-6 w-full"
+                                    >
+                                    </i-map>
+                                </div>
                             </div>
                         </div>
 
