@@ -1,7 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import {
@@ -42,6 +49,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _statuses: HashMap<string> = {};
     private _users: HashMap<string> = {};
     private _poll = new BehaviorSubject<number>(0);
+
+    private _checked_in = new BehaviorSubject<string[]>([]);
 
     private _desk_bookings = combineLatest([
         this._state.level,
@@ -98,18 +107,20 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.desk_list,
         this._in_use,
         this._presence,
+        this._checked_in,
         this._options,
     ]).pipe(
         // debounceTime(50),
-        map(([desks, in_use, presence]) => {
+        map(([desks, in_use, presence, checked_in]) => {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
                 const has_presence = presence.some((i) => id === i);
+                const is_checked_in = checked_in.some((i) => id === i);
                 this._statuses[id] = bookable
-                    ? !is_used && !has_presence
+                    ? !is_used && !has_presence && !is_checked_in
                         ? 'free'
-                        : !has_presence
+                        : !has_presence && !is_checked_in
                         ? 'pending'
                         : 'busy'
                     : 'not-bookable';
@@ -145,9 +156,12 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public startPolling(delay: number = 10 * 1000) {
         this.subscription(
             'desks_in_use_bookings',
-            this._desk_bookings.subscribe((_) =>
-                this._in_use.next(_.map((i) => i.asset_id))
-            )
+            this._desk_bookings.subscribe((_) => {
+                this._in_use.next(_.map((i) => i.asset_id));
+                this._checked_in.next(
+                    _.filter((e) => e.checked_in).map((i) => i.asset_id)
+                );
+            })
         );
         this.interval(
             'poll',
@@ -212,7 +226,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     x: device.coordinates_from?.includes('right') ? 1 - x : x,
                     y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
                 },
-                content: ExploreDeviceInfoComponent,            
+                content: ExploreDeviceInfoComponent,
                 z_index: 20,
                 data: { ...device, system: system_id },
             });
@@ -259,7 +273,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                         : [],
                 });
                 await this._bookings.confirmPost();
-                this._users[desk.map_id] = (options.host || currentUser())?.name;
+                this._users[desk.map_id] = (
+                    options.host || currentUser()
+                )?.name;
                 notifySuccess(
                     `Successfull booked desk ${desk.name || desk.id}`
                 );
