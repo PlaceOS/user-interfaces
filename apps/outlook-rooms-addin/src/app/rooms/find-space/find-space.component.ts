@@ -161,14 +161,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
             .pipe(first((_) => !!_))
             .toPromise();
 
-        this.timeout(
-            'init',
-            () => {
-                this.processFeature();
-                this.processStyles();
-            },
-            1500
-        );
+        this.applyMapDecorations();
 
         this._map_features.next(this._mapService.map_features);
         this.map_features$ = this._map_features.asObservable();
@@ -227,6 +220,20 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
     updateSelectedLevel(e) {
         this.selected_level = e;
+        if (!this.selected_level?.length) {
+            this.applyMapDecorations();
+        }
+    }
+
+    applyMapDecorations() {
+        this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+                this.processStyles();
+            },
+            1500
+        );
     }
 
     processFeature() {

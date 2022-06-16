@@ -1,4 +1,4 @@
-<div class="w-full h-full flex flex-1 flex-col z-0 bg-gray-50 overflow-hidden">
+<div class="w-full h-full flex flex-1 flex-col z-0 bg-gray-50 overflow-y-auto">
     <section class="flex flex-col py-5">
         <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
             <div class="flex flex-row items-center">
@@ -73,7 +73,7 @@
                 </div>
             </section>
 
-            <div class="flex-1 w-full bg-gray-100 overflow-auto">
+            <div class="flex-1 w-full bg-gray-100">
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <ng-container
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
@@ -102,7 +102,7 @@
                                 space_view == 'mapView' &&
                                 (map_features$ | async)?.length > 0
                             "
-                            class="text-center h-full overflow-hidden"
+                            class="text-center h-full"
                         >
                             <div *ngIf="(maps_list$ | async)?.length > 1">
                                 <mat-form-field
@@ -131,8 +131,9 @@
 
                             <div
                                 *ngIf="selected_level"
-                                class="m-6 min-h-full max-w-screen relative"
+                                class="m-6 max-w-screen relative"
                             >
+                                <!-- If 'All Levels' option is selected -->
                                 <div *ngIf="selected_level?.length">
                                     <div
                                         *ngFor="let map of selected_level"
@@ -149,6 +150,7 @@
                                     </div>
                                 </div>
 
+                                <!-- If an individual level is selected -->
                                 <div
                                     *ngIf="!selected_level?.length"
                                     class="m-6 h-[24rem] max-w-screen relative"
