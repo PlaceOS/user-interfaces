@@ -1,33 +1,32 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
+import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
     catchError,
     first,
     map,
     shareReplay,
-    switchMap,
-    tap,
+    switchMap
 } from 'rxjs/operators';
-import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
+import { BookingFormService, queryBookings } from '@placeos/bookings';
 import {
     BaseClass,
     currentUser,
     HashMap,
     notifySuccess,
-    SettingsService,
+    SettingsService
 } from '@placeos/common';
-import { BookingFormService, queryBookings } from '@placeos/bookings';
-import { StaffUser } from '@placeos/users';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { StaffUser } from '@placeos/users';
 
-import { ExploreStateService } from './explore-state.service';
-import { DEFAULT_COLOURS } from './explore-spaces.service';
-import { ExploreDeviceInfoComponent } from './explore-device-info.component';
-import { ExploreDeskInfoComponent } from './explore-desk-info.component';
-import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
+import { ExploreDeskInfoComponent } from './explore-desk-info.component';
+import { ExploreDeviceInfoComponent } from './explore-device-info.component';
+import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -157,9 +156,12 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.subscription(
             'desks_in_use_bookings',
             this._desk_bookings.subscribe((_) => {
-                this._in_use.next(_.map((i) => i.asset_id));
+                const actives = _.filter(
+                    e => !( e.rejected || e.deleted ||
+                            e.extension_data.current_state === 'ended'));
+                this._in_use.next(actives.map((i) => i.asset_id));
                 this._checked_in.next(
-                    _.filter((e) => e.checked_in).map((i) => i.asset_id)
+                    actives.filter((e) => e.checked_in).map((i) => i.asset_id)
                 );
             })
         );
