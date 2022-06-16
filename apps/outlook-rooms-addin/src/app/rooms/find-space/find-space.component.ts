@@ -46,7 +46,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     space_view?: string;
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<MapsList[]>;
-    selected_map$: Observable<any>;
     map_features$: Observable<ViewerFeature[]>;
     _map_features: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
         ViewerFeature[]
@@ -54,7 +53,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     map_actions$: Observable<ViewAction[]> = null;
     map_styles$: Observable<ViewerStyles[]> = null;
 
-    selected_level: any;
+    public selected_level: any;
 
     public get form(): FormGroup {
         return this._state.form;
@@ -154,6 +153,8 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
             },
         ]);
 
+        this.maps_list$.subscribe((maps) => (this.selected_level = maps));
+
         //end of testing multiple levels//
 
         await this._mapService.features_loaded$
@@ -225,8 +226,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     updateSelectedLevel(e) {
-        console.log(e, 'selected level');
-        this.selected_map$ = of(e);
+        this.selected_level = e;
     }
 
     processFeature() {
