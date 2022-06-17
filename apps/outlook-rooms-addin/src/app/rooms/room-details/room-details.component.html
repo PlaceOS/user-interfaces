@@ -1,13 +1,13 @@
 <div
-    class="w-full min-h-[800px] min-w-[375px] flex flex-1 flex-col z-0 overflow-hidden"
+    class="w-full min-h-[800px] flex flex-1 flex-col z-0 overflow-hidden"
 >
     <section
-        class="flex bg-gray-300 min-h-[375px] justify-center items-center text-gray-500"
+        class="flex bg-gray-300 min-h-[300px] justify-center items-center text-gray-500"
     >
         <!-- Accessing image if format is a string -->
         <img
             *ngIf="!space?.image?.length"
-            src=" space.image "
+            [src]="space.image"
             alt="image of building "
             width="100%"
             height="100%"
@@ -17,7 +17,7 @@
         <!-- Accessing image if the format is a string within an array -->
         <img
             *ngIf="space?.image?.length > 1"
-            src=" space.image[0] "
+            [src]="space.image[0]"
             alt="image of building "
             width="100%"
             height="100%"
