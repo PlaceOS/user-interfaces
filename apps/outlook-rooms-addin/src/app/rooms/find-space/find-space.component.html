@@ -1,4 +1,4 @@
-<div class="w-full h-full flex flex-1 flex-col z-0 bg-gray-50 overflow-hidden">
+<div class="w-full h-full flex flex-1 flex-col z-0 bg-gray-50 overflow-auto">
     <section class="flex flex-col py-5">
         <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
             <div class="flex flex-row items-center">
@@ -73,7 +73,7 @@
                 </div>
             </section>
 
-            <div class="flex-1 w-full bg-gray-100 overflow-auto">
+            <div class="flex-1 w-full bg-gray-100">
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <ng-container
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
@@ -102,20 +102,22 @@
                                 space_view == 'mapView' &&
                                 (map_features$ | async)?.length > 0
                             "
-                            class="text-center h-full overflow-hidden"
+                            class="text-center h-full"
                         >
                             <div *ngIf="(maps_list$ | async)?.length > 1">
                                 <mat-form-field
                                     appearance="outline"
                                     class="flex ml-auto m-6"
                                 >
-                                    <mat-label>Select a level</mat-label>
                                     <mat-select
-                                        [(ngModel)]="selectedLevel"
+                                        [(ngModel)]="selected_level"
                                         (ngModelChange)="
                                             updateSelectedLevel($event)
                                         "
                                     >
+                                        <mat-option [value]="maps_list$ | async"
+                                            >All Levels</mat-option
+                                        >
                                         <mat-option
                                             *ngFor="
                                                 let map of maps_list$ | async
@@ -126,24 +128,42 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
+
                             <div
-                                *ngIf="
-                                    (selected_map$ | async) ||
-                                    (maps_list$ | async)
-                                "
-                                class="m-6 h-96 w-full relative"
+                                *ngIf="selected_level"
+                                class="m-6 max-w-screen relative"
                             >
-                                <i-map
-                                    [src]="
-                                        (selected_map$ | async)?.map_id ||
-                                        (maps_list$ | async)[0]?.map_id
-                                    "
-                                    [styles]="map_styles$ | async"
-                                    [features]="map_features$ | async"
-                                    [actions]="map_actions$ | async"
-                                    class="m-6 w-full"
+                                <!-- If 'All Levels' option is selected -->
+                                <div *ngIf="selected_level?.length">
+                                    <div
+                                        *ngFor="let map of selected_level"
+                                        class="m-6 h-[12rem] max-w-screen relative"
+                                    >
+                                        <i-map
+                                            [src]="map?.map_id"
+                                            [styles]="map_styles$ | async"
+                                            [features]="map_features$ | async"
+                                            [actions]="map_actions$ | async"
+                                            class="m-2 p-2 max-w-screen"
+                                        >
+                                        </i-map>
+                                    </div>
+                                </div>
+
+                                <!-- If an individual level is selected -->
+                                <div
+                                    *ngIf="!selected_level?.length"
+                                    class="m-6 h-[24rem] max-w-screen relative"
                                 >
-                                </i-map>
+                                    <i-map
+                                        [src]="selected_level?.map_id"
+                                        [styles]="map_styles$ | async"
+                                        [features]="map_features$ | async"
+                                        [actions]="map_actions$ | async"
+                                        class="m-2 p-2 max-w-screen"
+                                    >
+                                    </i-map>
+                                </div>
                             </div>
                         </div>
 
