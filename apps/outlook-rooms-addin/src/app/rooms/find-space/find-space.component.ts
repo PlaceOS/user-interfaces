@@ -139,23 +139,22 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
 
-        //testing multiple levels//
-        // this.maps_list$ = this._mapService.maps_list$;
+        this.maps_list$ = this._mapService.maps_list$;
 
-        this.maps_list$ = of([
-            {
-                map_id: 'assets/maps/level_1.svg',
-                level: 'Level 1',
-            },
-            {
-                map_id: 'assets/maps/level_2.svg',
-                level: 'Level 2',
-            },
-        ]);
+        //testing multiple levels//
+        // this.maps_list$ = of([
+        //     {
+        //         map_id: 'assets/maps/level_1.svg',
+        //         level: 'Level 1',
+        //     },
+        //     {
+        //         map_id: 'assets/maps/level_2.svg',
+        //         level: 'Level 2',
+        //     },
+        // ]);
+        //end of testing multiple levels//
 
         this.maps_list$.subscribe((maps) => (this.selected_level = maps));
-
-        //end of testing multiple levels//
 
         await this._mapService.features_loaded$
             .pipe(first((_) => !!_))
