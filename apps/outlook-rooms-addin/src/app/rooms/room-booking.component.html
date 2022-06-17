@@ -2,7 +2,7 @@
     <form *ngIf="form" [formGroup]="form">
         <section class="flex flex-col border border-gray-300 py-5">
             <div class="w-[calc(100%-4rem)] max-w-[375px] mx-auto">
-                <span class="flex text-xl font-bold mb-5"> Book Room</span>
+                <span class="flex text-xl font-bold mb-2"> Book Room</span>
 
                 <div class="flex flex-row">
                     <div
@@ -10,7 +10,7 @@
                     >
                         <span>1</span>
                     </div>
-                    <div class="ml-2 mb-4 text-lg">Details</div>
+                    <div class="ml-2 mb-4 text-base">Details</div>
                 </div>
 
                 <div class="flex flex-col">
@@ -22,6 +22,7 @@
                             matInput
                             placeholder="e.g Team meeting"
                             formControlName="title"
+                            class="text-sm"
                         />
                     </mat-form-field>
                 </div>
@@ -32,18 +33,19 @@
                     <a-date-field
                         [from]="min_date"
                         formControlName="date"
+                        class="text-sm"
                     ></a-date-field>
                 </div>
-                <div class="flex flex-row">
+                <div class="flex flex-row -mb-5">
                     <div class="flex flex-col w-5/12 mr-2/12">
                         <label class="text-sm font-bold text-gray-700 mb-1">
                             Start Time*
                         </label>
-
                         <a-time-field
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            class="text-sm"
                         ></a-time-field>
                     </div>
                     <div class="flex flex-col w-5/12 ml-auto">
@@ -56,13 +58,14 @@
                             [min]="60"
                             [step]="60"
                             formControlName="duration"
+                            class="text-sm"
                         ></a-duration-field>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="flex flex-col py-5 border-b border-gray-300">
+        <section class="flex flex-col py-3 border-b border-gray-300">
             <div class="w-[calc(100%-4rem)] max-w-[375px] mx-auto">
                 <div class="flex flex-row">
                     <div
@@ -70,7 +73,7 @@
                     >
                         <span>2</span>
                     </div>
-                    <div class="ml-2 mb-4 text-lg">Attendees</div>
+                    <div class="ml-2 mb-4 text-base">Attendees</div>
                 </div>
 
                 <div class="flex flex-col">
@@ -80,6 +83,7 @@
 
                     <a-user-list-field
                         formControlName="attendees"
+                        class="text-sm"
                     ></a-user-list-field>
                 </div>
             </div>
@@ -92,16 +96,16 @@
                 mat-button
                 type="submit"
                 (click)="findSpace()"
-                class="bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
+                class="text-sm bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
             >
-                <span class="">Find room</span>
+                <span class="text-sm">Find room</span>
             </button>
             <button
                 mat-button
                 (click)="clearForm()"
-                class="bg-white text-secondary border-secondary my-3 min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
+                class="text-sm bg-white text-secondary border-secondary my-2 min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
             >
-                Clear form
+                <span class="text-sm">Clear form</span>
             </button>
         </section>
     </form>

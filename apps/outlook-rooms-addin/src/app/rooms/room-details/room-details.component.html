@@ -6,7 +6,7 @@
     >
         <!-- Accessing image if format is a string -->
         <img
-            *ngIf="!space?.image?.length"
+            *ngIf="space?.image && space?.image?.length > 0"
             src=" space.image "
             alt="image of building "
             width="100%"
@@ -16,7 +16,7 @@
 
         <!-- Accessing image if the format is a string within an array -->
         <img
-            *ngIf="space?.image?.length > 1"
+            *ngIf="space?.image && space?.image[0]?.length > 0"
             src=" space.image[0] "
             alt="image of building "
             width="100%"

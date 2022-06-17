@@ -6,7 +6,7 @@
                     <mat-icon class="text-3xl text-gray-700">close</mat-icon>
                 </button>
 
-                <span class="flex items-center text-xl font-bold ml-6">
+                <span class="flex items-center text-lg font-bold ml-6">
                     Find Space</span
                 >
             </div>
@@ -16,7 +16,7 @@
                     <button
                         mat-flat-button
                         (click)="openFilter()"
-                        class="mt-3 bg-gray-300 w-full h-12 text-base"
+                        class="mt-3 bg-gray-300 w-full h-12 text-sm"
                     >
                         Filter
                     </button>
@@ -31,12 +31,12 @@
                     >
                         <mat-button-toggle
                             value="mapView"
-                            class="mt-3 bg-gray-300 w-1/2 rounded text-base"
+                            class="mt-1 bg-gray-300 w-1/2 rounded text-sm"
                             >Map</mat-button-toggle
                         >
                         <mat-button-toggle
                             value="listView"
-                            class="mt-3 bg-gray-300 w-1/2 rounded text-base"
+                            class="mt-1 bg-gray-300 w-1/2 rounded text-sm"
                             >List</mat-button-toggle
                         >
                     </mat-button-toggle-group>
@@ -44,19 +44,19 @@
             </div>
 
             <section class="flex flex-row">
-                <mat-chip-list class="mt-3">
-                    <mat-chip class="text-gray-700">
+                <mat-chip-list class="mt-1">
+                    <mat-chip class="text-gray-700 text-xs">
                         {{ form?.controls?.date?.value | date: 'dd MMMM yyyy' }}
                     </mat-chip>
 
                     <div *ngIf="form?.controls.attendees.value.length > 0">
-                        <mat-chip class="text-gray-700">
+                        <mat-chip class="text-gray-700 text-xs">
                             {{ form?.controls?.attendees?.value.length }}
                             People
                         </mat-chip>
                     </div>
 
-                    <mat-chip class="text-gray-700">
+                    <mat-chip class="text-gray-700 text-xs">
                         <span>{{ start_time$ | async }}</span>
                         -
                         <span> {{ end_time$ | async }}</span>
@@ -64,10 +64,10 @@
                 </mat-chip-list>
             </section>
 
-            <section class="flex flex-row my-6 border-t">
+            <section class="flex flex-row my-2 border-t">
                 <div class="flex flex-col">
-                    <span class="text-xl font-bold mt-3"> Results</span>
-                    <span class="text-sm text-gray-500 mt-3">
+                    <span class="text-lg font-bold mt-3"> Results</span>
+                    <span class="text-xs text-gray-500 mt-1">
                         {{ (spaces$ | async)?.length || 0 }} results found</span
                     >
                 </div>
@@ -93,6 +93,7 @@
                                     (bookChange)="
                                         handleBookEvent(space, $event)
                                     "
+                                    class="text-sm"
                                 >
                                 </find-space-item>
                             </mat-button-toggle-group>
@@ -107,7 +108,7 @@
                             <div *ngIf="(maps_list$ | async)?.length > 1">
                                 <mat-form-field
                                     appearance="outline"
-                                    class="flex ml-auto m-6"
+                                    class="flex ml-auto m-3 text-sm"
                                 >
                                     <mat-select
                                         [(ngModel)]="selected_level"
@@ -137,14 +138,14 @@
                                 <div *ngIf="selected_level?.length">
                                     <div
                                         *ngFor="let map of selected_level"
-                                        class="m-6 h-[12rem] max-w-screen relative"
+                                        class="m-3 h-[12rem] max-w-screen relative"
                                     >
                                         <i-map
                                             [src]="map?.map_id"
                                             [styles]="map_styles$ | async"
                                             [features]="map_features$ | async"
                                             [actions]="map_actions$ | async"
-                                            class="m-2 p-2 max-w-screen"
+                                            class="m-1 p-1 max-w-screen"
                                         >
                                         </i-map>
                                     </div>
@@ -153,21 +154,21 @@
                                 <!-- If an individual level is selected -->
                                 <div
                                     *ngIf="!selected_level?.length"
-                                    class="m-6 h-[24rem] max-w-screen relative"
+                                    class="m-3 h-[24rem] max-w-screen relative"
                                 >
                                     <i-map
                                         [src]="selected_level?.map_id"
                                         [styles]="map_styles$ | async"
                                         [features]="map_features$ | async"
                                         [actions]="map_actions$ | async"
-                                        class="m-2 p-2 max-w-screen"
+                                        class="m-1 p-1 max-w-screen"
                                     >
                                     </i-map>
                                 </div>
                             </div>
                         </div>
 
-                        <p class="p-4 text-center opacity-60">
+                        <p class="p-2 text-sm text-center opacity-60">
                             End of available spaces list
                         </p>
                     </ng-container>
@@ -175,7 +176,7 @@
 
                 <ng-template #load_state>
                     <div
-                        class="h-full w-full flex flex-col items-center justify-center space-y-4 my-6"
+                        class="h-full w-full flex flex-col items-center justify-center space-y-4 my-3"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
                         <p>Retrieving available spaces...</p>
@@ -183,7 +184,7 @@
                 </ng-template>
                 <ng-template #empty_state>
                     <div
-                        class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center my-6"
+                        class="h-full w-full flex flex-col items-center justify-center space-y-2 p-2 text-center my-6"
                     >
                         <p>
                             No available spaces for selected time, capacity or
