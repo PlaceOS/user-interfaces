@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
-import { first, take, filter, map } from 'rxjs/operators';
+import { first, take, filter, map, tap } from 'rxjs/operators';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
@@ -130,8 +130,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._state.available_spaces.pipe(take(1)).toPromise();
         this.spaces$ = this._state.available_spaces;
 
-        this.spaces$.subscribe((i) => console.log(i, 'avail spaces'));
-
         this.setBuilding(this._org.building);
         this.book_space = {};
 
@@ -139,7 +137,9 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
 
-        this.maps_list$ = this._mapService.maps_list$;
+        this.maps_list$ = this._mapService.maps_list$.pipe(
+            tap((maps) => (this.selected_level = maps))
+        );
 
         //testing multiple levels//
         // this.maps_list$ = of([
@@ -153,8 +153,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         //     },
         // ]);
         //end of testing multiple levels//
-
-        this.maps_list$.subscribe((maps) => (this.selected_level = maps));
 
         await this._mapService.features_loaded$
             .pipe(first((_) => !!_))
