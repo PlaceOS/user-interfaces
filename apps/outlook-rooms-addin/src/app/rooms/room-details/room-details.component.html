@@ -4,9 +4,20 @@
     <section
         class="flex bg-gray-300 min-h-[350px] justify-center items-center text-gray-500"
     >
+        <!-- Accessing image if format is a string -->
         <img
-            *ngIf="space?.image?.length > 0"
+            *ngIf="!space?.image?.length"
             src=" space.image "
+            alt="image of building "
+            width="100%"
+            height="100%"
+            class="flex z-20 rounded-lg"
+        />
+
+        <!-- Accessing image if the format is a string within an array -->
+        <img
+            *ngIf="space?.image?.length > 1"
+            src=" space.image[0] "
             alt="image of building "
             width="100%"
             height="100%"
