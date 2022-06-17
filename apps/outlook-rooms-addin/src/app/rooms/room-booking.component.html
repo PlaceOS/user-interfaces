@@ -1,7 +1,7 @@
 <div class="flex flex-1 flex-col z-0 bg-gray-50 h-full overflow-y-auto">
     <form *ngIf="form" [formGroup]="form">
         <section class="flex flex-col border border-gray-300 py-5">
-            <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+            <div class="w-[calc(100%-4rem)] max-w-[375px] mx-auto">
                 <span class="flex text-xl font-bold mb-5"> Book Room</span>
 
                 <div class="flex flex-row">
@@ -63,7 +63,7 @@
         </section>
 
         <section class="flex flex-col py-5 border-b border-gray-300">
-            <div class="w-[calc(100%-4rem)] max-w-[768px] mx-auto">
+            <div class="w-[calc(100%-4rem)] max-w-[375px] mx-auto">
                 <div class="flex flex-row">
                     <div
                         class="border border-black rounded-full w-7 h-7 text-center"
@@ -92,14 +92,14 @@
                 mat-button
                 type="submit"
                 (click)="findSpace()"
-                class="bg-secondary border-secondary min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto"
+                class="bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
             >
                 <span class="">Find room</span>
             </button>
             <button
                 mat-button
                 (click)="clearForm()"
-                class="bg-white text-secondary border-secondary my-3 min-w-[380px] max-w-[calc(100% - 2rem)] mx-auto"
+                class="bg-white text-secondary border-secondary my-3 min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
             >
                 Clear form
             </button>

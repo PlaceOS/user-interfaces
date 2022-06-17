@@ -1,8 +1,8 @@
 <div
-    class="w-full min-h-[800px] min-w-[400px] flex flex-1 flex-col z-0 overflow-hidden"
+    class="w-full min-h-[800px] min-w-[375px] flex flex-1 flex-col z-0 overflow-hidden"
 >
     <section
-        class="flex bg-gray-300 min-h-[350px] justify-center items-center text-gray-500"
+        class="flex bg-gray-300 min-h-[375px] justify-center items-center text-gray-500"
     >
         <!-- Accessing image if format is a string -->
         <img
@@ -34,11 +34,11 @@
     <section class="flex flex-col border-b border-gray-300">
         <span class="text-xl font-bold mt-3"> {{ space?.name }}</span>
 
-        <div (click)="selectRoom()">
+        <div (click)="selectRoom()" class="w-max-[375px]">
             <button
                 *ngIf="room_added == false"
                 mat-button
-                class="bg-secondary border-secondary w-full mx-auto my-3"
+                class="bg-secondary border-secondary w-full mx-auto m-3"
             >
                 <span class="text-white">+ Add this room</span>
             </button>
@@ -46,7 +46,7 @@
             <button
                 *ngIf="room_added == true"
                 mat-button
-                class="bg-gray-300 border-gray-300 w-full mx-auto my-3"
+                class="bg-gray-300 border-gray-300 w-full mx-auto m-3"
             >
                 <span class="text-black">- Remove this room</span>
             </button>
