@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
   <Id>28ff1819-77f1-476b-9cff-e59b3fecc655</Id>
-  <Version>1.0.0.1</Version>
+  <Version>1.0.0.2</Version>
   <ProviderName>PLACEOS</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Room booking"/>
@@ -11,6 +11,7 @@
   <SupportUrl DefaultValue="https://place.technology/contact"/>
   <AppDomains>
    <AppDomain>https://microsoft.poc.placeos.com/outlook/</AppDomain>
+   <AppDomain>https://login.microsoftonline.com/</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
