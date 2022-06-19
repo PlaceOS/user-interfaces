@@ -22,12 +22,22 @@ import { MapsList } from '../map.service';
     templateUrl: './find-space.component.html',
     styles: [
         `
+            .mat-button-toggle-appearance-standard {
+                height: 2.25rem;
+            }
+            .mat-button-toggle-appearance-standard
+                .mat-button-toggle-label-content {
+                line-height: 2.25rem;
+                font-size: 0.875rem;
+            }
+            .mat-button-toggle-label-content {
+                font-size: 0.875rem;
+            }
             .mat-button-toggle-checked {
                 border: 1px solid var(--primary);
                 border-radius: 5px;
                 box-shadow: none;
             }
-
             .mat-focus-indicator {
                 border: none;
             }
