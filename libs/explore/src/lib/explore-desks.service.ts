@@ -142,7 +142,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.setOptions({
-            enable_booking: this._settings.get('app.desks.enabled') !== false,
+            enable_booking: this._settings.get('app.desks.enable_maps') !== false,
         });
         this.subscription('bind', this._bind.subscribe());
         this.subscription('changes', this._state_change.subscribe());

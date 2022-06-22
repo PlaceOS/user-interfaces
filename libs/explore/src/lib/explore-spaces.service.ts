@@ -87,7 +87,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
             );
         }
         this._dialog.open(
-            (this._settings.get('app.show_qr_for_booking')
+            (this._settings.get('app.explore.show_booking_qr')
                 ? ExploreBookQrComponent
                 : ExploreBookingModalComponent) as any,
             {

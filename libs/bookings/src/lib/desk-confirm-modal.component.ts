@@ -103,7 +103,7 @@ export class DeskConfirmModalComponent {
     }
 
     public get can_set_host() {
-        return !!this._settings.get('app.desks.can_set_host');
+        return !!this._settings.get('app.desks.can_book_for_others');
     }
 
     constructor(
