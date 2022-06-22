@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { BaseClass, currentUser, getInvalidFields, SettingsService } from '@placeos/common';
+import {
+    BaseClass,
+    currentUser,
+    getInvalidFields,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
@@ -180,54 +185,73 @@ export class EventFormService extends BaseClass {
         });
     }
 
-    public async postForm(force: boolean = false) {
-        const form = this._form.getValue();
-        if (!form) throw 'No form for event';
-        if (!form.valid && !force)
-            throw `Some form fields are invalid. [${getInvalidFields(form).join(
-                ', '
-            )}]`;
-        const { id, host, date, duration, creator } = form.value;
-        console.log('Time:', date, duration);
-        const spaces = form.get('resources')?.value || [];
-        if (
-            (!id ||
-            date !== this.event.date ||
-            duration !== this.event.duration) &&
-            spaces.length
-        ) {
-            const start = getUnixTime(this.event.date);
-            await this.checkSelectedSpacesAreAvailable(
-                spaces,
-                date,
-                duration,
-                id ? { start, end: start + this.event.duration * 60 } : undefined
+    public readonly cancelPostForm = () => this.unsub('post-event-form');
+
+    public postForm(force: boolean = false) {
+        return new Promise(async (resolve, reject) => {
+            const form = this._form.getValue();
+            if (!form) throw 'No form for event';
+            if (!form.valid && !force)
+                throw `Some form fields are invalid. [${getInvalidFields(
+                    form
+                ).join(', ')}]`;
+            const { id, host, date, duration, creator } = form.value;
+            console.log('Time:', date, duration);
+            const spaces = form.get('resources')?.value || [];
+            if (
+                (!id ||
+                    date !== this.event.date ||
+                    duration !== this.event.duration) &&
+                spaces.length
+            ) {
+                const start = getUnixTime(this.event.date);
+                await this.checkSelectedSpacesAreAvailable(
+                    spaces,
+                    date,
+                    duration,
+                    id
+                        ? { start, end: start + this.event.duration * 60 }
+                        : undefined
+                );
+            }
+            const is_owner =
+                host === currentUser()?.email ||
+                creator === currentUser()?.email;
+            const space_id = this._spaces.find(spaces[0]?.email)?.id;
+            const query = id
+                ? is_owner
+                    ? { calendar: host || creator }
+                    : { system_id: space_id }
+                : {};
+            this.subscription(
+                'post-event-form',
+                saveEvent(
+                    new CalendarEvent(this._form.getValue().value),
+                    query
+                ).subscribe(
+                    (result) => {
+                        this.clearForm();
+                        this.last_success = result;
+                        sessionStorage.setItem(
+                            'PLACEOS.last_booked_event',
+                            JSON.stringify(result)
+                        );
+                        this.setView('success');
+                        resolve(result);
+                    },
+                    (e) => reject(e)
+                )
             );
-        }
-        const is_owner = host === currentUser()?.email || creator === currentUser()?.email;
-        const space_id = this._spaces.find(spaces[0]?.email)?.id;
-        const query = id ? is_owner ? { calendar: host || creator } : { system_id: space_id } : {}
-        const result = await saveEvent(
-            new CalendarEvent(this._form.getValue().value),
-            query
-        ).toPromise();
-        this.clearForm();
-        this.last_success = result;
-        sessionStorage.setItem(
-            'PLACEOS.last_booked_event',
-            JSON.stringify(result)
-        );
-        this.setView('success');
-        return result;
+        });
     }
 
     private async checkSelectedSpacesAreAvailable(
         spaces: Space[],
         date: number,
         duration: number,
-        exclude?: { start: number, end: number }
+        exclude?: { start: number; end: number }
     ) {
-        const space_ids = spaces.map(s => this._spaces.find(s?.email)?.id);
+        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
