@@ -59,7 +59,7 @@ function validateEmail(email) {
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
-                    <mat-chip-list #chipList aria-label="Fruit selection">
+                    <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip
                             *ngFor="let user of active_list"
                             (removed)="removeUser(user)"
