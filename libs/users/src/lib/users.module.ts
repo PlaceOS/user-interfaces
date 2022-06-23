@@ -7,9 +7,10 @@ import { ComponentsModule } from '@placeos/components';
 
 import { NewUserModalComponent } from './new-user-modal.component';
 import { UserFormComponent } from './user-form.component';
+import { UserPipe } from './user.pipe';
 
 @NgModule({
-    declarations: [NewUserModalComponent, UserFormComponent],
+    declarations: [NewUserModalComponent, UserFormComponent, UserPipe],
     imports: [
         CommonModule,
         FormsModule,
