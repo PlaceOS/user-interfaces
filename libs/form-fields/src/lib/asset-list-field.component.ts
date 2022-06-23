@@ -1,4 +1,5 @@
-import { Component } from "@angular/core";
+import { Component, forwardRef } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 
 export interface Asset {
@@ -21,9 +22,17 @@ export interface Asset {
 @Component({
     selector: `asset-list-field`,
     template: ``,
-    styles: [``]
+    styles: [``],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            /* istanbul ignore next */
+            useExisting: forwardRef(() => AssetListFieldComponent),
+            multi: true,
+        },
+    ],
 })
-export class AssetListFieldComponent {
+export class AssetListFieldComponent implements ControlValueAccessor {
     public items: Asset[] = [];
     public disabled = false;
 
@@ -39,7 +48,6 @@ export class AssetListFieldComponent {
         if (this._onChange) this._onChange(this.items);
     }
 
-    /* istanbul ignore next */
     /**
      * Update local value when form control value is changed
      * @param value The new value for the component
@@ -48,9 +56,7 @@ export class AssetListFieldComponent {
         this.items = value || []
     }
 
-    /* istanbul ignore next */
     public readonly registerOnChange = (fn: (_: Asset[]) => void) => this._onChange = fn;
-    /* istanbul ignore next */
     public readonly registerOnTouched = (fn: (_: Asset[]) => void) => this._onTouch = fn;
     public readonly setDisabledState = (s: boolean) => this.disabled = s;
 }

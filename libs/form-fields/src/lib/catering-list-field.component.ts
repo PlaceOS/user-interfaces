@@ -1,12 +1,21 @@
-import { Component } from "@angular/core";
+import { Component, forwardRef } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { CateringItem } from "libs/catering/src/lib/catering-item.class";
 
 @Component({
     selector: `catering-list-field`,
     template: ``,
-    styles: [``]
+    styles: [``],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            /* istanbul ignore next */
+            useExisting: forwardRef(() => CateringListFieldComponent),
+            multi: true,
+        },
+    ],
 })
-export class CateringListFieldComponent {
+export class CateringListFieldComponent implements ControlValueAccessor {
     public items: CateringItem[] = [];
     public disabled = false;
 
@@ -22,7 +31,6 @@ export class CateringListFieldComponent {
         if (this._onChange) this._onChange(this.items);
     }
 
-    /* istanbul ignore next */
     /**
      * Update local value when form control value is changed
      * @param value The new value for the component
@@ -31,9 +39,7 @@ export class CateringListFieldComponent {
         this.items = value || []
     }
 
-    /* istanbul ignore next */
     public readonly registerOnChange = (fn: (_: CateringItem[]) => void) => this._onChange = fn;
-    /* istanbul ignore next */
     public readonly registerOnTouched = (fn: (_: CateringItem[]) => void) => this._onTouch = fn;
     public readonly setDisabledState = (s: boolean) => this.disabled = s;
 }
