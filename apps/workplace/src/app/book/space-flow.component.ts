@@ -28,6 +28,7 @@ import { EventFormService } from '@placeos/events';
     styles: [
         `
             :host {
+                position: relative;
                 height: 100%;
                 width: 100%;
             }

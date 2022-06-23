@@ -59,7 +59,7 @@ function registerMocks() {
             }
             MOCK_EVENTS.push(new_event);
 
-            const system = mockSystem(new_event.system.id);
+            const system = mockSystem(new_event.system?.id);
             system?.Bookings[0]?.$poll_bookings();
             return new_event;
         },

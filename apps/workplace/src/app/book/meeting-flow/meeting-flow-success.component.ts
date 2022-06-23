@@ -1,10 +1,47 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
+import { EventFormService } from '@placeos/events';
 
 @Component({
     selector: 'meeting-flow-success',
-    template: ``,
-    styles: [``]
+    template: `
+        <div class="absolute inset-0 bg-white flex flex-col z-50">
+            <main
+                class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
+            >
+                <h2 class="text-2xl font-medium">Booking Confirmed!</h2>
+                <img src="assets/icons/success.svg" />
+                <p class="text-center">
+                    Your
+                    <span *ngIf="space">
+                        room booking for
+                        {{ space?.level.display_name || space?.level.name }},
+                        {{ space?.display_name || space?.name }}
+                    </span>
+                    <span *ngIf="!space">meeting</span> has been successfully
+                    booked for the {{ last_event.date | date: 'mediumDate' }} at
+                    {{ last_event.date | date: 'shortTime' }}-{{
+                        last_event.date + last_event.duration * 60 * 1000
+                            | date: 'shortTime'
+                    }}.
+                </p>
+            </main>
+            <footer class="p-2 w-full border-t border-gray-200 mt-4">
+                <a button mat-button class="w-full" [routerLink]="['/']">
+                    Great, thanks!
+                </a>
+            </footer>
+        </div>
+    `,
+    styles: [``],
 })
 export class MeetingFlowSuccessComponent {
-    
+    public get last_event() {
+        return this._event_form.last_success;
+    }
+
+    public get space() {
+        return this.last_event.space;
+    }
+
+    constructor(private _event_form: EventFormService) {}
 }

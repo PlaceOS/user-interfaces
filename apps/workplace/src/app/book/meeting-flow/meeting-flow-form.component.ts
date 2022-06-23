@@ -1,6 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
+import {
+    MatBottomSheet,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
+import { getInvalidFields, notifyError } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
 @Component({
     selector: 'meeting-flow-form',
@@ -27,7 +33,9 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Details</div>
                         </h3>
-                        <meeting-form-details [form]="form"></meeting-form-details>
+                        <meeting-form-details
+                            [form]="form"
+                        ></meeting-form-details>
                     </section>
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center mb-4">
@@ -51,7 +59,9 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Room</div>
                         </h3>
-                        <space-list-field formControlName="resources"></space-list-field>
+                        <space-list-field
+                            formControlName="resources"
+                        ></space-list-field>
                     </section>
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
@@ -62,7 +72,9 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Catering</div>
                         </h3>
-                        <catering-list-field formControlName="catering"></catering-list-field>
+                        <catering-list-field
+                            formControlName="catering"
+                        ></catering-list-field>
                     </section>
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
@@ -73,7 +85,9 @@ import { EventFormService } from '@placeos/events';
                             </div>
                             <div class="text-xl">Assets</div>
                         </h3>
-                        <asset-list-field formControlName="assets"></asset-list-field>
+                        <asset-list-field
+                            formControlName="assets"
+                        ></asset-list-field>
                     </section>
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center mb-4">
@@ -98,9 +112,16 @@ import { EventFormService } from '@placeos/events';
                             </mat-form-field>
                         </div>
                     </section>
-                    <section class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2">
-                        <button mat-button confirm class="mb-2 sm:mb-0 w-full sm:w-auto" (click)="toConfirmPage()">
-                            Go to Confirm
+                    <section
+                        class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2"
+                    >
+                        <button
+                            mat-button
+                            confirm
+                            class="mb-2 sm:mb-0 w-full sm:w-auto"
+                            (click)="viewConfirm()"
+                        >
+                            Confirm Meeting
                         </button>
                         <button
                             mat-button
@@ -118,14 +139,36 @@ import { EventFormService } from '@placeos/events';
     styles: [],
 })
 export class MeetingFlowFormComponent {
+    public sheet_ref: MatBottomSheetRef<any>;
+
     public get form() {
         return this._state.form;
     }
 
     public readonly clearForm = () => this._state.clearForm();
 
-    public readonly toConfirmPage = () =>
-        this._router.navigate(['/book', 'new-space', 'confirm']);
+    public readonly viewConfirm = () => {
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
+        this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
+        this.sheet_ref.instance.show_close = true;
+        this.sheet_ref.afterDismissed().subscribe((value) => {
+            if (value) {
+                this._router.navigate(['/book', 'meeting', 'success']);
+                this._state.setView('success');
+            }
+        });
+    };
 
-    constructor(private _state: EventFormService, private _router: Router) {}
+    @ViewChild('confirm_ref') private _confirm_ref: TemplateRef<any>;
+
+    constructor(
+        private _state: EventFormService,
+        private _router: Router,
+        private _bottom_sheet: MatBottomSheet
+    ) {}
 }

@@ -622,3 +622,9 @@ custom-table[header-dark] {
         line-height: 1.1;
     }
 }
+
+#placeos {
+    mat-bottom-sheet-container {
+        padding: 0;
+    }
+}

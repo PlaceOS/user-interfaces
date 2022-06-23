@@ -188,7 +188,7 @@ export class EventFormService extends BaseClass {
     public readonly cancelPostForm = () => this.unsub('post-event-form');
 
     public postForm(force: boolean = false) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise<CalendarEvent>(async (resolve, reject) => {
             const form = this._form.getValue();
             if (!form) throw 'No form for event';
             if (!form.valid && !force)

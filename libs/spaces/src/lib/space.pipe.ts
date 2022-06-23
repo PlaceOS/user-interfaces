@@ -25,8 +25,8 @@ export class SpacePipe {
             return space;
         }
         const systems = (await querySystems({ q: space_id }).toPromise()).data;
-        if (systems.length) {
-            space = new Space(system as any);
+        if (systems.length === 1) {
+            space = new Space(systems[0] as any);
             SPACE_LIST.push(space);
             return space;
         }
