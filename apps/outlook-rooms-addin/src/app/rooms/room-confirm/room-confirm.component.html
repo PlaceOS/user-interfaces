@@ -101,6 +101,7 @@
         <button
             mat-button
             (click)="confirmBooking()"
+            [disabled]="!show_submit_button"
             class="bg-secondary border-secondary w-[300px] ml-2 mx-4"
         >
             <span class="">Confirm</span>
