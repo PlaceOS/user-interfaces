@@ -1,38 +1,32 @@
-<div
-    class="w-full min-h-[800px] flex flex-1 flex-col z-0 overflow-y-auto"
->
+<div class="w-full min-h-[800px] flex flex-1 flex-col z-0 overflow-y-auto">
     <section class="flex flex-col border-b border-gray-300 py-2">
         <div class="flex flex-row items-center justify-content space-x-4">
             <button (click)="closeModal()">
                 <mat-icon class="text-3xl text-gray-700">close</mat-icon>
             </button>
-            <span class="text-xl font-bold mr-auto">
-                Confirm Room Booking</span
-            >
+            <span class="text-xl font-bold mr-auto"> Confirm Room Booking</span>
         </div>
     </section>
 
     <section class="flex flex-row border-b border-gray-300 mt-4 pb-4 space-x-4">
         <div class="flex flex-col">
-            <span class="mt-1 text-lg"><img src="assets/tick.svg" /> </span>
+            <span class="text-base"><img src="assets/tick.svg" /> </span>
         </div>
         <div class="flex flex-col">
-            <span class="flex text-xl font-bold text-gray-700"
+            <span class="flex text-base font-bold text-gray-700"
                 >{{ title }}
             </span>
 
-            <div class="flex mt-4 text-base items-center text-gray-700">
-                <mat-icon
-                    class="flex item-center material-icons-outlined text-lg"
+            <div class="flex mt-2 text-sm items-center text-gray-700">
+                <mat-icon class="flex items-center material-icons-outlined"
                     >calendar_today</mat-icon
                 >
                 <span class="flex">
                     {{ unix_time | date: 'dd MMMM yyyy' }}
                 </span>
             </div>
-            <div class="flex mt-2 text-base items-center text-gray-700">
-                <mat-icon
-                    class="flex items-center material-icons-outlined text-lg"
+            <div class="flex mt-2 text-sm items-center text-gray-700">
+                <mat-icon class="flex items-center material-icons-outlined"
                     >schedule</mat-icon
                 >
                 <span class="flex">{{ start_time }} -{{ end_time }}</span>
@@ -42,65 +36,58 @@
 
     <section class="flex flex-row border-b border-gray-300 mt-4 pb-4 space-x-4">
         <div class="flex flex-col">
-            <span class="text-lg"><img src="assets/tick.svg" /> </span>
+            <span class="text-base"><img src="assets/tick.svg" /> </span>
         </div>
 
         <div class="flex flex-col">
-            <span class="flex text-xl font-bold text-gray-700"
+            <span class="flex text-base font-bold text-gray-700"
                 >Attendees
             </span>
 
-            <div class="flex flex-row mt-4 text-base items-center text-gray-700 space-x-2">
+            <div
+                class="flex flex-row mt-2 text-sm items-center text-gray-700"
+                *ngFor="let attendee of attendees"
+            >
                 <div class="flex flex-col">
-                    <mat-icon
-                    class="flex items-center material-icons-outlined text-lg"
+                    <mat-icon class="flex items-center material-icons-outlined"
                         >people</mat-icon
                     >
                 </div>
                 <div class="flex flex-col">
-                    <span class="w-full" *ngFor="let attendee of attendees">{{attendee.name}}</span>
+                    <span class="w-full">{{ attendee?.email }}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-row mt-2 text-sm items-center text-gray-700">
+                <div class="flex flex-col">
+                    <mat-icon class="flex items-center material-icons-outlined"
+                        >people</mat-icon
+                    >
+                </div>
+                <div class="flex flex-col">
                     <span>{{ form?.controls?.creator?.value }}</span>
                 </div>
-
-                <!-- <mat-chip-list
-                    *ngIf="attendees?.length"
-                    #chipList
-                    class="my-1 mr-3"
-                    aria-label="attendees list"
-                >
-                    <mat-chip
-                        *ngFor="let attendee of attendees"
-                        [selectable]="true"
-                    >
-                        {{ attendee.name }}
-                    </mat-chip>
-                </mat-chip-list> -->
-                
             </div>
         </div>
     </section>
 
     <section class="flex flex-row mt-4 pb-4 space-x-4">
         <div class="flex flex-col">
-            <span class="text-lg"><img src="assets/tick.svg" /> </span>
+            <span class="text-base"><img src="assets/tick.svg" /> </span>
         </div>
         <div class="flex flex-col">
-            <span class="flex text-xl font-bold text-gray-700"
-                >Rooms
-            </span>
+            <span class="flex text-base font-bold text-gray-700">Rooms </span>
 
-            <div class="flex mt-4 text-base items-center text-gray-700">
-                <mat-icon
-                    class="flex items-center material-icons-outlined flex text-lg"
+            <div class="flex mt-2 text-sm items-center text-gray-700">
+                <mat-icon class="flex items-center material-icons-outlined"
                     >meeting_room</mat-icon
                 >
                 <span class="flex">
                     {{ space?.name }}
                 </span>
             </div>
-            <div class="flex mt-2 text-base items-center text-gray-700">
-                <mat-icon
-                    class="flex items-center material-icons-outlined text-lg"
+            <div class="flex mt-2 text-sm items-center text-gray-700">
+                <mat-icon class="flex items-center material-icons-outlined"
                     >room</mat-icon
                 >
                 <span class="flex"> {{ space?.level?.name }}</span>
