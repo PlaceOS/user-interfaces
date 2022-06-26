@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { OrganisationService } from '@placeos/organisation';
 
 import { Space } from './space.class';
-import { flatten, unique } from '@placeos/common';
+import { flatten, SettingsService, unique } from '@placeos/common';
 
 @Injectable({
     providedIn: 'root',
@@ -31,10 +31,14 @@ export class SpacesService {
         return this._list.getValue();
     }
 
-    constructor(private _org: OrganisationService) {
-        this._org.initialised
-            .pipe(first((_) => _))
-            .subscribe(() => this.loadSpaces());
+    constructor(private _org: OrganisationService, private _settings: SettingsService) {
+        this._init();
+    }
+
+    private async _init() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        if (!this._settings.get('app.prevent_space_init')) this.loadSpaces();
+        else this._initialised.next(true);
     }
 
     /**
