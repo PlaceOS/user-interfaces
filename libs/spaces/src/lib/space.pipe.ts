@@ -1,4 +1,5 @@
 import { Pipe } from "@angular/core";
+import { OrganisationService } from "@placeos/organisation";
 import { querySystems, showSystem } from "@placeos/ts-client";
 import { Space } from "./space.class";
 
@@ -10,6 +11,8 @@ const EMPTY_SPACE = new Space();
     name: 'space'
 })
 export class SpacePipe {
+
+    constructor(private _org: OrganisationService) {}
     /**
      * Get details of the space with the given ID
      * @param space_id ID or Email of the space
@@ -20,16 +23,30 @@ export class SpacePipe {
         if (space) return space;
         const system = await showSystem(space_id).toPromise();
         if (system) {
-            space = new Space(system as any);
+            space = new Space({
+                ...system as any,
+                level: this._org.levelWithID([...system.zones]),
+            });
             SPACE_LIST.push(space);
             return space;
         }
         const systems = (await querySystems({ q: space_id }).toPromise()).data;
         if (systems.length === 1) {
-            space = new Space(systems[0] as any);
+            space = new Space({
+                ...systems[0] as any,
+                level: this._org.levelWithID([...systems[0].zones]),
+            });
             SPACE_LIST.push(space);
             return space;
         }
         return EMPTY_SPACE;
+    }
+
+    public updateSpaceList(space_list: Space[]) {
+        for (const space of space_list) {
+            if (!SPACE_LIST.find(({ id }) => id === space.id)) {
+                SPACE_LIST.push(space);
+            }
+        }
     }
 }

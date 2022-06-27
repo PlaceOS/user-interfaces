@@ -19,6 +19,7 @@ import { CalendarEvent, queryEvents } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { HelpModalComponent } from './ui/help-modal.component';
+import { SpacesService } from '@placeos/spaces';
 
 export interface EnvironmentSource {
     name: string;
@@ -102,7 +103,7 @@ export class ControlStateService extends BaseClass {
     );
     /** List of inputs that are available as presentation sources */
     public readonly presentables$ = this._input_data.pipe(
-        map((_) =>  _.filter((_) => _.presentable !== false)),
+        map((_) => _.filter((_) => _.presentable !== false)),
         shareReplay(1)
     );
     /** List of available output sources */
@@ -181,7 +182,11 @@ export class ControlStateService extends BaseClass {
         return this._id.getValue();
     }
 
-    constructor(private _dialog: MatDialog, private _cal: CalendarService) {
+    constructor(
+        private _dialog: MatDialog,
+        private _cal: CalendarService,
+        private _spaces: SpacesService
+    ) {
         super();
         this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
         this._inputs.subscribe((_) => this.bindSources('input', _ || []));
@@ -190,6 +195,7 @@ export class ControlStateService extends BaseClass {
 
     public setID(id: string) {
         this._id.next(id);
+        this._spaces.loadSpace(id);
     }
 
     /** Power on the active system */
@@ -218,7 +224,7 @@ export class ControlStateService extends BaseClass {
 
     /** Route input source to output */
     public setRoute(input: string, output: string, set_input = true) {
-        if(set_input) this.setSelectedInput(input);
+        if (set_input) this.setSelectedInput(input);
         return this._execute('route', [input, output]);
     }
 
@@ -351,7 +357,9 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'selected_tab');
         this.bindTo(id, 'selected_input');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
-        this.bindTo(id, 'available_outputs', undefined, (l) => this._outputs.next(l));
+        this.bindTo(id, 'available_outputs', undefined, (l) =>
+            this._outputs.next(l)
+        );
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
         this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
         this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));

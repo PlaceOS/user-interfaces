@@ -68,7 +68,7 @@ import { querySystems } from '@placeos/ts-client';
                 </mat-autocomplete>
                 <button
                     mat-button
-                    [disabled]="!system_id"
+                    [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
                 >
                     Submit
