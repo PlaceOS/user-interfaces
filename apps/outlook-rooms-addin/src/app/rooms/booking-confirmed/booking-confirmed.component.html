@@ -24,6 +24,15 @@
                     {{ end_time$ | async }}
                 </span>
             </div>
+            <div class="flex items-center mt-3">
+                <button
+                    mat-button
+                    (click)="newBooking()"
+                    class="text-sm bg-white text-secondary border-secondary my-2"
+                >
+                    <span class="text-sm">New Booking</span>
+                </button>
+            </div>
         </div>
     </section>
 </div>
