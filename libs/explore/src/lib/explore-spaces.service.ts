@@ -23,6 +23,7 @@ export const DEFAULT_COLOURS = {
     pending: '#ffb300',
     reserved: '#e65100',
     busy: '#e53935',
+    'signs-of-life': '#1565c0',
     'not-bookable': '#757575',
     unknown: '#757575',
 };

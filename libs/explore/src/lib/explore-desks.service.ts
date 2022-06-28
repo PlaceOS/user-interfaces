@@ -2,13 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import {
-    catchError,
-    first,
-    map,
-    shareReplay,
-    switchMap
-} from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { BookingFormService, queryBookings } from '@placeos/bookings';
 import {
@@ -16,7 +10,7 @@ import {
     currentUser,
     HashMap,
     notifySuccess,
-    SettingsService
+    SettingsService,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { StaffUser } from '@placeos/users';
@@ -45,6 +39,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
     private _presence = new BehaviorSubject<string[]>([]);
+    private _signs_of_life = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
     private _users: HashMap<string> = {};
     private _poll = new BehaviorSubject<number>(0);
@@ -107,18 +102,22 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._in_use,
         this._presence,
         this._checked_in,
+        this._signs_of_life,
         this._options,
     ]).pipe(
         // debounceTime(50),
-        map(([desks, in_use, presence, checked_in]) => {
+        map(([desks, in_use, presence, checked_in, signs]) => {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
                 const has_presence = presence.some((i) => id === i);
+                const has_signs = signs.some((i) => id === i);
                 const is_checked_in = checked_in.some((i) => id === i);
                 this._statuses[id] = bookable
                     ? !is_used && !has_presence && !is_checked_in
-                        ? 'free'
+                        ? has_signs
+                            ? 'signs-of-life'
+                            : 'free'
                         : !has_presence && !is_checked_in
                         ? 'pending'
                         : 'busy'
@@ -142,7 +141,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.setOptions({
-            enable_booking: this._settings.get('app.desks.enable_maps') !== false,
+            enable_booking:
+                this._settings.get('app.desks.enable_maps') !== false,
         });
         this.subscription('bind', this._bind.subscribe());
         this.subscription('changes', this._state_change.subscribe());
@@ -157,8 +157,13 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             'desks_in_use_bookings',
             this._desk_bookings.subscribe((_) => {
                 const actives = _.filter(
-                    e => !( e.rejected || e.deleted ||
-                            e.extension_data.current_state === 'ended'));
+                    (e) =>
+                        !(
+                            e.rejected ||
+                            e.deleted ||
+                            e.extension_data.current_state === 'ended'
+                        )
+                );
                 this._in_use.next(actives.map((i) => i.asset_id));
                 this._checked_in.next(
                     actives.filter((e) => e.checked_in).map((i) => i.asset_id)
@@ -197,6 +202,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._presence.next(
             desks
                 .filter((v) => v.at_location)
+                .map((v) => v.map_id || v.asset_id)
+        );
+        this._signs_of_life.next(
+            desks
+                .filter((v) => v.signs_of_life)
                 .map((v) => v.map_id || v.asset_id)
         );
         this.processDevices(devices, system_id);
