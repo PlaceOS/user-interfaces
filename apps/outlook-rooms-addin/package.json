@@ -18,7 +18,6 @@
     "dependencies": {
         "@microsoft/office-js": "^1.1.73",
         "@microsoft/office-js-helpers": "^1.0.2",
-        "@ngneat/spectator": "^11.1.0",
         "core-js": "^3.9.1",
         "office-js": "^0.1.0",
         "office-ui-fabric-js": "^1.5.0",
