@@ -86,7 +86,7 @@ export interface ExploreBookingModalData {
 })
 export class ExploreBookingModalComponent implements OnInit {
     public booking: CalendarEvent;
-    public form: FormGroup;
+    public form = generateEventForm();
     public loading = '';
 
     public get max_duration() {

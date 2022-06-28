@@ -16,14 +16,15 @@ import { timePeriodsIntersect, unique } from '@placeos/common';
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
+import { User } from '@placeos/users';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
-export function generateEventForm(event: CalendarEvent): FormGroup {
+export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     const form = new FormGroup({
         id: new FormControl(event.id),
         host: new FormControl(event.host || event.organiser?.email || '', [Validators.required]),
-        organiser: new FormControl(event.organiser || {}, [
+        organiser: new FormControl(event.organiser || new User(), [
             Validators.required,
         ]),
         creator: new FormControl(event.creator, [Validators.required]),
@@ -56,7 +57,7 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         form.controls.host.setValue(o?.email)
     );
     form.get('resources').valueChanges.subscribe((l) =>
-        form.controls.system.setValue(l.length ? l[0] : null)
+        form.controls.system.setValue(l.length ? l[0] as any : null)
     );
     if (event.id) {
         form.get('host').disable();

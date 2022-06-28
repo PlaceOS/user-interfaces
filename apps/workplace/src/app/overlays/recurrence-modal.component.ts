@@ -96,7 +96,13 @@ export class RecurrenceModalComponent extends BaseClass implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for recurrence */
-    public form: FormGroup;
+    public form = new FormGroup({
+        pattern: new FormControl(this._data.details?.pattern),
+        interval: new FormControl(this._data.details?.interval),
+        end: new FormControl(this._data.details?.end || this._data.date, [
+            Validators.required,
+        ]),
+    });;
     /** Loading state */
     public loading: string;
     /** Current date of the booking */
@@ -128,13 +134,6 @@ export class RecurrenceModalComponent extends BaseClass implements OnInit {
                 i.interval === details?.interval &&
                 i.pattern === details?.pattern
         );
-        this.form = new FormGroup({
-            pattern: new FormControl(details?.pattern),
-            interval: new FormControl(details?.interval),
-            end: new FormControl(details?.end || this._data.date, [
-                Validators.required,
-            ]),
-        });
     }
 
     public changePattern(event) {

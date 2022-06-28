@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -72,7 +71,7 @@ export class BookingFormService extends BaseClass {
     private _options = new BehaviorSubject<BookingFlowOptions>({
         type: 'desk',
     });
-    private _form = new BehaviorSubject<FormGroup>(null);
+    private _form = new BehaviorSubject(generateBookingForm());
     private _form_value = new BehaviorSubject<Partial<Booking>>({});
     private _booking = new BehaviorSubject<Booking>(null);
     private _loading = new BehaviorSubject<string>('');

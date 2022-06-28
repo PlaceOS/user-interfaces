@@ -53,17 +53,15 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     styles: [``],
 })
 export class SetDatetimeModalComponent {
-    public form: FormGroup;
+    public form = new FormGroup({
+        date: new FormControl(this._data.date),
+        duration: new FormControl(this._data.duration),
+    });
 
-    public readonly book_until = this._data.until
+    public readonly book_until = this._data.until;
 
     constructor(
         @Inject(MAT_DIALOG_DATA)
-        private _data: { date: number; duration: number, until: number }
-    ) {
-        this.form = new FormGroup({
-            date: new FormControl(_data.date),
-            duration: new FormControl(_data.duration),
-        });
-    }
+        private _data: { date: number; duration: number; until: number }
+    ) {}
 }

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
 
@@ -30,7 +29,7 @@ export class RoomBookingComponent implements OnInit {
 
     min_date: Date = new Date();
 
-    public get form(): FormGroup {
+    public get form() {
         return this._state.form;
     }
 

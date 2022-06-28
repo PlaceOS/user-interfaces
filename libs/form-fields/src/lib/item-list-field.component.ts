@@ -8,13 +8,13 @@ import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
  * Add a tag to the list of tags for the item
  * @param event Input event
  */
-export function addChipItem(
-    control: FormControl,
+export function addChipItem<T = string>(
+    control: FormControl<T[]>,
     event: MatChipInputEvent
 ): void {
     if (!control) return;
     const input = event.input;
-    const value = event.value;
+    const value = event.value as any;
     const item_list = control.value;
     if ((value || '').trim()) {
         item_list.push(value);
@@ -32,7 +32,7 @@ export function addChipItem(
  * @param existing_tag Tag to remove
  */
 export function removeChipItem<T = string>(
-    control: FormControl,
+    control: FormControl<T[]>,
     item: T
 ): void {
     if (!control) {

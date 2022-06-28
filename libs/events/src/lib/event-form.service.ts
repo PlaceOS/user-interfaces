@@ -58,7 +58,7 @@ export interface EventFlowOptions {
 export class EventFormService extends BaseClass {
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFlowOptions>({ zone_ids: [] });
-    private _form = new BehaviorSubject<FormGroup>(null);
+    private _form = new BehaviorSubject(generateEventForm());
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
 

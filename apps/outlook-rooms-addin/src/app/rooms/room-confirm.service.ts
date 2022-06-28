@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-    MatBottomSheet,
-    MAT_BOTTOM_SHEET_DATA,
-} from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
 import { Space, SpacesService } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
 import { HashMap } from '@placeos/common';
@@ -31,7 +27,7 @@ export class RoomConfirmService {
         this._selected_space.next(space);
     }
 
-    public get form(): FormGroup {
+    public get form() {
         return this._state.form;
     }
 

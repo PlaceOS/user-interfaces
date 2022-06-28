@@ -90,7 +90,7 @@ export interface CateringItemOptionModalData {
         </form>
         <footer
             *ngIf="!loading"
-            class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
+            class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
         >
             <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">
                 Save
@@ -117,11 +117,16 @@ export interface CateringItemOptionModalData {
         `,
     ],
 })
-export class CateringItemOptionModalComponent implements OnInit {
+export class CateringItemOptionModalComponent {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for item */
-    public form: FormGroup;
+    public form = new FormGroup({
+        name: new FormControl(this.option.name || '', [Validators.required]),
+        group: new FormControl(this.option.group || '', [Validators.required]),
+        unit_price: new FormControl(this.option.unit_price),
+        multiple: new FormControl(!!this.option.multiple, []),
+    });
     /** Whether changes are being saved */
     public loading = false;
 
@@ -138,19 +143,6 @@ export class CateringItemOptionModalComponent implements OnInit {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringItemOptionModalData
     ) {}
-
-    public ngOnInit(): void {
-        this.form = new FormGroup({
-            name: new FormControl(this.option.name || '', [
-                Validators.required,
-            ]),
-            group: new FormControl(this.option.group || '', [
-                Validators.required,
-            ]),
-            unit_price: new FormControl(this.option.unit_price),
-            multiple: new FormControl(!!this.option.multiple, []),
-        });
-    }
 
     public saveChanges() {
         this.loading = true;

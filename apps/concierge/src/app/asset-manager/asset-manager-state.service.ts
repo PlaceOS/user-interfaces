@@ -65,7 +65,7 @@ export function generateAssetForm() {
         brand: new FormControl('', [Validators.required]),
         specifications: new FormControl({}),
         purchase_date: new FormControl(Date.now(), [Validators.required]),
-        expiry_date: new FormControl(null),
+        expiry_date: new FormControl(0),
         invoices: new FormControl([]),
         purchase_details: new FormControl([]),
         consumables: new FormControl([]),
