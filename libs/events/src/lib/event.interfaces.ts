@@ -1,9 +1,9 @@
+import { Asset } from '@placeos/assets';
 import { HashMap } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { User } from '@placeos/users';
 
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
-import { Asset } from 'libs/form-fields/src/lib/asset-list-field.component';
 
 export interface FileDetails {
     /** Name of the file */

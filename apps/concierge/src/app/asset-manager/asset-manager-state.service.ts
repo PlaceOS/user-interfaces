@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Booking, queryBookings, updateBooking } from '@placeos/bookings';
 import { BaseClass, notifySuccess, unique } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
-import { del, get, post, put } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
@@ -14,29 +12,19 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
+import {
+    Asset,
+    deleteAsset,
+    generateAssetForm,
+    queryAssets,
+    saveAsset,
+} from '@placeos/assets';
 
 export interface AssetOptions {
     search?: string;
     sort_by?: string;
     view: 'grid' | 'list';
     active_asset?: string;
-}
-
-export interface Asset {
-    id: string;
-    name: string;
-    category: string;
-    images: { name: string; url: string }[];
-    barcode: string;
-    brand: string;
-    description: string;
-    specifications: Record<string, string>;
-    purchase_details: { name: string; value: string }[];
-    consumables: { id: string; name: string }[];
-    general_details: { id: string; name: string }[];
-    invoices: { name: string; url: string; price?: number }[];
-    count: number;
-    locations: [string, string][];
 }
 
 export interface AssetRequest {
@@ -53,29 +41,6 @@ export interface AssetRequest {
     tracking: 'in_storage' | 'in_transit' | 'at_location' | 'unknown';
 }
 
-export function generateAssetForm() {
-    return new FormGroup({
-        id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        category: new FormControl('', [Validators.required]),
-        count: new FormControl(1),
-        size: new FormControl('Small'),
-        description: new FormControl(''),
-        barcode: new FormControl('', [Validators.required]),
-        brand: new FormControl('', [Validators.required]),
-        specifications: new FormControl({}),
-        purchase_date: new FormControl(Date.now(), [Validators.required]),
-        expiry_date: new FormControl(0),
-        invoices: new FormControl([]),
-        purchase_details: new FormControl([]),
-        consumables: new FormControl([]),
-        general_details: new FormControl([]),
-        images: new FormControl([]),
-    });
-}
-
-const ASSET_ENDPOINT = '/api/engine/v1/assets';
-
 @Injectable({
     providedIn: 'root',
 })
@@ -89,7 +54,7 @@ export class AssetManagerStateService extends BaseClass {
     public readonly assets: Observable<Asset[]> = this._change.pipe(
         switchMap(() => {
             this._loading.next(true);
-            return get(`${ASSET_ENDPOINT}`);
+            return queryAssets();
         }),
         tap(() => this._loading.next(false)),
         shareReplay(1)
@@ -256,7 +221,7 @@ export class AssetManagerStateService extends BaseClass {
     public async deleteActiveAsset() {
         const asset = await this.active_asset.pipe(take(1)).toPromise();
         if (!asset?.id) return;
-        await del(`${ASSET_ENDPOINT}/${asset.id}`).toPromise();
+        await deleteAsset(asset.id).toPromise();
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
         this.clearActiveAsset();
@@ -265,10 +230,7 @@ export class AssetManagerStateService extends BaseClass {
     public async postForm() {
         if (!this.form?.valid) return;
         const data = this.form.value;
-        const asset = await (data.id
-            ? put(`${ASSET_ENDPOINT}/${data.id}`, data)
-            : post(`${ASSET_ENDPOINT}`, data)
-        ).toPromise();
+        const asset = await saveAsset(data as any).toPromise();
         this._change.next(Date.now());
         notifySuccess(`Successfully ${data.id ? 'updated' : 'created'} asset`);
         this.resetForm();

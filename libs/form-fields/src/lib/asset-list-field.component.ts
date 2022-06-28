@@ -1,23 +1,7 @@
 import { Component, forwardRef } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-
-export interface Asset {
-    id: string;
-    name: string;
-    category: string;
-    images: { name: string; url: string }[];
-    barcode: string;
-    brand: string;
-    description: string;
-    specifications: Record<string, string>;
-    purchase_details: { name: string; value: string }[];
-    consumables: { id: string; name: string }[];
-    general_details: { id: string; name: string }[];
-    invoices: { name: string; url: string; price?: number }[];
-    count: number;
-    locations: [string, string][];
-}
+import { Asset } from '@placeos/assets';
 
 @Component({
     selector: `asset-list-field`,
