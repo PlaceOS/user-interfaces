@@ -12,22 +12,25 @@
         "dev_server_port": 5000
     },
     "scripts": {
-        "dev-server": "webpack serve --mode development"
+        "dev-server": "webpack serve --mode development",
+        "build": "babel src -d lib"
     },
     "dependencies": {
         "@microsoft/office-js": "^1.1.73",
         "@microsoft/office-js-helpers": "^1.0.2",
+        "@ngneat/spectator": "^11.1.0",
         "core-js": "^3.9.1",
         "office-js": "^0.1.0",
         "office-ui-fabric-js": "^1.5.0",
         "regenerator-runtime": "^0.13.7"
     },
     "devDependencies": {
-        "@babel/core": "^7.13.10",
-        "@babel/preset-typescript": "^7.13.0",
+        "@babel/core": "^7.18.5",
+        "@babel/preset-typescript": "^7.17.12",
         "@types/office-js": "^1.0.241",
         "@types/office-runtime": "^1.0.23",
         "acorn": "^8.5.0",
+        "babel-jest": "^28.1.1",
         "babel-loader": "^8.2.2",
         "copy-webpack-plugin": "^9.0.1",
         "eslint-plugin-office-addins": "^2.0.0",
