@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { EditorModule } from '@tinymce/tinymce-angular';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -56,7 +55,6 @@ const CDK_MODULES: any[] = [ScrollingModule];
         ReactiveFormsModule,
         ComponentsModule,
         RouterModule,
-        EditorModule,
         ...MATERIAL_MODULES,
         ...CDK_MODULES,
     ],

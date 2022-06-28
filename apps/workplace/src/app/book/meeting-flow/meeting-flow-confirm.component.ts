@@ -127,7 +127,7 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e)
 
     public get event(): CalendarEvent {
-        return this._event_form.form.value;
+        return this._event_form.form.value as any;
     }
 
     public get space() {

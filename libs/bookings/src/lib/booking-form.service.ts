@@ -349,7 +349,7 @@ export class BookingFormService extends BaseClass {
         }
         if (form.value.duration >= 12 * 60 || form.value.all_day) {
             form.patchValue({
-                date: set(form.value.date, { hours: 11, minutes: 59 }),
+                date: set(form.value.date, { hours: 11, minutes: 59 }).valueOf(),
                 duration: 12 * 60,
             });
         }
@@ -412,7 +412,7 @@ export class BookingFormService extends BaseClass {
                 .getValue()
                 .patchValue({
                     ...form,
-                    user,
+                    user: user as any,
                     asset_id: asset?.id,
                     asset_name: asset.name,
                     map_id: asset?.map_id || asset?.id,
