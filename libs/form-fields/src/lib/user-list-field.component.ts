@@ -119,7 +119,7 @@ function validateEmail(email) {
                     (click)="openNewUserModal()"
                     i18n="Add new external attendee"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-center justify-center">
                         Add&nbsp;<span class="hidden sm:inline">External</span>
                     </div>
                 </button>
@@ -130,7 +130,7 @@ function validateEmail(email) {
                     class="inverse flex-1 sm:flex-none"
                     i18n="Upload attendee list from CSV file"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-center justify-center">
                         Upload&nbsp;<span class="hidden sm:inline">CSV</span>
                     </div>
                     <input
@@ -147,7 +147,7 @@ function validateEmail(email) {
                     (click)="downloadCSVTemplate()"
                     i18n="Download template CSV file"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-center justify-center">
                         <span class="hidden sm:inline">CSV</span>&nbsp;Template
                     </div>
                 </button>
