@@ -7,6 +7,7 @@ import {
     FormControl,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { BookModule } from './book.module';
 import { Router } from '@angular/router';
 import { MockComponent } from 'ng-mocks';
 import { EventFormService } from '@placeos/events';
@@ -21,7 +22,12 @@ describe('RoomBookingComponent', () => {
 
     const createComponent = createComponentFactory({
         component: RoomBookingComponent,
-        imports: [ReactiveFormsModule, FormsModule, MatFormFieldModule],
+        imports: [
+            ReactiveFormsModule,
+            FormsModule,
+            MatFormFieldModule,
+            BookModule,
+        ],
         providers: [
             {
                 provide: Router,
@@ -40,7 +46,10 @@ describe('RoomBookingComponent', () => {
                     postForm: jest.fn(),
                     view: '',
                     last_success: null,
-                    form: {},
+                    form: {
+                        patchValue: jest.fn(),
+                        booking_type: '',
+                    },
                 },
             },
         ],
@@ -54,8 +63,9 @@ describe('RoomBookingComponent', () => {
             event_service.view = _;
             spectator.detectChanges();
         });
+
         event_service.form.patchValue.mockImplementation((_) => {
-            event_service.form = { _ };
+            event_service.form.booking_type = _;
             spectator.detectChanges();
         });
     });
