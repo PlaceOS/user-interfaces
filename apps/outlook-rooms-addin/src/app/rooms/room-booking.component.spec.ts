@@ -19,18 +19,6 @@ describe('RoomBookingComponent', () => {
     let spectator: Spectator<RoomBookingComponent>;
     let component: RoomBookingComponent;
 
-    let form = new FormGroup({
-        title: new FormControl(''),
-        date: new FormControl(new Date()),
-        duration: new FormControl(234),
-    });
-
-    // const form = new FormBuilder(\);
-
-    // class form {
-    //     patchValue = jest.fn((i: Object) => jest.fn());
-    // }
-
     const createComponent = createComponentFactory({
         component: RoomBookingComponent,
         imports: [ReactiveFormsModule, FormsModule, MatFormFieldModule],
@@ -52,13 +40,25 @@ describe('RoomBookingComponent', () => {
                     postForm: jest.fn(),
                     view: '',
                     last_success: null,
-                    form: form,
+                    form: {},
                 },
             },
         ],
+        declarations: [],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        spectator = createComponent();
+        const event_service: any = spectator.inject(EventFormService);
+        event_service.setView.mockImplementation((_) => {
+            event_service.view = _;
+            spectator.detectChanges();
+        });
+        event_service.form.patchValue.mockImplementation((_) => {
+            event_service.form = { _ };
+            spectator.detectChanges();
+        });
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
