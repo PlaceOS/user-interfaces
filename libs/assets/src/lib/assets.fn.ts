@@ -1,5 +1,5 @@
 import { del, get, post, put } from '@placeos/ts-client';
-import { toQueryString } from '@placeos/common';
+import { toQueryString } from 'libs/common/src/lib/api';
 import { catchError, map } from 'rxjs/operators';
 import { Asset } from './asset.class';
 import { Observable, of } from 'rxjs';

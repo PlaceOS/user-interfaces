@@ -51,7 +51,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         needs_parking: new FormControl(
             event.extension_data?.needs_parking || false
         ),
-        system: new FormControl(event.system),
+        system: new FormControl<any>(event.system),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email)

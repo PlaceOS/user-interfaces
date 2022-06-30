@@ -148,11 +148,11 @@ export class GoogleAnalyticsService {
     private timeout(name: string, fn: () => void, delay: number = 300) {
         if (this.timers[name]) {
             clearTimeout(this.timers[name]);
-            this.timers[name] = null;
+            delete this.timers[name];
         }
         this.timers[name] = <any>setTimeout(() => {
             if (fn instanceof Function) { fn(); }
-            this.timers[name] = null;
+            delete this.timers[name];
         }, delay);
     }
 }

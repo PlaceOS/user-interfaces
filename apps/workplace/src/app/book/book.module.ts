@@ -33,6 +33,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { DeskFlowComponent } from './new-desk-flow/desk-flow-form.component';
 import { NewDeskFlowComponent } from './new-desk-flow.component';
 import { DeskFormDetailsComponent } from './new-desk-flow/desk-form-details.component';
+import { AssetsModule } from '@placeos/assets';
 
 const ROUTES: Route[] = [
     {
@@ -88,6 +89,7 @@ const ROUTES: Route[] = [
         CommonModule,
         SharedComponentModule,
         FormsModule,
+        AssetsModule,
         SharedExploreModule,
         ReactiveFormsModule,
         MatButtonToggleModule,
