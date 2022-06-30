@@ -30,6 +30,9 @@ import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details
 import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { DeskFlowComponent } from './new-desk-flow/desk-flow-form.component';
+import { NewDeskFlowComponent } from './new-desk-flow.component';
+import { DeskFormDetailsComponent } from './new-desk-flow/desk-form-details.component';
 
 const ROUTES: Route[] = [
     {
@@ -37,6 +40,8 @@ const ROUTES: Route[] = [
         component: BookComponent,
         children: [
             { path: 'code', component: BookCodeFlowComponent },
+            { path: 'newdesk', redirectTo: 'newdesk/form'},
+            { path: 'newdesk/:step', component: NewDeskFlowComponent},
             { path: 'desks', redirectTo: 'desks/form' },
             { path: 'desks/:step', component: BookDeskFlowComponent },
             { path: 'spaces', redirectTo: 'spaces/form' },
@@ -74,7 +79,10 @@ const ROUTES: Route[] = [
         MeetingFlowFormComponent,
         MeetingFormDetailsComponent,
         MeetingFlowConfirmComponent,
-        MeetingFlowSuccessComponent
+        MeetingFlowSuccessComponent,
+        DeskFlowComponent,
+        DeskFormDetailsComponent,
+        NewDeskFlowComponent
     ],
     imports: [
         CommonModule,

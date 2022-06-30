@@ -253,6 +253,14 @@ export class BookingFormService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...value });
     }
 
+    public setFeature(feature: string, enable: boolean){
+        if(!feature?.length) return;
+        const features = this._options.getValue()?.features || [];
+        if(enable && !features.includes(feature))features.push(feature);
+        if(!enable && features.includes(feature))features.splice(features.findIndex(e => e === feature), 1)
+        this.setOptions({features});
+    }
+
     public resetForm() {
         if (!this._form.getValue()) this.newForm();
         const booking = this._booking.getValue();

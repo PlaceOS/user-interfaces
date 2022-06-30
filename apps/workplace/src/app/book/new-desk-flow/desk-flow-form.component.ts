@@ -1,0 +1,169 @@
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { BookingFormService, findNearbyFeature } from "@placeos/bookings";
+import { SettingsService, currentUser } from "@placeos/common";
+import { OrganisationService } from "@placeos/organisation";
+import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
+import { first, take } from 'rxjs/operators';
+
+@Component({
+    selector: 'desk-flow',
+    styles: [],
+    template: `
+        <div class="absolute inset-0 bg-gray-100 overflow-auto">
+            <div class="max-w-full w-[768px] mx-auto sm:my-4 bg-white border border-gray-300">
+                <h2 class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300">
+                   {{ is_edit ? 'Edit Desk Booking' : 'Book Desk' }}
+                </h2>
+                <desk-form-details [form]="form"></desk-form-details>
+                <div class="mb-4 border-b border-gray-300 w-full"></div>
+                <div
+                    class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+                >
+                    <button
+                        class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
+                        mat-button
+                        clear
+                        (click)="clearForm()"
+                    >
+                        <div class="flex items-center justify-center">
+                            <app-icon class="text-xl">clear</app-icon>
+                            <span class="ml-2 mx-4">{{
+                                is_edit ? 'Cancel Edit' : 'Clear Form'
+                            }}</span>
+                        </div>
+                    </button>
+                    <button
+                        class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
+                        find
+                        mat-button
+                        *ngIf="!auto_allocation; else alloc_button"
+                        (click)="findDesk()"
+                    >
+                        <div class="flex items-center justify-center">
+                            <app-icon class="text-xl">search</app-icon>
+                            <span class="ml-2 mx-4">{{
+                                is_edit ? 'Update Desk' : 'Find Desk'
+                            }}</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <ng-template #alloc_button>
+            <button
+                class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
+                find
+                mat-button
+                (click)="allocateDesk()"
+            >
+                {{ is_edit ? 'Update Desk' : 'Book Desk' }}
+            </button>
+        </ng-template>
+    `,
+})
+export class DeskFlowComponent implements OnInit{
+
+    public time = 0;
+    public level = '';
+
+    public readonly quick_times = [
+        { name: 'Now', value: 0 },
+        {
+            name: 'Tomorrow',
+            value: setHours(addDays(new Date(), 1), 9).valueOf(),
+        },
+    ];
+
+    public levels = [];
+
+    public get is_edit() {
+        return !!this.form?.get('id')?.value;
+    }
+
+    public get auto_allocation() {
+        return !!this._settings.get('app.desks.auto_allocation');
+    }
+
+    public get form() {
+        return this._state.form;
+    }
+
+    public readonly clearForm = () => {
+        this.time = 0;
+        this.level = this._org.building.id;
+        this._state.clearForm();
+    };
+    
+    constructor(
+        private _state: BookingFormService,
+        private _router: Router,
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {}
+
+    
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _));
+        await this._org.active_levels.pipe(first((_) => _?.length > 0));
+        this.level = this._org.building?.id;
+        this.levels = [
+            { id: this._org.building?.id, name: 'Any Level' },
+            ...this._org.levelsForBuilding(this._org.building),
+        ];
+    }
+
+    public quickBook() {
+        this.form.patchValue({
+            date: (this.time < 24 * 60
+                ? addMinutes(
+                      roundToNearestMinutes(new Date(), { nearestTo: 5 }),
+                      this.time
+                  )
+                : setHours(addDays(new Date(), 1), 8)
+            ).valueOf(),
+            title: 'Ad-hoc Desk Booking',
+        });
+        this.findDesk();
+    }
+
+    public findDesk() {
+        this.form.markAllAsTouched();
+        if (!this.form.valid) return;
+        this._router.navigate(['/book', 'desks', 'map']);
+    }
+
+    public async allocateDesk() {
+        this.form.markAllAsTouched();
+        if (!this.form.valid) return;
+        // Find nearby desk for user's department
+        const settings = this._settings.get('app.departments') || {};
+        const group = currentUser().groups.find(_ => _ in settings);
+        if (!group) {
+            this._router.navigate(['/book', 'desks', 'map']);
+            return;
+        }
+        const { level, centered_at } = settings[group];
+        const lvl = this._org.levelWithID([level]);
+        if (!level) {
+            this._router.navigate(['/book', 'desks', 'map']);
+            return;
+        }
+        const desk_list = await this._state.available_assets.pipe(take(1)).toPromise()
+        const desk_id = await findNearbyFeature(lvl.map_id, centered_at, desk_list.map(_ => _.map_id || _.id));
+        const desk = desk_list.find(_ => _.map_id === desk_id || _.id === desk_id);
+        if (!desk) {
+            this._router.navigate(['/book', 'desks', 'map']);
+            return;
+        }
+        this._state.form.patchValue({
+            asset_id: desk?.id,
+            asset_name: desk.name,
+            map_id: desk?.map_id || desk?.id,
+            description: desk.name,
+            booking_type: 'desk',
+            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+        });
+        this._state.confirmPost();
+    }
+}
