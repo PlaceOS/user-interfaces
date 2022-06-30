@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
 import { CalendarEvent } from '@placeos/events';
 import { of, Observable } from 'rxjs';
@@ -19,7 +20,7 @@ export class BookingConfirmedComponent implements OnInit {
     end_time$: Observable<string>;
     duration: CalendarEvent['duration'];
 
-    constructor(private _state: EventFormService) {}
+    constructor(private _state: EventFormService, private _router: Router) {}
 
     ngOnInit() {
         this.location = this._state.last_success?.location;
@@ -44,5 +45,8 @@ export class BookingConfirmedComponent implements OnInit {
                 hour12: true,
             })
         );
+    }
+    newBooking() {
+        this._router.navigate(['book/spaces']);
     }
 }

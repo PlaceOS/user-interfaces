@@ -205,7 +205,7 @@ import { DesksStateService } from '../desks/desks-state.service';
 export class PointsAssetModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
-    public form: FormGroup = new FormGroup({
+    public form = new FormGroup({
         id: new FormControl(this._data.asset?.id || ''),
         asset_id: new FormControl(this._data.asset?.asset_id || ''),
         name: new FormControl(this._data.asset?.name || ''),

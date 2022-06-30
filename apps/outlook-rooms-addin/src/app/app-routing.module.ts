@@ -8,6 +8,7 @@ import {
     AuthorisedUserGuard,
     UnauthorisedComponent,
 } from '@placeos/components';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -35,7 +36,9 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         component: UpcomingBookingsComponent,
     },
-    { path: '**', redirectTo: 'book/spaces', pathMatch: 'full' },
+    { path: '404', component: NotFoundComponent },
+    { path: '', pathMatch: 'full', redirectTo: '/book/spaces' },
+    { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
 
 @NgModule({

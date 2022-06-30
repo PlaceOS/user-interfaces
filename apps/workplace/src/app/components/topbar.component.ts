@@ -17,8 +17,8 @@ import { UserControlsComponent } from './user-controls.component';
             >
                 <img class="h-10" [src]="logo?.src" />
             </a>
-            <div class="flex-3 flex items-center justify-center h-full w-1/2">
-                <top-menu class="hidden sm:block"></top-menu>
+            <div class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex">
+                <top-menu></top-menu>
             </div>
             <div class="flex-1 flex items-center justify-end">
                 <global-search *ngIf="search"></global-search>

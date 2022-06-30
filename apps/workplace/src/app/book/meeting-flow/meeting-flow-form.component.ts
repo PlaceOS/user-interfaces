@@ -11,7 +11,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="absolute inset-0 bg-gray-100 overflow-auto">
+        <div class="h-full w-full bg-gray-100 overflow-auto">
             <div
                 class="max-w-full w-[768px] mx-auto sm:my-4 bg-white border border-gray-300"
             >

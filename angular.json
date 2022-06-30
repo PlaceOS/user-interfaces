@@ -1,7 +1,34 @@
 {
     "version": 1,
     "projects": {
+        "assets": {
+            "projectType": "library",
+            "root": "libs/assets",
+            "sourceRoot": "libs/assets/src",
+            "prefix": "placeos",
+            "architect": {
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/assets"],
+                    "options": {
+                        "jestConfig": "libs/assets/jest.config.ts",
+                        "passWithNoTests": true
+                    }
+                },
+                "lint": {
+                    "builder": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": [
+                            "libs/assets/**/*.ts",
+                            "libs/assets/**/*.html"
+                        ]
+                    }
+                }
+            },
+            "tags": []
+        },
         "booking-panel": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/booking-panel",
             "sourceRoot": "apps/booking-panel/src",
@@ -149,6 +176,7 @@
             "tags": []
         },
         "booking-panel-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/booking-panel-e2e",
             "sourceRoot": "apps/booking-panel-e2e/src",
             "projectType": "application",
@@ -180,6 +208,7 @@
             "implicitDependencies": ["booking-panel"]
         },
         "bookings": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/bookings",
             "sourceRoot": "libs/bookings/src",
@@ -207,6 +236,7 @@
             "tags": []
         },
         "calendar": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/calendar",
             "sourceRoot": "libs/calendar/src",
@@ -234,6 +264,7 @@
             "tags": []
         },
         "caterer-ui": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/caterer-ui",
             "sourceRoot": "apps/caterer-ui/src",
@@ -381,6 +412,7 @@
             "tags": []
         },
         "caterer-ui-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/caterer-ui-e2e",
             "sourceRoot": "apps/caterer-ui-e2e/src",
             "projectType": "application",
@@ -410,6 +442,7 @@
             "implicitDependencies": ["caterer-ui"]
         },
         "catering": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/catering",
             "sourceRoot": "libs/catering/src",
@@ -437,6 +470,7 @@
             "tags": []
         },
         "common": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/common",
             "sourceRoot": "libs/common/src",
@@ -464,6 +498,7 @@
             "tags": []
         },
         "components": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/components",
             "sourceRoot": "libs/components/src",
@@ -491,6 +526,7 @@
             "tags": []
         },
         "concierge": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/concierge",
             "sourceRoot": "apps/concierge/src",
@@ -638,6 +674,7 @@
             "tags": []
         },
         "concierge-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/concierge-e2e",
             "sourceRoot": "apps/concierge-e2e/src",
             "projectType": "application",
@@ -667,6 +704,7 @@
             "implicitDependencies": ["concierge"]
         },
         "control": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/control",
             "sourceRoot": "apps/control/src",
@@ -814,6 +852,7 @@
             "tags": []
         },
         "control-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/control-e2e",
             "sourceRoot": "apps/control-e2e/src",
             "projectType": "application",
@@ -843,6 +882,7 @@
             "implicitDependencies": ["control"]
         },
         "enrolment": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/enrolment",
             "sourceRoot": "apps/enrolment/src",
@@ -987,6 +1027,7 @@
             "tags": []
         },
         "enrolment-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/enrolment-e2e",
             "sourceRoot": "apps/enrolment-e2e/src",
             "projectType": "application",
@@ -1016,6 +1057,7 @@
             "implicitDependencies": ["enrolment"]
         },
         "events": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/events",
             "sourceRoot": "libs/events/src",
@@ -1043,6 +1085,7 @@
             "tags": []
         },
         "explore": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/explore",
             "sourceRoot": "libs/explore/src",
@@ -1070,6 +1113,7 @@
             "tags": []
         },
         "form-fields": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/form-fields",
             "sourceRoot": "libs/form-fields/src",
@@ -1097,6 +1141,7 @@
             "tags": []
         },
         "map-kiosk": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/map-kiosk",
             "sourceRoot": "apps/map-kiosk/src",
@@ -1244,6 +1289,7 @@
             "tags": []
         },
         "map-kiosk-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/map-kiosk-e2e",
             "sourceRoot": "apps/map-kiosk-e2e/src",
             "projectType": "application",
@@ -1273,6 +1319,7 @@
             "implicitDependencies": ["map-kiosk"]
         },
         "mocks": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/mocks",
             "sourceRoot": "libs/mocks/src",
@@ -1300,6 +1347,7 @@
             "tags": []
         },
         "organisation": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/organisation",
             "sourceRoot": "libs/organisation/src",
@@ -1327,6 +1375,7 @@
             "tags": []
         },
         "outlook-rooms-addin": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/outlook-rooms-addin",
             "sourceRoot": "apps/outlook-rooms-addin/src",
@@ -1493,6 +1542,7 @@
             "tags": []
         },
         "outlook-rooms-addin-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/outlook-rooms-addin-e2e",
             "sourceRoot": "apps/outlook-rooms-addin-e2e/src",
             "projectType": "application",
@@ -1524,6 +1574,7 @@
             "implicitDependencies": ["outlook-rooms-addin"]
         },
         "spaces": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/spaces",
             "sourceRoot": "libs/spaces/src",
@@ -1551,6 +1602,7 @@
             "tags": []
         },
         "timetable": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/timetable",
             "sourceRoot": "apps/timetable/src",
@@ -1689,6 +1741,7 @@
             "tags": []
         },
         "timetable-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/timetable-e2e",
             "sourceRoot": "apps/timetable-e2e/src",
             "projectType": "application",
@@ -1718,6 +1771,7 @@
             "implicitDependencies": ["timetable"]
         },
         "users": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/users",
             "sourceRoot": "libs/users/src",
@@ -1745,6 +1799,7 @@
             "tags": []
         },
         "visitor-kiosk": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/visitor-kiosk",
             "sourceRoot": "apps/visitor-kiosk/src",
@@ -1892,6 +1947,7 @@
             "tags": []
         },
         "visitor-kiosk-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/visitor-kiosk-e2e",
             "sourceRoot": "apps/visitor-kiosk-e2e/src",
             "projectType": "application",
@@ -1923,6 +1979,7 @@
             "implicitDependencies": ["visitor-kiosk"]
         },
         "workplace": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/workplace",
             "sourceRoot": "apps/workplace/src",
@@ -2070,6 +2127,7 @@
             "tags": []
         },
         "workplace-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/workplace-e2e",
             "sourceRoot": "apps/workplace-e2e/src",
             "projectType": "application",

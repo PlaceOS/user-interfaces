@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
+import { User } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
 
 @Component({
@@ -85,7 +86,7 @@ export class ParkingSpaceModalComponent {
         id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
         map_id: new FormControl('', [Validators.required]),
-        assigned_user: new FormControl(null),
+        assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
         assigned_name: new FormControl(''),
         notes: new FormControl(''),

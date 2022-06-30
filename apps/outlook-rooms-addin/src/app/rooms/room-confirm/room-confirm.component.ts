@@ -20,6 +20,7 @@ export class RoomConfirmComponent implements OnInit {
     attendees: string[];
     space: Space;
     title: CalendarEvent['title'];
+    show_submit_button: boolean = true;
 
     public get form() {
         return this._state.form;
@@ -57,6 +58,7 @@ export class RoomConfirmComponent implements OnInit {
     }
 
     confirmBooking() {
+        this.show_submit_button = false;
         this._roomConfirmService.bookRoom(this.space);
     }
 }

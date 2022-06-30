@@ -51,14 +51,16 @@
         </div>
     </section>
     <section class="flex flex-col border-b border-gray-300 p-3 pl-0">
-        <span class="text-xl font-bold">Details</span>
-        <div class="flex flex-row items-center text-base mt-3">
+        <span class="text-base font-bold">Details</span>
+        <div class="flex flex-row items-center text-sm mt-3">
             <mat-icon class="material-icons-outlined blue-icon"
                 >people</mat-icon
             >
-            <span class="text-gray-500"> {{ space?.capacity }} People</span>
+            <span class="text-gray-500 text-sm">
+                {{ space?.capacity }} People</span
+            >
         </div>
-        <div class="flex flex-row items-center text-base mt-1">
+        <div class="flex flex-row items-center text-sm mt-1">
             <mat-icon class="material-icons-outlined blue-icon">room</mat-icon>
             <span class="text-gray-500">
                 {{ space?.level?.name }}, {{ space?.level?.parent_id }}</span
@@ -66,7 +68,7 @@
         </div>
     </section>
     <section class="flex flex-col py-3" *ngIf="space?.feature_list.length > 0">
-        <span class="text-xl font-bold mb-3">Room Facilities</span>
+        <span class="text-base font-bold mb-3">Room Facilities</span>
 
         <div
             *ngFor="let facility of space?.feature_list"
@@ -105,7 +107,7 @@
                 </div>
             </div>
 
-            <span class="text-base text-gray-500">
+            <span class="text-sm text-gray-500">
                 {{ facility }}
             </span>
         </div>

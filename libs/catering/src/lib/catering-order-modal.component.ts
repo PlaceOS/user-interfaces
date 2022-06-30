@@ -1,9 +1,7 @@
 import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { isAfter, setHours, isBefore } from 'date-fns';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -227,17 +225,6 @@ export function cateringItemAvailable(
                     ></a-counter>
                 </div>
             </div>
-            <!-- <div class="charge-code" [formGroup]="form">
-                <input
-                    formControlName="charge_code"
-                    [class.error]="
-                        form.controls.charge_code.touched &&
-                        form.controls.charge_code.invalid
-                    "
-                    placeholder="Charge Code*"
-                    required
-                />
-            </div> -->
         </ng-template>
     `,
     styles: [
@@ -263,7 +250,7 @@ export function cateringItemAvailable(
                 outline: none;
                 font-size: 1em;
             }
-            
+
             input:focus {
                 border: none;
                 border-top: 2px solid var(--primary);
@@ -290,8 +277,6 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
     public show_order_details: boolean;
     /** Catering rules for selected space */
     public rules: readonly CateringRuleset[];
-    /**  */
-    public readonly form: FormGroup;
     /** List of menu items to show */
     public menu_items: HashMap<CateringItem[]> = {};
     /** List of categories for the active menu */

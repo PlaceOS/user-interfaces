@@ -6,7 +6,7 @@ import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
 } from '@placeos/spaces';
-import { first, map } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'event-form',
