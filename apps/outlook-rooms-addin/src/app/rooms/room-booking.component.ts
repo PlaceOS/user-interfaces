@@ -47,15 +47,8 @@ export class RoomBookingComponent implements OnInit {
 
     async findSpace() {
         this.form.markAllAsTouched();
-        if (
-            !this.form?.controls?.title.valid ||
-            !this.form?.controls?.date.valid ||
-            !this.form?.controls?.duration.valid
-        )
-            return;
-
+        if (!this.form.valid) return;
         await this._state.storeForm();
-
         this.router.navigate(['/schedule/view']);
     }
 }
