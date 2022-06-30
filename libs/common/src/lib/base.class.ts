@@ -1,6 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subscription, BehaviorSubject } from 'rxjs';
 
+type VoidFn = () => void;
+
 @Injectable({
     providedIn: 'root',
 })
@@ -11,7 +13,7 @@ export class BaseClass implements OnDestroy {
     protected _intervals: { [name: string]: number } = {};
     /** Store for named subscription unsub callbacks */
     protected _subscriptions: {
-        [name: string]: Subscription | (() => void);
+        [name: string]: Subscription | VoidFn;
     } = {};
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
@@ -56,7 +58,7 @@ export class BaseClass implements OnDestroy {
             this.clearTimeout(name);
             this._timers[name] = <any>setTimeout(() => {
                 fn();
-                this._timers[name] = null;
+                delete this._timers[name];
             }, delay);
         } else {
             throw new Error(
@@ -74,7 +76,7 @@ export class BaseClass implements OnDestroy {
     protected clearTimeout(name: string) {
         if (this._timers[name]) {
             clearTimeout(this._timers[name]);
-            this._timers[name] = null;
+            delete this._timers[name];
         }
     }
 
@@ -104,7 +106,7 @@ export class BaseClass implements OnDestroy {
     protected clearInterval(name: string) {
         if (this._intervals[name]) {
             clearInterval(this._intervals[name]);
-            this._intervals[name] = null;
+            delete this._intervals[name];
         }
     }
 
@@ -113,7 +115,7 @@ export class BaseClass implements OnDestroy {
      * @param name Name of the subscription
      * @param unsub Unsubscribe callback or Subscription object
      */
-    protected subscription(name: string, unsub: Subscription | (() => void)) {
+    protected subscription(name: string, unsub: Subscription | VoidFn) {
         this.unsub(name);
         this._subscriptions[name] = unsub;
     }
@@ -126,7 +128,7 @@ export class BaseClass implements OnDestroy {
         if (name in this._subscriptions) {
             this._subscriptions[name] instanceof Subscription
                 ? (this._subscriptions[name] as Subscription).unsubscribe()
-                : (this._subscriptions[name] as any)();
+                : (this._subscriptions[name] as VoidFn)();
             delete this._subscriptions[name];
         }
     }
