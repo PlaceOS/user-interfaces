@@ -1,7 +1,10 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { SettingsService } from '@placeos/common';
 import { Space, NewSpaceSelectModalComponent } from '@placeos/spaces';
+
+const EMPTY_FAVS: string[] = [];
 
 @Component({
     selector: `space-list-field`,
@@ -79,8 +82,18 @@ import { Space, NewSpaceSelectModalComponent } from '@placeos/spaces';
                         </button>
                     </div>
                 </div>
-                <button mat-icon-button fav class="absolute top-1 right-1">
-                    <app-icon>favorite_border</app-icon>
+                <button
+                    mat-icon-button
+                    fav
+                    class="absolute top-1 right-1"
+                    [class.text-blue-400]="favorites.includes(asset.id)"
+                    (click)="toggleFavourite(asset)"
+                >
+                    <app-icon>{{
+                        favorites.includes(asset.id)
+                            ? 'favorite'
+                            : 'favorite_border'
+                    }}</app-icon>
                 </button>
             </div>
         </div>
@@ -113,7 +126,14 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     private _onChange: (_: Space[]) => void;
     private _onTouch: (_: Space[]) => void;
 
-    constructor(private _dialog: MatDialog) {}
+    public get favorites() {
+        return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
+    }
+
+    constructor(
+        private _settings: SettingsService,
+        private _dialog: MatDialog
+    ) {}
 
     /** Add or edit selected spaces */
     public changeSpaces() {
@@ -156,4 +176,20 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     public readonly registerOnTouched = (fn: (_: Space[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+
+    public toggleFavourite(space: Space) {
+        const fav_list = this.favorites;
+        const new_state = !fav_list.includes(space.id);
+        if (new_state) {
+            this._settings.saveUserSetting('favourite_spaces', [
+                ...fav_list,
+                space.id,
+            ]);
+        } else {
+            this._settings.saveUserSetting(
+                'favourite_spaces',
+                fav_list.filter((_) => _ !== space.id)
+            );
+        }
+    }
 }
