@@ -24,7 +24,7 @@ import { first } from 'rxjs/operators';
                     ></flow-success>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
-                    <desk-flow></desk-flow>
+                    <new-desk-flow-form></new-desk-flow-form>
                 </ng-container>
             </ng-container>
         </div>

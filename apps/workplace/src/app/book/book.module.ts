@@ -30,10 +30,13 @@ import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details
 import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import { DeskFlowComponent } from './new-desk-flow/desk-flow-form.component';
-import { NewDeskFlowComponent } from './new-desk-flow.component';
-import { DeskFormDetailsComponent } from './new-desk-flow/desk-form-details.component';
 import { AssetsModule } from '@placeos/assets';
+import { NewDeskFlowComponent } from './new-desk-flow.component';
+import { NewDeskFlowFormComponent } from './new-desk-flow/new-desk-flow-form.component';
+import { NewDeskFormDetailsComponent } from './new-desk-flow/new-desk-form-details.component';
+import { NewDeskSelectModalComponent } from './new-desk-flow/new-desk-select-modal.component';
+import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-display.component';
+import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
 
 const ROUTES: Route[] = [
     {
@@ -81,9 +84,12 @@ const ROUTES: Route[] = [
         MeetingFormDetailsComponent,
         MeetingFlowConfirmComponent,
         MeetingFlowSuccessComponent,
-        DeskFlowComponent,
-        DeskFormDetailsComponent,
-        NewDeskFlowComponent
+        NewDeskFlowFormComponent,
+        NewDeskFormDetailsComponent,
+        NewDeskFlowComponent,
+        NewDeskSelectModalComponent,
+        DeskFiltersDisplayComponent,
+        DeskListComponent
     ],
     imports: [
         CommonModule,

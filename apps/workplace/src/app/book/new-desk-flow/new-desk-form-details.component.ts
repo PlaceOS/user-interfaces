@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { BookingFormService } from "@placeos/bookings";
 import { SettingsService } from "@placeos/common";
-import { OrganisationService } from "@placeos/organisation";
+import { Desk, OrganisationService } from "@placeos/organisation";
 import { addDays, endOfDay } from "date-fns";
 import { tap } from "rxjs/operators";
+import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
 
 @Component({
-    selector: 'desk-form-details',
+    selector: 'new-desk-form-details',
     styles: [],
     template: `
         <div class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2" *ngIf="form" [formGroup]="form">
@@ -92,6 +94,7 @@ import { tap } from "rxjs/operators";
                     mat-button
                     add-space
                     class="w-full inverse mt-2"
+                    (click)="selectDesk()"
                 >
                     <div class="flex items-center justify-center space-x-2">
                         <app-icon>search</app-icon>
@@ -99,11 +102,21 @@ import { tap } from "rxjs/operators";
                     </div>
                 </button>
             </section>
+            <section class="p-2">
+            <h3 class="space-x-2 flex items-center mb-4">
+                    <div
+                        class="border border-black rounded-full h-6 w-6 flex items-center justify-center"
+                    >
+                        3
+                    </div>
+                    <div class="text-xl">Request Asset</div>
+                </h3>
+            </section>
         </div>
     
     `
 })
-export class DeskFormDetailsComponent{
+export class NewDeskFormDetailsComponent{
 
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
@@ -167,6 +180,25 @@ export class DeskFormDetailsComponent{
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {}
+
+    /** Open desk selector */
+    public selectDesk(){
+        const ref = this._dialog.open(NewDeskSelectModalComponent, {
+            data:''
+        });
+        ref.afterClosed().subscribe((desk?: Desk) => {
+            if(!desk) return;
+            this._state.form.patchValue({
+                asset_id: desk?.id,
+                asset_name: desk.name,
+                map_id: desk?.map_id || desk?.id,
+                description: desk.name,
+                booking_type: 'desk',
+                zones: desk.zone? [desk.zone?.parent_id, desk.zone?.id] : []
+            })
+        })
+    }
 }

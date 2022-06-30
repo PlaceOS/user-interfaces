@@ -7,7 +7,7 @@ import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
 import { first, take } from 'rxjs/operators';
 
 @Component({
-    selector: 'desk-flow',
+    selector: 'new-desk-flow-form',
     styles: [],
     template: `
         <div class="absolute inset-0 bg-gray-100 overflow-auto">
@@ -15,7 +15,7 @@ import { first, take } from 'rxjs/operators';
                 <h2 class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300">
                    {{ is_edit ? 'Edit Desk Booking' : 'Book Desk' }}
                 </h2>
-                <desk-form-details [form]="form"></desk-form-details>
+                <new-desk-form-details [form]="form"></new-desk-form-details>
                 <div class="mb-4 border-b border-gray-300 w-full"></div>
                 <div
                     class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
@@ -62,7 +62,7 @@ import { first, take } from 'rxjs/operators';
         </ng-template>
     `,
 })
-export class DeskFlowComponent implements OnInit{
+export class NewDeskFlowFormComponent implements OnInit{
 
     public time = 0;
     public level = '';
