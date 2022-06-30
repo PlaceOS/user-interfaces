@@ -13,4 +13,9 @@ describe('AssetStateService', () => {
     it('should create component', () => {
         expect(spectator.service).toBeTruthy();
     });
+
+    it('should load asset list', () => {});
+    it('should load asset bookings for selected options', () => {});
+    it('should generate available assets for selected options', () => {});
+    it('should allow filtering of available assets', () => {});
 });
