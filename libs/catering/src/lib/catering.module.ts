@@ -24,6 +24,11 @@ import { CateringOrderOptionsModalComponent } from './catering-order-options-mod
 import { CateringOrderComponent } from './catering-order.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 
+import { NewCateringOrderModalComponent } from './catering-order-modal/new-catering-order-modal.component';
+import { CateringItemListComponent } from './catering-order-modal/catering-item-list.component';
+import { CateringItemDetailsComponent } from './catering-order-modal/catering-item-details.component';
+import { CateringItemFiltersComponent } from './catering-order-modal/catering-item-filters.component';
+
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
     CateringOrderModalComponent,
@@ -36,6 +41,11 @@ const COMPONENTS: Type<any>[] = [
     CateringOrderComponent,
     CateringOrderItemComponent,
     CateringImportMenuModalComponent,
+
+    NewCateringOrderModalComponent,
+    CateringItemListComponent,
+    CateringItemDetailsComponent,
+    CateringItemFiltersComponent
 ];
 
 @NgModule({
