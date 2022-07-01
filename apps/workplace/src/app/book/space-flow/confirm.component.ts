@@ -31,13 +31,14 @@ import { EventFormService } from '@placeos/events';
                     <app-icon>event</app-icon>
                 </div>
                 <div class="flex-1 truncate">
-                    {{ form.get('date')?.value | date: 'longDate' }} at
-                    {{ form.get('date')?.value | date: 'shortTime' }} ~
-                    {{
-                        form.get('date')?.value +
-                            form.get('duration')?.value * 60 * 1000
-                            | date: 'shortTime'
-                    }}
+                    {{ form.value.date | date: 'longDate' }}
+                    <span *ngIf="!form.value.all_day">
+                        at {{ form.value.date | date: 'shortTime' }} ~
+                        {{
+                            form.value + form.value.duration * 60 * 1000
+                                | date: 'shortTime'
+                        }}
+                    </span>
                 </div>
                 <a
                     mat-button
@@ -53,14 +54,19 @@ import { EventFormService } from '@placeos/events';
                     <app-icon>schedule</app-icon>
                 </div>
                 <div class="flex-1 truncate">
-                    {{ form.get('duration')?.value }} minutes
+                    {{
+                        form.value.all_day
+                            ? 'All Day'
+                            : (form.value.duration | duration)
+                    }}
                 </div>
                 <a
                     mat-button
                     class="clear underline"
                     [routerLink]="['/book', 'spaces', 'form']"
-                    >Edit</a
                 >
+                    Edit
+                </a>
             </div>
             <div class="border-b border-gray-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
@@ -201,7 +207,13 @@ export class SpaceFlowConfirmComponent {
 
     public readonly postForm = async () => {
         this.loading = true;
-        await this._state.postForm().catch((_) => notifyError(_));
+        await this._state
+            .postForm()
+            .catch((_) =>
+                notifyError(
+                    _ instanceof Object ? _.message || 'Bad Request' : _
+                )
+            );
         this.loading = false;
     };
 

@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
-import { querySystems } from '@placeos/ts-client';
+import { querySystems, showSystem } from '@placeos/ts-client';
 import { first, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
 import { OrganisationService } from '@placeos/organisation';
 
 import { Space } from './space.class';
-import { flatten, unique } from '@placeos/common';
+import { flatten, SettingsService, unique } from '@placeos/common';
+import { SpacePipe } from './space.pipe';
+
+let SPACE_PIPE: SpacePipe;
 
 @Injectable({
     providedIn: 'root',
@@ -31,10 +34,15 @@ export class SpacesService {
         return this._list.getValue();
     }
 
-    constructor(private _org: OrganisationService) {
-        this._org.initialised
-            .pipe(first((_) => _))
-            .subscribe(() => this.loadSpaces());
+    constructor(private _org: OrganisationService, private _settings: SettingsService) {
+        SPACE_PIPE = new SpacePipe(_org);
+        this._init();
+    }
+
+    private async _init() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        if (!this._settings.get('app.prevent_space_init')) this.loadSpaces();
+        else this._initialised.next(true);
     }
 
     /**
@@ -45,14 +53,21 @@ export class SpacesService {
         return this._list.getValue().filter((_) => predicate(_));
     }
 
+    public async loadSpace(space_id: string) {
+        const system = await showSystem(space_id).toPromise();
+        const space = new Space({
+            ...system as any,
+            level: this._org.levelWithID([...system.zones]),
+        })
+        SPACE_PIPE.updateSpaceList([space]);
+    }
+
     /**
      * Find space with given id/email
-     * @param id ID/Email address associated with the space
+     * @param space_id ID/Email address associated with the space
      */
-    public find(id: string) {
-        return this._list
-            .getValue()
-            .find((space) => space.id === id || space.email === id);
+    public find(space_id: string) {
+        return this._list.getValue().find(({ id }) => space_id === id);
     }
 
     private async loadSpaces(): Promise<void> {
@@ -72,6 +87,7 @@ export class SpacesService {
         // Remove spaces without a map ID
         const valid_spaces = space_list.filter((space) => space.map_id);
         this._list.next(valid_spaces);
+        SPACE_PIPE.updateSpaceList(valid_spaces);
         this._initialised.next(true);
     }
 }

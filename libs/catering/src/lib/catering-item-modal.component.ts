@@ -187,7 +187,7 @@ export class CateringItemModalComponent {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for item */
-    public form: FormGroup = new FormGroup({
+    public form = new FormGroup({
         name: new FormControl(this.item.name || '', [Validators.required]),
         description: new FormControl(this.item.description || ''),
         category: new FormControl(this.item.category || '', [

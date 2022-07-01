@@ -190,6 +190,10 @@ mat-slide-toggle {
             background-color: var(--primary);
         }
     }
+
+    .mat-checkbox-label {
+        font-weight: normal;
+    }
 }
 
 [bg='white'] .mat-form-field-outline {
@@ -235,6 +239,22 @@ mat-dialog-container.mat-dialog-container {
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+    }
+}
+
+[notes] {
+    a {
+        color: #3344dd;
+        text-decoration: underline;
+        
+        &:hover, &:focus, &:active {
+            color: #bb1122;
+            text-decoration: none;
+        }
+        
+        &:visited {
+            color: #884488
         }
     }
 }
@@ -600,5 +620,11 @@ custom-table[header-dark] {
         top: -200%;
         left: -200%;
         line-height: 1.1;
+    }
+}
+
+#placeos {
+    mat-bottom-sheet-container {
+        padding: 0;
     }
 }

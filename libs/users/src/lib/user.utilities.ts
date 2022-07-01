@@ -72,12 +72,12 @@ export function generateMockUser(
  * Generate form fields for the given user
  * @param user User to generate form for
  */
-export function generateUserForm(user?: User): FormGroup {
+export function generateUserForm(user?: User) {
     if (!user) {
         throw Error('No user passed');
     }
 
-    const fields: HashMap<FormControl> = {
+    const fields = {
         name: new FormControl(user.name || ''),
         email: new FormControl(user.email || '', [
             Validators.email,
@@ -101,10 +101,10 @@ export function generateUserForm(user?: User): FormGroup {
 }
 
 export function generateGuestForm(
-    user: GuestUser,
+    user: GuestUser = new GuestUser(),
     host: string = ''
-): FormGroup {
-    const fields: HashMap<FormControl> = {
+) {
+    const fields = {
         name: new FormControl(user.name || ''),
         email: new FormControl(user.email || '', [
             Validators.email,

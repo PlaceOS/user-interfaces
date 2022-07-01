@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { BaseClass, getInvalidFields, SettingsService } from '@placeos/common';
+import {
+    BaseClass,
+    currentUser,
+    getInvalidFields,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { Space } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
-import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -53,7 +58,7 @@ export interface EventFlowOptions {
 export class EventFormService extends BaseClass {
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFlowOptions>({ zone_ids: [] });
-    private _form = new BehaviorSubject<FormGroup>(null);
+    private _form = new BehaviorSubject(generateEventForm());
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
 
@@ -62,7 +67,7 @@ export class EventFormService extends BaseClass {
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
-    public readonly available_spaces = combineLatest([
+    public readonly available_spaces: Observable<Space[]> = combineLatest([
         this._view,
         this._options,
         this._form,
@@ -74,7 +79,7 @@ export class EventFormService extends BaseClass {
             this._loading.next('Retrieving available spaces...');
             const start = form.value.date;
             const end = form.value.date + form.value.duration * 60 * 1000;
-            return querySpaceFreeBusy(
+            return querySpaceAvailability(
                 {
                     period_start: getUnixTime(start),
                     period_end: getUnixTime(end),
@@ -115,6 +120,7 @@ export class EventFormService extends BaseClass {
 
     constructor(
         private _org: OrganisationService,
+        private _spaces: SpacesService,
         private _router: Router,
         private _settings: SettingsService
     ) {
@@ -179,54 +185,81 @@ export class EventFormService extends BaseClass {
         });
     }
 
-    public async postForm(force: boolean = false) {
-        const form = this._form.getValue();
-        if (!form) throw 'No form for event';
-        if (!form.valid && !force)
-            throw `Some form fields are invalid. [${getInvalidFields(form).join(
-                ', '
-            )}]`;
-        const { id, date, duration } = form.value;
-        const spaces = form.get('resources')?.value || [];
-        if (
-            !id ||
-            date !== this.event.date ||
-            duration !== this.event.duration
-        ) {
-            await this.checkSelectedSpacesAreAvailable(
-                spaces,
-                date,
-                duration,
-                id
+    public readonly cancelPostForm = () => this.unsub('post-event-form');
+
+    public postForm(force: boolean = false) {
+        return new Promise<CalendarEvent>(async (resolve, reject) => {
+            const form = this._form.getValue();
+            if (!form) throw 'No form for event';
+            if (!form.valid && !force)
+                throw `Some form fields are invalid. [${getInvalidFields(
+                    form
+                ).join(', ')}]`;
+            const { id, host, date, duration, creator } = form.value;
+            console.log('Time:', date, duration);
+            const spaces = form.get('resources')?.value || [];
+            if (
+                (!id ||
+                    date !== this.event.date ||
+                    duration !== this.event.duration) &&
+                spaces.length
+            ) {
+                const start = getUnixTime(this.event.date);
+                await this.checkSelectedSpacesAreAvailable(
+                    spaces,
+                    date,
+                    duration,
+                    id
+                        ? { start, end: start + this.event.duration * 60 }
+                        : undefined
+                );
+            }
+            const is_owner =
+                host === currentUser()?.email ||
+                creator === currentUser()?.email;
+            const space_id = this._spaces.find(spaces[0]?.email)?.id;
+            const query = id
+                ? is_owner
+                    ? { calendar: host || creator }
+                    : { system_id: space_id }
+                : {};
+            this.subscription(
+                'post-event-form',
+                saveEvent(
+                    new CalendarEvent(this._form.getValue().value),
+                    query
+                ).subscribe(
+                    (result) => {
+                        this.clearForm();
+                        this.last_success = result;
+                        sessionStorage.setItem(
+                            'PLACEOS.last_booked_event',
+                            JSON.stringify(result)
+                        );
+                        this.setView('success');
+                        resolve(result);
+                    },
+                    (e) => reject(e)
+                )
             );
-        }
-        const result = await saveEvent(
-            new CalendarEvent(this._form.getValue().value)
-        ).toPromise();
-        this.clearForm();
-        this.last_success = result;
-        sessionStorage.setItem(
-            'PLACEOS.last_booked_event',
-            JSON.stringify(result)
-        );
-        this.setView('success');
-        return result;
+        });
     }
 
     private async checkSelectedSpacesAreAvailable(
         spaces: Space[],
         date: number,
         duration: number,
-        ignore?: string
+        exclude?: { start: number; end: number }
     ) {
+        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
-            system_ids: spaces.map((_) => _.id).join(','),
+            system_ids: space_ids.join(','),
         };
-        if (ignore) query.ignore = ignore;
+        if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         const space_list = spaces.length
-            ? await querySpaceFreeBusy(query).toPromise()
+            ? await querySpaceAvailability(query).toPromise()
             : [];
         if (space_list.length !== spaces.length)
             throw `${

@@ -81,19 +81,15 @@ import { DialogEvent, notifyError } from '@placeos/common';
         `,
     ],
 })
-export class DeskQuestionsModalComponent implements OnInit {
+export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
-    public form: FormGroup;
+    public form = new FormGroup({
+        travelled: new FormControl('', [Validators.required]),
+        unwell: new FormControl('', [Validators.required]),
+        contact: new FormControl('', [Validators.required]),
+    });
     public failure: boolean;
-
-    public ngOnInit() {
-        this.form = new FormGroup({
-            travelled: new FormControl('', [Validators.required]),
-            unwell: new FormControl('', [Validators.required]),
-            contact: new FormControl('', [Validators.required]),
-        });
-    }
 
     public submit() {
         this.form.markAllAsTouched();

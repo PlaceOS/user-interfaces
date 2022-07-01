@@ -27,6 +27,7 @@ import { BaseClass } from '@placeos/common';
     styles: [
         `
             :host {
+                position: relative;
                 height: 100%;
                 width: 100%;
             }

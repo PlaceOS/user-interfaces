@@ -1,9 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
+import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
-import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
+import { BookingFormService, queryBookings } from '@placeos/bookings';
 import {
     BaseClass,
     currentUser,
@@ -11,16 +12,15 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { BookingFormService, queryBookings } from '@placeos/bookings';
-import { StaffUser } from '@placeos/users';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { StaffUser } from '@placeos/users';
 
-import { ExploreStateService } from './explore-state.service';
-import { DEFAULT_COLOURS } from './explore-spaces.service';
-import { ExploreDeviceInfoComponent } from './explore-device-info.component';
-import { ExploreDeskInfoComponent } from './explore-desk-info.component';
-import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
+import { ExploreDeskInfoComponent } from './explore-desk-info.component';
+import { ExploreDeviceInfoComponent } from './explore-device-info.component';
+import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -39,9 +39,12 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
     private _presence = new BehaviorSubject<string[]>([]);
+    private _signs_of_life = new BehaviorSubject<string[]>([]);
     private _statuses: HashMap<string> = {};
     private _users: HashMap<string> = {};
     private _poll = new BehaviorSubject<number>(0);
+
+    private _checked_in = new BehaviorSubject<string[]>([]);
 
     private _desk_bookings = combineLatest([
         this._state.level,
@@ -98,18 +101,24 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.desk_list,
         this._in_use,
         this._presence,
+        this._checked_in,
+        this._signs_of_life,
         this._options,
     ]).pipe(
         // debounceTime(50),
-        map(([desks, in_use, presence]) => {
+        map(([desks, in_use, presence, checked_in, signs]) => {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
                 const has_presence = presence.some((i) => id === i);
+                const has_signs = signs.some((i) => id === i);
+                const is_checked_in = checked_in.some((i) => id === i);
                 this._statuses[id] = bookable
-                    ? !is_used && !has_presence
-                        ? 'free'
-                        : !has_presence
+                    ? !is_used && !has_presence && !is_checked_in
+                        ? has_signs
+                            ? 'signs-of-life'
+                            : 'free'
+                        : !has_presence && !is_checked_in
                         ? 'pending'
                         : 'busy'
                     : 'not-bookable';
@@ -132,7 +141,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.setOptions({
-            enable_booking: this._settings.get('app.desks.enabled') !== false,
+            enable_booking:
+                this._settings.get('app.desks.enable_maps') !== false,
         });
         this.subscription('bind', this._bind.subscribe());
         this.subscription('changes', this._state_change.subscribe());
@@ -145,9 +155,20 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     public startPolling(delay: number = 10 * 1000) {
         this.subscription(
             'desks_in_use_bookings',
-            this._desk_bookings.subscribe((_) =>
-                this._in_use.next(_.map((i) => i.asset_id))
-            )
+            this._desk_bookings.subscribe((_) => {
+                const actives = _.filter(
+                    (e) =>
+                        !(
+                            e.rejected ||
+                            e.deleted ||
+                            e.extension_data.current_state === 'ended'
+                        )
+                );
+                this._in_use.next(actives.map((i) => i.asset_id));
+                this._checked_in.next(
+                    actives.filter((e) => e.checked_in).map((i) => i.asset_id)
+                );
+            })
         );
         this.interval(
             'poll',
@@ -183,6 +204,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 .filter((v) => v.at_location)
                 .map((v) => v.map_id || v.asset_id)
         );
+        this._signs_of_life.next(
+            desks
+                .filter((v) => v.signs_of_life)
+                .map((v) => v.map_id || v.asset_id)
+        );
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);
     }
@@ -212,7 +238,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     x: device.coordinates_from?.includes('right') ? 1 - x : x,
                     y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
                 },
-                content: ExploreDeviceInfoComponent,            
+                content: ExploreDeviceInfoComponent,
                 z_index: 20,
                 data: { ...device, system: system_id },
             });
@@ -259,7 +285,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                         : [],
                 });
                 await this._bookings.confirmPost();
-                this._users[desk.map_id] = (options.host || currentUser())?.name;
+                this._users[desk.map_id] = (
+                    options.host || currentUser()
+                )?.name;
                 notifySuccess(
                     `Successfull booked desk ${desk.name || desk.id}`
                 );

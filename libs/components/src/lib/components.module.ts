@@ -43,6 +43,7 @@ import { MapPolygonComponent } from './map-polygon.component';
 import { GlobalBannerComponent } from './global-banner.component';
 import { MapLocateModalComponent } from './map-locate-modal.component';
 import { ImageCarouselComponent } from './image-carousel.component';
+import { DurationPipe } from './duration.pipe';
 
 export * from './action-icon.component';
 export * from './binding.directive';
@@ -112,6 +113,7 @@ const COMPONENTS: Type<any>[] = [
     FixedPipe,
     SafePipe,
     SanitizePipe,
+    DurationPipe
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

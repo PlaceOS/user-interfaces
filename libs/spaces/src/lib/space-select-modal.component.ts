@@ -195,7 +195,7 @@ export class SpaceSelectModalComponent extends BaseClass {
 
     /** Whether multiple spaces can be selected */
     public get multiple(): boolean {
-        return !!this._settings.get('app.booking.multiple_spaces');
+        return !!this._settings.get('app.events.multiple_spaces');
     }
 
     /** Mapping of spaces to whether they are selected */

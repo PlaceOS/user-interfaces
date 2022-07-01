@@ -3,7 +3,7 @@ import { currentUser } from '@placeos/common';
 import { createViewer, getViewer, Point, removeViewer } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
 
-export function generateBookingForm(booking: Booking = {} as any) {
+export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         date: new FormControl(booking.date, []),

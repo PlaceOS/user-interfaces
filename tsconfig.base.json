@@ -15,6 +15,7 @@
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
         "paths": {
+            "@placeos/assets": ["libs/assets/src/index.ts"],
             "@placeos/bookings": ["libs/bookings/src/index.ts"],
             "@placeos/calendar": ["libs/calendar/src/index.ts"],
             "@placeos/catering": ["libs/catering/src/index.ts"],

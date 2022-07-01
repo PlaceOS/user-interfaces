@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { updateMetadata } from '@placeos/ts-client';
 import { HashMap, notifyError } from '@placeos/common';
 import { CalendarEvent, checkinEventGuest, showEvent } from '@placeos/events';
@@ -25,7 +24,7 @@ export class CheckinStateService {
     /** Photo of the current guest */
     private _error = new BehaviorSubject<string>('');
     /** Form for the current guest details */
-    private _form = new BehaviorSubject<FormGroup>(null);
+    private _form = new BehaviorSubject(generateGuestForm());
 
     public readonly event = this._event.asObservable();
     public readonly guest = this._guest.asObservable();

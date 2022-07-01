@@ -55,7 +55,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for the new user */
-    public form?: FormGroup;
+    public form = generateUserForm(this.user);
     /** New user data store */
     public user?: User;
     /** Whether user details are being saved */
@@ -63,11 +63,11 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: any) {
         super();
+        this.user = this._data.user || {};
+        this.form = generateUserForm(this.user);
     }
 
     public ngOnInit(): void {
-        this.user = this._data.user || {};
-        this.form = generateUserForm(this.user);
     }
 
     public saveChanges() {
@@ -76,7 +76,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
         if (this.form.valid) {
             const new_user = new User({
                 ...this.form.value,
-                type: 'external',
+                is_external: true
             });
             this.event.emit({ reason: 'done', metadata: new_user });
         }

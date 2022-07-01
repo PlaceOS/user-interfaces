@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
+import { SupportTicketModalComponent } from './support-ticket-modal.component';
 
 @Component({
     selector: 'user-controls',
@@ -76,6 +78,16 @@ import { HelpTooltipComponent } from './help-tooltip.component';
                 </div>
             </button>
                         </div>
+            <button mat-button class="clear w-full text-left h-[3.5rem]" (click)="openSupportTicketModal()">
+                <div class="flex items-center space-x-2">
+                    <div
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                    >
+                        <app-icon>support_agent</app-icon>
+                    </div>
+                    <div class="flex-1">Raise a support ticket</div>
+                </div>
+            </button>
             <div class="flex flex-col items-center p-4">
                 <button mat-button class="inverse mb-4" (click)="logout()">Sign Out</button>
                 <div class="text-xs opacity-60 w-full">
@@ -122,11 +134,16 @@ export class UserControlsComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {}
 
     public logout() {
         logout();
         location.href = '/logout';
+    }
+
+    public openSupportTicketModal() {
+        this._dialog.open(SupportTicketModalComponent);
     }
 }

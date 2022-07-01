@@ -29,8 +29,10 @@
             >
         </div>
     </section>
-    <section class="flex flex-col border-b border-gray-300">
-        <span class="text-xl font-bold mt-3"> {{ space?.name }}</span>
+    <section
+        class="flex flex-col mx-auto w-[calc(100%-2rem)] border-b border-gray-300"
+    >
+        <span class="text-lg font-bold mt-3"> {{ space?.name }}</span>
 
         <div (click)="selectRoom()" class="w-max-[375px]">
             <button
@@ -50,7 +52,9 @@
             </button>
         </div>
     </section>
-    <section class="flex flex-col border-b border-gray-300 p-3 pl-0">
+    <section
+        class="flex flex-col mx-auto w-[calc(100%-2rem)] border-b border-gray-300 p-3 pl-0"
+    >
         <span class="text-base font-bold">Details</span>
         <div class="flex flex-row items-center text-sm mt-3">
             <mat-icon class="material-icons-outlined blue-icon"
@@ -67,7 +71,10 @@
             >
         </div>
     </section>
-    <section class="flex flex-col py-3" *ngIf="space?.feature_list.length > 0">
+    <section
+        class="flex flex-col py-3 mx-auto w-[calc(100%-2rem)]"
+        *ngIf="space?.feature_list.length > 0"
+    >
         <span class="text-base font-bold mb-3">Room Facilities</span>
 
         <div

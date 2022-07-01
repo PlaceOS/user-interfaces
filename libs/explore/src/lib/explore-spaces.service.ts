@@ -23,6 +23,7 @@ export const DEFAULT_COLOURS = {
     pending: '#ffb300',
     reserved: '#e65100',
     busy: '#e53935',
+    'signs-of-life': '#1565c0',
     'not-bookable': '#757575',
     unknown: '#757575',
 };
@@ -87,7 +88,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
             );
         }
         this._dialog.open(
-            (this._settings.get('app.show_qr_for_booking')
+            (this._settings.get('app.explore.show_booking_qr')
                 ? ExploreBookQrComponent
                 : ExploreBookingModalComponent) as any,
             {

@@ -11,24 +11,26 @@ import { UserControlsComponent } from './user-controls.component';
         >
             <a
                 logo
-                class="p-2 h-full flex items-center"
+                class="p-2 h-full flex items-center flex-1"
                 [routerLink]="['/']"
                 *ngIf="logo"
             >
                 <img class="h-10" [src]="logo?.src" />
             </a>
-            <div class="flex-1 flex items-center justify-center h-full w-1/2">
-                <top-menu class="hidden sm:block"></top-menu>
+            <div class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex">
+                <top-menu></top-menu>
             </div>
-            <global-search *ngIf="search"></global-search>
-            <button
-                matRipple
-                class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
-                customTooltip
-                [content]="user_controls"
-            >
-                <app-icon class="text-2xl">person</app-icon>
-            </button>
+            <div class="flex-1 flex items-center justify-end">
+                <global-search *ngIf="search"></global-search>
+                <button
+                    matRipple
+                    class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
+                    customTooltip
+                    [content]="user_controls"
+                >
+                    <app-icon class="text-2xl">person</app-icon>
+                </button>
+            </div>
         </div>
         <mat-menu #menu="matMenu">
             <button
@@ -44,7 +46,9 @@ import { UserControlsComponent } from './user-controls.component';
             </button>
         </mat-menu>
     `,
-    styles: [``],
+    styles: [`
+        .flex-3 { flex: 3 3 0%; }
+    `],
 })
 export class TopbarComponent {
     public show_menu: boolean;

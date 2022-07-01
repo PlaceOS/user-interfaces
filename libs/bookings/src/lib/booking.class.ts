@@ -71,6 +71,8 @@ export class Booking {
     public readonly access: boolean;
     /** Status of the booking */
     public readonly status: 'declined' | 'approved' | 'tentative';
+    /** New deleted field */
+    public readonly deleted: boolean;
 
     constructor(data: Partial<Booking> = {}) {
         this.id = data.id || '';
@@ -112,6 +114,7 @@ export class Booking {
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
         this.approved = !!data.approved;
+        this.deleted = !!data.deleted;
         this.booked_by_id = data.booked_by_id || '';
         this.booked_by_name = data.booked_by_name || '';
         this.booked_by_email = data.booked_by_email || '';

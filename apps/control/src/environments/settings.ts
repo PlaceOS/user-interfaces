@@ -16,7 +16,8 @@ const app = {
         type: 'img',
         src: 'assets/logo-dark.svg'
     },
-    general
+    general,
+    prevent_space_init: true
 }
 
 /**

@@ -26,7 +26,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { NotFoundComponent } from './not-found/not-found.component';
 
-const COMPONENTS: Type<any>[] = [];
+const COMPONENTS: Type<any>[] = [NotFoundComponent];
 
 const MATERIAL_MODULES: any[] = [
     MatButtonModule,
@@ -53,7 +53,7 @@ const MATERIAL_MODULES: any[] = [
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS, NotFoundComponent],
+    declarations: [...COMPONENTS],
     imports: [],
     exports: [...COMPONENTS, ...MATERIAL_MODULES],
 })

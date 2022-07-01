@@ -1,3 +1,4 @@
+import { Asset } from '@placeos/assets';
 import { HashMap } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { User } from '@placeos/users';
@@ -21,6 +22,8 @@ export interface EventExtensionData {
     cleaned?: boolean;
     /** Catering */
     catering?: CateringOrder[];
+    /** List of assets assigned to event */
+    assets?: Asset[];
     /** Parking */
     needs_parking?: boolean;
     /** Configuration */

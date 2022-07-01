@@ -304,7 +304,7 @@ export class SpaceFlowFindComponent implements OnInit {
 
     public confirmBooking() {
         const spaces = this._spaces.filter((s) => this.book_space[s.id]);
-        this._state.form.patchValue({ resources: spaces, system: spaces[0] });
+        this._state.form.patchValue({ resources: spaces, system: spaces[0] as any });
         this._router.navigate(['/book', 'spaces', 'confirm']);
     }
 }

@@ -118,7 +118,10 @@ export class AssetFlowPurchasesComponent {
     public addInvoice() {
         const { invoices } = this.form?.value || { invoices: [] };
         this.form.patchValue({
-            invoices: [...invoices, { id: `invoice-${randomInt(99999)}` }],
+            invoices: [
+                ...invoices,
+                { id: `invoice-${randomInt(99999)}`, name: '', url: '' },
+            ],
         });
     }
 
@@ -136,7 +139,7 @@ export class AssetFlowPurchasesComponent {
         this.form.patchValue({
             purchase_details: [
                 ...purchase_details,
-                { id: `prop-${randomInt(99999)}` },
+                { id: `prop-${randomInt(99999)}`, name: '', value: '' },
             ],
         });
     }

@@ -11,11 +11,13 @@ import { SpaceDetailsComponent } from './space-select-modal/space-details.compon
 import { SpaceListComponent } from './space-select-modal/space-list.component';
 import { SpaceFiltersComponent } from './space-select-modal/space-filters.component';
 import { SpaceFiltersDisplayComponent } from './space-select-modal/space-filters-display.component';
-import { SpaceMapComponent } from './space-select-modal/space-map.component';
+import { SpaceSelectMapComponent } from './space-select-modal/space-map.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SpaceLocationPinComponent } from './space-select-modal/space-location-pin.component';
+import { SpacePipe } from './space.pipe';
 
 const COMPONENTS: Type<any>[] = [
     SpaceSelectModalComponent,
@@ -26,7 +28,10 @@ const COMPONENTS: Type<any>[] = [
     SpaceListComponent,
     SpaceFiltersComponent,
     SpaceFiltersDisplayComponent,
-    SpaceMapComponent,
+    SpaceSelectMapComponent,
+    SpaceLocationPinComponent,
+
+    SpacePipe
 ];
 
 @NgModule({

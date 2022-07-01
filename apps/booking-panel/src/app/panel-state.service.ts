@@ -98,6 +98,7 @@ export class PanelStateService extends BaseClass {
     }
     public set system(value: string) {
         this._system.next(value);
+        this._spaces.loadSpace(value);
     }
 
     public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {

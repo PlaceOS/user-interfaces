@@ -25,14 +25,22 @@ import { SettingsService } from '@placeos/common';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                    <div class="flex flex-col flex-1 w-full sm:w-1/3 relative">
                         <label>End Time</label>
                         <a-duration-field
                             formControlName="duration"
-                            [time]="form.get('date')?.value"
+                            [time]="form.value.date"
                             [max]="max_duration"
+                            [disabled]="form.value.all_day"
                         >
                         </a-duration-field>
+                        <mat-checkbox
+                            formControlName="all_day"
+                            *ngIf="allow_all_day"
+                            class="absolute top-0 right-0"
+                        >
+                            All Day
+                        </mat-checkbox>
                     </div>
                 </div>
             </section>
@@ -69,15 +77,12 @@ import { SettingsService } from '@placeos/common';
                             <mat-error>Meeting Subject is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col resize-y">
+                    <div class="flex flex-col resize-y mb-4">
                         <label>Notes</label>
-                        <mat-form-field appearance="outline">
-                            <textarea
-                                matInput
-                                formControlName="body"
-                                placeholder="Add meeting notes here..."
-                            ></textarea>
-                        </mat-form-field>
+                        <rich-text-input
+                            formControlName="body"
+                            placeholder="Add meeting notes here..."
+                        ></rich-text-input>
                     </div>
                     <div class="flex flex-col mb-4" *ngIf="has_catering">
                         <label>Catering</label>
@@ -124,6 +129,10 @@ export class DetailBookSpaceFormComponent {
 
     public get can_book_for_others() {
         return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get allow_all_day() {
+        return this._settings.get('app.events.allow_all_day');
     }
 
     public get max_duration() {

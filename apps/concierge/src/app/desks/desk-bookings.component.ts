@@ -13,6 +13,7 @@ import { DesksStateService } from './desks-state.service';
                 [columns]="[
                     'user_name',
                     'group',
+                    'desk_name',
                     'date',
                     'status',
                     'approver_name',
@@ -23,6 +24,7 @@ import { DesksStateService } from './desks-state.service';
                 [display_column]="[
                     'Person',
                     'Group',
+                    'Desk',
                     'Date',
                     'Status',
                     'Approver',
@@ -30,9 +32,10 @@ import { DesksStateService } from './desks-state.service';
                     'Access',
                     ' '
                 ]"
-                [column_size]="['flex', '', '12r', '', '10r', '', '', '12r']"
+                [column_size]="['flex', '', '', '12r', '', '10r', '', '', '12r']"
                 [template]="{
                     user_name: user_template,
+                    desk_name: desk_template,
                     date: date_template,
                     status: status_template,
                     checked_in: bool_template,
@@ -47,6 +50,9 @@ import { DesksStateService } from './desks-state.service';
             ></custom-table>
             <ng-template #date_template let-data="data">
                 {{ data | date }} at {{ data | date: 'shortTime' }}
+            </ng-template>
+            <ng-template #desk_template let-row="row">
+                {{ row.asset_name || row.asset_id }}
             </ng-template>
             <ng-template #user_template let-row="row">
                 {{

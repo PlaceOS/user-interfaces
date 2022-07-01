@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { BaseClass } from '@placeos/common';
-import { Space, SpacesService } from '@placeos/spaces';
+import { Space } from '@placeos/spaces';
+import { BehaviorSubject, of } from 'rxjs';
+import { querySystems } from '@placeos/ts-client';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -11,34 +13,65 @@ import { Space, SpacesService } from '@placeos/spaces';
         <div
             class="rounded shadow m-4 bg-white overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-secondary text-white py-2 px-4 m-0 w-full text-2xl">Control Interface Setup</h2>
-            <ng-container *ngIf="!loading; else load_state">
-                <p class="description my-3">Input the PlaceOS <em>System ID</em> to bootstrap</p>
+            <h2 class="bg-primary text-white py-2 px-4 m-0 w-full text-2xl">
+                Control Panel Setup
+            </h2>
+            <ng-container
+                *ngIf="!loading || loading === 'search'; else load_state"
+            >
+                <p class="description py-4">
+                    Input the PlaceOS <em>System ID</em> to bootstrap
+                </p>
                 <mat-form-field appearance="outline">
                     <mat-label>System ID</mat-label>
                     <input
                         matInput
-                        [(ngModel)]="system_id"
+                        [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
                         placeholder="System ID"
-                        (ngModelChange)="filter($event)"
+                        (ngModelChange)="system_id$.next($event)"
                     />
+                    <mat-spinner
+                        [diameter]="32"
+                        matSuffix
+                        *ngIf="loading === 'search'"
+                    ></mat-spinner>
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let option of filtered_list" [value]="option.id">
+                    <mat-option
+                        *ngFor="let option of space_list | async"
+                        [value]="option.id"
+                    >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">{{ option.id }}</div>
+                            <div class="text-xs text-dark-fade">
+                                {{ option.id }}
+                            </div>
                         </div>
                     </mat-option>
+                    <mat-option
+                        class="pointer-events-none opacity-60"
+                        *ngIf="
+                            system_id$.getValue().length < 2 &&
+                            !(space_list | async).length
+                        "
+                    >
+                        Start typing to search for a room
+                    </mat-option>
                 </mat-autocomplete>
-                <button mat-button [disabled]="!system_id" (click)="bootstrap()">Submit</button>
+                <button
+                    mat-button
+                    [disabled]="!system_id$.getValue()"
+                    (click)="bootstrap()"
+                >
+                    Submit
+                </button>
             </ng-container>
         </div>
         <ng-template #load_state>
-            <div class="my-16 flex flex-col items-center">
-                <mat-spinner diameter="32"></mat-spinner>
-                <div class="m-4">Loading system data...</div>
+            <div load class="my-16 flex flex-col items-center">
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <div class="m-4">Loading system data... {{ loading }}</div>
             </div>
         </ng-template>
     `,
@@ -55,7 +88,7 @@ import { Space, SpacesService } from '@placeos/spaces';
             }
 
             :host > div {
-                width: 26rem;
+                width: 32rem;
                 max-width: calc(100vw - 2rem);
             }
 
@@ -77,61 +110,70 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     /** List of available systems */
     public filtered_list: Space[] = [];
     /** Whether application data is loading */
-    public loading: boolean;
+    public loading: string;
     /** ID of the system to bootstrap */
-    public system_id: string = '';
+    public system_id$ = new BehaviorSubject('');
     /** Selected system to bootstrap */
     public selected_system: Space = null;
     /** Whether input field is focused */
     public input_focus: boolean;
 
-    constructor(
-        private _spaces: SpacesService,
-        private route: ActivatedRoute,
-        private _router: Router
-    ) {
+    public readonly space_list = this.system_id$.pipe(
+        debounceTime(300),
+        switchMap((search) => {
+            this.loading = 'search';
+            return search.length < 2
+                ? of({ data: [] })
+                : querySystems({ q: search, limit: 20 });
+        }),
+        map((_) => _.data.map((_) => new Space(_ as any))),
+        tap((_) => (this.loading = '')),
+        shareReplay()
+    );
+
+    constructor(private route: ActivatedRoute, private _router: Router) {
         super();
     }
 
     public async ngOnInit() {
-        this.loading = true;
-        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
-        this.system_list = this._spaces.space_list || [];
-        this.filter('');
-        this.loading = false;
         this.subscription(
             'route.query',
             this.route.queryParamMap.subscribe((params) => {
-                if (params.has('clear') && params.get('clear')) {
+                if (params.has('clear') && !!params.get('clear')) {
                     this.clearBootstrap();
-                } else if (params.has('system_id') || params.has('sys_id')) {
-                    this.system_id = params.get('system_id') || params.get('sys_id');
+                }
+                if (params.has('system_id') || params.has('sys_id')) {
+                    this.system_id$.next(
+                        params.get('system_id') || params.get('sys_id')
+                    );
                     this.bootstrap();
                 }
             })
         );
-
         this.checkBootstrapped();
     }
 
     /**
      * Setup the default system for the application to bind to
      */
-    public readonly bootstrap = () => this.configure(this.system_id);
+    public readonly bootstrap = () =>
+        this.configure(this.system_id$.getValue());
 
     /**
      * Check if the application has previously been bootstrapped
      */
     private checkBootstrapped(): void {
-        this.loading = true;
+        this.loading = 'Checks';
         if (localStorage) {
-            const system_id = localStorage.getItem('PLACEOS.CONTROL.system');
+            const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             if (system_id) {
-                this._router.navigate(['panel', system_id], { queryParamsHandling: 'preserve' });
+                this._router.navigate(['panel', system_id], {
+                    queryParamsHandling: 'preserve',
+                });
                 return;
             }
         }
-        this.loading = false;
+        this.loading = '';
     }
 
     /**
@@ -139,25 +181,21 @@ export class BootstrapComponent extends BaseClass implements OnInit {
      * @param system_id System to bootstrap
      */
     private configure(system_id: string): void {
-        this.loading = true;
+        this.loading = 'Setup';
         if (localStorage) {
-            localStorage.setItem('PLACEOS.CONTROL.system', system_id);
+            localStorage.setItem('PLACEOS.BOOKINGS.system', system_id);
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
-        this._router.navigate(['panel', system_id], { queryParamsHandling: 'preserve' });
-        this.loading = false;
+        this._router.navigate(['panel', system_id], {
+            queryParamsHandling: 'preserve',
+        });
+        this.loading = '';
     }
 
     /**
      * Remove any previously set bootstrapping details
      */
-    private readonly clearBootstrap = () => localStorage.removeItem('PLACEOS.CONTROL.system');
-
-    public filter(search: string) {
-        const s = search.toLowerCase();
-        this.filtered_list = this.system_list
-            .filter((i) => i.name.toLowerCase().includes(s) || i.id.includes(search))
-            .slice(0, 100);
-    }
+    private readonly clearBootstrap = () =>
+        localStorage.removeItem('PLACEOS.BOOKINGS.system');
 }

@@ -1,7 +1,34 @@
 {
     "version": 1,
     "projects": {
+        "assets": {
+            "projectType": "library",
+            "root": "libs/assets",
+            "sourceRoot": "libs/assets/src",
+            "prefix": "placeos",
+            "architect": {
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/assets"],
+                    "options": {
+                        "jestConfig": "libs/assets/jest.config.ts",
+                        "passWithNoTests": true
+                    }
+                },
+                "lint": {
+                    "builder": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": [
+                            "libs/assets/**/*.ts",
+                            "libs/assets/**/*.html"
+                        ]
+                    }
+                }
+            },
+            "tags": []
+        },
         "booking-panel": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/booking-panel",
             "sourceRoot": "apps/booking-panel/src",
@@ -141,7 +168,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/booking-panel"],
                     "options": {
-                        "jestConfig": "apps/booking-panel/jest.config.js",
+                        "jestConfig": "apps/booking-panel/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -149,6 +176,7 @@
             "tags": []
         },
         "booking-panel-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/booking-panel-e2e",
             "sourceRoot": "apps/booking-panel-e2e/src",
             "projectType": "application",
@@ -180,6 +208,7 @@
             "implicitDependencies": ["booking-panel"]
         },
         "bookings": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/bookings",
             "sourceRoot": "libs/bookings/src",
@@ -199,7 +228,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/bookings"],
                     "options": {
-                        "jestConfig": "libs/bookings/jest.config.js",
+                        "jestConfig": "libs/bookings/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -207,6 +236,7 @@
             "tags": []
         },
         "calendar": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/calendar",
             "sourceRoot": "libs/calendar/src",
@@ -226,7 +256,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/calendar"],
                     "options": {
-                        "jestConfig": "libs/calendar/jest.config.js",
+                        "jestConfig": "libs/calendar/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -234,6 +264,7 @@
             "tags": []
         },
         "caterer-ui": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/caterer-ui",
             "sourceRoot": "apps/caterer-ui/src",
@@ -373,7 +404,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/caterer-ui"],
                     "options": {
-                        "jestConfig": "apps/caterer-ui/jest.config.js",
+                        "jestConfig": "apps/caterer-ui/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -381,6 +412,7 @@
             "tags": []
         },
         "caterer-ui-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/caterer-ui-e2e",
             "sourceRoot": "apps/caterer-ui-e2e/src",
             "projectType": "application",
@@ -410,6 +442,7 @@
             "implicitDependencies": ["caterer-ui"]
         },
         "catering": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/catering",
             "sourceRoot": "libs/catering/src",
@@ -429,7 +462,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/catering"],
                     "options": {
-                        "jestConfig": "libs/catering/jest.config.js",
+                        "jestConfig": "libs/catering/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -437,6 +470,7 @@
             "tags": []
         },
         "common": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/common",
             "sourceRoot": "libs/common/src",
@@ -456,7 +490,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/common"],
                     "options": {
-                        "jestConfig": "libs/common/jest.config.js",
+                        "jestConfig": "libs/common/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -464,6 +498,7 @@
             "tags": []
         },
         "components": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/components",
             "sourceRoot": "libs/components/src",
@@ -483,7 +518,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/components"],
                     "options": {
-                        "jestConfig": "libs/components/jest.config.js",
+                        "jestConfig": "libs/components/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -491,6 +526,7 @@
             "tags": []
         },
         "concierge": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/concierge",
             "sourceRoot": "apps/concierge/src",
@@ -630,7 +666,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/concierge"],
                     "options": {
-                        "jestConfig": "apps/concierge/jest.config.js",
+                        "jestConfig": "apps/concierge/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -638,6 +674,7 @@
             "tags": []
         },
         "concierge-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/concierge-e2e",
             "sourceRoot": "apps/concierge-e2e/src",
             "projectType": "application",
@@ -667,6 +704,7 @@
             "implicitDependencies": ["concierge"]
         },
         "control": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/control",
             "sourceRoot": "apps/control/src",
@@ -806,7 +844,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/control"],
                     "options": {
-                        "jestConfig": "apps/control/jest.config.js",
+                        "jestConfig": "apps/control/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -814,6 +852,7 @@
             "tags": []
         },
         "control-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/control-e2e",
             "sourceRoot": "apps/control-e2e/src",
             "projectType": "application",
@@ -843,6 +882,7 @@
             "implicitDependencies": ["control"]
         },
         "enrolment": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/enrolment",
             "sourceRoot": "apps/enrolment/src",
@@ -979,7 +1019,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/enrolment"],
                     "options": {
-                        "jestConfig": "apps/enrolment/jest.config.js",
+                        "jestConfig": "apps/enrolment/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -987,6 +1027,7 @@
             "tags": []
         },
         "enrolment-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/enrolment-e2e",
             "sourceRoot": "apps/enrolment-e2e/src",
             "projectType": "application",
@@ -1016,6 +1057,7 @@
             "implicitDependencies": ["enrolment"]
         },
         "events": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/events",
             "sourceRoot": "libs/events/src",
@@ -1035,7 +1077,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/events"],
                     "options": {
-                        "jestConfig": "libs/events/jest.config.js",
+                        "jestConfig": "libs/events/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1043,6 +1085,7 @@
             "tags": []
         },
         "explore": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/explore",
             "sourceRoot": "libs/explore/src",
@@ -1062,7 +1105,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/explore"],
                     "options": {
-                        "jestConfig": "libs/explore/jest.config.js",
+                        "jestConfig": "libs/explore/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1070,6 +1113,7 @@
             "tags": []
         },
         "form-fields": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/form-fields",
             "sourceRoot": "libs/form-fields/src",
@@ -1089,7 +1133,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/form-fields"],
                     "options": {
-                        "jestConfig": "libs/form-fields/jest.config.js",
+                        "jestConfig": "libs/form-fields/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1097,6 +1141,7 @@
             "tags": []
         },
         "map-kiosk": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/map-kiosk",
             "sourceRoot": "apps/map-kiosk/src",
@@ -1236,7 +1281,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/map-kiosk"],
                     "options": {
-                        "jestConfig": "apps/map-kiosk/jest.config.js",
+                        "jestConfig": "apps/map-kiosk/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1244,6 +1289,7 @@
             "tags": []
         },
         "map-kiosk-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/map-kiosk-e2e",
             "sourceRoot": "apps/map-kiosk-e2e/src",
             "projectType": "application",
@@ -1273,6 +1319,7 @@
             "implicitDependencies": ["map-kiosk"]
         },
         "mocks": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/mocks",
             "sourceRoot": "libs/mocks/src",
@@ -1292,7 +1339,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/mocks"],
                     "options": {
-                        "jestConfig": "libs/mocks/jest.config.js",
+                        "jestConfig": "libs/mocks/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1300,6 +1347,7 @@
             "tags": []
         },
         "organisation": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/organisation",
             "sourceRoot": "libs/organisation/src",
@@ -1319,7 +1367,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/organisation"],
                     "options": {
-                        "jestConfig": "libs/organisation/jest.config.js",
+                        "jestConfig": "libs/organisation/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1327,6 +1375,7 @@
             "tags": []
         },
         "outlook-rooms-addin": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/outlook-rooms-addin",
             "sourceRoot": "apps/outlook-rooms-addin/src",
@@ -1361,7 +1410,6 @@
                                 "output": "/"
                             },
                             "apps/outlook-rooms-addin/src/manifest.webmanifest",
-
                             {
                                 "glob": "manifest.xml",
                                 "input": "apps/outlook-rooms-addin/",
@@ -1486,7 +1534,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/outlook-rooms-addin"],
                     "options": {
-                        "jestConfig": "apps/outlook-rooms-addin/jest.config.js",
+                        "jestConfig": "apps/outlook-rooms-addin/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1494,6 +1542,7 @@
             "tags": []
         },
         "outlook-rooms-addin-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/outlook-rooms-addin-e2e",
             "sourceRoot": "apps/outlook-rooms-addin-e2e/src",
             "projectType": "application",
@@ -1525,6 +1574,7 @@
             "implicitDependencies": ["outlook-rooms-addin"]
         },
         "spaces": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/spaces",
             "sourceRoot": "libs/spaces/src",
@@ -1544,7 +1594,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/spaces"],
                     "options": {
-                        "jestConfig": "libs/spaces/jest.config.js",
+                        "jestConfig": "libs/spaces/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1552,6 +1602,7 @@
             "tags": []
         },
         "timetable": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/timetable",
             "sourceRoot": "apps/timetable/src",
@@ -1682,7 +1733,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/timetable"],
                     "options": {
-                        "jestConfig": "apps/timetable/jest.config.js",
+                        "jestConfig": "apps/timetable/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1690,6 +1741,7 @@
             "tags": []
         },
         "timetable-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/timetable-e2e",
             "sourceRoot": "apps/timetable-e2e/src",
             "projectType": "application",
@@ -1719,6 +1771,7 @@
             "implicitDependencies": ["timetable"]
         },
         "users": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/users",
             "sourceRoot": "libs/users/src",
@@ -1738,7 +1791,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/libs/users"],
                     "options": {
-                        "jestConfig": "libs/users/jest.config.js",
+                        "jestConfig": "libs/users/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1746,6 +1799,7 @@
             "tags": []
         },
         "visitor-kiosk": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/visitor-kiosk",
             "sourceRoot": "apps/visitor-kiosk/src",
@@ -1885,7 +1939,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/visitor-kiosk"],
                     "options": {
-                        "jestConfig": "apps/visitor-kiosk/jest.config.js",
+                        "jestConfig": "apps/visitor-kiosk/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -1893,6 +1947,7 @@
             "tags": []
         },
         "visitor-kiosk-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/visitor-kiosk-e2e",
             "sourceRoot": "apps/visitor-kiosk-e2e/src",
             "projectType": "application",
@@ -1924,6 +1979,7 @@
             "implicitDependencies": ["visitor-kiosk"]
         },
         "workplace": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
             "root": "apps/workplace",
             "sourceRoot": "apps/workplace/src",
@@ -2063,7 +2119,7 @@
                     "builder": "@nrwl/jest:jest",
                     "outputs": ["coverage/apps/workplace"],
                     "options": {
-                        "jestConfig": "apps/workplace/jest.config.js",
+                        "jestConfig": "apps/workplace/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
@@ -2071,6 +2127,7 @@
             "tags": []
         },
         "workplace-e2e": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "root": "apps/workplace-e2e",
             "sourceRoot": "apps/workplace-e2e/src",
             "projectType": "application",

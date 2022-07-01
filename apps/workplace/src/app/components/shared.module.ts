@@ -39,6 +39,7 @@ import { AccessibilityTooltipComponent } from './accessibility-tooltip.component
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { EventCardComponent } from './event-card.component';
 import { BookingCardComponent } from './booking-card.component';
+import { SupportTicketModalComponent } from './support-ticket-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -53,7 +54,8 @@ const COMPONENTS: Type<any>[] = [
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
     EventCardComponent,
-    BookingCardComponent
+    BookingCardComponent,
+    SupportTicketModalComponent
 ];
 
 const MATERIAL_MODULES: any[] = [

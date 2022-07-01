@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { BaseClass } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -23,7 +23,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     mat-button
                     map
                     class="rounded-l rounded-r-none"
-                    [class.inverse]="true"
+                    [class.inverse]="view !== 'map'"
+                    (click)="view = 'map'; viewChange.emit(view)"
                 >
                     Map
                 </button>
@@ -31,7 +32,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     mat-button
                     list
                     class="rounded-r rounded-l-none"
-                    [class.inverse]="false"
+                    [class.inverse]="view !== 'list'"
+                    (click)="view = 'list'; viewChange.emit(view)"
                 >
                     List
                 </button>
@@ -86,6 +88,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
     ],
 })
 export class SpaceFiltersDisplayComponent extends BaseClass {
+    @Input() public view: 'map' | 'list' = 'list';
+    @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options;
     public location: string = '';
 

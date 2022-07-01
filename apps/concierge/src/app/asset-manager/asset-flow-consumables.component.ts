@@ -64,7 +64,7 @@ export class AssetFlowConsumablesComponent {
     public addItem() {
         const { consumables } = this.form?.value || { consumables: [] };
         this.form.patchValue({
-            consumables: [...consumables, { id: `item-${randomInt(99999)}` }],
+            consumables: [...consumables, { id: `item-${randomInt(99999)}`, name: '' }],
         });
     }
 

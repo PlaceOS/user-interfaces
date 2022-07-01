@@ -81,7 +81,7 @@ export class AssetFlowSpecsComponent {
     public addItem() {
         const { general_details } = this.form?.value || { general_details: [] };
         this.form.patchValue({
-            general_details: [...general_details, { id: `item-${randomInt(99999)}` }],
+            general_details: [...general_details, { id: `item-${randomInt(99999)}`, name: '' }],
         });
     }
 

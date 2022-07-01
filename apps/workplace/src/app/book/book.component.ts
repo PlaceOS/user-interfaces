@@ -4,14 +4,14 @@ import { Component } from '@angular/core';
     selector: 'placeos-book',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 z-10 relative">
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
             <main
-                class="relative flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+                class="flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
                 <router-outlet></router-outlet>
             </main>
         </div>
-        <footer-menu></footer-menu>
+        <footer-menu class="z-10"></footer-menu>
     `,
     styles: [
         `

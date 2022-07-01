@@ -163,7 +163,7 @@ export class SpaceFiltersComponent {
     }
 
     public get max_duration() {
-        return this._settings.get('app.event.max_duration') || 480;
+        return this._settings.get('app.events.max_duration') || 480;
     }
 
     constructor(

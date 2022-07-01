@@ -19,7 +19,7 @@ import { currentUser } from '@placeos/common';
                 <a
                     button
                     mat-button
-                    class="w-32"
+                    class="w-32 border border-white"
                     [routerLink]="['/book', route]"
                     [queryParams]="{}"
                 >
@@ -28,7 +28,7 @@ import { currentUser } from '@placeos/common';
                 <a
                     button
                     mat-button
-                    class="w-32"
+                    class="w-32 border border-white"
                     [routerLink]="['/schedule']"
                     [queryParams]="{ email: calendar }"
                 >

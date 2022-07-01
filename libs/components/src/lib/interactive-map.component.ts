@@ -43,11 +43,13 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
     selector: `i-map,interactive-map`,
     template: `
         <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
+        <ng-container *ngIf="src; else empty_state">
         <mat-spinner
             *ngIf="!viewer || loading"
             class="absolute"
             [diameter]="48"
         ></mat-spinner>
+        </ng-container>
         <div hidden *ngIf="injectors?.length">
             <ng-container
                 *ngFor="
@@ -89,6 +91,11 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
                 </div>
             </ng-container>
         </div>
+        <ng-template #empty_state>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-black/30">No map</div>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -212,7 +219,6 @@ export class InteractiveMapComponent
     /** Update overlays, styles and actions of viewer */
     private updateView() {
         try {
-            console.log('Loading:', this.loading);
             if (!getViewer(this.viewer) || this.loading) {
                 return this.timeout('update_view', () => this.updateView());
             }
@@ -224,7 +230,6 @@ export class InteractiveMapComponent
                 actions: this.actions,
                 options: this.options,
             });
-            console.log('Set features:', this.feature_list);
         } catch (e) {}
     }
 
@@ -254,6 +259,7 @@ export class InteractiveMapComponent
                 });
                 removeViewer(this.viewer);
             }
+            this.updateFeatureList();
             this.viewer = await createViewer({
                 element: this._outlet_el?.nativeElement,
                 url: this.src,

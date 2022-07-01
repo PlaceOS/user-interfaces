@@ -4,6 +4,8 @@ import {
     Output,
     EventEmitter,
     Input,
+    ViewChild,
+    ElementRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
@@ -18,19 +20,23 @@ import {
     catchError,
     debounceTime,
     first,
+    map,
+    mergeMap,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
 
 import {
     NewUserModalComponent,
+    searchGuests,
     searchStaff,
     User,
     USER_DOMAIN,
 } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, zip } from 'rxjs';
 
 function validateEmail(email) {
     const re =
@@ -53,7 +59,7 @@ function validateEmail(email) {
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
-                    <mat-chip-list #chipList aria-label="Fruit selection">
+                    <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip
                             *ngFor="let user of active_list"
                             (removed)="removeUser(user)"
@@ -65,14 +71,17 @@ function validateEmail(email) {
                             </button>
                         </mat-chip>
                         <input
+                            #search_field
                             placeholder="Type a name or email"
                             name="user_email"
-                            [ngModel]="search$.getValue()"
-                            (ngModelChange)="search$.next($event)"
+                            [ngModel]="search$ | async"
+                            (ngModelChange)="updateSearch($event)"
                             [matAutocomplete]="auto"
                             [matChipInputFor]="chipList"
                             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                            (matChipInputTokenEnd)="addUserFromEmail($event)"
+                            (matChipInputTokenEnd)="
+                                addUserFromEmail($event.value)
+                            "
                         />
                         <mat-spinner
                             *ngIf="loading"
@@ -82,6 +91,12 @@ function validateEmail(email) {
                     </mat-chip-list>
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option
+                        *ngIf="search_valid_email"
+                        (click)="addUserFromEmail()"
+                    >
+                        Add external user with email "{{ search$.getValue() }}"
+                    </mat-option>
                     <mat-option
                         *ngFor="let user of user_list$ | async"
                         (click)="addUser(user)"
@@ -104,7 +119,9 @@ function validateEmail(email) {
                     (click)="openNewUserModal()"
                     i18n="Add new external attendee"
                 >
-                    Add <span class="hidden sm:inline">External</span>
+                    <div class="flex items-center justify-center">
+                        Add&nbsp;<span class="hidden sm:inline">External</span>
+                    </div>
                 </button>
                 <button
                     mat-button
@@ -113,7 +130,9 @@ function validateEmail(email) {
                     class="inverse flex-1 sm:flex-none"
                     i18n="Upload attendee list from CSV file"
                 >
-                    Upload <span class="hidden sm:inline">CSV</span>
+                    <div class="flex items-center justify-center">
+                        Upload&nbsp;<span class="hidden sm:inline">CSV</span>
+                    </div>
                     <input
                         class="opacity-0 absolute inset-0"
                         type="file"
@@ -128,7 +147,9 @@ function validateEmail(email) {
                     (click)="downloadCSVTemplate()"
                     i18n="Download template CSV file"
                 >
-                    <span class="hidden sm:inline">CSV</span> Template
+                    <div class="flex items-center justify-center">
+                        <span class="hidden sm:inline">CSV</span>&nbsp;Template
+                    </div>
                 </button>
             </div>
         </div>
@@ -168,15 +189,25 @@ export class UserListFieldComponent
 
     /** Whether user list is loading */
     public loading = false;
-
     public readonly search$ = new BehaviorSubject('');
+
+    @ViewChild('search_field') private _search_el: ElementRef<HTMLInputElement>;
 
     /** User list to display */
     public user_list$ = this.search$.pipe(
         debounceTime(300),
         switchMap((_) => {
             this.loading = true;
-            return _ ? searchStaff(_).pipe(catchError((_) => [])) : of([]);
+            return _
+                ? this.guests
+                    ? zip([searchStaff(_), searchGuests(_)]).pipe(
+                          map(([staff, guests]) =>
+                              (staff as any).concat(guests)
+                          ),
+                          catchError((_) => [])
+                      )
+                    : searchStaff(_).pipe(catchError((_) => []))
+                : of([]);
         }),
         tap((_) => (this.loading = false))
     );
@@ -191,6 +222,10 @@ export class UserListFieldComponent
     public readonly validFn = (s) => validateEmail(s);
     public readonly emptyClick = () => this.openNewUserModal(new User());
 
+    public get search_valid_email() {
+        return validateEmail(this.search$.getValue());
+    }
+
     constructor(
         private _dialog: MatDialog,
         private _settings: SettingsService
@@ -198,12 +233,18 @@ export class UserListFieldComponent
         super();
     }
 
-    public addUserFromEmail(email: string) {
-        validateEmail(email)
-            ? this.addUser(
-                  new User({ id: email, email, name: email.split('@')[0] })
-              )
-            : '';
+    public updateSearch(new_value: string = '') {
+        this.timeout('search', () => this.search$.next(new_value));
+    }
+
+    public addUserFromEmail(email: string = '') {
+        if (!email) email = this.search$.getValue();
+        if (!validateEmail(email)) return;
+        this.addUser(new User({ id: email, email, name: email.split('@')[0] }));
+        this.timeout('clear_search', () => {
+            this.search$.next('');
+            this._search_el.nativeElement.value = '';
+        }, 100);
     }
 
     /**
@@ -223,7 +264,10 @@ export class UserListFieldComponent
                         : null) ?? true,
             }),
         ]);
-        this.timeout('clear_search', () => this.search$.next(''));
+        this.timeout('clear_search', () => {
+            this.search$.next('');
+            this._search_el.nativeElement.value = '';
+        }, 100);
     }
 
     /**

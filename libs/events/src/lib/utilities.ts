@@ -16,14 +16,15 @@ import { timePeriodsIntersect, unique } from '@placeos/common';
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
+import { User } from '@placeos/users';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
-export function generateEventForm(event: CalendarEvent): FormGroup {
+export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     const form = new FormGroup({
         id: new FormControl(event.id),
-        host: new FormControl(event.host || '', [Validators.required]),
-        organiser: new FormControl(event.organiser || {}, [
+        host: new FormControl(event.host || event.organiser?.email || '', [Validators.required]),
+        organiser: new FormControl(event.organiser || new User(), [
             Validators.required,
         ]),
         creator: new FormControl(event.creator, [Validators.required]),
@@ -42,6 +43,7 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
         catering: new FormControl(event.extension_data?.catering || []),
+        assets: new FormControl(event.extension_data?.assets || []),
         // has_catering: new FormControl(event.has_catering || false),
         visitor_type: new FormControl(event.extension_data?.visitor_type),
         location: new FormControl(event.location),
@@ -49,13 +51,13 @@ export function generateEventForm(event: CalendarEvent): FormGroup {
         needs_parking: new FormControl(
             event.extension_data?.needs_parking || false
         ),
-        system: new FormControl(event.system),
+        system: new FormControl<any>(event.system),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email)
     );
     form.get('resources').valueChanges.subscribe((l) =>
-        form.controls.system.setValue(l.length ? l[0] : null)
+        form.controls.system.setValue(l.length ? l[0] as any : null)
     );
     if (event.id) {
         form.get('host').disable();

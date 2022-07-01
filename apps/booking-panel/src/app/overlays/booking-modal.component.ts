@@ -1,11 +1,11 @@
-import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, EventEmitter, Output, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
-import { CalendarEvent } from '@placeos/events';
 import { DialogEvent, HashMap, BaseClass } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { first } from 'rxjs/operators';
+import { User } from '@placeos/users';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -114,7 +114,7 @@ export async function openBookingModal(
     ],
     animations: [],
 })
-export class BookingModalComponent extends BaseClass implements OnInit {
+export class BookingModalComponent extends BaseClass {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether modal is closing */
@@ -122,22 +122,19 @@ export class BookingModalComponent extends BaseClass implements OnInit {
     /** Whether the modal is processing a booking request */
     public loading: boolean;
     /** Form */
-    public form: FormGroup;
+    public form: FormGroup = new FormGroup({
+        organiser: new FormControl<User>(null, [Validators.required]),
+        room_ids: new FormControl<string[]>([this._data.space?.email || '']),
+        date: new FormControl(this._data.date || new Date().valueOf()),
+        duration: new FormControl(30),
+        title: new FormControl(this._data.title || '', [
+            Validators.required,
+        ]),
+    });
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
         super();
-    }
-
-    public ngOnInit(): void {
-        this.form = new FormGroup({
-            organiser: new FormControl(null, [Validators.required]),
-            room_ids: new FormControl([this._data.space?.email || '']),
-            date: new FormControl(this._data.date || new Date().valueOf()),
-            duration: new FormControl(30),
-            title: new FormControl(this._data.title || '', [
-                Validators.required,
-            ]),
-        });
+        this.form.reset();
     }
 
     /**
