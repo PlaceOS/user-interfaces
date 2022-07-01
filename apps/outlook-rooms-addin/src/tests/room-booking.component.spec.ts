@@ -10,15 +10,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
-import { mockForm } from './test-mocks';
-import { mockRouterStub } from './test-mocks';
+import { mockForm, mockEventFormService, mockRouterStub } from './test-mocks';
 
 describe('RoomBookingComponent', () => {
     const formModel = mockForm;
     const fb = new FormBuilder();
     const form = fb.group(formModel);
-    let spectator: Spectator<RoomBookingComponent>;
+
     const RouterStub = mockRouterStub;
+    const EventFormServiceStub = mockEventFormService;
+    let spectator: Spectator<RoomBookingComponent>;
 
     const createComponent = createComponentFactory({
         component: RoomBookingComponent,
@@ -35,19 +36,7 @@ describe('RoomBookingComponent', () => {
             },
             {
                 provide: EventFormService,
-                useValue: {
-                    setView: jest.fn(),
-                    setOptions: jest.fn(),
-                    newForm: jest.fn(),
-                    resentForm: jest.fn(),
-                    clearForm: jest.fn(),
-                    storeForm: jest.fn(() => {}),
-                    loadForm: jest.fn(),
-                    postForm: jest.fn(),
-                    view: '',
-                    last_success: null,
-                    form: form,
-                },
+                useClass: EventFormServiceStub,
             },
         ],
         declarations: [],
