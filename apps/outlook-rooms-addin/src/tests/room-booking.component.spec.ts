@@ -10,27 +10,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
+import { mockForm } from './test-mocks';
+import { mockRouterStub } from './test-mocks';
 
 describe('RoomBookingComponent', () => {
-    const formModel = {
-        id: 1,
-        host: ['host@test.com', Validators.required],
-        organiser: ['organiser@test.com', Validators.required],
-        creator: ['creator@test.com', Validators.required],
-        title: ['', Validators.required],
-        date: [0, Validators.required],
-        duration: 0,
-        attendees: '' as any,
-        markAllAsTouched: jest.fn(() => {}),
-    };
-
+    const formModel = mockForm;
     const fb = new FormBuilder();
     const form = fb.group(formModel);
     let spectator: Spectator<RoomBookingComponent>;
-
-    class RouterStub {
-        navigate = jest.fn((param) => {});
-    }
+    const RouterStub = mockRouterStub;
 
     const createComponent = createComponentFactory({
         component: RoomBookingComponent,
