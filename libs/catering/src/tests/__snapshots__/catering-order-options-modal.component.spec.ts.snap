@@ -56,7 +56,7 @@ exports[`CateringOrderOptionsModalComponent should match snapshot 1`] = `
                   class="mat-radio-inner-circle"
                 />
                 <input
-                  class="mat-radio-input cdk-visually-hidden"
+                  class="mat-radio-input"
                   id="mat-radio-6-input"
                   name="mat-radio-group-4"
                   tabindex="0"
@@ -105,7 +105,7 @@ exports[`CateringOrderOptionsModalComponent should match snapshot 1`] = `
                   class="mat-radio-inner-circle"
                 />
                 <input
-                  class="mat-radio-input cdk-visually-hidden"
+                  class="mat-radio-input"
                   id="mat-radio-7-input"
                   name="mat-radio-group-4"
                   tabindex="0"
@@ -159,7 +159,7 @@ exports[`CateringOrderOptionsModalComponent should match snapshot 1`] = `
                   class="mat-radio-inner-circle"
                 />
                 <input
-                  class="mat-radio-input cdk-visually-hidden"
+                  class="mat-radio-input"
                   id="mat-radio-8-input"
                   name="mat-radio-group-4"
                   tabindex="0"
@@ -252,7 +252,6 @@ exports[`CateringOrderOptionsModalComponent should match snapshot 1`] = `
                   focusable="false"
                   version="1.1"
                   viewBox="0 0 24 24"
-                  xml:space="preserve"
                 >
                   <path
                     class="mat-checkbox-checkmark-path"
@@ -324,7 +323,6 @@ exports[`CateringOrderOptionsModalComponent should match snapshot 1`] = `
                   focusable="false"
                   version="1.1"
                   viewBox="0 0 24 24"
-                  xml:space="preserve"
                 >
                   <path
                     class="mat-checkbox-checkmark-path"

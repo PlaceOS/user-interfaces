@@ -9,8 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ComponentsModule } from '@placeos/components';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
 import { CateringConfigModalComponent } from './catering-config-modal.component';
 import { CateringItemModalComponent } from './catering-item-modal.component';
@@ -28,6 +27,9 @@ import { NewCateringOrderModalComponent } from './catering-order-modal/new-cater
 import { CateringItemListComponent } from './catering-order-modal/catering-item-list.component';
 import { CateringItemDetailsComponent } from './catering-order-modal/catering-item-details.component';
 import { CateringItemFiltersComponent } from './catering-order-modal/catering-item-filters.component';
+import { CateringListFieldComponent } from './catering-list-field.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
@@ -42,6 +44,7 @@ const COMPONENTS: Type<any>[] = [
     CateringOrderItemComponent,
     CateringImportMenuModalComponent,
 
+    CateringListFieldComponent,
     NewCateringOrderModalComponent,
     CateringItemListComponent,
     CateringItemDetailsComponent,
@@ -62,7 +65,8 @@ const COMPONENTS: Type<any>[] = [
         FormsModule,
         ReactiveFormsModule,
         ComponentsModule,
-        FormFieldsModule,
+        MatFormFieldModule,
+        FormFieldsModule
     ],
     providers: [],
     exports: [...COMPONENTS],

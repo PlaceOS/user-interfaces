@@ -31,6 +31,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { AssetsModule } from '@placeos/assets';
+import { SharedCateringModule } from '@placeos/catering';
 
 const ROUTES: Route[] = [
     {
@@ -82,6 +83,7 @@ const ROUTES: Route[] = [
         SharedComponentModule,
         FormsModule,
         AssetsModule,
+        SharedCateringModule,
         SharedExploreModule,
         ReactiveFormsModule,
         MatButtonToggleModule,

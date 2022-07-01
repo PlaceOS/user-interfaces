@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
@@ -25,7 +26,7 @@ export class CateringOrderStateService {
 
     public readonly loading = this._loading.asObservable();
 
-    public readonly available_menu: Observable<CateringItem[]> = of([]);
+    public readonly available_menu: Observable<CateringItem[]> = new BehaviorSubject([]);
 
     public readonly filtered_menu = combineLatest([
         this._filters,
@@ -40,6 +41,8 @@ export class CateringOrderStateService {
         }),
         shareReplay(1)
     );
+
+    constructor(private _dialog: MatDialog) {}
 
     public setOptions(opts: Partial<CateringOrderOptions>) {
         this._options.next({ ...this._options.getValue(), ...opts });

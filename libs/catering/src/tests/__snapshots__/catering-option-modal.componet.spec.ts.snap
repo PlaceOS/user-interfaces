@@ -51,9 +51,11 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
             >
               <div
                 class="mat-form-field-outline-start"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-gap"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-end"
@@ -64,9 +66,11 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
             >
               <div
                 class="mat-form-field-outline-start"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-gap"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-end"
@@ -143,9 +147,11 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
             >
               <div
                 class="mat-form-field-outline-start"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-gap"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-end"
@@ -156,9 +162,11 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
             >
               <div
                 class="mat-form-field-outline-start"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-gap"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-end"
@@ -173,7 +181,7 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
               <input
                 aria-autocomplete="list"
                 aria-expanded="false"
-                aria-haspopup="true"
+                aria-haspopup="listbox"
                 aria-required="true"
                 autocomplete="off"
                 class="mat-autocomplete-trigger mat-input-element mat-form-field-autofill-control ng-untouched ng-pristine ng-invalid cdk-text-field-autofill-monitored"
@@ -237,9 +245,11 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
             >
               <div
                 class="mat-form-field-outline-start"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-gap"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-end"
@@ -250,9 +260,11 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
             >
               <div
                 class="mat-form-field-outline-start"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-gap"
+                style="width: 0px;"
               />
               <div
                 class="mat-form-field-outline-end"
@@ -346,7 +358,6 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
                 focusable="false"
                 version="1.1"
                 viewBox="0 0 24 24"
-                xml:space="preserve"
               >
                 <path
                   class="mat-checkbox-checkmark-path"
@@ -377,7 +388,7 @@ exports[`CateringItemOptionModalComponent should match snapshot 1`] = `
   </form>
   
   <footer
-    class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
+    class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
   >
     <button
       disabled=""
@@ -412,7 +423,7 @@ exports[`CateringItemOptionModalComponent should match snapshot 2`] = `
     class="flex flex-col items-center p-8 space-y-2 w-64"
   >
     <mat-spinner
-      class="mat-spinner mat-progress-spinner mat-primary mat-progress-spinner-indeterminate-animation _mat-animation-noopable"
+      class="mat-progress-spinner mat-spinner mat-primary mat-progress-spinner-indeterminate-animation _mat-animation-noopable"
       diameter="32"
       mode="indeterminate"
       role="progressbar"
@@ -430,7 +441,7 @@ exports[`CateringItemOptionModalComponent should match snapshot 2`] = `
           cx="50%"
           cy="50%"
           r="11"
-          style="animation-name: mat-progress-spinner-stroke-rotate-32; stroke-dasharray: 69.11503837897544px; stroke-width: 10%;"
+          style="animation-name: mat-progress-spinner-stroke-rotate-32; stroke-dasharray: 69.11503837897544px; stroke-width: 10%; transform-origin: 50% 50%;"
         />
         
         

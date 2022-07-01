@@ -1,11 +1,12 @@
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
 import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
 import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('NewCateringOrderModalComponent', () => {
     let spectator: Spectator<NewCateringOrderModalComponent>;
@@ -23,6 +24,7 @@ describe('NewCateringOrderModalComponent', () => {
             MockComponent(CateringItemFiltersComponent),
             MockComponent(CateringItemListComponent),
         ],
+        imports: [MatDialogModule]
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -2,6 +2,7 @@ import { Component, forwardRef } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { SettingsService } from "@placeos/common";
+
 import { CateringItem } from "libs/catering/src/lib/catering-item.class";
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 
