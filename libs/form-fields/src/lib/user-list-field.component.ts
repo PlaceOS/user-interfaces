@@ -61,12 +61,13 @@ function validateEmail(email) {
                 >
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip
+                            user
                             *ngFor="let user of active_list"
                             (removed)="removeUser(user)"
                         >
                             <app-icon class="mr-2">business</app-icon>
                             {{ user.name || user.email }}
-                            <button matChipRemove>
+                            <button remove matChipRemove>
                                 <app-icon>cancel</app-icon>
                             </button>
                         </mat-chip>
@@ -109,6 +110,7 @@ function validateEmail(email) {
             </div>
             <div
                 class="flex items-center space-x-2 -mt-4"
+                actions
                 *ngIf="!hide_actions"
             >
                 <button

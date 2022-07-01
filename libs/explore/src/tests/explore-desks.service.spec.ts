@@ -18,6 +18,7 @@ jest.mock('@placeos/bookings');
 import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from '@placeos/bookings';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('ExploreDesksService', () => {
     let spectator: SpectatorService<ExploreDesksService>;
@@ -45,6 +46,7 @@ describe('ExploreDesksService', () => {
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: DesksService, useValue: {} },
             { provide: BookingFormService, useValue: {} },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
     });
 
