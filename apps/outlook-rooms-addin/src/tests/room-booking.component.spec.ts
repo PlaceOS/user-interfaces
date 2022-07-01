@@ -13,12 +13,14 @@ import { EventFormService } from '@placeos/events';
 
 describe('RoomBookingComponent', () => {
     const formModel = {
+        id: 1,
+        host: ['host@test.com', Validators.required],
+        organiser: ['organiser@test.com', Validators.required],
+        creator: ['creator@test.com', Validators.required],
         title: ['', Validators.required],
-        date: 0,
+        date: [0, Validators.required],
         duration: 0,
-        booking_type: '',
         attendees: '' as any,
-        patchValue: jest.fn((_) => (formModel.booking_type = _)),
         markAllAsTouched: jest.fn(() => {}),
     };
 
@@ -97,70 +99,77 @@ describe('RoomBookingComponent', () => {
         expect(event_service.form).toExist();
     });
 
-    it('should set booking type to room on init', () => {
-        const event_service: any = spectator.inject(EventFormService);
-        spectator.component.ngOnInit();
-        expect(event_service.form.value.booking_type).toBe('room');
-    });
-
-    it('should not navigate away if the title form field is invalid', () => {
+    it('should not navigate away if the title form field is invalid', async () => {
         const event_service: any = spectator.inject(EventFormService);
         const router = spectator.inject(Router);
         const navigate_spy = jest.spyOn(router, 'navigate');
-        event_service.newForm();
+        await event_service.newForm();
 
-        event_service.form.controls.duration = 123;
-        event_service.form.controls.date = 456;
-        event_service.form.controls.title = null;
+        event_service.form.patchValue({
+            duration: 120,
+            date: 1656641112,
+        });
 
         spectator.component.findSpace();
+        expect(event_service.form.controls.title.status).toBe('INVALID');
+        expect(event_service.form.status).toBe('INVALID');
         expect(navigate_spy).not.toHaveBeenCalled();
     });
 
-    it('should not navigate away if the date form field is invalid', () => {
+    it('should not navigate away if the date form field is invalid', async () => {
         const event_service: any = spectator.inject(EventFormService);
         const router = spectator.inject(Router);
         const navigate_spy = jest.spyOn(router, 'navigate');
-        event_service.newForm();
+        await event_service.newForm();
 
-        event_service.form.value.duration = 123;
-        event_service.form.value.date = null;
-        event_service.form.value.title = 'title';
+        event_service.form.patchValue({
+            duration: 120,
+            date: 1656641112,
+        });
+        event_service.form.controls['date'].setErrors({ incorrect: true });
 
         spectator.component.findSpace();
+        expect(event_service.form.controls.date.status).toBe('INVALID');
+        expect(event_service.form.status).toBe('INVALID');
         expect(navigate_spy).not.toHaveBeenCalled();
     });
 
-    it('should not navigate away if the duration form field is invalid', () => {
+    it('should not navigate away if the duration form field is invalid', async () => {
         const event_service: any = spectator.inject(EventFormService);
         const router = spectator.inject(Router);
         const navigate_spy = jest.spyOn(router, 'navigate');
-        event_service.newForm();
+        await event_service.newForm();
 
-        event_service.form.value.duration = null;
-        event_service.form.value.date = 123;
-        event_service.form.value.title = 'title';
+        event_service.form.patchValue({
+            title: 'test',
+        });
+
+        event_service.form.controls['duration'].setErrors({ incorrect: true });
 
         spectator.component.findSpace();
+
+        console.log(event_service.form);
+        expect(event_service.form.controls.duration.status).toBe('INVALID');
+        expect(event_service.form.status).toBe('INVALID');
         expect(navigate_spy).not.toHaveBeenCalled();
     });
 
-    // it('should navigate if the required form fields are valid', () => {
-    //     const event_service: any = spectator.inject(EventFormService);
-    //     const router = spectator.inject(Router);
-    //     const navigate_spy = jest.spyOn(router, 'navigate');
-    //     spectator.component.ngOnInit();
+    it('should navigate if the required form fields are valid', async () => {
+        const event_service: any = spectator.inject(EventFormService);
+        const router = spectator.inject(Router);
+        const navigate_spy = jest.spyOn(router, 'navigate');
+        await spectator.component.ngOnInit();
 
-    //     event_service.form.value.date = 123;
-    //     event_service.form.value.duration = 567;
-    //     event_service.form.value.attendees = '';
+        event_service.form.patchValue({
+            date: 1656641112,
+            duration: 120,
+            attendees: '',
+            title: 'test',
+        });
 
-    //     event_service.form.value.title = 'test';
-
-    //     spectator.component.findSpace();
-    //     event_service.storeForm();
-
-    //     console.log(spectator.component.form);
-    //     expect(navigate_spy).toHaveBeenCalled();
-    // });
+        spectator.component.findSpace();
+        await event_service.storeForm();
+        expect(event_service.form.status).toBe('VALID');
+        expect(navigate_spy).toHaveBeenCalled();
+    });
 });
