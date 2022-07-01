@@ -9,7 +9,7 @@ const EMPTY_FAVS: string[] = [];
     template: ` <div
         class="absolute inset-0 sm:relative sm:inset-none bg-white flex flex-col"
     >
-        <header class="flex items-center asset-x-4 w-full">
+        <header class="flex items-center space-x-4 w-full">
             <button mat-icon-button mat-dialog-close class="bg-black/20">
                 <app-icon>close</app-icon>
             </button>
@@ -46,7 +46,7 @@ const EMPTY_FAVS: string[] = [];
             ></asset-details>
         </main>
         <footer
-            class="flex flex-col-reverse sm:flex-row items-center justify-end p-2 sm:asset-x-2 border-t border-gray-200 w-full"
+            class="flex flex-col-reverse sm:flex-row items-center justify-end p-2 sm:space-x-2 border-t border-gray-200 w-full"
         >
             <button
                 mat-button

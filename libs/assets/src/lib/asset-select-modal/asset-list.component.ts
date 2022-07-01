@@ -5,7 +5,7 @@ import { Asset } from '../asset.class';
 @Component({
     selector: 'asset-list',
     template: `
-        <div class="w-full h-full overflow-auto">
+        <div class="w-full h-full overflow-auto py-2">
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (assets | async)?.length || 0 }} result(s) found
@@ -23,7 +23,7 @@ import { Asset } from '../asset.class';
                         <button
                             matRipple
                             select
-                            class="w-full h-full flex items-center"
+                            class="w-full h-full flex items-center pr-10"
                             (click)="selectAsset(asset)"
                         >
                             <div
@@ -36,9 +36,10 @@ import { Asset } from '../asset.class';
                                     <app-icon>done</app-icon>
                                 </div>
                             </div>
-                            <div class="space-y-2 text-left">
-                                <div class="font-medium">
-                                    {{ asset.name || 'Asset' }}
+                            <div class="space-y-2 text-left flex-1">
+                                <div class="font-medium flex items-center justify-between">
+                                    <div>{{ asset.name || 'Asset' }}</div>
+                                    <div class="opacity-60 text-xs">{{ asset.category }}</div>
                                 </div>
                                 <div
                                     class="flex items-center text-sm space-x-2"
