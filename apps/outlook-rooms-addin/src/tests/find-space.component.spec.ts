@@ -1,7 +1,9 @@
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { of } from 'rxjs';
 import {
     FormsModule,
     ReactiveFormsModule,
@@ -10,6 +12,8 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
+import { CommonModule } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
@@ -20,7 +24,12 @@ import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { MapService } from '../app/rooms/map.service';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MockComponent } from 'ng-mocks';
+import {
+    getTestBedInjection,
+    MockComponent,
+    MockInstance,
+    ngMocks,
+} from 'ng-mocks';
 import {
     mockMatDialogRef,
     mockOrgService,
@@ -31,6 +40,8 @@ import {
     mockRoomConfirmService,
     mockRouterStub,
 } from './test-mocks';
+
+import { InteractiveMapComponent } from '@placeos/components';
 
 describe('FindSpaceComponent', () => {
     const MatDialogStub = mockMatDialogRef;
@@ -52,6 +63,8 @@ describe('FindSpaceComponent', () => {
             FormsModule,
             MatFormFieldModule,
             BookModule,
+            CommonModule,
+            BrowserModule,
         ],
         providers: [
             {
@@ -81,7 +94,10 @@ describe('FindSpaceComponent', () => {
             },
             { provide: RoomConfirmService, useClass: RoomConfirmServiceStub },
         ],
-        declarations: [MockComponent(FindSpaceItemComponent)],
+        declarations: [
+            MockComponent(FindSpaceItemComponent),
+            MockComponent(InteractiveMapComponent),
+        ],
     });
 
     beforeEach(() => {
@@ -89,18 +105,42 @@ describe('FindSpaceComponent', () => {
         debugEl = spectator.debugElement;
         const event_service = spectator.inject(EventFormService);
         const org_service = spectator.inject(OrganisationService);
+
+        MockInstance(FindSpaceItemComponent);
+        MockInstance(InteractiveMapComponent);
     });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should have a default list view of space items', () => {
+    it('should show a default List view on page load', async () => {
         const event_service = spectator.inject(EventFormService);
-        spectator.component.ngOnInit();
-        const SpaceItems = debugEl.query(By.css('find-space-item'));
-        expect(FindSpaceItemComponent).toBeTruthy();
+        spectator.detectChanges();
+        await spectator.component.ngOnInit();
+        const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
+        const mapItems = ngMocks.findAll(InteractiveMapComponent);
         expect(spectator.component.space_view).toBe('listView');
+        expect(spaceItems.length).toBeTruthy();
+        expect(mapItems.length).toBe(0);
+    });
+
+    it('should display map elements in Map View', async () => {
+        const event_service = spectator.inject(EventFormService);
+        await spectator.component.ngOnInit();
+        spectator.component.space_view = 'mapView';
+        spectator.component.selected_level = of([
+            {
+                map_id: 'map-1',
+                level: 'Level 1',
+            },
+        ]);
+        spectator.detectChanges();
+
+        const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
+        const mapItems = ngMocks.findAll(InteractiveMapComponent);
+        expect(mapItems.length).toBeTruthy();
+        expect(spaceItems.length).toBe(0);
     });
 
     // it('should open the Filter modal when clicked', () => {});

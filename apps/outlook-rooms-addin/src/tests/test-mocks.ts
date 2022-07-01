@@ -98,6 +98,12 @@ export class mockMapService {
     features_loaded$ = of(true);
     locatable_spaces$ = of([mockLocatable, mockLocatable]);
     maps_list$ = of(mockMapsList);
+    map_features = [
+        {
+            track_id: '123',
+            location: { x: 0.3, y: 0.8 },
+        },
+    ];
 
     locateSpaces(spaces) {
         this.locatable_spaces$ = of(spaces);

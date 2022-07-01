@@ -92,7 +92,6 @@
                                 <find-space-item
                                     *ngFor="let space of spaces$ | async"
                                     [space]="space"
-                                    [multiple]="multiple"
                                     [(book)]="book_space[space.id]"
                                     (bookChange)="
                                         handleBookEvent(space, $event)
