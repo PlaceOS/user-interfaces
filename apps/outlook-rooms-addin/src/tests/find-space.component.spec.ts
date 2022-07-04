@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import {
     FormsModule,
     ReactiveFormsModule,
@@ -23,15 +23,14 @@ import { FindSpaceItemComponent } from '../app/rooms/find-space-item/find-space-
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { MapService } from '../app/rooms/map.service';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {
-    getTestBedInjection,
-    MockComponent,
-    MockInstance,
-    ngMocks,
-} from 'ng-mocks';
+    MatBottomSheetModule,
+    MatBottomSheet,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
 import {
-    mockMatDialogRef,
     mockOrgService,
     mockSpacesService,
     mockEventFormService,
@@ -44,7 +43,6 @@ import {
 import { InteractiveMapComponent } from '@placeos/components';
 
 describe('FindSpaceComponent', () => {
-    const MatDialogStub = mockMatDialogRef;
     const OrgServiceStub = mockOrgService;
     const SpacesServiceStub = mockSpacesService;
     const EventServiceStub = mockEventFormService;
@@ -65,11 +63,15 @@ describe('FindSpaceComponent', () => {
             BookModule,
             CommonModule,
             BrowserModule,
+            MatBottomSheetModule,
         ],
         providers: [
             {
                 provide: MatBottomSheet,
-                useClass: MatDialogStub,
+                useValue: {
+                    open: jest.fn(),
+                    afterDismissed: jest.fn(),
+                },
             },
             {
                 provide: OrganisationService,
@@ -97,6 +99,7 @@ describe('FindSpaceComponent', () => {
         declarations: [
             MockComponent(FindSpaceItemComponent),
             MockComponent(InteractiveMapComponent),
+            MockComponent(FilterSpaceComponent),
         ],
     });
 
@@ -108,6 +111,7 @@ describe('FindSpaceComponent', () => {
 
         MockInstance(FindSpaceItemComponent);
         MockInstance(InteractiveMapComponent);
+        MockInstance(FilterSpaceComponent);
     });
 
     it('should create component', () => {
@@ -115,7 +119,6 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should show a default List view on page load', async () => {
-        const event_service = spectator.inject(EventFormService);
         spectator.detectChanges();
         await spectator.component.ngOnInit();
         const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
@@ -126,7 +129,6 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should display map elements in Map View', async () => {
-        const event_service = spectator.inject(EventFormService);
         await spectator.component.ngOnInit();
         spectator.component.space_view = 'mapView';
         spectator.component.selected_level = of([
@@ -143,7 +145,26 @@ describe('FindSpaceComponent', () => {
         expect(spaceItems.length).toBe(0);
     });
 
-    // it('should open the Filter modal when clicked', () => {});
+    it('should open the Filter modal when clicked', async () => {
+        const mat_bottom_sheet = spectator.inject(MatBottomSheet);
+        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
+            value: of(true),
+        }));
+        await spectator.component.ngOnInit();
+        const filterSpaceComponent = ngMocks.findAll(FilterSpaceComponent);
+        expect(filterSpaceComponent.length).toBe(0);
+
+        const open_filter_spy = jest.spyOn(
+            spectator.component.bottomSheet,
+            'open'
+        );
+
+        spectator.component.openFilter();
+        spectator.detectChanges();
+        expect(open_filter_spy).toBeCalled();
+
+        expect(ngMocks.findAll(FilterSpaceComponent)).toBeTruthy();
+    });
 
     // it('should display room details in modal when clicked', () => {});
 

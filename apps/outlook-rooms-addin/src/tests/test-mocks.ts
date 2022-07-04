@@ -1,5 +1,6 @@
 import { FormBuilder, Validators } from '@angular/forms';
-import { of, pipe } from 'rxjs';
+import { of, Observable } from 'rxjs';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 export let mockForm = {
     id: 1,
@@ -114,8 +115,4 @@ export class mockRoomConfirmService {}
 
 export class mockRouterStub {
     navigate = jest.fn(() => {});
-}
-
-export class mockMatDialogRef {
-    close = jest.fn(() => {});
 }

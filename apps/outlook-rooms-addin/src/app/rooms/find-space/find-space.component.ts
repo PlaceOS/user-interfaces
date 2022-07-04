@@ -62,6 +62,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     >(null);
     map_actions$: Observable<ViewAction[]> = null;
     map_styles$: Observable<ViewerStyles[]> = null;
+    bottomSheetRef: any;
 
     public selected_level: any;
 
@@ -115,7 +116,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
-        private _bottomSheet: MatBottomSheet,
+        public bottomSheet: MatBottomSheet,
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
@@ -183,11 +184,11 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     openFilter() {
-        const bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
+        this.bottomSheetRef = this.bottomSheet.open(FilterSpaceComponent, {
             data: this.buildings as OrganisationService['building_list'],
         });
 
-        bottomSheetRef.afterDismissed().subscribe(() => {
+        this.bottomSheetRef?.afterDismissed().subscribe(() => {
             this.setTimeChips();
             this.updateSpaces();
         });
