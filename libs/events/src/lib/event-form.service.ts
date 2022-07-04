@@ -190,6 +190,7 @@ export class EventFormService extends BaseClass {
     public postForm(force: boolean = false) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             const form = this._form.getValue();
+            const event = this.event || new CalendarEvent();
             if (!form) throw 'No form for event';
             if (!form.valid && !force)
                 throw `Some form fields are invalid. [${getInvalidFields(
@@ -200,17 +201,17 @@ export class EventFormService extends BaseClass {
             const spaces = form.get('resources')?.value || [];
             if (
                 (!id ||
-                    date !== this.event.date ||
-                    duration !== this.event.duration) &&
+                    date !== event.date ||
+                    duration !== event.duration) &&
                 spaces.length
             ) {
-                const start = getUnixTime(this.event.date);
+                const start = getUnixTime(event.date);
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
                     date,
                     duration,
                     id
-                        ? { start, end: start + this.event.duration * 60 }
+                        ? { start, end: start + event.duration * 60 }
                         : undefined
                 );
             }
