@@ -86,11 +86,11 @@ const EMPTY_FAVS: string[] = [];
                     mat-icon-button
                     fav
                     class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(asset.id)"
+                    [class.text-blue-400]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
                 >
                     <app-icon>{{
-                        favorites.includes(asset.id)
+                        favorites.includes(asset?.id)
                             ? 'favorite'
                             : 'favorite_border'
                     }}</app-icon>

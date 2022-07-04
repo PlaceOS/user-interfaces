@@ -7,12 +7,13 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
     selector: 'booking-card',
     template: `
         <h4 class="mb-2 flex items-center" *ngIf="booking">
-            <span *ngIf="show_day">{{ day }}, </span>
+            <span *ngIf="show_day" day>{{ day }}, </span>
             {{ booking?.date | date: 'h:mm a' }}
             <span class="text-xs px-2">({{ booking?.date | date:'z' }})</span>
         </h4>
         <a
             matRippleColor
+            details
             class="w-full"
             [routerLink]="['/schedule', 'view', booking?.id, 'booking']"
             *ngIf="booking"

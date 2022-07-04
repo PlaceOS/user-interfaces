@@ -1,7 +1,8 @@
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { MockComponent } from 'ng-mocks';
+import { IconComponent } from '@placeos/components';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { NewSpaceSelectModalComponent } from '../../lib/space-select-modal/new-space-select-modal.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
@@ -24,11 +25,13 @@ describe('NewSpaceSelectModalComponent', () => {
             { provide: MAT_DIALOG_DATA, useValue: [] },
         ],
         declarations: [
+            MockComponent(IconComponent),
             MockComponent(SpaceDetailsComponent),
             MockComponent(SpaceListComponent),
             MockComponent(SpaceFiltersComponent),
             MockComponent(SpaceFiltersDisplayComponent),
         ],
+        imports: [MockModule(MatDialogModule)]
     });
 
     beforeEach(() => (spectator = createComponent()));

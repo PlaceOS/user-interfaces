@@ -44,7 +44,7 @@ describe('ExploreMapViewComponent', () => {
         providers: [
             {
                 provide: OrganisationService,
-                useValue: { initialised: of(true), levelWithID: jest.fn() },
+                useValue: { initialised: of(true), levelWithID: jest.fn(), binding: jest.fn(() => 'sys') },
             },
             {
                 provide: SpacesService,
@@ -55,29 +55,24 @@ describe('ExploreMapViewComponent', () => {
                 useValue: {
                     level: new BehaviorSubject(null),
                     options: new BehaviorSubject({}),
+                    reset: jest.fn(),
                     setLevel: jest.fn(),
                     setFeatures: jest.fn(),
                     setOptions: jest.fn(),
                 },
             },
-            { provide: SettingsService, useValue: { value: jest.fn() } },
+            { provide: SettingsService, useValue: { value: jest.fn(), get: jest.fn(() => true) } },
         ],
         imports: [MatSlideToggleModule, MatSelectModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
-    afterEach(() =>
-        spectator.inject(ExploreStateService).setFeatures.mockReset()
-    );
-
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
+    it('should show map component', () => expect('i-map').toExist());
 
     it('should handle option changes', () => {
         expect('[zones]').toExist();
@@ -100,8 +95,6 @@ describe('ExploreMapViewComponent', () => {
 
     it('should handle locating users', fakeAsync(() => {
         const state = spectator.inject(ExploreStateService);
-        const org = spectator.inject(OrganisationService);
-        (org as any).organisation = { bindings: { location_services: '1' } };
         (ts_client as any).getModule = jest.fn(() => ({
             execute: jest.fn(() => [{}]),
         }));
@@ -110,7 +103,7 @@ describe('ExploreMapViewComponent', () => {
         spectator.setRouteQueryParam('user', 'jim@jim.com');
         spectator.detectChanges();
         spectator.tick(1000);
-        expect(state.setFeatures).toHaveBeenCalledTimes(2);
+        expect(state.setFeatures).toHaveBeenCalledTimes(1);
         (ts_client as any).getModule = jest.fn(() => ({
             execute: jest.fn(() => []),
         }));

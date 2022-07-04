@@ -36,10 +36,6 @@ describe('CheckinDetailsComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow updating guest details', () => {
         const service = spectator.inject(CheckinStateService);
         expect(service.updateGuest).not.toBeCalled();

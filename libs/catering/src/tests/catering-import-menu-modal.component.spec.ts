@@ -19,10 +19,6 @@ describe('CateringImportMenuModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow downloading the template', () => {
         const spy = jest.spyOn(spectator.component, 'downloadTemplate');
         spectator.click('main button');

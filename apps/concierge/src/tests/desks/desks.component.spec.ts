@@ -33,9 +33,5 @@ describe('DesksComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it.todo('should handle routing events');
 });

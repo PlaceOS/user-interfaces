@@ -5,13 +5,14 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 @Component({
     selector: 'event-card',
     template: `
-        <h4 class="mb-2 flex items-center" *ngIf="event">
-            <span *ngIf="show_day">{{ day }}, </span>
+        <h4 class="mb-2 flex items-center" *ngIf="event" date>
+            <span *ngIf="show_day" day>{{ day }}, </span>
             {{ event?.date | date: 'h:mm a' }}
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
             matRippleColor
+            details
             class="w-full"
             [routerLink]="['/schedule', 'view', event?.id, 'event']"
             *ngIf="event"

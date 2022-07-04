@@ -66,10 +66,10 @@ describe('ExploreStateService', () => {
             .pipe(take(1))
             .toPromise();
         expect(feats).toEqual([]);
-        spectator.service.setFeatures('spaces', [{ id: 'first' }]);
+        spectator.service.setFeatures('spaces', [{ id: 'first' } as any]);
         feats = await spectator.service.map_features.pipe(take(1)).toPromise();
         expect(feats).toEqual([{ id: 'first' }]);
-        spectator.service.setFeatures('other', [{ id: 'second' }]);
+        spectator.service.setFeatures('other', [{ id: 'second' } as any]);
         feats = await spectator.service.map_features.pipe(take(1)).toPromise();
         expect(feats).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
@@ -79,10 +79,10 @@ describe('ExploreStateService', () => {
             .pipe(take(1))
             .toPromise();
         expect(actions).toEqual([]);
-        spectator.service.setActions('spaces', [{ id: 'first' }]);
+        spectator.service.setActions('spaces', [{ id: 'first' } as any]);
         actions = await spectator.service.map_actions.pipe(take(1)).toPromise();
         expect(actions).toEqual([{ id: 'first' }]);
-        spectator.service.setActions('other', [{ id: 'second' }]);
+        spectator.service.setActions('other', [{ id: 'second' } as any]);
         actions = await spectator.service.map_actions.pipe(take(1)).toPromise();
         expect(actions).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
@@ -92,10 +92,10 @@ describe('ExploreStateService', () => {
             .pipe(take(1))
             .toPromise();
         expect(labels).toEqual([]);
-        spectator.service.setLabels('spaces', [{ id: 'first' }]);
+        spectator.service.setLabels('spaces', [{ id: 'first' } as any]);
         labels = await spectator.service.map_labels.pipe(take(1)).toPromise();
         expect(labels).toEqual([{ id: 'first' }]);
-        spectator.service.setLabels('zones', [{ id: 'second' }]);
+        spectator.service.setLabels('zones', [{ id: 'second' } as any]);
         labels = await spectator.service.map_labels.pipe(take(1)).toPromise();
         expect(labels).toEqual([{ id: 'first' }]);
         spectator.service.setOptions({ disable: [] });

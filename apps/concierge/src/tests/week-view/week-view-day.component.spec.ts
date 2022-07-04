@@ -29,18 +29,6 @@ describe('WeekViewDayComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-        const service = spectator.inject(EventsStateService);
-        (service.date as any).next(addDays(0, 2));
-        (service.filtered as any).next([
-            new CalendarEvent(),
-            new CalendarEvent(),
-        ]);
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should display events', async () => {
         expect('week-view-event').toHaveLength(0);
         expect('p').toContainText('No events');

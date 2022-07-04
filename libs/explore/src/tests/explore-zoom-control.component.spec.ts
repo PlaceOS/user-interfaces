@@ -31,10 +31,6 @@ describe('ExploreZoomControlComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow zooming in', () => {
         const state = spectator.inject(ExploreStateService);
         expect(state.setPositions).not.toHaveBeenCalled();

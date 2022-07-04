@@ -26,6 +26,8 @@ export class CateringItem {
 
     public readonly options_string: string;
 
+    public readonly images: string[];
+
     constructor(data: Partial<CateringItem> = {}) {
         this.id = data.id || '';
         this.name = data.name || data.id || '';
@@ -37,6 +39,7 @@ export class CateringItem {
         this.accept_points = !!data.accept_points;
         this.options = data.options || [];
         this.tags = data.tags || [];
+        this.images = data.images || [];
         this.total_cost =
             (this.unit_price +
                 this.options

@@ -25,10 +25,10 @@ describe('SpaceTimetableComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show space column', () => {
+        expect('[space]').not.toExist();
         spectator.setInput({ space: { id: '1', display_name: 'Room 1' } as any });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[space]').toExist();
     });
 });

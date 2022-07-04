@@ -7,6 +7,7 @@ import { Space } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
 import { RoomConfirmService } from '../room-confirm.service';
 import { CalendarEvent } from '@placeos/events';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'room-confirm',
@@ -17,7 +18,7 @@ export class RoomConfirmComponent implements OnInit {
     unix_time: number;
     start_time: string;
     end_time: string;
-    attendees: string[];
+    attendees: User[];
     space: Space;
     title: CalendarEvent['title'];
     show_submit_button: boolean = true;
@@ -48,7 +49,7 @@ export class RoomConfirmComponent implements OnInit {
             minute: 'numeric',
             hour12: true,
         });
-        this.attendees = this.form?.controls?.attendees.value;
+        this.attendees = this.form?.controls?.attendees.value as User[];
         this.space = this.data;
         this.title = this.form?.controls?.title.value;
     }

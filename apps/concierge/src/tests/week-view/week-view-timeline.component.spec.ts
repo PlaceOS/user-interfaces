@@ -38,14 +38,19 @@ describe('WeekViewTimelineComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshots', () => {
+    it('should show weekends', () => {
         const service = spectator.inject(EventsStateService);
-        expect(spectator.element).toMatchSnapshot();
+        expect(spectator.queryAll('week-view-day')).toHaveLength(5);
         (service.options as any).next({ show_weekends: true });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect(spectator.queryAll('week-view-day')).toHaveLength(7);
+    });
+
+    it('should show event details', () => {
+        const service = spectator.inject(EventsStateService);
+        expect('view-event-details').not.toExist();
         (service.event as any).next(new CalendarEvent());
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
+        expect('view-event-details').toExist();
+    })
 });

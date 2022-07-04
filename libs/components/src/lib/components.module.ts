@@ -45,31 +45,6 @@ import { MapLocateModalComponent } from './map-locate-modal.component';
 import { ImageCarouselComponent } from './image-carousel.component';
 import { DurationPipe } from './duration.pipe';
 
-export * from './action-icon.component';
-export * from './binding.directive';
-export * from './confirm-modal.component';
-export * from './icon.component';
-export * from './login.component';
-export * from './popout-menu.component';
-export * from './unauthorised.component';
-export * from './user-avatar.component';
-export * from './interactive-map.component';
-export * from './map-pin.component';
-export * from './map-radius.component';
-export * from './misconfigured.component';
-export * from './status-overlay.component';
-export * from './custom-table.component';
-export * from './custom-tooltip.component';
-export * from './fixed.pipe';
-export * from './safe.pipe';
-export * from './sanitise.pipe';
-export * from './virtual-keyboard.component';
-export * from './global-loading.component';
-export * from './map-locate-modal.component';
-
-export * from './authorised-admin.guard';
-export * from './authorised-user.guard';
-
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
     MatMenuModule,

@@ -37,10 +37,10 @@ describe('DetailBookSpaceFormComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show form', () => {
+        expect('[form]').not.toExist();
         spectator.setInput({ form: generateEventForm(new CalendarEvent()) });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[form]').toExist();
     });
 });

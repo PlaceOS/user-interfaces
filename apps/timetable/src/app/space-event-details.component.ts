@@ -6,11 +6,13 @@ import { getHours, getMinutes } from 'date-fns';
     selector: 'space-event-details',
     template: `
         <div
+            event
             class="absolute inset-x-1 bg-[#212121] text-white rounded border border-white/50 overflow-hidden px-2 py-1"
             [style.top]="top + '%'"
             [style.height]="height + '%'"
             [class.!bg-primary]="event?.state === 'in_progress'"
             [class.!opacity-30]="event?.state === 'done'"
+            *ngIf="event"
         >
             <h2>{{ event?.title }}</h2>
             <p>

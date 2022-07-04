@@ -120,15 +120,13 @@ const explore: any = {
     },
     can_select_building: true,
     show_legend_group_names: true,
-    legend: {
-        Spaces: [
-            { key: 'space-free', name: 'Space Available' },
-            { key: 'space-pending', name: 'Space Pending' },
-            { key: 'space-busy', name: 'Space in Use' },
-            { key: 'space-not-bookable', name: 'Space not Bookable' },
-            { key: 'space-unknown', name: 'Unknown' },
-        ],
-    },
+    show_legend: true,
+    legend: [
+        ['Available', '#43a047'],
+        ['In Use', '#e53935'],
+        ['Pending', '#ffb300'],
+        ['Signs of Life', '#1565c0']
+    ],
 };
 /**
  * ROOT APPLICATION SETTINGS

@@ -75,6 +75,7 @@ describe('SpaceSelectModalComponent', () => {
 
     it('should allow selecting single spaces', () => {
         const spy = jest.spyOn(spectator.component, 'save');
+        spectator.detectChanges();
         spectator.click('a-space-select-item');
         expect(spy).toHaveBeenCalled();
     });

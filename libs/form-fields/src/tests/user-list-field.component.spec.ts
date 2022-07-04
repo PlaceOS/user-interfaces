@@ -13,6 +13,7 @@ import * as common_lib from '@placeos/common';
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;
@@ -27,7 +28,12 @@ describe('UserListFieldComponent', () => {
             { provide: MatDialog, useValue: { open: jest.fn(() => ({})) } },
             { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
-        imports: [MatChipsModule, FormsModule, MatTooltipModule],
+        imports: [
+            MatChipsModule,
+            FormsModule,
+            MatTooltipModule,
+            MatAutocompleteModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -51,23 +57,6 @@ describe('UserListFieldComponent', () => {
         spectator.component.writeValue(user_list);
         spectator.detectChanges();
         expect('[user]').toHaveLength(user_list.length);
-    });
-
-    it('should allow user to add existing users', () => {
-        const user = new User(generateMockUser());
-        expect('a-user-search-field').toExist();
-        expect('[user]').toHaveLength(0);
-        spectator.triggerEventHandler(
-            'a-user-search-field',
-            'ngModelChange',
-            user
-        );
-        spectator.detectChanges();
-        expect('[user]').toHaveLength(1);
-        expect('[user]').toContainText(user.name);
-        expect(
-            spectator.component.active_list.find((_) => _.email === user.email)
-        ).toBeTruthy();
     });
 
     it('should allow user to indicate that they want to add a new contact', async () => {
@@ -115,28 +104,21 @@ describe('UserListFieldComponent', () => {
     });
 
     it('should allow user to remove selected users', () => {
-        const user_list = Array(20)
-            .fill(1)
-            .map((_) => new User(generateMockUser()));
-        spectator.component.writeValue(user_list);
+        spectator.component.writeValue([new User(generateMockUser())]);
         spectator.detectChanges();
-        expect('[user]').toHaveLength(user_list.length);
+        expect('[user]').toHaveLength(1);
         expect('[user] [remove]').toExist();
         spectator.click('[user] [remove]');
-        expect(
-            spectator.component.active_list.find(
-                (user) => user.email === user_list[0].email
-            )
-        ).not.toBeTruthy();
+        expect(spectator.component.active_list.length).toBe(0);
     });
 
     it('should be able to hide user actions', () => {
-        expect('button').toHaveLength(3);
+        expect('[actions] button').toHaveLength(3);
         spectator.setInput({ hide_actions: true });
         spectator.detectChanges();
-        expect('button').toHaveLength(0);
+        expect('[actions] button').toHaveLength(0);
         spectator.setInput({ hide_actions: false });
         spectator.detectChanges();
-        expect('button').toHaveLength(3);
+        expect('[actions] button').toHaveLength(3);
     });
 });

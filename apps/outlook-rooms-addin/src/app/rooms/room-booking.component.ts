@@ -41,7 +41,6 @@ export class RoomBookingComponent implements OnInit {
 
     ngOnInit(): void {
         this._state.newForm();
-        this._state.form.patchValue({ booking_type: 'room' });
     }
 
     async findSpace() {

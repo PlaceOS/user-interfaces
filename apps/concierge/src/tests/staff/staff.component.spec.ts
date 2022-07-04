@@ -35,8 +35,4 @@ describe('StaffComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
-
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
 });

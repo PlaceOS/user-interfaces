@@ -29,10 +29,6 @@ describe('CheckinQRScanComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it.todo('should check QR code');
     it.todo('should allow checking email');
     it.todo('should handle errors');

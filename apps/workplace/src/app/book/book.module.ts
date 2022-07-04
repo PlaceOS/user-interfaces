@@ -38,6 +38,7 @@ import { NewDeskSelectModalComponent } from './new-desk-flow/new-desk-select-mod
 import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-display.component';
 import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
 import { DeskFiltersComponent } from './new-desk-flow/views/desk-filters.component';
+import { SharedCateringModule } from '@placeos/catering';
 
 const ROUTES: Route[] = [
     {
@@ -98,6 +99,7 @@ const ROUTES: Route[] = [
         SharedComponentModule,
         FormsModule,
         AssetsModule,
+        SharedCateringModule,
         SharedExploreModule,
         ReactiveFormsModule,
         MatButtonToggleModule,

@@ -8,7 +8,7 @@ import { BookingLike } from './schedule-state.service';
     selector: '[schedule-list-item]',
     template: `
         <ng-container [ngSwitch]="item?.id">
-            <div *ngSwitchCase="'date'">
+            <div date *ngSwitchCase="'date'">
                 <div class="mx-4 w-full h-12 text-xl flex items-center">
                     {{ item.date | date: 'longDate' }} ({{ item.duration }})
                 </div>
@@ -21,6 +21,7 @@ import { BookingLike } from './schedule-state.service';
             </div>
             <a
                 mat-button
+                item
                 *ngSwitchDefault
                 class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
                 [class.opacity-50]="has_ended"

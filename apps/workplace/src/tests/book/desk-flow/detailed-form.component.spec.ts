@@ -63,13 +63,13 @@ describe('DetailBookSpaceFormComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show form', () => {
+        expect('form').not.toExist();
         spectator.setInput({
             form: generateBookingForm(new Booking({ date: 1 })),
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('form').toExist();
     });
 
     it.todo('should allow for recurrence');

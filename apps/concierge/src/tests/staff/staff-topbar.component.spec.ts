@@ -47,10 +47,6 @@ describe('StaffTopbarComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it.todo('should handle zone_ids query param');
     it.todo('should handle search query changes');
 });

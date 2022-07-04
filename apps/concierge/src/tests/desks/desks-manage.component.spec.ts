@@ -18,6 +18,7 @@ jest.mock('@placeos/common');
 
 import * as ts_client from '@placeos/ts-client';
 import * as common_mod from '@placeos/common';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('DesksManageComponent', () => {
     let spectator: Spectator<DesksManageComponent>;
@@ -41,6 +42,7 @@ describe('DesksManageComponent', () => {
                     buildings: [],
                 },
             },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
         declarations: [
             MockComponent(CustomTableComponent),
@@ -62,10 +64,6 @@ describe('DesksManageComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should handle changes to desks', () => {
         expect('button[save]').not.toExist();
         spectator.component.changes['1'] = { name: 'another' };
@@ -85,7 +83,6 @@ describe('DesksManageComponent', () => {
             description: 'desks',
             details: [new Desk({ id: '1', name: 'another' }).toJSON()],
         });
-
         expect(spectator.component.changes).toEqual({});
     });
 });

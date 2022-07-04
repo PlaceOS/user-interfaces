@@ -39,16 +39,6 @@ describe('CateringReportComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-        (spectator.inject(ReportsStateService).loading as any).next(false);
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-        (spectator.inject(ReportsStateService).stats as any).next({ count: 1 });
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should set report type to catering', () => {
         expect(
             spectator.inject(ReportsStateService).setOptions

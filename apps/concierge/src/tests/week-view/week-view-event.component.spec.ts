@@ -19,12 +19,12 @@ describe('WeekViewEventComponent', () => {
     });
 
     it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+        expect('[content]').not.toExist();
         spectator.setInput({
             event: new CalendarEvent({ title: 'test', date: 2 }),
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[content]').toExist();
     });
 
     it('should allow viewing more event details', () => {

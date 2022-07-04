@@ -29,6 +29,6 @@ describe('LandingComponent', () => {
     it('should match snapshot', () => {
         spectator.component.time = 1;
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[date]').toContainText('1970');
     })
 });

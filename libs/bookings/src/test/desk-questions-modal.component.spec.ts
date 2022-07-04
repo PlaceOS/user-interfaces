@@ -24,10 +24,6 @@ describe('DeskQuestionsModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should check for validation', (done) => {
         (common_mod as any).notifyError = jest.fn();
         spectator.component.event.subscribe(() => {
@@ -56,6 +52,5 @@ describe('DeskQuestionsModalComponent', () => {
         spectator.component.submit();
         spectator.detectChanges();
         expect('[failure]').toExist();
-        expect(spectator.element).toMatchSnapshot();
     });
 });
