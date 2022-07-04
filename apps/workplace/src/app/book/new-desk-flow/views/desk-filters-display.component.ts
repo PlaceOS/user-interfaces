@@ -66,15 +66,25 @@ import { DeskFiltersComponent } from "./desk-filters.component";
             {{ end | date: 'shortTime' }}
         </div>
         <div filter-item *ngFor="let feat of (options | async)?.features || []">
-                <p>{{ feat }}</p>
-                <button
-                    mat-icon-button
-                    class="-mr-4"
-                    (click)="setFeature(feat,false)"
-                >
-                    <app-icon>close</app-icon>
-                </button>
-            </div>
+            <p>{{ feat }}</p>
+            <button
+                mat-icon-button
+                class="-mr-4"
+                (click)="setFeature(feat,false)"
+            >
+                <app-icon>close</app-icon>
+            </button>
+        </div>
+        <div filter-item *ngIf="(options | async)?.show_fav">
+            <span>Favourites Only</span>
+            <button
+                mat-icon-button
+                class="-mr-4"
+                (click)="setOptions({show_fav: false})"
+            >
+                <app-icon>close</app-icon>
+            </button>
+        </div>
     </section>
     `
 })
@@ -82,6 +92,7 @@ export class DeskFiltersDisplayComponent extends BaseClass {
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._state.options;
+    public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
     public get start(){

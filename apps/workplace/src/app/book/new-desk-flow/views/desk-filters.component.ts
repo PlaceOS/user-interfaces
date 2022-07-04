@@ -124,7 +124,21 @@ import { addDays, endOfDay } from "date-fns";
                     </div>
                 </div>
             </section>
-
+            <section favs class="space-y-2 pb-4">
+                <h2 class="text-lg font-medium">Favourites</h2>
+                <div class="flex items-center">
+                    <div for="fav" class="flex-1 w-1/2">
+                        Only show favourite desks
+                    </div>
+                    <mat-checkbox
+                        name="fav"
+                        [ngModel]="(options | async)?.show_fav"
+                        (ngModelChange)="setOptions({ show_fav: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                    >
+                    </mat-checkbox>
+                </div>
+            </section>
             <section class="space-y-2" features>
                 <h2 class="text-lg font-medium">Type</h2>
                 <div *ngFor="let feat of features | async" class="flex items-center flex-wrap space-x-2">

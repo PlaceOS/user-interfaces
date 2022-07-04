@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { BookingFormService } from "@placeos/bookings";
 import { Desk } from "@placeos/organisation";
 
@@ -55,6 +55,15 @@ import { Desk } from "@placeos/organisation";
                             </div>
                         </div>
                     </button>
+                    <button
+                        mat-icon-button
+                        fav
+                        class="absolute top-1 right-1"
+                        [class.text-blue-400]="isFavourite(desk.id)"
+                        (click)="toggleFav.emit(desk)"
+                    >
+                        <app-icon>{{ isFavourite(desk.id) ? 'favorite' : 'favorite_border' }}</app-icon>
+                    </button>
                 </li>
             </ul>
         </ng-container>
@@ -78,11 +87,23 @@ import { Desk } from "@placeos/organisation";
     `
 })
 export class DeskListComponent{
+    @Input() public selected: string = '';
+    @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Desk>();
+    @Output() public toggleFav = new EventEmitter<Desk>();
+
     public readonly desks = this._state.available_assets;
     public readonly loading = this._state.loading;
 
     constructor(
         private _state: BookingFormService
     ){}
+
+    public isFavourite(desk_id: string) {
+        return this.favorites.includes(desk_id);
+    }
+
+    public selectDesk(desk: Desk) {
+        this.onSelect.emit(desk);
+    }
 }
