@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1656896245709,
+  "timestamp": 1656909881349,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -142,14 +142,14 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "94debb89c5b98d83c74cdd1a79d35d8713ceead2",
+    "./apps_workplace_src_app_book_book_module_ts.js": "ff1a2abf03238b8fbaa8312ea4fd9b29f5bf0935",
     "./apps_workplace_src_app_control_control_module_ts.js": "1cbf5de83dc727422b060876fbfde02cb45a8762",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "cc99d8baf12eac9cd2185563f6a27d6909f3bb0a",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "20d4206a97b477376978c11f686461823e52d3a0",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "bbee4e24e6b6da16406e8df050cb2a7d832a0711",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "5f6d68f2ade4c3927ece4d3cf9781d5c71e560ee",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "cbb6c526026bfdb3097d6796c21c89b444392fd4",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "16f85870bc197b90bc8a604075b22cf3f47bf1cb",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "da584a098907b28796a118d39eb5d26582ea1a64",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "714d35b06a38035254ff2f368126d7ecac1f2c72",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "6a1206ab486e27daf03ffe817784e815ab287cea",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -250,7 +250,7 @@
     "./common.js": "93b850aafcf6d626975b4d5aebcec52ff8113fca",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "e2d1f4cd168046f648f28f49c51422f2301bf84c",
-    "./main.js": "f25ec8a40f517344911a8b847cc1dc9f1db0c247",
+    "./main.js": "715ef1c57e5ccaae3dd13ee70932a11c1284ca41",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.js": "8d14f741e8e65119695941ea85f4b683cfd6faa2",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
