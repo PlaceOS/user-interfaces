@@ -77,7 +77,7 @@ import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
                     <div class="text-xl">Desk</div>
                 </h3>
                 <div *ngIf="(features | async)?.length" class="flex flex-col">
-                    <label for="title">Features</label>
+                    <label for="title">Type</label>
                     <div class="flex items-center flex-wrap space-x-2">
                     <mat-checkbox
                         *ngFor="let opt of features | async"

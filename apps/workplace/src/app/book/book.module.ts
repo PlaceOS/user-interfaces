@@ -37,6 +37,7 @@ import { NewDeskFormDetailsComponent } from './new-desk-flow/new-desk-form-detai
 import { NewDeskSelectModalComponent } from './new-desk-flow/new-desk-select-modal.component';
 import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-display.component';
 import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
+import { DeskFiltersComponent } from './new-desk-flow/views/desk-filters.component';
 
 const ROUTES: Route[] = [
     {
@@ -89,7 +90,8 @@ const ROUTES: Route[] = [
         NewDeskFlowComponent,
         NewDeskSelectModalComponent,
         DeskFiltersDisplayComponent,
-        DeskListComponent
+        DeskListComponent,
+        DeskFiltersComponent
     ],
     imports: [
         CommonModule,

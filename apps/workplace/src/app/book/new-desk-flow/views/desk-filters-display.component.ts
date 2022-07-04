@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { MatBottomSheet } from "@angular/material/bottom-sheet";
 import { BookingFormService } from "@placeos/bookings";
 import { BaseClass } from "@placeos/common";
+import { DeskFiltersComponent } from "./desk-filters.component";
 
 @Component({
     selector: 'desk-filters-display',
@@ -31,6 +33,7 @@ import { BaseClass } from "@placeos/common";
             mat-button
             filters
             class="flex-1 w-1/2"
+            (click)="editFilter()"
         >
             Filters
         </button>
@@ -62,6 +65,16 @@ import { BaseClass } from "@placeos/common";
             {{ start | date: 'shortTime' }} &mdash;
             {{ end | date: 'shortTime' }}
         </div>
+        <div filter-item *ngFor="let feat of (options | async)?.features || []">
+                <p>{{ feat }}</p>
+                <button
+                    mat-icon-button
+                    class="-mr-4"
+                    (click)="setFeature(feat,false)"
+                >
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
     </section>
     `
 })
@@ -69,6 +82,7 @@ export class DeskFiltersDisplayComponent extends BaseClass {
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._state.options;
+    public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
     public get start(){
         return this._state.form.value.date;
@@ -79,7 +93,10 @@ export class DeskFiltersDisplayComponent extends BaseClass {
         return date + duration * 60 * 1000;
     }
 
+    public readonly editFilter = () => this._bsheet.open(DeskFiltersComponent);
+
     constructor(
+        private _bsheet: MatBottomSheet,
         private _state: BookingFormService
     ){
         super();
