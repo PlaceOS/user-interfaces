@@ -19,6 +19,8 @@ import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 
+const EMPTY = [];
+
 @Component({
     selector: 'explore-map-view',
     template: `
@@ -48,6 +50,23 @@ import { ExploreDesksService } from './explore-desks.service';
                 [ngModel]="!(options | async)?.disable?.includes('zones')"
                 (ngModelChange)="toggleZones($event)"
             ></mat-slide-toggle>
+        </div>
+        <div
+            legend
+            *ngIf="show_legend && legend.length"
+            class="absolute bottom-2 left-2 p-2 rounded bg-white border border-gray-300"
+        >
+            <h3 class="mb-2 font-medium">Legend</h3>
+            <div
+                class="flex items-center space-x-2"
+                *ngFor="let pair of legend"
+            >
+                <div
+                    class="w-3 h-3 rounded-full border border-gray-400"
+                    [style.background-color]="pair[1]"
+                ></div>
+                <div class="text-sm">{{ pair[0] }}</div>
+            </div>
         </div>
     `,
     styles: [
@@ -92,6 +111,14 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
             : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||
               [];
         this.setOptions({ disable });
+    }
+
+    public get show_legend() {
+        return !!this._settings.get('app.explore.show_legend');
+    }
+
+    public get legend(): [string, string][] {
+        return this._settings.get('app.explore.legend') || EMPTY;
     }
 
     constructor(
