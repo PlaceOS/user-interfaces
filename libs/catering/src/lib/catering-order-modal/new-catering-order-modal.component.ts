@@ -24,7 +24,7 @@ const EMPTY_FAVS: string[] = [];
                 ></catering-item-filters>
                 <div class="flex flex-col items-center flex-1 w-1/2 h-full">
                     <catering-item-filters
-                        class="h-full sm:hidden block"
+                        class="sm:hidden block"
                     ></catering-item-filters>
                     <catering-item-list
                         [selected]="selected_ids"
