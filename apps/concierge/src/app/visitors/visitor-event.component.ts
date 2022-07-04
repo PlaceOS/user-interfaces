@@ -7,7 +7,7 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-event',
     template: `
-        <div class="flex items-center px-2 bg-gray-100" *ngIf="event">
+        <div event class="flex items-center px-2 bg-gray-100" *ngIf="event">
             <div class="w-12 text-lg flex justify-center">
                 <i
                     class="p-2 rounded-full material-icons bg-gray-400"

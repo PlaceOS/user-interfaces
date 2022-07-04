@@ -36,10 +36,6 @@ describe('PanelDetailsComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow for creating new events', () => {
         const service = spectator.inject(PanelStateService);
         expect('[event]').toExist();

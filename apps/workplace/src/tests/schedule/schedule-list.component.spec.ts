@@ -57,10 +57,6 @@ describe('ScheduleListComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should list items', () => {
         expect('[schedule-list-item]').toHaveLength(0);
         const service = spectator.inject(ScheduleStateService);

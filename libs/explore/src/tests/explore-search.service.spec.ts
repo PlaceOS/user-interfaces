@@ -26,6 +26,7 @@ describe('ExploreSearchService', () => {
                 useValue: {
                     initialised: of(true),
                     organisation: new Organisation(),
+                    binding: jest.fn()
                 },
             },
         ],

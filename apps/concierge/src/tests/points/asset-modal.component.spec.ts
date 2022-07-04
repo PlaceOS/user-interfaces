@@ -50,9 +50,6 @@ describe('PointsAssetModalComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
 
     it.todo('should render prices');
     it.todo('should render percentages');

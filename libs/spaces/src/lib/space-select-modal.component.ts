@@ -211,6 +211,9 @@ export class SpaceSelectModalComponent extends BaseClass {
         @Inject(MAT_DIALOG_DATA) private _data: SpaceSelectModalData
     ) {
         super();
+    }
+
+    public ngOnInit() {
         this.building.next(this._org.building || this.buildings[0]);
         this.subscription(
             'spaces',

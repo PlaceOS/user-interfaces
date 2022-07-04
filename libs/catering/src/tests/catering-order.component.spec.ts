@@ -38,7 +38,7 @@ describe('CateringOrderComponent', () => {
         const order = new CateringOrder({ deliver_at: 1 });
         spectator.setInput({ order });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[time]').toContainText('12:00 AM');
     });
 
     it('should list order items', () => {

@@ -34,9 +34,5 @@ describe('RecurrenceModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it.todo('should handle submitting form');
 });

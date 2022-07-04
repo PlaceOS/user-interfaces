@@ -38,10 +38,10 @@ describe('VisitorEventComponent', () => {
     });
 
     it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+        expect('[event]').not.toExist();
         spectator.setInput({ event: new CalendarEvent({ date: 1 }) });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[event]').toExist();
     });
 
     it("should list event's visitors", () => {

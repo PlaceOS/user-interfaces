@@ -85,9 +85,9 @@ export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public form = new FormGroup({
-        travelled: new FormControl('', [Validators.required]),
-        unwell: new FormControl('', [Validators.required]),
-        contact: new FormControl('', [Validators.required]),
+        travelled: new FormControl(false, [Validators.requiredTrue]),
+        unwell: new FormControl(false, [Validators.requiredTrue]),
+        contact: new FormControl(false, [Validators.requiredTrue]),
     });
     public failure: boolean;
 

@@ -24,18 +24,17 @@ describe('BookingCardComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show event details', () => {
+        expect('[details]').not.toExist();
         spectator.setInput({
             booking: new Booking({
                 date: set(1, { hours: 8, minutes: 0 }).valueOf(),
             }),
         });
-        
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[details]').not.toExist();
         spectator.setInput({ show_day: true });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    })
+        expect('[day]').toExist();
+    });
 });

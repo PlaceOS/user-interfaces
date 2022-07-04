@@ -9,6 +9,7 @@ import { EventsStateService } from '../day-view/events-state.service';
         <div
             content
             matRipple
+            *ngIf="event"
             (click)="view(event)"
             [class]="
                 'm-2 p-2 bg-white shadow rounded border-2 text-black text-left font-normal ' +

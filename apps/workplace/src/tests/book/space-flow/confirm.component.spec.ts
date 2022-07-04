@@ -70,19 +70,6 @@ describe('SpaceFlowConfirmComponent', () => {
     it('should allow user to return to previous page', () => {
         expect('[topbar] a[button]').toExist();
     });
-
-    it('should display booking details', () => {
-        const form = spectator.inject(EventFormService).form;
-        form.patchValue({
-            date: 2,
-        });
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-        form.patchValue({
-            attendees: [{ name: 'Jim', email: 'jim@jones.com' }],
-            resources: [{ name: 'Space 1', email: 'space-1@jones.com' }],
-        });
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
+    
+    it.todo('should show event details');
 });

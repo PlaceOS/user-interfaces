@@ -30,10 +30,6 @@ describe('StaffListingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it.todo('should allow scrolling to staff groupings');
     it.todo('should allow scrolling to staff groupings');
 });

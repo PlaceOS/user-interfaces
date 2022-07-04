@@ -14,7 +14,7 @@ import { startOfMinute } from 'date-fns';
                 <header class="sticky top-0 z-50 bg-[#ECF0F3] px-4 rounded-b flex items-center justify-between overflow-hidden">
                     <div class="">
                         <div class="sm:text-xl font-medium">Hello {{ user?.name }},</div>
-                        <div class="text-sm sm:text-base">{{ date | date:'fullDate' }}</div>
+                        <div date class="text-sm sm:text-base">{{ date | date:'fullDate' }}</div>
                         <div class="text-sm sm:text-base">Sydney Australia</div>
                     </div>
                     <div class="h-32 pt-4">

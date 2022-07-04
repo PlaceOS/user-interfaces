@@ -32,10 +32,6 @@ describe('CheckinCovidComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow confirming questions', () => {
         (common_mod.notifyError as any) = jest.fn();
         spectator.component.confirm();

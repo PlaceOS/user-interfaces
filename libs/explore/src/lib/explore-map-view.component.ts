@@ -233,6 +233,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 user.username || user.id,
             ])
         ).map((i) => new MapLocation(i));
+        console.log('Location:', location);
         locations.sort(
             (a, b) =>
                 locate_details.priority.indexOf(a.type) -
