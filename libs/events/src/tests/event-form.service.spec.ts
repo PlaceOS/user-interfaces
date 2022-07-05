@@ -32,7 +32,7 @@ describe('EventFormService', () => {
     });
 
     beforeEach(() => {
-        (cal_mod as any).querySpaceFreeBusy = jest.fn(() => of([]));
+        (cal_mod as any).querySpaceAvailability = jest.fn(() => of([]));
         spectator = createService();
     });
 
@@ -47,7 +47,6 @@ describe('EventFormService', () => {
     });
 
     it('should handle form changes', () => {
-        expect(spectator.service.form).toBeFalsy();
         spectator.service.newForm();
         const form = spectator.service.form;
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
@@ -84,7 +83,7 @@ describe('EventFormService', () => {
             .toPromise();
         expect(spaces).toEqual([]);
         const space_list = [{ id: 'space-1' }, { id: 'space-2' }];
-        (cal_mod.querySpaceFreeBusy as any).mockImplementation(() =>
+        (cal_mod.querySpaceAvailability as any).mockImplementation(() =>
             of([...space_list])
         );
         spectator.service.setView('find');
@@ -99,7 +98,7 @@ describe('EventFormService', () => {
         spectator.service.setView('find');
         spectator.service.newForm(new CalendarEvent({ event_start: 1 }));
         await spectator.service.available_spaces.pipe(take(1)).toPromise();
-        expect(cal_mod.querySpaceFreeBusy).toBeCalledWith(
+        expect(cal_mod.querySpaceAvailability).toBeCalledWith(
             {
                 period_start: 1,
                 period_end: 1801,
@@ -116,7 +115,7 @@ describe('EventFormService', () => {
         });
         await timer(301).toPromise();
         await spectator.service.available_spaces.pipe(take(1)).toPromise();
-        expect(cal_mod.querySpaceFreeBusy).toBeCalledWith(
+        expect(cal_mod.querySpaceAvailability).toBeCalledWith(
             {
                 period_start: 1,
                 period_end: 1801,
@@ -141,7 +140,7 @@ describe('EventFormService', () => {
             host: 'jim@place.tech',
             creator: 'jim@place.tech',
             title: 'Test Booking',
-            resources: [{}],
+            resources: [{} as any],
         });
         await expect(spectator.service.postForm()).rejects.toBe(
             '1 space(s) are not available at the selected time'

@@ -8,6 +8,7 @@ import { CateringOrderComponent } from '../lib/catering-order.component';
 import { CateringOrderItemComponent } from '../lib/catering-order-item.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
 import { CateringOrder } from '../lib/catering-order.class';
+import { format } from 'date-fns';
 
 describe('CateringOrderComponent', () => {
     let spectator: Spectator<CateringOrderComponent>;
@@ -38,7 +39,7 @@ describe('CateringOrderComponent', () => {
         const order = new CateringOrder({ deliver_at: 1 });
         spectator.setInput({ order });
         spectator.detectChanges();
-        expect('[time]').toContainText('12:00 AM');
+        expect('[time]').toContainText(format(1, 'h:mm a'));
     });
 
     it('should list order items', () => {

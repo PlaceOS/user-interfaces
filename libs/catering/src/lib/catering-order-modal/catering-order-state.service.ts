@@ -27,6 +27,7 @@ export class CateringOrderStateService {
     private _loading = new BehaviorSubject('');
 
     public readonly loading = this._loading.asObservable();
+    public readonly filters = this._filters.asObservable();
 
     public readonly available_menu: Observable<CateringItem[]> = this._options.pipe(
         switchMap(({ zone }) =>{
