@@ -39,6 +39,7 @@ import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-
 import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
 import { DeskFiltersComponent } from './new-desk-flow/views/desk-filters.component';
 import { SharedCateringModule } from '@placeos/catering';
+import { DeskDetailsComponent } from './new-desk-flow/views/desk-details.component';
 
 const ROUTES: Route[] = [
     {
@@ -92,7 +93,8 @@ const ROUTES: Route[] = [
         NewDeskSelectModalComponent,
         DeskFiltersDisplayComponent,
         DeskListComponent,
-        DeskFiltersComponent
+        DeskFiltersComponent,
+        DeskDetailsComponent
     ],
     imports: [
         CommonModule,

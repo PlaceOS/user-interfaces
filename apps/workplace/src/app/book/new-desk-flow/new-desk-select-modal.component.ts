@@ -1,5 +1,5 @@
 import { Component, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { FAV_DESK_KEY } from "@placeos/bookings";
 import { SettingsService } from "@placeos/common";
 import { Desk } from "@placeos/organisation";
@@ -30,15 +30,25 @@ import { Desk } from "@placeos/organisation";
                     <desk-list 
                         class="flex-1 h-1/2"
                         [favorites]="favorites"
+                        (onSelect)="displayed = $event"
                         (toggleFav)="toggleFavourite($event)"></desk-list>
                 </div>
+                <desk-details *ngIf="displayed"
+                    [desk]="displayed"
+                    class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20 inset-0"
+                    [fav]="displayed && favorites.includes(displayed?.id)"
+                    (toggleFav)="toggleFavourite(displayed)"
+                    (onSelect)="selectDesk(displayed)"
+                    (close)="displayed = null"
+                    ></desk-details>
             </main>
         </div>
 
     `
 })
 export class NewDeskSelectModalComponent{
-
+    public displayed?: Desk;
+    public selectedDesk: Desk;
     public view = 'list';
 
     public get favorites() {
@@ -46,9 +56,13 @@ export class NewDeskSelectModalComponent{
     }
 
     constructor(
-        private _settings: SettingsService,
-        @Inject(MAT_DIALOG_DATA) data: any){
+        public dialogRef: MatDialogRef<NewDeskSelectModalComponent>,
+        private _settings: SettingsService){
         
+    }
+
+    public selectDesk(desk: Desk){
+        this.dialogRef.close(desk)
     }
 
     public toggleFavourite(desk: Desk) {

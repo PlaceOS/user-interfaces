@@ -27,7 +27,8 @@ import { Desk } from "@placeos/organisation";
                     class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200">
                     <button
                         matRipple
-                        class="w-full h-full flex">
+                        class="w-full h-full flex"
+                        (click)="selectDesk(desk)">
                         <div
                             class="relative w-20 h-20 rounded-xl bg-black/20 mr-4"
                         >
@@ -45,14 +46,14 @@ import { Desk } from "@placeos/organisation";
                                     }}
                                 </p>
                             </div>
-                            <div features class="w-full flex flex-wrap">
+                            <!-- <div features class="w-full flex flex-wrap">
                                 <div
                                     *ngFor="let feat of desk.features || []"
                                     class="text-xs bg-primary text-white rounded-xl px-2 py-1 mt-1 mr-2"
                                 >
                                     {{ feat }}
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </button>
                     <button
@@ -104,6 +105,7 @@ export class DeskListComponent{
     }
 
     public selectDesk(desk: Desk) {
+        console.log("Selected desk", desk);
         this.onSelect.emit(desk);
     }
 }
