@@ -1,6 +1,6 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 
@@ -26,7 +26,7 @@ describe('CateringOrderComponent', () => {
                 },
             },
         ],
-        imports: [MatMenuModule],
+        imports: [MockModule(MatMenuModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));

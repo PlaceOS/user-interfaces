@@ -1,4 +1,5 @@
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
@@ -17,7 +18,9 @@ describe('CateringItemListComponent', () => {
                 },
             },
         ],
-        declarations: [],
+        declarations: [
+            MockComponent(IconComponent)
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
