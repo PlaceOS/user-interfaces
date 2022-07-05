@@ -1,15 +1,9 @@
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of, Observable } from 'rxjs';
-import {
-    FormsModule,
-    ReactiveFormsModule,
-    FormBuilder,
-    Validators,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { CommonModule } from '@angular/common';
@@ -20,15 +14,14 @@ import { EventFormService } from '@placeos/events';
 import { Location } from '@angular/common';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
 import { FindSpaceItemComponent } from '../app/rooms/find-space-item/find-space-item.component';
+import { RoomDetailsComponent } from '../app/rooms/room-details/room-details.component';
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { MapService } from '../app/rooms/map.service';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import {
     MatBottomSheetModule,
     MatBottomSheet,
-    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { MatDialogRef } from '@angular/material/dialog';
 import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
 import {
     mockOrgService,
@@ -38,6 +31,7 @@ import {
     mockMapService,
     mockRoomConfirmService,
     mockRouterStub,
+    mockSpace,
 } from './test-mocks';
 
 import { InteractiveMapComponent } from '@placeos/components';
@@ -69,7 +63,7 @@ describe('FindSpaceComponent', () => {
             {
                 provide: MatBottomSheet,
                 useValue: {
-                    open: jest.fn(),
+                    open: jest.fn((FilterSpaceComponent) => {}),
                     afterDismissed: jest.fn(),
                 },
             },
@@ -95,6 +89,15 @@ describe('FindSpaceComponent', () => {
                 useClass: MapServiceStub,
             },
             { provide: RoomConfirmService, useClass: RoomConfirmServiceStub },
+            {
+                provide: InteractiveMapComponent,
+                useValue: {
+                    click: jest.fn(() => {}),
+                    updateFeaturesList: jest.fn(() => {}),
+                    updateView: jest.fn(() => {}),
+                    createViewer: jest.fn(() => {}),
+                },
+            },
         ],
         declarations: [
             MockComponent(FindSpaceItemComponent),
@@ -106,16 +109,76 @@ describe('FindSpaceComponent', () => {
     beforeEach(() => {
         spectator = createComponent();
         debugEl = spectator.debugElement;
-        const event_service = spectator.inject(EventFormService);
-        const org_service = spectator.inject(OrganisationService);
+        spectator.inject(InteractiveMapComponent);
+        spectator.inject(EventFormService);
+        spectator.inject(FeaturesFilterService);
 
         MockInstance(FindSpaceItemComponent);
-        MockInstance(InteractiveMapComponent);
         MockInstance(FilterSpaceComponent);
+        MockInstance(RoomDetailsComponent);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+    it('should open the Filter modal when clicked', async () => {
+        const mat_bottom_sheet = spectator.inject(MatBottomSheet);
+        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
+            value: of(true),
+        }));
+        const open_filter_spy = jest.spyOn(
+            spectator.component.bottomSheet,
+            'open'
+        );
+        const component_filter_spy = jest.spyOn(
+            spectator.component,
+            'openFilter'
+        );
+
+        expect(component_filter_spy).not.toHaveBeenCalled();
+        expect(open_filter_spy).not.toHaveBeenCalled();
+        const button = spectator.debugElement.query(
+            By.css('button.filter-button')
+        );
+        expect(button.nativeElement.innerHTML).toContain('Filter');
+        await button.nativeElement.click();
+        spectator.detectChanges();
+
+        expect(component_filter_spy).toBeCalled();
+        expect(open_filter_spy).toBeCalled();
+    });
+
+    it('should open the room detail modal when List item is clicked', async () => {
+        const room_confirm_service = spectator.inject(RoomConfirmService);
+        const room_confirm_service_spy = jest.spyOn(
+            room_confirm_service,
+            'openRoomDetail'
+        );
+        const component_open_spy = jest.spyOn(
+            spectator.component,
+            'openRoomDetails'
+        );
+        await spectator.component.ngOnInit();
+
+        spectator.component.selected_space = mockSpace;
+        expect(component_open_spy).not.toHaveBeenCalled();
+        expect(room_confirm_service_spy).not.toHaveBeenCalled();
+
+        spectator.component.show_room_details$ = of(true);
+        spectator.detectChanges();
+        const button = spectator.debugElement.query(
+            By.css('button.open-details-button')
+        );
+        expect(button.nativeElement.innerHTML).toContain('View Room');
+        await button.nativeElement.click();
+
+        spectator.detectChanges();
+        expect(component_open_spy).toBeCalled();
+        expect(room_confirm_service_spy).toBeCalled();
     });
 
     it('should show a default List view on page load', async () => {
@@ -129,7 +192,6 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should display map elements in Map View', async () => {
-        await spectator.component.ngOnInit();
         spectator.component.space_view = 'mapView';
         spectator.component.selected_level = of([
             {
@@ -143,30 +205,44 @@ describe('FindSpaceComponent', () => {
         const mapItems = ngMocks.findAll(InteractiveMapComponent);
         expect(mapItems.length).toBeTruthy();
         expect(spaceItems.length).toBe(0);
+        ngMocks.reset();
     });
 
-    it('should open the Filter modal when clicked', async () => {
-        const mat_bottom_sheet = spectator.inject(MatBottomSheet);
-        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
-            value: of(true),
-        }));
-        await spectator.component.ngOnInit();
-        const filterSpaceComponent = ngMocks.findAll(FilterSpaceComponent);
-        expect(filterSpaceComponent.length).toBe(0);
+    it('should open the room detail modal when a Map Area is clicked', async () => {
+        spectator = createComponent();
+        const map_mock = spectator.inject(InteractiveMapComponent);
 
-        const open_filter_spy = jest.spyOn(
-            spectator.component.bottomSheet,
-            'open'
+        jest.spyOn(map_mock, 'click' as any).mockImplementation(() => {
+            spectator.component.openRoomDetails();
+        });
+
+        const component_open_spy = jest.spyOn(
+            spectator.component,
+            'openRoomDetails'
         );
 
-        spectator.component.openFilter();
+        spectator.component.space_view = 'mapView';
+        spectator.component.selected_level = of([
+            {
+                map_id: 'map-1',
+                level: 'Level 1',
+            },
+        ]);
+        spectator.component.map_actions$ = of({
+            id: 'map-1',
+            action: 'click',
+            callback: () => {
+                spectator.component.openRoomDetails();
+            },
+        }) as any;
+        spectator.component.selected_space = mockSpace;
+
         spectator.detectChanges();
-        expect(open_filter_spy).toBeCalled();
+        expect(component_open_spy).not.toHaveBeenCalled();
 
-        expect(ngMocks.findAll(FilterSpaceComponent)).toBeTruthy();
+        (map_mock as any).click();
+        spectator.detectChanges();
+
+        expect(component_open_spy).toBeCalled();
     });
-
-    // it('should display room details in modal when clicked', () => {});
-
-    // it('should filter spaces based on features', () => {});
 });

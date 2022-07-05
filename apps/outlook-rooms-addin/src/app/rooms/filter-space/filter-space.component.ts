@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { Observable } from 'rxjs';
 
 @Component({
-    selector: 'placeos-filter-space',
+    selector: '[filter-space]',
     templateUrl: './filter-space.component.html',
     styles: [``],
 })

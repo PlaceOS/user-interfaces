@@ -1,6 +1,7 @@
 import { FormBuilder, Validators } from '@angular/forms';
 import { of, Observable } from 'rxjs';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { Space } from '@placeos/spaces';
 
 export let mockForm = {
     id: 1,
@@ -14,26 +15,52 @@ export let mockForm = {
     markAllAsTouched: jest.fn(() => {}),
 };
 
-export const mockSpace = {
-    id: 1,
-    name: 'test-space',
-};
-
 export const mockBuilding = {
     id: 1,
     name: 'test-building',
     zone_id: 'zone-1',
 };
 
+export const mockBuildingLevel = {
+    id: '123',
+    parent_id: '',
+    name: 'Building-1',
+    display_name: '',
+    capacity: 40,
+    number: 'url',
+    map_id: 'map-id-1',
+    tags: ['tag-1'],
+    settings: {},
+    locations: [] as any,
+};
+
+export const mockCalendarAvailability = {
+    duration: 12345,
+    date: 23456,
+    status: '',
+};
+export const mockSpace: Space = {
+    id: '1',
+    name: 'test-space',
+    display_name: '',
+    email: '',
+    capacity: 2,
+    feature_list: [''],
+    support_url: '',
+    map_id: '',
+    bookable: true,
+    zones: [''],
+    configurations: [''] as any,
+    image: '',
+    response_status: '' as any,
+    level: mockBuildingLevel,
+    features: [''],
+    availability: [mockCalendarAvailability],
+};
+
 export const mockEventFlowOptions = {
     calendar_id: '123',
     zone_id: ['zone-1'],
-};
-
-export const mockBuildingLevel = {
-    id: '123',
-    name: 'Building-1',
-    map_id: 'map-id-1',
 };
 
 export const mockFeature = 'Whiteboard';
@@ -111,7 +138,9 @@ export class mockMapService {
     }
 }
 
-export class mockRoomConfirmService {}
+export class mockRoomConfirmService {
+    openRoomDetail = jest.fn((param) => {});
+}
 
 export class mockRouterStub {
     navigate = jest.fn(() => {});
