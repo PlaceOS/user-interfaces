@@ -252,7 +252,7 @@ export class EventFormService extends BaseClass {
         duration: number,
         exclude?: { start: number; end: number }
     ) {
-        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id);
+        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id || s.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
