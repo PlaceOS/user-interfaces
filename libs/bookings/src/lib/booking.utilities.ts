@@ -56,13 +56,9 @@ export async function findNearbyFeature(map_url: string, centered_at: Point | st
     const point = (typeof centered_at === 'string' ? viewer.mappings[centered_at] : centered_at) || { x: .5, y: .5 };
     let dist = 10;
     let closest = '';
-    console.log(`Desks:`, desk_ids);
-    console.log(`Mappings:`, viewer.mappings);
-    console.log(`Point:`, point);
     for (const desk of desk_ids) {
         const { x, y } = viewer.mappings[desk] || { x: 2, y: 2 };
         const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-        console.log(`Desk ${desk}:`, viewer.mappings[desk], d);
         if (d < dist) {
             dist = d;
             closest = desk;

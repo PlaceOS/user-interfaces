@@ -391,7 +391,6 @@ export class BookingFormService extends BaseClass {
                 extra_members.length
             )),
         ];
-        console.log('Selected Assets:', assets);
         const group_members = [currentUser(), ...extra_members];
         await Promise.all(
             group_members.map((_, idx) =>
@@ -421,7 +420,6 @@ export class BookingFormService extends BaseClass {
                         ? [asset.zone?.parent_id, asset.zone?.id]
                         : [],
                 });
-            console.log('Form Value:', this._form.getValue().value);
             this.postForm(true);
         }
     }
@@ -483,7 +481,6 @@ export class BookingFormService extends BaseClass {
     ): Promise<BookingAsset[]> {
         const nearby_assets = [];
         let asset_list = assets.filter((_) => _.id !== id && _.map_id !== id);
-        console.log('Assets:', assets, asset_list, id);
         for (let i = 0; i < count; i++) {
             const item = await findNearbyFeature(
                 map_url,
@@ -498,7 +495,6 @@ export class BookingFormService extends BaseClass {
                     (_) => _.id !== item && _.map_id !== item
                 );
             }
-            console.log('Asset List:', asset_list);
         }
         return nearby_assets;
     }

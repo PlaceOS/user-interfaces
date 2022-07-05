@@ -228,6 +228,5 @@ export class CateringItemDetailsComponent {
             });
         }
         this.groups = group_list;
-        console.log('Groups:', this.groups);
     }
 }

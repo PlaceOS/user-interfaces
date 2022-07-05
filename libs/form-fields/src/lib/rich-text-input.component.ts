@@ -50,7 +50,6 @@ export class RichTextInputComponent extends BaseClass implements ControlValueAcc
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: string): void {
-        console.log('Value:', new_value)
         /* istanbul ignore else */
         if (this._onChange) {
             this._onChange(new_value);

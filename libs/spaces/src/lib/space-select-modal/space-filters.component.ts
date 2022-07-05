@@ -181,7 +181,6 @@ export class SpaceFiltersComponent {
         const { features } = await this.options.pipe(take(1)).toPromise();
         const new_list = (features || []).filter(_ => feat !== _);
         if (state) new_list.push(feat);
-        console.log('Feature:', feat, state, new_list);
         this.setOptions({ features: new_list });
     }
 }

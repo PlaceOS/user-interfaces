@@ -158,7 +158,6 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 },
             } as any);
         }
-        console.log('Features:', features);
         this._state.setFeatures('spaces', features);
     }
 

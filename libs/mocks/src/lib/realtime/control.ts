@@ -125,7 +125,6 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
 
     $power(state = true) {
-        console.log('Power:', state);
         this.active = state;
     }
     /** Shares a signal source with the room and any connected remote participants. */

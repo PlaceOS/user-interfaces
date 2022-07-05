@@ -18,8 +18,6 @@ export class UpcomingBookingsComponent implements OnInit {
     constructor(private _existingBookingsService: ExistingBookingsService) {}
 
     async ngOnInit() {
-        console.log(currentUser().name, 'current user');
-
         await this._existingBookingsService.events
             ?.pipe(first((_) => !!_))
             .toPromise();
@@ -34,7 +32,7 @@ export class UpcomingBookingsComponent implements OnInit {
             ])
         );
 
-        this.bookings$.subscribe((i) => console.log(i, 'bookings'));
+        this.bookings$.subscribe();
     }
 
     filterBookings(booking) {

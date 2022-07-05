@@ -99,7 +99,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
 
     private startCapture() {
         this.imgSrc = null;
-        console.log('TakePhotoComponent::startCapture');
         this.video = document.getElementById('video') as any;
         if (!this.video) {
             return setTimeout(() => this.startCapture(), 200);
@@ -113,7 +112,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
     }
 
     private stopCapture() {
-        console.log('TakePhotoComponent::stopCapture');
         if (this.video?.srcObject) {
             (this.video.srcObject as any)
                 .getVideoTracks()
@@ -122,7 +120,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
     }
 
     private getCanvasContext() {
-        console.log('TakePhotoComponent::getCanvasContext');
         this.canvas = document.getElementById('canvas') as any;
         if (!this.canvas) {
             return setTimeout(() => this.getCanvasContext(), 200);
@@ -132,7 +129,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
     }
 
     public takePhoto() {
-        console.log('TakePhotoComponent::takePhoto');
         this.canvasContext.drawImage(
             this.video,
             0,
@@ -145,7 +141,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
     }
 
     public cancelPhoto() {
-        console.log('TakePhotoComponent::cancelPhoto');
         this.canvasContext.clearRect(
             0,
             0,
@@ -160,7 +155,6 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
         try {
             this.imgSrc = this.canvas.toDataURL('image/jpeg', 0.75);
             this.photoAccepted.emit(this.imgSrc);
-            console.log('TakePhotoComponent::acceptPhoto Success');
         } catch (err) {
             console.error(
                 'TakePhotoComponent::acceptPhoto Error converting image',

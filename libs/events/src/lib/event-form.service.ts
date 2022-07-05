@@ -197,7 +197,6 @@ export class EventFormService extends BaseClass {
                     form
                 ).join(', ')}]`;
             const { id, host, date, duration, creator } = form.value;
-            console.log('Time:', date, duration);
             const spaces = form.get('resources')?.value || [];
             if (
                 (!id ||
