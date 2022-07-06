@@ -35,7 +35,7 @@ import { Desk } from "@placeos/organisation";
                         </div>
                         <div class="space-y-2 pt-2 flex-1 text-left">
                             <span class="font-medium">
-                                {{ desk.name || 'Desk' }}
+                                {{ desk.name || desk.id || 'Desk' }}
                             </span>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>

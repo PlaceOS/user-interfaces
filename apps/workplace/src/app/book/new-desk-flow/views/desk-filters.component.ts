@@ -139,7 +139,7 @@ import { addDays, endOfDay } from "date-fns";
                     </mat-checkbox>
                 </div>
             </section>
-            <section class="space-y-2" features>
+            <section class="space-y-2" features *ngIf="(features | async)?.length">
                 <h2 class="text-lg font-medium">Type</h2>
                 <div *ngFor="let feat of features | async" class="flex items-center flex-wrap space-x-2">
                     <div for="feat" class="flex-1 w-1/2">{{ feat }}</div>

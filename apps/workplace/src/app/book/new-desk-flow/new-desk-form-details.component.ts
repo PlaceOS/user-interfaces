@@ -94,7 +94,7 @@ import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
                         <div class="w-24 h-24 rounded-xl bg-black/20 mr-4"></div>
                         <div class="space-y-2 pb-4">
                             <div class="font-medium">
-                                {{ selectedDesk.display_name || selectedDesk.name }}
+                                {{ selectedDesk.display_name || selectedDesk.name || selectedDesk.id }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>

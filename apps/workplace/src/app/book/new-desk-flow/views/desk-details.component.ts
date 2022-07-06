@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { MapPinComponent } from '@placeos/components';
 import { Desk } from '@placeos/organisation';
+import { ViewerFeature } from '@placeos/svg-viewer';
 
 @Component({
     selector: 'desk-details',
@@ -45,13 +47,12 @@ import { Desk } from '@placeos/organisation';
                 </button>
             </section>
             <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
-                <section actions class="z-0">
+                <section actions class="z-0 pb-2 border-b">
                     <h2 class="text-xl font-medium mb-2 mt-4">
-                        {{ desk.display_name || desk.name }}
+                        {{ desk.display_name || desk.name || desk.id}}
                     </h2>
                 </section>
-                <hr/>
-                <section details class="space-y-2">
+                <section details class="space-y-2 pb-2 border-b">
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
@@ -59,8 +60,8 @@ import { Desk } from '@placeos/organisation';
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>desk</app-icon>
-                        <p>
-                        {{ desk.display_name || desk.name }}, {{ desk.level?.display_name || desk.level?.name }}
+                        <p> 
+                        {{ desk.display_name || desk.name || desk.id }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -71,14 +72,12 @@ import { Desk } from '@placeos/organisation';
                         </p>
                     </div>
                 </section>
-                <hr/>
-                <section type class="space-y-2">
+                <section type *ngIf="desk.features?.length" class="space-y-2 pb-2 border-b">
                     <h2 class="text-xl font-medium">Type</h2>
                     <div *ngFor="let feat of desk.features || []" class="flex items-center flex-wrap space-x-2">
                         <div for="feat" class="flex-1 w-1/2">{{ feat }}</div>
                     </div>
                 </section>
-                <hr/>
                 <section facilities class="space-y-2">
                     <h2 class="text-xl font-medium">Facilities</h2>
                     <div class="flex items-center space-x-2">
@@ -93,6 +92,17 @@ import { Desk } from '@placeos/organisation';
                         <app-icon>edit</app-icon>
                         <p>Whiteboard</p>
                     </div>
+                </section>
+                <section
+                    map
+                    class="w-[calc(100vw-2rem)] mx-auto h-64 relative border border-gray-200 overflow-hidden rounded"
+                >
+                    <interactive-map
+                        class="pointer-events-none"
+                        [src]="map_url"
+                        [features]="features"
+                        [options]="{ disable_pan: true, disable_zoom: true }"
+                    ></interactive-map>
                 </section>
             </div>
             <div class="p-2 border-t border-gray-200 shadow">
@@ -131,4 +141,21 @@ export class DeskDetailsComponent {
     @Output() public close = new EventEmitter<void>();
     @Output() public toggleFav = new EventEmitter<void>();
     @Output() public onSelect = new EventEmitter<void>();
+
+    public map_url ='';
+    public features: ViewerFeature[] = [];
+
+    public ngOnChanges(changes: SimpleChanges){
+        if(changes.desk && this.desk){
+            this.updateFeature();
+        }
+    }
+
+    private updateFeature(){
+        this.map_url = this.desk.zone.map_id;
+        this.features = [{
+            location: this.desk.map_id || this.desk.id,
+            content: MapPinComponent
+        }]
+    }
 }
