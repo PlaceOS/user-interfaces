@@ -2,33 +2,27 @@ import { Component, Input } from '@angular/core';
 import { ApplicationIcon } from '@placeos/common';
 
 @Component({
-    selector: 'app-icon',
+    selector: 'app-icon,icon',
     template: `
-        <div class="app-icon">
-            <i *ngIf="!icon || icon.type !== 'img'" [class]="icon?.class || className">
+        <div class="flex items-center justify-center h-[1.25em] w-[1.25em]">
+            <i
+                *ngIf="!icon || icon.type !== 'img'"
+                [class]="icon?.class || className"
+            >
                 {{ icon?.content }}
                 <ng-content></ng-content>
             </i>
-            <img *ngIf="icon && icon.type === 'img'" [src]="icon.src | safe: 'resource'" />
+            <img
+                class="h-[1em] w-[1em]"
+                *ngIf="icon && icon.type === 'img'"
+                [src]="icon.src | safe: 'resource'"
+            />
         </div>
     `,
     styles: [
         `
-            .app-icon {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 1.25em;
-                width: 1.25em;
-            }
-
             i {
                 font-size: 1em;
-            }
-
-            img {
-                height: 1em;
-                width: 1em;
             }
         `,
     ],

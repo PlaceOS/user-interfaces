@@ -53,7 +53,6 @@ describe('AssetSelectModalComponent', () => {
 
     it('should allow toggling favourites', () => {
         const settings = spectator.inject(SettingsService);
-        console.log(settings);
         settings.get.mockImplementation(() => []);
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', ['1']);

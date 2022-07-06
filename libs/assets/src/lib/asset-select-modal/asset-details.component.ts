@@ -80,7 +80,7 @@ import { Asset } from '../asset.class';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    Select a asset to view it's details
+                    Select an asset to view it's details
                 </p>
             </div>
         </ng-template>

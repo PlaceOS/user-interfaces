@@ -76,7 +76,6 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
         private _org: OrganisationService
     ) {
         super();
-        console.log('Locate Data:', this._data);
     }
 
     public ngOnInit(): void {
@@ -108,7 +107,6 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
             z_index: 99,
             zoom: 100,
         };
-        console.log('Feature:', focus);
         this.features = [focus];
     }
 }

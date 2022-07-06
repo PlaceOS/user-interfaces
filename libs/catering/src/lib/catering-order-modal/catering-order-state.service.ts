@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { OrganisationService } from '@placeos/organisation';
+import { showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
 
-export interface CateringOrderOptions {
+export interface CateringOrderOptions { // Affects backend requests
     zone?: string;
 }
 
-export interface CateringOrderFilters {
+export interface CateringOrderFilters { // Affects frontend filtering
     search: string;
     tags: string[];
 }
@@ -25,8 +27,19 @@ export class CateringOrderStateService {
     private _loading = new BehaviorSubject('');
 
     public readonly loading = this._loading.asObservable();
+    public readonly filters = this._filters.asObservable();
 
-    public readonly available_menu: Observable<CateringItem[]> = new BehaviorSubject([]);
+    public readonly available_menu: Observable<CateringItem[]> = this._options.pipe(
+        switchMap(({ zone }) =>{
+            this._loading.next('[Menu]');
+            return showMetadata(zone || this._org.building?.id, 'catering').pipe(
+                map((d) => d.details.map((_) => new CateringItem(_))),
+                catchError((_) => [])
+            )}
+        ),
+        tap(_ => this._loading.next('')),
+        shareReplay(1)
+    );
 
     public readonly filtered_menu = combineLatest([
         this._filters,
@@ -34,15 +47,19 @@ export class CateringOrderStateService {
     ]).pipe(
         map(([{ search, tags }, l]) => {
             search = search.toLowerCase();
-            return l.filter((_) => {
-                _.name.toLowerCase().includes(search) &&
+            const ol = l.filter((_) => {
+                return _.name.toLowerCase().includes(search) &&
                     (!tags?.length || tags.every((t) => _.tags.includes(t)));
             });
+            return ol;
         }),
         shareReplay(1)
     );
 
-    constructor(private _dialog: MatDialog) {}
+    constructor(
+        private _dialog: MatDialog,
+        private _org: OrganisationService
+    ) {}
 
     public setOptions(opts: Partial<CateringOrderOptions>) {
         this._options.next({ ...this._options.getValue(), ...opts });

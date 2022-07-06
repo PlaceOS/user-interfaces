@@ -190,27 +190,27 @@ export class EventFormService extends BaseClass {
     public postForm(force: boolean = false) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             const form = this._form.getValue();
+            const event = this.event || new CalendarEvent();
             if (!form) throw 'No form for event';
             if (!form.valid && !force)
                 throw `Some form fields are invalid. [${getInvalidFields(
                     form
                 ).join(', ')}]`;
             const { id, host, date, duration, creator } = form.value;
-            console.log('Time:', date, duration);
             const spaces = form.get('resources')?.value || [];
             if (
                 (!id ||
-                    date !== this.event.date ||
-                    duration !== this.event.duration) &&
+                    date !== event.date ||
+                    duration !== event.duration) &&
                 spaces.length
             ) {
-                const start = getUnixTime(this.event.date);
+                const start = getUnixTime(event.date);
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
                     date,
                     duration,
                     id
-                        ? { start, end: start + this.event.duration * 60 }
+                        ? { start, end: start + event.duration * 60 }
                         : undefined
                 );
             }
@@ -251,7 +251,7 @@ export class EventFormService extends BaseClass {
         duration: number,
         exclude?: { start: number; end: number }
     ) {
-        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id);
+        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id || s.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),

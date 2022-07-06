@@ -48,7 +48,6 @@ function registerMocks() {
                 ...request.body,
                 id: `-booking-${predictableRandomInt(999)}`,
             };
-            console.log('New Booking:', new_event);
             MOCK_BOOKINGS.push(new_event);
             return new_event;
         },

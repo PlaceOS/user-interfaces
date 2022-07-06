@@ -89,7 +89,6 @@ export class AssetManagerStateService extends BaseClass {
                     })
             )
         ),
-        tap((_) => console.log('Requests:', _)),
         shareReplay(1)
     );
     /** Filtered list of asset requests */

@@ -296,7 +296,6 @@ export class SpaceFlowFindComponent implements OnInit {
         } else {
             this.book_space = {};
             this.book_space[space.id] = book;
-            console.log('confirm booking reached');
             this.confirmBooking();
         }
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
