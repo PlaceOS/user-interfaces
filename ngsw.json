@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1657160175462,
+  "timestamp": 1657181834264,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -98,7 +98,7 @@
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "bf48cd67ff3a3eedcce8f52d372c3a75bc1e5685",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "6eb2f3c1b5b55a4ee1d63103e038a8ec63fb9136",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "0e0389a45197783343424b94879915edb73c376d",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "18224ac0213ed91d5db18628f232208702129c15",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "869686e9933fc85b2c610b80bb5686d836bfece9",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "c7469e830f9c49613d20f23f06fd24eef40a0818",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "0ba1d4a064d3c729f851184d8614a5d964e061a2",
     "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "e2582c993776f2fa37fc7863fd50921f026e5905",
@@ -150,13 +150,13 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "a79b8f714910dd8c6205bb33274863316be34e16",
-    "./default-libs_bookings_src_index_ts.js": "a3e48418b951082e745557b0ee02cc591d7c316c",
+    "./default-libs_bookings_src_index_ts.js": "61570e71d5253b336ff85324da4bad8f825325be",
     "./default-libs_catering_src_index_ts.js": "4c4aaf421c2325d90dd94a19ec65131c859b9e25",
     "./default-libs_explore_src_index_ts.js": "0bb8749ada9e787f7c7eee0555f12b7244fdda54",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "1fdca38fd4a60dc42d8cbe0ab4e54721e1dce6e8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ad27949c2c8a3bb00495e5976fc49c6a00dc415e",
-    "./main.js": "80f425143a980c7937c70ec2afad19e6f99b0a99",
+    "./main.js": "cc9f49c36960677c62f949751739634f00a766e5",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "3041add7aadf3168160964145e9bfc1b73be8bd6",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
