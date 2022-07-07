@@ -4,8 +4,6 @@ import { FAV_DESK_KEY } from "@placeos/bookings";
 import { SettingsService } from "@placeos/common";
 import { Desk } from "@placeos/organisation";
 
-
-
 @Component({
     selector: 'new-desk-select-modal',
     styles: [],
@@ -22,12 +20,13 @@ import { Desk } from "@placeos/organisation";
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 min-h-[65vh] h-[65vh] w-full"
             >
-                <div class="flex flex-col items-center flex-1 h-full">
+                <div class="flex flex-col items-center flex-1 w-1/2 h-full">
                     <desk-filters-display
                         class="w-full border-b border-gray-200"
                         [(view)]="view"
                     ></desk-filters-display>
                     <desk-list 
+                        *ngIf="view ==='list'; else mapView;"
                         class="flex-1 h-1/2"
                         [favorites]="favorites"
                         (onSelect)="displayed = $event"
@@ -43,7 +42,13 @@ import { Desk } from "@placeos/organisation";
                     ></desk-details>
             </main>
         </div>
-
+        <ng-template #mapView>
+            <desk-map
+                class="flex-1 h-1/2 w-full"
+                [is_displayed]="!!displayed"
+                (onSelect)="displayed = $event"
+            ></desk-map>
+        </ng-template>
     `
 })
 export class NewDeskSelectModalComponent{

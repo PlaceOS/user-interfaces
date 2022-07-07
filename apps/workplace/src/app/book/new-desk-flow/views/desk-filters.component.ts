@@ -62,8 +62,8 @@ import { addDays, endOfDay } from "date-fns";
                     </mat-form-field>
                 </div>
 <!-- level -->
-                <div *ngIf="(levels | async)?.length > 1"
-                     class="flex-1 min-w-[256px] flex flex-col">
+                <!-- <div *ngIf="(levels | async)?.length > 1"
+                    class="flex-1 min-w-[256px] flex flex-col">
                     <label>Level</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -85,7 +85,8 @@ import { addDays, endOfDay } from "date-fns";
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
+                </div> -->
+
 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
                     <label>Date</label>
@@ -175,6 +176,7 @@ export class DeskFiltersComponent{
     public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
+    public readonly setLevel = (l) => {};
 
     public get allow_time_changes() { 
         return !!this._settings.get('app.desks.allow_time_changes');

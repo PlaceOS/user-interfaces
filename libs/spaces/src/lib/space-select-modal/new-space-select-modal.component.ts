@@ -35,7 +35,7 @@ import { Space } from '../space.class';
                 </div>
                 <space-details
                     [space]="displayed"
-                    class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20"
+                    class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20 inset-0"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
