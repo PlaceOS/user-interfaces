@@ -44,9 +44,7 @@ describe('FindSpaceComponent', () => {
     const MapServiceStub = mockMapService;
     const RoomConfirmServiceStub = mockRoomConfirmService;
     const RouterStub = mockRouterStub;
-
     let spectator: Spectator<FindSpaceComponent>;
-    let debugEl: DebugElement;
 
     const createComponent = createComponentFactory({
         component: FindSpaceComponent,
@@ -89,15 +87,6 @@ describe('FindSpaceComponent', () => {
                 useClass: MapServiceStub,
             },
             { provide: RoomConfirmService, useClass: RoomConfirmServiceStub },
-            {
-                provide: InteractiveMapComponent,
-                useValue: {
-                    click: jest.fn(() => {}),
-                    updateFeaturesList: jest.fn(() => {}),
-                    updateView: jest.fn(() => {}),
-                    createViewer: jest.fn(() => {}),
-                },
-            },
         ],
         declarations: [
             MockComponent(FindSpaceItemComponent),
@@ -108,18 +97,11 @@ describe('FindSpaceComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        debugEl = spectator.debugElement;
-        spectator.inject(InteractiveMapComponent);
         spectator.inject(EventFormService);
         spectator.inject(FeaturesFilterService);
 
         MockInstance(FindSpaceItemComponent);
-        MockInstance(FilterSpaceComponent);
-        MockInstance(RoomDetailsComponent);
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks();
+        MockInstance(InteractiveMapComponent);
     });
 
     it('should create component', () => {
@@ -181,68 +163,33 @@ describe('FindSpaceComponent', () => {
         expect(room_confirm_service_spy).toBeCalled();
     });
 
-    it('should show a default List view on page load', async () => {
-        spectator.detectChanges();
+    it('should show the map svg ', async () => {
         await spectator.component.ngOnInit();
-        const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
-        const mapItems = ngMocks.findAll(InteractiveMapComponent);
-        expect(spectator.component.space_view).toBe('listView');
-        expect(spaceItems.length).toBeTruthy();
-        expect(mapItems.length).toBe(0);
+        spectator.component.space_view = 'mapView';
+        spectator.detectChanges();
+
+        const svg = await spectator.debugElement.query(By.css('svg'));
+        expect(svg.nativeNode).toBeInstanceOf(SVGSVGElement);
     });
 
     it('should display map elements in Map View', async () => {
+        await spectator.component.ngOnInit();
         spectator.component.space_view = 'mapView';
-        spectator.component.selected_level = of([
-            {
-                map_id: 'map-1',
-                level: 'Level 1',
-            },
-        ]);
         spectator.detectChanges();
 
         const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
         const mapItems = ngMocks.findAll(InteractiveMapComponent);
         expect(mapItems.length).toBeTruthy();
         expect(spaceItems.length).toBe(0);
-        ngMocks.reset();
     });
 
-    it('should open the room detail modal when a Map Area is clicked', async () => {
-        spectator = createComponent();
-        const map_mock = spectator.inject(InteractiveMapComponent);
-
-        jest.spyOn(map_mock, 'click' as any).mockImplementation(() => {
-            spectator.component.openRoomDetails();
-        });
-
-        const component_open_spy = jest.spyOn(
-            spectator.component,
-            'openRoomDetails'
-        );
-
-        spectator.component.space_view = 'mapView';
-        spectator.component.selected_level = of([
-            {
-                map_id: 'map-1',
-                level: 'Level 1',
-            },
-        ]);
-        spectator.component.map_actions$ = of({
-            id: 'map-1',
-            action: 'click',
-            callback: () => {
-                spectator.component.openRoomDetails();
-            },
-        }) as any;
-        spectator.component.selected_space = mockSpace;
-
+    it('should show a default List view on page load', async () => {
+        await spectator.component.ngOnInit();
         spectator.detectChanges();
-        expect(component_open_spy).not.toHaveBeenCalled();
-
-        (map_mock as any).click();
-        spectator.detectChanges();
-
-        expect(component_open_spy).toBeCalled();
+        const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
+        const mapItems = ngMocks.findAll(InteractiveMapComponent);
+        expect(spectator.component.space_view).toBe('listView');
+        expect(spaceItems.length).toBeTruthy();
+        expect(mapItems.length).toBe(0);
     });
 });
