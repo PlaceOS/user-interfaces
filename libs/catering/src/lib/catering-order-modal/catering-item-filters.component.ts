@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { CateringOrderStateService } from './catering-order-state.service';
 
@@ -49,13 +49,13 @@ const ICONS = {
     <rect width="43.348" height="46.051" fill="white"/>
     </clipPath>
     </defs>
-    </svg>`
-}
+    </svg>`,
+};
 
 @Component({
     selector: 'catering-item-filters',
     template: `
-        <div class="px-4 mt-3 mb-2">
+        <div class="px-4 mt-3 mb-2" [class.sm:hidden]="!search">
             <mat-form-field appearance="outline" class="w-full h-14">
                 <app-icon matPrefix class="text-xl">search</app-icon>
                 <input
@@ -66,59 +66,76 @@ const ICONS = {
                 />
             </mat-form-field>
         </div>
+        <h3 class="hidden sm:block font-medium px-2 mt-2" *ngIf="!search">
+            Catergories
+        </h3>
         <div
-            class="flex items-center justify-center space-x-2 border-b border-gray-200 pb-2"
+            class="flex flex-wrap items-center pb-2 px-1"
+            [class.sm:hidden]="search"
+            [class.sm:pt-1]="!search"
         >
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center m-1">
                 <button
                     matRipple
                     coffee
-                    [class.!bg-primary]="(filters | async)?.tags?.includes('coffee')"
-                    [class.text-white]="(filters | async)?.tags?.includes('coffee')"
+                    [class.!bg-primary]="
+                        (filters | async)?.tags?.includes('coffee')
+                    "
+                    [class.text-white]="
+                        (filters | async)?.tags?.includes('coffee')
+                    "
                     class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
                     (click)="toggleTag('coffee')"
                     [innerHTML]="icons.coffee | safe"
-                >
-                </button>
+                ></button>
                 <p>Coffee</p>
             </div>
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center m-1">
                 <button
                     matRipple
                     drinks
-                    [class.!bg-primary]="(filters | async)?.tags?.includes('drinks')"
-                    [class.text-white]="(filters | async)?.tags?.includes('drinks')"
+                    [class.!bg-primary]="
+                        (filters | async)?.tags?.includes('drinks')
+                    "
+                    [class.text-white]="
+                        (filters | async)?.tags?.includes('drinks')
+                    "
                     class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
                     (click)="toggleTag('drinks')"
                     [innerHTML]="icons.drinks | safe"
-                >
-                </button>
+                ></button>
                 <p>Drinks</p>
             </div>
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center m-1">
                 <button
                     matRipple
                     snacks
-                    [class.!bg-primary]="(filters | async)?.tags?.includes('snacks')"
-                    [class.text-white]="(filters | async)?.tags?.includes('snacks')"
+                    [class.!bg-primary]="
+                        (filters | async)?.tags?.includes('snacks')
+                    "
+                    [class.text-white]="
+                        (filters | async)?.tags?.includes('snacks')
+                    "
                     class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
                     (click)="toggleTag('snacks')"
                     [innerHTML]="icons.snacks | safe"
-                >
-                </button>
+                ></button>
                 <p>Snacks</p>
             </div>
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center m-1">
                 <button
                     matRipple
                     meals
-                    [class.!bg-primary]="(filters | async)?.tags?.includes('meals')"
-                    [class.text-white]="(filters | async)?.tags?.includes('meals')"
+                    [class.!bg-primary]="
+                        (filters | async)?.tags?.includes('meals')
+                    "
+                    [class.text-white]="
+                        (filters | async)?.tags?.includes('meals')
+                    "
                     class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
                     (click)="toggleTag('meals')"
                     [innerHTML]="icons.meals | safe"
-                >
-                </button>
+                ></button>
                 <p>Meals</p>
             </div>
         </div>
@@ -126,6 +143,7 @@ const ICONS = {
     styles: [``],
 })
 export class CateringItemFiltersComponent {
+    @Input() public search = false;
 
     public readonly icons = ICONS;
 

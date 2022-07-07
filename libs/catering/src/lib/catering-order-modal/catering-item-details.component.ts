@@ -19,7 +19,7 @@ interface CateringOptionGroup {
     selector: 'catering-item-details',
     template: `
         <ng-container *ngIf="item; else empty_state">
-            <section image class="relative w-full h-64 bg-black/20">
+            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
                     [images]="item.images"
                     class="absolute inset-0"
@@ -63,10 +63,9 @@ interface CateringOptionGroup {
                 </section>
                 <hr />
                 <section details class="space-y-2">
-                    <h2 class="text-xl font-medium">Options</h2>
                     <div class="flex flex-col flex-wrap">
                         <div
-                            class="p-2 min-w-1/2 flex-1"
+                            class="min-w-1/2 flex-1"
                             *ngFor="let group of groups"
                             [attr.group]="group.name"
                         >
@@ -146,7 +145,7 @@ interface CateringOptionGroup {
                     </div>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow">
+            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
                 <button
                     mat-button
                     select

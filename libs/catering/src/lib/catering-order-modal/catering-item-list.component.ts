@@ -19,6 +19,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                 <li
                     item
                     *ngFor="let item of item_list | async"
+                    [class.!border-black]="active === item.id"
                     class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
                 >
                     <button
@@ -91,6 +92,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
     styles: [``],
 })
 export class CateringItemListComponent {
+    @Input() public active: string = '';
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
     @Output() public toggleFav = new EventEmitter<CateringItem>();
