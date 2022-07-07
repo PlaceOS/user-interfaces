@@ -38,7 +38,7 @@ describe('ExploreMapViewComponent', () => {
         ],
         componentProviders: [
             { provide: ExploreSpacesService, useValue: {} },
-            { provide: ExploreDesksService, useValue: {} },
+            { provide: ExploreDesksService, useValue: { startPolling: jest.fn(() => () => null) } },
             { provide: ExploreZonesService, useValue: {} },
         ],
         providers: [
@@ -67,6 +67,10 @@ describe('ExploreMapViewComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
+
+    afterEach(() => {
+        spectator.inject(ExploreStateService).setFeatures.mockReset();
+    })
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -101,9 +105,8 @@ describe('ExploreMapViewComponent', () => {
         (common_mod as any).notifyError = jest.fn();
         (user_mod as any).showStaff = jest.fn(() => of({}));
         spectator.setRouteQueryParam('user', 'jim@jim.com');
-        spectator.detectChanges();
         spectator.tick(1000);
-        expect(state.setFeatures).toHaveBeenCalledTimes(1);
+        expect(state.setFeatures).toHaveBeenCalledTimes(2);
         (ts_client as any).getModule = jest.fn(() => ({
             execute: jest.fn(() => []),
         }));

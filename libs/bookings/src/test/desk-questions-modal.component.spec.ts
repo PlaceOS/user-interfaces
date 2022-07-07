@@ -26,29 +26,17 @@ describe('DeskQuestionsModalComponent', () => {
 
     it('should check for validation', (done) => {
         (common_mod as any).notifyError = jest.fn();
-        spectator.component.event.subscribe(() => {
-            expect(common_mod.notifyError).toHaveBeenCalledTimes(1);
-            done();
-        });
+        spectator.component.form.patchValue({ contact: true });
         spectator.click('footer button');
-        expect(common_mod.notifyError).toHaveBeenCalledWith(
-            'All the questions must be answered'
-        );
-        spectator.component.form.setValue({
-            travelled: false,
-            unwell: false,
-            contact: false,
-        });
+        expect(spectator.component.failure).toBeTruthy();
+        spectator.component.form.patchValue({ contact: false });
+        spectator.component.event.subscribe(() => done());
         spectator.component.submit();
     });
 
     it('should show failure state', () => {
         expect('[failure]').not.toExist();
-        spectator.component.form.setValue({
-            travelled: false,
-            unwell: true,
-            contact: false,
-        });
+        spectator.component.form.patchValue({ unwell: true });
         spectator.component.submit();
         spectator.detectChanges();
         expect('[failure]').toExist();

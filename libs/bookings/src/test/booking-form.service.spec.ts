@@ -46,6 +46,8 @@ describe('BookingFormService', () => {
         spectator = createService();
     });
 
+    afterEach(() => spectator.service.clearForm());
+
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });
@@ -57,7 +59,6 @@ describe('BookingFormService', () => {
     });
 
     it('should handle form changes', () => {
-        expect(spectator.service.form).toBeFalsy();
         spectator.service.newForm();
         const form = spectator.service.form;
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
@@ -95,13 +96,7 @@ describe('BookingFormService', () => {
     it.todo('should allow confirming booking details');
 
     it('should allow posting booking details', async () => {
-        (ts_client as any).post = jest.fn(() => of({}));
-        (ts_client as any).get = jest.fn(() =>
-            of([{ asset_id: 'desk-1', user_email: 'jim@1.com' }])
-        );
-        await expect(spectator.service.postForm()).rejects.toBe(
-            'No form for booking'
-        );
+        (booking_mod as any).queryBookings = jest.fn(() => of([{ asset_id: 'desk-1' }]));
         spectator.service.newForm();
         spectator.service.form.patchValue({
             asset_id: 'desk-1',
@@ -109,6 +104,9 @@ describe('BookingFormService', () => {
         await expect(spectator.service.postForm()).rejects.toBe(
             'desk-1 is not available at the selected time'
         );
+
+        (booking_mod as any).saveBooking = jest.fn(() => of({}));
+        (booking_mod as any).queryBookings = jest.fn(() => of([]));
         spectator.service.form.patchValue({ asset_id: 'desk-2' });
         await spectator.service.postForm();
         expect(spectator.service.view).toBe('success');

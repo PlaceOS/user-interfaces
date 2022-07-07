@@ -59,7 +59,7 @@ describe('Event API Methods', () => {
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events`,
-                {}
+                new CalendarEvent({}).toJSON()
             );
             spy.mockReset();
         });
@@ -86,7 +86,7 @@ describe('Event API Methods', () => {
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.put).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1`,
-                {}
+                new CalendarEvent().toJSON()
             );
             spy.mockReset();
         });
@@ -157,7 +157,7 @@ describe('Event API Methods', () => {
 
     describe('checkinEventGuests', () => {
         it('should allow calling POST request for checking in an event guest', async () => {
-            const spy = jest.spyOn(ts_client, 'get');
+            const spy = jest.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
             spy.mockImplementation(() => of([{}]) as any);
             const guest = await checkinEventGuest(
@@ -166,8 +166,9 @@ describe('Event API Methods', () => {
                 true
             ).toPromise();
             expect(guest).toBeInstanceOf(GuestUser);
-            expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/events/1/guests/guest-1?state=true`
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/events/1/guests/guest-1/checkin?state=true`,
+                ""
             );
             spy.mockReset();
         });

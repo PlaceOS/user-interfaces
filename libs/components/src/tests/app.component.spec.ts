@@ -5,7 +5,10 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { HotkeysService, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
+import { MockComponent } from 'ng-mocks';
 
+import { GlobalBannerComponent } from '../lib/global-banner.component';
+import { GlobalLoadingComponent } from '../lib/global-loading.component';
 import { AppComponent } from '../lib/app.component';
 
 jest.mock('@placeos/common');
@@ -20,6 +23,10 @@ describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
     const createComponent = createComponentFactory({
         component: AppComponent,
+        declarations: [
+            MockComponent(GlobalBannerComponent),
+            MockComponent(GlobalLoadingComponent),
+        ],
         providers: [
             { provide: Sentry.TraceService, useValue: {} },
             { provide: OrganisationService, useValue: {} },

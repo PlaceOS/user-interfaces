@@ -3,13 +3,13 @@ import {
     SpectatorDirective,
 } from '@ngneat/spectator/jest';
 import { BehaviorSubject, of } from 'rxjs';
-import { first } from 'rxjs/operators';
 
 import { BindingDirective } from '../lib/binding.directive';
 
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
+import { fakeAsync } from '@angular/core/testing';
 
 describe('BindingDirective', () => {
     let spectator: SpectatorDirective<BindingDirective>;
@@ -27,7 +27,7 @@ describe('BindingDirective', () => {
         expect(spectator.directive).toBeTruthy();
     });
 
-    it('should listen to binding changes', async () => {
+    it('should listen to binding changes', (done) => {
         const value = new BehaviorSubject('');
         (ts_client as any).getModule = jest.fn(() => ({
             binding: jest.fn(() => ({
@@ -41,18 +41,19 @@ describe('BindingDirective', () => {
             index: 2,
             bind: 'power',
         });
-        spectator.detectChanges();
-        expect(ts_client.getModule).toHaveBeenCalledWith(
-            'system-1',
-            'System',
-            2
-        );
-        value.next('Testing');
-        const result = await spectator
-            .output('modelChange')
-            .pipe(first((_) => !!_))
-            .toPromise();
-        expect(result).toBe('Testing');
+        new Promise<void>((r) => setTimeout(() => r(), 31)).then(() => {
+            expect(ts_client.getModule).toHaveBeenCalledWith(
+                'system-1',
+                'System',
+                2
+            );
+            spectator.directive.modelChange.subscribe((value) => {
+                if (!value) return;
+                expect(value).toBe('Testing');
+                done();
+            });
+            value.next('Testing');
+        });
     });
 
     it('should allow performing executions', () => {

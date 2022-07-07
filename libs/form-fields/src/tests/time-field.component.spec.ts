@@ -87,6 +87,7 @@ describe('TimeFieldComponent', () => {
             'HH:mm',
             new Date()
         );
+        console.log(date, '\n', first_option);
         expect(date <= first_option).toBeTruthy();
     });
 });

@@ -119,8 +119,8 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 } else if (params.has('reject')) {
                     this.reject(params.get('reject'));
                 }
-                this.manage = this._router.url.includes('manage');
-                this.is_map = this._router.url.includes('map');
+                this.manage = this._router.url?.includes('manage');
+                this.is_map = this._router.url?.includes('map');
             })
         );
         this.subscription(
@@ -139,8 +139,8 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
                 this.updateZones(zones);
             })
         );
-        this.manage = this._router.url.includes('manage');
-        this.is_map = this._router.url.includes('map');
+        this.manage = this._router.url?.includes('manage');
+        this.is_map = this._router.url?.includes('map');
     }
 
     public newDesk() {
