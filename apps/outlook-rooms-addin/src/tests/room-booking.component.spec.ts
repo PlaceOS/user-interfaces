@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
-import { mockForm, mockEventFormService, mockRouterStub } from './test-mocks';
+import { mockForm, mockRouterStub } from './test-mocks';
 
 describe('RoomBookingComponent', () => {
     const formModel = mockForm;
@@ -18,7 +18,6 @@ describe('RoomBookingComponent', () => {
     const form = fb.group(formModel);
 
     const RouterStub = mockRouterStub;
-    const EventFormServiceStub = mockEventFormService;
     let spectator: Spectator<RoomBookingComponent>;
 
     const createComponent = createComponentFactory({
@@ -36,7 +35,15 @@ describe('RoomBookingComponent', () => {
             },
             {
                 provide: EventFormService,
-                useClass: EventFormServiceStub,
+                useValue: {
+                    setView: jest.fn(() => {}),
+                    newForm: jest.fn(() => {}),
+                    clearForm: jest.fn(),
+                    storeForm: jest.fn(() => {}),
+                    loadForm: jest.fn(),
+                    postForm: jest.fn(),
+                    view: '',
+                },
             },
         ],
         declarations: [],
@@ -125,7 +132,6 @@ describe('RoomBookingComponent', () => {
 
         spectator.component.findSpace();
 
-        console.log(event_service.form);
         expect(event_service.form.controls.duration.status).toBe('INVALID');
         expect(event_service.form.status).toBe('INVALID');
         expect(navigate_spy).not.toHaveBeenCalled();

@@ -89,7 +89,7 @@ export class mockEventFormService {
     available_spaces = of([mockSpace, mockSpace, mockSpace]);
     options = of(mockEventFlowOptions);
 
-    setView(view: string) {
+    public setView(view: string) {
         this.view = view;
     }
     setOptions(option: any) {
