@@ -19,11 +19,16 @@ import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
 import { Location } from '@angular/common';
-import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
+import {
+    ComponentsModule,
+    InteractiveMapComponent,
+    MapPinComponent,
+} from '@placeos/components';
 import { BaseClass } from '@placeos/common';
 
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
+import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import {
     mockOrgService,
     mockSpacesService,
@@ -65,7 +70,10 @@ describe('MapService', () => {
                 useClass: roomConfirmServiceStub,
             },
         ],
-        declarations: [MockComponent(RoomTileComponent)],
+        declarations: [
+            MockComponent(RoomTileComponent),
+            MockComponent(MapPinComponent),
+        ],
     });
 
     beforeEach(() => {
@@ -170,7 +178,25 @@ describe('MapService', () => {
         expect(bottom_sheet_spy).toHaveBeenCalled();
     });
 
-    it('should load the map before processing map styles', () => {
+    it('should only processing map features after the map has been loaded', async () => {
         spectator = createService();
+
+        const map_load_spy = jest.spyOn(spectator.service, 'loadMap');
+
+        const process_features_spy = jest.spyOn(
+            spectator.service,
+            'processFeature'
+        );
+
+        const available_spaces = of([mockSpace, mockSpace]);
+
+        await spectator.service.locateSpaces(available_spaces);
+        expect(map_load_spy).toHaveBeenCalled();
+
+        expect(process_features_spy).not.toHaveBeenCalled();
+
+        setTimeout(() => {
+            expect(process_features_spy).toHaveBeenCalled();
+        }, 2000);
     });
 });
