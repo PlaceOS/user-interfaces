@@ -116,8 +116,35 @@ describe('MapService', () => {
         expect(flag).toBe(true);
     });
 
-    it('should get and store available spaces', () => {
+    it('should create map actions for all available spaces', async () => {
         spectator = createService();
+        let map_actions;
+        let spaces_count;
+        const available_spaces = of([
+            mockSpace,
+            mockSpace,
+            mockSpace,
+            mockSpace,
+        ]);
+
+        await spectator.service.locateSpaces(available_spaces);
+
+        spectator.service.map_actions$.subscribe((actions) => {
+            map_actions = actions;
+        });
+        available_spaces.subscribe((spaces) => {
+            spaces_count = spaces;
+        });
+
+        expect(map_actions.length).toBe(spaces_count.length);
+
+        map_actions.forEach((map) => {
+            expect(map.action).toBe('click');
+        });
+
+        map_actions.forEach((map) => {
+            expect(typeof map.callback).toBe('function');
+        });
     });
     it('should contain a method to open a room tile when clicked', () => {
         spectator = createService();
