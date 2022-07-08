@@ -3,7 +3,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, MockInstance, ngMocks, MockBuilder } from 'ng-mocks';
 import { By } from '@angular/platform-browser';
 import { of, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, switchMap } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
@@ -87,8 +87,23 @@ describe('MapService', () => {
             JSON.stringify(room_service.selected_space$)
         );
     });
-    it('should return a list of map IDs with no duplicates', () => {
+    it('should return a list of map IDs with no duplicates', async () => {
         spectator = createService();
+        const available_spaces = of([
+            mockSpace,
+            mockSpace,
+            mockSpace,
+            mockSpace,
+        ]);
+        let maps_list;
+        const map_list_spy = jest.spyOn(spectator.service, 'loadMap');
+        await spectator.service.locateSpaces(available_spaces);
+        spectator.service.maps_list$.subscribe((list) => {
+            maps_list = list;
+        });
+
+        expect(maps_list.length).toBe(1); //3 spaces with the same map_ID were passed through, only 1 should be returned
+        expect(map_list_spy).toHaveBeenCalled();
     });
     it('should have a flag indicating whether the map has loaded', () => {
         spectator = createService();

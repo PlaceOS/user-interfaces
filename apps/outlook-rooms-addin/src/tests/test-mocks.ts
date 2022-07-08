@@ -47,7 +47,7 @@ export const mockSpace: Space = {
     capacity: 2,
     feature_list: [''],
     support_url: '',
-    map_id: '',
+    map_id: 'map-id-1',
     bookable: true,
     zones: [''],
     configurations: [''] as any,
