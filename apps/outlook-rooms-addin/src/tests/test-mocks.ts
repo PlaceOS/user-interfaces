@@ -139,7 +139,9 @@ export class mockMapService {
 }
 
 export class mockRoomConfirmService {
+    selected_space$ = of(mockSpace);
     openRoomDetail = jest.fn((param) => {});
+    handleBookEvent = jest.fn((space: Space, flat: boolean) => {});
 }
 
 export class mockRouterStub {

@@ -1,5 +1,6 @@
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of, Observable } from 'rxjs';
@@ -9,6 +10,11 @@ import { BookModule } from '../app/rooms/book.module';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {
+    MatBottomSheetModule,
+    MatBottomSheet,
+} from '@angular/material/bottom-sheet';
+
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
@@ -19,11 +25,8 @@ import { RoomDetailsComponent } from '../app/rooms/room-details/room-details.com
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { MapService } from '../app/rooms/map.service';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
-import {
-    MatBottomSheetModule,
-    MatBottomSheet,
-} from '@angular/material/bottom-sheet';
-import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
+import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
+
 import {
     mockOrgService,
     mockSpacesService,
@@ -34,7 +37,6 @@ import {
     mockSpace,
     mockEventFlowOptions,
 } from './test-mocks';
-import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
 
 describe('FindSpaceComponent', () => {
     const OrgServiceStub = mockOrgService;
