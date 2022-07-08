@@ -1,9 +1,8 @@
 import { MapService } from '../app/rooms/map.service';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { MockComponent, MockInstance, ngMocks, MockBuilder } from 'ng-mocks';
-import { By } from '@angular/platform-browser';
-import { of, Observable } from 'rxjs';
-import { take, switchMap, tap } from 'rxjs/operators';
+import { MockComponent, ngMocks } from 'ng-mocks';
+import { of } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
@@ -15,30 +14,11 @@ import {
     MatBottomSheet,
 } from '@angular/material/bottom-sheet';
 
-import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
-import { EventFormService } from '@placeos/events';
-import { Location } from '@angular/common';
-import {
-    ComponentsModule,
-    InteractiveMapComponent,
-    MapPinComponent,
-} from '@placeos/components';
-import { BaseClass } from '@placeos/common';
+import { ComponentsModule, MapPinComponent } from '@placeos/components';
 
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
-import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
-import {
-    mockOrgService,
-    mockSpacesService,
-    mockFeatureFilterService,
-    mockMapService,
-    mockRoomConfirmService,
-    mockRouterStub,
-    mockSpace,
-    mockEventFlowOptions,
-} from './test-mocks';
+import { mockRoomConfirmService, mockSpace } from './test-mocks';
 
 describe('MapService', () => {
     let spectator: SpectatorService<MapService>;

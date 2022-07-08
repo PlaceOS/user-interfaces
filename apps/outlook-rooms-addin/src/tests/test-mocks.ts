@@ -34,11 +34,34 @@ export const mockBuildingLevel = {
     locations: [] as any,
 };
 
+export const mockUser = {
+    id: '123',
+    name: 'testUser',
+    email: 'user@test.com',
+    first_name: 'user',
+    last_name: 'user',
+    username: '',
+    phone: '',
+    organisation: '',
+    notes: '',
+    photo: '',
+    required: true,
+    organizer: true,
+    response_status: '' as any,
+    visit_expected: true,
+    checked_in: false,
+    groups: [''],
+    extension_data: ' ' as any,
+    is_external: true,
+    assistance_required: false,
+};
+
 export const mockCalendarAvailability = {
     duration: 12345,
     date: 23456,
     status: '',
 };
+
 export const mockSpace: Space = {
     id: '1',
     name: 'test-space',
@@ -56,6 +79,35 @@ export const mockSpace: Space = {
     level: mockBuildingLevel,
     features: [''],
     availability: [mockCalendarAvailability],
+};
+
+export const mockCalendarEvent = {
+    id: '123',
+    status: 'approved',
+    host: 'host@test.com',
+    calendar: 'calendar-id',
+    creator: 'creator@test.com',
+    attendees: [mockUser],
+    resources: [mockSpace],
+    title: 'title',
+    body: '',
+    event_start: 12345,
+    event_end: 23456,
+    date: 12345,
+    duration: 22222,
+    timezone: '',
+    location: '',
+    meeting_url: '',
+    meeting_provider: '',
+    recurrence: '' as any,
+    recurring_master_id: '',
+    private: false,
+    attachments: '' as any,
+    extension_date: '' as any,
+    system: '' as any,
+    old_system: '' as any,
+    organiser: mockUser,
+    type: 'external',
 };
 
 export const mockEventFlowOptions = {
