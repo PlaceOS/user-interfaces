@@ -3,7 +3,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, MockInstance, ngMocks, MockBuilder } from 'ng-mocks';
 import { By } from '@angular/platform-browser';
 import { of, Observable } from 'rxjs';
-import { take, switchMap } from 'rxjs/operators';
+import { take, switchMap, tap } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
@@ -105,8 +105,15 @@ describe('MapService', () => {
         expect(maps_list.length).toBe(1); //3 spaces with the same map_ID were passed through, only 1 should be returned
         expect(map_list_spy).toHaveBeenCalled();
     });
-    it('should have a flag indicating whether the map has loaded', () => {
+    it('should have a flag indicating whether the map has loaded', async () => {
         spectator = createService();
+        let flag;
+        await spectator.service.map_loaded$.pipe(take(1)).toPromise();
+        spectator.service.map_loaded$.subscribe((value) => (flag = value));
+        expect(flag).toBe(false);
+
+        await spectator.service.loadMap();
+        expect(flag).toBe(true);
     });
 
     it('should get and store available spaces', () => {
