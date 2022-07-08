@@ -105,7 +105,6 @@ export class DeskListComponent{
     }
 
     public selectDesk(desk: Desk) {
-        console.log("Selected desk", desk);
         this.onSelect.emit(desk);
     }
 }

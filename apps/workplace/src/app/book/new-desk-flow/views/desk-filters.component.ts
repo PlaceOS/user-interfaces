@@ -28,7 +28,7 @@ import { addDays, endOfDay } from "date-fns";
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center">Space Filters</h3>
+            <h3 class="font-medium flex-2 text-center">Desk Filters</h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -115,15 +115,17 @@ import { addDays, endOfDay } from "date-fns";
                             [disabled]="form.value.all_day"
                         >
                         </a-duration-field>
+
+                    </div>
+                </div>
+<!-- All Day -->
+                <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
                         <mat-checkbox
                             formControlName="all_day"
-                            *ngIf="allow_all_day"
-                            class="absolute top-0 right-0"
                         >
                             All Day
                         </mat-checkbox>
                     </div>
-                </div>
             </section>
             <section favs class="space-y-2 pb-4">
                 <h2 class="text-lg font-medium">Favourites</h2>

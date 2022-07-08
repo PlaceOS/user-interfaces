@@ -369,7 +369,9 @@ export class BookingFormService extends BaseClass {
                 duration: 12 * 60,
             });
         }
+        this._loading.next('Saving booking');
         const result = await saveBooking(new Booking(form.value)).toPromise();
+        this._loading.next('');
         const { booking_type } = form.value;
         this.clearForm();
         this._form.getValue()?.patchValue({ booking_type });

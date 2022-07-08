@@ -253,7 +253,7 @@ export class NewDeskFormDetailsComponent{
         const ref = this._dialog.open(NewDeskSelectModalComponent);
         ref.afterClosed().subscribe((desk?: Desk) => {
             if(!desk) return;
-            this.selectedDesk = desk;
+            this.setBookingAsset(desk);
         })
     }
 
@@ -273,16 +273,17 @@ export class NewDeskFormDetailsComponent{
         }
     }
 
-    public confirmBooking(){
-        if(!this.selectedDesk) return;
-        const desk = this.selectedDesk;
+    private setBookingAsset(desk: Desk){
+        if(!desk) return;
+        this.selectedDesk = desk;
         this._state.form.patchValue({
             asset_id: desk?.id,
             asset_name: desk.name,
             map_id: desk?.map_id || desk?.id,
             description: desk.name,
             booking_type: 'desk',
-            zones: desk.zone? [desk.zone?.parent_id, desk.zone?.id] : []
+            zones: desk.zone? [desk.zone?.parent_id, desk.zone?.id] : [],
+            booking_asset: desk
         })
     }
 }
