@@ -23,6 +23,7 @@ import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
 import { BaseClass } from '@placeos/common';
 
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
+import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
 import {
     mockOrgService,
     mockSpacesService,
@@ -55,7 +56,7 @@ describe('MapService', () => {
             {
                 provide: MatBottomSheet,
                 useValue: {
-                    open: jest.fn((component) => {}),
+                    open: jest.fn((RoomTileComponent) => {}),
                     afterDismissed: jest.fn(),
                 },
             },
@@ -64,7 +65,7 @@ describe('MapService', () => {
                 useClass: roomConfirmServiceStub,
             },
         ],
-        declarations: [],
+        declarations: [MockComponent(RoomTileComponent)],
     });
 
     beforeEach(() => {
@@ -146,8 +147,27 @@ describe('MapService', () => {
             expect(typeof map.callback).toBe('function');
         });
     });
-    it('should contain a method to open a room tile when clicked', () => {
+    it('should contain a method to open a room tile when clicked', async () => {
         spectator = createService();
+        const mat_bottom_sheet = spectator.inject(MatBottomSheet);
+        (mat_bottom_sheet as any).open.mockImplementation(
+            (RoomDetailsComponent) => {}
+        );
+        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
+            value: of(true),
+        }));
+        const room_confirm_service = spectator.inject(RoomConfirmService);
+
+        const room_confirm_service_spy = jest.spyOn(
+            room_confirm_service,
+            'handleBookEvent'
+        );
+
+        await spectator.service.openRoomTile(mockSpace);
+        expect(room_confirm_service_spy).toBeCalled();
+
+        const bottom_sheet_spy = jest.spyOn(mat_bottom_sheet, 'open');
+        expect(bottom_sheet_spy).toHaveBeenCalled();
     });
 
     it('should load the map before processing map styles', () => {
