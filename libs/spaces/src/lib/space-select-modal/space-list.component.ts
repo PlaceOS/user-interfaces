@@ -121,7 +121,6 @@ export class SpaceListComponent {
     }
 
     public selectSpace(space: Space) {
-        console.log("Selected space",space);
         this.onSelect.emit(space);
     }
 }
