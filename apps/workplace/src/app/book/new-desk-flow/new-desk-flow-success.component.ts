@@ -9,7 +9,7 @@ import { BookingFormService } from '@placeos/bookings';
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium">
+                <h2 class="text-2xl font-medium text-center">
                     {{ last_event.asset_name || last_event.asset_id
                     }}{{ location }} Booked!
                 </h2>
