@@ -1,8 +1,8 @@
-import { Component, Inject } from "@angular/core";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { FAV_DESK_KEY } from "@placeos/bookings";
-import { SettingsService } from "@placeos/common";
-import { Desk } from "@placeos/organisation";
+import { Component } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { FAV_DESK_KEY } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
+import { Desk } from '@placeos/organisation';
 
 @Component({
     selector: 'new-desk-select-modal',
@@ -25,21 +25,23 @@ import { Desk } from "@placeos/organisation";
                         class="w-full border-b border-gray-200"
                         [(view)]="view"
                     ></desk-filters-display>
-                    <desk-list 
-                        *ngIf="view ==='list'; else mapView;"
+                    <desk-list
+                        *ngIf="view === 'list'; else mapView"
                         class="flex-1 h-1/2"
                         [favorites]="favorites"
                         (onSelect)="displayed = $event"
-                        (toggleFav)="toggleFavourite($event)"></desk-list>
+                        (toggleFav)="toggleFavourite($event)"
+                    ></desk-list>
                 </div>
-                <desk-details *ngIf="displayed"
+                <desk-details
+                    *ngIf="displayed"
                     [desk]="displayed"
                     class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20 inset-0"
                     [fav]="displayed && favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (onSelect)="selectDesk(displayed)"
                     (close)="displayed = null"
-                    ></desk-details>
+                ></desk-details>
             </main>
         </div>
         <ng-template #mapView>
@@ -49,9 +51,9 @@ import { Desk } from "@placeos/organisation";
                 (onSelect)="displayed = $event"
             ></desk-map>
         </ng-template>
-    `
+    `,
 })
-export class NewDeskSelectModalComponent{
+export class NewDeskSelectModalComponent {
     public displayed?: Desk;
     public selectedDesk: Desk;
     public view = 'list';
@@ -62,12 +64,11 @@ export class NewDeskSelectModalComponent{
 
     constructor(
         public dialogRef: MatDialogRef<NewDeskSelectModalComponent>,
-        private _settings: SettingsService){
-        
-    }
+        private _settings: SettingsService
+    ) {}
 
-    public selectDesk(desk: Desk){
-        this.dialogRef.close(desk)
+    public selectDesk(desk: Desk) {
+        this.dialogRef.close(desk);
     }
 
     public toggleFavourite(desk: Desk) {
@@ -85,5 +86,4 @@ export class NewDeskSelectModalComponent{
             );
         }
     }
-
 }

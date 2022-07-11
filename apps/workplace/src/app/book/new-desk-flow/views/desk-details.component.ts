@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { MapPinComponent } from '@placeos/components';
 import { Desk } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -49,7 +55,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
             <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
                 <section actions class="z-0 pb-2 border-b">
                     <h2 class="text-xl font-medium mb-2 mt-4">
-                        {{ desk.display_name || desk.name || desk.id}}
+                        {{ desk.display_name || desk.name || desk.id }}
                     </h2>
                 </section>
                 <section details class="space-y-2 pb-2 border-b">
@@ -60,21 +66,25 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>desk</app-icon>
-                        <p> 
-                        {{ desk.display_name || desk.name || desk.id }}
+                        <p>
+                            {{ desk.display_name || desk.name || desk.id }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>place</app-icon>
-                        <p>{{  desk.zone?.display_name ||
-                                desk.zone?.name
-                            }}
-                        </p>
+                        <p>{{ desk.zone?.display_name || desk.zone?.name }}</p>
                     </div>
                 </section>
-                <section type *ngIf="desk.features?.length" class="space-y-2 pb-2 border-b">
+                <section
+                    type
+                    *ngIf="desk.features?.length"
+                    class="space-y-2 pb-2 border-b"
+                >
                     <h2 class="text-xl font-medium">Type</h2>
-                    <div *ngFor="let feat of desk.features || []" class="flex items-center flex-wrap space-x-2">
+                    <div
+                        *ngFor="let feat of desk.features || []"
+                        class="flex items-center flex-wrap space-x-2"
+                    >
                         <div for="feat" class="flex-1 w-1/2">{{ feat }}</div>
                     </div>
                 </section>
@@ -113,7 +123,9 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     (click)="onSelect.emit()"
                 >
                     <div class="flex items-center justify-center">
-                        <app-icon class="text-2xl">{{ active ? 'remove' : 'add' }}</app-icon>
+                        <app-icon class="text-2xl">{{
+                            active ? 'remove' : 'add'
+                        }}</app-icon>
                         <p>
                             {{ active ? 'Remove this room' : 'Add this room' }}
                         </p>
@@ -142,20 +154,22 @@ export class DeskDetailsComponent {
     @Output() public toggleFav = new EventEmitter<void>();
     @Output() public onSelect = new EventEmitter<void>();
 
-    public map_url ='';
+    public map_url = '';
     public features: ViewerFeature[] = [];
 
-    public ngOnChanges(changes: SimpleChanges){
-        if(changes.desk && this.desk){
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.desk && this.desk) {
             this.updateFeature();
         }
     }
 
-    private updateFeature(){
+    private updateFeature() {
         this.map_url = this.desk.zone.map_id;
-        this.features = [{
-            location: this.desk.map_id || this.desk.id,
-            content: MapPinComponent
-        }]
+        this.features = [
+            {
+                location: this.desk.map_id || this.desk.id,
+                content: MapPinComponent,
+            },
+        ];
     }
 }

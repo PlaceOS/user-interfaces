@@ -1,18 +1,21 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { BookingFormService, FAV_DESK_KEY } from "@placeos/bookings";
-import { SettingsService } from "@placeos/common";
-import { Desk, OrganisationService } from "@placeos/organisation";
-import { addDays, endOfDay } from "date-fns";
-import { tap } from "rxjs/operators";
-import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { BookingFormService, FAV_DESK_KEY } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
+import { addDays, endOfDay } from 'date-fns';
+import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
 
 @Component({
     selector: 'new-desk-form-details',
     styles: [],
     template: `
-        <div class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2" *ngIf="form" [formGroup]="form">
+        <div
+            class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
+            *ngIf="form"
+            [formGroup]="form"
+        >
             <section class="p-2">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
@@ -79,29 +82,42 @@ import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
                 <div *ngIf="(features | async)?.length" class="flex flex-col">
                     <label for="title">Type</label>
                     <div class="flex items-center flex-wrap space-x-2">
-                    <mat-checkbox
-                        *ngFor="let opt of features | async"
-                        [ngModel]="((options | async)?.features || []).includes(opt)"
-                        (ngModelChange)="setFeature(opt, $event)"
-                        [ngModelOptions]="{standalone: true}"
-                    >
-                        {{opt}}
-                    </mat-checkbox>
+                        <mat-checkbox
+                            *ngFor="let opt of features | async"
+                            [ngModel]="
+                                ((options | async)?.features || []).includes(
+                                    opt
+                                )
+                            "
+                            (ngModelChange)="setFeature(opt, $event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            {{ opt }}
+                        </mat-checkbox>
                     </div>
                 </div>
                 <div *ngIf="selectedDesk" list class="my-2 space-y-2">
-                    <div class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200">
-                        <div class="w-24 h-24 rounded-xl bg-black/20 mr-4"></div>
+                    <div
+                        class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
+                    >
+                        <div
+                            class="w-24 h-24 rounded-xl bg-black/20 mr-4"
+                        ></div>
                         <div class="space-y-2 pb-4">
                             <div class="font-medium">
-                                {{ selectedDesk.display_name || selectedDesk.name || selectedDesk.id }}
+                                {{
+                                    selectedDesk.display_name ||
+                                        selectedDesk.name ||
+                                        selectedDesk.id
+                                }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <p class="text-xs">                                
-                                    {{  selectedDesk.zone?.display_name ||
-                                        selectedDesk.zone?.name ||
-                                        '&lt;No Level&gt;'
+                                <p class="text-xs">
+                                    {{
+                                        selectedDesk.zone?.display_name ||
+                                            selectedDesk.zone?.name ||
+                                            '&lt;No Level&gt;'
                                     }}
                                 </p>
                             </div>
@@ -136,7 +152,9 @@ import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
                             mat-icon-button
                             fav
                             class="absolute top-1 right-1"
-                            [class.text-blue-400]="favorites.includes(selectedDesk?.id)"
+                            [class.text-blue-400]="
+                                favorites.includes(selectedDesk?.id)
+                            "
                             (click)="toggleFavourite(selectedDesk)"
                         >
                             <app-icon>{{
@@ -160,7 +178,7 @@ import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
                 </button>
             </section>
             <section class="p-2">
-            <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="space-x-2 flex items-center mb-4">
                     <div
                         class="border border-black rounded-full h-6 w-6 flex items-center justify-center"
                     >
@@ -170,11 +188,9 @@ import { NewDeskSelectModalComponent } from "./new-desk-select-modal.component";
                 </h3>
             </section>
         </div>
-    
-    `
+    `,
 })
-export class NewDeskFormDetailsComponent{
-
+export class NewDeskFormDetailsComponent {
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */
@@ -197,7 +213,7 @@ export class NewDeskFormDetailsComponent{
     public set building(bld) {
         this._org.building = bld;
     }
-    
+
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
@@ -217,7 +233,7 @@ export class NewDeskFormDetailsComponent{
         return this._settings.get('app.desks.needs_reason') === true;
     }
 
-    public get allow_time_changes() { 
+    public get allow_time_changes() {
         return !!this._settings.get('app.desks.allow_time_changes');
     }
 
@@ -249,12 +265,12 @@ export class NewDeskFormDetailsComponent{
     ) {}
 
     /** Open desk selector */
-    public selectDesk(){
+    public selectDesk() {
         const ref = this._dialog.open(NewDeskSelectModalComponent);
         ref.afterClosed().subscribe((desk?: Desk) => {
-            if(!desk) return;
+            if (!desk) return;
             this.setBookingAsset(desk);
-        })
+        });
     }
 
     public toggleFavourite(desk: Desk) {
@@ -273,8 +289,8 @@ export class NewDeskFormDetailsComponent{
         }
     }
 
-    private setBookingAsset(desk: Desk){
-        if(!desk) return;
+    private setBookingAsset(desk: Desk) {
+        if (!desk) return;
         this.selectedDesk = desk;
         this._state.form.patchValue({
             asset_id: desk?.id,
@@ -282,8 +298,8 @@ export class NewDeskFormDetailsComponent{
             map_id: desk?.map_id || desk?.id,
             description: desk.name,
             booking_type: 'desk',
-            zones: desk.zone? [desk.zone?.parent_id, desk.zone?.id] : [],
-            booking_asset: desk
-        })
+            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+            booking_asset: desk,
+        });
     }
 }

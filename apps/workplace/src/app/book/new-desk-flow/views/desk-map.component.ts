@@ -1,23 +1,24 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { BookingFormService } from "@placeos/bookings";
-import { BaseClass, unique } from "@placeos/common";
-import { ExploreStateService } from "@placeos/explore";
-import { Desk, OrganisationService } from "@placeos/organisation";
-import { distinctUntilChanged, map, take } from "rxjs/operators";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BookingFormService } from '@placeos/bookings';
+import { BaseClass, unique } from '@placeos/common';
+import { Desk } from '@placeos/organisation';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-map',
-    styles:[`
-        :host {
-            position: relative;
-            background: rgba(0, 0, 0, 0.05);
-            padding-top: 4rem;
-        }
+    styles: [
+        `
+            :host {
+                position: relative;
+                background: rgba(0, 0, 0, 0.05);
+                padding-top: 4rem;
+            }
 
-        button {
-            border-radius: 0;
-        }
-    `],
+            button {
+                border-radius: 0;
+            }
+        `,
+    ],
     template: `
         <i-map
             *ngIf="!is_displayed"
@@ -64,10 +65,9 @@ import { distinctUntilChanged, map, take } from "rxjs/operators";
                 <app-icon>refresh</app-icon>
             </button>
         </div>
-    `
+    `,
 })
-export class DeskMapComponent extends BaseClass implements OnInit{
-
+export class DeskMapComponent extends BaseClass implements OnInit {
     @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<Desk>();
 
@@ -85,17 +85,19 @@ export class DeskMapComponent extends BaseClass implements OnInit{
     }
 
     public readonly levels = this._state.available_assets.pipe(
-        map( desks => unique(desks.map(desk => desk.zone)))
-    )
+        map((desks) => unique(desks.map((desk) => desk.zone)))
+    );
 
     public readonly actions = this._state.available_assets.pipe(
-        map( desks => desks.map((desk) => ({
-            id: desk.map_id || desk.id,
-            action: ['touchend','mouseup'],
-            callback: () => this.selectDesk(desk as any),
-        })))
-    )
-    
+        map((desks) =>
+            desks.map((desk) => ({
+                id: desk.map_id || desk.id,
+                action: ['touchend', 'mouseup'],
+                callback: () => this.selectDesk(desk as any),
+            }))
+        )
+    );
+
     public readonly features = this._state.available_assets.pipe(
         map((desks) =>
             desks.map((desk) => ({
@@ -108,24 +110,20 @@ export class DeskMapComponent extends BaseClass implements OnInit{
         )
     );
 
-    constructor(
-        private _state: BookingFormService
-    ){ super(); }
-
-    ngOnInit(): void {
-
-        this.subscription('levels_update',
-            this.levels.pipe(
-                distinctUntilChanged()
-            ).subscribe(
-                levels => {
-                    this.level = levels[0];
-                }
-            )
-        )
+    constructor(private _state: BookingFormService) {
+        super();
     }
 
-    public selectDesk(desk: Desk){
+    ngOnInit(): void {
+        this.subscription(
+            'levels_update',
+            this.levels.pipe(distinctUntilChanged()).subscribe((levels) => {
+                this.level = levels[0];
+            })
+        );
+    }
+
+    public selectDesk(desk: Desk) {
         this.onSelect.emit(desk);
     }
 

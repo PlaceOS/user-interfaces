@@ -1,30 +1,30 @@
-import { Component, Input, Optional } from "@angular/core";
-import { MatBottomSheetRef } from "@angular/material/bottom-sheet";
-import { BookingFormService } from "@placeos/bookings";
-import { BaseClass } from "@placeos/common";
-import { Desk, OrganisationService } from "@placeos/organisation";
-
+import { Component, Input, Optional } from '@angular/core';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { BookingFormService } from '@placeos/bookings';
+import { BaseClass } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'new-desk-flow-confirm',
-    styles: [`
-        section > app-icon {
-            font-size: 1.5rem;
-            margin-top: 0.3rem;
-        }
+    styles: [
+        `
+            section > app-icon {
+                font-size: 1.5rem;
+                margin-top: 0.3rem;
+            }
 
-        h2 {
-            font-size: 1.5rem;
-            font-weight: medium;
-            margin-bottom: 0.5rem;
-        }
+            h2 {
+                font-size: 1.5rem;
+                font-weight: medium;
+                margin-bottom: 0.5rem;
+            }
 
-        h3 {
-            font-size: 1.25rem;
-            font-weight: medium;
-            margin: 0.5rem 0;
-        }
-    `
+            h3 {
+                font-size: 1.25rem;
+                font-weight: medium;
+                margin: 0.5rem 0;
+            }
+        `,
     ],
     template: `
         <button mat-icon-button *ngIf="show_close" (click)="dismiss()">
@@ -57,10 +57,14 @@ import { Desk, OrganisationService } from "@placeos/organisation";
                 </div>
             </div>
         </section>
-        <section desk class="flex space-x-1 py-4 px-2 border-t" *ngIf="booking_asset?.id">
+        <section
+            desk
+            class="flex space-x-1 py-4 px-2 border-t"
+            *ngIf="booking_asset?.id"
+        >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3>{{booking_asset?.name || booking_asset?.id || ''}}</h3>
+                <h3>{{ booking_asset?.name || booking_asset?.id || '' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
                     <span>Single desk</span>
@@ -86,17 +90,13 @@ import { Desk, OrganisationService } from "@placeos/organisation";
             >
                 Confirm
             </button>
-            <button
-                mat-button
-                class="inverse w-full"
-                *ngIf="loading | async"
-            >
+            <button mat-button class="inverse w-full" *ngIf="loading | async">
                 Undo
             </button>
         </footer>
-    `
+    `,
 })
-export class NewDeskFlowConfirmComponent extends BaseClass{
+export class NewDeskFlowConfirmComponent extends BaseClass {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._state.loading;
@@ -104,28 +104,34 @@ export class NewDeskFlowConfirmComponent extends BaseClass{
     public readonly postForm = async () => {
         await this._state.postForm();
         this.dismiss(true);
-    }
-    public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e)
+    };
+    public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
-    public get booking(){
+    public get booking() {
         return this._state.form.value as any;
     }
 
-    public get booking_asset(){
+    public get booking_asset() {
         return this.booking.booking_asset as Desk;
     }
 
-    public get location(){
+    public get location() {
         const building = this._org.buildings.find(
-            b => b.id === this.booking_asset?.zone?.parent_id
+            (b) => b.id === this.booking_asset?.zone?.parent_id
         );
-        const level = this._org.levels.find(l => l.id === this.booking_asset?.zone?.id);
-        return `${level?.display_name || level?.name}${building ? ',':''} ${building?.address || building?.display_name || building?.name || ''}`
+        const level = this._org.levels.find(
+            (l) => l.id === this.booking_asset?.zone?.id
+        );
+        return `${level?.display_name || level?.name}${building ? ',' : ''} ${
+            building?.address || building?.display_name || building?.name || ''
+        }`;
     }
 
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
         @Optional() private _sheet_ref: MatBottomSheetRef
-    ){ super(); }
+    ) {
+        super();
+    }
 }
