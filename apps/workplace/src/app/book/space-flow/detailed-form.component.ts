@@ -12,22 +12,24 @@ import { SettingsService } from '@placeos/common';
                     class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
-                        <label>Date</label>
-                        <a-date-field formControlName="date">
+                        <label for="date">Date</label>
+                        <a-date-field name="date" formControlName="date">
                             Date and time must be in the future
                         </a-date-field>
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
-                        <label>Start Time</label>
+                        <label for="start-time">Start Time</label>
                         <a-time-field
+                            name="start-time"
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3 relative">
-                        <label>End Time</label>
+                        <label for="end-time">End Time</label>
                         <a-duration-field
+                            name="end-time"
                             formControlName="duration"
                             [time]="form.value.date"
                             [max]="max_duration"
@@ -49,16 +51,18 @@ import { SettingsService } from '@placeos/common';
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                     *ngIf="can_book_for_others"
                 >
-                    <label>Host<span>*</span></label>
+                    <label for="host">Host<span>*</span></label>
                     <host-select-field
+                        name="host"
                         formControlName="organiser"
                     ></host-select-field>
                 </div>
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-2"
                 >
-                    <label>Attendees</label>
+                    <label for="attendees">Attendees</label>
                     <a-user-list-field
+                        name="attendees"
                         [hideActions]="hide_actions"
                         formControlName="attendees"
                     ></a-user-list-field>
@@ -67,9 +71,12 @@ import { SettingsService } from '@placeos/common';
             <section class="mb-4 border-b border-gray-300">
                 <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                     <div class="flex flex-col">
-                        <label>Meeting Subject <span>*</span></label>
+                        <label for="title"
+                            >Meeting Subject <span>*</span></label
+                        >
                         <mat-form-field appearance="outline">
                             <input
+                                name="title"
                                 matInput
                                 formControlName="title"
                                 placeholder="Meeting title"
@@ -78,8 +85,9 @@ import { SettingsService } from '@placeos/common';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col resize-y mb-4">
-                        <label>Notes</label>
+                        <label for="notes">Notes</label>
                         <rich-text-input
+                            name="notes"
                             formControlName="body"
                             placeholder="Add meeting notes here..."
                         ></rich-text-input>
