@@ -49,10 +49,10 @@ import { SettingsService } from '@placeos/common';
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                     *ngIf="can_book_for_others"
                 >
-                    <label>Host</label>
-                    <a-user-search-field
+                    <label>Host<span>*</span></label>
+                    <host-select-field
                         formControlName="organiser"
-                    ></a-user-search-field>
+                    ></host-select-field>
                 </div>
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-2"
