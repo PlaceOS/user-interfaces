@@ -33,7 +33,7 @@ import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
-import * as MOCKS from '@placeos/mocks';
+import { MOCKS } from '@placeos/mocks';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;

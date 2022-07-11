@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { Space } from '@placeos/spaces';
 import { randomInt } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { FormsModule } from '@angular/forms';
 
 describe('SpaceListFieldComponent', () => {
     let spectator: Spectator<SpaceListFieldComponent>;
@@ -15,11 +16,11 @@ describe('SpaceListFieldComponent', () => {
         providers: [
             {
                 provide: MatDialog,
-                useValue: { open: jest.fn(() => ({ afterClose: () => of() })) },
+                useValue: { open: jest.fn(() => ({ afterClosed: () => of() })) },
             },
         ],
         declarations: [MockComponent(IconComponent)],
-        imports: [MockModule(MatRadioModule)],
+        imports: [MockModule(MatRadioModule), FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

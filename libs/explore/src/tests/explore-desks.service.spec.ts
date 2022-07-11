@@ -38,6 +38,7 @@ describe('ExploreDesksService', () => {
                 provide: OrganisationService,
                 useValue: {
                     organisation: new Organisation(),
+                    binding: jest.fn(() => 'sys-1'),
                     initialised: of(true),
                     levels: [],
                     buildings: [],
@@ -114,8 +115,8 @@ describe('ExploreDesksService', () => {
         expect(state.setActions).toHaveBeenCalled();
         expect(state.setFeatures).toHaveBeenCalled();
         expect(state.setStyles).toHaveBeenCalledWith('desks', {
-            '#desk-1': { fill: DEFAULT_COLOURS['busy'], opacity: 0.6 },
-            '#desk-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
+            '#desk-1': { fill: DEFAULT_COLOURS['busy'] },
+            '#desk-2': { fill: DEFAULT_COLOURS['not-bookable'] },
         });
         // TODO: Test various desk states
         jest.useRealTimers();

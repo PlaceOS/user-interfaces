@@ -1,7 +1,9 @@
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { SpaceListComponent } from '../../lib/space-select-modal/space-list.component';
 import { Space } from '../../lib/spaces';
@@ -27,7 +29,8 @@ describe('SpaceListComponent', () => {
                 },
             },
         ],
-        declarations: [],
+        declarations: [MockComponent(IconComponent)],
+        imports: [MockModule(MatProgressSpinnerModule)],
     });
 
     beforeEach(() => {

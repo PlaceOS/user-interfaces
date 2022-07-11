@@ -11,6 +11,7 @@ jest.mock('@placeos/users');
 
 import * as ts_client from '@placeos/ts-client';
 import * as user_mod from '@placeos/users';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('ExploreSearchService', () => {
     let spectator: SpectatorService<ExploreSearchService>;
@@ -85,7 +86,7 @@ describe('ExploreSearchService', () => {
         expect(result).toHaveLength(1);
     });
 
-    it('should allow searching for emergency contacts', async () => {
+    it('should allow searching for emergency contacts', fakeAsync(async () => {
         (user_mod as any).searchStaff = jest.fn(() => of([]));
         (ts_client as any).getModule = jest.fn(() => ({
             binding: () => ({
@@ -104,10 +105,10 @@ describe('ExploreSearchService', () => {
         expect(result).toHaveLength(1);
         expect(result[0].type).toBe('first_aid');
         spectator.service.setFilter('Jim');
-        await timer(401).toPromise();
+        tick(401);
         result = await spectator.service.search_results
             .pipe(take(1))
             .toPromise();
         expect(result).toHaveLength(0);
-    });
+    }));
 });

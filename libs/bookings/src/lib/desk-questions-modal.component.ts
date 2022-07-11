@@ -85,18 +85,14 @@ export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public form = new FormGroup({
-        travelled: new FormControl(false, [Validators.requiredTrue]),
-        unwell: new FormControl(false, [Validators.requiredTrue]),
-        contact: new FormControl(false, [Validators.requiredTrue]),
+        travelled: new FormControl(false),
+        unwell: new FormControl(false),
+        contact: new FormControl(false),
     });
     public failure: boolean;
 
     public submit() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
-            notifyError('All the questions must be answered');
-            return;
-        } else if (
+        this.form.markAllAsTouched();if (
             Object.keys(this.form.value).find(
                 (key) =>
                     this.form.value[key] === true ||

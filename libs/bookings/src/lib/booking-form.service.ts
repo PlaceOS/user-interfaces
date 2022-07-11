@@ -483,7 +483,7 @@ export class BookingFormService extends BaseClass {
                     _.status !== 'declined'
             ).length >= allowed_bookings
         ) {
-            const current = user_email === currentUser().email;
+            const current = user_email === currentUser()?.email;
             throw `${current ? 'You' : user_email} already ${
                 current ? 'have' : 'has'
             } a desk booked`;

@@ -23,6 +23,7 @@ export interface DeskInfoData {
             [hover]="true"
             class="h-full w-full pointer-events-auto relative"
             [attr.id]="id"
+            [attr.map_id]="map_id"
         ></div>
         <ng-template #desk_tooltip>
             <div

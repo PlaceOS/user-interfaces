@@ -126,9 +126,11 @@ export class BaseClass implements OnDestroy {
      */
     protected unsub(name: string) {
         if (name in this._subscriptions) {
-            this._subscriptions[name] instanceof Subscription
-                ? (this._subscriptions[name] as Subscription).unsubscribe()
-                : (this._subscriptions[name] as VoidFn)();
+            if (this._subscriptions[name] instanceof Function) {
+                (this._subscriptions[name] as any)();
+            } else if (this._subscriptions[name] instanceof Subscription) {
+                (this._subscriptions[name] as any).unsubscribe();
+            }
             delete this._subscriptions[name];
         }
     }

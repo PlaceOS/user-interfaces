@@ -190,12 +190,12 @@ export class EventFormService extends BaseClass {
     public postForm(force: boolean = false) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             const form = this._form.getValue();
+            form.markAllAsTouched();
             const event = this.event || new CalendarEvent();
-            if (!form) throw 'No form for event';
             if (!form.valid && !force)
-                throw `Some form fields are invalid. [${getInvalidFields(
+                return reject(`Some form fields are invalid. [${getInvalidFields(
                     form
-                ).join(', ')}]`;
+                ).join(', ')}]`);
             const { id, host, date, duration, creator } = form.value;
             const spaces = form.get('resources')?.value || [];
             if (
@@ -212,7 +212,7 @@ export class EventFormService extends BaseClass {
                     id
                         ? { start, end: start + event.duration * 60 }
                         : undefined
-                );
+                ).catch(_ => reject(_));
             }
             const is_owner =
                 host === currentUser()?.email ||

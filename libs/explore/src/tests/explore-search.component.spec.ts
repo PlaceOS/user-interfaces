@@ -3,6 +3,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { ExploreSearchComponent } from '../lib/explore-search.component';
@@ -24,7 +26,12 @@ describe('ExploreSearchComponent', () => {
             { provide: Router, useValue: { navigate: jest.fn() } },
             { provide: ActivatedRoute, useValue: {} },
         ],
-        imports: [MatAutocompleteModule, MatProgressSpinnerModule, FormsModule],
+        declarations: [MockComponent(IconComponent)],
+        imports: [
+            MockModule(MatProgressSpinnerModule),
+            MatAutocompleteModule,
+            FormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

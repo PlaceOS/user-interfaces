@@ -1,9 +1,9 @@
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CateringStateService } from '@placeos/catering';
-import { CalendarEvent, generateEventForm } from '@placeos/events';
+import { generateEventForm } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -12,6 +12,8 @@ import {
 } from '@placeos/form-fields';
 import { OrganisationService } from '@placeos/organisation';
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
+import { RichTextInputComponent } from 'libs/form-fields/src/lib/rich-text-input.component';
 import { MockComponent } from 'ng-mocks';
 
 describe('DetailBookSpaceFormComponent', () => {
@@ -23,12 +25,19 @@ describe('DetailBookSpaceFormComponent', () => {
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
             MockComponent(UserListFieldComponent),
+            MockComponent(HostSelectFieldComponent),
+            MockComponent(RichTextInputComponent),
         ],
         providers: [
             { provide: OrganisationService, useValue: {} },
-            { provide: CateringStateService, useValue: {} }
+            { provide: CateringStateService, useValue: {} },
         ],
-        imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
+        imports: [
+            ReactiveFormsModule,
+            FormsModule,
+            MatFormFieldModule,
+            MatInputModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -38,9 +47,9 @@ describe('DetailBookSpaceFormComponent', () => {
     });
 
     it('should show form', () => {
-        expect('[form]').not.toExist();
-        spectator.setInput({ form: generateEventForm(new CalendarEvent()) });
+        expect('form').not.toExist();
+        spectator.setInput({ form: generateEventForm() });
         spectator.detectChanges();
-        expect('[form]').toExist();
+        expect('form').toExist();
     });
 });

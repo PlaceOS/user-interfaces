@@ -36,6 +36,8 @@ describe('EventFormService', () => {
         spectator = createService();
     });
 
+    afterEach(() => spectator.service.clearForm());
+
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });
@@ -127,15 +129,15 @@ describe('EventFormService', () => {
         );
     });
 
-    it('should allow posting event details', async () => {
-        (event_mod as any).saveEvent = jest.fn(() => of({}));
-        await expect(spectator.service.postForm()).rejects.toBe(
-            'No form for event'
-        );
+    it('should reject posting invalid form', async () => {
         spectator.service.newForm();
         await expect(spectator.service.postForm()).rejects.toBe(
             'Some form fields are invalid. [host, creator, title]'
         );
+    });
+
+    it('should reject posting unavailable spaces', async () => {
+        spectator.service.newForm();
         spectator.service.form.patchValue({
             host: 'jim@place.tech',
             creator: 'jim@place.tech',
@@ -145,7 +147,17 @@ describe('EventFormService', () => {
         await expect(spectator.service.postForm()).rejects.toBe(
             '1 space(s) are not available at the selected time'
         );
-        spectator.service.form.patchValue({ resources: [] });
+    })
+
+    it('should allow posting event details', async () => {
+        (event_mod as any).saveEvent = jest.fn(() => of({}));
+        spectator.service.newForm();
+        spectator.service.form.patchValue({
+            host: 'jim@place.tech',
+            creator: 'jim@place.tech',
+            title: 'Test Booking',
+            resources: [],
+        });
         await expect(spectator.service.postForm()).resolves.toBeTruthy();
         expect(spectator.service.view).toBe('success');
     });

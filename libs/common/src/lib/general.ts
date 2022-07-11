@@ -14,6 +14,7 @@ export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
 declare global {
     interface Window {
         debug: boolean;
+        jest: any;
     }
 }
 
@@ -39,6 +40,7 @@ export function log(
     force: boolean = false,
     app_name: string = _app_name
 ) {
+    if (window.jest) return;
     if (window.debug || force) {
         const colors: string[] = [
             'color: #E91E63',

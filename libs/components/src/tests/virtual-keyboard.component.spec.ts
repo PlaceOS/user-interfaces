@@ -20,30 +20,29 @@ describe('VirtualKeyboardComponent', () => {
 
     it('show keyboard on input focus', fakeAsync(() => {
         spectator = createHost('<input keyboard />');
-        expect(document.querySelector('div[keyboard]')).not.toExist();
-        spectator.focus(spectator.hostElement.querySelector('input'));
+        expect('[keyboard-view]').not.toExist();
+        const input = spectator.queryHost('input');
+        spectator.focus(input);
         spectator.detectChanges();
-        expect(document.querySelector('div[keyboard]')).not.toExist();
+        expect('[keyboard-view]').not.toExist();
+        spectator.blur(input);
         VirtualKeyboardComponent.enabled = true;
+        spectator.focus(input);
         spectator.detectChanges();
-        spectator.focus(document.querySelector('input'));
+        expect('[keyboard-view]').toExist();
+        spectator.blur(input);
         spectator.tick(320);
-        spectator.detectChanges();
-        expect(document.querySelector('div[keyboard]')).toExist();
-        spectator.blur(document.querySelector('input'));
-        spectator.tick(320);
-        spectator.detectChanges();
-        expect(document.querySelector('div[keyboard]')).not.toExist();
+        expect('[keyboard-view]').not.toExist();
     }));
 
     it('should update input value on key presses', fakeAsync(() => {
         spectator = createHost('<input keyboard />');
         VirtualKeyboardComponent.enabled = true;
-        const input = spectator.hostElement.querySelector('input');
+        const input = spectator.queryHost('input');
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toHaveValue('');
-        spectator.click(document.querySelector('[key="a"]'));
+        spectator.click('[key="a"]');
         spectator.tick(100);
         expect(input).toHaveValue('a');
     }));
@@ -51,11 +50,11 @@ describe('VirtualKeyboardComponent', () => {
     it('should keep input field focused', fakeAsync(() => {
         spectator = createHost('<input keyboard />');
         VirtualKeyboardComponent.enabled = true;
-        const input = spectator.hostElement.querySelector('input');
-        input.focus();
+        const input: HTMLInputElement = spectator.queryHost('input');
+        spectator.focus(input);
         spectator.detectChanges();
         expect(input).toBeFocused();
-        spectator.click(document.querySelector('[key="q"]'));
+        spectator.click('[key="q"]');
         spectator.tick(100);
         expect(input).toBeFocused();
     }));

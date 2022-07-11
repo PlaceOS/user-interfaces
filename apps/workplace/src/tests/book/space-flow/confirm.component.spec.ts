@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 jest.mock('@placeos/common');
 
 import * as common_mod from '@placeos/common';
+import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 
 describe('SpaceFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowConfirmComponent>;
@@ -30,6 +31,7 @@ describe('SpaceFlowConfirmComponent', () => {
             },
         ],
         declarations: [
+            DurationPipe,
             MockComponent(IconComponent),
             MockComponent(UserAvatarComponent),
         ],

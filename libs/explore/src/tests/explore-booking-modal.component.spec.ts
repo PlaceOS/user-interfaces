@@ -20,6 +20,7 @@ jest.mock('libs/events/src/lib/events.fn');
 import * as cal_mod from '@placeos/calendar';
 import * as common_mod from '@placeos/common';
 import * as events_mod from 'libs/events/src/lib/events.fn';
+import { SettingsService } from '@placeos/common';
 
 describe('ExploreBookingModalComponent', () => {
     let spectator: Spectator<ExploreBookingModalComponent>;
@@ -36,6 +37,7 @@ describe('ExploreBookingModalComponent', () => {
                     space: { id: 'one', name: 'Test Space', email: '1' },
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: MatDialogRef, useValue: { close: jest.fn() } },
         ],
         imports: [

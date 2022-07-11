@@ -108,7 +108,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         const options = await this.options.pipe(take(1)).toPromise();
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
-            : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||
+            : options.disable?.filter((_) => _ !== 'zones' && _ !== 'devices') ||
               [];
         this.setOptions({ disable });
     }

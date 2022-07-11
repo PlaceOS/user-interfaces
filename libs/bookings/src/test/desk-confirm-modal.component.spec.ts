@@ -2,7 +2,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 import {
     DateFieldComponent,
     UserSearchFieldComponent,
@@ -10,6 +10,7 @@ import {
 
 import { DeskConfirmModalComponent } from '../lib/desk-confirm-modal.component';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 describe('DeskConfirmModalComponent', () => {
     let spectator: Spectator<DeskConfirmModalComponent>;
@@ -23,7 +24,11 @@ describe('DeskConfirmModalComponent', () => {
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: MAT_DIALOG_DATA, useValue: {} },
         ],
-        imports: [MatProgressSpinnerModule, FormsModule],
+        imports: [
+            MockModule(MatFormFieldModule),
+            MockModule(MatProgressSpinnerModule),
+            FormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

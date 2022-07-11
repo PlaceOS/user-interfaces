@@ -17,6 +17,7 @@ import { Space } from '../space.class';
                 <li
                     space
                     *ngFor="let space of available_spaces | async"
+                    [class.!border-black]="active === space.id"
                     class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
                 >
                     <button
@@ -36,7 +37,7 @@ import { Space } from '../space.class';
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <div class="font-medium">
+                            <div class="font-medium truncate mr-10">
                                 {{ space.name || 'Meeting Space' }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
@@ -98,6 +99,7 @@ import { Space } from '../space.class';
     ],
 })
 export class SpaceListComponent {
+    @Input() public active: string = '';
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();

@@ -106,7 +106,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
         this.env_sources = _data.env_sources || [];
         this.inputs = Object.keys(this.input_list || {}) || [];
         this.outputs = Object.keys(this.output_list || {}) || [];
-        const types = unique(this.env_sources.map((_) => _.type));
+        const types = unique(this.env_sources.map((_) => _.type)) || [];
         types.forEach(
             (t) =>
                 (this[`${t}`] = this.env_sources

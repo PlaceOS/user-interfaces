@@ -9,12 +9,11 @@ import { SpacesService } from '../spaces.service';
 @Component({
     selector: `space-filters`,
     template: `
-        <div class="flex items-center border-b border-gray-200 pb-2">
+        <div class="flex items-center border-b border-gray-200 pb-2 sm:hidden">
             <div class="flex-1 pl-2">
                 <button
                     mat-icon-button
                     close
-                    class="sm:hidden"
                     *ngIf="can_close"
                     (click)="close()"
                 >

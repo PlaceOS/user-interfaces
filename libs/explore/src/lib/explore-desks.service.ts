@@ -267,6 +267,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             if (!desk.bookable) continue;
             const book_fn = async () => {
                 this._bookings.newForm();
+                this._bookings.setOptions({ type: 'desk' });
                 const { date, duration } = await this._setBookingTime(
                     this._bookings.form.value.date,
                     this._bookings.form.value.duration

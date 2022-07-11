@@ -35,7 +35,7 @@ import { EventFormService } from '@placeos/events';
                     <span *ngIf="!form.value.all_day">
                         at {{ form.value.date | date: 'shortTime' }} ~
                         {{
-                            form.value + form.value.duration * 60 * 1000
+                            form.value.date + form.value.duration * 60 * 1000
                                 | date: 'shortTime'
                         }}
                     </span>

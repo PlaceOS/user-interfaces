@@ -55,7 +55,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             [@show]="hide_block.details ? 'hide' : 'show'"
                         >
                             <meeting-form-details
-                            class="mt-4"
+                                class="mt-4"
                                 [form]="form"
                             ></meeting-form-details>
                         </div>
@@ -87,7 +87,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             [@show]="hide_block.attendees ? 'hide' : 'show'"
                         >
                             <a-user-list-field
-                            class="mt-4"
+                                class="mt-4"
                                 formControlName="attendees"
                             ></a-user-list-field>
                         </div>
@@ -119,7 +119,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             [@show]="hide_block.resources ? 'hide' : 'show'"
                         >
                             <space-list-field
-                            class="mt-4"
+                                class="mt-4"
                                 formControlName="resources"
                             ></space-list-field>
                         </div>
@@ -166,9 +166,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
-                                (click)="
-                                    hide_block.assets = !hide_block.assets
-                                "
+                                (click)="hide_block.assets = !hide_block.assets"
                             >
                                 <app-icon>{{
                                     hide_block.assets

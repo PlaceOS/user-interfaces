@@ -1,3 +1,4 @@
+import { MatDialogModule } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -26,6 +27,7 @@ describe('AssetSelectModalComponent', () => {
             MockComponent(AssetListComponent),
             MockComponent(AssetDetailsComponent),
         ],
+        imports: [MatDialogModule]
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -96,7 +96,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         class="w-full sm:w-px sm:flex-1 h-[3.25rem] hidden sm:block"
                         overlay
                         appearance="outline"
-                        *ngIf="(features | async).length"
+                        *ngIf="(features | async)?.length"
                     >
                         <mat-select
                             placeholder="Any Features"
@@ -139,11 +139,11 @@ import { filter, first, map, take } from 'rxjs/operators';
                 class="flex items-center w-[640px] max-w-[calc(100%-2rem)] mx-auto p-2"
             >
                 <div class="flex-1 underline" [matMenuTriggerFor]="menu">
-                    {{ space_list.length }} space(s) selected
+                    {{ space_list?.length }} space(s) selected
                 </div>
                 <button
                     class="w-32"
-                    [disabled]="!space_list.length"
+                    [disabled]="!space_list?.length"
                     mat-button
                     (click)="confirmBooking()"
                 >
