@@ -17,6 +17,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         booking_asset: new FormControl(null),
         asset_id: new FormControl(booking.asset_id, [Validators.required]),
         asset_name: new FormControl(booking.description),
+        assets: new FormControl(booking.extension_data?.assets || []),
         map_id: new FormControl(booking.extension_data?.map_id),
         user: new FormControl(currentUser()),
         user_id: new FormControl(booking.user_id),

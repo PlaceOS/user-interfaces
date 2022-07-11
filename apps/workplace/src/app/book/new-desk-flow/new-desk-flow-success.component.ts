@@ -15,7 +15,13 @@ import { BookingFormService } from '@placeos/bookings';
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="text-center">
-                    Your desk has been successfully booked for the
+                    Your desk has been successfully booked
+                    <span *ngIf="last_event?.extension_data?.assets?.length">
+                        including
+                        {{ last_event?.extension_data?.assets?.length }}
+                        asset(s)
+                    </span>
+                    for the
                     {{ last_event.date | date: 'mediumDate' }} at
                     {{ last_event.date | date: 'shortTime' }}-{{
                         last_event.date + last_event.duration * 60 * 1000

@@ -186,6 +186,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                     </div>
                     <div class="text-xl">Request Asset</div>
                 </h3>
+                <asset-list-field formControlName="assets"></asset-list-field>
             </section>
         </div>
     `,

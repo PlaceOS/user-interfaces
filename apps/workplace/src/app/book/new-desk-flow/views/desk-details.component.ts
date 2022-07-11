@@ -127,7 +127,11 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                             active ? 'remove' : 'add'
                         }}</app-icon>
                         <p>
-                            {{ active ? 'Remove this room' : 'Add this room' }}
+                            {{
+                                active
+                                    ? 'Remove from booking'
+                                    : 'Add to booking'
+                            }}
                         </p>
                     </div>
                 </button>
