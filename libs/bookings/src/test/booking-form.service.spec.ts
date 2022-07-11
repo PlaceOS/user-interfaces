@@ -46,7 +46,7 @@ describe('BookingFormService', () => {
         spectator = createService();
     });
 
-    afterEach(() => spectator.service.clearForm());
+    afterEach(() => spectator?.service?.clearForm());
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();

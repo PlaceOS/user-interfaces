@@ -41,19 +41,6 @@ describe('SpaceFlowFormComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow for quick bookings', () => {
-        const service = spectator.inject(EventFormService);
-        spectator.click('[quick] button');
-        spectator.detectChanges();
-        expect(service.form.patchValue).toHaveBeenCalledTimes(1);
-        expect(service.setOptions).toHaveBeenCalledWith({ capacity: 0 });
-        expect(spectator.router.navigate).toHaveBeenCalledWith([
-            '/book',
-            'spaces',
-            'find',
-        ]);
-    });
-
     it('should show detailed booking form', () => {
         expect('detailed-book-space-form').toExist();
     });
@@ -92,11 +79,9 @@ describe('SpaceFlowFormComponent', () => {
 
     it('should allow for edits', () => {
         const service = spectator.inject(EventFormService);
-        expect('[quick]').toExist();
-        expect('[form] h2').toContainText('Detailed Booking');
+        expect('[form] h2').toContainText('Detailed Space Booking');
         (service.form.get as any).mockImplementation((_) => ({ value: true }));
         spectator.detectChanges();
-        expect('[quick]').not.toExist();
-        expect('[form] h2').toContainText('Edit Booking');
+        expect('[form] h2').toContainText('Edit Space Booking');
     });
 });

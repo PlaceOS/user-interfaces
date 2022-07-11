@@ -7,7 +7,7 @@ import { BookingLike } from './schedule-state.service';
 @Component({
     selector: '[schedule-list-item]',
     template: `
-        <ng-container [ngSwitch]="item?.id">
+        <ng-container *ngIf="item" [ngSwitch]="item?.id">
             <div date *ngSwitchCase="'date'">
                 <div class="mx-4 w-full h-12 text-xl flex items-center">
                     {{ item.date | date: 'longDate' }} ({{ item.duration }})

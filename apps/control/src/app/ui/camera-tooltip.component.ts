@@ -63,7 +63,7 @@ export enum ZoomDirection {
                         </div>
                     </ng-container>
                     <ng-template #no_presets>
-                        <p>No presets for this camera</p>
+                        <p preset>No presets for this camera</p>
                     </ng-template>
                     <button
                         mat-icon-button
@@ -142,7 +142,7 @@ export enum ZoomDirection {
                     class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center"
                     *ngIf="!active_camera"
                 >
-                    <p>Select a camera to control.</p>
+                    <p no-cam>Select a camera to control.</p>
                 </div>
             </div>
         </div>
@@ -163,7 +163,7 @@ export enum ZoomDirection {
             <div
                 class="my-2 bg-white shadow rounded flex flex-col p-8 text-center"
             >
-                <p>No cameras available for this system</p>
+                <p empty>No cameras available for this system</p>
             </div>
         </ng-template>
     `,
@@ -213,16 +213,18 @@ export class CameraTooltipComponent extends BaseClass {
         );
     }
 
-    public selectCamera(camera: RoomInput) {
+    public async selectCamera(camera: RoomInput) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        mod.execute('selected_camera', [camera.id]);
+        await mod.execute('selected_camera', [camera.id]);
+        this.active_camera = camera;
     }
 
-    public recallPreset(preset: string) {
+    public async recallPreset(preset: string) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        mod.execute('recall', [preset]);
+        await mod.execute('recall', [preset]);
+        this.preset = preset;
     }
 
     public addPreset(preset: string) {

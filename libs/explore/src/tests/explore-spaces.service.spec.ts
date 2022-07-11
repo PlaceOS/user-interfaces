@@ -15,6 +15,7 @@ jest.mock('@placeos/common');
 
 import * as ts_client from '@placeos/ts-client';
 import * as common_mod from '@placeos/common';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('ExploreSpacesService', () => {
     let spectator: SpectatorService<ExploreSpacesService>;
@@ -41,7 +42,7 @@ describe('ExploreSpacesService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should bind to spaces', () => {
+    it('should bind to spaces', fakeAsync(() => {
         const bind = jest.fn(() => jest.fn());
         const binding = jest.fn(() => ({ listen: jest.fn(() => of()), bind }));
         (ts_client as any).getModule = jest.fn(() => ({ binding }));
@@ -54,36 +55,36 @@ describe('ExploreSpacesService', () => {
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
         expect(bind).toHaveBeenCalledTimes(4);
+        tick(301);
+        
         expect(state.setActions).toHaveBeenCalled();
-    });
+    }));
 
-    it('should listen to state changes', () => {
-        jest.useFakeTimers();
+    it('should listen to state changes', fakeAsync(() => {
         const spaces = [
             { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
             { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
         ].map((_) => new Space(_));
         const state = spectator.inject(ExploreStateService);
         spectator.service.handleStatusChange(spaces, spaces[0], '');
-        jest.runOnlyPendingTimers();
+        tick(401);
         expect(state.setStyles).toHaveBeenCalledWith('spaces', {
             '#space-1': { fill: DEFAULT_COLOURS['free'], opacity: 0.6 },
             '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
         });
         spectator.service.handleStatusChange(spaces, spaces[0], 'busy');
-        jest.runOnlyPendingTimers();
+        tick(401);
         expect(state.setStyles).toHaveBeenCalledWith('spaces', {
             '#space-1': { fill: DEFAULT_COLOURS['busy'], opacity: 0.6 },
             '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
         });
         spectator.service.handleStatusChange(spaces, spaces[1], 'free');
-        jest.runOnlyPendingTimers();
+        tick(401);
         expect(state.setStyles).toHaveBeenCalledWith('spaces', {
             '#space-1': { fill: DEFAULT_COLOURS['busy'], opacity: 0.6 },
             '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
         });
-        jest.useRealTimers();
-    });
+    }));
 
     it('should allow making space bookings', () => {
         jest.useFakeTimers();

@@ -8,7 +8,7 @@ import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 jest.mock('@placeos/common');
 
 import * as common_mod from '@placeos/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MockComponent } from 'ng-mocks';
 import { IconComponent } from '@placeos/components';
 

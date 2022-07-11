@@ -81,13 +81,12 @@ describe('TimeFieldComponent', () => {
     it('should allow preventing past times from being selected', () => {
         spectator.setInput({ no_past_times: true });
         spectator.detectChanges();
-        const date = startOfMinute(subMinutes(new Date(), 4));
+        const date = startOfMinute(subMinutes(new Date(), 6));
         const first_option = parse(
             `${spectator.component.time_options[0].id}`,
             'HH:mm',
             new Date()
         );
-        console.log(date, '\n', first_option);
         expect(date <= first_option).toBeTruthy();
     });
 });

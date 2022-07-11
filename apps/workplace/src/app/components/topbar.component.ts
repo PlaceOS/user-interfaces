@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { ApplicationIcon, currentUser, SettingsService } from '@placeos/common';
 import { UserControlsComponent } from './user-controls.component';
 
+const EMPTY = [];
+
 @Component({
     selector: 'topbar',
     template: `
@@ -13,17 +15,25 @@ import { UserControlsComponent } from './user-controls.component';
                 logo
                 class="p-2 h-full flex items-center flex-1"
                 [routerLink]="['/']"
-                *ngIf="logo"
             >
-                <img class="h-10" [src]="logo?.src" />
+                <img
+                    class="h-10 sm:block"
+                    [class.hidden]="!title"
+                    *ngIf="logo"
+                    [src]="logo.src"
+                />
+                <span *ngIf="title">{{ title }}</span>
             </a>
-            <div class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex">
+            <div
+                class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex"
+            >
                 <top-menu></top-menu>
             </div>
             <div class="flex-1 flex items-center justify-end">
                 <global-search *ngIf="search"></global-search>
                 <button
                     matRipple
+                    avatar
                     class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
                     customTooltip
                     [content]="user_controls"
@@ -46,9 +56,13 @@ import { UserControlsComponent } from './user-controls.component';
             </button>
         </mat-menu>
     `,
-    styles: [`
-        .flex-3 { flex: 3 3 0%; }
-    `],
+    styles: [
+        `
+            .flex-3 {
+                flex: 3 3 0%;
+            }
+        `,
+    ],
 })
 export class TopbarComponent {
     public show_menu: boolean;
@@ -73,7 +87,7 @@ export class TopbarComponent {
     }
 
     public get features(): string[] {
-        return this._settings.get('app.features');
+        return this._settings.get('app.features') || EMPTY;
     }
 
     constructor(private _settings: SettingsService) {}

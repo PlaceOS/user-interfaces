@@ -15,8 +15,6 @@ import { BehaviorSubject, of } from 'rxjs';
 import { SpaceFlowFindItemComponent } from 'apps/workplace/src/app/book/space-flow/find-item.component';
 import { SpaceFlowFindComponent } from 'apps/workplace/src/app/book/space-flow/find.component';
 import { Router } from '@angular/router';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
 
 describe('SpaceFlowFindComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowFindComponent>;

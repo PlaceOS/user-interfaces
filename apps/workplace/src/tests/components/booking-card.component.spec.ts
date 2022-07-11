@@ -32,7 +32,8 @@ describe('BookingCardComponent', () => {
             }),
         });
         spectator.detectChanges();
-        expect('[details]').not.toExist();
+        expect('[details]').toExist();
+        expect('[day]').not.toExist();
         spectator.setInput({ show_day: true });
         spectator.detectChanges();
         expect('[day]').toExist();

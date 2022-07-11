@@ -1,9 +1,10 @@
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 
 import { MapLocateModalComponent } from '../lib/map-locate-modal.component';
 
@@ -25,7 +26,7 @@ describe('MapLocateModalComponent', () => {
                 useValue: { levelWithID: jest.fn() },
             },
         ],
-        imports: [FormsModule],
+        imports: [MockModule(MatProgressSpinnerModule), FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

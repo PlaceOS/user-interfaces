@@ -1,4 +1,3 @@
-
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -9,13 +8,22 @@ import {
     CustomTooltipData,
     IconComponent,
 } from '@placeos/components';
-import { MockComponent, MockDirective } from 'ng-mocks';
+import { MockComponent, MockDirective, MockModule } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';
 
-import { CameraTooltipComponent, ZoomDirection } from '../../app/ui/camera-tooltip.component';
+import {
+    CameraTooltipComponent,
+    ZoomDirection,
+} from '../../app/ui/camera-tooltip.component';
 import { JoystickComponent } from '../../app/ui/joystick.component';
 import { MatInputModule } from '@angular/material/input';
+
+jest.mock('@placeos/ts-client');
+
+import * as client from '@placeos/ts-client';
+import { async, fakeAsync } from '@angular/core/testing';
+import { Renderer2 } from '@angular/core';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
@@ -30,73 +38,92 @@ describe('CameraTooltipComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
+                    id: 'sys-1',
                     camera_list: new BehaviorSubject([]),
+                    selected_camera: new BehaviorSubject(''),
                 },
             },
             {
                 provide: CustomTooltipData,
                 useValue: { close: jest.fn() },
             },
+            {
+                provide: Renderer2,
+                useValue: {
+                    listen: jest.fn((_, __, fn) => {
+                        setTimeout(() => fn(), 1);
+                        return () => null;
+                    }),
+                },
+            },
         ],
-        imports: [MatSelectModule, MatFormFieldModule, FormsModule, MatMenuModule, MatInputModule]
+        imports: [
+            MockModule(MatSelectModule),
+            MockModule(MatFormFieldModule),
+            MockModule(MatInputModule),
+            FormsModule,
+            MatMenuModule,
+        ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        (client.getModule as any) = jest.fn(() => ({
+            execute: async () => null,
+        }));
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow for user to select a camera', async () => {
-        expect('p').toContainText('No cameras available');
+    it('should allow for user to select a camera', () => {
+        const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
+        expect('p[empty]').toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).camera_list.next([{ id: 'cam1', name: 'Camera 1' }]);
+        (service as any).camera_list.next(cam_list);
         spectator.detectChanges();
-        expect('p').not.toContainText('No cameras available');
-        expect('p').toContainText('Select a camera');
-        spectator.click('mat-select');
+        expect('p[empty]').not.toExist();
+        expect('p[no-cam]').not.toExist();
+        spectator.component.selectCamera(cam_list[0]);
         spectator.detectChanges();
-        expect('mat-option').toExist();
-        spectator.click('mat-option');
-        expect('p').not.toContainText('Select a camera');
+        expect('p[no-cam]').not.toExist();
     });
 
     it('should show camera joystick', () => {
         const service = spectator.inject(ControlStateService);
         (service as any).camera_list.next([]);
         spectator.detectChanges();
-        expect('p').toContainText('No cameras available');
+        expect('p[empty]').toExist();
         expect('joystick').not.toExist();
         (service as any).camera_list.next([{ id: 'cam1', name: 'Camera 1' }]);
         spectator.detectChanges();
         expect('joystick').toExist();
     });
 
-    it('should allow user to change zoom of camera', () => {
+    it('should allow user to change zoom of camera', fakeAsync(() => {
+        const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
         const service = spectator.inject(ControlStateService);
-        (service as any).camera_list.next([{ id: 'cam1', name: 'Camera 1' }]);
+        (service as any).camera_list.next(cam_list);
+        spectator.component.selectCamera(cam_list[0]);
         spectator.detectChanges();
-        spectator.click('mat-select');
-        spectator.detectChanges();
-        spectator.click('mat-option');
-        spectator.dispatchMouseEvent('button[zoom-in]', 'mousedown');
+        spectator.dispatchFakeEvent('button[zoom-in]', 'mousedown');
         expect(spectator.component.zoom).toBe(ZoomDirection.In);
-        spectator.dispatchMouseEvent(document, 'mouseup');
+        spectator.tick(100);
         expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
-        spectator.dispatchMouseEvent('button[zoom-out]', 'mousedown');
+        spectator.dispatchFakeEvent('button[zoom-out]', 'mousedown');
         expect(spectator.component.zoom).toBe(ZoomDirection.Out);
-        spectator.dispatchMouseEvent(document, 'mouseup');
+        spectator.tick(100);
         expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
-    });
+    }));
 
     it('should allow user to select camera presets', () => {
+        const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
         const service = spectator.inject(ControlStateService);
-        (service as any).camera_list.next([{ id: 'cam1', name: 'Camera 1' }]);
+        (service as any).camera_list.next(cam_list);
+        spectator.component.selectCamera(cam_list[0]);
         spectator.detectChanges();
-        spectator.click('mat-select');
-        spectator.detectChanges();
-        spectator.click('mat-option');
-        expect('p').toContainText('No presets for this camera');
+        expect('p[preset]').toExist();
         spectator.component.presets = ['One', 'Two', 'Three'];
         spectator.detectChanges();
         expect('p').not.toExist();

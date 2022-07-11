@@ -11,6 +11,7 @@ jest.mock("libs/calendar/src/lib/calendar.fn");
 
 import * as user_mod from '@placeos/users';
 import * as cal_fns from 'libs/calendar/src/lib/calendar.fn';
+import { FormsModule } from '@angular/forms';
 
 describe('HostSelectFieldComponent', () => {
     let spectator: Spectator<HostSelectFieldComponent>;
@@ -18,7 +19,7 @@ describe('HostSelectFieldComponent', () => {
         component: HostSelectFieldComponent,
         providers: [],
         declarations: [],
-        imports: [MockModule(MatFormFieldModule), MockModule(MatSelectModule)],
+        imports: [MockModule(MatFormFieldModule), MockModule(MatSelectModule), FormsModule],
     });
 
     beforeEach(() => {
