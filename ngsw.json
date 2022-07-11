@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1657524108751,
+  "timestamp": 1657582469612,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -95,16 +95,16 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "aa63aa3053adf7fc8fd24f029fcd3893a335eb68",
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "e413bda818d81e04abcdfae38fab33d882361b7c",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "6eb2f3c1b5b55a4ee1d63103e038a8ec63fb9136",
-    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "0e0389a45197783343424b94879915edb73c376d",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "869686e9933fc85b2c610b80bb5686d836bfece9",
+    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "2da6d745a93dfc3b1b13fc7a7faf1c48e4126079",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "3732befc795df25eeb16188688f9af53c0dff534",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "c7469e830f9c49613d20f23f06fd24eef40a0818",
-    "./apps_concierge_src_app_parking_parking_module_ts.js": "19fb829052cb8d45d1f5433de0709c5b2d125712",
+    "./apps_concierge_src_app_parking_parking_module_ts.js": "012501f001f2ac0b53bc0854cf0f880942a63766",
     "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "e2582c993776f2fa37fc7863fd50921f026e5905",
-    "./apps_concierge_src_app_reports_reports_module_ts.js": "17c2688d20f293b439d2d2ce7d4568648d3f9572",
-    "./apps_concierge_src_app_staff_staff_module_ts.js": "9b1f3e381a636eeff2590361ec82f2cbbc458b1b",
-    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "7020a7f214ee51208e0e21778302a5ec289bd915",
+    "./apps_concierge_src_app_reports_reports_module_ts.js": "e25b06854049bf44dfb41fb11cc5d1f7d290a038",
+    "./apps_concierge_src_app_staff_staff_module_ts.js": "94e56e3be730e9130a1aae223f26e28952eee528",
+    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "6cdd4dff0e20fa900a20e9b9cd46349acf35981a",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "ed139208d8161f03f30e734ae9689c388dd44174",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -149,19 +149,19 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "a79b8f714910dd8c6205bb33274863316be34e16",
-    "./default-libs_bookings_src_index_ts.js": "45111ce0a8e5ae9daf24b5d85d6380815d53f9f1",
+    "./common.js": "f4c8ecf0d92ae3dab27d8ed28cd1c3ff66a9bcd0",
+    "./default-libs_bookings_src_index_ts.js": "3e4feb1cd2e03a1c9bb16df2c7d0035a0fad79d1",
     "./default-libs_catering_src_index_ts.js": "3997ccbcebb7af0e6046fbe1e5db4117b242a8be",
-    "./default-libs_explore_src_index_ts.js": "689025cb84a208bdc74f209e59c50274cf387736",
+    "./default-libs_explore_src_index_ts.js": "c5802788a3bf65832a01f3f54c93d1ae1caac8b4",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "1fdca38fd4a60dc42d8cbe0ab4e54721e1dce6e8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "ad27949c2c8a3bb00495e5976fc49c6a00dc415e",
-    "./main.js": "e7d3799f88064b83b155d5cbaa7e36640b7fd0c3",
+    "./index.html": "1a11eb93aa8fa93424a37ce1e4ac3f2c2723213b",
+    "./main.js": "6e718a66b144c8e9a1e365eba23e7324eb6f1ef9",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "3041add7aadf3168160964145e9bfc1b73be8bd6",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "dda02694d84aee32b9dcaf5c59b851182b308976",
-    "./vendor.js": "2bf34fbac933c1644931a2e97fc043b4e4aa7a36"
+    "./styles.css": "c62afd28f2de5ae7ea11622da6df7f90eea9925a",
+    "./vendor.js": "939188706840a31d491be0fe5bc98b84df882382"
   },
   "navigationUrls": [
     {
