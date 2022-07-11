@@ -1,16 +1,14 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { MockComponent, MockModule } from 'ng-mocks';
-import {
-    DateFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 
 import { DeskConfirmModalComponent } from '../lib/desk-confirm-modal.component';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
 
 describe('DeskConfirmModalComponent', () => {
     let spectator: Spectator<DeskConfirmModalComponent>;

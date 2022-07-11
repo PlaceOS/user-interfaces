@@ -1,17 +1,17 @@
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatRadioModule } from '@angular/material/radio';
-import { SpaceListFieldComponent } from '../lib/space-list-field.component';
-import { MockComponent, MockModule } from 'ng-mocks';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
-import { Space } from '@placeos/spaces';
-import { randomInt } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { FormsModule } from '@angular/forms';
+import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
+
+import { SpaceListFieldComponent } from '../lib/space-list-field.component';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 describe('SpaceListFieldComponent', () => {
     let spectator: Spectator<SpaceListFieldComponent>;
-    const createComponent = createRoutingFactory({
+    const createComponent = createComponentFactory({
         component: SpaceListFieldComponent,
         providers: [
             {
@@ -20,7 +20,7 @@ describe('SpaceListFieldComponent', () => {
             },
         ],
         declarations: [MockComponent(IconComponent)],
-        imports: [MockModule(MatRadioModule), FormsModule],
+        imports: [MatRadioModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -44,13 +44,14 @@ describe('SpaceListFieldComponent', () => {
     });
 
     it('should handle space changes', () => {
+        let count = 0;
         spectator
             .inject(MatDialog)
             .open.mockImplementation(
                 (_, { data }) =>
                     ({
                         afterClosed: () =>
-                            of([...(data || []), new Space({ id: `${randomInt(1000)}` })]),
+                            of([...(data || []), new Space({ id: `${count++}` })]),
                     } as any)
             );
         spectator.click('button[add-space]');
