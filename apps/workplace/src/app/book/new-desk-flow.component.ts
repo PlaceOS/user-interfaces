@@ -10,18 +10,8 @@ import { first } from 'rxjs/operators';
     template: `
         <div class="bg-white h-full w-full z-50">
             <ng-container [ngSwitch]="view">
-                <ng-container *ngSwitchCase="'map'">
-                    <desk-flow-map></desk-flow-map>
-                </ng-container>
-                <ng-container *ngSwitchCase="'confirm'">
-                    <desk-flow-confirm></desk-flow-confirm>
-                </ng-container>
                 <ng-container *ngSwitchCase="'success'">
-                    <flow-success
-                        type="desk"
-                        route="desks"
-                        [calendar]="last_success?.user_email"
-                    ></flow-success>
+                    <new-desk-flow-success></new-desk-flow-success>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                     <new-desk-flow-form></new-desk-flow-form>

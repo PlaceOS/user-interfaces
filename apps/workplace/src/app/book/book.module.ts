@@ -42,6 +42,7 @@ import { SharedCateringModule } from '@placeos/catering';
 import { DeskDetailsComponent } from './new-desk-flow/views/desk-details.component';
 import { DeskMapComponent } from './new-desk-flow/views/desk-map.component';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confirm.component';
+import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
 
 const ROUTES: Route[] = [
     {
@@ -98,7 +99,8 @@ const ROUTES: Route[] = [
         DeskFiltersComponent,
         DeskDetailsComponent,
         DeskMapComponent,
-        NewDeskFlowConfirmComponent
+        NewDeskFlowConfirmComponent,
+        NewDeskFlowSuccessComponent
     ],
     imports: [
         CommonModule,
