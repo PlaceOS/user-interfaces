@@ -5,16 +5,16 @@
         >
         <ng-container
             *ngIf="
-                (loading$ | async) == false && (bookings$ | async);
+                (loading$ | async) == false && (user_bookings$ | async);
                 else load_state
             "
         >
             <ng-container
-                *ngIf="(bookings$ | async)?.length > 0; else empty_state"
+                *ngIf="(user_bookings$ | async)?.length > 0; else empty_state"
             >
-                <div *ngFor="let booking of bookings$ | async">
+                <div *ngFor="let booking of user_bookings$ | async">
                     <div
-                        *ngIf="booking !== null"
+                        *ngIf="booking"
                         class="flex flex-col bg-white p-4 my-4 shadow w-[375px] max-w-[calc(100%-2rem)] mx-auto rounded"
                     >
                         <span class="flex font-bold">
