@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { CateringItem } from '../catering-item.class';
 
@@ -22,8 +23,9 @@ const EMPTY_FAVS: string[] = [];
                 <catering-item-filters
                     class="h-full hidden sm:block sm:max-w-[12rem] sm:h-[65vh] sm:max-h-full"
                 ></catering-item-filters>
-                <div 
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]">
+                <div
+                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                >
                     <catering-item-filters
                         class="w-full border-b border-gray-200"
                         [search]="true"
@@ -87,9 +89,7 @@ const EMPTY_FAVS: string[] = [];
                         <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">
-                    {{ count }} items(s) added
-                </p>
+                <p class="opacity-60 text-sm">{{ count }} items(s) added</p>
                 <button
                     mat-button
                     [disabled]="!displayed"
@@ -116,7 +116,7 @@ const EMPTY_FAVS: string[] = [];
 })
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;
-    public selected: CateringItem[] = [];
+    public selected: CateringItem[] = [...(this._items || [])];
 
     public get favorites() {
         return (
@@ -132,7 +132,10 @@ export class NewCateringOrderModalComponent {
         return this.selected.reduce((t, i) => t + i.quantity, 0);
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        @Inject(MAT_DIALOG_DATA) private _items: CateringItem[]
+    ) {}
 
     public isSelected(id: string) {
         return id && this.selected_ids.includes(id);

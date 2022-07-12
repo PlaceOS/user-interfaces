@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { Asset } from '../asset.class';
 
@@ -21,7 +22,8 @@ const EMPTY_FAVS: string[] = [];
             >
                 <asset-filters class="h-full hidden sm:block"></asset-filters>
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:min-w-[20rem] sm:h-[65vh]">
+                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:min-w-[20rem] sm:h-[65vh]"
+                >
                     <asset-filters-display
                         class="w-full border-b border-gray-200"
                     ></asset-filters-display>
@@ -83,9 +85,7 @@ const EMPTY_FAVS: string[] = [];
                         <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">
-                    {{ count }} assets(s) added
-                </p>
+                <p class="opacity-60 text-sm">{{ count }} assets(s) added</p>
                 <button
                     mat-button
                     [disabled]="!displayed"
@@ -112,7 +112,7 @@ const EMPTY_FAVS: string[] = [];
 })
 export class AssetSelectModalComponent {
     public displayed: Asset | null = null;
-    public selected: Asset[] = [];
+    public selected: Asset[] = [...(this._items || [])];
 
     public get favorites() {
         return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
@@ -130,7 +130,10 @@ export class AssetSelectModalComponent {
         return id && this.selected_ids.includes(id);
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        @Inject(MAT_DIALOG_DATA) private _items: Asset[]
+    ) {}
 
     public setSelected(asset: Asset, state: boolean) {
         const list = this.selected.filter((_) => _.id !== asset.id);
