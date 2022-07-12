@@ -33,7 +33,7 @@ import { Asset } from '../asset.class';
                                     class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                     *ngIf="selected.includes(asset.id)"
                                 >
-                                    <app-icon>done</app-icon>
+                                   <span class="text-xs">{{asset.amount || 1}}</span>
                                 </div>
                             </div>
                             <div class="space-y-2 text-left flex-1">
