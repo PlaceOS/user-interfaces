@@ -114,6 +114,7 @@
                             [(ngModel)]="feature.value"
                             class="ml-auto"
                             [ngModelOptions]="{ standalone: true }"
+                            (change)="getSelectedFeatures()"
                         ></mat-checkbox>
                     </div>
                 </div>

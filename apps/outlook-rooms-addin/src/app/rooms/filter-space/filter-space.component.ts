@@ -34,9 +34,13 @@ export class FilterSpaceComponent implements OnInit {
         return this._state.form;
     }
 
-    async applyFilters() {
+    applyFilters() {
         this._bottomsheetRef.dismiss(this.form);
         this._featuresFilterService.applyFilter();
+    }
+
+    getSelectedFeatures() {
+        this._featuresFilterService.getSelectedFeatures();
     }
 
     closeModal() {

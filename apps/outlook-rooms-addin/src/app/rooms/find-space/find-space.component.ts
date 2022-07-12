@@ -223,7 +223,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     async updateSpaces() {
-        this.spaces$ = await this._featuresFilterService.applyFilter();
+        this.spaces$ = this._featuresFilterService.updated_spaces$;
     }
 
     updateSelectedLevel(e) {

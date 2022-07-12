@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { take, map, filter } from 'rxjs/operators';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
+import { take, map, filter, switchMap } from 'rxjs/operators';
 import { Space } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
 
@@ -8,11 +8,19 @@ import { EventFormService } from '@placeos/events';
     providedIn: 'root',
 })
 export class FeaturesFilterService {
-    public spaces$ = this._state.available_spaces;
-    selected_features$: Observable<any>;
-    features_list: Array<string> = [];
-    filtered_spaces: Space[] = [];
-    _features: BehaviorSubject<any> = new BehaviorSubject<any>([]);
+    public spaces$: Observable<Space[]> = this._state.available_spaces;
+    public updated_spaces$: Observable<Space[]>;
+    features_sub: Subscription;
+    _selected_features: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+    selected_features$: Observable<any> =
+        this._selected_features.asObservable();
+    get selected_features() {
+        return this._selected_features.getValue();
+    }
+    // features_list: Array<string> = [];
+    // filtered_spaces: Space[] = [];
+
+    _features: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
     features$: Observable<any> = this._features.asObservable();
 
@@ -24,7 +32,7 @@ export class FeaturesFilterService {
         return this._features.getValue();
     }
 
-    Features = of([
+    room_features: any[] = [
         { name: 'Video Conference (VC)', id: 'VidConf', value: false },
         { name: 'Conference Phone', id: 'ConfPhone', value: false },
         { name: 'Wireless Content Sharing', id: 'Wireless', value: false },
@@ -33,43 +41,67 @@ export class FeaturesFilterService {
         { name: 'Jamboard', id: 'Jamboard', value: false },
         { name: 'Projector', id: 'Projector', value: false },
         { name: 'Views', id: 'Views', value: false },
-    ]);
+    ];
 
     constructor(private _state: EventFormService) {
-        this.features$ = this.Features;
-        this._getSelectedFeatures();
+        this._features.next(this.room_features);
     }
 
-    private _getSelectedFeatures() {
-        this.selected_features$ = this.features$.pipe(
+    async getSelectedFeatures() {
+        this.selected_features$ = await this.features$.pipe(
             map((arr) => arr.filter((item) => item.value == true))
         );
     }
     async applyFilter() {
-        let selected_features_list = await this.selected_features$
-            .pipe(take(1))
-            .toPromise();
+        this.selected_features$.subscribe((i) => console.log(i));
+        // let selected_features_list = await this.selected_features$
+        //     .pipe(take(1))
+        //     .toPromise();
 
-        this.features_list = selected_features_list.map((item) => item.id);
+        // await selected_features_list.sort().join();
 
-        let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
+        // const features_list = selected_features_list.map((item) => item.id);
+        // this._selected_features.next(features_list);
 
-        current_spaces?.forEach((space: Space) => {
-            this.filtered_spaces = [];
-            if (space) {
-                const sorted_feat_list: String = space?.feature_list
-                    .sort()
-                    .join();
-                const sorted_selected_features: string = this.features_list
-                    .sort()
-                    .join();
+        // let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
 
-                if (sorted_feat_list.includes(sorted_selected_features)) {
-                    this.filtered_spaces.push(space);
-                }
-            }
-        });
+        // current_spaces?.map((space: Space) => {
+        //     this.filtered_spaces = [];
+        //     if (space) {
+        //         const sorted_feat_list: String = space?.feature_list
+        //             .sort()
+        //             .join();
+        //         const sorted_selected_features: string = this.features_list
+        //             .sort()
+        //             .join();
 
-        return of(this.filtered_spaces);
+        //         if (sorted_feat_list.includes(sorted_selected_features)) {
+        //             this.filtered_spaces.push(space);
+        //         }
+        //     }
+        // });
+        // return of(this.filtered_spaces);
+        this.spaces$.subscribe((i) => console.log(i));
+        this.updated_spaces$ = this.spaces$.pipe(
+            map((spaces: Space[]) =>
+                spaces.filter((space: Space) => {
+                    this.features_sub = this.selected_features?.subscribe(
+                        (features) =>
+                            features.map((feature) => {
+                                this._sort(space?.features).includes(
+                                    feature?.id
+                                );
+                            })
+                    );
+                })
+            )
+        );
+    }
+
+    _sort(array: string[]): string {
+        return array.sort().join();
+    }
+    OnDestroy() {
+        this.features_sub.unsubscribe();
     }
 }
