@@ -2,12 +2,10 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { BookingFormService, DesksService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import {
-    Building,
     BuildingLevel,
-    Organisation,
     OrganisationService,
 } from '@placeos/organisation';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, timer } from 'rxjs';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
@@ -19,6 +17,7 @@ import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from '@placeos/bookings';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { MatDialog } from '@angular/material/dialog';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('ExploreDesksService', () => {
     let spectator: SpectatorService<ExploreDesksService>;
@@ -37,7 +36,6 @@ describe('ExploreDesksService', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    organisation: new Organisation(),
                     binding: jest.fn(() => 'sys-1'),
                     initialised: of(true),
                     levels: [],
@@ -67,26 +65,21 @@ describe('ExploreDesksService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should bind to AreaManagement driver', async () => {
+    it('should bind to AreaManagement driver', fakeAsync(() => {
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
         const bind = jest.fn();
         const binding = jest.fn(() => ({ listen: () => of(), bind }));
-        (ts_client as any).getModule = jest.fn(() => ({ binding }));
+        (ts_client.getModule as any) = jest.fn();
+        (ts_client.getModule as any).mockImplementation(() => {
+            console.log('Module');
+            return ({ binding })
+        });
         const state = spectator.inject(ExploreStateService);
-        const org = spectator.inject(OrganisationService);
         expect(ts_client.getModule).not.toHaveBeenCalled();
-        (state as any).level.next(new BuildingLevel());
-        expect(ts_client.getModule).not.toHaveBeenCalled();
-        (org as any).buildings = [new Building({ id: '1' })];
-        (state as any).level.next(new BuildingLevel({ parent_id: '1' }));
-        expect(ts_client.getModule).not.toHaveBeenCalled();
-        (org as any).buildings = [
-            new Building({ id: '1', bindings: { area_management: 'sys-1' } }),
-        ];
         (state as any).level.next(
             new BuildingLevel({ id: 'lvl-1', parent_id: '1' })
         );
-        await new Promise<void>((r) => setTimeout(() => r(), 30));
+        tick(300);
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'sys-1',
             'AreaManagement'
@@ -94,7 +87,7 @@ describe('ExploreDesksService', () => {
         expect(bind).toHaveBeenCalledTimes(2);
         expect(binding).toHaveBeenCalledWith('lvl-1');
         expect(binding).toHaveBeenCalledWith('lvl-1:desk_ids');
-    });
+    }));
 
     it('should handle binding changes', () => {
         jest.useFakeTimers();

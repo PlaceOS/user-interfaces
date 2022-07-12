@@ -11,10 +11,10 @@ import {
 import { ExploreStateService } from '../lib/explore-state.service';
 
 jest.mock('@placeos/ts-client');
-jest.mock('@placeos/common');
+jest.mock('libs/common/src/lib/notifications');
 
 import * as ts_client from '@placeos/ts-client';
-import * as common_mod from '@placeos/common';
+import * as notify from 'libs/common/src/lib/notifications';
 import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('ExploreSpacesService', () => {
@@ -36,7 +36,7 @@ describe('ExploreSpacesService', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createService()));
+    beforeEach(() => (spectator = createService());
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
@@ -51,11 +51,10 @@ describe('ExploreSpacesService', () => {
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
         expect(ts_client.getModule).toHaveBeenCalledWith('space-1', 'Bookings');
-        expect(binding).toHaveBeenCalledTimes(4);
+        expect(binding).toHaveBeenCalledTimes(2);
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
-        expect(bind).toHaveBeenCalledTimes(4);
-        tick(301);
+        expect(bind).toHaveBeenCalledTimes(2);
         
         expect(state.setActions).toHaveBeenCalled();
     }));
@@ -67,7 +66,7 @@ describe('ExploreSpacesService', () => {
         ].map((_) => new Space(_));
         const state = spectator.inject(ExploreStateService);
         spectator.service.handleStatusChange(spaces, spaces[0], '');
-        tick(401);
+        tick(101);
         expect(state.setStyles).toHaveBeenCalledWith('spaces', {
             '#space-1': { fill: DEFAULT_COLOURS['free'], opacity: 0.6 },
             '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
@@ -92,16 +91,16 @@ describe('ExploreSpacesService', () => {
             { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
             { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
         ].map((_) => new Space(_));
-        (common_mod as any).notifyError = jest.fn();
+        (notify as any).notifyError = jest.fn();
         const dialog = spectator.inject(MatDialog);
         spectator.service.handleStatusChange(spaces, spaces[0], '');
         jest.runOnlyPendingTimers();
         expect(dialog.open).not.toHaveBeenCalled();
         spectator.service.bookSpace(spaces[0]);
         expect(dialog.open).toHaveBeenCalled();
-        expect(common_mod.notifyError).not.toHaveBeenCalled();
+        expect(notify.notifyError).not.toHaveBeenCalled();
         spectator.service.bookSpace(spaces[1]);
-        expect(common_mod.notifyError).toHaveBeenCalled();
+        expect(notify.notifyError).toHaveBeenCalled();
         expect(dialog.open).toHaveBeenCalledTimes(1);
     });
 });

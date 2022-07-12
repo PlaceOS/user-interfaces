@@ -199,7 +199,7 @@ export class DesksManageComponent extends BaseClass {
     ]).pipe(map(([d, n]) => d.concat(n)));
 
     public get changed() {
-        return Object.keys(this.changes).length + this._state.new_desk_count;
+        return (Object.keys(this.changes).length || 0) + (this._state.new_desk_count || 0);
     }
 
     public setRowValue(id: string, key: string, value: any) {

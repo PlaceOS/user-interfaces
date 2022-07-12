@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
+import { first } from 'rxjs/operators';
 
 import { log, getItemWithKeys, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
@@ -9,10 +11,8 @@ import { HashMap } from './types';
 import { BaseClass } from './base.class';
 
 import { VERSION } from './version';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { currentUser } from './user-state';
 import { current_user } from '..';
-import { first } from 'rxjs/operators';
 
 declare global {
     interface Window {

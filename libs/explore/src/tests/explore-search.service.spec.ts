@@ -27,7 +27,7 @@ describe('ExploreSearchService', () => {
                 useValue: {
                     initialised: of(true),
                     organisation: new Organisation(),
-                    binding: jest.fn()
+                    binding: jest.fn(() => 'sys-1'),
                 },
             },
         ],
@@ -86,7 +86,7 @@ describe('ExploreSearchService', () => {
         expect(result).toHaveLength(1);
     });
 
-    it('should allow searching for emergency contacts', fakeAsync(async () => {
+    it('should allow searching for emergency contacts', async () => {
         (user_mod as any).searchStaff = jest.fn(() => of([]));
         (ts_client as any).getModule = jest.fn(() => ({
             binding: () => ({
@@ -97,6 +97,7 @@ describe('ExploreSearchService', () => {
                 bind: () => null,
             }),
         }));
+        spectator.service.search_fn = (q) => of([]);
         await spectator.service.init();
         spectator.service.setFilter('John');
         let result = await spectator.service.search_results
@@ -104,11 +105,10 @@ describe('ExploreSearchService', () => {
             .toPromise();
         expect(result).toHaveLength(1);
         expect(result[0].type).toBe('first_aid');
-        spectator.service.setFilter('Jim');
-        tick(401);
+        spectator.service.setFilter('fjggfdytrtuuf');
         result = await spectator.service.search_results
             .pipe(take(1))
             .toPromise();
         expect(result).toHaveLength(0);
-    }));
+    });
 });

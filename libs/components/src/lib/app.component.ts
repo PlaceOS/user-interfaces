@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -65,7 +65,6 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 })
 export class AppComponent extends BaseClass implements OnInit {
     constructor(
-        private _tracing: Sentry.TraceService,
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _spaces: SpacesService, // For init

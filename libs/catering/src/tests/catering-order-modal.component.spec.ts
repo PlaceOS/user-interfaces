@@ -6,8 +6,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
-import { IconComponent } from '@placeos/components';
-import { CounterComponent } from '@placeos/form-fields';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 
 import { CateringOrderModalComponent } from '../lib/catering-order-modal.component';
 import { CateringOrder } from '../lib/catering-order.class';

@@ -1,9 +1,10 @@
 import { FormsModule } from '@angular/forms';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
-import { CounterComponent } from '@placeos/form-fields';
+import { MockComponent } from 'ng-mocks';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
-import { MockComponent, MockModule } from 'ng-mocks';
 import { CateringItem } from '../../lib/catering-item.class';
 import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
 
@@ -17,7 +18,7 @@ describe('CateringItemDetailsComponent', () => {
             MockComponent(ImageCarouselComponent),
             MockComponent(CounterComponent),
         ],
-        imports: [MockModule(FormsModule)],
+        imports: [FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -18,8 +18,8 @@ describe('VisitorEventComponent', () => {
                 useValue: {
                     filters: new BehaviorSubject({}),
                     filtered_events: new BehaviorSubject([]),
-                    checkAllGuestsIn: jest.fn(() => of({})),
-                    checkAllGuestsOut: jest.fn(() => of({})),
+                    checkAllGuestsIn: jest.fn(() => Promise.resolve({})),
+                    checkAllGuestsOut: jest.fn(() => Promise.resolve({})),
                 },
             },
         ],
