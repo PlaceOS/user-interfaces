@@ -24,7 +24,9 @@ import {
     mockStaffUser,
     mockExternalCalendarEvent,
     mockGetStaffUser,
+    mockExternalUser,
 } from './test-mocks';
+import { consoleHasColours } from '@placeos/ts-client';
 
 describe('UpcomingBookingsComponent', () => {
     let spectator: Spectator<UpcomingBookingsComponent>;
@@ -47,13 +49,9 @@ describe('UpcomingBookingsComponent', () => {
                 provide: ExistingBookingsService,
                 useValue: {
                     loading$: of(false),
-                    events: of([mockCalendarEvent, mockCalendarEvent]),
+                    events: of(null) as any,
                 },
             },
-            // {
-            //     provide: currentUser,
-            //     useValue: mockGetStaffUser,
-            // },
         ],
         declarations: [],
     });
@@ -69,66 +67,82 @@ describe('UpcomingBookingsComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should not show bookings that were not organised by the current user', async () => {
+    it('should show the correct number of bookings for the current user', async () => {
         spectator = createComponent();
         spectator.component.user = mockStaffUser;
-        spectator.detectChanges();
-        const booking_service = spectator.inject(ExistingBookingsService);
-        booking_service.loading$ = of(true);
-        spectator.detectChanges();
-        booking_service.events = of([
+        const bookings_service = spectator.inject(ExistingBookingsService);
+        bookings_service.loading$ = of(true);
+        bookings_service.events = of([
             mockCalendarEvent,
             mockCalendarEvent,
             mockCalendarEvent,
-        ]) as any;
+            mockCalendarEvent,
+        ]);
         spectator.detectChanges();
-        await booking_service.events.pipe(take(1)).toPromise();
-        booking_service.loading$ = of(false);
+        bookings_service.loading$ = of(false);
         spectator.detectChanges();
 
-        await spectator.component.ngOnInit();
-        spectator.detectChanges();
+        await spectator.component.getBookingsFromService();
+        await spectator.component.user_bookings$.pipe(take(1)).toPromise();
 
         let service_bookings_count;
-        booking_service.events.subscribe(
-            // (bookings) => (service_bookings_count = bookings.length)
-            (events) =>
-                events.map((event) =>
-                    console.log(
-                        event.organiser.name == spectator.component.user.name
-                    )
-                )
+        let bookings_displayed_count;
+
+        bookings_service.events.subscribe(
+            (bookings) => (service_bookings_count = bookings.length)
         );
-        console.log(spectator.component.user.name);
-        // console.log(service_bookings_count);
+        spectator.component.user_bookings$.subscribe(
+            (bookings) => (bookings_displayed_count = bookings.length)
+        );
+        expect(bookings_displayed_count).toBe(service_bookings_count);
 
-        await spectator.component.filter_user_bookings$
-            .pipe(take(1))
-            .toPromise();
-        spectator.detectChanges();
-
-        spectator.component.user_bookings$.subscribe((i) => console.log(i));
-
-        console.log(spectator.debugElement.nativeElement.outerHTML);
-
-        // // expect(bookings_count).toBe(4);
-
-        // booking_service.events = of([
-        //     mockExternalCalendarEvent,
-        //     mockExternalCalendarEvent,
-        //     mockExternalCalendarEvent,
-        // ]) as any;
-        // spectator.detectChanges();
-
-        let new_bookings_count;
-        // spectator.component.bookings$.subscribe((bookings) => {
-        //     new_bookings_count = bookings.length;
-        // });
-
-        // expect(new_bookings_count).toBe(0);
+        bookings_service.events.subscribe((events) =>
+            events.forEach((event) =>
+                expect(event.organiser.name).toBe(spectator.component.user.name)
+            )
+        );
     });
 
-    it('should say no bookings found if there are no bookings', async () => {
+    it('should not show bookings that were not organised by the current user', async () => {
+        spectator = createComponent();
+        spectator.component.user = mockExternalUser;
+        const bookings_service = spectator.inject(ExistingBookingsService);
+        bookings_service.loading$ = of(true);
+        bookings_service.events = of([
+            mockCalendarEvent,
+            mockCalendarEvent,
+            mockCalendarEvent,
+            mockCalendarEvent,
+        ]);
+        spectator.detectChanges();
+        bookings_service.loading$ = of(false);
+        spectator.detectChanges();
+
+        await spectator.component.getBookingsFromService();
+        await spectator.component.user_bookings$.pipe(take(1)).toPromise();
+
+        let service_bookings_count;
+        let bookings_displayed_count;
+
+        bookings_service.events.subscribe(
+            (bookings) => (service_bookings_count = bookings.length)
+        );
+        spectator.component.user_bookings$.subscribe(
+            (bookings) => (bookings_displayed_count = bookings.length)
+        );
+
+        expect(service_bookings_count).toBe(4);
+        expect(bookings_displayed_count).toBe(0);
+        bookings_service.events.subscribe((events) =>
+            events.forEach((event) =>
+                expect(event.organiser.name).not.toBe(
+                    spectator.component.user.name
+                )
+            )
+        );
+    });
+
+    it('should say -no bookings found- if there are no bookings', async () => {
         spectator = createComponent();
         spectator.component.user = mockStaffUser;
         const bookings_service = spectator.inject(ExistingBookingsService);

@@ -20,8 +20,8 @@ import { CalendarEvent } from '@placeos/events';
     styles: [``],
 })
 export class UpcomingBookingsComponent implements OnInit {
-    filter_user_bookings$: Observable<CalendarEvent[]>;
-    user_bookings$: Observable<any[]>;
+    filter_user_bookings$: Observable<CalendarEvent[]> = null;
+    user_bookings$: Observable<any[]> = null;
     public loading$: Observable<boolean> =
         this._existingBookingsService.loading$;
     time_zone: string = 'en-US';
@@ -38,16 +38,16 @@ export class UpcomingBookingsComponent implements OnInit {
     public async getBookingsFromService() {
         this.filter_user_bookings$ = this._existingBookingsService.events?.pipe(
             map((events) =>
-                events.filter(
-                    (event) => event?.organiser?.name == currentUser()?.name
+                events?.filter(
+                    (event) => event?.organiser?.name == this.user?.name
                 )
             )
-        );
+        ) as Observable<CalendarEvent[]>;
 
         this.user_bookings$ = this.filter_user_bookings$
             .pipe(
                 switchMap((bookings: CalendarEvent[]) => [
-                    bookings.map((booking: CalendarEvent) => {
+                    bookings?.map((booking: CalendarEvent) => {
                         if (booking) {
                             return {
                                 title: booking?.title,
