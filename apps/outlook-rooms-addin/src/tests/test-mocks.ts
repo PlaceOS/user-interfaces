@@ -2,6 +2,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { of, Observable } from 'rxjs';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { Space } from '@placeos/spaces';
+import { CalendarEvent } from '@placeos/events';
 
 export let mockForm = {
     id: 1,
@@ -58,7 +59,7 @@ export const mockUser = {
 
 export const mockStaffUser = {
     id: '123',
-    name: 'Jonathan McFarlane (PlaceOS)',
+    name: 'PlaceOS - Mock User',
     email: 'user@test.com',
     first_name: 'user',
     last_name: 'user',
@@ -129,7 +130,7 @@ export const mockSpace: Space = {
     availability: [mockCalendarAvailability],
 };
 
-export const mockCalendarEvent = {
+export const mockCalendarEvent: CalendarEvent = {
     id: '123',
     status: 'approved',
     host: 'host@test.com',
@@ -141,24 +142,36 @@ export const mockCalendarEvent = {
     body: '',
     event_start: 12345,
     event_end: 23456,
+    all_day: false,
     date: 12345,
     duration: 22222,
     timezone: '',
     location: '',
     meeting_url: '',
+    meeting_id: '',
     meeting_provider: '',
+    recurring: false,
     recurrence: '' as any,
     recurring_master_id: '',
     private: false,
     attachments: '' as any,
-    extension_date: '' as any,
+    extension_data: '' as any,
     system: '' as any,
     old_system: '' as any,
     organiser: mockStaffUser,
     type: 'external',
+    is_today: true,
+    space: mockSpace,
+    guests: [] as any,
+    ext: '' as any,
+    toJSON: () => {
+        return '' as any;
+    },
+    state: 'upcoming',
+    can_check_in: true,
 };
 
-export const mockExternalCalendarEvent = {
+export const mockExternalCalendarEvent: CalendarEvent = {
     id: '123',
     status: 'approved',
     host: 'host@test.com',
@@ -170,21 +183,33 @@ export const mockExternalCalendarEvent = {
     body: '',
     event_start: 12345,
     event_end: 23456,
+    all_day: false,
     date: 12345,
     duration: 22222,
     timezone: '',
     location: '',
     meeting_url: '',
+    meeting_id: '',
     meeting_provider: '',
+    recurring: false,
     recurrence: '' as any,
     recurring_master_id: '',
     private: false,
     attachments: '' as any,
-    extension_date: '' as any,
+    extension_data: '' as any,
     system: '' as any,
     old_system: '' as any,
     organiser: mockExternalUser,
     type: 'external',
+    is_today: true,
+    space: mockSpace,
+    guests: [] as any,
+    ext: '' as any,
+    toJSON: () => {
+        return '' as any;
+    },
+    state: 'upcoming',
+    can_check_in: true,
 };
 export const mockEventFlowOptions = {
     calendar_id: '123',
