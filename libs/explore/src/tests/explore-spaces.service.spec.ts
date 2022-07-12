@@ -36,7 +36,7 @@ describe('ExploreSpacesService', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createService());
+    beforeEach(() => (spectator = createService()));
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();

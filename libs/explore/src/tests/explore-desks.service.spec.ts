@@ -1,3 +1,5 @@
+import { MatDialog } from '@angular/material/dialog';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { BookingFormService, DesksService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
@@ -5,8 +7,9 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
+import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
@@ -15,9 +18,6 @@ jest.mock('@placeos/bookings');
 
 import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from '@placeos/bookings';
-import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
-import { MatDialog } from '@angular/material/dialog';
-import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('ExploreDesksService', () => {
     let spectator: SpectatorService<ExploreDesksService>;
@@ -27,7 +27,7 @@ describe('ExploreDesksService', () => {
             {
                 provide: ExploreStateService,
                 useValue: {
-                    level: new BehaviorSubject({}),
+                    level: new BehaviorSubject(null),
                     setFeatures: jest.fn(),
                     setStyles: jest.fn(),
                     setActions: jest.fn(),
@@ -70,10 +70,8 @@ describe('ExploreDesksService', () => {
         const bind = jest.fn();
         const binding = jest.fn(() => ({ listen: () => of(), bind }));
         (ts_client.getModule as any) = jest.fn();
-        (ts_client.getModule as any).mockImplementation(() => {
-            console.log('Module');
-            return ({ binding })
-        });
+        (ts_client.getModule as any).mockImplementation(() => ({ binding }));
+        console.log(ts_client);
         const state = spectator.inject(ExploreStateService);
         expect(ts_client.getModule).not.toHaveBeenCalled();
         (state as any).level.next(
@@ -84,9 +82,8 @@ describe('ExploreDesksService', () => {
             'sys-1',
             'AreaManagement'
         );
-        expect(bind).toHaveBeenCalledTimes(2);
+        expect(bind).toHaveBeenCalledTimes(1);
         expect(binding).toHaveBeenCalledWith('lvl-1');
-        expect(binding).toHaveBeenCalledWith('lvl-1:desk_ids');
     }));
 
     it('should handle binding changes', () => {

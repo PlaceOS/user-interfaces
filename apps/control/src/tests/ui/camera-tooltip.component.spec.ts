@@ -1,7 +1,10 @@
 import { FormsModule } from '@angular/forms';
+import { fakeAsync } from '@angular/core/testing';
+import { Renderer2 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
     BindingDirective,
@@ -17,13 +20,10 @@ import {
     ZoomDirection,
 } from '../../app/ui/camera-tooltip.component';
 import { JoystickComponent } from '../../app/ui/joystick.component';
-import { MatInputModule } from '@angular/material/input';
 
 jest.mock('@placeos/ts-client');
 
 import * as client from '@placeos/ts-client';
-import { async, fakeAsync } from '@angular/core/testing';
-import { Renderer2 } from '@angular/core';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
@@ -46,16 +46,7 @@ describe('CameraTooltipComponent', () => {
             {
                 provide: CustomTooltipData,
                 useValue: { close: jest.fn() },
-            },
-            {
-                provide: Renderer2,
-                useValue: {
-                    listen: jest.fn((_, __, fn) => {
-                        setTimeout(() => fn(), 1);
-                        return () => null;
-                    }),
-                },
-            },
+            }
         ],
         imports: [
             MockModule(MatSelectModule),
@@ -102,6 +93,11 @@ describe('CameraTooltipComponent', () => {
     });
 
     it('should allow user to change zoom of camera', fakeAsync(() => {
+        const spy = jest.spyOn(spectator.fixture.componentRef.injector.get(Renderer2), 'listen');
+        spy.mockImplementation((_, __, fn) => {
+            setTimeout(() => fn({}), 100);
+            return () => null;
+        });
         const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
         const service = spectator.inject(ControlStateService);
         (service as any).camera_list.next(cam_list);
@@ -109,11 +105,11 @@ describe('CameraTooltipComponent', () => {
         spectator.detectChanges();
         spectator.dispatchFakeEvent('button[zoom-in]', 'mousedown');
         expect(spectator.component.zoom).toBe(ZoomDirection.In);
-        spectator.tick(100);
+        spectator.tick(101);
         expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
         spectator.dispatchFakeEvent('button[zoom-out]', 'mousedown');
         expect(spectator.component.zoom).toBe(ZoomDirection.Out);
-        spectator.tick(100);
+        spectator.tick(101);
         expect(spectator.component.zoom).toBe(ZoomDirection.Stop);
     }));
 
