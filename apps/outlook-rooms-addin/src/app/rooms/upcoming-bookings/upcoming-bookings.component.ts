@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { switchMap, first, take, filter, map } from 'rxjs/operators';
+import { switchMap, first, take, filter, map, tap } from 'rxjs/operators';
 import { ExistingBookingsService } from '../existing-bookings.service';
 import { currentUser } from '@placeos/common';
 import { User, StaffUser } from '@placeos/users';
@@ -41,24 +41,21 @@ export class UpcomingBookingsComponent implements OnInit {
         );
 
         this.user_bookings$ = this.filter_user_bookings$.pipe(
-            map((bookings: CalendarEvent[]) =>
+            switchMap((bookings: CalendarEvent[]) => [
                 bookings.map((booking) => {
-                    booking;
-                    //    title: booking.title,
-                    //     organiser: booking.organiser,
-                    //     date: booking.date,
-                    //     start_time: this._convertTime(
-                    //         booking.event_start * 1000
-                    //     );
-                    //   end_time = this._convertTime(
-                    //         booking.event_end * 1000
-                    //     );
-                    //    location: booking.location;
-                })
-            )
+                    return {
+                        title: booking.title,
+                        organiser: booking.organiser,
+                        date: booking.date,
+                        start_time: this._convertTime(
+                            booking.event_start * 1000
+                        ),
+                        end_time: this._convertTime(booking.event_end * 1000),
+                        location: booking.location,
+                    };
+                }),
+            ])
         );
-
-        this.user_bookings$.subscribe((i) => console.log(i));
 
         this.loading$ = this._existingBookingsService.loading$;
     }
