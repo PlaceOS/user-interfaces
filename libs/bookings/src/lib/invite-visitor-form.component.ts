@@ -6,17 +6,17 @@ import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
 
 @Component({
-    selector: ``,
+    selector: `invite-visitor-form`,
     template: `
         <ng-container *ngIf="!sent; else send_state">
             <div
-                class="relative flex flex-col bg-white rounded overflow-hidden"
+                class="relative flex flex-col bg-white rounded overflow-auto"
                 *ngIf="!(loading | async); else load_state"
             >
-                <div class="w-full border-b border-gray-200">
-                    <h2>Invite Visitor</h2>
+                <div class="w-full border-b border-gray-200 px-4 py-2">
+                    <h2 class="text-2xl">Invite Visitor</h2>
                 </div>
-                <form *ngIf="form" [formGroup]="form">
+                <form *ngIf="form" [formGroup]="form" class="p-4">
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
                         <label for="building">Building<span>*</span></label>
                         <mat-form-field appearance="outline">
@@ -45,8 +45,8 @@ import { Booking } from './booking.class';
                             formControlName="date"
                         ></a-date-field>
                     </div>
-                    <div class="flex items-center">
-                        <div class="flex-1 flex flex-col">
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-1 flex flex-col w-1/3">
                             <label for="start-time"
                                 >Start Time<span>*</span></label
                             >
@@ -55,7 +55,7 @@ import { Booking } from './booking.class';
                                 formControlName="date"
                             ></a-time-field>
                         </div>
-                        <div class="flex-1 flex flex-col">
+                        <div class="flex-1 flex flex-col w-1/3">
                             <label for="end-time">End Time<span>*</span></label>
                             <a-duration-field
                                 name="end-time"
@@ -103,9 +103,9 @@ import { Booking } from './booking.class';
                         </mat-form-field>
                     </div>
                 </form>
-                <div class="sticky p-2 border-t border-gray-200">
-                    <button mat-button send (click)="sendInvite()">
-                        Send visitor invite
+                <div class="sticky p-4 border-t border-gray-200 bottom-0">
+                    <button mat-button send class="w-full sm:w-auto" (click)="sendInvite()">
+                        Send Visitor Invite
                     </button>
                 </div>
             </div>

@@ -32,6 +32,8 @@ import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { AssetsModule } from '@placeos/assets';
 import { SharedCateringModule } from '@placeos/catering';
+import { VisitorFlowComponent } from './visitor-flow.component';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const ROUTES: Route[] = [
     {
@@ -47,6 +49,8 @@ const ROUTES: Route[] = [
             { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: BookParkingFlowComponent },
+            { path: 'visitor', redirectTo: 'visitor/form' },
+            { path: 'visitor/:step', component: VisitorFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
         ],
     },
@@ -76,7 +80,8 @@ const ROUTES: Route[] = [
         MeetingFlowFormComponent,
         MeetingFormDetailsComponent,
         MeetingFlowConfirmComponent,
-        MeetingFlowSuccessComponent
+        MeetingFlowSuccessComponent,
+        VisitorFlowComponent
     ],
     imports: [
         CommonModule,
@@ -88,6 +93,7 @@ const ROUTES: Route[] = [
         ReactiveFormsModule,
         MatButtonToggleModule,
         MatBottomSheetModule,
+        SharedBookingsModule,
         RouterModule.forChild(ROUTES),
     ],
 })
