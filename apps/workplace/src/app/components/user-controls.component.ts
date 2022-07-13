@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
@@ -54,6 +55,23 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                             <app-icon>help</app-icon>
                         </div>
                         <div class="flex-1">Help & Support</div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
+                    </div>
+                </button>
+            </div>
+            <div
+                *ngIf="features.includes('wfh')"
+            >
+                <button mat-button class="clear w-full text-left h-[3.5rem]" (click)="openWfhModal()">
+                    <div class="flex items-center space-x-2">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                        >
+                            <app-icon>share_location</app-icon>
+                        </div>
+                        <div class="flex-1">Work Location Settings</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -145,5 +163,9 @@ export class UserControlsComponent {
 
     public openSupportTicketModal() {
         this._dialog.open(SupportTicketModalComponent);
+    }
+
+    public openWfhModal() {
+        this._dialog.open(WFHSettingsModalComponent);
     }
 }
