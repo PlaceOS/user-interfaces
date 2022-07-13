@@ -1,4 +1,4 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { currentUser } from '@placeos/common';
 import { createViewer, getViewer, Point, removeViewer } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
@@ -13,7 +13,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         zones: new FormControl(booking.zones),
         title: new FormControl(booking.title),
         description: new FormControl(booking.description),
-        asset_id: new FormControl(booking.asset_id),
+        asset_id: new FormControl(booking.asset_id, [Validators.required]),
         asset_name: new FormControl(booking.description),
         map_id: new FormControl(booking.extension_data?.map_id),
         user: new FormControl(currentUser()),

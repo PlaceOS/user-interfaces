@@ -105,7 +105,7 @@ const WFH_SETTING_KEY = 'wfh-days';
         <ng-template #load_state>
             <div
                 loading
-                class="relative bg-white flex flex-col justify-center items-center rounded overflow-hidden w-[18rem]"
+                class="relative bg-white flex flex-col justify-center items-center rounded overflow-hidden w-[18rem] h-[18rem]"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Saving changes to work location settings...</p>

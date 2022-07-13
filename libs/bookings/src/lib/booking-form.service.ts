@@ -39,7 +39,7 @@ const BOOKING_URLS = ['book/desks'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
-    type: 'desk' | 'parking';
+    type: 'desk' | 'parking' | 'visitor';
     /** Zone to check available */
     zone_id?: string;
     /** List of features that the asset should associate */

@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         NewUserModalComponent,
         UserFormComponent,
         WFHSettingsModalComponent,
-        UserPipe,
+        UserPipe
     ],
     imports: [
         CommonModule,

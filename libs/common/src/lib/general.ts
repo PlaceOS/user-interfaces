@@ -353,11 +353,16 @@ export function is24HourTime(): boolean {
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
-export function getInvalidFields(form: FormGroup) {
-    const invalid = [];
+export function getInvalidFields(form: FormGroup, prefix: string = '') {
+    let invalid = [];
     for (const key in form.controls) {
-        if (!form.controls[key].valid) {
-            invalid.push(key);
+        if (form.controls[key] instanceof FormGroup) {
+            invalid = [
+                ...invalid,
+                ...getInvalidFields(form.controls[key] as FormGroup, `${key}.`),
+            ];
+        } else if (!form.controls[key].valid) {
+            invalid.push(`${prefix}${key}`);
         }
     }
     return invalid;
