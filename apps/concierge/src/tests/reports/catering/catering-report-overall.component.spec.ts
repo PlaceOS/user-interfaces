@@ -46,7 +46,7 @@ describe('CateringReportOverallComponent', () => {
     it('should show number of items ordered', () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;
         expect('[items]').toContainText('0');
-        stats.next({ unique_items: 32 });
+        stats.next({ item_count: 32 });
         spectator.detectChanges();
         expect('[items]').toContainText('32');
     });

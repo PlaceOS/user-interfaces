@@ -1,11 +1,12 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { HotkeysService, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
 
 import { GlobalBannerComponent } from '../lib/global-banner.component';
 import { GlobalLoadingComponent } from '../lib/global-loading.component';
@@ -14,27 +15,23 @@ import { AppComponent } from '../lib/app.component';
 jest.mock('@placeos/common');
 jest.mock('@placeos/mocks');
 
-import * as Sentry from '@sentry/angular';
 import * as common_mod from '@placeos/common';
 import * as mocks_mod from '@placeos/mocks';
-import { of } from 'rxjs';
 
 describe('AppComponent', () => {
-    let spectator: Spectator<AppComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<AppComponent>;
+    const createComponent = createRoutingFactory({
         component: AppComponent,
         declarations: [
             MockComponent(GlobalBannerComponent),
             MockComponent(GlobalLoadingComponent),
         ],
         providers: [
-            { provide: Sentry.TraceService, useValue: {} },
             { provide: OrganisationService, useValue: {} },
             {
                 provide: SettingsService,
                 useValue: { get: jest.fn(), initialised: of(true) },
             },
-            { provide: OrganisationService, useValue: {} },
             { provide: SpacesService, useValue: {} },
             { provide: SwUpdate, useValue: {} },
             { provide: MatSnackBar, useValue: {} },

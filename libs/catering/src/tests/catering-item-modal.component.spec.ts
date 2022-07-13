@@ -7,8 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
-import { CounterComponent } from '@placeos/form-fields';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { MockComponent } from 'ng-mocks';
 
 import { CateringItemModalComponent } from '../lib/catering-item-modal.component';

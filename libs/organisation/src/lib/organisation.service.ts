@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-    HashMap,
-    notifyError,
-    RoomConfiguration,
-    SettingsService,
-} from '@placeos/common';
-import {
     authority,
     isMock,
     onlineState,
@@ -15,6 +9,11 @@ import {
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
+
+import { notifyError } from 'libs/common/src/lib/notifications';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { RoomConfiguration } from 'libs/common/src/lib/room-configuration.interface';
+
 import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
@@ -45,22 +44,22 @@ export class OrganisationService {
     /** Organisation data for the application */
     private _organisation: Organisation;
     /** Mapping of organisation settings overrides */
-    private _settings: HashMap[] = [];
+    private _settings: Record<string, any>[] = [];
     /** Mapping of buildings to settings overrides */
-    private _building_settings: HashMap<HashMap> = {};
+    private _building_settings: Record<string, Record<string, any>> = {};
 
     /** Mapping of organisation settings overrides */
-    public get settings(): HashMap[] {
+    public get settings() {
         return this._settings;
     }
 
     /** Mapping of builgins to settings overrides */
-    public get building_settings(): HashMap<HashMap> {
+    public get building_settings() {
         return this._building_settings;
     }
 
     /** Mapping building settings overrides */
-    public buildingSettings(bld_id: string = ''): HashMap {
+    public buildingSettings(bld_id: string = ''): Record<string, any> {
         if (!bld_id && this.building) {
             bld_id = this.building.id;
         }
@@ -173,7 +172,7 @@ export class OrganisationService {
                 org_list.find(
                     (list) => isMock() || list.id === auth?.config?.org_zone
                 ) || org_list[0];
-            const bindings: HashMap = (
+            const bindings: Record<string, any> = (
                 await showMetadata(org.id, 'bindings').toPromise()
             )?.details;
             this._organisation = new Organisation({ ...org, bindings });
@@ -201,7 +200,7 @@ export class OrganisationService {
         }
         const buildings = [];
         for (const bld of building_list) {
-            const bindings: HashMap = (
+            const bindings: Record<string, any> = (
                 await showMetadata(bld.id, 'bindings').toPromise()
             )?.details;
             buildings.push(new Building({ ...bld, bindings }));

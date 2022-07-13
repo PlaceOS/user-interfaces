@@ -5,7 +5,7 @@ import { Asset } from '../asset.class';
     selector: 'asset-details',
     template: `
         <ng-container *ngIf="item; else empty_state">
-            <section image class="relative w-full h-64 bg-black/20">
+            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
                     [images]="images"
                     class="absolute inset-0"
@@ -53,7 +53,7 @@ import { Asset } from '../asset.class';
                     </div>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow">
+            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
                 <button
                     mat-button
                     select

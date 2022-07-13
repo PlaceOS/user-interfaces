@@ -30,7 +30,9 @@ describe('DesksManageComponent', () => {
                 useValue: {
                     setFilters: jest.fn(),
                     desks: new BehaviorSubject([{ id: '1' }]),
+                    new_desks: new BehaviorSubject([]),
                     filters: new BehaviorSubject({}),
+                    clearNewDesks: jest.fn(),
                 },
             },
             {
@@ -74,8 +76,10 @@ describe('DesksManageComponent', () => {
     it('should allow saving of changes to desks', async () => {
         (ts_client.updateMetadata as any) = jest.fn(() => of({}));
         (common_mod.notifySuccess as any) = jest.fn(() => null);
+        (common_mod.unique as any) = jest.fn((_) => _);
         spectator.component.changes['1'] = { name: 'another' };
         spectator.detectChanges();
+        console.log(spectator.component.changed);
         spectator.click('button[save]');
         await timer(5).toPromise();
         expect(ts_client.updateMetadata).toBeCalledWith('lvl-1', {

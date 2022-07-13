@@ -7,9 +7,9 @@ import { map } from 'rxjs/operators';
 import {
     BaseClass,
     HashMap,
-    notifyError,
     SettingsService,
 } from '@placeos/common';
+import {  notifyError } from 'libs/common/src/lib/notifications';
 import { Space } from '@placeos/spaces';
 import { CalendarEvent } from '@placeos/events';
 
@@ -62,10 +62,8 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 );
                 this.subscription(`s-bind-${space.id}`, binding.bind());
             }
-            this.timeout('after_bind', () => {
-                this.updateActions(list);
-                this.updateHoverElements(list);
-            });
+            this.updateActions(list);
+            this.updateHoverElements(list);
         })
     );
 

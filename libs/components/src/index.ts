@@ -21,6 +21,7 @@ export * from './lib/sanitise.pipe';
 export * from './lib/virtual-keyboard.component';
 export * from './lib/global-loading.component';
 export * from './lib/map-locate-modal.component';
+export * from './lib/image-carousel.component';
 
 export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';

@@ -1,10 +1,11 @@
 import { Router } from '@angular/router';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/organisation';
 import { FormGroup } from '@angular/forms';
 import { NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from '../lib/booking-form.service';
 
 jest.mock('@placeos/ts-client');
@@ -27,6 +28,7 @@ describe('BookingFormService', () => {
                 useValue: { navigate: jest.fn(), events: new Subject() },
             },
             { provide: MatDialog, useValue: { open: jest.fn() } },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
     });
 

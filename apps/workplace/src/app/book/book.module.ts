@@ -43,6 +43,8 @@ import { DeskDetailsComponent } from './new-desk-flow/views/desk-details.compone
 import { DeskMapComponent } from './new-desk-flow/views/desk-map.component';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confirm.component';
 import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
+import { VisitorFlowComponent } from './visitor-flow.component';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const ROUTES: Route[] = [
     {
@@ -60,6 +62,8 @@ const ROUTES: Route[] = [
             { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: BookParkingFlowComponent },
+            { path: 'visitor', redirectTo: 'visitor/form' },
+            { path: 'visitor/:step', component: VisitorFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
         ],
     },
@@ -100,7 +104,8 @@ const ROUTES: Route[] = [
         DeskDetailsComponent,
         DeskMapComponent,
         NewDeskFlowConfirmComponent,
-        NewDeskFlowSuccessComponent
+        NewDeskFlowSuccessComponent,
+        VisitorFlowComponent
     ],
     imports: [
         CommonModule,
@@ -112,6 +117,7 @@ const ROUTES: Route[] = [
         ReactiveFormsModule,
         MatButtonToggleModule,
         MatBottomSheetModule,
+        SharedBookingsModule,
         RouterModule.forChild(ROUTES),
     ],
 })

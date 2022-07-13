@@ -1,8 +1,9 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-import { Space, NewSpaceSelectModalComponent } from '@placeos/spaces';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 

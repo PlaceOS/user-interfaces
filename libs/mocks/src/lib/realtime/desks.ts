@@ -149,12 +149,13 @@ export function generateLocation(
     users = MOCK_STAFF
 ) {
     const fixed = predictableRandomInt(9999) % 3 === 0;
+    const usr = (users || [])[predictableRandomInt((users || [])?.length)]?.email;
     return fixed
         ? {
               location: 'desk',
               at_location: predictableRandomInt(9999) % 2 !== 0,
               map_id: desks[predictableRandomInt(desks.length)],
-              mac: Md5.hashStr(users[predictableRandomInt(users?.length)]?.email),
+              mac: Md5?.hashStr(usr || ''),
               level: lvl.id,
               building: lvl.parent_id,
           }
@@ -166,7 +167,7 @@ export function generateLocation(
               lon: 55.27476066828535,
               lat: 25.20106100633537,
               s2_cell_id: '3e5f4281459c',
-              mac: Md5.hashStr(users[predictableRandomInt(users?.length)]?.email),
+              mac: Md5?.hashStr(usr || ''),
               variance: 9.62534032222287,
               last_seen: Math.floor(new Date().valueOf() / 1000),
               map_width: 100,

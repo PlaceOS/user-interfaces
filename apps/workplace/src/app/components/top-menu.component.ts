@@ -6,7 +6,10 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'top-menu',
     template: `
-        <div menu class="flex items-center justify-center h-full w-full overflow-hidden">
+        <div
+            menu
+            class="flex items-center justify-center h-full w-full overflow-hidden"
+        >
             <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
@@ -25,7 +28,9 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">Home</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Home</span
+                >
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -50,7 +55,9 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">Book Room</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Book Room</span
+                >
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -75,7 +82,9 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">Book Desk</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Book Desk</span
+                >
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -100,7 +109,27 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">Book Car Space</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Book Car Space</span
+                >
+                <div
+                    bar
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                ></div>
+            </button>
+            <button
+                matRipple
+                class="flex items-center justify-center space-x-2 relative px-8"
+                *ngIf="features.includes('visitor-invite')"
+                [routerLink]="['/book', 'visitor']"
+                routerLinkActive="text-secondary active"
+                matTooltip="Invite Visitor"
+                matTooltipPosition="below"
+            >
+                <app-icon class="text-xl">person_add</app-icon>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Invite Visitor</span
+                >
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -125,7 +154,9 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">Spaces</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Spaces</span
+                >
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -150,7 +181,9 @@ import { OrganisationService } from '@placeos/organisation';
                             '.svg'
                     }"
                 ></app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">Your Bookings</span>
+                <span *ngIf="show_text" class="truncate hidden xl:block"
+                    >Your Bookings</span
+                >
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"

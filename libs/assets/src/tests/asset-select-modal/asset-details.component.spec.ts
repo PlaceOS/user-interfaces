@@ -1,15 +1,16 @@
+import { Component } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { createRoutingFactory, Spectator } from "@ngneat/spectator/jest";
-import { IconComponent } from "@placeos/components";
-import { CounterComponent } from "@placeos/form-fields";
-import { ImageCarouselComponent } from "libs/components/src/lib/image-carousel.component";
-import { MockComponent, MockModule } from "ng-mocks";
+import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
+import { IconComponent, ImageCarouselComponent } from "@placeos/components";
+import { CounterComponent } from "libs/form-fields/src/lib/counter.component";
+import { MockComponent } from "ng-mocks";
+
 import { AssetDetailsComponent } from "../../lib/asset-select-modal/asset-details.component";
 import { Asset } from "../../lib/asset.class";
 
 describe('AssetDetailsComponent', () => {
     let spectator: Spectator<AssetDetailsComponent>;
-    const createComponent = createRoutingFactory({
+    const createComponent = createComponentFactory({
         component: AssetDetailsComponent,
         providers: [],
         declarations: [

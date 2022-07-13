@@ -4,13 +4,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    DurationFieldComponent,
-    TimeFieldComponent,
-    UserSearchFieldComponent,
-} from '@placeos/form-fields';
 import { MockComponent, MockModule } from 'ng-mocks';
 
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { BookingModalComponent } from '../../app/overlays/booking-modal.component';
 
 describe('BookingModalComponent', () => {

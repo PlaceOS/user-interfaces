@@ -31,7 +31,7 @@ import { StaffStateService } from './staff-state.service';
                 <a
                     mat-icon-button
                     matTooltip="Email Staff"
-                    [disabled]="!user?.email"
+                    [attr.disabled]="!user?.email"
                     [href]="'mailto:' + user?.email"
                 >
                     <app-icon>email</app-icon>
@@ -39,7 +39,7 @@ import { StaffStateService } from './staff-state.service';
                 <a
                     mat-icon-button
                     matTooltip="Phone Staff"
-                    [disabled]="!user?.phone"
+                    [attr.disabled]="!user?.phone"
                     [href]="'tel:' + user?.phone"
                 >
                     <app-icon>call</app-icon>

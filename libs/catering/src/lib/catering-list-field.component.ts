@@ -22,7 +22,7 @@ const EMPTY_FAVS = [];
                 <div class="font-medium">
                     {{ item.name || 'Item' }}
                 </div>
-                <div>{{ item.amount }} requested</div>
+                <div>{{ item.quantity }} requested</div>
                 <div
                     class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                 >
@@ -69,7 +69,7 @@ const EMPTY_FAVS = [];
         mat-button
         add-space
         class="w-full inverse mt-2"
-        (click)="addCateringItems()"
+        (click)="addItems()"
     >
         <div class="flex items-center justify-center space-x-2">
             <app-icon>search</app-icon>
@@ -126,12 +126,12 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
-    public removeCateringItem(cateringitem: CateringItem) {
-        const updated_list = this.items.filter((_) => _.id !== cateringitem.id);
+    public removeItem(item: CateringItem) {
+        const updated_list = this.items.filter((_) => _.id !== item.id);
         this.setValue(updated_list);
     }
 
-    public addCateringItems(item?: CateringItem) {
+    public addItems(item?: CateringItem) {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
             data: this.items,
         });

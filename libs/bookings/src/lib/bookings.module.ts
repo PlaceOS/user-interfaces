@@ -14,8 +14,13 @@ import { FormFieldsModule } from '@placeos/form-fields';
 
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
+import { InviteVisitorFormComponent } from './invite-visitor-form.component';
 
-const COMPONENTS = [DeskQuestionsModalComponent, DeskConfirmModalComponent];
+const COMPONENTS = [
+    DeskQuestionsModalComponent,
+    DeskConfirmModalComponent,
+    InviteVisitorFormComponent,
+];
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
@@ -29,9 +34,9 @@ const COMPONENTS = [DeskQuestionsModalComponent, DeskConfirmModalComponent];
         MatButtonModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        FormFieldsModule
+        FormFieldsModule,
     ],
-    providers: [],
+    providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
 })
 export class SharedBookingsModule {}

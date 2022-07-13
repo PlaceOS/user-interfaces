@@ -52,10 +52,11 @@ export class ExploreSearchService {
         this._spaces.list,
         this._user_search,
         this._emergency_contacts,
+        this._filter
     ]).pipe(
-        map(([spaces, users, contacts]) => {
-            const filter = this._filter.getValue() || '';
+        map(([spaces, users, contacts, filter]) => {
             const search = filter.toLowerCase();
+            console.log(spaces, users, contacts);
             const results = unique(
                 [
                     ...spaces
