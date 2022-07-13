@@ -13,12 +13,6 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                 margin-top: 0.3rem;
             }
 
-            h2 {
-                font-size: 1.5rem;
-                font-weight: medium;
-                margin-bottom: 0.5rem;
-            }
-
             h3 {
                 font-size: 1.25rem;
                 font-weight: medium;
@@ -31,7 +25,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2>Confirm Desk Booking</h2>
+            <h2 class="text-2xl font-medium mb-2">Confirm Desk Booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
