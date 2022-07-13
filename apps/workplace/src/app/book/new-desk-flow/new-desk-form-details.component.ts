@@ -245,15 +245,6 @@ export class NewDeskFormDetailsComponent {
         );
     }
 
-    public get book_until() {
-        return endOfDay(
-            addDays(
-                Date.now(),
-                this._settings.get('app.desks.available_period') || 90
-            )
-        );
-    }
-
     public get favorites() {
         return this._settings.get<string[]>(FAV_DESK_KEY) || [];
     }
