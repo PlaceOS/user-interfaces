@@ -109,7 +109,7 @@ export class Booking {
         this.user_email = data.user_email || '';
         this.user_id = data.user_id || '';
         this.user_name = data.user_name || '';
-        this.title = data.title || 'Desk booking';
+        this.title = data.title || '';
         this.description = data.description || '';
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;

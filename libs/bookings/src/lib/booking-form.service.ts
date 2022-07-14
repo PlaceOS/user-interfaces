@@ -35,6 +35,7 @@ import { findNearbyFeature } from '..';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
+export const FAV_DESK_KEY = 'favourite_desks';
 const BOOKING_URLS = ['book/desks'];
 
 export interface BookingFlowOptions {
@@ -52,6 +53,8 @@ export interface BookingFlowOptions {
     recurr_end?: number;
     /** List of group members to book for */
     members?: User[];
+    /** Whether to only show favourite rooms */
+    show_fav?: boolean;
 }
 
 export interface BookingAsset {
@@ -158,7 +161,8 @@ export class BookingFormService extends BaseClass {
                                 (bkn) =>
                                     bkn.asset_id === asset.id &&
                                     bkn.status !== 'declined'
-                            )
+                            ) &&
+                            (!options?.show_fav || this.favorite_desks.includes(asset.id))
                     )
                 )
             )
@@ -211,6 +215,10 @@ export class BookingFormService extends BaseClass {
         return this._booking.getValue();
     }
 
+    public get favorite_desks() {
+        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
+    }
+
     public newForm(booking: Booking = new Booking()) {
         this._form.next(generateBookingForm(booking));
         this.subscription(
@@ -250,6 +258,14 @@ export class BookingFormService extends BaseClass {
 
     public setOptions(value: Partial<BookingFlowOptions>) {
         this._options.next({ ...this._options.getValue(), ...value });
+    }
+
+    public setFeature(feature: string, enable: boolean){
+        if(!feature?.length) return;
+        const features = this._options.getValue()?.features || [];
+        if(enable && !features.includes(feature))features.push(feature);
+        if(!enable && features.includes(feature))features.splice(features.findIndex(e => e === feature), 1)
+        this.setOptions({features});
     }
 
     public resetForm() {
@@ -353,7 +369,9 @@ export class BookingFormService extends BaseClass {
                 duration: 12 * 60,
             });
         }
+        this._loading.next('Saving booking');
         const result = await saveBooking(new Booking(form.value)).toPromise();
+        this._loading.next('');
         const { booking_type } = form.value;
         this.clearForm();
         this._form.getValue()?.patchValue({ booking_type });

@@ -31,7 +31,18 @@ import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { AssetsModule } from '@placeos/assets';
+import { NewDeskFlowComponent } from './new-desk-flow.component';
+import { NewDeskFlowFormComponent } from './new-desk-flow/new-desk-flow-form.component';
+import { NewDeskFormDetailsComponent } from './new-desk-flow/new-desk-form-details.component';
+import { NewDeskSelectModalComponent } from './new-desk-flow/new-desk-select-modal.component';
+import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-display.component';
+import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
+import { DeskFiltersComponent } from './new-desk-flow/views/desk-filters.component';
 import { SharedCateringModule } from '@placeos/catering';
+import { DeskDetailsComponent } from './new-desk-flow/views/desk-details.component';
+import { DeskMapComponent } from './new-desk-flow/views/desk-map.component';
+import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confirm.component';
+import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 
@@ -41,6 +52,8 @@ const ROUTES: Route[] = [
         component: BookComponent,
         children: [
             { path: 'code', component: BookCodeFlowComponent },
+            { path: 'newdesk', redirectTo: 'newdesk/form'},
+            { path: 'newdesk/:step', component: NewDeskFlowComponent},
             { path: 'desks', redirectTo: 'desks/form' },
             { path: 'desks/:step', component: BookDeskFlowComponent },
             { path: 'spaces', redirectTo: 'spaces/form' },
@@ -81,6 +94,17 @@ const ROUTES: Route[] = [
         MeetingFormDetailsComponent,
         MeetingFlowConfirmComponent,
         MeetingFlowSuccessComponent,
+        NewDeskFlowFormComponent,
+        NewDeskFormDetailsComponent,
+        NewDeskFlowComponent,
+        NewDeskSelectModalComponent,
+        DeskFiltersDisplayComponent,
+        DeskListComponent,
+        DeskFiltersComponent,
+        DeskDetailsComponent,
+        DeskMapComponent,
+        NewDeskFlowConfirmComponent,
+        NewDeskFlowSuccessComponent,
         VisitorFlowComponent
     ],
     imports: [
