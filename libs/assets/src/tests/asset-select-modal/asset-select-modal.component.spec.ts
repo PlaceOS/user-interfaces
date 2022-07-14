@@ -1,4 +1,4 @@
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -19,6 +19,7 @@ describe('AssetSelectModalComponent', () => {
                 provide: SettingsService,
                 useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
             },
+            { provide: MAT_DIALOG_DATA, useValue: [] }
         ],
         declarations: [
             MockComponent(IconComponent),
