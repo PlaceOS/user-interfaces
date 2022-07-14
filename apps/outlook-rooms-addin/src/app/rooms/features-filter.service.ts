@@ -54,33 +54,7 @@ export class FeaturesFilterService {
     }
     async applyFilter() {
         this.selected_features$.subscribe((i) => console.log(i));
-        // let selected_features_list = await this.selected_features$
-        //     .pipe(take(1))
-        //     .toPromise();
 
-        // await selected_features_list.sort().join();
-
-        // const features_list = selected_features_list.map((item) => item.id);
-        // this._selected_features.next(features_list);
-
-        // let current_spaces = await this.spaces$.pipe(take(1)).toPromise();
-
-        // current_spaces?.map((space: Space) => {
-        //     this.filtered_spaces = [];
-        //     if (space) {
-        //         const sorted_feat_list: String = space?.feature_list
-        //             .sort()
-        //             .join();
-        //         const sorted_selected_features: string = this.features_list
-        //             .sort()
-        //             .join();
-
-        //         if (sorted_feat_list.includes(sorted_selected_features)) {
-        //             this.filtered_spaces.push(space);
-        //         }
-        //     }
-        // });
-        // return of(this.filtered_spaces);
         this.spaces$.subscribe((i) => console.log(i));
         this.updated_spaces$ = this.spaces$.pipe(
             map((spaces: Space[]) =>

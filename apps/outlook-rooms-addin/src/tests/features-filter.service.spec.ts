@@ -63,4 +63,8 @@ describe('FeatureFilterService', () => {
         spectator = createService();
         expect(spectator.service).toBeTruthy();
     });
+
+    it('should filter spaces based on selected features ', () => {
+        spectator = createService();
+    });
 });
