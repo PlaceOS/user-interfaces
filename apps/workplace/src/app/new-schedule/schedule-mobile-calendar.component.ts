@@ -35,11 +35,13 @@ import {
             <div class="flex items-center justify-between flex-wrap">
                 <button
                     mat-icon-button
-                    class="min-w-10 h-10 mx-2"
+                    class="min-w-[calc(14%-1rem)] flex-1 mx-2"
                     *ngFor="let day of list"
                     [class.text-opacity-30]="!day.is_month"
                     [class.text-primary]="day.id === active_date"
                     [class.text-black]="day.id !== active_date"
+                    [class.dark:text-white]="day.id !== active_date"
+                    [class.dark:text-opacity-30]="!day.is_month"
                     [class.bg-gray-200]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"

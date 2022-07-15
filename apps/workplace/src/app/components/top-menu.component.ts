@@ -18,16 +18,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Home"
                 matTooltipPosition="below"
             >
-                <app-icon
-                    class="text-xl"
-                    [icon]="{
-                        type: 'img',
-                        src:
-                            'assets/icons/home-' +
-                            (type === 'home' ? 'filled' : 'outline') +
-                            '.svg'
-                    }"
-                ></app-icon>
+                <app-icon class="text-xl">home</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Home</span
                 >
@@ -45,16 +36,20 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Book Room"
                 matTooltipPosition="below"
             >
-                <app-icon
-                    class="text-xl"
-                    [icon]="{
-                        type: 'img',
-                        src:
-                            'assets/icons/meeting-room-' +
-                            (type === 'spaces' ? 'filled' : 'outline') +
-                            '.svg'
-                    }"
-                ></app-icon>
+                <div class="">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 0 24 24"
+                        width="24px"
+                        fill="currentColor"
+                    >
+                        <path d="M0 0h24v24H0V0z" fill="none" />
+                        <path
+                            d="M19 19V4h-4V3H5v16H3v2h12V6h2v15h4v-2h-2zm-6 0H7V5h6v14zm-3-8h2v2h-2z"
+                        />
+                    </svg>
+                </div>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Book Room</span
                 >
@@ -72,16 +67,21 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Book Desk"
                 matTooltipPosition="below"
             >
-                <app-icon
-                    class="text-xl"
-                    [icon]="{
-                        type: 'img',
-                        src:
-                            'assets/icons/desk-' +
-                            (type === 'desks' ? 'filled' : 'outline') +
-                            '.svg'
-                    }"
-                ></app-icon>
+                <div>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22.106"
+                        height="15.251"
+                        viewBox="0 0 22.106 15.251"
+                    >
+                        <path
+                            id="Desk_Name"
+                            d="M21.809,82.031l-4.434-4.292a.85.85,0,0,0-.6-.239H5.246a.878.878,0,0,0-.6.239L.22,82.031a.838.838,0,0,0-.194.924.854.854,0,0,0,.791.526H2.293V91.9A.853.853,0,0,0,4,91.9V83.485H5.224v3.444a.853.853,0,0,0,1.706,0V83.485h8.178v3.444a.853.853,0,0,0,1.706,0V83.485h1.224V91.9a.853.853,0,0,0,1.706,0V83.485h1.476a.858.858,0,0,0,.791-.526A.874.874,0,0,0,21.809,82.031ZM5.595,79.193H16.434l2.683,2.6H2.912Z"
+                            transform="translate(0.038 -77.5)"
+                            fill="currentColor"
+                        />
+                    </svg>
+                </div>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Book Desk</span
                 >
@@ -99,16 +99,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Book Car Space"
                 matTooltipPosition="below"
             >
-                <app-icon
-                    class="text-xl"
-                    [icon]="{
-                        type: 'img',
-                        src:
-                            'assets/icons/car-' +
-                            (type === 'parking' ? 'filled' : 'outline') +
-                            '.svg'
-                    }"
-                ></app-icon>
+                <app-icon class="text-xl">directions_car</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Book Car Space</span
                 >
@@ -144,16 +135,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Spaces"
                 matTooltipPosition="below"
             >
-                <app-icon
-                    class="text-xl"
-                    [icon]="{
-                        type: 'img',
-                        src:
-                            'assets/icons/place-' +
-                            (type === 'explore' ? 'filled' : 'outline') +
-                            '.svg'
-                    }"
-                ></app-icon>
+                <app-icon class="text-xl">place</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Spaces</span
                 >
@@ -171,16 +153,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Your Bookings"
                 matTooltipPosition="below"
             >
-                <app-icon
-                    class="text-xl"
-                    [icon]="{
-                        type: 'img',
-                        src:
-                            'assets/icons/today-' +
-                            (type === 'schedule' ? 'filled' : 'outline') +
-                            '.svg'
-                    }"
-                ></app-icon>
+                <app-icon class="text-xl">event</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Your Bookings</span
                 >

@@ -81,6 +81,13 @@ a[button],
         color: #fff8;
     }
 
+    .mat-form-field {
+        ::placeholder,
+        .mat-select-placeholder {
+            color: #fff8;
+        }
+    }
+
     button.mat-button,
     a[button] {
         color: #fff;
@@ -90,6 +97,14 @@ a[button],
             border-color: #fff;
             color: #fff;
         }
+    }
+
+    .mat-slide-toggle-bar {
+        background-color: rgba(255,255,255, 0.2);
+    }
+
+    .mat-checked .mat-slide-toggle-bar {
+        background-color: rgba(255,255,255, 0.4);
     }
 }
 #placeos {
@@ -654,6 +669,12 @@ custom-table[header-dark] {
 #placeos {
     .dark {
         mat-dialog-container {
+            background-color: #404040;
+            color: #fff;
+
+        }
+
+        mat-bottom-sheet-container {
             background-color: #404040;
             color: #fff;
 

@@ -63,7 +63,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </a>
         </div>
         <div
-            class="flex items-center justify-center bg-white border-t border-gray-200 shadow relative h-16 w-full sm:hidden z-40"
+            class="flex items-center justify-center bg-white dark:bg-neutral-700 border-t border-gray-200 dark:border-neutral-500 shadow relative h-16 w-full sm:hidden z-40"
         >
             <a
                 matRipple
@@ -76,7 +76,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </a>
             <button
                 matRipple
-                class="flex items-center justify-center w-12 h-12 mb-4 rounded-full z-10"
+                class="flex items-center justify-center w-12 h-12 mb-4 rounded-full z-10 dark:bg-neutral-800"
                 (click)="show_book_items = !show_book_items"
                 [class.bg-secondary]="show_book_items"
                 [class.text-white]="show_book_items"
@@ -99,7 +99,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 class="overflow-hidden absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-24 h-2"
             >
                 <div
-                    class="w-16 h-16 rounded-full bg-white shadow mx-auto border-t border-gray-200"
+                    class="w-16 h-16 rounded-full bg-white dark:bg-neutral-700 shadow mx-auto border-t border-gray-200 dark:border-neutral-500"
                 ></div>
             </div>
         </div>
