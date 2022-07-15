@@ -139,7 +139,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                                     mat-button
                                     remove-desk
                                     class="clear"
-                                    (click)="selectedDesk = null"
+                                    (click)="clearSelectedDesk()"
                                 >
                                     <div class="flex items-center space-x-2">
                                         <app-icon>close</app-icon>
@@ -262,6 +262,18 @@ export class NewDeskFormDetailsComponent {
         ref.afterClosed().subscribe((desk?: Desk) => {
             if (!desk) return;
             this.setBookingAsset(desk);
+        });
+    }
+
+    public clearSelectedDesk(){
+        this.selectedDesk = null;
+        this._state.form.patchValue({
+            asset_id: '',
+            asset_name: '',
+            map_id: '',
+            description: '',
+            zones: [],
+            booking_asset: null,
         });
     }
 
