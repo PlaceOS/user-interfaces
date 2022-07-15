@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
+import { FeaturesFilterService } from '../rooms/features-filter.service';
 
 @Component({
     selector: 'room-booking',
@@ -37,10 +38,15 @@ export class RoomBookingComponent implements OnInit {
         this._state.clearForm();
     };
 
-    constructor(private router: Router, private _state: EventFormService) {}
+    constructor(
+        private router: Router,
+        private _state: EventFormService,
+        private _featuresFilterService: FeaturesFilterService
+    ) {}
 
     ngOnInit(): void {
         this._state.newForm();
+        this._featuresFilterService.clearFilter();
     }
 
     async findSpace() {

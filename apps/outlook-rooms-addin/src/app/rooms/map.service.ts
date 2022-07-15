@@ -96,9 +96,9 @@ export class MapService extends BaseClass {
     }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
-        await available_spaces.pipe(take(1)).toPromise();
+        await available_spaces?.pipe(take(1)).toPromise();
 
-        available_spaces.subscribe(
+        available_spaces?.subscribe(
             (spaces) =>
                 (this.locatable_spaces = spaces?.map((space) => ({
                     id: space.id,
@@ -107,7 +107,7 @@ export class MapService extends BaseClass {
                     level: space.level,
                 })))
         );
-        await this.locatable_spaces$.pipe(first((_) => !!_)).toPromise();
+        await this.locatable_spaces$?.pipe(first((_) => !!_)).toPromise();
         await this.loadMap();
         await this.timeout(
             'init',
@@ -119,7 +119,7 @@ export class MapService extends BaseClass {
 
         await this.processStyles();
 
-        this.map_actions$ = available_spaces.pipe(
+        this.map_actions$ = available_spaces?.pipe(
             map((spaces: Space[]) =>
                 spaces.map(
                     (space: Space) =>
@@ -137,7 +137,7 @@ export class MapService extends BaseClass {
 
     async loadMap() {
         this._map_loaded.next(false);
-        this.maps_list$ = this.locatable_spaces$.pipe(
+        this.maps_list$ = this.locatable_spaces$?.pipe(
             map((spaces: Locatable[]) =>
                 spaces.map((space: Locatable) => ({
                     map_id: space.level.map_id,
@@ -146,7 +146,7 @@ export class MapService extends BaseClass {
             )
         );
 
-        this.maps_list$ = this.maps_list$.pipe(
+        this.maps_list$ = this.maps_list$?.pipe(
             map((mapsList: MapsList[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
             ])

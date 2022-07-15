@@ -17,17 +17,12 @@ export class FeaturesFilterService {
     get selected_features() {
         return this._selected_features.getValue();
     }
-    // features_list: Array<string> = [];
-    // filtered_spaces: Space[] = [];
 
     _features: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-
     features$: Observable<any> = this._features.asObservable();
-
     set features(feature) {
         this._features.next(feature);
     }
-
     get features() {
         return this._features.getValue();
     }
@@ -45,36 +40,50 @@ export class FeaturesFilterService {
 
     constructor(private _state: EventFormService) {
         this._features.next(this.room_features);
+        this.clearFilter();
     }
 
     async getSelectedFeatures() {
         this.selected_features$ = await this.features$.pipe(
             map((arr) => arr.filter((item) => item.value == true))
         );
+
+        this.selected_features$?.subscribe(this._selected_features);
     }
     async applyFilter() {
-        this.selected_features$.subscribe((i) => console.log(i));
+        await this.selected_features$.pipe(take(1)).toPromise();
 
-        this.spaces$.subscribe((i) => console.log(i));
-        this.updated_spaces$ = this.spaces$.pipe(
+        const requested_features = await this.sortSelectedFeatures(
+            this.selected_features
+        );
+
+        this.updated_spaces$ = await this.spaces$.pipe(
             map((spaces: Space[]) =>
                 spaces.filter((space: Space) => {
-                    this.features_sub = this.selected_features?.subscribe(
-                        (features) =>
-                            features.map((feature) => {
-                                this._sort(space?.features).includes(
-                                    feature?.id
-                                );
-                            })
+                    console.log(requested_features, 'req feats');
+                    return this._sort(space.feature_list).includes(
+                        requested_features
                     );
                 })
             )
         );
+        await this.updated_spaces$.pipe(take(1)).toPromise();
+        this.updated_spaces$.subscribe((i) => console.log(i));
     }
 
     _sort(array: string[]): string {
         return array.sort().join();
     }
+
+    async sortSelectedFeatures(array: any[]) {
+        let features_array = await array.map((item) => item.id);
+        return this._sort(features_array);
+    }
+
+    clearFilter() {
+        this._selected_features.next(null);
+    }
+
     OnDestroy() {
         this.features_sub.unsubscribe();
     }

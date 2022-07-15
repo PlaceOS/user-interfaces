@@ -16,6 +16,7 @@ import { RoomConfirmService } from '../room-confirm.service';
 import { MapPinComponent } from '@placeos/components';
 import { BaseClass } from '@placeos/common';
 import { MapsList } from '../map.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'find-space',
@@ -86,7 +87,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly levels = combineLatest([
         this.building,
         this._state.options,
-    ]).pipe(
+    ])?.pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
             {
@@ -104,7 +105,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly features = this._spaces.features;
 
     public async setBuilding(bld) {
-        const opts = await this.options.pipe(take(1)).toPromise();
+        const opts = await this.options?.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
         const levels = this._org.levelsForBuilding(this._org.building);
         const lvl = levels.find((_) => opts.zone_ids?.includes(_.id));
@@ -123,7 +124,8 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         private location: Location,
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
+        private router: Router
     ) {
         super();
     }
@@ -136,10 +138,20 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         this._state.setView('find');
         this.setTimeChips();
 
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
-        await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
-        await this._state.available_spaces.pipe(take(1)).toPromise();
+        await this._org.initialised?.pipe(first((_) => !!_)).toPromise();
+        await this._spaces.initialised?.pipe(first((_) => !!_)).toPromise();
+        await this._state.available_spaces?.pipe(take(1)).toPromise();
+
+        this.spaces$ =
+            this._featuresFilterService?.updated_spaces$ ||
+            this._state.available_spaces;
+
+        // if (this._featuresFilterService.updated_spaces$) {
+        //     this.spaces$ = this._featuresFilterService.updated_spaces$;
+        //     console.log('updated ');
+        // } else {
         this.spaces$ = this._state.available_spaces;
+        // }
 
         this.setBuilding(this._org.building);
         this.book_space = {};
@@ -148,7 +160,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
 
-        this.maps_list$ = this._mapService.maps_list$.pipe(
+        this.maps_list$ = this._mapService.maps_list$?.pipe(
             tap((maps) => (this.selected_level = maps))
         );
 
@@ -188,10 +200,10 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
             data: this.buildings as OrganisationService['building_list'],
         });
 
-        this.bottomSheetRef?.afterDismissed().subscribe(() => {
-            this.setTimeChips();
-            this.updateSpaces();
-        });
+        // this.bottomSheetRef?.afterDismissed().subscribe(() => {
+        //     // this.setTimeChips();
+        //     // this.updateSpaces();
+        // });
     }
 
     openRoomDetails() {
@@ -253,6 +265,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     closeModal() {
-        this.location.back();
+        this.router.navigate(['/book/spaces']);
     }
 }
