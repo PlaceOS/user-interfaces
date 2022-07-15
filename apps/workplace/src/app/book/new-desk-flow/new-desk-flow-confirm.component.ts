@@ -21,7 +21,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         `,
     ],
     template: `
-        <button mat-icon-button *ngIf="show_close" (click)="dismiss()">
+        <button close mat-icon-button *ngIf="show_close" (click)="dismiss()">
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
@@ -58,7 +58,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3>{{ booking_asset?.name || booking_asset?.id || '' }}</h3>
+                <h3 name>{{ booking_asset?.name || booking_asset?.id || '' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
                     <span>Single desk</span>
@@ -68,7 +68,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     <div>{{ location }}</div>
                 </div>
                 <ng-container *ngFor="let feat of booking_asset.features">
-                    <div class="flex items-center space-x-2">
+                    <div features class="flex items-center space-x-2">
                         <app-icon>arrow_upward</app-icon>
                         <div>{{ feat }}</div>
                     </div>
@@ -93,15 +93,13 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         </section>
         <footer class="p-2 w-full border-t border-gray-200 mt-4">
             <button
+                confirm
                 mat-button
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
             >
                 Confirm
-            </button>
-            <button mat-button class="inverse w-full" *ngIf="loading | async">
-                Undo
             </button>
         </footer>
     `,

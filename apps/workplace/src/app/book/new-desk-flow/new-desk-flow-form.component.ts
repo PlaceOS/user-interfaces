@@ -36,7 +36,6 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         mat-button
                         confirm
                         class="w-full sm:w-auto"
-                        [disabled]="!form.valid"
                         (click)="viewConfirm()"
                     >
                         Confirm Meeting
@@ -81,7 +80,6 @@ export class NewDeskFlowFormComponent implements OnInit {
         private _state: BookingFormService,
         private _router: Router,
         private _org: OrganisationService,
-        private _settings: SettingsService,
         private _bottom_sheet: MatBottomSheet
     ) {}
 

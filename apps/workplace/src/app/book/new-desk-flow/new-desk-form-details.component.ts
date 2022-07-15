@@ -81,7 +81,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                 </h3>
                 <div *ngIf="(features | async)?.length" class="flex flex-col">
                     <label for="title">Type</label>
-                    <div class="flex items-center flex-wrap space-x-2">
+                    <div features class="flex items-center flex-wrap space-x-2">
                         <mat-checkbox
                             *ngFor="let opt of features | async"
                             [ngModel]="
@@ -96,7 +96,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                         </mat-checkbox>
                     </div>
                 </div>
-                <div *ngIf="selectedDesk" list class="my-2 space-y-2">
+                <div *ngIf="selectedDesk" selected-desk class="my-2 space-y-2">
                     <div
                         class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
                     >
@@ -126,7 +126,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                             >
                                 <button
                                     mat-button
-                                    edit-space
+                                    edit-desk
                                     class="clear"
                                     (click)="selectDesk()"
                                 >
@@ -137,7 +137,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                                 </button>
                                 <button
                                     mat-button
-                                    remove-space
+                                    remove-desk
                                     class="clear"
                                     (click)="selectedDesk = null"
                                 >

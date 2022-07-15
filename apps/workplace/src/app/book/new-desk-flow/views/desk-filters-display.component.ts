@@ -71,7 +71,7 @@ import { DeskFiltersComponent } from './desk-filters.component';
                 {{ end | date: 'shortTime' }}
             </div>
             <div
-                filter-item
+                filter-item features
                 *ngFor="let feat of (options | async)?.features || []"
             >
                 <p>{{ feat }}</p>
