@@ -16,7 +16,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <div
             name="event"
             *ngFor="let event of event_list | async | slice: 0:3"
-            class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4"
+            class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4 dark:bg-neutral-800"
         >
             <div name="status" class="absolute rounded-lg" [class.bg-primary]="event.asset_id"></div>
             <div name="details" class="flex-1 mr-2">

@@ -6,12 +6,12 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-dashboard',
     template: `
         <topbar></topbar>
-        <div class="flex flex-1 h-1/2 bg-[#E5E5E5]">
+        <div class="flex flex-1 h-1/2 bg-[#E5E5E5] dark:bg-zinc-700">
             <landing-colleagues
                 class="h-full hidden sm:block"
             ></landing-colleagues>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto">
-                <header class="sticky top-0 z-50 bg-[#ECF0F3] px-4 rounded-b flex items-center justify-between overflow-hidden">
+                <header class="sticky top-0 z-50 bg-[#ECF0F3] dark:bg-neutral-800 px-4 rounded-b flex items-center justify-between overflow-hidden">
                     <div class="">
                         <div class="sm:text-xl font-medium">Hello {{ user?.name }},</div>
                         <div date class="text-sm sm:text-base">{{ date | date:'fullDate' }}</div>

@@ -23,11 +23,11 @@ import { BookingLike } from './schedule-state.service';
                 mat-button
                 item
                 *ngSwitchDefault
-                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
+                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white dark:bg-neutral-700 hover:shadow p-0"
                 [class.opacity-50]="has_ended"
                 [routerLink]="['/schedule', 'view', item?.id, type]"
             >
-                <div class="flex items-center border border-gray-200 ">
+                <div class="flex items-center border border-gray-200 dark:border-neutral-500">
                     <div
                         status
                         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"

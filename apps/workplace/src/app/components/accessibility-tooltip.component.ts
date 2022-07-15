@@ -6,18 +6,18 @@ import { CustomTooltipData } from '@placeos/components';
     selector: 'accessibility-tooltip',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-white shadow relative -top-12 -right-1 overflow-hidden"
+            class="flex flex-col w-[18.5rem] rounded bg-white shadow relative -top-12 -right-1 overflow-hidden dark:bg-neutral-700 dark:text-white"
         >
             <div class="flex items-center space-x-2 p-2" (click)="close()">
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="">Display & Accessibility</div>
             </div>
-            <!-- <div
+            <div
                 action
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"
             >
                 <div
-                    class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 my-2"
+                    class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800 my-2"
                 >
                     <app-icon class="text-xl">mode_night</app-icon>
                 </div>
@@ -26,13 +26,13 @@ import { CustomTooltipData } from '@placeos/components';
                     [ngModel]="dark_mode"
                     (ngModelChange)="applySetting('dark_mode', $event)"
                 ></mat-slide-toggle>
-            </div> -->
+            </div>
             <div
                 action
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"
             >
                 <div
-                    class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 my-2"
+                    class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800 my-2"
                 >
                     <app-icon class="text-xl">playlist_add</app-icon>
                 </div>

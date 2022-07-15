@@ -43,6 +43,8 @@ import {
                     [class.text-opacity-30]="!day.is_month"
                     [class.text-primary]="day.id === active_date"
                     [class.text-black]="day.id !== active_date"
+                    [class.dark:text-white]="day.id !== active_date"
+                    [class.dark:text-opacity-30]="!day.is_month"
                     [class.bg-gray-200]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"

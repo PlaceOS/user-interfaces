@@ -11,7 +11,7 @@ const WFH_SETTING_KEY = 'wfh-days';
     selector: `wfh-settings-modal`,
     template: `
         <div
-            class="relative bg-white flex flex-col rounded overflow-hidden w-[18rem]"
+            class="relative flex flex-col rounded overflow-hidden w-[18rem]"
             *ngIf="!loading; else load_state"
         >
             <div
@@ -39,7 +39,7 @@ const WFH_SETTING_KEY = 'wfh-days';
                 </button>
                 <div class="flex items-center pt-4 space-x-2">
                     <div
-                        class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center"
+                        class="h-8 w-8 rounded-full bg-gray-300 dark:bg-neutral-800 flex items-center justify-center"
                     >
                         <app-icon>home</app-icon>
                     </div>

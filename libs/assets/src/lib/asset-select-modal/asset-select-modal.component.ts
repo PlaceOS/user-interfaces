@@ -9,7 +9,7 @@ const EMPTY_FAVS: string[] = [];
     selector: 'asset-select-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none bg-white flex flex-col"
+            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
                 <button mat-icon-button mat-dialog-close class="bg-black/20">
@@ -18,14 +18,14 @@ const EMPTY_FAVS: string[] = [];
                 <h3>Add Assets</h3>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-gray-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
             >
                 <asset-filters class="h-full hidden sm:block"></asset-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:min-w-[20rem] sm:h-[65vh]"
                 >
                     <asset-filters-display
-                        class="w-full border-b border-gray-200"
+                        class="w-full border-b border-gray-200 dark:border-neutral-500 dark:bg-neutral-700"
                     ></asset-filters-display>
                     <asset-list
                         [selected]="selected_ids"
@@ -37,7 +37,7 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <asset-details
                     [item]="displayed!"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20"
+                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] bg-white  dark:bg-neutral-700 z-20"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id || '')"
@@ -51,7 +51,7 @@ const EMPTY_FAVS: string[] = [];
                 ></asset-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 w-full"
+                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500w-full"
             >
                 <button
                     mat-button
@@ -73,7 +73,7 @@ const EMPTY_FAVS: string[] = [];
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 w-full"
+                class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
                     mat-button

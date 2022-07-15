@@ -36,7 +36,7 @@ export interface SpaceInfoData {
                 name="space-info"
                 [id]="space?.id"
                 class="
-                    absolute rounded bg-white p-4 top-0 left-0 transform shadow pointer-events-none
+                    absolute rounded bg-white dark:bg-neutral-800 p-4 top-0 left-0 transform shadow pointer-events-none
                 "
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"

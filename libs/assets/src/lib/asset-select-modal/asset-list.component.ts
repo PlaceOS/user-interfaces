@@ -5,7 +5,7 @@ import { Asset } from '../asset.class';
 @Component({
     selector: 'asset-list',
     template: `
-        <div class="w-full h-full overflow-auto py-2">
+        <div class="w-full h-full overflow-auto py-2 bg-black/5 dark:bg-white/10 dark:border-neutral-500">
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (assets | async)?.length || 0 }} result(s) found
@@ -18,7 +18,7 @@ import { Asset } from '../asset.class';
                     <li
                         asset
                         *ngFor="let asset of assets | async"
-                        class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
+                        class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-700 border-gray-200 dark:border-neutral-500"
                     >
                         <button
                             matRipple

@@ -9,7 +9,7 @@ const EMPTY_FAVS: string[] = [];
     selector: 'new-catering-order-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none bg-white flex flex-col"
+            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
                 <button mat-icon-button mat-dialog-close class="bg-black/20">
@@ -18,7 +18,7 @@ const EMPTY_FAVS: string[] = [];
                 <h3>Add Catering</h3>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-gray-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
             >
                 <catering-item-filters
                     class="h-full hidden sm:block sm:max-w-[12rem] sm:h-[65vh] sm:max-h-full"
@@ -27,7 +27,7 @@ const EMPTY_FAVS: string[] = [];
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
                 >
                     <catering-item-filters
-                        class="w-full border-b border-gray-200"
+                        class="w-full border-b border-gray-200 dark:border-neutral-500"
                         [search]="true"
                     ></catering-item-filters>
                     <catering-item-list
@@ -55,7 +55,7 @@ const EMPTY_FAVS: string[] = [];
                 ></catering-item-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 w-full"
+                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
                     mat-button
@@ -77,7 +77,7 @@ const EMPTY_FAVS: string[] = [];
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 w-full"
+                class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
                     mat-button

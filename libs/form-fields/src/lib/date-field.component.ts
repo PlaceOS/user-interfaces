@@ -47,7 +47,7 @@ const FIELD_DATE_FORMATS: MatDateFormats = {
 @Component({
     selector: 'a-date-field',
     template: `
-        <mat-form-field appearance="outline" overlay (click)="picker.open()">
+        <mat-form-field appearance="outline" (click)="picker.open()">
             <input
                 matInput
                 [ngModel]="date"

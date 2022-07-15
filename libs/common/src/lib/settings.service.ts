@@ -116,6 +116,7 @@ export class SettingsService extends BaseClass {
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const data = await showMetadata(user.id, 'settings').toPromise();
         this._user_settings.next(data.details || {});
+        this._setDarkMode();
     }
 
     /** Whether settings service has initialised */
@@ -148,6 +149,7 @@ export class SettingsService extends BaseClass {
 
     public saveUserSetting<T>(name: string, value: T) {
         this._pending_settings[name] = value;
+        if (name === 'dark_mode') this._setDarkMode();
         this.timeout('save_settings', () => this._savePendingChanges(), 5000);
     }
 
@@ -181,13 +183,17 @@ export class SettingsService extends BaseClass {
     }
 
     private async _applyUserSettings(settings: HashMap) {
-        if (settings.dark_mode) {
+        
+        if (settings.font_size) {
+            document.body.style.fontSize = `${settings.font_size}px`;
+        }
+    }
+
+    private _setDarkMode() {
+        if (this.get('dark_mode')) {
             document.body.classList.add('dark');
         } else {
             document.body.classList.remove('dark');
-        }
-        if (settings.font_size) {
-            document.body.style.fontSize = `${settings.font_size}px`;
         }
     }
 }

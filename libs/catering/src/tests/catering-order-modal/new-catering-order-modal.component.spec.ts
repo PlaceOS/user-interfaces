@@ -6,7 +6,7 @@ import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/cat
 import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
 import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 describe('NewCateringOrderModalComponent', () => {
     let spectator: Spectator<NewCateringOrderModalComponent>;
@@ -17,6 +17,7 @@ describe('NewCateringOrderModalComponent', () => {
                 provide: SettingsService,
                 useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
             },
+            { provide: MAT_DIALOG_DATA, useValue: [] }
         ],
         declarations: [
             MockComponent(IconComponent),

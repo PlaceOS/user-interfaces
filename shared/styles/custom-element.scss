@@ -4,10 +4,14 @@
     }
 }
 
+.dark {
+    color: #fff;
+}
+
 button.mat-button,
 a[button],
-.dark-mode button.mat-button,
-.dark-mode a[button] {
+.dark button.mat-button,
+.dark a[button] {
     --color: var(--primary);
     background-color: var(--color);
     border: 1px solid var(--color);
@@ -48,8 +52,8 @@ a[button],
     flex-grow: 1;
 }
 
-.dark,
-[dark] {
+#placeos .dark,
+#placeos [dark] {
     mat-tab-group {
         .mat-tab-label-container {
             @apply bg-gray-900;
@@ -75,6 +79,32 @@ a[button],
 
     .mat-form-field-outline > div {
         color: #fff8;
+    }
+
+    .mat-form-field {
+        ::placeholder,
+        .mat-select-placeholder {
+            color: #fff8;
+        }
+    }
+
+    button.mat-button,
+    a[button] {
+        color: #fff;
+        
+        &.inverse {
+            background: none;
+            border-color: #fff;
+            color: #fff;
+        }
+    }
+
+    .mat-slide-toggle-bar {
+        background-color: rgba(255,255,255, 0.2);
+    }
+
+    .mat-checked .mat-slide-toggle-bar {
+        background-color: rgba(255,255,255, 0.4);
     }
 }
 #placeos {
@@ -380,6 +410,19 @@ mat-select {
     }
 }
 
+.dark {
+    .mat-form-field {
+
+        &[overlay],
+        &[overlay]:hover {
+            .mat-form-field-outline {
+                background-color: #262626;
+                border-radius: 4px;
+            }
+        }
+    }
+}
+
 mat-slider {
     &[white] {
         &.mat-slider-min-value:not(.mat-slider-thumb-label-showing)
@@ -624,6 +667,31 @@ custom-table[header-dark] {
 }
 
 #placeos {
+    .dark {
+        mat-dialog-container {
+            background-color: #404040;
+            color: #fff;
+
+        }
+
+        mat-bottom-sheet-container {
+            background-color: #404040;
+            color: #fff;
+
+        }
+
+        .ql-toolbar {
+            .ql-stroke {
+                stroke: #eee;
+            }
+            .ql-picker-label::before {
+                color: #fff;
+            }
+        }
+        .ql-blank::before {
+            color: #fff8;
+        }
+    }
     mat-bottom-sheet-container {
         padding: 0;
     }
