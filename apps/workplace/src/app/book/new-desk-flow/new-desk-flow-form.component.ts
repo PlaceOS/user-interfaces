@@ -37,6 +37,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         confirm
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
+                        [disabled]="!hasDeskSelected || !form.valid"
                     >
                         Confirm Meeting
                     </button>
@@ -52,6 +53,10 @@ export class NewDeskFlowFormComponent implements OnInit {
 
     public get form() {
         return this._state.form;
+    }
+
+    public get hasDeskSelected(){
+        return this._state.form?.value?.asset_id?.length;
     }
 
     public readonly clearForm = () => {
