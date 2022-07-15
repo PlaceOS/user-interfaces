@@ -679,6 +679,18 @@ custom-table[header-dark] {
             color: #fff;
 
         }
+
+        .ql-toolbar {
+            .ql-stroke {
+                stroke: #eee;
+            }
+            .ql-picker-label::before {
+                color: #fff;
+            }
+        }
+        .ql-blank::before {
+            color: #fff8;
+        }
     }
     mat-bottom-sheet-container {
         padding: 0;
