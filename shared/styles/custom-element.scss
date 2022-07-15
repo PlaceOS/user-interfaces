@@ -4,10 +4,14 @@
     }
 }
 
+.dark {
+    color: #fff;
+}
+
 button.mat-button,
 a[button],
-.dark-mode button.mat-button,
-.dark-mode a[button] {
+.dark button.mat-button,
+.dark a[button] {
     --color: var(--primary);
     background-color: var(--color);
     border: 1px solid var(--color);
@@ -48,8 +52,8 @@ a[button],
     flex-grow: 1;
 }
 
-.dark,
-[dark] {
+#placeos .dark,
+#placeos [dark] {
     mat-tab-group {
         .mat-tab-label-container {
             @apply bg-gray-900;
@@ -75,6 +79,17 @@ a[button],
 
     .mat-form-field-outline > div {
         color: #fff8;
+    }
+
+    button.mat-button,
+    a[button] {
+        color: #fff;
+        
+        &.inverse {
+            background: none;
+            border-color: #fff;
+            color: #fff;
+        }
     }
 }
 #placeos {
@@ -380,6 +395,19 @@ mat-select {
     }
 }
 
+.dark {
+    .mat-form-field {
+
+        &[overlay],
+        &[overlay]:hover {
+            .mat-form-field-outline {
+                background-color: #262626;
+                border-radius: 4px;
+            }
+        }
+    }
+}
+
 mat-slider {
     &[white] {
         &.mat-slider-min-value:not(.mat-slider-thumb-label-showing)
@@ -624,6 +652,13 @@ custom-table[header-dark] {
 }
 
 #placeos {
+    .dark {
+        mat-dialog-container {
+            background-color: #404040;
+            color: #fff;
+
+        }
+    }
     mat-bottom-sheet-container {
         padding: 0;
     }

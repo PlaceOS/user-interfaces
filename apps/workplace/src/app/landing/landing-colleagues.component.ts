@@ -5,7 +5,7 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white border-r border-gray-200"
+            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-neutral-700 border-r border-gray-200 dark:border-neutral-500"
         >
             <div class="flex items-center justify-between px-4 py-2">
                 <h2 class="font-medium">Colleagues</h2>
@@ -19,7 +19,7 @@ import { LandingStateService } from './landing-state.service';
                     <div class="text-xl relative">
                         <a-user-avatar [user]="user"></a-user-avatar>
                         <div
-                            class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
+                            class="rounded-full h-3 w-3 border border-white dark:border-neutral-400 absolute bottom-1 right-1"
                             [class.bg-error]="!user.location"
                             [class.bg-success]="user.location"
                         ></div>

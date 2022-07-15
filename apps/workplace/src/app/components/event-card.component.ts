@@ -17,7 +17,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             [routerLink]="['/schedule', 'view', event?.id, 'event']"
             *ngIf="event"
         >
-            <div class="w-full bg-white rounded shadow py-2 relative">
+            <div class="w-full bg-white dark:bg-neutral-800 rounded shadow py-2 relative">
                 <h4 class="px-2">{{ event?.title }}</h4>
                 <div class="flex m-2">
                     <div

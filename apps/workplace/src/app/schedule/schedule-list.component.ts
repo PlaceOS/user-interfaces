@@ -9,7 +9,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-list',
     template: `
         <div
-            class="w-full h-16 flex items-center justify-between bg-white border-b border-gray-300 shadow p-2"
+            class="w-full h-16 flex items-center justify-between bg-white dark:bg-neutral-700 border-b border-gray-300 dark:border-neutral-500 shadow p-2"
         >
             <mat-form-field appearance="outline" class="h-[3.25rem]">
                 <mat-select [placeholder]="user?.name">
@@ -45,7 +45,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
                 <mat-datepicker #picker></mat-datepicker>
             </div>
         </div>
-        <div class="w-full flex-1 overflow-hidden bg-gray-100">
+        <div class="w-full flex-1 overflow-hidden bg-gray-100 dark:bg-neutral-600">
             <cdk-virtual-scroll-viewport
                 itemSize="88"
                 class="h-full w-full"
@@ -67,15 +67,15 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
             *ngIf="loading | async"
         ></mat-progress-bar>
         <mat-menu #legend="matMenu" xPosition="before">
-            <div class="flex items-center px-4 py-2 hover:bg-gray-100">
+            <div class="flex items-center px-4 py-2 hover:bg-black/60">
                 <div class="bg-success h-2 w-2 rounded-full mr-4"></div>
                 Approved
             </div>
-            <div class="flex items-center px-4 py-2 hover:bg-gray-100">
+            <div class="flex items-center px-4 py-2 hover:bg-black/60">
                 <div class="bg-pending h-2 w-2 rounded-full mr-4"></div>
                 Tentative
             </div>
-            <div class="flex items-center px-4 py-2 hover:bg-gray-100">
+            <div class="flex items-center px-4 py-2 hover:bg-black/60">
                 <div class="bg-error h-2 w-2 rounded-full mr-4"></div>
                 Declined
             </div>

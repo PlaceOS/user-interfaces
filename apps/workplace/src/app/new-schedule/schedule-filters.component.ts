@@ -7,7 +7,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filters',
     template: `
         <div
-            class="hidden sm:block bg-white border border-gray-300 rounded p-2"
+            class="hidden sm:block bg-white dark:bg-neutral-800 border border-gray-300 rounded p-2"
         >
             <h3 class="font-medium mb-2">Category Filters</h3>
             <div class="flex flex-wrap space-x-2">

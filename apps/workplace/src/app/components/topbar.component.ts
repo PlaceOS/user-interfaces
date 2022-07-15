@@ -9,7 +9,7 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 text-black z-50 shadow relative"
+            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 dark:border-neutral-500 text-black z-50 shadow relative dark:bg-neutral-800 dark:text-white"
         >
             <a
                 logo
@@ -17,7 +17,13 @@ const EMPTY = [];
                 [routerLink]="['/']"
             >
                 <img
-                    class="h-10 sm:block"
+                    class="h-10 hidden dark:block sm:dark:block"
+                    [class.hidden]="!title"
+                    *ngIf="logo_dark"
+                    [src]="logo_dark.src"
+                />
+                <img
+                    class="h-10 dark:hidden sm:block"
                     [class.hidden]="!title"
                     *ngIf="logo"
                     [src]="logo.src"
@@ -34,7 +40,7 @@ const EMPTY = [];
                 <button
                     matRipple
                     avatar
-                    class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
+                    class="h-10 w-10 rounded-full mr-2 bg-gray-200 dark:bg-neutral-700 flex items-center justify-center"
                     customTooltip
                     [content]="user_controls"
                 >
@@ -71,6 +77,10 @@ export class TopbarComponent {
     /** Application logo to display */
     public get logo(): ApplicationIcon {
         return this._settings.get('app.logo_light');
+    }
+    /** Application logo to display */
+    public get logo_dark(): ApplicationIcon {
+        return this._settings.get('app.logo_dark');
     }
     /** Text to display for page title */
     public get title(): string {

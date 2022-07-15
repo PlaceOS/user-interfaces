@@ -5,7 +5,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white border-r border-gray-300"
+            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-neutral-700 border-r border-gray-300"
         >
             <schedule-calendar
                 class="border-b border-gray-200"
@@ -20,7 +20,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('event')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
                     >
                         <app-icon>meeting_room</app-icon>
                     </div>
@@ -42,7 +42,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('desk')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
                     >
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
@@ -62,7 +62,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('parking')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
                     >
                         <app-icon>drive_eta</app-icon>
                     </div>

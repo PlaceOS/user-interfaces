@@ -42,7 +42,7 @@ const EMPTY = [];
         <!-- <explore-search class="absolute top-0 right-0"></explore-search> -->
         <div
             zones
-            class="p-2 bg-white border border-gray-400 absolute left-0 m-2 rounded flex items-center"
+            class="p-2 bg-white dark:bg-neutral-800 border border-gray-400 absolute left-0 m-2 rounded flex items-center"
         >
             Zones
             <mat-slide-toggle
@@ -54,7 +54,7 @@ const EMPTY = [];
         <div
             legend
             *ngIf="show_legend && legend.length"
-            class="absolute bottom-2 left-2 p-2 rounded bg-white border border-gray-300"
+            class="absolute bottom-2 left-2 p-2 rounded bg-white dark:bg-neutral-800 border border-gray-300"
         >
             <h3 class="mb-2 font-medium">Legend</h3>
             <div

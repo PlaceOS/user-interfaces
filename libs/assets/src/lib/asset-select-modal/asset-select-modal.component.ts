@@ -9,7 +9,7 @@ const EMPTY_FAVS: string[] = [];
     selector: 'asset-select-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none bg-white flex flex-col"
+            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
                 <button mat-icon-button mat-dialog-close class="bg-black/20">

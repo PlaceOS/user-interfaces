@@ -15,12 +15,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="h-full w-full bg-gray-100 overflow-auto">
+        <div class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto">
             <div
-                class="max-w-full w-[768px] mx-auto sm:my-4 bg-white border border-gray-300"
+                class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300"
+                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"
                 >
                     Book Meeting
                 </h2>
@@ -31,7 +31,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 1
                             </div>
@@ -63,7 +63,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 2
                             </div>
@@ -95,7 +95,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 3
                             </div>
@@ -127,7 +127,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 4
                             </div>
@@ -158,7 +158,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 5
                             </div>
@@ -187,7 +187,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center mb-4">
                             <div
-                                class="bg-gray-100 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 6
                             </div>

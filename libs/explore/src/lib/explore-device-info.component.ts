@@ -55,7 +55,7 @@ export interface DeviceInfoData {
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="w-64 rounded bg-white p-4 top-0 left-0 shadow pointer-events-none mx-2"
+                class="w-64 rounded bg-white dark:bg-neutral-800 p-4 top-0 left-0 shadow pointer-events-none mx-2"
                 (mouseleave)="close()"
             >
                 <div class="arrow"></div>
