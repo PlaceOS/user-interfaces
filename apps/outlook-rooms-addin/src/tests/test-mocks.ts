@@ -130,6 +130,25 @@ export const mockSpace: Space = {
     availability: [mockCalendarAvailability],
 };
 
+export const mockSpaceWithViews: Space = {
+    id: '1',
+    name: 'test-space',
+    display_name: '',
+    email: '',
+    capacity: 2,
+    feature_list: ['Views'],
+    support_url: '',
+    map_id: 'map-id-1',
+    bookable: true,
+    zones: [''],
+    configurations: [''] as any,
+    image: '',
+    response_status: '' as any,
+    level: mockBuildingLevel,
+    features: [''],
+    availability: [mockCalendarAvailability],
+};
+
 export const mockCalendarEvent: CalendarEvent = {
     id: '123',
     status: 'approved',

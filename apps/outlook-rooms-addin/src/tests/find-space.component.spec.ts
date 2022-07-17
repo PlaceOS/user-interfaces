@@ -14,6 +14,7 @@ import {
     MatBottomSheetModule,
     MatBottomSheet,
 } from '@angular/material/bottom-sheet';
+import { Router } from '@angular/router';
 
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
@@ -87,7 +88,7 @@ describe('FindSpaceComponent', () => {
                     postForm: jest.fn(),
                     setOptions: jest.fn(() => {}),
                     view: '',
-                    available_spaces: of(mockSpace, mockSpace),
+                    available_spaces: of(mockSpace, mockSpace, mockSpace),
                     options: of(mockEventFlowOptions),
                 },
             },
@@ -101,6 +102,7 @@ describe('FindSpaceComponent', () => {
                 useClass: MapServiceStub,
             },
             { provide: RoomConfirmService, useClass: RoomConfirmServiceStub },
+            { provide: Router, useValue: { navigate: jest.fn() } },
         ],
         declarations: [
             MockComponent(FindSpaceItemComponent),

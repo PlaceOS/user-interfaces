@@ -1,7 +1,7 @@
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, ngMocks } from 'ng-mocks';
-import { of } from 'rxjs';
+import { of, pipe } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,7 +21,11 @@ import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
-import { mockRoomConfirmService, mockSpace } from './test-mocks';
+import {
+    mockRoomConfirmService,
+    mockSpace,
+    mockSpaceWithViews,
+} from './test-mocks';
 
 describe('FeatureFilterService', () => {
     let spectator: SpectatorService<FeaturesFilterService>;
@@ -43,7 +47,12 @@ describe('FeatureFilterService', () => {
             {
                 provide: EventFormService,
                 useValue: {
-                    available_spaces: of(null) as any,
+                    available_spaces: of([
+                        mockSpace,
+                        mockSpace,
+                        mockSpace,
+                        mockSpaceWithViews,
+                    ]) as any,
                 },
             },
         ],
@@ -64,7 +73,63 @@ describe('FeatureFilterService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should filter spaces based on selected features ', () => {
+    it('should store selected features ', async () => {
         spectator = createService();
+        await spectator.service.getSelectedFeatures();
+        let selections: number = 0;
+        spectator.service.features$?.subscribe((features) =>
+            features.map((feature) => ((feature.value = true), selections++))
+        );
+        let selected_features_count;
+        spectator.service.selected_features$?.subscribe(
+            (features) => (selected_features_count = features?.length)
+        );
+
+        expect(selected_features_count).toBe(selections);
+    });
+
+    it('should emit a notification if features are selected', async () => {
+        spectator = createService();
+
+        let room_with_views;
+        spectator.service.features$?.subscribe(
+            (features) =>
+                (room_with_views = features.find(
+                    (feature) => feature.name == 'Views'
+                ))
+        );
+        room_with_views.value = true;
+        await spectator.service.getSelectedFeatures();
+        await spectator.service.applyFilter();
+        await spectator.service.updated_spaces$?.pipe(take(1)).toPromise();
+
+        spectator.service.updated_spaces_emitter?.subscribe((result) =>
+            expect(result).toBe(true)
+        );
+    });
+
+    it('should update spaces based on feature selections', async () => {
+        spectator = createService();
+
+        let spaces_before_filter;
+        spectator.service.spaces$?.subscribe(
+            (spaces) => (spaces_before_filter = spaces.length)
+        );
+        expect(spaces_before_filter).toBe(4);
+
+        let room_with_views;
+        spectator.service.features$?.subscribe(
+            (features) =>
+                (room_with_views = features.find(
+                    (feature) => feature.name == 'Views'
+                ))
+        );
+        room_with_views.value = true; //mimic selecting Views checkbox
+        await spectator.service.getSelectedFeatures();
+        await spectator.service.applyFilter();
+
+        spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
+            expect(updated_spaces.length).toBe(1)
+        );
     });
 });

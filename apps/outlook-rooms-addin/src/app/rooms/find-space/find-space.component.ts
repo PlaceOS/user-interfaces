@@ -143,7 +143,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._state.available_spaces?.pipe(take(1)).toPromise();
 
         this.spaces$ = this._state.available_spaces;
-        this._featuresFilterService.updated_spaces_emitter.subscribe(
+        this._featuresFilterService?.updated_spaces_emitter?.subscribe(
             (result) => {
                 result
                     ? (this.spaces$ =

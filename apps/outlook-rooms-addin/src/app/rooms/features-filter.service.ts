@@ -68,16 +68,16 @@ export class FeaturesFilterService {
                 })
             )
         );
-        await this.updated_spaces$.pipe(take(1)).toPromise();
+        await this.updated_spaces$?.pipe(take(1)).toPromise();
         this.updated_spaces_emitter.emit(true);
     }
 
     _sort(array: string[]): string {
-        return array.sort().join();
+        return array?.sort().join();
     }
 
     async sortSelectedFeatures(array: any[]) {
-        let features_array = await array.map((item) => item.id);
+        let features_array = await array?.map((item) => item.id);
         return this._sort(features_array);
     }
 

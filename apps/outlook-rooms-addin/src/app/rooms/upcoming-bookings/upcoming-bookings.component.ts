@@ -69,7 +69,7 @@ export class UpcomingBookingsComponent implements OnInit {
             )
             .pipe(
                 map((bookings) =>
-                    bookings.filter((booking) => booking !== null)
+                    bookings?.filter((booking) => booking !== null)
                 )
             );
 
