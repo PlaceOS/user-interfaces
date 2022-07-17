@@ -132,4 +132,25 @@ describe('FeatureFilterService', () => {
             expect(updated_spaces.length).toBe(1)
         );
     });
+
+    it('should clear selected features via the clearFilter method', async () => {
+        spectator = createService();
+        let room_with_views;
+        spectator.service.features$?.subscribe(
+            (features) =>
+                (room_with_views = features.find(
+                    (feature) => feature.name == 'Views'
+                ))
+        );
+        room_with_views.value = true;
+
+        spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
+            expect(updated_spaces.length).toBe(1)
+        );
+
+        await spectator.service.clearFilter();
+        spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
+            expect(updated_spaces.length).toBe(null)
+        );
+    });
 });
