@@ -62,7 +62,6 @@ export class FeaturesFilterService {
         this.updated_spaces$ = await this.spaces$.pipe(
             map((spaces: Space[]) =>
                 spaces.filter((space: Space) => {
-                    console.log(requested_features, 'req feats');
                     return this._sort(space.feature_list).includes(
                         requested_features
                     );
@@ -71,7 +70,6 @@ export class FeaturesFilterService {
         );
         await this.updated_spaces$.pipe(take(1)).toPromise();
         this.updated_spaces_emitter.emit(true);
-        this.updated_spaces$.subscribe((i) => console.log(i));
     }
 
     _sort(array: string[]): string {
