@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
@@ -142,15 +142,25 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._spaces.initialised?.pipe(first((_) => !!_)).toPromise();
         await this._state.available_spaces?.pipe(take(1)).toPromise();
 
-        this.spaces$ =
-            this._featuresFilterService?.updated_spaces$ ||
-            this._state.available_spaces;
+        // this.spaces$ =
+        //     this._featuresFilterService?.updated_spaces$ ||
+        //     this._state.available_spaces;
 
         // if (this._featuresFilterService.updated_spaces$) {
         //     this.spaces$ = this._featuresFilterService.updated_spaces$;
         //     console.log('updated ');
         // } else {
         this.spaces$ = this._state.available_spaces;
+        this._featuresFilterService.updated_spaces_emitter.subscribe(
+            (result) => {
+                console.log(result, 'result');
+                result
+                    ? (this.spaces$ =
+                          this._featuresFilterService.updated_spaces$)
+                    : this._state.available_spaces;
+            }
+        );
+
         // }
 
         this.setBuilding(this._org.building);
@@ -266,5 +276,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
     closeModal() {
         this.router.navigate(['/book/spaces']);
+        this._featuresFilterService.clearFilter();
     }
 }
