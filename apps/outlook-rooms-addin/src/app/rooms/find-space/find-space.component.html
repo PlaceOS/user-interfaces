@@ -12,13 +12,18 @@
             </div>
 
             <div class="flex flex-row justify-between mt-3 align-middle">
-                <div class="flex w-7/12">
+                <div class="flex w-7/12 justify-center">
                     <button
                         mat-flat-button
                         (click)="openFilter()"
                         class="bg-gray-300 w-full h-9 text-sm filter-button"
                     >
-                        Filter
+                        <span>Filter</span>
+
+                        <span *ngIf="(selected_features$ | async)?.length">
+                            ({{ (selected_features$ | async).length }}
+                            applied)
+                        </span>
                     </button>
                 </div>
 
