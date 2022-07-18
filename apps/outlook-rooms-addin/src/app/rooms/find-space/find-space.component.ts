@@ -87,7 +87,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly levels = combineLatest([
         this.building,
         this._state.options,
-    ])?.pipe(
+    ]).pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
             {

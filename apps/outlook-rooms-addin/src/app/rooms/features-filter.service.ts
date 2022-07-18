@@ -46,10 +46,10 @@ export class FeaturesFilterService {
     }
 
     async getSelectedFeatures() {
-        this.selected_features$ = await this.features$.pipe(
+        this.selected_features$ = this.features$.pipe(
             map((arr) => arr.filter((item) => item.value == true))
         );
-
+        await this.selected_features$.pipe(take(1)).toPromise();
         this.selected_features$?.subscribe(this._selected_features);
     }
     async applyFilter() {
@@ -59,7 +59,7 @@ export class FeaturesFilterService {
             this.selected_features
         );
 
-        this.updated_spaces$ = await this.spaces$.pipe(
+        this.updated_spaces$ = this.spaces$.pipe(
             map((spaces: Space[]) =>
                 spaces.filter((space: Space) => {
                     return this._sort(space.feature_list).includes(
@@ -88,6 +88,6 @@ export class FeaturesFilterService {
     }
 
     OnDestroy() {
-        this.features_sub.unsubscribe();
+        this.features_sub?.unsubscribe();
     }
 }
