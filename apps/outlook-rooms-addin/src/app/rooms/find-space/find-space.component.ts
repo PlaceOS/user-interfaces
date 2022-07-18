@@ -117,7 +117,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
-        public bottomSheet: MatBottomSheet,
+        private bottomSheet: MatBottomSheet,
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
@@ -138,12 +138,12 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         this._state.setView('find');
         this.setTimeChips();
 
-        await this._org.initialised?.pipe(first((_) => !!_)).toPromise();
-        await this._spaces.initialised?.pipe(first((_) => !!_)).toPromise();
-        await this._state.available_spaces?.pipe(take(1)).toPromise();
+        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._state.available_spaces.pipe(take(1)).toPromise();
 
         this.spaces$ = this._state.available_spaces;
-        this._featuresFilterService?.updated_spaces_emitter?.subscribe(
+        this._featuresFilterService.updated_spaces_emitter?.subscribe(
             (result) => {
                 result
                     ? (this.spaces$ =
