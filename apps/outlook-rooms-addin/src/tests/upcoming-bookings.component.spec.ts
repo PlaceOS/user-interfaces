@@ -57,18 +57,17 @@ describe('UpcomingBookingsComponent', () => {
     });
 
     beforeEach(() => {
+        spectator = createComponent();
         jest.clearAllMocks();
         jest.resetModules();
         ngMocks.reset();
     });
 
     it('should create component', () => {
-        spectator = createComponent();
         expect(spectator.component).toBeTruthy();
     });
 
     it('should show the correct number of bookings for the current user', async () => {
-        spectator = createComponent();
         spectator.component.user = mockStaffUser;
         const bookings_service = spectator.inject(ExistingBookingsService);
         bookings_service.loading$ = of(true);
@@ -104,7 +103,6 @@ describe('UpcomingBookingsComponent', () => {
     });
 
     it('should not show bookings that were not organised by the current user', async () => {
-        spectator = createComponent();
         spectator.component.user = mockExternalUser;
         const bookings_service = spectator.inject(ExistingBookingsService);
         bookings_service.loading$ = of(true);

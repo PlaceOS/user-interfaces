@@ -63,18 +63,17 @@ describe('FeatureFilterService', () => {
     });
 
     beforeEach(() => {
+        spectator = createService();
         jest.clearAllMocks();
         jest.resetModules();
         ngMocks.reset();
     });
 
     it('should create service', () => {
-        spectator = createService();
         expect(spectator.service).toBeTruthy();
     });
 
     it('should store selected features ', async () => {
-        spectator = createService();
         await spectator.service.getSelectedFeatures();
         let selections: number = 0;
         spectator.service.features$?.subscribe((features) =>
@@ -89,8 +88,6 @@ describe('FeatureFilterService', () => {
     });
 
     it('should emit a notification if features are selected', async () => {
-        spectator = createService();
-
         let room_with_views;
         spectator.service.features$?.subscribe(
             (features) =>
@@ -109,8 +106,6 @@ describe('FeatureFilterService', () => {
     });
 
     it('should update spaces based on feature selections', async () => {
-        spectator = createService();
-
         let spaces_before_filter;
         spectator.service.spaces$?.subscribe(
             (spaces) => (spaces_before_filter = spaces.length)
@@ -134,7 +129,6 @@ describe('FeatureFilterService', () => {
     });
 
     it('should clear selected features via the clearFilter method', async () => {
-        spectator = createService();
         let room_with_views;
         spectator.service.features$?.subscribe(
             (features) =>

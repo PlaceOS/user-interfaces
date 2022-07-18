@@ -57,18 +57,17 @@ describe('MapService', () => {
     });
 
     beforeEach(() => {
+        spectator = createService();
         jest.clearAllMocks();
         jest.resetModules();
         ngMocks.reset();
     });
 
     it('should create service', () => {
-        spectator = createService();
         expect(spectator.service).toBeTruthy();
     });
 
     it('should return a selected space', async () => {
-        spectator = createService();
         const room_service = spectator.inject(RoomConfirmService);
         room_service.selected_space$ = of(mockSpace);
 
@@ -77,7 +76,6 @@ describe('MapService', () => {
         );
     });
     it('should return a list of map IDs with no duplicates', async () => {
-        spectator = createService();
         const available_spaces = of([
             mockSpace,
             mockSpace,
@@ -95,7 +93,6 @@ describe('MapService', () => {
         expect(map_list_spy).toHaveBeenCalled();
     });
     it('should have a flag indicating whether the map has loaded', async () => {
-        spectator = createService();
         let flag;
         await spectator.service.map_loaded$.pipe(take(1)).toPromise();
         spectator.service.map_loaded$.subscribe((value) => (flag = value));
@@ -106,7 +103,6 @@ describe('MapService', () => {
     });
 
     it('should create map actions for all available spaces', async () => {
-        spectator = createService();
         let map_actions;
         let spaces_count;
         const available_spaces = of([
@@ -136,7 +132,6 @@ describe('MapService', () => {
         });
     });
     it('should contain a method to open a room tile when clicked', async () => {
-        spectator = createService();
         const mat_bottom_sheet = spectator.inject(MatBottomSheet);
         (mat_bottom_sheet as any).open.mockImplementation(
             (RoomDetailsComponent) => {}
@@ -159,8 +154,6 @@ describe('MapService', () => {
     });
 
     it('should only processing map features after the map has been loaded', async () => {
-        spectator = createService();
-
         const map_load_spy = jest.spyOn(spectator.service, 'loadMap');
 
         const process_features_spy = jest.spyOn(

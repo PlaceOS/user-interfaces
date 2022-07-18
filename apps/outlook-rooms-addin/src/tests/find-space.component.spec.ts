@@ -4,7 +4,12 @@ import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of, Observable } from 'rxjs';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    FormsModule,
+    ReactiveFormsModule,
+    FormBuilder,
+    Validators,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { CommonModule } from '@angular/common';
@@ -36,10 +41,14 @@ import {
     mockRoomConfirmService,
     mockRouterStub,
     mockSpace,
+    mockForm,
     mockEventFlowOptions,
 } from './test-mocks';
 
 describe('FindSpaceComponent', () => {
+    const formModel = mockForm;
+    const fb = new FormBuilder();
+    const form = fb.group(formModel);
     const OrgServiceStub = mockOrgService;
     const SpacesServiceStub = mockSpacesService;
     const FeatureFilterServiceStub = mockFeatureFilterService;
@@ -116,11 +125,26 @@ describe('FindSpaceComponent', () => {
         jest.resetModules();
         ngMocks.reset();
         spectator = createComponent();
-        spectator.inject(EventFormService);
         spectator.inject(FeaturesFilterService);
-        const event_service = spectator.inject(EventFormService);
+        const event_service: any = spectator.inject(EventFormService);
         event_service.setOptions.mockImplementation(() => {
             return of(mockEventFlowOptions);
+        });
+
+        event_service.setView.mockImplementation((_) => {
+            event_service.view = _;
+            spectator.detectChanges();
+        });
+        event_service.newForm.mockImplementation((_) => {
+            event_service.form = fb.group(formModel);
+        });
+        event_service.storeForm.mockImplementation((_) => {
+            if (
+                event_service.form.controls.title == null ||
+                event_service.form.controls.date == null ||
+                event_service.form.controls.duration == null
+            )
+                return null;
         });
     });
 
@@ -128,20 +152,20 @@ describe('FindSpaceComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
     it('should open the Filter modal when clicked', () => {
+        const event_service = spectator.inject(EventFormService);
+        event_service.newForm();
         const mat_bottom_sheet = spectator.inject(MatBottomSheet);
-        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
-            value: of(true),
-        }));
-        const open_filter_spy = jest.spyOn(
-            spectator.component.bottomSheet,
-            'open'
-        );
+        mat_bottom_sheet.open.mockImplementation((template, config) => {
+            return '' as any;
+        });
+        const open_filter_spy = jest.spyOn(mat_bottom_sheet, 'open');
         const component_filter_spy = jest.spyOn(
             spectator.component,
             'openFilter'
         );
 
         expect(component_filter_spy).not.toHaveBeenCalled();
+
         expect(open_filter_spy).not.toHaveBeenCalled();
         const button = spectator.debugElement.query(
             By.css('button.filter-button')
@@ -183,7 +207,6 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should show a default List view on page load', () => {
-        spectator = createComponent();
         spectator.component.spaces$ = of([mockSpace, mockSpace]);
         spectator.detectChanges();
         const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
@@ -200,8 +223,7 @@ describe('FindSpaceComponent', () => {
         );
     });
 
-    it('should display map elements in Map View via click', async () => {
-        spectator = createComponent();
+    it('should display map elements in Map View via click', () => {
         spectator.component.spaces$ = of([mockSpace, mockSpace]);
         spectator.component.selected_level = of([
             {
@@ -213,7 +235,6 @@ describe('FindSpaceComponent', () => {
         expect(map_button.nativeElement.innerHTML).toContain('Map');
         map_button.nativeElement.click();
         expect(spectator.component.space_view).toBe('mapView');
-        spectator.detectChanges();
 
         const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
         const mapItems = ngMocks.findAll(InteractiveMapComponent);
@@ -223,7 +244,6 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should display the correct number of spaces in search results', () => {
-        spectator = createComponent();
         spectator.component.spaces$ = of([mockSpace, mockSpace, mockSpace]);
         spectator.detectChanges();
 

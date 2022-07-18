@@ -127,11 +127,11 @@ describe('FindSpaceComponent', () => {
     });
 
     beforeEach(() => {
+        spectator = createComponent();
         jest.clearAllMocks();
         jest.resetModules();
         ngMocks.reset();
         spectator = createComponent();
-        spectator.inject(EventFormService);
         spectator.inject(FeaturesFilterService);
         const event_service: any = spectator.inject(EventFormService);
         event_service.setOptions.mockImplementation(() => {
@@ -159,7 +159,6 @@ describe('FindSpaceComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
     it('should update features based on checkboxes', async () => {
-        spectator = createComponent();
         const filter_service = spectator.inject(FeaturesFilterService);
         const event_service = spectator.inject(EventFormService);
         await event_service.newForm();
