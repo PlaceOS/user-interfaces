@@ -16,6 +16,21 @@ export let mockForm = {
     markAllAsTouched: jest.fn(() => {}),
 };
 
+export const mockGenerateEventForm = (event: any) => {
+    const form = mockForm;
+};
+
+export const mockFeatures = [
+    { name: 'Video Conference (VC)', id: 'VidConf', value: false },
+    { name: 'Conference Phone', id: 'ConfPhone', value: false },
+    { name: 'Wireless Content Sharing', id: 'Wireless', value: false },
+    { name: 'Video Wall', id: 'VidWall', value: false },
+    { name: 'Whiteboard', id: 'Whiteboard', value: false },
+    { name: 'Jamboard', id: 'Jamboard', value: false },
+    { name: 'Projector', id: 'Projector', value: false },
+    { name: 'Views', id: 'Views', value: false },
+];
+
 export const mockBuilding = {
     id: 1,
     name: 'test-building',

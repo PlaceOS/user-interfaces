@@ -112,7 +112,7 @@
                         <span> {{ feature.name }}</span>
                         <mat-checkbox
                             [(ngModel)]="feature.value"
-                            class="ml-auto"
+                            class="ml-auto checkbox"
                             [ngModelOptions]="{ standalone: true }"
                             (change)="getSelectedFeatures()"
                         ></mat-checkbox>
@@ -128,7 +128,7 @@
                 mat-button
                 type="submit"
                 (click)="applyFilters()"
-                class="bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto text-center"
+                class="filter-button bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto text-center"
             >
                 <span class="">Apply Filters</span>
             </button>
