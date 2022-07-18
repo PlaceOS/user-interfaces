@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy, EventEmitter } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
 import { take, map, filter, switchMap } from 'rxjs/operators';
 import { Space } from '@placeos/spaces';
@@ -10,9 +10,8 @@ import { EventFormService } from '@placeos/events';
 export class FeaturesFilterService {
     public spaces$: Observable<Space[]> = this._state.available_spaces;
     public updated_spaces$: Observable<Space[]>;
-    public updated_spaces_emitter: EventEmitter<boolean> = new EventEmitter(
-        false
-    );
+    public updated_spaces_emitter: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
     features_sub: Subscription;
     _selected_features: BehaviorSubject<any> = new BehaviorSubject<any>(null);
     selected_features$: Observable<any> =
@@ -69,7 +68,7 @@ export class FeaturesFilterService {
             )
         );
         await this.updated_spaces$?.pipe(take(1)).toPromise();
-        this.updated_spaces_emitter.emit(true);
+        this.updated_spaces_emitter.next(true);
     }
 
     _sort(array: string[]): string {
@@ -85,6 +84,7 @@ export class FeaturesFilterService {
         this._selected_features.next(null);
         this.room_features?.map((feature) => (feature.value = false));
         this._features.next(this.room_features);
+        this.updated_spaces_emitter.next(false);
     }
 
     OnDestroy() {
