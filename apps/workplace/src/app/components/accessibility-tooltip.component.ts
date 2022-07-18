@@ -43,7 +43,7 @@ import { CustomTooltipData } from '@placeos/components';
                 ></mat-slide-toggle>
             </div>
             <ng-container *ngIf="accessible">
-                <div class="px-8 py-4 bg-gray-200 text-center">
+                <div class="px-8 py-4 bg-gray-200 dark:bg-neutral-600 text-center">
                     Adjust your preferred reading size below.
                 </div>
                 <div class="flex items-center px-4 space-x-4">
