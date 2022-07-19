@@ -1,15 +1,9 @@
-import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { BookingFormService } from '@placeos/bookings';
-import {
-    Building,
-    BuildingLevel,
-    Desk,
-    OrganisationService,
-} from '@placeos/organisation';
-import { PlaceZone } from '@placeos/ts-client';
+import { Asset } from '@placeos/assets';
+import { BookingFormService, generateBookingForm } from '@placeos/bookings';
+import { OrganisationService } from '@placeos/organisation';
 import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-confirm.component';
 
 describe('NewDeskFlowConfirmComponent', () => {
@@ -20,31 +14,13 @@ describe('NewDeskFlowConfirmComponent', () => {
             {
                 provide: BookingFormService,
                 useValue: {
-                    form: new FormGroup({
-                        date: new FormControl(new Date()),
-                        duration: new FormControl(60),
-                        assets: new FormControl([]),
-                        booking_asset: new FormControl(
-                            new Desk({
-                                id: '1',
-                                name: 'Desk name',
-                                features: ['sitting'],
-                                zone: new PlaceZone({
-                                    id: '1',
-                                    parent_id: '2',
-                                }),
-                            })
-                        ),
-                    }),
+                    form: generateBookingForm(),
                     postForm: jest.fn(),
                 },
             },
             {
                 provide: OrganisationService,
-                useValue: {
-                    buildings: [new Building({ id: '2', name: 'Block A' })],
-                    levels: [new BuildingLevel({ id: '1', name: 'L1' })],
-                },
+                useValue: {},
             },
             {
                 provide: MatBottomSheetRef,
@@ -61,6 +37,13 @@ describe('NewDeskFlowConfirmComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should show desk details', () => expect('[details]').toExist());
+
+    it('should show assets if available', () => {
+        expect('[assets]').not.toExist();
+        spectator.inject(BookingFormService).form.patchValue({assets: [new Asset()]});
+        spectator.detectChanges();
+        expect('[assets]').toExist();
+    })
 
     it('should allow posting booking', () => {
         expect('button[confirm]').toExist();

@@ -52,20 +52,20 @@ describe('NewDeskFlowComponent', () => {
     expect(spectator.component).toBeTruthy());
 
     it('should show form view by default', () => {
-        expect(spectator.query('new-desk-flow-form')).toExist();
+        expect('new-desk-flow-form').toExist();
         spectator.inject(BookingFormService).setView('success');
-        expect(spectator.query('new-desk-flow-form')).not.toExist();
+        expect('new-desk-flow-form').not.toExist();
     });
 
     it('should show success view when set', () => {
-        expect(spectator.query('new-desk-flow-success')).not.toExist();
+        expect('new-desk-flow-success').not.toExist();
         spectator.inject(BookingFormService).setView('success');
-        expect(spectator.query('new-desk-flow-success')).toExist();
+        expect('new-desk-flow-success').toExist();
     });
 
     it('should set view based of route params', () => {
-        expect(spectator.query('new-desk-flow-success')).not.toExist();
+        expect('new-desk-flow-success').not.toExist();
         spectator.setRouteParam('step', 'success');
-        expect(spectator.query('new-desk-flow-success')).toExist();
+        expect('new-desk-flow-success').toExist();
     });
 })
