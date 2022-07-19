@@ -77,8 +77,9 @@ export class EventFormService extends BaseClass {
         debounceTime(300),
         switchMap(([_, options, form]) => {
             this._loading.next('Retrieving available spaces...');
-            const start = form.value.date;
-            const end = form.value.date + form.value.duration * 60 * 1000;
+            const value = form.getRawValue();
+            const start = value.date;
+            const end = value.date + value.duration * 60 * 1000;
             return querySpaceAvailability(
                 {
                     period_start: getUnixTime(start),
@@ -174,7 +175,7 @@ export class EventFormService extends BaseClass {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.event_form',
-            JSON.stringify(this._form.getValue()?.value || {})
+            JSON.stringify(this._form.getValue()?.getRawValue() || {})
         );
     }
 
@@ -196,7 +197,7 @@ export class EventFormService extends BaseClass {
                 return reject(`Some form fields are invalid. [${getInvalidFields(
                     form
                 ).join(', ')}]`);
-            const { id, host, date, duration, creator } = form.value;
+            const { id, host, date, duration, creator } = form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             if (
                 (!id ||
