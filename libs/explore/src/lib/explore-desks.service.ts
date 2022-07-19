@@ -260,6 +260,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 data: {
                     id: desk.map_id || desk.id,
                     map_id: desk.name,
+                    name: desk.name || desk.map_id,
                     user: this._users[desk.map_id] || desk.staff_name,
                     status: this._statuses[desk.map_id],
                 },
