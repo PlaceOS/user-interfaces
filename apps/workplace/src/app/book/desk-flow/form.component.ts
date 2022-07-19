@@ -141,12 +141,15 @@ export class DeskFlowFormComponent implements OnInit {
 
     public findDesk() {
         this.form.markAllAsTouched();
+        this.form.patchValue({ asset_id: ' ' });
         if (!this.form.valid) return;
+        this.form.patchValue({ asset_id: '' });
         this._router.navigate(['/book', 'desks', 'map']);
     }
 
     public async allocateDesk() {
         this.form.markAllAsTouched();
+        this.form.patchValue({ asset_id: ' ' });
         if (!this.form.valid) return;
         // Find nearby desk for user's department
         const settings = this._settings.get('app.departments') || {};
