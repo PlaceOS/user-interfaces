@@ -16,7 +16,7 @@ import { BookingFormService } from '@placeos/bookings';
                 <img src="assets/icons/success.svg" />
                 <p class="text-center">
                     Your desk has been successfully booked
-                    <span *ngIf="last_event?.extension_data?.assets?.length">
+                    <span assets *ngIf="last_event?.extension_data?.assets?.length">
                         including
                         {{ last_event?.extension_data?.assets?.length }}
                         asset(s)
