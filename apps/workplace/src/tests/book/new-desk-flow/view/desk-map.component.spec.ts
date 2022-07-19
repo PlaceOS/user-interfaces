@@ -1,7 +1,7 @@
 import { FormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
-import { createRoutingFactory, Spectator } from "@ngneat/spectator/jest";
+import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
 import { BookingFormService } from "@placeos/bookings";
 import { IconComponent, InteractiveMapComponent } from "@placeos/components";
 import { Desk } from "@placeos/organisation";
@@ -13,7 +13,7 @@ import { take } from "rxjs/operators";
 
 describe('DeskMapComponent', () => {
     let spectator: Spectator<DeskMapComponent>;
-    const createComponent = createRoutingFactory({
+    const createComponent = createComponentFactory({
         component: DeskMapComponent,
         providers: [
             {

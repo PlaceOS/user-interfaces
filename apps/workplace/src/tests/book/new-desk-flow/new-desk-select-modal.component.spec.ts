@@ -1,5 +1,5 @@
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
-import { createRoutingFactory, Spectator } from "@ngneat/spectator/jest";
+import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
 import { FAV_DESK_KEY } from "@placeos/bookings";
 import { SettingsService } from "@placeos/common";
 import { IconComponent } from "@placeos/components";
@@ -13,7 +13,7 @@ import { MockComponent, MockModule } from "ng-mocks";
 
 describe('NewDeskSelectModalComponent', () => {
     let spectator: Spectator<NewDeskSelectModalComponent>;
-    const createComponent = createRoutingFactory({
+    const createComponent = createComponentFactory({
         component: NewDeskSelectModalComponent,
         providers:[
             {

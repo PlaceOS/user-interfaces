@@ -2,7 +2,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField } from '@angular/material/form-field';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService, FAV_DESK_KEY } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -19,7 +19,7 @@ import { BehaviorSubject } from 'rxjs';
 
 describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;
-    const createComponent = createRoutingFactory({
+    const createComponent = createComponentFactory({
         component: NewDeskFormDetailsComponent,
         providers: [
             {
