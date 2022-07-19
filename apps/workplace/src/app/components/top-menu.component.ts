@@ -14,7 +14,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 [routerLink]="['/dashboard']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Home"
                 matTooltipPosition="below"
             >
@@ -24,7 +24,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </a>
             <button
@@ -32,7 +32,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('spaces')"
                 [routerLink]="['/book', 'spaces']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Book Room"
                 matTooltipPosition="below"
             >
@@ -55,7 +55,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </button>
             <button
@@ -63,7 +63,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('desks')"
                 [routerLink]="['/book', 'desks']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Book Desk"
                 matTooltipPosition="below"
             >
@@ -87,7 +87,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </button>
             <button
@@ -95,7 +95,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
                 [routerLink]="['/book', 'parking']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Book Car Space"
                 matTooltipPosition="below"
             >
@@ -105,7 +105,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </button>
             <button
@@ -113,7 +113,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('visitor-invite')"
                 [routerLink]="['/book', 'visitor']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Invite Visitor"
                 matTooltipPosition="below"
             >
@@ -123,7 +123,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </button>
             <button
@@ -131,7 +131,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('explore')"
                 [routerLink]="['/explore']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Spaces"
                 matTooltipPosition="below"
             >
@@ -141,7 +141,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </button>
             <button
@@ -149,7 +149,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('schedule')"
                 [routerLink]="['/schedule']"
-                routerLinkActive="text-secondary active"
+                routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Your Bookings"
                 matTooltipPosition="below"
             >
@@ -159,7 +159,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary dark:bg-pink-700"
                 ></div>
             </button>
         </div>

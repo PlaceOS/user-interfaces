@@ -117,6 +117,7 @@ export class SettingsService extends BaseClass {
         const data = await showMetadata(user.id, 'settings').toPromise();
         this._user_settings.next(data.details || {});
         this._setDarkMode();
+        this._setFontSize();
     }
 
     /** Whether settings service has initialised */
@@ -150,6 +151,7 @@ export class SettingsService extends BaseClass {
     public saveUserSetting<T>(name: string, value: T) {
         this._pending_settings[name] = value;
         if (name === 'dark_mode') this._setDarkMode();
+        if (name === 'font_size') this._setFontSize();
         this.timeout('save_settings', () => this._savePendingChanges(), 5000);
     }
 
@@ -185,7 +187,13 @@ export class SettingsService extends BaseClass {
     private async _applyUserSettings(settings: HashMap) {
         
         if (settings.font_size) {
-            document.body.style.fontSize = `${settings.font_size}px`;
+        }
+    }
+
+    private _setFontSize() {
+        if (this.get('font_size')) {
+            document.body.parentElement.style.fontSize = `${this.get('font_size')}px`;
+            document.body.style.fontSize = `${this.get('font_size')}px`;
         }
     }
 

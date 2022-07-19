@@ -6,6 +6,7 @@ export interface DeskInfoData {
     id: string;
     map_id: string;
     user: string;
+    name: string;
     start?: number;
     end?: number;
     status: 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
@@ -38,7 +39,7 @@ export interface DeskInfoData {
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <h4 map-id class="m-0 font-medium">{{ map_id }}</h4>
+                    <h4 map-id class="m-0 font-medium">{{ name || map_id || id }}</h4>
                     <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
                     <p start class="mt-1 text-sm" *ngIf="start">
                         {{ start | date: 'shortTime' }} &ndash;
@@ -78,6 +79,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     /** Space to display details for */
     public readonly id = this._details.id;
     public readonly map_id = this._details.map_id;
+    public readonly name = this._details.name;
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;

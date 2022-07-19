@@ -287,13 +287,13 @@ export class BookingFormService extends BaseClass {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.booking_form',
-            JSON.stringify(this._form.getValue()?.value || {})
+            JSON.stringify(this._form.getValue()?.getRawValue() || {})
         );
         sessionStorage.setItem(
             'PLACEOS.booking_form_filters',
             JSON.stringify(this._options.getValue() || {})
         );
-        this._form_value.next(this._form.getValue()?.value || {});
+        this._form_value.next(this._form.getValue()?.getRawValue() || {});
     }
 
     public loadForm() {
@@ -315,11 +315,12 @@ export class BookingFormService extends BaseClass {
         await this.checkQuestions();
         const options = this._options.getValue();
         const form = this._form.getValue();
+        const value = form.getRawValue();
         let content = `Would you like to book the ${options.type} ${
-            form.value.asset_name
-        } for ${format(form.value.date, 'dd MMM yyyy')}${
-            form.value.duration < 12 * 60
-                ? ' at ' + format(form.value.date, 'h:mm a')
+            value.asset_name
+        } for ${format(value.date, 'dd MMM yyyy')}${
+            value.duration < 12 * 60
+                ? ' at ' + format(value.date, 'h:mm a')
                 : ''
         }`;
         if (options.group) {
@@ -357,24 +358,25 @@ export class BookingFormService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
+        const value = form.getRawValue();
         if (!ignore_check) {
             await this.checkResourceAvailable(
-                form.value,
+                value,
                 this._options.getValue().type
             );
         }
-        if (form.value.duration >= 12 * 60 || form.value.all_day) {
+        if (value.duration >= 12 * 60 || value.all_day) {
             form.patchValue({
-                date: set(form.value.date, { hours: 11, minutes: 59 }).valueOf(),
+                date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
                 duration: 12 * 60,
             });
         }
         this._loading.next('Saving booking');
-        const result = await saveBooking(new Booking(form.value)).toPromise();
+        const result = await saveBooking(new Booking(value)).toPromise();
         this._loading.next('');
-        const { booking_type } = form.value;
+        const { booking_type } = value;
         this.clearForm();
-        this._form.getValue()?.patchValue({ booking_type });
+        form?.patchValue({ booking_type });
         this.last_success = result;
         sessionStorage.setItem(
             'PLACEOS.last_booked_booking',
@@ -452,7 +454,7 @@ export class BookingFormService extends BaseClass {
             ref.afterClosed().toPromise(),
         ]);
         if (result?.reason !== 'done') throw 'User cancelled';
-        const form = ref.componentInstance.form.value;
+        const form = ref.componentInstance.form.getRawValue();
         for (const key in form) {
             if (form[key]) throw 'User failed questionaire';
         }
