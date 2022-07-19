@@ -1,7 +1,7 @@
 import { FormGroup } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { NewDeskFlowFormComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-form.component';
@@ -10,7 +10,7 @@ import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 describe('NewDeskFlowFormComponent', () => {
-    let spectator: Spectator<NewDeskFlowFormComponent>;
+    let spectator: SpectatorRouting<NewDeskFlowFormComponent>;
     const createComponent = createRoutingFactory({
         component: NewDeskFlowFormComponent,
         providers: [
@@ -18,7 +18,7 @@ describe('NewDeskFlowFormComponent', () => {
                 provide: BookingFormService,
                 useValue: {
                     form: new FormGroup({}),
-                    setView: jest.fn()
+                    setView: jest.fn(),
                 },
             },
             {
@@ -35,10 +35,10 @@ describe('NewDeskFlowFormComponent', () => {
                 useValue: {
                     initialised: of(true),
                     active_levels: new BehaviorSubject([]),
-                    building: new Building({id: '1'}),
-                    levelsForBuilding: jest.fn(() => [])
-                }
-            }
+                    building: new Building({ id: '1' }),
+                    levelsForBuilding: jest.fn(() => []),
+                },
+            },
         ],
         declarations: [MockComponent(NewDeskFormDetailsComponent)],
     });

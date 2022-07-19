@@ -1,13 +1,13 @@
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Asset } from '@placeos/assets';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-confirm.component';
 
 describe('NewDeskFlowConfirmComponent', () => {
-    let spectator: Spectator<NewDeskFlowConfirmComponent>;
+    let spectator: SpectatorRouting<NewDeskFlowConfirmComponent>;
     const createComponent = createRoutingFactory({
         component: NewDeskFlowConfirmComponent,
         providers: [
