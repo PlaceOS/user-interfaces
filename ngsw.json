@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1658196046379,
+  "timestamp": 1658364967191,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -35,6 +35,7 @@
         "./assets/icons/car-filled.svg",
         "./assets/icons/car-outline.svg",
         "./assets/icons/car.svg",
+        "./assets/icons/cost.svg",
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
         "./assets/icons/home-filled.svg",
@@ -77,6 +78,7 @@
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
     "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
     "./assets/icons/car.svg": "2369f881099a2a3967987685891a974af32276b7",
+    "./assets/icons/cost.svg": "93706c1d453d3069c3a1b3f09f2a5dd1e1b39518",
     "./assets/icons/desk-filled.svg": "09e40cda715246db7f24adb6334964d8c9825e26",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
@@ -109,12 +111,12 @@
     "./assets/tick.svg": "6cf0d60587d8a17cc39b91b6d1ba6743f45cb91f",
     "./assets/tick_success.svg": "84c88546933b8055d960b3194eca112f05ae685f",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "672d146cdf0225371555835044f93bc9aad832e7",
-    "./main.js": "e82bc72b017b5d42c84a5afb57e80e84acb36617",
+    "./index.html": "0400b2a2b69712a1f6982fa61af968b41f5c212c",
+    "./main.js": "cad40819521fba02c42aba7e0c9d649a14bfc954",
     "./manifest.webmanifest": "4ec1747780e920f1cce2ad926ba4ae682c20cb5f",
     "./polyfills.js": "6f322f0d88c2a653fd2714e2ac4e1b5ab7255b8a",
     "./runtime.js": "ab80969a83454d2747f71cd90ada31d9f7bc3adc",
-    "./styles.css": "cbcc59f992a80b840a5db76c1edb51cb0a7205f8",
+    "./styles.css": "a30ef3f90f529e83b310c779b7dfc022825d21c1",
     "./vendor.js": "c058b262b30505fa5e6319370bf72dd40043068a"
   },
   "navigationUrls": [
