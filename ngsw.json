@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1658196021552,
+  "timestamp": 1658364943201,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -35,6 +35,7 @@
         "./assets/icons/car-filled.svg",
         "./assets/icons/car-outline.svg",
         "./assets/icons/car.svg",
+        "./assets/icons/cost.svg",
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
         "./assets/icons/home-filled.svg",
@@ -82,6 +83,7 @@
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
     "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
     "./assets/icons/car.svg": "2369f881099a2a3967987685891a974af32276b7",
+    "./assets/icons/cost.svg": "93706c1d453d3069c3a1b3f09f2a5dd1e1b39518",
     "./assets/icons/desk-filled.svg": "09e40cda715246db7f24adb6334964d8c9825e26",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
@@ -119,12 +121,12 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "4fa9b98b3704972f2b4c0bc03037df8bdd6ef447",
-    "./main.js": "7c953ffae8a28410abf47e3400f53d5c3f393251",
+    "./index.html": "86f92ac0227c7b1c1e7b097bfa7b63f73e3c5e11",
+    "./main.js": "de351e260e5f0dfa5057c9d4de07336f19e032b9",
     "./manifest.webmanifest": "b30b41151999cb79f3543fe06f73f6ab763c8a38",
     "./polyfills.js": "29472cf228ea08cd1cbcf197eeac828e9d9c8270",
     "./runtime.js": "01e665b7ad10cdee9442514f16179dbb3d255fc8",
-    "./styles.css": "628ec7505b5702f5b2902dc29e7c82a97c2cb335",
+    "./styles.css": "707ea54d66441d4e5434020bdfac87e649b0932b",
     "./vendor.js": "02c4e925704a475e0a82454a0139e091bd5e8553"
   },
   "navigationUrls": [
