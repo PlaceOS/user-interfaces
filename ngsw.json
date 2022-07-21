@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1658196005493,
+  "timestamp": 1658365004250,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -52,6 +52,7 @@
         "./assets/icons/car-filled.svg",
         "./assets/icons/car-outline.svg",
         "./assets/icons/car.svg",
+        "./assets/icons/cost.svg",
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
         "./assets/icons/home-filled.svg",
@@ -113,6 +114,7 @@
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
     "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
     "./assets/icons/car.svg": "2369f881099a2a3967987685891a974af32276b7",
+    "./assets/icons/cost.svg": "93706c1d453d3069c3a1b3f09f2a5dd1e1b39518",
     "./assets/icons/desk-filled.svg": "09e40cda715246db7f24adb6334964d8c9825e26",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
@@ -157,12 +159,12 @@
     "./default-libs_explore_src_index_ts.js": "4dfa53604194eb13208401d7d69c2c79d8c4f47a",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "1fdca38fd4a60dc42d8cbe0ab4e54721e1dce6e8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "937ad05af763fedd6fa0dd2d5cf0ac9a91088e46",
-    "./main.js": "2fd78849cff528cd8ff7d8d8c5f029918a66ee69",
+    "./index.html": "f0bbd2085c9acda55f389fb465a92d12acf6997a",
+    "./main.js": "1e0a9feeacbe4665c0bda0a21cd154bc14b42074",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "3041add7aadf3168160964145e9bfc1b73be8bd6",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "628ec7505b5702f5b2902dc29e7c82a97c2cb335",
+    "./styles.css": "707ea54d66441d4e5434020bdfac87e649b0932b",
     "./vendor.js": "498e10997d6897344e9c3cb78e62ecf5dfef8c0c"
   },
   "navigationUrls": [
