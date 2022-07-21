@@ -367,3 +367,11 @@ export function getInvalidFields(form: FormGroup, prefix: string = '') {
     }
     return invalid;
 }
+
+export function removeEmptyFields(obj: Record<string, any>) {
+    for (const key in obj) {
+        if (obj[key] === undefined || obj[key] === null || obj[key] === "") {
+            delete obj[key];
+        }
+    }
+}

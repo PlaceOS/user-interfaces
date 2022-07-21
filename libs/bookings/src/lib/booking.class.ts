@@ -1,3 +1,4 @@
+import { removeEmptyFields } from '@placeos/common';
 import {
     addHours,
     addMinutes,
@@ -142,6 +143,7 @@ export class Booking {
         if (!this.id) delete data.id;
         delete data.date;
         delete data.duration;
+        removeEmptyFields(data);
         return data;
     }
 
