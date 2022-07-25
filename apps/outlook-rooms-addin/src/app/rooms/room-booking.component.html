@@ -85,23 +85,16 @@
                         formControlName="attendees"
                         class="text-sm"
                     ></a-user-list-field>
-
-                    <!-- <div class="bg-red-300" height="500" width="500">
-                        <i-frame
-                            frameborder="0"
-                            width="420"
-                            height="345"
-                            src="https://microsoft.poc.placeos.com/outlook/"
-                            allowfullscreen
-                        ></i-frame>
-                    </div> -->
-
                     <button
+                        mat-button
                         type="submit"
                         target="_parent"
                         (click)="downloadTemplate()"
+                        class="absolute z-100 mt-[74px] ml-[245px] w-[150px] bg-white text-secondary border-secondary"
                     >
-                        DOWNLOAD
+                        <div class="flex items-center justify-center">
+                            <span> CSV Template </span>
+                        </div>
                     </button>
                 </div>
             </div>
