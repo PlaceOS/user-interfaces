@@ -144,7 +144,7 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
-    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh'],
+    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
     can_deliver: true,
     general,
     help,
@@ -167,7 +167,6 @@ const app: any = {
         'user': { level: 'bld-01_lvl-10', centered_at: 'table-10.008' }
     }
 };
-
 /**
  * ROOT SETTIGNS
  */

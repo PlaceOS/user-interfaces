@@ -1,11 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    forwardRef,
-    QueryList,
-    ViewChildren,
-} from '@angular/core';
+import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -14,16 +8,18 @@ import {
     Validators,
 } from '@angular/forms';
 import { BaseClass } from '@placeos/common';
-import { addYears, format, setMonth } from 'date-fns';
+import { addYears, setMonth } from 'date-fns';
 
 export interface PaymentCardDetails {
     card_number: string;
     cardholder: string;
     cvv: string;
+    exp_month: string;
+    exp_year: string;
 }
 
 const BLANK_CARD = { card_number: '                ', cardholder: '', cvv: '' };
-const DATE_PIPE = new DatePipe('en-us', '')
+const DATE_PIPE = new DatePipe('en-us', '');
 
 @Component({
     selector: 'card-input-field',
@@ -31,15 +27,21 @@ const DATE_PIPE = new DatePipe('en-us', '')
         <form [formGroup]="details" (window:keyup)="onInput($event)">
             <div class="flex flex-col">
                 <label for="card-number">Card Number</label>
-                <div name="card-number" class="flex items-center mb-2">
-                    <div
-                        #card_number_digit
-                        tabindex="0"
-                        class="w-5 h-10 flex-1 flex items-center justify-center border-y border-solid border-gray-200 focus:outline-2 focus:outline focus:border-black"
-                        *ngFor="let _ of digits; let i = index"
-                    >
-                        {{ details.value.card_number![i] || '' }}
-                    </div>
+                <div
+                    tabindex="0"
+                    class="border border-gray-200 p-2 h-12 mb-4 focus-within:shadow focus-within:border-black flex items-center font-mono w-full rounded relative"
+                    (focus)="focusInput()"
+                >
+                    <pre class="flex-1">{{ card_display }}</pre>
+                    <input
+                        #input
+                        class="hidden absolute"
+                        type="tel"
+                        [value]="details.value.card_number?.trim()"
+                        (keydown)="(false)"
+                        maxlength="17"
+                    />
+                    <img *ngIf="card_type" [src]="'assets/icons/' + card_type + '.svg'" class="h-8" />
                 </div>
             </div>
             <div class="flex flex-col flex-1">
@@ -57,9 +59,15 @@ const DATE_PIPE = new DatePipe('en-us', '')
                 <div class="flex flex-col flex-1 w-1/4">
                     <label for="cardholder">Expiry Month</label>
                     <mat-form-field appearance="outline">
-                        <mat-select placeholder="MM">
-                            <mat-option *ngFor="let item of months" [value]="item[0]">
-                                {{ item[1] }} ({{item[0]}})
+                        <mat-select
+                            placeholder="MM"
+                            formControlName="exp_month"
+                        >
+                            <mat-option
+                                *ngFor="let item of months"
+                                [value]="item[0]"
+                            >
+                                {{ item[1] }} ({{ item[0] }})
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -67,8 +75,15 @@ const DATE_PIPE = new DatePipe('en-us', '')
                 <div class="flex flex-col flex-1 w-1/4">
                     <label for="cardholder">Expiry Year</label>
                     <mat-form-field appearance="outline">
-                        <mat-select placeholder="YYYY">
-                            <mat-option *ngFor="let item of years" [value]="item">{{ item }}</mat-option>
+                        <mat-select
+                            placeholder="YYYY"
+                            formControlName="exp_year"
+                        >
+                            <mat-option
+                                *ngFor="let item of years"
+                                [value]="item"
+                                >{{ item }}</mat-option
+                            >
                         </mat-select>
                     </mat-form-field>
                 </div>
@@ -88,22 +103,6 @@ const DATE_PIPE = new DatePipe('en-us', '')
     `,
     styles: [
         `
-            [name='card-number'] div:nth-child(4n + 1):not(:first-child) {
-                margin-left: 0.25rem !important;
-            }
-
-            [name='card-number'] div:nth-child(4n) {
-                border-right-width: 1px;
-                border-top-right-radius: 4px;
-                border-bottom-right-radius: 4px;
-            }
-
-            [name='card-number'] div:nth-child(4n + 1) {
-                border-top-left-radius: 4px;
-                border-bottom-left-radius: 4px;
-                border-left-width: 1px;
-            }
-
             mat-form-field {
                 height: 3.25rem;
             }
@@ -123,10 +122,10 @@ export class CardInputFieldComponent
     implements ControlValueAccessor
 {
     public details = new FormGroup({
-        card_number: new FormControl('                '),
+        card_number: new FormControl(Array(16).fill('X').join()),
         cardholder: new FormControl(''),
-        expiry_month: new FormControl(''),
-        expiry_year: new FormControl(''),
+        exp_month: new FormControl(''),
+        exp_year: new FormControl(''),
         cvv: new FormControl('', [
             Validators.minLength(3),
             Validators.maxLength(4),
@@ -134,25 +133,72 @@ export class CardInputFieldComponent
     });
     public disabled = false;
 
-    public readonly months = Array(12).fill(0).map((_, idx) => [DATE_PIPE.transform(setMonth(Date.now(), idx), 'MM'), DATE_PIPE.transform(setMonth(Date.now(), idx), 'MMM')]);
-    public readonly years = Array(12).fill(0).map((_, idx) => DATE_PIPE.transform(addYears(Date.now(), idx), 'yyyy'));
+    public readonly months = Array(12)
+        .fill(0)
+        .map((_, idx) => [
+            DATE_PIPE.transform(setMonth(Date.now(), idx), 'MM'),
+            DATE_PIPE.transform(setMonth(Date.now(), idx), 'MMM'),
+        ]);
+    public readonly years = Array(12)
+        .fill(0)
+        .map((_, idx) =>
+            DATE_PIPE.transform(addYears(Date.now(), idx), 'yyyy')
+        );
     public readonly digits = Array(16).fill(0);
+    private _index = 0;
 
-    @ViewChildren('card_number_digit') private _digit_el_list =
-        {} as QueryList<ElementRef>;
+    @ViewChild('input', { static: true }) private _input_el!: ElementRef<HTMLInputElement>;
 
     private _onChange?: (_: PaymentCardDetails) => void;
     private _onTouch?: (_: PaymentCardDetails) => void;
 
+    public get is_amex() {
+        const no = this.details.value?.card_number || '';
+        return no.startsWith('3');
+    }
+
+    public get card_type() {
+        const no = this.details.value?.card_number || '';
+        if (no.startsWith('3')) return 'amex';
+        if (no.startsWith('4')) return 'visa';
+        if (no.startsWith('5')) return 'mastercard';
+        return '';
+    }
+
+    public get card_display() {
+        let no = this.details.value?.card_number || '';
+        if (this.card_focused)
+            no =
+                no.substring(0, this._index) +
+                '⯐' +
+                no.substring(this._index + 1);
+        return this.is_amex
+            ? `${no.substring(0, 4)}-${no.substring(4, 10)}-${no.substring(10)}`
+            : `${no.substring(0, 4)}-${no.substring(4, 8)}-${no.substring(
+                  8,
+                  12
+              )}-${no.substring(12)}`;
+    }
+
+    public get card_focused() {
+        return (
+            document.activeElement === this._input_el.nativeElement ||
+            document.activeElement ===
+                this._input_el.nativeElement.parentElement
+        );
+    }
+
+    public focusInput() {
+        this._input_el.nativeElement.focus();
+        this._index = this._input_el.nativeElement.selectionStart || 0;
+    }
+
     public onInput(event: KeyboardEvent) {
-        if (!event || !this._digit_el_list.length || !document.activeElement)
-            return;
-        const idx = this._digit_el_list
-            .toArray()
-            .findIndex((el) => el?.nativeElement === document.activeElement);
-        if (idx < 0) return;
+        if (!event || !this.card_focused) return;
+        const idx = this._index;
+        if (idx < 0 || idx > 16) return;
         let card_number = this.details.value.card_number!;
-        if (event.code.startsWith('Digit') || event.code.startsWith('Numpad')) {
+        if ((event.code.startsWith('Digit') || event.code.startsWith('Numpad')) && idx < (this.is_amex ? 15 : 16)) {
             card_number =
                 card_number.substring(0, idx) +
                 event.key +
@@ -171,12 +217,11 @@ export class CardInputFieldComponent
             this._focusChange(idx, -1);
         } else if (event.code === 'ArrowRight' && card_number[idx] !== ' ') {
             this._focusChange(idx, 1);
-        } 
-
+        }
     }
 
     private _focusChange(idx: number, dir: 1 | -1) {
-        this._digit_el_list.get(idx + dir)?.nativeElement.focus();
+        this._index = Math.min(16, Math.max(0, idx + dir));
     }
 
     /**
