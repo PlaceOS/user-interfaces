@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import {
     MatBottomSheet,
-    MatBottomSheetRef,
+    MatBottomSheetRef
 } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
-    notifyError,
-    SettingsService,
+    notifyError
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -18,7 +17,9 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
     selector: 'new-desk-flow-form',
     styles: [],
     template: `
-        <div class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto">
+        <div
+            class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto"
+        >
             <div
                 class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
             >
@@ -28,7 +29,9 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                     Book Desk
                 </h2>
                 <new-desk-form-details [form]="form"></new-desk-form-details>
-                <div class="sm:mb-2 border-b border-gray-300 dark:border-neutral-500 w-full"></div>
+                <div
+                    class="sm:mb-2 border-b border-gray-300 dark:border-neutral-500 w-full"
+                ></div>
                 <section
                     class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"
                 >
@@ -36,8 +39,8 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         mat-button
                         confirm
                         class="w-full sm:w-auto"
-                        [disabled]="!form.valid"
                         (click)="viewConfirm()"
+                        [disabled]="!form.valid"
                     >
                         Confirm Meeting
                     </button>
@@ -81,7 +84,6 @@ export class NewDeskFlowFormComponent implements OnInit {
         private _state: BookingFormService,
         private _router: Router,
         private _org: OrganisationService,
-        private _settings: SettingsService,
         private _bottom_sheet: MatBottomSheet
     ) {}
 

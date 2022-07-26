@@ -43,12 +43,13 @@ import { addDays, endOfDay } from 'date-fns';
                 <h2 class="text-lg font-medium">Details</h2>
                 <!-- Building -->
                 <div
-                    *ngIf="(buildings | async)?.length > 1"
+                    *ngIf="(buildings | async)?.length"
                     class="flex-1 min-w-[256px] flex flex-col"
                 >
                     <label>Building</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
+                            name="building"
                             placeholder="Select building"
                             [(ngModel)]="building"
                             (ngModelChange)="
@@ -105,6 +106,7 @@ import { addDays, endOfDay } from 'date-fns';
                     <div class="flex-1 w-1/3">
                         <label>Start Time</label>
                         <a-time-field
+                            name="start-time"
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"

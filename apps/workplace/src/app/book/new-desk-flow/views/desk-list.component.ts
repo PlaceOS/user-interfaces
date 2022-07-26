@@ -31,6 +31,7 @@ import { Desk } from '@placeos/organisation';
                     class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
                 >
                     <button
+                        select
                         matRipple
                         class="w-full h-full flex"
                         (click)="selectDesk(desk)"
