@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1658385683379,
+  "timestamp": 1658818379225,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -47,6 +47,7 @@
       },
       "urls": [
         "./assets/asset_success.svg",
+        "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
         "./assets/icons/car-filled.svg",
@@ -65,6 +66,7 @@
         "./assets/icons/icon-512x512.png",
         "./assets/icons/icon-72x72.png",
         "./assets/icons/icon-96x96.png",
+        "./assets/icons/mastercard.svg",
         "./assets/icons/meeting-room-filled.svg",
         "./assets/icons/meeting-room-outline.svg",
         "./assets/icons/more-filled.svg",
@@ -75,6 +77,7 @@
         "./assets/icons/success.svg",
         "./assets/icons/today-filled.svg",
         "./assets/icons/today-outline.svg",
+        "./assets/icons/visa.svg",
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_1.svg",
@@ -109,6 +112,7 @@
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "d33f0db1dd713ec65e5a04f08f5e43b38d83011e",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "fa6fafc59eccfa4dd8dbbec38dcec4e97d385a23",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
+    "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -127,6 +131,7 @@
     "./assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
     "./assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
     "./assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
+    "./assets/icons/mastercard.svg": "79fcc68055a5038b0ab81cecd407496fdfd350c9",
     "./assets/icons/meeting-room-filled.svg": "cdc43c2a31283ba4bbe5f8c32169dd057e6e7065",
     "./assets/icons/meeting-room-outline.svg": "0f308c70593945497175a4c6becf8237d0ddea10",
     "./assets/icons/more-filled.svg": "a736dcf0bd45c84f52e1f19e8fd709267a60a114",
@@ -137,6 +142,7 @@
     "./assets/icons/success.svg": "9bbd26dad202b68c446ffae4495588e6dd177573",
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
+    "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -160,11 +166,11 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "1fdca38fd4a60dc42d8cbe0ab4e54721e1dce6e8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "f0bbd2085c9acda55f389fb465a92d12acf6997a",
-    "./main.js": "6cb5252eedee5b52e49d89d7b56b7298de51328d",
+    "./main.js": "fe13e8dbcea55be77ad6e427e5c9a68a31dbfc73",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "3041add7aadf3168160964145e9bfc1b73be8bd6",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "707ea54d66441d4e5434020bdfac87e649b0932b",
+    "./styles.css": "290d1d4b850d7be14e004ce8d3a5d6a69857da16",
     "./vendor.js": "498e10997d6897344e9c3cb78e62ecf5dfef8c0c"
   },
   "navigationUrls": [
