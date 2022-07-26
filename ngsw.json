@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1658385656949,
+  "timestamp": 1658818426429,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -29,6 +29,7 @@
         "ignoreVary": true
       },
       "urls": [
+        "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
         "./assets/icons/car-filled.svg",
@@ -47,6 +48,7 @@
         "./assets/icons/icon-512x512.png",
         "./assets/icons/icon-72x72.png",
         "./assets/icons/icon-96x96.png",
+        "./assets/icons/mastercard.svg",
         "./assets/icons/meeting-room-filled.svg",
         "./assets/icons/meeting-room-outline.svg",
         "./assets/icons/more-filled.svg",
@@ -57,6 +59,7 @@
         "./assets/icons/success.svg",
         "./assets/icons/today-filled.svg",
         "./assets/icons/today-outline.svg",
+        "./assets/icons/visa.svg",
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_1.svg",
@@ -77,6 +80,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -95,6 +99,7 @@
     "./assets/icons/icon-512x512.png": "559d9c4318b45a1f2b10596bbb4c960fe521dbcc",
     "./assets/icons/icon-72x72.png": "c457e56089a36952cd67156f9996bc4ce54a5ed9",
     "./assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
+    "./assets/icons/mastercard.svg": "79fcc68055a5038b0ab81cecd407496fdfd350c9",
     "./assets/icons/meeting-room-filled.svg": "cdc43c2a31283ba4bbe5f8c32169dd057e6e7065",
     "./assets/icons/meeting-room-outline.svg": "0f308c70593945497175a4c6becf8237d0ddea10",
     "./assets/icons/more-filled.svg": "a736dcf0bd45c84f52e1f19e8fd709267a60a114",
@@ -105,6 +110,7 @@
     "./assets/icons/success.svg": "9bbd26dad202b68c446ffae4495588e6dd177573",
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
+    "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -121,11 +127,11 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "793644a344f39901fd78b754e9ff0967a6779178",
-    "./main.js": "d0c78d4f34979c5f96e407f1dbf2b90107ed0bd5",
+    "./main.js": "97d1edac37006881dcfff084b953da6ec29d9bbc",
     "./manifest.webmanifest": "f23567bd46672c5628059833da39da05adf508d6",
     "./polyfills.js": "ae8805b42ce97030569219e855c040f34562b2b9",
     "./runtime.js": "5a8f6f7dd76b0eab08d1857e135ab9614b029c3e",
-    "./styles.css": "036082d5ea14748e8e024fb4c90ab5fe1c990bf2"
+    "./styles.css": "4a7c4eea45ab404445601dfd2895050ffdcb00c7"
   },
   "navigationUrls": [
     {
