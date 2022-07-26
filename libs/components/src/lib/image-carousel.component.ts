@@ -6,7 +6,7 @@ import { Component, Input } from '@angular/core';
         <div class="h-full w-full relative overflow-hidden flex">
             <div
                 image
-                class="h-full min-w-full relative flex items-center justify-center p-8"
+                class="h-full min-w-full relative flex items-center justify-center overflow-hidden"
                 *ngFor="let image of images"
                 [style.transform]="'translateX(-' + offset * 100 + '%)'"
             >
