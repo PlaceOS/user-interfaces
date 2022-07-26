@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Booking, queryBookings } from '@placeos/bookings';
+import { queryCalendars } from '@placeos/calendar';
 import { BaseClass, timePeriodsIntersect, unique } from '@placeos/common';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
     map,
     mergeMap,
     shareReplay,
+    switchMap,
     tap,
 } from 'rxjs/operators';
 
@@ -34,6 +36,8 @@ export class ScheduleStateService extends BaseClass {
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
     public readonly schedule = this._loading.asObservable();
+
+    public readonly calendars = timer(1000).pipe(switchMap(_ => queryCalendars()), tap(_ => console.log('Calendars:', _)), shareReplay(1));
 
     public readonly events: Observable<BookingLike[]> = combineLatest([
         this._options,

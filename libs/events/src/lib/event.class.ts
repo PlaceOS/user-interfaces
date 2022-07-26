@@ -1,4 +1,4 @@
-import { HashMap, Identity, unique } from '@placeos/common';
+import { HashMap, Identity, removeEmptyFields, unique } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
@@ -249,6 +249,7 @@ export class CalendarEvent {
         delete obj.date;
         delete obj.duration;
         delete obj.status;
+        removeEmptyFields(obj);
         return obj;
     }
 

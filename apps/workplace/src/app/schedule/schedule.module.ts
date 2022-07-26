@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
+import { SharedUsersModule } from '@placeos/users';
 import { SharedComponentModule } from '../components/shared.module';
 import { ScheduleListItemComponent } from './schedule-list-item.component';
 import { ScheduleListComponent } from './schedule-list.component';
@@ -35,6 +36,7 @@ const ROUTES: Route[] = [
         CommonModule,
         FormsModule,
         SharedComponentModule,
+        SharedUsersModule,
         ScrollingModule,
         RouterModule.forChild(ROUTES),
     ],

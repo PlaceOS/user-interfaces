@@ -213,7 +213,8 @@ export class OrganisationService {
             );
         }
         if (!this.building?.id && buildings?.length > 0) {
-            this.building = buildings[0];
+            const bld_id = this._service.get('app.default_building');
+            this.building = buildings.find(({ id }) => id === bld_id) || buildings[0];
         }
     }
 
