@@ -31,7 +31,7 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
         <div
             class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
         >
-            <mat-form-field appearance="outline" class="w-full h-[3.25rem]">
+            <mat-form-field levels appearance="outline" class="w-full h-[3.25rem]">
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
