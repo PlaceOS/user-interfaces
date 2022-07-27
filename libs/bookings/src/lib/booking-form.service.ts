@@ -27,7 +27,7 @@ import {
 } from 'rxjs/operators';
 
 import { User } from 'libs/users/src/lib/user.class';
-import { Booking } from './booking.class';
+import { Booking, BookingType } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
@@ -464,7 +464,7 @@ export class BookingFormService extends BaseClass {
     /** Check if the given resource is available for the selected user to book */
     private async checkResourceAvailable(
         { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
-        type: string
+        type: BookingType
     ) {
         duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
