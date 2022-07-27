@@ -20,7 +20,7 @@ describe('Space', () => {
         expect(space.zones).toEqual([]);
         expect(space.support_url).toBe('');
         expect(space.map_id).toBe('');
-        expect(space.image).toBe('');
+        expect(space.images).toBe([]);
         space = new Space({
             id: 'test',
             name: 'Space',
@@ -32,7 +32,7 @@ describe('Space', () => {
             zones: ['zone-bld-1'],
             support_url: 'assets/support.html',
             map_id: 'area-space',
-            image: 'assets/img/space.png',
+            images: ['assets/img/space.png'],
         });
         expect(space.id).toBe('test');
         expect(space.name).toBe('Space');
@@ -44,6 +44,6 @@ describe('Space', () => {
         expect(space.zones).toEqual(['zone-bld-1']);
         expect(space.support_url).toBe('assets/support.html');
         expect(space.map_id).toBe('area-space');
-        expect(space.image).toBe('assets/img/space.png');
+        expect(space.images).toContain('assets/img/space.png');
     });
 });
