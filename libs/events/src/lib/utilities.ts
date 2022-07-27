@@ -148,6 +148,7 @@ export function newCalendarEventFromBooking(booking: Booking) {
     return new CalendarEvent({
         ...booking,
         ...booking.extension_data,
+        id: booking.id || booking.extension_data.id,
         host: booking.user_email,
     } as any);
 }

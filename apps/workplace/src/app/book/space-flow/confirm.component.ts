@@ -27,7 +27,7 @@ import { EventFormService } from '@placeos/events';
             <div
                 class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
             >
-                <div class="p-2 rounded-full bg-gray-300 mr-2">
+                <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                     <app-icon>event</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -50,7 +50,7 @@ import { EventFormService } from '@placeos/events';
             <div
                 class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
             >
-                <div class="p-2 rounded-full bg-gray-300 mr-2">
+                <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                     <app-icon>schedule</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -70,7 +70,7 @@ import { EventFormService } from '@placeos/events';
             </div>
             <div class="border-b border-gray-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>place</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -121,7 +121,7 @@ import { EventFormService } from '@placeos/events';
             </div>
             <div class="border-b border-gray-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>group</app-icon>
                     </div>
                     <div class="flex-1 truncate">

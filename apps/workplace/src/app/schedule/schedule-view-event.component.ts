@@ -6,16 +6,20 @@ import {
     notifyError,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
 } from '@placeos/common';
 import {
     CalendarEvent,
     EventFormService,
+    newCalendarEventFromBooking,
     removeEvent,
     showEvent,
 } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { formatDuration } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
+import { removeBooking, showBooking } from '@placeos/bookings';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'schedule-view-event',
@@ -43,7 +47,9 @@ import { MapLocateModalComponent } from '@placeos/components';
                 <h2 class="text-xl uppercase font-medium w-full my-4">
                     {{ event.title }}
                 </h2>
-                <div class="flex items-center py-2 space-x-2 w-full !border-none">
+                <div
+                    class="flex items-center py-2 space-x-2 w-full !border-none"
+                >
                     <div
                         class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
                     >
@@ -276,7 +282,8 @@ export class ScheduleViewEventComponent extends BaseClass {
         private _router: Router,
         private _dialog: MatDialog,
         private _events: EventFormService,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -286,7 +293,11 @@ export class ScheduleViewEventComponent extends BaseClass {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    this.event = await showEvent(params.get('id')).toPromise();
+                    this.event = this._settings.get('app.no_user_calendar')
+                        ? await showBooking(params.get('id'))
+                              .pipe(map((_) => newCalendarEventFromBooking(_)))
+                              .toPromise()
+                        : await showEvent(params.get('id')).toPromise();
                 }
             })
         );
@@ -326,7 +337,9 @@ export class ScheduleViewEventComponent extends BaseClass {
         );
         if (details.reason !== 'done') return;
         details.loading('Removing event...');
-        await removeEvent(this.event.id)
+        await (this._settings.get('app.no_user_calendar')
+            ? removeBooking
+            : removeEvent)(this.event.id)
             .toPromise()
             .catch((e) => {
                 details.loading('');
