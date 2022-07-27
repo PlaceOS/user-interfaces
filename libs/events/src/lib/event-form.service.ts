@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     BaseClass,
@@ -24,7 +23,6 @@ import {
     filter,
     map,
     shareReplay,
-    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -326,10 +324,10 @@ export class EventFormService extends BaseClass {
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         const space_list: any[] = spaces.length
             ? await (this.has_calendar
-                  ? queryResourceAvailability(space_ids, {
+                  ? (queryResourceAvailability(space_ids, {
                         ...query,
                         type: 'room',
-                    }) as any
+                    }) as any)
                   : querySpaceAvailability({
                         ...query,
                         system_ids: space_ids.join(','),
