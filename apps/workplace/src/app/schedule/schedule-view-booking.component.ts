@@ -34,10 +34,10 @@ import { MapLocateModalComponent } from '@placeos/components';
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-gray-200 p-4 overflow-auto"
+            class="flex-1 w-full flex flex-col items-center bg-gray-200 dark:bg-neutral-600 p-4 overflow-auto"
         >
             <div
-                class="max-w-full w-[28rem] bg-white border border-gray-300 px-4 pb-4"
+                class="max-w-full w-[28rem] bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 px-4 pb-4"
                 *ngIf="event; else load_state"
             >
                 <h2 class="text-xl uppercase font-medium w-full my-4">

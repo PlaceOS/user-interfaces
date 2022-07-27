@@ -94,8 +94,11 @@ a[button],
         
         &.inverse {
             background: none;
-            border-color: #fff;
-            color: #fff;
+            --color: #fff;
+        }
+
+        &.error {
+            --color: var(--error)
         }
     }
 
@@ -690,6 +693,10 @@ custom-table[header-dark] {
         }
         .ql-blank::before {
             color: #fff8;
+        }
+
+        .mat-menu-panel {
+            @apply bg-neutral-800;
         }
     }
     mat-bottom-sheet-container {

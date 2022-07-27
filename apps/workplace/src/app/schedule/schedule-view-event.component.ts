@@ -34,41 +34,45 @@ import { MapLocateModalComponent } from '@placeos/components';
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-gray-200 p-4 overflow-auto"
+            class="flex-1 w-full flex flex-col items-center bg-gray-200 dark:bg-neutral-600 p-4 overflow-auto"
         >
             <div
-                class="max-w-full w-[28rem] bg-white border border-gray-300 px-4 pb-4"
+                class="max-w-full w-[28rem] bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 px-4 pb-4 divide-y divide-gray-300 dark:divide-neutral-500"
                 *ngIf="event; else load_state"
             >
                 <h2 class="text-xl uppercase font-medium w-full my-4">
                     {{ event.title }}
                 </h2>
-                <div
-                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
-                >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                <div class="flex items-center py-2 space-x-2 w-full !border-none">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
-                        {{ event.date | date: 'longDate' }} <span *ngIf="!event.all_day">at
-                        {{ event.date | date: 'shortTime' }} ~
-                        {{
-                            event.date + event.duration * 60 * 1000
-                                | date: 'shortTime'
-                        }}</span>
+                        {{ event.date | date: 'longDate' }}
+                        <span *ngIf="!event.all_day"
+                            >at {{ event.date | date: 'shortTime' }} ~
+                            {{
+                                event.date + event.duration * 60 * 1000
+                                    | date: 'shortTime'
+                            }}</span
+                        >
                     </div>
                 </div>
-                <div
-                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
-                >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                <div class="flex items-center py-2 space-x-2 w-full">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>schedule</app-icon>
                     </div>
                     <div class="flex-1 truncate">{{ duration }}</div>
                 </div>
-                <div class="border-b border-gray-200 w-full">
+                <div class="w-full">
                     <div class="flex items-center py-2 space-x-2 ">
-                        <div class="p-2 rounded-full bg-gray-300 mr-2">
+                        <div
+                            class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                        >
                             <app-icon>place</app-icon>
                         </div>
                         <div class="flex-1 truncate">
@@ -125,9 +129,11 @@ import { MapLocateModalComponent } from '@placeos/components';
                         </div>
                     </div>
                 </div>
-                <div class="border-b border-gray-200 w-full">
+                <div class="w-full">
                     <div class="flex items-center py-2 space-x-2 ">
-                        <div class="p-2 rounded-full bg-gray-300 mr-2">
+                        <div
+                            class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                        >
                             <app-icon>group</app-icon>
                         </div>
                         <div class="flex-1 truncate">
@@ -177,20 +183,26 @@ import { MapLocateModalComponent } from '@placeos/components';
                             ></span>
                         </div>
                     </div>
-                <div
-                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
-                    *ngIf="event.body"
-                >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
-                        <app-icon>event_note</app-icon>
-                    </div>
-                    <div class="flex-1 w-1/2 overflow-auto" notes [innerHTML]="event.body | sanitize">
-
+                </div>
+                <div class="w-full">
+                    <div
+                        class="flex items-center py-2 space-x-2 w-full"
+                        *ngIf="event.body"
+                    >
+                        <div
+                            class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                        >
+                            <app-icon>event_note</app-icon>
+                        </div>
+                        <div
+                            class="flex-1 w-1/2 overflow-auto"
+                            notes
+                            [innerHTML]="event.body | sanitize"
+                        ></div>
                     </div>
                 </div>
-                </div>
                 <div
-                    class="flex items-center justify-center space-x-2 mt-4"
+                    class="flex items-center justify-center space-x-2 mt-4 !border-none"
                     *ngIf="event.state !== 'done'"
                 >
                     <button
@@ -251,10 +263,12 @@ export class ScheduleViewEventComponent extends BaseClass {
     }
 
     public get duration() {
-        return this.event.all_day ? 'All Day' : formatDuration({
-            hours: Math.floor(this.event?.duration / 60),
-            minutes: this.event?.duration % 60,
-        });
+        return this.event.all_day
+            ? 'All Day'
+            : formatDuration({
+                  hours: Math.floor(this.event?.duration / 60),
+                  minutes: this.event?.duration % 60,
+              });
     }
 
     constructor(
