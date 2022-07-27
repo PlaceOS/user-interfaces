@@ -203,6 +203,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     private async locateSpace(id: string) {
         const space = await this._space_pipe.transform(id);
+        if (!space) return;
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             track_id: `locate-${space.id}`,

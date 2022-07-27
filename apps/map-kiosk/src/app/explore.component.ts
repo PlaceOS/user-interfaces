@@ -22,6 +22,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff, User } from '@placeos/users';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { first, take } from 'rxjs/operators';
 
 @Component({
@@ -139,7 +140,7 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
-    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
+    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService, SpacePipe],
 })
 export class ExploreComponent extends BaseClass implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
@@ -193,7 +194,8 @@ export class ExploreComponent extends BaseClass implements OnInit {
         private _spaces: SpacesService,
         private _dialog: MatDialog,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _space_pipe: SpacePipe
     ) {
         super();
     }
@@ -221,9 +223,7 @@ export class ExploreComponent extends BaseClass implements OnInit {
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
-                    const space = this._spaces.find(params.get('space'));
-                    if (!space) return;
-                    this.locateSpace(space);
+                    this.locateSpace(params.get('space'));
                 } else if (params.has('user')) {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
@@ -252,7 +252,9 @@ export class ExploreComponent extends BaseClass implements OnInit {
         );
     }
 
-    private locateSpace(space: Space) {
+    private async locateSpace(id: string) {
+        const space = await this._space_pipe.transform(id);
+        if (!space) return;
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             location: space.map_id,
