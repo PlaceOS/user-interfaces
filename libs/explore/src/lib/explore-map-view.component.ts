@@ -18,6 +18,7 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 const EMPTY = [];
 
@@ -82,7 +83,7 @@ const EMPTY = [];
             }
         `,
     ],
-    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
+    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService, SpacePipe],
 })
 export class ExploreMapViewComponent extends BaseClass implements OnInit {
     /** Observable for the active map */
@@ -130,7 +131,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         private _router: Router,
         private _spaces: SpacesService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _space_pipe: SpacePipe
     ) {
         super();
     }
@@ -148,9 +150,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
-                    const space = this._spaces.find(params.get('space'));
-                    if (!space) return;
-                    this.locateSpace(space);
+                    this.locateSpace(params.get('space'));
                 } else if (params.has('user')) {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
@@ -201,7 +201,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         );
     }
 
-    private locateSpace(space: Space) {
+    private async locateSpace(id: string) {
+        const space = await this._space_pipe.transform(id);
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             track_id: `locate-${space.id}`,

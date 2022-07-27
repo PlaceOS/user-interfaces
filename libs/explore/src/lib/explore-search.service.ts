@@ -10,9 +10,9 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { SpacesService } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
-import { getModule } from '@placeos/ts-client';
+import { getModule, querySystems } from '@placeos/ts-client';
 import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -48,11 +48,34 @@ export class ExploreSearchService {
         catchError(() => [])
     );
 
+    private _space_search: Observable<Space[]> = this._filter.pipe(
+        debounceTime(400),
+        tap(() => this._loading.next(true)),
+        switchMap((q) =>
+            q?.length > 2
+                ? querySystems({ q }).pipe(
+                      map(({ data }) =>
+                          data.filter(_ => _.map_id).map(
+                              (_) =>
+                                  new Space({
+                                      ..._,
+                                      level: this._org.levelWithID(
+                                          _.zones as any
+                                      ),
+                                  } as any)
+                          )
+                      )
+                  )
+                : of([])
+        ),
+        catchError(() => [])
+    );
+
     public readonly search_results: Observable<SearchResult[]> = combineLatest([
-        this._spaces.list,
+        this._space_search,
         this._user_search,
         this._emergency_contacts,
-        this._filter
+        this._filter,
     ]).pipe(
         map(([spaces, users, contacts, filter]) => {
             const search = filter.toLowerCase();
