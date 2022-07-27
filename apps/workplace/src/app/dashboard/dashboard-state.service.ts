@@ -15,12 +15,24 @@ import {
     map,
     shareReplay,
     switchMap,
+    take,
 } from 'rxjs/operators';
-import { endOfDay } from 'date-fns';
+import { differenceInMinutes, endOfDay } from 'date-fns';
 
-import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
+import {
+    BaseClass,
+    currentUser,
+    HashMap,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { Space } from '@placeos/spaces';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventFormService,
+    newCalendarEventFromBooking,
+    queryEvents,
+} from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
@@ -66,8 +78,10 @@ export class DashboardStateService extends BaseClass {
     public level_occupancy = this._level_occupancy.asObservable();
 
     constructor(
+        private _settings: SettingsService,
         private _calendar: CalendarService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _event_form: EventFormService
     ) {
         super();
         this.init();
@@ -158,23 +172,11 @@ export class DashboardStateService extends BaseClass {
 
     private async updateFreeSpaces() {
         if (!this._org.building) return;
-        const period_start = Math.floor(new Date().valueOf() / 1000);
-        const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const list = await this._calendar
-            .freeBusy({
-                period_start,
-                period_end,
-                zone_ids: this._org.building.id,
-            })
-            .pipe(
-                map((_) =>
-                    _.filter(
-                        (space) =>
-                            !space.availability.length ||
-                            space.availability.find((_) => _.status !== 'busy')
-                    )
-                )
-            )
+        const mins = Math.abs(differenceInMinutes(Date.now(), endOfDay(Date.now())));
+        this._event_form.setOptions({ zone_ids: [], capacity: 0, features: [], show_fav: false });
+        this._event_form.form.patchValue({ date: Date.now(), duration: mins });
+        const list = await this._event_form.available_spaces
+            .pipe(take(1))
             .toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
@@ -183,11 +185,19 @@ export class DashboardStateService extends BaseClass {
     private async updateUpcomingEvents() {
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const events = await queryEvents({
-            period_start,
-            period_end,
-            calendars: currentUser().email,
-        })
+        const events = await (this._settings.get('app.no_user_calendar')
+            ? queryBookings({
+                  period_start,
+                  period_end,
+                  type: 'room',
+                  email: currentUser().email,
+              }).pipe(map((_) => _.map((i) => newCalendarEventFromBooking(i))))
+            : queryEvents({
+                  period_start,
+                  period_end,
+                  calendars: currentUser().email,
+              })
+        )
             .toPromise()
             .catch((_) => []);
         const bookings = await queryBookings({
