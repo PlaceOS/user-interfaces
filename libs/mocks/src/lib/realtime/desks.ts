@@ -54,6 +54,15 @@ export class MockLocationServicesModule implements HashMap {
         }
         return MAC_LOOKUP[mac_address];
     }
+
+    $locate_user(email: string, username: string) {
+        return [{
+            type: 'wireless',
+            position: { x: 0.5, y: 0.5 },
+            level: MOCK_LEVELS[randomInt(MOCK_LEVELS.length)].id,
+            priority: 0
+        }]
+    }
 }
 
 function padZero(no: number, len: number = 3) {

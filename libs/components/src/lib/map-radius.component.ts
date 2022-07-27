@@ -9,7 +9,7 @@ export interface MapRadiusData {
     fill: string;
     stroke: string;
     last_seen?: number;
-    zoom: Observable<number>;
+    zoom$: Observable<number>;
 }
 
 @Component({
@@ -28,7 +28,7 @@ export interface MapRadiusData {
                 *ngIf="message && show_message"
                 message
                 [style.top]="'-' + (radius / 2) * zoom + 'px'"
-                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col"
+                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col w-64"
             >
                 {{ message }}
                 <span *ngIf="last_seen" class="text-xs">
@@ -45,11 +45,8 @@ export interface MapRadiusData {
                 width: 100%;
             }
 
-            [name='message'] {
+            [message] {
                 transform: translate(-50%, -120%);
-            }
-
-            div {
                 animation: fade-in-top 1s;
             }
 
@@ -90,7 +87,8 @@ export class MapRadiusComponent implements OnInit {
         @Inject(MAP_FEATURE_DATA) private _details: MapRadiusData,
         private _el: ElementRef<HTMLElement>
     ) {
-        this._details.zoom.subscribe((v) =>
+        console.log('Details:', this._details);
+        this._details.zoom$?.subscribe((v) =>
             Math.max(0.5, (this.zoom = v || 1))
         );
     }
