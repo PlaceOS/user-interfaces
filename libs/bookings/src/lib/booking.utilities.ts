@@ -1,6 +1,7 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { currentUser } from '@placeos/common';
-import { endInFuture } from '@placeos/events';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { endInFuture } from 'libs/events/src/lib/validators';
 import { createViewer, getViewer, Point, removeViewer } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
 
@@ -70,4 +71,17 @@ export async function findNearbyFeature(map_url: string, centered_at: Point | st
     document.body.removeChild(element);
     removeViewer(id);
     return closest;
+}
+
+export function newBookingFromCalendarEvent(event: CalendarEvent) {
+    return new Booking({
+        id: event.id,
+        user_email: event.host,
+        asset_id: event.system?.id,
+        asset_name: event.system?.display_name || event.system?.name,
+        booking_type: 'room',
+        extension_data: {
+            ...event
+        }
+    });
 }

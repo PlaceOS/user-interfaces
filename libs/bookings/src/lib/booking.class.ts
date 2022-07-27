@@ -10,7 +10,7 @@ import {
     startOfDay,
 } from 'date-fns';
 
-export type BookingType = 'desk' | 'parking' | 'locker' | '';
+export type BookingType = 'desk' | 'parking' | 'locker' | 'room' | '';
 
 /** General purpose booking class */
 export class Booking {

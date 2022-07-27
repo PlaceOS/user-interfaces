@@ -10,6 +10,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
+import { saveBooking } from 'libs/bookings/src/lib/bookings.fn';
 import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
@@ -23,7 +24,8 @@ import {
 } from 'rxjs/operators';
 import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
-import { generateEventForm } from './utilities';
+import { generateEventForm, newCalendarEventFromBooking } from './utilities';
+import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -194,15 +196,15 @@ export class EventFormService extends BaseClass {
             form.markAllAsTouched();
             const event = this.event || new CalendarEvent();
             if (!form.valid && !force)
-                return reject(`Some form fields are invalid. [${getInvalidFields(
-                    form
-                ).join(', ')}]`);
+                return reject(
+                    `Some form fields are invalid. [${getInvalidFields(
+                        form
+                    ).join(', ')}]`
+                );
             const { id, host, date, duration, creator } = form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             if (
-                (!id ||
-                    date !== event.date ||
-                    duration !== event.duration) &&
+                (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
             ) {
                 const start = getUnixTime(event.date);
@@ -210,10 +212,8 @@ export class EventFormService extends BaseClass {
                     spaces,
                     date,
                     duration,
-                    id
-                        ? { start, end: start + event.duration * 60 }
-                        : undefined
-                ).catch(_ => reject(_));
+                    id ? { start, end: start + event.duration * 60 } : undefined
+                ).catch((_) => reject(_));
             }
             const is_owner =
                 host === currentUser()?.email ||
@@ -224,26 +224,35 @@ export class EventFormService extends BaseClass {
                     ? { calendar: host || creator }
                     : { system_id: space_id }
                 : {};
-            this.subscription(
-                'post-event-form',
-                saveEvent(
-                    new CalendarEvent(this._form.getValue().value),
-                    query
-                ).subscribe(
-                    (result) => {
-                        this.clearForm();
-                        this.last_success = result;
-                        sessionStorage.setItem(
-                            'PLACEOS.last_booked_event',
-                            JSON.stringify(result)
-                        );
-                        this.setView('success');
-                        resolve(result);
-                    },
-                    (e) => reject(e)
-                )
+            const result = await this._makeBooking(
+                new CalendarEvent(this._form.getValue().value),
+                query
+            ).catch((e) => {
+                reject(e);
+                throw e;
+            });
+            this.clearForm();
+            this.last_success = result;
+            sessionStorage.setItem(
+                'PLACEOS.last_booked_event',
+                JSON.stringify(result)
             );
+            this.setView('success');
+            resolve(result);
         });
+    }
+
+    private async _makeBooking(
+        event: CalendarEvent,
+        query: Record<string, any>
+    ) {
+        return (
+            this._settings.get('app.no_user_calendar')
+                ? saveBooking(newBookingFromCalendarEvent(event)).pipe(
+                      map((_) => newCalendarEventFromBooking(_))
+                  )
+                : saveEvent(event, query)
+        ).toPromise();
     }
 
     private async checkSelectedSpacesAreAvailable(
@@ -252,7 +261,9 @@ export class EventFormService extends BaseClass {
         duration: number,
         exclude?: { start: number; end: number }
     ) {
-        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id || s.id);
+        const space_ids = spaces.map(
+            (s) => this._spaces.find(s?.email)?.id || s.id
+        );
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),

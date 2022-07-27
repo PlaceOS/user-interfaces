@@ -17,6 +17,7 @@ import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
 import { User } from '@placeos/users';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
@@ -141,4 +142,12 @@ export function replaceBookings(
     const updated_list = filtered_list.concat(new_bookings);
     updated_list.sort((a, b) => a.date - b.date);
     return unique(updated_list, 'id');
+}
+
+export function newCalendarEventFromBooking(booking: Booking) {
+    return new CalendarEvent({
+        ...booking,
+        ...booking.extension_data,
+        host: booking.user_email,
+    } as any);
 }

@@ -695,8 +695,25 @@ custom-table[header-dark] {
             color: #fff8;
         }
 
-        .mat-menu-panel {
+        .mat-menu-panel,
+        .mat-select-panel  {
             @apply bg-neutral-800;
+        }
+
+        .mat-option-text {
+            @apply text-white;
+        }
+
+        mat-option.mat-active {
+            @apply bg-white/5;
+         }
+
+       .mat-active .mat-option-text {
+            @apply text-blue-500;
+        }
+
+        .mat-option:hover {
+            @apply bg-white/10;
         }
     }
     mat-bottom-sheet-container {
