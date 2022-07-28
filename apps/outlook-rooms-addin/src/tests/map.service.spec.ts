@@ -74,8 +74,8 @@ describe('MapService', () => {
         const room_service = spectator.inject(RoomConfirmService);
         room_service.selected_space$ = of(mockSpace);
 
-        expect(JSON.stringify(spectator.service.selected_space$)).toBe(
-            JSON.stringify(room_service.selected_space$)
+        spectator.service.selected_space$.subscribe((space) =>
+            expect(space).toBe(of(mockSpace))
         );
     });
     it('should return a list of map IDs with no duplicates', async () => {
