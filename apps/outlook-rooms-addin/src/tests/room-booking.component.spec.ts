@@ -61,9 +61,9 @@ describe('RoomBookingComponent', () => {
         });
         event_service.storeForm.mockImplementation((_) => {
             if (
-                event_service.form.controls.title == null ||
-                event_service.form.controls.date == null ||
-                event_service.form.controls.duration == null
+                !event_service.form.contains('title') ||
+                !event_service.form.contains('date') ||
+                !event_service.form.contains('duration')
             )
                 return null;
         });

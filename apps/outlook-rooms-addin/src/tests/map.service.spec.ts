@@ -125,12 +125,10 @@ describe('MapService', () => {
 
         expect(map_actions.length).toBe(spaces_count.length);
 
-        map_actions.forEach((map) => {
-            expect(map.action).toBe('click');
-        });
+        expect(map_actions.every((map) => map.action == 'click')).toBeTruthy();
 
         map_actions.forEach((map) => {
-            expect(typeof map.callback).toBe('function');
+            expect(map.callback).toBeInstanceOf(Function);
         });
     });
     it('should contain a method to open a room tile when clicked', async () => {

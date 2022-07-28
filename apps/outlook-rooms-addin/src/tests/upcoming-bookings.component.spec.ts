@@ -136,7 +136,6 @@ describe('UpcomingBookingsComponent', () => {
 
         expect(service_bookings.length).toBe(4);
 
-        console.log(bookings_displayed, 'bookings returned');
         expect(bookings_displayed.length).toBe(0);
         bookings_service.events.subscribe((events) =>
             events.forEach((event) =>
