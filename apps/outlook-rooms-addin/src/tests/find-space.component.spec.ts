@@ -161,21 +161,20 @@ describe('FindSpaceComponent', () => {
         mat_bottom_sheet.open.mockImplementation((template, config) => {
             return '' as any;
         });
-        const open_filter_spy = jest.spyOn(mat_bottom_sheet, 'open');
         const component_filter_spy = jest.spyOn(
             spectator.component,
             'openFilter'
         );
 
         expect(component_filter_spy).not.toHaveBeenCalled();
-        expect(open_filter_spy).not.toHaveBeenCalled();
+        expect(mat_bottom_sheet.open).not.toHaveBeenCalled();
         expect('button.filter-button').toContainText('Filter');
 
         spectator.click('button.filter-button');
         spectator.detectChanges();
 
         expect(component_filter_spy).toBeCalled();
-        expect(open_filter_spy).toBeCalled();
+        expect(mat_bottom_sheet.open).toBeCalled();
     });
 
     it('should open the room detail modal when List item is clicked', () => {

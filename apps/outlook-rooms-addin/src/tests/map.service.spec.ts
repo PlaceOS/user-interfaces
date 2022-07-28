@@ -151,9 +151,7 @@ describe('MapService', () => {
 
         await spectator.service.openRoomTile(mockSpace);
         expect(room_confirm_service_spy).toBeCalled();
-
-        const bottom_sheet_spy = jest.spyOn(mat_bottom_sheet, 'open');
-        expect(bottom_sheet_spy).toHaveBeenCalled();
+        expect(mat_bottom_sheet.open).toHaveBeenCalled();
     });
 
     it('should only processing map features after the map has been loaded', async () => {
