@@ -18,6 +18,7 @@ import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     debounceTime,
     distinctUntilKeyChanged,
+    filter,
     first,
     map,
     shareReplay,
@@ -75,7 +76,6 @@ export class BookingFormService extends BaseClass {
         type: 'desk',
     });
     private _form = new BehaviorSubject(generateBookingForm());
-    private _form_value = new BehaviorSubject<Partial<Booking>>({});
     private _booking = new BehaviorSubject<Booking>(null);
     private _loading = new BehaviorSubject<string>('');
 
@@ -131,17 +131,18 @@ export class BookingFormService extends BaseClass {
     public readonly available_assets = combineLatest([
         this.options,
         this.assets,
-        this._form_value,
+        this._form,
     ]).pipe(
+        filter(([_, _1, form]) => form.getRawValue().date > 0 && form.getRawValue().duration > 0),
         debounceTime(500),
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
         ),
         switchMap(([options, assets, form]) =>
             queryBookings({
-                period_start: getUnixTime(form.date),
+                period_start: getUnixTime(form.getRawValue().date),
                 period_end: getUnixTime(
-                    addMinutes(form.date, form.duration || 24 * 60)
+                    addMinutes(form.getRawValue().date, form.getRawValue().duration || 24 * 60)
                 ),
                 type: options.type,
                 zones: options.zone_id,
@@ -293,7 +294,6 @@ export class BookingFormService extends BaseClass {
             'PLACEOS.booking_form_filters',
             JSON.stringify(this._options.getValue() || {})
         );
-        this._form_value.next(this._form.getValue()?.getRawValue() || {});
     }
 
     public loadForm() {

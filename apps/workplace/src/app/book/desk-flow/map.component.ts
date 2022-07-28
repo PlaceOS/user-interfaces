@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass, formatRecurrence } from '@placeos/common';
+import { BaseClass, formatRecurrence, SettingsService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { Desk } from '@placeos/organisation';
 import { format } from 'date-fns';
@@ -43,7 +43,9 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             </mat-menu>
             <div listing class="flex flex-1 h-1/2 relative space-x-2">
                 <ul
-                    class="list-style-none w-full sm:w-[20rem] bg-gray-100 p-2 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+                    class="list-style-none w-full sm:w-[20rem] max-w-[768px] mx-auto bg-gray-100 p-2 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+                    [class.!w-full]="hide_map"
+                    [class.rounded-tl-lg]="hide_map"
                 >
                     <div class="px-2 sticky top-0 bg-gray-100 w-full z-10">
                         {{ (desks | async)?.length || '0' }} matches available
@@ -79,6 +81,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                 </ul>
                 <div
                     class="hidden sm:block flex-1 bg-gray-200 rounded-tl-lg border-l border-t border-gray-300 relative overflow-hidden h-full"
+                    *ngIf="!hide_map"
                 >
                     <i-map
                         [src]="url | async"
@@ -211,8 +214,13 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
         return this._active_desk.getValue();
     }
 
+    public get hide_map() {
+        return !!this._settings.get('app.desks.hide_map');
+    }
+
     constructor(
         private _state: BookingFormService,
+        private _settings: SettingsService,
         private _explore: ExploreStateService
     ) {
         super();
