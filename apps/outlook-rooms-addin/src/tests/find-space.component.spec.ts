@@ -168,7 +168,6 @@ describe('FindSpaceComponent', () => {
 
         expect(component_filter_spy).not.toHaveBeenCalled();
         expect(mat_bottom_sheet.open).not.toHaveBeenCalled();
-        expect('button.filter-button').toContainText('Filter');
 
         spectator.click('button.filter-button');
         spectator.detectChanges();

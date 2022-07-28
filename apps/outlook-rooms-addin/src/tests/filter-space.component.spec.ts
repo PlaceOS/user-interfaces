@@ -185,7 +185,6 @@ describe('FindSpaceComponent', () => {
             'mat-checkbox'
         );
 
-        expect('button.filter-button').toContainText('Apply Filters');
         spectator.click('button.filter-button');
         spectator.detectChanges();
 
