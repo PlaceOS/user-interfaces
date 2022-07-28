@@ -11,7 +11,7 @@ import {
     setMinutes,
     addMinutes,
 } from 'date-fns';
-import { timePeriodsIntersect, unique } from '@placeos/common';
+import { currentUser, timePeriodsIntersect, unique } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
@@ -24,7 +24,7 @@ let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     const form = new FormGroup({
         id: new FormControl(event.id),
-        host: new FormControl(event.host || event.organiser?.email || '', [Validators.required]),
+        host: new FormControl(event.host || event.organiser?.email || currentUser()?.email || '', [Validators.required]),
         organiser: new FormControl(event.organiser || new User({ email: event.host || '' }), [
             Validators.required,
         ]),
