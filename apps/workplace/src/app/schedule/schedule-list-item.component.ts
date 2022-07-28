@@ -35,7 +35,7 @@ import { BookingLike } from './schedule-state.service';
                         [class.bg-pending]="status === 'tentative'"
                         [class.bg-error]="status === 'declined'"
                     >
-                        <app-icon class="text-2xl">{{ icon }}</app-icon>
+                        <app-icon class="text-2xl" [icon]="icon"></app-icon>
                         <div class="font-normal">
                             {{
                                 item?.all_day
@@ -73,7 +73,8 @@ export class ScheduleListItemComponent {
     @Input() public item: BookingLike;
 
     public get type() {
-        return this.item instanceof Booking ? 'booking' : 'event'; 
+        return this.item instanceof Booking 
+            ? 'booking' : 'event'
     }
 
     public get has_ended() {
@@ -89,12 +90,12 @@ export class ScheduleListItemComponent {
         if (this.item.asset_id) {
             switch ((this.item as Booking).booking_type) {
                 case 'desk':
-                    return 'view_quilt';
+                    return { type: 'img', src: '/assets/img/desk.svg' } ;
                 case 'parking':
-                    return 'local_parking';
+                    return { content: 'local_parking' };
             }
         }
-        return 'event';
+        return { content: 'event'};
     }
 
     public get status() {
