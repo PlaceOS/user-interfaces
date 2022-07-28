@@ -90,7 +90,7 @@ export class ScheduleListItemComponent {
         if (this.item.asset_id) {
             switch ((this.item as Booking).booking_type) {
                 case 'desk':
-                    return { type: 'img', src: '/assets/img/desk.svg' } ;
+                    return { type: 'img', src: 'assets/img/desk.svg' } ;
                 case 'parking':
                     return { content: 'local_parking' };
             }
