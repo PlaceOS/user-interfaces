@@ -13,7 +13,7 @@ import { OrganisationService } from '@placeos/organisation';
             <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
-                [routerLink]="['/dashboard']"
+                [routerLink]="['/']"
                 routerLinkActive="text-secondary active dark:text-pink-700"
                 matTooltip="Home"
                 matTooltipPosition="below"
