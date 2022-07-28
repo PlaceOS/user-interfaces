@@ -140,6 +140,7 @@ export class CustomTooltipComponent<T = any>
     }
 
     public close() {
+        this.clearTimeout('open');
         if (this._overlay_ref) {
             this._overlay_ref.dispose();
             this._overlay_ref = null;
