@@ -108,7 +108,7 @@ describe('RoomBookingComponent', () => {
 
         spectator.component.findSpace();
         expect(event_service.form.controls.title.status).toBe('INVALID');
-        expect(event_service.form.status).toBe('INVALID');
+        expect(event_service.form.valid).toBeFalsy();
         expect(spectator.inject(Location).path()).toBe('/');
     });
 
@@ -124,7 +124,7 @@ describe('RoomBookingComponent', () => {
 
         spectator.component.findSpace();
         expect(event_service.form.controls.date.status).toBe('INVALID');
-        expect(event_service.form.status).toBe('INVALID');
+        expect(event_service.form.valid).toBeFalsy();
         expect(spectator.inject(Location).path()).toBe('/');
     });
 
@@ -141,7 +141,7 @@ describe('RoomBookingComponent', () => {
         spectator.component.findSpace();
 
         expect(event_service.form.controls.duration.status).toBe('INVALID');
-        expect(event_service.form.status).toBe('INVALID');
+        expect(event_service.form.valid).toBeFalsy();
         expect(spectator.inject(Location).path()).toBe('/');
     });
 
@@ -158,7 +158,7 @@ describe('RoomBookingComponent', () => {
 
         spectator.component.findSpace();
         await event_service.storeForm();
-        expect(event_service.form.status).toBe('VALID');
+        expect(event_service.form.valid).toBeFalsy();
         expect(spectator.inject(Location).path()).toBe('/');
     });
 });
