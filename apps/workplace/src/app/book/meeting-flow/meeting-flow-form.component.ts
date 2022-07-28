@@ -8,6 +8,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     getInvalidFields,
     notifyError,
+    SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
@@ -60,7 +61,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             ></meeting-form-details>
                         </div>
                     </section>
-                    <section class="p-2">
+                    <section class="p-2" *ngIf="!hide_attendees">
                         <h3 class="space-x-2 flex items-center">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -124,7 +125,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             ></space-list-field>
                         </div>
                     </section>
-                    <section class="p-2">
+                    <section class="p-2" *ngIf="has_catering">
                         <h3 class="space-x-2 flex items-center">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -184,7 +185,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             ></asset-list-field>
                         </div>
                     </section>
-                    <section class="p-2">
+                    <section class="p-2" *ngIf="!hide_notes">
                         <h3 class="space-x-2 flex items-center mb-4">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -239,6 +240,18 @@ export class MeetingFlowFormComponent {
         return this._state.form;
     }
 
+    public get has_catering() {
+        return !!this._settings.get('app.events.has_catering');
+    }
+
+    public get hide_notes() {
+        return !!this._settings.get('app.events.hide_notes');
+    }
+
+    public get hide_attendees() {
+        return !!this._settings.get('app.events.hide_attendees');
+    }
+
     public readonly clearForm = () => this._state.clearForm();
 
     public readonly viewConfirm = () => {
@@ -262,6 +275,7 @@ export class MeetingFlowFormComponent {
 
     constructor(
         private _state: EventFormService,
+        private _settings: SettingsService,
         private _router: Router,
         private _bottom_sheet: MatBottomSheet
     ) {}

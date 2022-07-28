@@ -71,7 +71,9 @@ const events: any = {
     breakdown: 15,
     can_book_for_others: false,
     has_catering: true,
-    allow_all_day: true
+    allow_all_day: true,
+    hide_notes: false,
+    hide_attendees: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -157,7 +159,8 @@ const app: any = {
     desks: {
         can_book_for_others: true,
         allow_groups: true,
-        auto_allocation: false
+        auto_allocation: false,
+        hide_map: false,
     },
     analytics: {
         enabled: true,

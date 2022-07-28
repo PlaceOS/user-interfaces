@@ -46,7 +46,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </div>
             </section>
-            <section class="mb-4 border-b border-gray-300">
+            <section class="mb-4 border-b border-gray-300" *ngIf="can_book_for_others || !hide_attendees">
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                     *ngIf="can_book_for_others"
@@ -59,6 +59,7 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-2"
+                    *ngIf="!hide_attendees"
                 >
                     <label for="attendees">Attendees</label>
                     <a-user-list-field
@@ -84,7 +85,7 @@ import { SettingsService } from '@placeos/common';
                             <mat-error>Meeting Subject is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col resize-y mb-4">
+                    <div class="flex flex-col resize-y mb-4" *ngIf="!hide_notes">
                         <label for="notes">Notes</label>
                         <rich-text-input
                             name="notes"
@@ -133,6 +134,14 @@ export class DetailBookSpaceFormComponent {
 
     public get hide_actions() {
         return !!this._settings.get('app.events.hide_user_actions');
+    }
+
+    public get hide_notes() {
+        return !!this._settings.get('app.events.hide_notes');
+    }
+
+    public get hide_attendees() {
+        return !!this._settings.get('app.events.hide_attendees');
     }
 
     public get can_book_for_others() {
