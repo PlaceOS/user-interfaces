@@ -133,7 +133,7 @@ export class CalendarEvent {
                         .map((s) => new Space(s)),
                 'email'
             ) || [];
-        this.title = data.title || '';
+        this.title = data.title || 'Space Booking';
         this.body = data.body || '';
         this.private = !!data.private;
         this.all_day = !!data.all_day;

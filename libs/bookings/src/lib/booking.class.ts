@@ -1,4 +1,4 @@
-import { removeEmptyFields } from '@placeos/common';
+import { capitalizeFirstLetter, removeEmptyFields } from '@placeos/common';
 import {
     addHours,
     addMinutes,
@@ -110,7 +110,7 @@ export class Booking {
         this.user_email = data.user_email || '';
         this.user_id = data.user_id || '';
         this.user_name = data.user_name || '';
-        this.title = data.title || '';
+        this.title = data.title || this.booking_type ? `${capitalizeFirstLetter(this.booking_type)} Booking` : '';
         this.description = data.description || '';
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
