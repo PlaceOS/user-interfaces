@@ -331,10 +331,6 @@ export class mockRoomConfirmService {
     handleBookEvent = jest.fn((space: Space, flat: boolean) => {});
 }
 
-export class mockRouterStub {
-    navigate = jest.fn(() => {});
-}
-
 export function mockGetStaffUser() {
     return mockStaffUser;
 }

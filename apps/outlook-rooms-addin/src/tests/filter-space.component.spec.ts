@@ -21,7 +21,6 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { Router } from '@angular/router';
 
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
@@ -41,7 +40,6 @@ import {
     mockFeatureFilterService,
     mockMapService,
     mockRoomConfirmService,
-    mockRouterStub,
     mockSpace,
     mockSpaceWithViews,
     mockEventFlowOptions,
@@ -60,7 +58,7 @@ describe('FindSpaceComponent', () => {
     const FeatureFilterServiceStub = mockFeatureFilterService;
     const MapServiceStub = mockMapService;
     const RoomConfirmServiceStub = mockRoomConfirmService;
-    const RouterStub = mockRouterStub;
+
     let spectator: Spectator<FilterSpaceComponent>;
 
     const createComponent = createComponentFactory({

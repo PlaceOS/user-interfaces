@@ -1,5 +1,5 @@
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
@@ -19,7 +19,6 @@ import {
     MatBottomSheetModule,
     MatBottomSheet,
 } from '@angular/material/bottom-sheet';
-import { Router } from '@angular/router';
 
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
@@ -39,7 +38,6 @@ import {
     mockFeatureFilterService,
     mockMapService,
     mockRoomConfirmService,
-    mockRouterStub,
     mockSpace,
     mockForm,
     mockEventFlowOptions,
@@ -54,10 +52,9 @@ describe('FindSpaceComponent', () => {
     const FeatureFilterServiceStub = mockFeatureFilterService;
     const MapServiceStub = mockMapService;
     const RoomConfirmServiceStub = mockRoomConfirmService;
-    const RouterStub = mockRouterStub;
-    let spectator: Spectator<FindSpaceComponent>;
+    let spectator: SpectatorRouting<FindSpaceComponent>;
 
-    const createComponent = createComponentFactory({
+    const createComponent = createRoutingFactory({
         component: FindSpaceComponent,
         imports: [
             ReactiveFormsModule,
@@ -101,7 +98,6 @@ describe('FindSpaceComponent', () => {
                     options: of(mockEventFlowOptions),
                 },
             },
-            { provide: Location, useValue: RouterStub },
             {
                 provide: FeaturesFilterService,
                 useClass: FeatureFilterServiceStub,
@@ -111,7 +107,6 @@ describe('FindSpaceComponent', () => {
                 useClass: MapServiceStub,
             },
             { provide: RoomConfirmService, useClass: RoomConfirmServiceStub },
-            { provide: Router, useValue: { navigate: jest.fn() } },
         ],
         declarations: [
             MockComponent(FindSpaceItemComponent),

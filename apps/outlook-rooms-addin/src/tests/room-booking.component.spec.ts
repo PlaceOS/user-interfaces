@@ -1,5 +1,7 @@
 import { RoomBookingComponent } from '../app/rooms/room-booking.component';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { Location } from '@angular/common';
+import { MockComponent } from 'ng-mocks';
 import {
     FormsModule,
     ReactiveFormsModule,
@@ -10,17 +12,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
-import { mockForm, mockRouterStub } from './test-mocks';
+import { mockForm } from './test-mocks';
+import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 
 describe('RoomBookingComponent', () => {
     const formModel = mockForm;
     const fb = new FormBuilder();
     const form = fb.group(formModel);
 
-    const RouterStub = mockRouterStub;
-    let spectator: Spectator<RoomBookingComponent>;
+    let spectator: SpectatorRouting<RoomBookingComponent>;
 
-    const createComponent = createComponentFactory({
+    const createComponent = createRoutingFactory({
         component: RoomBookingComponent,
         imports: [
             ReactiveFormsModule,
@@ -29,10 +31,6 @@ describe('RoomBookingComponent', () => {
             BookModule,
         ],
         providers: [
-            {
-                provide: Router,
-                useClass: RouterStub,
-            },
             {
                 provide: EventFormService,
                 useValue: {
@@ -46,7 +44,18 @@ describe('RoomBookingComponent', () => {
                 },
             },
         ],
-        declarations: [],
+        declarations: [MockComponent(FindSpaceComponent)],
+        stubsEnabled: false,
+        routes: [
+            {
+                path: '',
+                component: RoomBookingComponent,
+            },
+            {
+                path: 'schedule/view',
+                component: FindSpaceComponent,
+            },
+        ],
     });
 
     beforeEach(() => {
@@ -90,8 +99,6 @@ describe('RoomBookingComponent', () => {
 
     it('should not navigate away if the title form field is invalid', async () => {
         const event_service: any = spectator.inject(EventFormService);
-        const router = spectator.inject(Router);
-        const navigate_spy = jest.spyOn(router, 'navigate');
         await event_service.newForm();
 
         event_service.form.patchValue({
@@ -102,13 +109,11 @@ describe('RoomBookingComponent', () => {
         spectator.component.findSpace();
         expect(event_service.form.controls.title.status).toBe('INVALID');
         expect(event_service.form.status).toBe('INVALID');
-        expect(navigate_spy).not.toHaveBeenCalled();
+        expect(spectator.inject(Location).path()).toBe('/');
     });
 
     it('should not navigate away if the date form field is invalid', async () => {
         const event_service: any = spectator.inject(EventFormService);
-        const router = spectator.inject(Router);
-        const navigate_spy = jest.spyOn(router, 'navigate');
         await event_service.newForm();
 
         event_service.form.patchValue({
@@ -120,13 +125,11 @@ describe('RoomBookingComponent', () => {
         spectator.component.findSpace();
         expect(event_service.form.controls.date.status).toBe('INVALID');
         expect(event_service.form.status).toBe('INVALID');
-        expect(navigate_spy).not.toHaveBeenCalled();
+        expect(spectator.inject(Location).path()).toBe('/');
     });
 
     it('should not navigate away if the duration form field is invalid', async () => {
         const event_service: any = spectator.inject(EventFormService);
-        const router = spectator.inject(Router);
-        const navigate_spy = jest.spyOn(router, 'navigate');
         await event_service.newForm();
 
         event_service.form.patchValue({
@@ -139,13 +142,11 @@ describe('RoomBookingComponent', () => {
 
         expect(event_service.form.controls.duration.status).toBe('INVALID');
         expect(event_service.form.status).toBe('INVALID');
-        expect(navigate_spy).not.toHaveBeenCalled();
+        expect(spectator.inject(Location).path()).toBe('/');
     });
 
     it('should navigate if the required form fields are valid', async () => {
         const event_service: any = spectator.inject(EventFormService);
-        const router = spectator.inject(Router);
-        const navigate_spy = jest.spyOn(router, 'navigate');
         await spectator.component.ngOnInit();
 
         event_service.form.patchValue({
@@ -158,6 +159,6 @@ describe('RoomBookingComponent', () => {
         spectator.component.findSpace();
         await event_service.storeForm();
         expect(event_service.form.status).toBe('VALID');
-        expect(navigate_spy).toHaveBeenCalled();
+        expect(spectator.inject(Location).path()).toBe('/');
     });
 });
