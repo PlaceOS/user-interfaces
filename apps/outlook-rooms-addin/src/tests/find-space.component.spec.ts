@@ -168,13 +168,10 @@ describe('FindSpaceComponent', () => {
         );
 
         expect(component_filter_spy).not.toHaveBeenCalled();
-
         expect(open_filter_spy).not.toHaveBeenCalled();
-        const button = spectator.debugElement.query(
-            By.css('button.filter-button')
-        );
-        expect(button.nativeElement.innerHTML).toContain('Filter');
-        button.nativeElement.click();
+        expect('button.filter-button').toContainText('Filter');
+
+        spectator.click('button.filter-button');
         spectator.detectChanges();
 
         expect(component_filter_spy).toBeCalled();

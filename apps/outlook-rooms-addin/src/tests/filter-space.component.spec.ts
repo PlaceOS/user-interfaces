@@ -175,7 +175,6 @@ describe('FindSpaceComponent', () => {
         );
 
         spectator.component.ngOnInit();
-        spectator.detectChanges();
         spectator.component.getSelectedFeatures();
         spectator.detectChanges();
         expect(get_features_spy).toHaveBeenCalled();
@@ -186,14 +185,8 @@ describe('FindSpaceComponent', () => {
             'mat-checkbox'
         );
 
-        const filter_button = spectator.debugElement.query(
-            By.css('button.filter-button')
-        );
-
-        expect(filter_button.nativeElement.innerHTML).toContain(
-            'Apply Filters'
-        );
-        filter_button.nativeElement.click();
+        expect('button.filter-button').toContainText('Apply Filters');
+        spectator.click('button.filter-button');
         spectator.detectChanges();
 
         expect(update_features_spy).toHaveBeenCalled();
