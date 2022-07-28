@@ -13,6 +13,7 @@ import {
     notifyError,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
 } from '@placeos/common';
 import { addMinutes, formatDuration, isAfter } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
@@ -85,7 +86,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     <button
                         mat-button
                         locate
-                        *ngIf="event.extension_data.map_id"
+                        *ngIf="event.extension_data.map_id && can_view_location"
                         class="bg-transparent border-none underline text-black"
                         (click)="viewLocation()"
                     >
@@ -143,6 +144,10 @@ export class ScheduleViewBookingComponent extends BaseClass {
         return this.event?.user_email === currentUser()?.email;
     }
 
+    public get can_view_location() {
+        return !this._settings.get('app.no_maps');
+    }
+
     public get duration() {
         return this.event.all_day || this.event.duration >= 12 * 60 ? 'All Day' : formatDuration({
             hours: Math.floor(this.event?.duration / 60),
@@ -164,7 +169,8 @@ export class ScheduleViewBookingComponent extends BaseClass {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _bookings: BookingFormService
+        private _bookings: BookingFormService,
+        private _settings: SettingsService
     ) {
         super();
     }

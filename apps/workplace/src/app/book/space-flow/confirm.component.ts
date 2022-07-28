@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { notifyError } from '@placeos/common';
+import { notifyError, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
 @Component({
@@ -27,7 +27,9 @@ import { EventFormService } from '@placeos/events';
             <div
                 class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
             >
-                <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                <div
+                    class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                >
                     <app-icon>event</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -50,7 +52,9 @@ import { EventFormService } from '@placeos/events';
             <div
                 class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
             >
-                <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                <div
+                    class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                >
                     <app-icon>schedule</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -70,7 +74,9 @@ import { EventFormService } from '@placeos/events';
             </div>
             <div class="border-b border-gray-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>place</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -113,6 +119,7 @@ import { EventFormService } from '@placeos/events';
                         <button
                             mat-button
                             class="bg-transparent border-none underline"
+                            *ngIf="can_view_location"
                         >
                             Map
                         </button>
@@ -121,7 +128,9 @@ import { EventFormService } from '@placeos/events';
             </div>
             <div class="border-b border-gray-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>group</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -217,9 +226,16 @@ export class SpaceFlowConfirmComponent {
         this.loading = false;
     };
 
+    public get can_view_location() {
+        return !this._settings.get('app.no_maps');
+    }
+
     public get form() {
         return this._state.form;
     }
 
-    constructor(private _state: EventFormService) {}
+    constructor(
+        private _state: EventFormService,
+        private _settings: SettingsService
+    ) {}
 }

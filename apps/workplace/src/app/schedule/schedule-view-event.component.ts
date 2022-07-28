@@ -129,6 +129,7 @@ import { map } from 'rxjs/operators';
                                 locate
                                 class="bg-transparent border-none underline text-black"
                                 (click)="viewLocation(space)"
+                                *ngIf="can_view_location"
                             >
                                 Map
                             </button>
@@ -266,6 +267,10 @@ export class ScheduleViewEventComponent extends BaseClass {
 
     public get is_host() {
         return this.event?.host;
+    }
+
+    public get can_view_location() {
+        return !this._settings.get('app.no_maps');
     }
 
     public get duration() {
