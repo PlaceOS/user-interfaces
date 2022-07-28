@@ -109,11 +109,16 @@ describe('FeatureFilterService', () => {
     });
 
     it('should update spaces based on feature selections', async () => {
-        let spaces_before_filter;
-        spectator.service.spaces$?.subscribe(
-            (spaces) => (spaces_before_filter = spaces.length)
-        );
-        expect(spaces_before_filter).toBe(4);
+        // let spaces_before_filter;
+        // spectator.service.spaces$?.subscribe(
+        //     (spaces) => (spaces_before_filter = spaces.length)
+        // );
+
+        const spaces_before_filter = await spectator.service.spaces$
+            .pipe(take(1))
+            .toPromise();
+
+        expect(spaces_before_filter.length).toBe(4);
 
         let room_with_views;
         spectator.service.features$?.subscribe(
@@ -125,7 +130,6 @@ describe('FeatureFilterService', () => {
         room_with_views.value = true; //mimic selecting Views checkbox
         await spectator.service.getSelectedFeatures();
         await spectator.service.applyFilter();
-
         spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
             expect(updated_spaces.length).toBe(1)
         );

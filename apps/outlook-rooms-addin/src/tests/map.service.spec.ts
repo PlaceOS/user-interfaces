@@ -70,7 +70,7 @@ describe('MapService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should return a selected space', async () => {
+    it('should return a selected space', () => {
         const room_service = spectator.inject(RoomConfirmService);
         room_service.selected_space$ = of(mockSpace);
 
@@ -88,9 +88,9 @@ describe('MapService', () => {
         let maps_list;
         const map_list_spy = jest.spyOn(spectator.service, 'loadMap');
         await spectator.service.locateSpaces(available_spaces);
-        spectator.service.maps_list$.subscribe((list) => {
-            maps_list = list;
-        });
+        maps_list = await spectator.service.maps_list$
+            .pipe(take(1))
+            .toPromise();
 
         expect(maps_list.length).toBe(1); //3 spaces with the same map_ID were passed through, only 1 should be returned
         expect(map_list_spy).toHaveBeenCalled();
@@ -117,12 +117,11 @@ describe('MapService', () => {
 
         await spectator.service.locateSpaces(available_spaces);
 
-        spectator.service.map_actions$.subscribe((actions) => {
-            map_actions = actions;
-        });
-        available_spaces.subscribe((spaces) => {
-            spaces_count = spaces;
-        });
+        map_actions = await spectator.service.map_actions$
+            .pipe(take(1))
+            .toPromise();
+
+        spaces_count = await available_spaces.pipe(take(1)).toPromise();
 
         expect(map_actions.length).toBe(spaces_count.length);
 

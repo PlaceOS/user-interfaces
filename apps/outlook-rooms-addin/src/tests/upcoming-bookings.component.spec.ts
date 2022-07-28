@@ -87,16 +87,18 @@ describe('UpcomingBookingsComponent', () => {
         await spectator.component.getBookingsFromService();
         await spectator.component.user_bookings$.pipe(take(1)).toPromise();
 
-        let service_bookings_count;
-        let bookings_displayed_count;
+        let service_bookings;
+        let bookings_displayed;
 
-        bookings_service.events.subscribe(
-            (bookings) => (service_bookings_count = bookings.length)
-        );
-        spectator.component.user_bookings$.subscribe(
-            (bookings) => (bookings_displayed_count = bookings.length)
-        );
-        expect(bookings_displayed_count).toBe(service_bookings_count);
+        service_bookings = await bookings_service.events
+            .pipe(take(1))
+            .toPromise();
+
+        bookings_displayed = await spectator.component.user_bookings$
+            .pipe(take(1))
+            .toPromise();
+
+        expect(bookings_displayed.length).toBe(service_bookings.length);
 
         bookings_service.events.subscribe((events) =>
             events.forEach((event) =>
@@ -120,20 +122,22 @@ describe('UpcomingBookingsComponent', () => {
         spectator.detectChanges();
 
         await spectator.component.getBookingsFromService();
-        await spectator.component.user_bookings$.pipe(take(1)).toPromise();
 
-        let service_bookings_count;
-        let bookings_displayed_count;
+        let service_bookings;
+        let bookings_displayed;
 
-        bookings_service.events.subscribe(
-            (bookings) => (service_bookings_count = bookings.length)
-        );
-        spectator.component.user_bookings$.subscribe(
-            (bookings) => (bookings_displayed_count = bookings.length)
-        );
+        service_bookings = await bookings_service.events
+            .pipe(take(1))
+            .toPromise();
 
-        expect(service_bookings_count).toBe(4);
-        expect(bookings_displayed_count).toBe(0);
+        bookings_displayed = await spectator.component.user_bookings$
+            .pipe(take(1))
+            .toPromise();
+
+        expect(service_bookings.length).toBe(4);
+
+        console.log(bookings_displayed, 'bookings returned');
+        expect(bookings_displayed.length).toBe(0);
         bookings_service.events.subscribe((events) =>
             events.forEach((event) =>
                 expect(event.organiser.name).not.toBe(
