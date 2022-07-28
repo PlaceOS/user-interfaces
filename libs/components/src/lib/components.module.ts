@@ -44,6 +44,7 @@ import { GlobalBannerComponent } from './global-banner.component';
 import { MapLocateModalComponent } from './map-locate-modal.component';
 import { ImageCarouselComponent } from './image-carousel.component';
 import { DurationPipe } from './duration.pipe';
+import { RedirectComponent } from './redirect.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -84,6 +85,7 @@ const COMPONENTS: Type<any>[] = [
     GlobalBannerComponent,
     MapLocateModalComponent,
     ImageCarouselComponent,
+    RedirectComponent,
 
     FixedPipe,
     SafePipe,
