@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
 
@@ -37,7 +38,11 @@ export class RoomBookingComponent implements OnInit {
         this._state.clearForm();
     };
 
-    constructor(private router: Router, private _state: EventFormService) {}
+    constructor(
+        @Inject(DOCUMENT) private _document: Document,
+        private router: Router,
+        private _state: EventFormService
+    ) {}
 
     ngOnInit(): void {
         this._state.newForm();
@@ -55,5 +60,9 @@ export class RoomBookingComponent implements OnInit {
         await this._state.storeForm();
 
         this.router.navigate(['/schedule/view']);
+    }
+
+    downloadTemplate() {
+        window.open('assets/template.csv');
     }
 }

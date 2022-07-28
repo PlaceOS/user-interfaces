@@ -85,6 +85,17 @@
                         formControlName="attendees"
                         class="text-sm"
                     ></a-user-list-field>
+                    <button
+                        mat-button
+                        type="submit"
+                        target="_parent"
+                        (click)="downloadTemplate()"
+                        class="absolute z-100 mt-[74px] ml-[245px] w-[150px] bg-white text-secondary border-secondary"
+                    >
+                        <div class="flex items-center justify-center">
+                            <span> CSV Template </span>
+                        </div>
+                    </button>
                 </div>
             </div>
         </section>
