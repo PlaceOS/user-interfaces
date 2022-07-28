@@ -69,6 +69,11 @@ describe('RoomBookingComponent', () => {
         });
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.resetModules();
+    });
+
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });

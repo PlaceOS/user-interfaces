@@ -58,6 +58,9 @@ describe('MapService', () => {
 
     beforeEach(() => {
         spectator = createService();
+    });
+
+    afterEach(() => {
         jest.clearAllMocks();
         jest.resetModules();
         ngMocks.reset();

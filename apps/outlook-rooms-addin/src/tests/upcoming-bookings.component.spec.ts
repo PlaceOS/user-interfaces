@@ -58,6 +58,9 @@ describe('UpcomingBookingsComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
+    });
+
+    afterEach(() => {
         jest.clearAllMocks();
         jest.resetModules();
         ngMocks.reset();

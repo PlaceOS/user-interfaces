@@ -128,10 +128,6 @@ describe('FindSpaceComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        jest.clearAllMocks();
-        jest.resetModules();
-        ngMocks.reset();
-        spectator = createComponent();
         spectator.inject(FeaturesFilterService);
         const event_service: any = spectator.inject(EventFormService);
         event_service.setOptions.mockImplementation(() => {
@@ -153,6 +149,12 @@ describe('FindSpaceComponent', () => {
             )
                 return null;
         });
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.resetModules();
+        ngMocks.reset();
     });
 
     it('should create component', () => {
