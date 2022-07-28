@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { getInvalidFields, notifyError } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 
@@ -127,13 +128,13 @@ export class SpaceFlowFormComponent {
 
     public findSpace() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        if (!this.form.valid) return notifyError(`Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`);
         this._router.navigate(['/book', 'spaces', 'find']);
     }
 
     public confirmBooking() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        if (!this.form.valid) return notifyError(`Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`);
         this._router.navigate(['/book', 'spaces', 'confirm']);
     }
 }

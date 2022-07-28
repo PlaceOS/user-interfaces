@@ -25,7 +25,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     const form = new FormGroup({
         id: new FormControl(event.id),
         host: new FormControl(event.host || event.organiser?.email || '', [Validators.required]),
-        organiser: new FormControl(event.organiser || new User(), [
+        organiser: new FormControl(event.organiser || new User({ email: event.host || '' }), [
             Validators.required,
         ]),
         creator: new FormControl(event.creator, [Validators.required]),
