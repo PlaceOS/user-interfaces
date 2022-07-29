@@ -262,7 +262,7 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly options = this._state.options;
 
     public readonly spaces = this._state.available_spaces;
-    public readonly features = this._spaces.features;
+    public readonly features = this._state.features;
     public async setBuilding(bld) {
         const opts = await this.options.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;

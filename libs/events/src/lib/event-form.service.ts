@@ -6,6 +6,7 @@ import {
     flatten,
     getInvalidFields,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
@@ -95,6 +96,8 @@ export class EventFormService extends BaseClass {
         map((l) => flatten(l).map((_) => new Space(_ as any))),
         shareReplay(1)
     );
+
+    public readonly features = this.spaces.pipe(map(l => unique(flatten(l.map(_ => _.features)))));
 
     public readonly filtered_spaces = combineLatest([
         this.spaces,

@@ -150,6 +150,7 @@ const app: any = {
     features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
     can_deliver: true,
     no_user_calendar: false,
+    no_maps: true,
     general,
     help,
     events,
