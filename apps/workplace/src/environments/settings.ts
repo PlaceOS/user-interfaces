@@ -169,10 +169,7 @@ const app: any = {
         tracking_id: '',
     },
     hide_contacts: false,
-    schedule,
-    departments: {
-        'user': { level: 'bld-01_lvl-10', centered_at: 'table-10.008' }
-    }
+    schedule
 };
 /**
  * ROOT SETTIGNS

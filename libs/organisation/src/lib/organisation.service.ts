@@ -131,8 +131,8 @@ export class OrganisationService {
      * Get list of levels for the given building
      * @param bld Building to list levels for
      */
-    public levelsForBuilding(bld: Building): BuildingLevel[] {
-        return this.levels.filter((lvl) => lvl.parent_id === bld.id);
+    public levelsForBuilding(bld: Building = this.building): BuildingLevel[] {
+        return this.levels.filter((lvl) => lvl.parent_id === bld?.id);
     }
 
     private async init(tries: number = 0) {
