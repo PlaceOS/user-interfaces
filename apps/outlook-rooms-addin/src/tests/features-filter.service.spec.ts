@@ -1,7 +1,7 @@
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, ngMocks } from 'ng-mocks';
-import { of, pipe } from 'rxjs';
+import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,9 +16,6 @@ import {
 
 import { EventFormService } from '@placeos/events';
 import { ComponentsModule, MapPinComponent } from '@placeos/components';
-
-import { RoomConfirmService } from '../app/rooms/room-confirm.service';
-import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
 import { mockSpace, mockSpaceWithViews } from './test-mocks';
@@ -105,11 +102,6 @@ describe('FeatureFilterService', () => {
     });
 
     it('should update spaces based on feature selections', async () => {
-        // let spaces_before_filter;
-        // spectator.service.spaces$?.subscribe(
-        //     (spaces) => (spaces_before_filter = spaces.length)
-        // );
-
         const spaces_before_filter = await spectator.service.spaces$
             .pipe(take(1))
             .toPromise();

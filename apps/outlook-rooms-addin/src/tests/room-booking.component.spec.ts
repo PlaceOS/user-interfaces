@@ -10,9 +10,7 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
-import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
-import { mockForm } from './test-mocks';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 
 describe('RoomBookingComponent', () => {

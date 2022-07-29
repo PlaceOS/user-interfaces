@@ -15,7 +15,6 @@ import {
 } from '@angular/material/bottom-sheet';
 
 import { ComponentsModule, MapPinComponent } from '@placeos/components';
-
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
 import { mockSpace } from './test-mocks';

@@ -1,15 +1,9 @@
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
-import { DebugElement } from '@angular/core';
+import { ngMocks } from 'ng-mocks';
 import { By } from '@angular/platform-browser';
-import { of, Observable } from 'rxjs';
-import {
-    FormsModule,
-    ReactiveFormsModule,
-    FormBuilder,
-    Validators,
-} from '@angular/forms';
+import { of } from 'rxjs';
+import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { CommonModule } from '@angular/common';
@@ -21,24 +15,13 @@ import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-
-import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
 import { EventFormService } from '@placeos/events';
-import { Location } from '@angular/common';
-import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
-import { FindSpaceItemComponent } from '../app/rooms/find-space-item/find-space-item.component';
-import { RoomDetailsComponent } from '../app/rooms/room-details/room-details.component';
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
-import { MapService } from '../app/rooms/map.service';
-import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
-
 import {
     mockSpace,
     mockSpaceWithViews,
     mockEventFlowOptions,
-    mockGenerateEventForm,
     mockForm,
 } from './test-mocks';
 

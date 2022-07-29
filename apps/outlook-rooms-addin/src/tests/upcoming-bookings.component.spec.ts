@@ -1,10 +1,8 @@
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings/upcoming-bookings.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
-import { DebugElement } from '@angular/core';
-import { By } from '@angular/platform-browser';
-import { of, Observable } from 'rxjs';
-import { take, tap, first } from 'rxjs/operators';
+import { ngMocks } from 'ng-mocks';
+import { of } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
@@ -15,18 +13,14 @@ import {
     MatBottomSheetModule,
     MatBottomSheet,
 } from '@angular/material/bottom-sheet';
-import { CalendarEvent } from '@placeos/events';
 import { ExistingBookingsService } from '../app/rooms/existing-bookings.service';
 import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
 
 import {
     mockCalendarEvent,
     mockStaffUser,
-    mockExternalCalendarEvent,
-    mockGetStaffUser,
     mockExternalUser,
 } from './test-mocks';
-import { consoleHasColours } from '@placeos/ts-client';
 
 describe('UpcomingBookingsComponent', () => {
     let spectator: Spectator<UpcomingBookingsComponent>;
