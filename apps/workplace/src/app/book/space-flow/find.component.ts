@@ -100,7 +100,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         *ngIf="(features | async)?.length"
                     >
                         <mat-select
-                            placeholder="Any Features"
+                            [placeholder]="'Any ' + features_label"
                             multiple
                             [ngModel]="(options | async)?.features"
                             (ngModelChange)="setOptions({ features: $event })"
@@ -277,6 +277,10 @@ export class SpaceFlowFindComponent implements OnInit {
 
     public get multiple() {
         return this._settings.get('app.events.multiple_spaces') ?? false;
+    }
+
+    public get features_label() {
+        return this._settings.get('app.events.features_label') || 'feature';
     }
 
     constructor(
