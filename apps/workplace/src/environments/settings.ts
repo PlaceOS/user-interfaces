@@ -159,6 +159,9 @@ const app: any = {
     space_display,
     directory,
     explore,
+    bookings: {
+        no_approval: false
+    },
     desks: {
         can_book_for_others: true,
         allow_groups: true,

@@ -133,7 +133,10 @@ export class BookingFormService extends BaseClass {
         this.assets,
         this._form,
     ]).pipe(
-        filter(([_, _1, form]) => form.getRawValue().date > 0 && form.getRawValue().duration > 0),
+        filter(
+            ([_, _1, form]) =>
+                form.getRawValue().date > 0 && form.getRawValue().duration > 0
+        ),
         debounceTime(500),
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
@@ -142,7 +145,10 @@ export class BookingFormService extends BaseClass {
             queryBookings({
                 period_start: getUnixTime(form.getRawValue().date),
                 period_end: getUnixTime(
-                    addMinutes(form.getRawValue().date, form.getRawValue().duration || 24 * 60)
+                    addMinutes(
+                        form.getRawValue().date,
+                        form.getRawValue().duration || 24 * 60
+                    )
                 ),
                 type: options.type,
                 zones: options.zone_id,
@@ -163,7 +169,8 @@ export class BookingFormService extends BaseClass {
                                     bkn.asset_id === asset.id &&
                                     bkn.status !== 'declined'
                             ) &&
-                            (!options?.show_fav || this.favorite_desks.includes(asset.id))
+                            (!options?.show_fav ||
+                                this.favorite_desks.includes(asset.id))
                     )
                 )
             )
@@ -261,12 +268,16 @@ export class BookingFormService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...value });
     }
 
-    public setFeature(feature: string, enable: boolean){
-        if(!feature?.length) return;
+    public setFeature(feature: string, enable: boolean) {
+        if (!feature?.length) return;
         const features = this._options.getValue()?.features || [];
-        if(enable && !features.includes(feature))features.push(feature);
-        if(!enable && features.includes(feature))features.splice(features.findIndex(e => e === feature), 1)
-        this.setOptions({features});
+        if (enable && !features.includes(feature)) features.push(feature);
+        if (!enable && features.includes(feature))
+            features.splice(
+                features.findIndex((e) => e === feature),
+                1
+            );
+        this.setOptions({ features });
     }
 
     public resetForm() {
@@ -372,7 +383,12 @@ export class BookingFormService extends BaseClass {
             });
         }
         this._loading.next('Saving booking');
-        const result = await saveBooking(new Booking(value)).toPromise();
+        const result = await saveBooking(
+            new Booking({
+                ...value,
+                approved: !!this._settings.get('app.bookings.no_approval'),
+            })
+        ).toPromise();
         this._loading.next('');
         const { booking_type } = value;
         this.clearForm();
@@ -427,19 +443,17 @@ export class BookingFormService extends BaseClass {
         for (let i = 0; i < group_members.length; i++) {
             const user = group_members[i];
             const asset = assets[i];
-            this._form
-                .getValue()
-                .patchValue({
-                    ...form,
-                    user: user as any,
-                    asset_id: asset?.id,
-                    asset_name: asset.name,
-                    map_id: asset?.map_id || asset?.id,
-                    description: asset.name,
-                    zones: asset.zone
-                        ? [asset.zone?.parent_id, asset.zone?.id]
-                        : [],
-                });
+            this._form.getValue().patchValue({
+                ...form,
+                user: user as any,
+                asset_id: asset?.id,
+                asset_name: asset.name,
+                map_id: asset?.map_id || asset?.id,
+                description: asset.name,
+                zones: asset.zone
+                    ? [asset.zone?.parent_id, asset.zone?.id]
+                    : [],
+            });
             this.postForm(true);
         }
     }

@@ -97,7 +97,9 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
-    public readonly features = this.spaces.pipe(map(l => unique(flatten(l.map(_ => _.features)))));
+    public readonly features = this.spaces.pipe(
+        map((l) => unique(flatten(l.map((_) => _.features))))
+    );
 
     public readonly filtered_spaces = combineLatest([
         this.spaces,
@@ -304,9 +306,14 @@ export class EventFormService extends BaseClass {
     ) {
         return (
             this.has_calendar
-                ? saveBooking(newBookingFromCalendarEvent(event)).pipe(
-                      map((_) => newCalendarEventFromBooking(_))
-                  )
+                ? saveBooking(
+                      newBookingFromCalendarEvent({
+                          ...event.toJSON(),
+                          status: this._settings.get('app.bookings.no_approval')
+                              ? 'approved'
+                              : 'tentative',
+                      } as any)
+                  ).pipe(map((_) => newCalendarEventFromBooking(_)))
                 : saveEvent(event, query)
         ).toPromise();
     }

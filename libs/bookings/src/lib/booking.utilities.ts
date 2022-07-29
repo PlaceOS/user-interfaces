@@ -80,6 +80,7 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         asset_id: event.system?.id,
         asset_name: event.system?.display_name || event.system?.name,
         booking_type: 'room',
+        approved: event.status === 'approved',
         extension_data: {
             ...event
         }
