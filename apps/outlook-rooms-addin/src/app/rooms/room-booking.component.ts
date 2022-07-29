@@ -26,7 +26,6 @@ import { FeaturesFilterService } from '../rooms/features-filter.service';
 export class RoomBookingComponent implements OnInit {
     public show_spaces = false;
     public show_people = false;
-    public loading = false;
 
     min_date: Date = new Date();
 

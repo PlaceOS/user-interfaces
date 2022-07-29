@@ -18,11 +18,10 @@ import { ComponentsModule, MapPinComponent } from '@placeos/components';
 
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
-import { mockRoomConfirmService, mockSpace } from './test-mocks';
+import { mockSpace } from './test-mocks';
 
 describe('MapService', () => {
     let spectator: SpectatorService<MapService>;
-    const roomConfirmServiceStub = mockRoomConfirmService;
 
     const createService = createServiceFactory({
         service: MapService,
@@ -47,7 +46,11 @@ describe('MapService', () => {
             },
             {
                 provide: RoomConfirmService,
-                useClass: roomConfirmServiceStub,
+                useValue: {
+                    selected_space$: of(mockSpace),
+                    openRoomDetail: jest.fn((param) => {}),
+                    handleBookEvent: jest.fn((space, flat) => {}),
+                },
             },
         ],
         declarations: [

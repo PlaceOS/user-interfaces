@@ -16,7 +16,17 @@ import { mockForm } from './test-mocks';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 
 describe('RoomBookingComponent', () => {
-    const formModel = mockForm;
+    const formModel = {
+        id: 1,
+        host: ['host@test.com', Validators.required],
+        organiser: ['organiser@test.com', Validators.required],
+        creator: ['creator@test.com', Validators.required],
+        title: ['', Validators.required],
+        date: [0, Validators.required],
+        duration: 0,
+        attendees: '' as any,
+        markAllAsTouched: jest.fn(() => {}),
+    };
     const fb = new FormBuilder();
     const form = fb.group(formModel);
 
@@ -158,7 +168,9 @@ describe('RoomBookingComponent', () => {
 
         spectator.component.findSpace();
         await event_service.storeForm();
-        expect(event_service.form.valid).toBeFalsy();
-        expect(spectator.inject(Location).path()).toBe('/');
+        expect(event_service.form.valid).toBeTruthy();
+
+        await spectator.fixture.whenStable();
+        expect(spectator.inject(Location).path()).toBe('/schedule/view');
     });
 });

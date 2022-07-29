@@ -35,15 +35,9 @@ import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
 
 import {
-    mockOrgService,
-    mockSpacesService,
-    mockFeatureFilterService,
-    mockMapService,
-    mockRoomConfirmService,
     mockSpace,
     mockSpaceWithViews,
     mockEventFlowOptions,
-    mockFeatures,
     mockGenerateEventForm,
     mockForm,
 } from './test-mocks';
@@ -52,12 +46,6 @@ describe('FindSpaceComponent', () => {
     const formModel = mockForm;
     const fb = new FormBuilder();
     const form = fb.group(formModel);
-
-    const OrgServiceStub = mockOrgService;
-    const SpacesServiceStub = mockSpacesService;
-    const FeatureFilterServiceStub = mockFeatureFilterService;
-    const MapServiceStub = mockMapService;
-    const RoomConfirmServiceStub = mockRoomConfirmService;
 
     let spectator: Spectator<FilterSpaceComponent>;
 
@@ -95,7 +83,28 @@ describe('FindSpaceComponent', () => {
             {
                 provide: FeaturesFilterService,
                 useValue: {
-                    features$: of(mockFeatures),
+                    features$: of([
+                        {
+                            name: 'Video Conference (VC)',
+                            id: 'VidConf',
+                            value: false,
+                        },
+                        {
+                            name: 'Conference Phone',
+                            id: 'ConfPhone',
+                            value: false,
+                        },
+                        {
+                            name: 'Wireless Content Sharing',
+                            id: 'Wireless',
+                            value: false,
+                        },
+                        { name: 'Video Wall', id: 'VidWall', value: false },
+                        { name: 'Whiteboard', id: 'Whiteboard', value: false },
+                        { name: 'Jamboard', id: 'Jamboard', value: false },
+                        { name: 'Projector', id: 'Projector', value: false },
+                        { name: 'Views', id: 'Views', value: false },
+                    ]),
                     applyFilter: jest.fn(),
                     getSelectedFeatures: jest.fn(),
                 },

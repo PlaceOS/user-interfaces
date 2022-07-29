@@ -32,26 +32,13 @@ import { MapService } from '../app/rooms/map.service';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
 
-import {
-    mockOrgService,
-    mockSpacesService,
-    mockFeatureFilterService,
-    mockMapService,
-    mockRoomConfirmService,
-    mockSpace,
-    mockForm,
-    mockEventFlowOptions,
-} from './test-mocks';
+import { mockSpace, mockForm, mockEventFlowOptions } from './test-mocks';
 
 describe('FindSpaceComponent', () => {
     const formModel = mockForm;
     const fb = new FormBuilder();
     const form = fb.group(formModel);
-    const OrgServiceStub = mockOrgService;
-    const SpacesServiceStub = mockSpacesService;
-    const FeatureFilterServiceStub = mockFeatureFilterService;
-    const MapServiceStub = mockMapService;
-    const RoomConfirmServiceStub = mockRoomConfirmService;
+
     let spectator: SpectatorRouting<FindSpaceComponent>;
 
     const createComponent = createRoutingFactory({
@@ -77,11 +64,36 @@ describe('FindSpaceComponent', () => {
             },
             {
                 provide: OrganisationService,
-                useClass: OrgServiceStub,
+                useValue: {
+                    initialised: of(true),
+                    features_loaded$: of(true),
+                    building_list: of([
+                        {
+                            id: 1,
+                            name: 'test-building',
+                            zone_id: 'zone-1',
+                        },
+                        {
+                            id: 1,
+                            name: 'test-building',
+                            zone_id: 'zone-1',
+                        },
+                    ]),
+                    active_building: of({
+                        id: 1,
+                        name: 'test-building',
+                        zone_id: 'zone-1',
+                    }),
+                    building: null,
+                    levelsForBuilding: jest.fn(),
+                },
             },
             {
                 provide: SpacesService,
-                useClass: SpacesServiceStub,
+                useValue: {
+                    initialised: of(true),
+                    features: of(['Whiteboard', 'Jamboard']),
+                },
             },
             {
                 provide: EventFormService,
@@ -100,13 +112,122 @@ describe('FindSpaceComponent', () => {
             },
             {
                 provide: FeaturesFilterService,
-                useClass: FeatureFilterServiceStub,
+                useValue: {
+                    features_loaded$: of(true),
+                    locatable_spaces$: of([
+                        {
+                            id: '123',
+                            name: 'Space-1',
+                            map_id: 'map-id-1',
+                            level: {
+                                id: '123',
+                                parent_id: '',
+                                name: 'Building-1',
+                                display_name: '',
+                                capacity: 40,
+                                number: 'url',
+                                map_id: 'map-id-1',
+                                tags: ['tag-1'],
+                                settings: {},
+                                locations: [] as any,
+                            },
+                            zones: ['zone-1'],
+                        },
+                        {
+                            id: '123',
+                            name: 'Space-1',
+                            map_id: 'map-id-1',
+                            level: {
+                                id: '123',
+                                parent_id: '',
+                                name: 'Building-1',
+                                display_name: '',
+                                capacity: 40,
+                                number: 'url',
+                                map_id: 'map-id-1',
+                                tags: ['tag-1'],
+                                settings: {},
+                                locations: [] as any,
+                            },
+                            zones: ['zone-1'],
+                        },
+                    ]),
+                    maps_list$: of({
+                        map_id: 'map-1',
+                        level: 'Level 1',
+                    }),
+                    map_features: [
+                        {
+                            track_id: '123',
+                            location: { x: 0.3, y: 0.8 },
+                        },
+                    ],
+                    locateSpaces: jest.fn(),
+                },
             },
             {
                 provide: MapService,
-                useClass: MapServiceStub,
+                useValue: {
+                    features_loaded$: of(true),
+                    locateSpaces: jest.fn(),
+                    locatable_spaces$: of([
+                        {
+                            id: '123',
+                            name: 'Space-1',
+                            map_id: 'map-id-1',
+                            level: {
+                                id: '123',
+                                parent_id: '',
+                                name: 'Building-1',
+                                display_name: '',
+                                capacity: 40,
+                                number: 'url',
+                                map_id: 'map-id-1',
+                                tags: ['tag-1'],
+                                settings: {},
+                                locations: [] as any,
+                            },
+                            zones: ['zone-1'],
+                        },
+                        {
+                            id: '123',
+                            name: 'Space-1',
+                            map_id: 'map-id-1',
+                            level: {
+                                id: '123',
+                                parent_id: '',
+                                name: 'Building-1',
+                                display_name: '',
+                                capacity: 40,
+                                number: 'url',
+                                map_id: 'map-id-1',
+                                tags: ['tag-1'],
+                                settings: {},
+                                locations: [] as any,
+                            },
+                            zones: ['zone-1'],
+                        },
+                    ]),
+                    maps_list$: of({
+                        map_id: 'map-1',
+                        level: 'Level 1',
+                    }),
+                    map_features: [
+                        {
+                            track_id: '123',
+                            location: { x: 0.3, y: 0.8 },
+                        },
+                    ],
+                },
             },
-            { provide: RoomConfirmService, useClass: RoomConfirmServiceStub },
+            {
+                provide: RoomConfirmService,
+                useValue: {
+                    selected_space$: of(mockSpace),
+                    openRoomDetail: jest.fn((param) => {}),
+                    handleBookEvent: jest.fn((space, flat) => {}),
+                },
+            },
         ],
         declarations: [
             MockComponent(FindSpaceItemComponent),
@@ -118,7 +239,49 @@ describe('FindSpaceComponent', () => {
     beforeEach(() => {
         spectator = createComponent();
         spectator.inject(FeaturesFilterService);
+        const org_service: any = spectator.inject(OrganisationService);
+        const map_service: any = spectator.inject(MapService);
         const event_service: any = spectator.inject(EventFormService);
+        const feature_filter_service: any = spectator.inject(
+            FeaturesFilterService
+        );
+
+        org_service.levelsForBuilding.mockImplementation((bld) => {
+            return [
+                {
+                    id: '123',
+                    parent_id: '',
+                    name: 'Building-1',
+                    display_name: '',
+                    capacity: 40,
+                    number: 'url',
+                    map_id: 'map-id-1',
+                    tags: ['tag-1'],
+                    settings: {},
+                    locations: [] as any,
+                },
+                {
+                    id: '123',
+                    parent_id: '',
+                    name: 'Building-1',
+                    display_name: '',
+                    capacity: 40,
+                    number: 'url',
+                    map_id: 'map-id-1',
+                    tags: ['tag-1'],
+                    settings: {},
+                    locations: [] as any,
+                },
+            ];
+        });
+        map_service.locateSpaces.mockImplementation((spaces) => {
+            map_service.locatable_spaces$ = of(spaces);
+        });
+
+        feature_filter_service.locateSpaces.mockImplementation((spaces) => {
+            feature_filter_service.locatable_spaces$ = of(spaces);
+        });
+
         event_service.setOptions.mockImplementation(() => {
             return of(mockEventFlowOptions);
         });

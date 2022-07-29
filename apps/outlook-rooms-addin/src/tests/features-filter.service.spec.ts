@@ -21,11 +21,7 @@ import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
-import {
-    mockRoomConfirmService,
-    mockSpace,
-    mockSpaceWithViews,
-} from './test-mocks';
+import { mockSpace, mockSpaceWithViews } from './test-mocks';
 
 describe('FeatureFilterService', () => {
     let spectator: SpectatorService<FeaturesFilterService>;
