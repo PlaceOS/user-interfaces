@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { CateringOrder, CateringStateService } from '@placeos/catering';
 import { SettingsService } from '@placeos/common';
 import { EventFlowOptions } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'detailed-book-space-form',
@@ -49,6 +50,33 @@ import { EventFlowOptions } from '@placeos/events';
                 <div
                     class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
+                    <div
+                        class="flex flex-col flex-1 w-full"
+                        *ngIf="show_features && features?.length"
+                    >
+                        <label for="building">Building</label>
+                        <mat-form-field
+                            overlay
+                            buildings
+                            class="w-full h-[3.25rem]"
+                            *ngIf="(buildings | async)?.length > 1"
+                            appearance="outline"
+                        >
+                            <mat-select
+                                placeholder="Select Building..."
+                                [ngModel]="building"
+                                (ngModelChange)="setBuilding($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                <mat-option
+                                    *ngFor="let bld of buildings | async"
+                                    [value]="bld"
+                                >
+                                    {{ bld.display_name || bld.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                     <div
                         class="flex flex-col flex-1 w-full"
                         *ngIf="show_features && features?.length"
@@ -170,6 +198,13 @@ export class DetailBookSpaceFormComponent {
     @Input() public features: string[] = [];
     @Output() public optionsChange = new EventEmitter<EventFlowOptions>();
 
+    public readonly buildings = this._org.building_list;
+    public readonly setBuilding = (b) => this._org.building = b;
+
+    public get building() {
+        return this._org.building;
+    }
+
     public get has_catering() {
         return !!this._settings.get('app.events.has_catering');
     }
@@ -219,6 +254,7 @@ export class DetailBookSpaceFormComponent {
 
     constructor(
         private _catering: CateringStateService,
+        private _org: OrganisationService,
         private _settings: SettingsService
     ) {}
 }
