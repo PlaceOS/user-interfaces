@@ -43,18 +43,18 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             </mat-menu>
             <div listing class="flex flex-1 h-1/2 relative space-x-2">
                 <ul
-                    class="list-style-none w-full sm:w-[20rem] max-w-[768px] mx-auto bg-gray-100 p-2 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+                    class="list-style-none w-full sm:w-[20rem] max-w-[768px] mx-auto bg-gray-100 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
                     [class.!w-full]="hide_map"
                     [class.rounded-tl-lg]="hide_map"
                 >
-                    <div class="px-2 sticky top-0 bg-gray-100 w-full z-10">
+                    <div class="py-2 px-4 sticky top-0 inset-x-0 bg-gray-100 z-10">
                         {{ (desks | async)?.length || '0' }} matches available
                     </div>
                     <li
                         matRipple
                         *ngFor="let desk of desks | async"
                         [attr.desk-id]="desk.id"
-                        class="flex items-center p-2 bg-white rounded shadow cursor-pointer space-x-2 min-h-[5rem] border"
+                        class="flex items-center p-2 mx-2 bg-white rounded shadow cursor-pointer space-x-2 min-h-[5rem] border"
                         [class.border-primary]="active_desk?.id === desk.id"
                         (click)="setActiveDesk(desk)"
                     >
