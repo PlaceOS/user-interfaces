@@ -17,7 +17,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             >
                 {{ is_edit ? 'Edit' : 'Detailed' }} Space Booking
             </h2>
-            <detailed-book-space-form [form]="form"></detailed-book-space-form>
+            <detailed-book-space-form [form]="form" [options]="options | async" (optionsChange)="setOptions($event)"  [features]="features | async"></detailed-book-space-form>
             <div
                 class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
             >
@@ -100,6 +100,10 @@ export class SpaceFlowFormComponent {
         { name: 'Large (13 - 32)', value: 13 },
         { name: 'Huge (32+)', value: 33 },
     ];
+
+    public readonly options = this._state.options;
+    public readonly features = this._state.features;
+    public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get is_edit() {
         return !!this.form?.get('id')?.value;

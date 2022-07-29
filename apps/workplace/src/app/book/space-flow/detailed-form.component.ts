@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CateringOrder, CateringStateService } from '@placeos/catering';
 import { SettingsService } from '@placeos/common';
+import { EventFlowOptions } from '@placeos/events';
 
 @Component({
     selector: 'detailed-book-space-form',
@@ -45,8 +46,43 @@ import { SettingsService } from '@placeos/common';
                         </mat-checkbox>
                     </div>
                 </div>
+                <div
+                    class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                >
+                    <div
+                        class="flex flex-col flex-1 w-full"
+                        *ngIf="show_features && features?.length"
+                    >
+                        <label for="features">Features</label>
+                        <mat-form-field
+                            class="w-full h-[3.25rem]"
+                            overlay
+                            appearance="outline"
+                        >
+                            <mat-select
+                                [placeholder]="'Any ' + features_label"
+                                multiple
+                                [ngModel]="options?.features"
+                                (ngModelChange)="
+                                    optionsChange.emit({ features: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                <mat-option
+                                    *ngFor="let item of features"
+                                    [value]="item"
+                                >
+                                    {{ item }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
             </section>
-            <section class="mb-4 border-b border-gray-300" *ngIf="can_book_for_others || !hide_attendees">
+            <section
+                class="mb-4 border-b border-gray-300"
+                *ngIf="can_book_for_others || !hide_attendees"
+            >
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                     *ngIf="can_book_for_others"
@@ -85,7 +121,10 @@ import { SettingsService } from '@placeos/common';
                             <mat-error>Meeting Subject is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col resize-y mb-4" *ngIf="!hide_notes">
+                    <div
+                        class="flex flex-col resize-y mb-4"
+                        *ngIf="!hide_notes"
+                    >
                         <label for="notes">Notes</label>
                         <rich-text-input
                             name="notes"
@@ -127,6 +166,9 @@ import { SettingsService } from '@placeos/common';
 })
 export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;
+    @Input() public options: EventFlowOptions;
+    @Input() public features: string[] = [];
+    @Output() public optionsChange = new EventEmitter<EventFlowOptions>();
 
     public get has_catering() {
         return !!this._settings.get('app.events.has_catering');
@@ -154,6 +196,14 @@ export class DetailBookSpaceFormComponent {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 4 * 60;
+    }
+
+    public get show_features() {
+        return !!this._settings.get('app.events.features_on_form');
+    }
+
+    public get features_label() {
+        return this._settings.get('app.events.features_label') || 'feature';
     }
 
     public readonly editCatering = async () =>
