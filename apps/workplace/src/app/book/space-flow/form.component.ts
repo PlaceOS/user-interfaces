@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { getInvalidFields, notifyError } from '@placeos/common';
+import {
+    getInvalidFields,
+    notifyError,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 
@@ -47,6 +51,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
                     standalone
+                    *ngIf="is_edit || !allow_standalone_bookings"
                     (click)="confirmBooking()"
                 >
                     <div class="flex items-center justify-center">
@@ -104,12 +109,20 @@ export class SpaceFlowFormComponent {
         return this._state.form;
     }
 
+    public get allow_standalone_bookings() {
+        return this._settings.get('app.events.allow_standalone_bookings');
+    }
+
     public readonly clearForm = () => {
         this.time = this.capacity = 0;
         this._state.clearForm();
     };
 
-    constructor(private _state: EventFormService, private _router: Router) {}
+    constructor(
+        private _state: EventFormService,
+        private _settings: SettingsService,
+        private _router: Router
+    ) {}
 
     public quickBook() {
         this.form.patchValue({
@@ -128,13 +141,23 @@ export class SpaceFlowFormComponent {
 
     public findSpace() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return notifyError(`Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`);
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
         this._router.navigate(['/book', 'spaces', 'find']);
     }
 
     public confirmBooking() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return notifyError(`Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`);
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
         this._router.navigate(['/book', 'spaces', 'confirm']);
     }
 }
