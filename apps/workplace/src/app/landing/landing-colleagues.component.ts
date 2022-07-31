@@ -12,6 +12,7 @@ import { LandingStateService } from './landing-state.service';
                 <button mat-button class="inverse">Add</button>
             </div>
             <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
+                <ng-container *ngIf="(contacts | async)?.length; else empty_state">
                 <div
                     class="flex items-center px-4 space-x-4"
                     *ngFor="let user of contacts | async"
@@ -34,8 +35,15 @@ import { LandingStateService } from './landing-state.service';
                         </div>
                     </div>
                 </div>
+</ng-container>
             </div>
         </div>
+        <ng-template #empty_state>
+            <div class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8">
+                <img src="assets/icons/no-contacts.svg" />
+                <p class="opacity-60 text-sm text-center">You have no colleagues added. Please select the "Add" button to get started.</p>
+            </div>
+        </ng-template>
     `,
 })
 export class LandingColleaguesComponent {
