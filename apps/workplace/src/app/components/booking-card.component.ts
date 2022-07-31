@@ -23,20 +23,20 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                        [class.bg-green-600]="booking?.status === 'approved'"
-                        [class.bg-yellow-500]="booking?.status === 'tentative'"
-                        [class.bg-red-600]="booking?.status === 'declined'"
-                        [class.bg-gray-200]="!booking?.status"
+                        [class.bg-green-600]="!booking.is_done && booking?.status === 'approved'"
+                        [class.bg-yellow-500]="!booking.is_done && booking?.status === 'tentative'"
+                        [class.bg-red-600]="!booking.is_done && booking?.status === 'declined'"
+                        [class.bg-gray-300]="booking.is_done"
                     >
                         <div
                             class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                            [class.bg-success]="booking?.status === 'approved'"
-                            [class.bg-pending]="booking?.status === 'tentative'"
-                            [class.bg-error]="booking?.status === 'declined'"
-                            [class.bg-gray-200]="!booking?.status"
+                            [class.bg-success]="!booking.is_done && booking?.status === 'approved'"
+                            [class.text-pending]="!booking.is_done && booking?.status === 'tentative'"
+                            [class.bg-error]="!booking.is_done && booking?.status === 'declined'"
+                            [class.text-neutral-600]="booking.is_done"
                         >
                             <app-icon>
-                                {{
+                                {{booking.is_done ? 'not_interested' :
                                     booking?.status === 'approved'
                                         ? 'done'
                                         : booking?.status === 'tentative'
