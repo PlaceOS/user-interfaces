@@ -184,7 +184,7 @@ export class CalendarEvent {
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
-        this.status = eventStatus(this) || 'none';
+        this.status = eventStatus({ ...data, ...this }) || 'none';
         this.location = data.location || this.space?.display_name || this.space?.name || '';
         this.type =
             this.status === 'declined'
