@@ -13,7 +13,7 @@ import { scan } from 'rxjs/operators';
     styles: [``],
 })
 export class RoomDetailsComponent implements OnInit {
-    space: Space;
+    space: Space | any;
     room_added: Boolean = false;
 
     constructor(

@@ -4,8 +4,8 @@
     >
         <!-- Accessing image if format is a string -->
         <img
-            *ngIf="space?.image && space?.image?.length > 0"
-            [src]="space.image"
+            *ngIf="space?.images && space?.images?.length > 0"
+            [src]="space.images"
             alt="image of building "
             width="100%"
             height="100%"
@@ -14,15 +14,15 @@
 
         <!-- Accessing image if the format is a string within an array -->
         <img
-            *ngIf="space?.image && space?.image[0]?.length > 0"
-            [src]="space.image[0]"
+            *ngIf="space?.images && space?.images[0]?.length > 0"
+            [src]="space.images[0]"
             alt="image of building "
             width="100%"
             height="100%"
             class="flex z-20 rounded-lg"
         />
 
-        <div *ngIf="space?.image?.length == 0">
+        <div *ngIf="space?.images?.length == 0">
             <mat-icon
                 class="flex items-center justify-center material-icons-outlined text-[8rem]"
                 >image</mat-icon
