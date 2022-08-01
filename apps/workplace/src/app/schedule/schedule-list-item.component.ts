@@ -86,9 +86,11 @@ export class ScheduleListItemComponent {
     }
 
     public get icon() {
-        if (this.status === 'declined') return 'cancel';
+        if (this.status === 'declined') return 'event_busy';
         if (this.item.asset_id) {
             switch ((this.item as Booking).booking_type) {
+                case 'room':
+                    return { content: 'meeting_room' } ;
                 case 'desk':
                     return { type: 'img', src: 'assets/img/desk.svg' } ;
                 case 'parking':
