@@ -217,11 +217,11 @@ import { filter, first, map, take } from 'rxjs/operators';
             }
 
             [topbar] {
-                background-color: #00539f;
+                background-color: var(--secondary-dark);
             }
 
             [filters] {
-                background-color: #007ac8;
+                background-color: var(--secondary);
             }
         `,
     ],
