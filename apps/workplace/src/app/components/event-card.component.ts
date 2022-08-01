@@ -17,26 +17,48 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             [routerLink]="['/schedule', 'view', event?.id, 'event']"
             *ngIf="event"
         >
-            <div class="w-full bg-white dark:bg-neutral-800 rounded shadow py-2 relative">
+            <div
+                class="w-full bg-white dark:bg-neutral-800 rounded shadow py-2 relative"
+            >
                 <h4 class="px-2">{{ event?.title }}</h4>
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                        [class.bg-green-600]="!event.is_done && event?.status === 'approved'"
-                        [class.bg-yellow-500]="!event.is_done && event?.status === 'tentative'"
-                        [class.bg-red-600]="!event.is_done && event?.status === 'declined'"
-                        [class.bg-gray-300]="event.is_done"
+                        [class.bg-green-600]="
+                            event.state !== 'done' &&
+                            event?.status === 'approved'
+                        "
+                        [class.bg-yellow-500]="
+                            event.state !== 'done' &&
+                            event?.status === 'tentative'
+                        "
+                        [class.bg-red-600]="
+                            event.state !== 'done' &&
+                            event?.status === 'declined'
+                        "
+                        [class.bg-gray-300]="event.state === 'done'"
                     >
                         <div
                             class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                            [class.bg-success]="!event.is_done && event?.status === 'approved'"
-                            [class.text-pending]="!event.is_done && event?.status === 'tentative'"
-                            [class.bg-error]="!event.is_done && event?.status === 'declined'"
-                            [class.text-neutral-600]="event.is_done"
+                            [class.bg-success]="
+                                event.state !== 'done' &&
+                                event?.status === 'approved'
+                            "
+                            [class.text-pending]="
+                                event.state !== 'done' &&
+                                event?.status === 'tentative'
+                            "
+                            [class.bg-error]="
+                                event.state !== 'done' &&
+                                event?.status === 'declined'
+                            "
+                            [class.text-neutral-600]="event.state === 'done'"
                         >
                             <app-icon>
-                                {{event.is_done ? 'not_interested' :
-                                    event?.status === 'approved'
+                                {{
+                                    event.state === 'done'
+                                        ? 'not_interested'
+                                        : event?.status === 'approved'
                                         ? 'done'
                                         : event?.status === 'tentative'
                                         ? 'warning'
