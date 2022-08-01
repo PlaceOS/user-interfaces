@@ -22,7 +22,7 @@
             class="flex z-20 rounded-lg"
         />
 
-        <div *ngIf="space?.images?.length == 0">
+        <div *ngIf="space?.images?.length == 0 || space?.image?.length == 0">
             <mat-icon
                 class="flex items-center justify-center material-icons-outlined text-[8rem]"
                 >image</mat-icon
