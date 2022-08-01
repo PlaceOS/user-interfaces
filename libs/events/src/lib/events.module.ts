@@ -12,18 +12,12 @@ import { MatRadioModule } from '@angular/material/radio';
 import { ComponentsModule } from '@placeos/components';
 
 import { FormFieldsModule } from '@placeos/form-fields';
-import { BookingDetailsModalComponent } from './booking-details-modal.component';
-
-import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
-import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
-import { InviteVisitorFormComponent } from './invite-visitor-form.component';
+import { EventDetailsModalComponent } from './event-details-modal.component';
 
 const COMPONENTS = [
-    DeskQuestionsModalComponent,
-    DeskConfirmModalComponent,
-    InviteVisitorFormComponent,
-    BookingDetailsModalComponent
+    EventDetailsModalComponent
 ];
+
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
@@ -43,4 +37,4 @@ const COMPONENTS = [
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
 })
-export class SharedBookingsModule {}
+export class SharedEventsModule {}

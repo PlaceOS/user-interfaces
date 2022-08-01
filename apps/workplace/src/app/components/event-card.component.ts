@@ -1,5 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BaseClass } from '@placeos/common';
+import { CalendarEvent, EventDetailsModalComponent } from '@placeos/events';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
 @Component({
@@ -14,7 +17,9 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             matRippleColor
             details
             class="w-full"
-            [routerLink]="['/schedule', 'view', event?.id, 'event']"
+            [routerLink]="['./']"
+            [queryParams]="{ event: event?.id }"
+            (click)="viewDetails()"
             *ngIf="event"
         >
             <div
@@ -156,9 +161,24 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         `,
     ],
 })
-export class EventCardComponent {
+export class EventCardComponent extends BaseClass {
     @Input() public event: CalendarEvent;
     @Input() public show_day: boolean = false;
+
+    constructor(private _dialog: MatDialog, private _route: ActivatedRoute) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) =>
+                params.has('event') && this.event?.id === params.get('event')
+                    ? this.viewDetails()
+                    : ''
+            )
+        );
+    }
 
     public get day() {
         const date = this.event?.date || Date.now();
@@ -181,5 +201,12 @@ export class EventCardComponent {
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
         return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+    }
+
+    public viewDetails() {
+        if (!this.event) return;
+        this.timeout('open', () =>
+            this._dialog.open(EventDetailsModalComponent, { data: this.event })
+        );
     }
 }
