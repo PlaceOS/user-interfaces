@@ -81,6 +81,7 @@ export class EventFormService extends BaseClass {
     public readonly spaces = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
         this._org.initialised.pipe(filter((_) => _)),
+        this._org.active_building.pipe(filter((_) => !!_)),
     ]).pipe(
         debounceTime(300),
         switchMap(([{ zone_ids }]) => {
