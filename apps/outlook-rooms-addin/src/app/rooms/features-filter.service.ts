@@ -61,7 +61,7 @@ export class FeaturesFilterService {
         this.updated_spaces$ = this.spaces$.pipe(
             map((spaces: Space[]) =>
                 spaces.filter((space: Space) => {
-                    return this._sort(space.feature_list).includes(
+                    return this._sort_and_join(space.feature_list).includes(
                         requested_features
                     );
                 })
@@ -71,13 +71,13 @@ export class FeaturesFilterService {
         this.updated_spaces_emitter.next(true);
     }
 
-    _sort(array: string[]): string {
+    _sort_and_join(array: string[]): string {
         return array?.sort().join();
     }
 
     async sortSelectedFeatures(array: any[]) {
         let features_array = await array?.map((item) => item.id);
-        return this._sort(features_array);
+        return this._sort_and_join(features_array);
     }
 
     clearFilter() {
