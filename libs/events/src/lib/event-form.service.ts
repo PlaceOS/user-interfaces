@@ -271,7 +271,8 @@ export class EventFormService extends BaseClass {
                     spaces,
                     date,
                     duration,
-                    id ? { start, end: start + event.duration * 60 } : undefined
+                    id ? { start, end: start + event.duration * 60 } : undefined,
+                    id || ''
                 ).catch((_) => reject(_));
             }
             const is_owner =
@@ -323,7 +324,8 @@ export class EventFormService extends BaseClass {
         spaces: Space[],
         date: number,
         duration: number,
-        exclude?: { start: number; end: number }
+        exclude?: { start: number; end: number },
+        ignore?: string
     ) {
         const space_ids = spaces.map(
             (s) => this._spaces.find(s?.email)?.id || s.id
@@ -338,6 +340,7 @@ export class EventFormService extends BaseClass {
                   ? (queryResourceAvailability(space_ids, {
                         ...query,
                         type: 'room',
+                        ignore
                     }) as any)
                   : querySpaceAvailability({
                         ...query,

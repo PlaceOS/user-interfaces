@@ -135,11 +135,12 @@ export function checkinBooking(id: string, state: boolean) {
  */
 export function queryResourceAvailability(
     asset_id_list: string[],
-    query: BookingsQueryParams
+    query: BookingsQueryParams,
+    ignore?: string
 ): Observable<string[]> {
     return queryBookings(query).pipe(
         map((_) =>
-            asset_id_list.filter((id) => !_.find((b) => b.asset_id === id))
+            asset_id_list.filter((id) => !_.find((b) => b.asset_id === id && (!ignore || ignore !== b.id)))
         )
     );
 }
