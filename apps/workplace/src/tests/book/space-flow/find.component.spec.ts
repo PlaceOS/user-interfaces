@@ -40,7 +40,7 @@ describe('SpaceFlowFindComponent', () => {
                 },
             },
             { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: SpacePipe, useValue: { transform: jest.fn() } },
+            { provide: SpacePipe, useValue: { transform: jest.fn(async () => ({})) } },
         ],
         declarations: [
             MockComponent(SpaceFlowFindItemComponent),
@@ -77,9 +77,10 @@ describe('SpaceFlowFindComponent', () => {
         );
     });
 
-    it('should allow booking spaces', async () => {
+    it('should allow booking spaces', () => {
         const service = spectator.inject(EventFormService);
         (service.available_spaces as any).next([{ id: 1 }, { id: 2 }]);
+        const spy = jest.spyOn(spectator.component, 'confirmBooking');
         spectator.detectChanges();
         spectator.inject(SpacePipe).transform.mockResolvedValue({} as any);
         spectator.triggerEventHandler(
@@ -87,17 +88,13 @@ describe('SpaceFlowFindComponent', () => {
             'bookChange',
             true
         );
-        await timer(1).toPromise();
-        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
-            '/book',
-            'spaces',
-            'confirm',
-        ]);
+        expect(spy).toHaveBeenCalled();
+        spy.mockRestore();
     });
 
     it('should allow selecting multiple spaces', () => {
         const spaces = [{ id: '1' }, { id: '2' }];
-        expect.assertions(3);
+        expect.assertions(4);
         expect(spectator.component.space_list).toHaveLength(0);
         const settings = spectator.inject(SettingsService);
         settings.get.mockImplementation(() => true);
@@ -105,10 +102,12 @@ describe('SpaceFlowFindComponent', () => {
         (service.available_spaces as any).next(spaces);
         spectator.detectChanges();
         const elements = spectator.queryAll('space-flow-find-item');
-        for (let i = 0; i < elements.length; i++) {
-            expect(spectator.component.book_space[spaces[i].id]).toBeFalsy();
-            spectator.triggerEventHandler(elements[i] as any, 'bookChange', true);
-            expect(spectator.component.book_space[spaces[i].id]).toBeTruthy();
-        }
+        expect(elements).toHaveLength(2);
+        spectator.component.handleBookEvent(spaces[0] as any, true);
+        console.log(spectator.component.book_space);
+        expect(spectator.component.book_space[spaces[0].id]).toBeTruthy();
+        spectator.component.handleBookEvent(spaces[1] as any, true);
+        console.log(spectator.component.book_space);
+        expect(spectator.component.book_space[spaces[1].id]).toBeTruthy();
     });
 });

@@ -132,7 +132,7 @@ export class EventFormService extends BaseClass {
                 period_end: getUnixTime(date + duration * MINUTES),
             };
             return (
-                this.has_calendar
+                !this.has_calendar
                     ? queryResourceAvailability(
                           spaces.map(({ id }) => id),
                           { ...query, type: 'room' }
@@ -177,7 +177,7 @@ export class EventFormService extends BaseClass {
     }
 
     public get has_calendar() {
-        return !!this._settings.get('app.no_user_calendar');
+        return !this._settings.get('app.no_user_calendar');
     }
 
     constructor(

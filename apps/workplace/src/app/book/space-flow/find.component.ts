@@ -225,7 +225,7 @@ import { filter, first, map, take } from 'rxjs/operators';
             }
         `,
     ],
-    providers: [SpacePipe]
+    providers: [SpacePipe],
 })
 export class SpaceFlowFindComponent implements OnInit {
     public book_space: HashMap<boolean> = {};
@@ -321,10 +321,11 @@ export class SpaceFlowFindComponent implements OnInit {
     }
 
     private _getSpaceList() {
-        return Promise.all(
-            Object.keys(this.book_space)
-                .filter((k) => this.book_space[k])
-                .map((_) => this._space_pipe.transform(_))
+        const id_list = Object.keys(this.book_space).filter(
+            (k) => this.book_space[k]
         );
+        return id_list.length
+            ? Promise.all(id_list.map((_) => this._space_pipe.transform(_)))
+            : Promise.resolve([]);
     }
 }

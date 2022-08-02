@@ -10,7 +10,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { Space, SpacesService } from '@placeos/spaces';
+import { Space } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { getModule, querySystems } from '@placeos/ts-client';
 import { unique } from '@placeos/common';
@@ -128,10 +128,8 @@ export class ExploreSearchService {
     public search_fn = (q: string) => searchStaff(q);
 
     constructor(
-        private _spaces: SpacesService,
         private _org: OrganisationService
     ) {
-        this._spaces.list.subscribe();
         this.search_results.subscribe();
         this.init();
     }

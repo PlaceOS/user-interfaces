@@ -147,7 +147,6 @@ export class DesksStateService extends BaseClass {
         ) {
             filters.zones = [];
         }
-        console.warn('Filters:', filters);
         this._filters.next({ ...this._filters.getValue(), ...filters });
     }
 

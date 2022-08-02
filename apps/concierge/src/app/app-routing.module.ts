@@ -8,7 +8,7 @@ import {
 
 
 const routes: Routes = [
-    { path: '', component: RedirectComponent },
+    { path: '-', component: RedirectComponent },
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'day-view',
@@ -89,7 +89,7 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
-    { path: '**', redirectTo: '' },
+    { path: '**', redirectTo: '-' },
 ];
 
 @NgModule({
