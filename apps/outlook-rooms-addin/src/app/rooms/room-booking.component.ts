@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
+import { FeaturesFilterService } from '../rooms/features-filter.service';
 
 @Component({
     selector: 'room-booking',
@@ -26,7 +27,6 @@ import { EventFormService } from '@placeos/events';
 export class RoomBookingComponent implements OnInit {
     public show_spaces = false;
     public show_people = false;
-    public loading = false;
 
     min_date: Date = new Date();
 
@@ -42,23 +42,18 @@ export class RoomBookingComponent implements OnInit {
         @Inject(DOCUMENT) private _document: Document,
         private router: Router,
         private _state: EventFormService
+          private _featuresFilterService: FeaturesFilterService
     ) {}
 
     ngOnInit(): void {
         this._state.newForm();
+        this._featuresFilterService.clearFilter();
     }
 
     async findSpace() {
         this.form.markAllAsTouched();
-        if (
-            !this.form?.controls?.title.valid ||
-            !this.form?.controls?.date.valid ||
-            !this.form?.controls?.duration.valid
-        )
-            return;
-
+        if (!this.form.valid) return;
         await this._state.storeForm();
-
         this.router.navigate(['/schedule/view']);
     }
 

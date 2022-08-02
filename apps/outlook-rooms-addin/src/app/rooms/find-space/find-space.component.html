@@ -3,7 +3,10 @@
         <div class="w-[calc(100%-2rem)] max-w-[375px] mx-auto">
             <div class="flex flex-row items-center">
                 <button (click)="closeModal()">
-                    <mat-icon class="text-3xl text-gray-700">close</mat-icon>
+                    <mat-icon
+                        class="flex items-center justify-center text-3xl text-gray-700"
+                        >close</mat-icon
+                    >
                 </button>
 
                 <span class="flex items-center text-lg font-bold ml-6">
@@ -12,13 +15,18 @@
             </div>
 
             <div class="flex flex-row justify-between mt-3 align-middle">
-                <div class="flex w-7/12">
+                <div class="flex w-7/12 justify-center">
                     <button
                         mat-flat-button
                         (click)="openFilter()"
-                        class="bg-gray-300 w-full h-9 text-sm"
+                        class="bg-gray-300 w-full h-9 text-sm filter-button"
                     >
-                        Filter
+                        <span>Filter</span>
+
+                        <span *ngIf="(selected_features$ | async)?.length">
+                            ({{ (selected_features$ | async).length }}
+                            applied)
+                        </span>
                     </button>
                 </div>
 
@@ -92,7 +100,6 @@
                                 <find-space-item
                                     *ngFor="let space of spaces$ | async"
                                     [space]="space"
-                                    [multiple]="multiple"
                                     [(book)]="book_space[space.id]"
                                     (bookChange)="
                                         handleBookEvent(space, $event)
@@ -206,7 +213,7 @@
                     mat-button
                     type="submit"
                     (click)="openRoomDetails()"
-                    class="bg-secondary border-secondary w-[300px] my-1"
+                    class="open-details-button bg-secondary border-secondary w-[300px] my-1"
                 >
                     <span class="">View Room</span>
                 </button>
