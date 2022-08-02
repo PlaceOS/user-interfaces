@@ -177,7 +177,7 @@ export class EventFormService extends BaseClass {
     }
 
     public get has_calendar() {
-        return !this._settings.get('app.no_user_calendar');
+        return this._settings.get('app.no_user_calendar') !== true;
     }
 
     constructor(
@@ -306,7 +306,7 @@ export class EventFormService extends BaseClass {
         query: Record<string, any>
     ) {
         return (
-            this.has_calendar
+            !this.has_calendar
                 ? saveBooking(
                       newBookingFromCalendarEvent({
                           ...event.toJSON(),
@@ -334,7 +334,7 @@ export class EventFormService extends BaseClass {
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         const space_list: any[] = spaces.length
-            ? await (this.has_calendar
+            ? await (!this.has_calendar
                   ? (queryResourceAvailability(space_ids, {
                         ...query,
                         type: 'room',
