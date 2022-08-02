@@ -16,20 +16,6 @@ export class ExistingBookingsService extends BaseClass {
     );
     public loading$: Observable<boolean> = this._loading.asObservable();
 
-    private _bookings: BehaviorSubject<CalendarEvent[]> = new BehaviorSubject<
-        CalendarEvent[]
-    >(null);
-    public bookings$: Observable<CalendarEvent[]> =
-        this._bookings.asObservable();
-
-    get bookings() {
-        return this._bookings.getValue();
-    }
-
-    set bookings(bookings: CalendarEvent[]) {
-        this._bookings.next(bookings);
-    }
-
     private _date: BehaviorSubject<number> = new BehaviorSubject<number>(
         Date.now()
     );

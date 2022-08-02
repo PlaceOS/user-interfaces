@@ -8,7 +8,8 @@
             >
                 <div class="flex flex-row items-center">
                     <button (click)="closeModal()">
-                        <mat-icon class="text-3xl text-gray-700"
+                        <mat-icon
+                            class="flex items-center justify-center text-3xl text-gray-700"
                             >close</mat-icon
                         >
                     </button>
@@ -118,8 +119,9 @@
                         <span> {{ feature.name }}</span>
                         <mat-checkbox
                             [(ngModel)]="feature.value"
-                            class="ml-auto"
+                            class="ml-auto checkbox"
                             [ngModelOptions]="{ standalone: true }"
+                            (change)="getSelectedFeatures()"
                         ></mat-checkbox>
                     </div>
                 </div>
@@ -133,7 +135,8 @@
                 mat-button
                 type="submit"
                 (click)="applyFilters()"
-                class="text-sm bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
+
+                class="filter-button text-sm bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto text-center"
             >
                 <span class="">Apply Filters</span>
             </button>

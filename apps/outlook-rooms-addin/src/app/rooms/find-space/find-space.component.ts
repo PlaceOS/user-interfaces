@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
@@ -16,6 +16,7 @@ import { RoomConfirmService } from '../room-confirm.service';
 import { MapPinComponent } from '@placeos/components';
 import { BaseClass } from '@placeos/common';
 import { MapsList } from '../map.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'find-space',
@@ -62,6 +63,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     >(null);
     map_actions$: Observable<ViewAction[]> = null;
     map_styles$: Observable<ViewerStyles[]> = null;
+    bottomSheetRef: any;
 
     public selected_level: any;
 
@@ -103,7 +105,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly features = this._spaces.features;
 
     public async setBuilding(bld) {
-        const opts = await this.options.pipe(take(1)).toPromise();
+        const opts = await this.options?.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
         const levels = this._org.levelsForBuilding(this._org.building);
         const lvl = levels.find((_) => opts.zone_ids?.includes(_.id));
@@ -119,10 +121,11 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
-        private location: Location,
+        private _location: Location,
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
+        private _router: Router
     ) {
         super();
     }
@@ -138,7 +141,16 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
         await this._state.available_spaces.pipe(take(1)).toPromise();
+
         this.spaces$ = this._state.available_spaces;
+        this._featuresFilterService.updated_spaces_emitter?.subscribe(
+            (result) => {
+                result
+                    ? (this.spaces$ =
+                          this._featuresFilterService.updated_spaces$)
+                    : this._state.available_spaces;
+            }
+        );
 
         this.setBuilding(this._org.building);
         this.book_space = {};
@@ -147,7 +159,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
 
-        this.maps_list$ = this._mapService.maps_list$.pipe(
+        this.maps_list$ = this._mapService.maps_list$?.pipe(
             tap((maps) => (this.selected_level = maps))
         );
 
@@ -183,13 +195,8 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     openFilter() {
-        const bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
+        this.bottomSheetRef = this.bottomSheet.open(FilterSpaceComponent, {
             data: this.buildings as OrganisationService['building_list'],
-        });
-
-        bottomSheetRef.afterDismissed().subscribe(() => {
-            this.setTimeChips();
-            this.updateSpaces();
         });
     }
 
@@ -222,7 +229,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     async updateSpaces() {
-        this.spaces$ = await this._featuresFilterService.applyFilter();
+        this.spaces$ = this._featuresFilterService.updated_spaces$;
     }
 
     updateSelectedLevel(e) {
@@ -252,6 +259,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     closeModal() {
-        this.location.back();
+        this._router.navigate(['/book/spaces']);
+        this._featuresFilterService.clearFilter();
     }
 }
