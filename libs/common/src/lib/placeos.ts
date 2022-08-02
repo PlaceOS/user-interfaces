@@ -29,12 +29,6 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         ? `${protocol}//${host}:${port}`
         : location.origin;
     const route = (location.pathname + '/').replace('//', '/');
-    console.log(
-        'Mock:',
-        settings.mock,
-        location.href.includes('mock=true'),
-        localStorage.getItem('mock') === 'true'
-    );
     const mock =
         settings.mock ||
         location.href.includes('mock=true') ||

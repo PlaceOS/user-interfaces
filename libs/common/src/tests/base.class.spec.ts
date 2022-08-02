@@ -38,7 +38,6 @@ describe('BaseClass', () => {
         const spy = jest.fn();
         obj = new BaseTestClass(null, null, spy);
         expect(spy).not.toHaveBeenCalled();
-        console.log((obj as any)._subscriptions);
         obj.ngOnDestroy();
         expect(spy).toHaveBeenCalled();
     });

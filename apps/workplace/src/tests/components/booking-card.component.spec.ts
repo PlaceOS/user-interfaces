@@ -1,3 +1,4 @@
+import { MatDialog } from "@angular/material/dialog";
 import { createRoutingFactory, SpectatorRouting } from "@ngneat/spectator/jest";
 import { Booking } from "@placeos/bookings";
 import { IconComponent } from "@placeos/components";
@@ -14,7 +15,8 @@ describe('BookingCardComponent', () => {
             MockComponent(IconComponent),
         ],
         providers: [
-            { provide: OrganisationService, useValue: { levelWithID: jest.fn() } }
+            { provide: OrganisationService, useValue: { levelWithID: jest.fn() } },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ]
     });
 

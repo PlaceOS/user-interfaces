@@ -323,7 +323,6 @@ export class BookingFormService extends BaseClass {
     }
 
     public async confirmPost() {
-        console.log('Confirm');
         await this.checkQuestions();
         const options = this._options.getValue();
         const form = this._form.getValue();
@@ -335,7 +334,6 @@ export class BookingFormService extends BaseClass {
                 ? ' at ' + format(value.date, 'h:mm a')
                 : ''
         }`;
-        console.log('Content:', content);
         if (options.group) {
             content = `${content}.<br>You group members will be assigned desks nearby your selected desk.`;
         }

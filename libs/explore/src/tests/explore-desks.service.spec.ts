@@ -71,7 +71,6 @@ describe('ExploreDesksService', () => {
         const binding = jest.fn(() => ({ listen: () => of(), bind }));
         (ts_client.getModule as any) = jest.fn();
         (ts_client.getModule as any).mockImplementation(() => ({ binding }));
-        console.log(ts_client);
         const state = spectator.inject(ExploreStateService);
         expect(ts_client.getModule).not.toHaveBeenCalled();
         (state as any).level.next(

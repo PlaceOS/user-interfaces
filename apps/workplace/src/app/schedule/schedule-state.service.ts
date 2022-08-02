@@ -54,7 +54,6 @@ export class ScheduleStateService extends BaseClass {
 
     public readonly calendars = timer(1000).pipe(
         switchMap((_) => queryCalendars()),
-        tap((_) => console.log('Calendars:', _)),
         shareReplay(1)
     );
 

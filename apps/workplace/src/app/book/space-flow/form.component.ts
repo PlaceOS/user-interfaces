@@ -111,7 +111,7 @@ export class SpaceFlowFormComponent {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get is_edit() {
-        return !!this.form?.value.id;
+        return !!this.form?.value?.id;
     }
 
     public get form() {

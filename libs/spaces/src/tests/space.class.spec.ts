@@ -20,7 +20,7 @@ describe('Space', () => {
         expect(space.zones).toEqual([]);
         expect(space.support_url).toBe('');
         expect(space.map_id).toBe('');
-        expect(space.images).toBe([]);
+        expect(space.images).toEqual([]);
         space = new Space({
             id: 'test',
             name: 'Space',

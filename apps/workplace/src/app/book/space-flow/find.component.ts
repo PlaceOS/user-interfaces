@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HashMap, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
+import { Space } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
 import { filter, first, map, take } from 'rxjs/operators';
@@ -128,7 +128,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         class="w-[640px] max-w-[calc(100%-2rem)] mx-auto "
                         [space]="space"
                         [multiple]="multiple"
-                        [(book)]="book_space[space.id]"
+                        [book]="book_space[space.id]"
                         (bookChange)="handleBookEvent(space, $event)"
                     ></space-flow-find-item>
                     <p class="p-4 text-center opacity-60">
@@ -286,7 +286,6 @@ export class SpaceFlowFindComponent implements OnInit {
     constructor(
         private _org: OrganisationService,
         private _state: EventFormService,
-        private _spaces: SpacesService,
         private _settings: SettingsService,
         private _router: Router,
         private _space_pipe: SpacePipe

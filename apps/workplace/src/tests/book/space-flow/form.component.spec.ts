@@ -8,6 +8,7 @@ import { MockComponent } from 'ng-mocks';
 
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
 import { SpaceFlowFormComponent } from 'apps/workplace/src/app/book/space-flow/form.component';
+import { SettingsService } from '@placeos/common';
 
 describe('SpaceFlowFormComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowFormComponent>;
@@ -27,6 +28,7 @@ describe('SpaceFlowFormComponent', () => {
                     },
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn(() => true) } }
         ],
         declarations: [
             MockComponent(DetailBookSpaceFormComponent),
@@ -80,7 +82,7 @@ describe('SpaceFlowFormComponent', () => {
     it('should allow for edits', () => {
         const service = spectator.inject(EventFormService);
         expect('[form] h2').toContainText('Detailed Space Booking');
-        (service.form.get as any).mockImplementation((_) => ({ value: true }));
+        (service.form.value as any) = { id: '1' };
         spectator.detectChanges();
         expect('[form] h2').toContainText('Edit Space Booking');
     });

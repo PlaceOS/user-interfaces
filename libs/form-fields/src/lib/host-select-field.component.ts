@@ -55,7 +55,6 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
                 )
             )
         ),
-        tap((_) => console.log('Hosts:', _)),
         map((_) => unique([currentUser(), ..._], 'email')),
         shareReplay(1)
     );

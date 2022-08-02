@@ -3,7 +3,7 @@ import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { FormGroup } from '@angular/forms';
 import { take } from 'rxjs/operators';
-import { of, Subject, timer } from 'rxjs';
+import { BehaviorSubject, of, Subject, timer } from 'rxjs';
 import { EventFormService } from '../lib/event-form.service';
 
 import { CalendarEvent } from '../lib/event.class';
@@ -22,7 +22,7 @@ describe('EventFormService', () => {
         providers: [
             {
                 provide: OrganisationService,
-                useValue: { initialised: of(true), building: { id: 'bld-1' } },
+                useValue: { initialised: of(true), building: { id: 'bld-1' }, active_building: new BehaviorSubject({}) },
             },
             {
                 provide: Router,
@@ -71,7 +71,7 @@ describe('EventFormService', () => {
     it('should allow reloading previous form details', () => {
         spectator.service.loadForm();
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
-        expect(spectator.service.form.value.title).toBe('');
+        expect(spectator.service.form.value.title).toBe('Space Booking');
         sessionStorage.setItem('PLACEOS.event_form', '{ "title": "Test" }');
         spectator.service.loadForm();
         expect(spectator.service.form.value.title).toBe('Test');
@@ -132,7 +132,7 @@ describe('EventFormService', () => {
     it('should reject posting invalid form', async () => {
         spectator.service.newForm();
         await expect(spectator.service.postForm()).rejects.toBe(
-            'Some form fields are invalid. [host, creator, title]'
+            'Some form fields are invalid. [host, creator]'
         );
     });
 

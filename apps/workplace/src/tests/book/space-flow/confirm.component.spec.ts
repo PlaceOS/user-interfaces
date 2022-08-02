@@ -16,6 +16,7 @@ jest.mock('@placeos/common');
 
 import * as common_mod from '@placeos/common';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
+import { SettingsService } from '@placeos/common';
 
 describe('SpaceFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowConfirmComponent>;
@@ -29,6 +30,7 @@ describe('SpaceFlowConfirmComponent', () => {
                     form: generateEventForm(new CalendarEvent()),
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         declarations: [
             DurationPipe,

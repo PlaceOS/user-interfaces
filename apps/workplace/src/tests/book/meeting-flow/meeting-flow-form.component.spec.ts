@@ -2,6 +2,7 @@ import { FormGroup } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
@@ -33,6 +34,10 @@ describe('MeetingFlowFormComponent', () => {
                     })),
                 },
             },
+            {
+                provide: SettingsService,
+                useValue: { get: jest.fn(() => false) },
+            },
         ],
         declarations: [
             MockComponent(MeetingFormDetailsComponent),
@@ -57,8 +62,12 @@ describe('MeetingFlowFormComponent', () => {
     it('should show room list', () =>
         expect(spectator.query('space-list-field')).toExist());
 
-    it('should show catering', () =>
-        expect(spectator.query('catering-list-field')).toExist());
+    it('should show catering', () => {
+        spectator.inject(SettingsService).get.mockImplementation(() => true);
+        spectator.detectChanges();
+        expect(spectator.query('catering-list-field')).toExist();
+        spectator.inject(SettingsService).get.mockReset();
+    });
 
     it('should show asset list', () =>
         expect(spectator.query('asset-list-field')).toExist());

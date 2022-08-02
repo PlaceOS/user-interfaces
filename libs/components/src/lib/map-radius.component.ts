@@ -87,7 +87,6 @@ export class MapRadiusComponent implements OnInit {
         @Inject(MAP_FEATURE_DATA) private _details: MapRadiusData,
         private _el: ElementRef<HTMLElement>
     ) {
-        console.log('Details:', this._details);
         this._details.zoom$?.subscribe((v) =>
             Math.max(0.5, (this.zoom = v || 1))
         );

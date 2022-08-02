@@ -26,6 +26,7 @@ import * as ts_client from '@placeos/ts-client';
 import * as user_mod from '@placeos/users';
 import * as common_mod from '@placeos/common';
 import { fakeAsync } from '@angular/core/testing';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -40,6 +41,7 @@ describe('ExploreMapViewComponent', () => {
             { provide: ExploreSpacesService, useValue: {} },
             { provide: ExploreDesksService, useValue: { startPolling: jest.fn(() => () => null) } },
             { provide: ExploreZonesService, useValue: {} },
+            { provide: SpacePipe, useValue: { transform: jest.fn(() => ({})) } },
         ],
         providers: [
             {

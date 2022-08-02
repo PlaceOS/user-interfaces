@@ -1,3 +1,4 @@
+import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
@@ -16,6 +17,7 @@ describe('EventCardComponent', () => {
                 provide: OrganisationService,
                 useValue: { levelWithID: jest.fn() },
             },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
     });
 

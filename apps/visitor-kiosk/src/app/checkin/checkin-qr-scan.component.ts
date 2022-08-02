@@ -150,7 +150,6 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     }
 
     private handleError(message: any) {
-        console.error(message);
         this._checkin.setError(message?.statusText || message);
         this._router.navigate(['/checkin', 'error']);
     }
