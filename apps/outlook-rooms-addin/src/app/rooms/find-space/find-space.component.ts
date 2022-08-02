@@ -117,15 +117,15 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
-        private bottomSheet: MatBottomSheet,
+        private _bottomSheet: MatBottomSheet,
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
-        private location: Location,
+        private _location: Location,
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
         private _roomConfirmService: RoomConfirmService,
-        private router: Router
+        private _router: Router
     ) {
         super();
     }
@@ -259,7 +259,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     closeModal() {
-        this.router.navigate(['/book/spaces']);
+        this._router.navigate(['/book/spaces']);
         this._featuresFilterService.clearFilter();
     }
 }
