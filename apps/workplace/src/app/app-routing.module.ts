@@ -8,7 +8,7 @@ import {
 } from '@placeos/components';
 
 const routes: Routes = [
-    { path: '+', component: RedirectComponent },
+    { path: '-', component: RedirectComponent },
     { path: 'unauthorised', component: UnauthorisedComponent },
     { path: 'misconfigured', component: MisconfiguredComponent },
     {
@@ -84,7 +84,7 @@ const routes: Routes = [
         loadChildren: () =>
             import('./whats-on/whats-on.module').then((m) => m.WhatsOnModule),
     },
-    { path: '**', redirectTo: '+', pathMatch: 'full' },
+    { path: '**', redirectTo: '-', pathMatch: 'full' },
 ];
 
 @NgModule({
