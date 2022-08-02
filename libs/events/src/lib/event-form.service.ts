@@ -273,7 +273,10 @@ export class EventFormService extends BaseClass {
                     duration,
                     id ? { start, end: start + event.duration * 60 } : undefined,
                     id || ''
-                ).catch((_) => reject(_));
+                ).catch((_) => {
+                    reject(_)
+                    throw _;
+                });
             }
             const is_owner =
                 host === currentUser()?.email ||
@@ -352,5 +355,6 @@ export class EventFormService extends BaseClass {
             throw `${
                 spaces.length - space_list.length
             } space(s) are not available at the selected time`;
+        return true;
     }
 }
