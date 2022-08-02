@@ -24,7 +24,7 @@ const DEFAULT_KEYS = [
         <ng-content></ng-content>
         <ng-template cdk-portal>
             <div
-                keyboard
+                keyboard-view
                 class="w-screen flex flex-col space-y-4 bg-gray-200 p-2 border-t border-gray-400"
             >
                 <div

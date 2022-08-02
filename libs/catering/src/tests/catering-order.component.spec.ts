@@ -1,6 +1,6 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 
@@ -8,6 +8,7 @@ import { CateringOrderComponent } from '../lib/catering-order.component';
 import { CateringOrderItemComponent } from '../lib/catering-order-item.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
 import { CateringOrder } from '../lib/catering-order.class';
+import { format } from 'date-fns';
 
 describe('CateringOrderComponent', () => {
     let spectator: Spectator<CateringOrderComponent>;
@@ -25,7 +26,7 @@ describe('CateringOrderComponent', () => {
                 },
             },
         ],
-        imports: [MatMenuModule],
+        imports: [MockModule(MatMenuModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -38,7 +39,7 @@ describe('CateringOrderComponent', () => {
         const order = new CateringOrder({ deliver_at: 1 });
         spectator.setInput({ order });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[time]').toContainText(format(1, 'h:mm a'));
     });
 
     it('should list order items', () => {

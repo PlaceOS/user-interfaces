@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
@@ -11,7 +12,9 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
 @Component({
     selector: 'user-controls',
     template: `
-        <div class="rounded bg-white shadow mt-1 flex flex-col relative">
+        <div
+            class="rounded bg-white dark:bg-neutral-700 dark:text-white shadow mt-1 flex flex-col relative divide-y divide-gray-300 dark:divide-neutral-500"
+        >
             <div
                 avatar
                 class="flex flex-col items-center p-2 w-[18rem]"
@@ -23,9 +26,9 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
             </div>
             <div customTooltip [content]="building_select" class="relative">
                 <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2 dark:text-white">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
                             <app-icon>business</app-icon>
                         </div>
@@ -47,9 +50,9 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                 *ngIf="features.includes('help')"
             >
                 <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2 dark:text-white">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
                             <app-icon>help</app-icon>
                         </div>
@@ -60,28 +63,48 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                     </div>
                 </button>
             </div>
-            <div
-                customTooltip
-                [content]="accessibility_tooltip"
-            >
-            <button mat-button class="clear w-full text-left h-[3.5rem]">
-                <div class="flex items-center space-x-2">
-                    <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
-                    >
-                        <app-icon>mode_night</app-icon>
-                    </div>
-                    <div class="flex-1">Display & Accessibility</div>
-                    <app-icon class="opacity-60 text-2xl"
-                        >chevron_right</app-icon
-                    >
-                </div>
-            </button>
+            <div *ngIf="features.includes('wfh')">
+                <button
+                    mat-button
+                    class="clear w-full text-left h-[3.5rem]"
+                    (click)="openWfhModal()"
+                >
+                    <div class="flex items-center space-x-2 dark:text-white">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                        >
+                            <app-icon>share_location</app-icon>
                         </div>
-            <button mat-button class="clear w-full text-left h-[3.5rem]" (click)="openSupportTicketModal()">
-                <div class="flex items-center space-x-2">
+                        <div class="flex-1">Work Location Settings</div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
+                    </div>
+                </button>
+            </div>
+            <div customTooltip [content]="accessibility_tooltip" class="!border-b">
+                <button mat-button class="clear w-full text-left h-[3.5rem]">
+                    <div class="flex items-center space-x-2 dark:text-white">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                        >
+                            <app-icon>mode_night</app-icon>
+                        </div>
+                        <div class="flex-1">Display & Accessibility</div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
+                    </div>
+                </button>
+            </div>
+            <button
+                mat-button
+                class="clear w-full text-left h-[3.5rem]"
+                (click)="openSupportTicketModal()"
+            >
+                <div class="flex items-center space-x-2 dark:text-white">
                     <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200"
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                     >
                         <app-icon>support_agent</app-icon>
                     </div>
@@ -89,7 +112,9 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
-                <button mat-button class="inverse mb-4" (click)="logout()">Sign Out</button>
+                <button mat-button class="inverse mb-4" (click)="logout()">
+                    Sign Out
+                </button>
                 <div class="text-xs opacity-60 w-full">
                     Version: {{ version.hash }}
                 </div>
@@ -100,14 +125,7 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
             </div>
         </div>
     `,
-    styles: [
-        `
-            :host > div > *:nth-child(n + 1) {
-                border-top: 1px solid #ccc;
-                border-radius: 0;
-            }
-        `,
-    ],
+    styles: [``],
 })
 export class UserControlsComponent {
     public readonly building = this._org.active_building;
@@ -145,5 +163,9 @@ export class UserControlsComponent {
 
     public openSupportTicketModal() {
         this._dialog.open(SupportTicketModalComponent);
+    }
+
+    public openWfhModal() {
+        this._dialog.open(WFHSettingsModalComponent);
     }
 }

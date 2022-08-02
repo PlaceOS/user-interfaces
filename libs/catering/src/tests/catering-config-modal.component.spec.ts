@@ -37,9 +37,5 @@ describe('CateringConfigModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     //TODO: add test to check adding new rulesets and rules
 });

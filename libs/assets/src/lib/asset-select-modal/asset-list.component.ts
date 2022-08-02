@@ -5,7 +5,7 @@ import { Asset } from '../asset.class';
 @Component({
     selector: 'asset-list',
     template: `
-        <div class="w-full h-full overflow-auto">
+        <div class="w-full h-full overflow-auto py-2 bg-black/5 dark:bg-white/10 dark:border-neutral-500">
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (assets | async)?.length || 0 }} result(s) found
@@ -18,12 +18,12 @@ import { Asset } from '../asset.class';
                     <li
                         asset
                         *ngFor="let asset of assets | async"
-                        class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
+                        class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-700 border-gray-200 dark:border-neutral-500"
                     >
                         <button
                             matRipple
                             select
-                            class="w-full h-full flex items-center"
+                            class="w-full h-full flex items-center pr-10"
                             (click)="selectAsset(asset)"
                         >
                             <div
@@ -33,12 +33,13 @@ import { Asset } from '../asset.class';
                                     class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                     *ngIf="selected.includes(asset.id)"
                                 >
-                                    <app-icon>done</app-icon>
+                                   <span class="text-xs">{{asset.amount || 1}}</span>
                                 </div>
                             </div>
-                            <div class="space-y-2 text-left">
-                                <div class="font-medium">
-                                    {{ asset.name || 'Asset' }}
+                            <div class="space-y-2 text-left flex-1">
+                                <div class="font-medium flex items-center justify-between">
+                                    <div>{{ asset.name || 'Asset' }}</div>
+                                    <div class="opacity-60 text-xs">{{ asset.category }}</div>
                                 </div>
                                 <div
                                     class="flex items-center text-sm space-x-2"

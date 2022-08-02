@@ -106,38 +106,41 @@ export class CustomTooltipComponent<T = any>
 
     public open() {
         if (!this.content) return;
-        this._updateType();
-        if (this._overlay_ref) this.close();
-        if (!this._portal) return;
-        this._overlay_ref = this._overlay.create({
-            hasBackdrop: !!this.backdrop,
-            positionStrategy: this._overlay
-                .position()
-                .flexibleConnectedTo(this._element)
-                .withPositions([
-                    {
-                        originX: this.x_pos || 'end',
-                        originY:
-                            (this.y_pos === 'top'
-                                ? 'bottom'
-                                : this.y_pos == 'bottom'
-                                ? 'top'
-                                : this.y_pos) || 'bottom',
-                        overlayX: this.x_pos || 'end',
-                        overlayY: this.y_pos || 'top',
-                    },
-                ]),
-        });
-        this._overlay_ref.attach(this._portal);
-        if (this.backdrop) {
-            this.subscription(
-                'backdrop',
-                this._overlay_ref.backdropClick().subscribe(() => this.close())
-            );
-        }
+        this.timeout('open', () => {
+            this._updateType();
+            if (this._overlay_ref) this.close();
+            if (!this._portal) return;
+            this._overlay_ref = this._overlay.create({
+                hasBackdrop: !!this.backdrop,
+                positionStrategy: this._overlay
+                    .position()
+                    .flexibleConnectedTo(this._element)
+                    .withPositions([
+                        {
+                            originX: this.x_pos || 'end',
+                            originY:
+                                (this.y_pos === 'top'
+                                    ? 'bottom'
+                                    : this.y_pos == 'bottom'
+                                    ? 'top'
+                                    : this.y_pos) || 'bottom',
+                            overlayX: this.x_pos || 'end',
+                            overlayY: this.y_pos || 'top',
+                        },
+                    ]),
+            });
+            this._overlay_ref.attach(this._portal);
+            if (this.backdrop) {
+                this.subscription(
+                    'backdrop',
+                    this._overlay_ref.backdropClick().subscribe(() => this.close())
+                );
+            }
+        }, 50);
     }
 
     public close() {
+        this.clearTimeout('open');
         if (this._overlay_ref) {
             this._overlay_ref.dispose();
             this._overlay_ref = null;

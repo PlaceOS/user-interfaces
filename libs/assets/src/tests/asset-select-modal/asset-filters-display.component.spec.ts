@@ -1,10 +1,10 @@
-import { createRoutingFactory, Spectator } from "@ngneat/spectator/jest";
+import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
 import { MockComponent } from "ng-mocks";
 import { AssetFiltersDisplayComponent } from "../../lib/asset-select-modal/asset-filters-display.component";
 
 describe('AssetFiltersDisplayComponent', () => {
     let spectator: Spectator<AssetFiltersDisplayComponent>;
-    const createComponent = createRoutingFactory({
+    const createComponent = createComponentFactory({
         component: AssetFiltersDisplayComponent,
         providers: [],
         declarations: []

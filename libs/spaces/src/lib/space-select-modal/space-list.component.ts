@@ -17,7 +17,8 @@ import { Space } from '../space.class';
                 <li
                     space
                     *ngFor="let space of available_spaces | async"
-                    class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
+                    [class.!border-blue-400]="active === space.id"
+                    class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-700 border-gray-200 dark:border-neutral-500"
                 >
                     <button
                         matRipple
@@ -26,7 +27,7 @@ import { Space } from '../space.class';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 mr-4"
+                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden"
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
@@ -34,9 +35,10 @@ import { Space } from '../space.class';
                             >
                                 <app-icon>done</app-icon>
                             </div>
+                            <img *ngIf="space.images?.length" class="object-cover h-full" [src]="space.images[0]" />
                         </div>
                         <div class="space-y-2">
-                            <div class="font-medium">
+                            <div class="font-medium truncate mr-10">
                                 {{ space.name || 'Meeting Space' }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
@@ -92,12 +94,12 @@ import { Space } from '../space.class';
                 width: 100%;
                 height: 100%;
                 padding: 0.5rem;
-                background: rgba(0,0,0,0.05);
             }
         `,
     ],
 })
 export class SpaceListComponent {
+    @Input() public active: string = '';
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();

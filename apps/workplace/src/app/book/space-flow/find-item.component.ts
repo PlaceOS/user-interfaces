@@ -7,11 +7,11 @@ import { MapLocateModalComponent } from '@placeos/components';
     selector: 'space-flow-find-item',
     template: `
         <div
-            class="flex items-center bg-white p-2 my-2 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
+            class="flex items-center bg-white dark:bg-neutral-700 p-2 my-2 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
         >
             <div class="flex flex-col flex-1 space-y-2 ">
                 <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>place</app-icon>
                     </div>
                     <span
@@ -20,7 +20,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     >
                 </div>
                 <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>group</app-icon>
                     </div>
                     <span>{{ space?.capacity || 0 }} People</span>

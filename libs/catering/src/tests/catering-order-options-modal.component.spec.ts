@@ -35,10 +35,6 @@ describe('CateringOrderOptionsModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow for multi or single selection', () => {
         expect('[group="Multi"] mat-radio-button').not.toExist();
         expect('[group="Single"] mat-checkbox').not.toExist();

@@ -13,11 +13,11 @@ describe('SpaceEventDetailsComponent', () => {
     });
 
     it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+        expect('[event]').not.toExist();
         spectator.setInput({
             event: { title: 'Event 1', date: 1, duration: 60 } as any,
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[event]').toExist();
     });
 });

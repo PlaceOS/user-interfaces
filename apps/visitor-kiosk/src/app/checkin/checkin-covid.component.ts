@@ -54,7 +54,7 @@ import { CheckinStateService } from './checkin-state.service';
             <button mat-button (click)="confirm()">Confirm</button>
             <a
                 mat-icon-button
-                [disabled]="!symptoms && !contact"
+                [attr.disabled]="!symptoms && !contact"
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >

@@ -59,7 +59,7 @@ describe('SpaceSelectModalComponent', () => {
                     })
                 )
         );
-        (cal_mod as any).querySpaceFreeBusy = jest.fn(() => of(spaces));
+        (cal_mod as any).querySpaceAvailability = jest.fn(() => of(spaces));
         (book_util as any).filterSpacesRules = jest.fn((l) => l);
         spectator = createComponent();
     });
@@ -69,12 +69,13 @@ describe('SpaceSelectModalComponent', () => {
     });
 
     it('should list spaces', fakeAsync(() => {
-        expect(cal_mod.querySpaceFreeBusy).toHaveBeenCalled();
+        expect(cal_mod.querySpaceAvailability).toHaveBeenCalled();
         expect('a-space-select-item').toHaveLength(30);
     }));
 
     it('should allow selecting single spaces', () => {
         const spy = jest.spyOn(spectator.component, 'save');
+        spectator.detectChanges();
         spectator.click('a-space-select-item');
         expect(spy).toHaveBeenCalled();
     });
@@ -112,7 +113,7 @@ describe('SpaceSelectModalComponent', () => {
     });
 
     it('should have empty state', () => {
-        (cal_mod as any).querySpaceFreeBusy.mockImplementation(() => of([]));
+        (cal_mod as any).querySpaceAvailability.mockImplementation(() => of([]));
         spectator.component.building.next(building);
         spectator.detectChanges();
         expect('a-space-select-item').not.toExist();

@@ -5,7 +5,7 @@ import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
 
-import { BaseClass, notifyError } from '@placeos/common';
+import { BaseClass, notifyError, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CalendarEvent } from '../../../events/src/lib/event.class';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
@@ -33,7 +33,10 @@ export class CalendarService extends BaseClass {
     public readonly availability = (q: CalendarAvailabilityQueryParams) =>
         queryCalendarAvailability(q);
 
-    constructor(private _org: OrganisationService) {
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         super();
         this._org.initialised
             .pipe(first((_) => _))
@@ -41,6 +44,7 @@ export class CalendarService extends BaseClass {
     }
 
     public async init() {
+        if (this._settings.get('app.no_user_calendar')) return;
         await this.load().catch((err) =>
             notifyError('Error loading calendars data')
         );

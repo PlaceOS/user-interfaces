@@ -4,15 +4,9 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 import { unique } from 'libs/common/src/lib/general';
 
-import { CateringOption } from './catering.interfaces';
+import { CateringOption, CateringOptionGroup } from './catering.interfaces';
 
 export interface CateringOrderOptionsModalData {
-    options: CateringOption[];
-}
-
-interface CateringOptionGroup {
-    name: string;
-    multiple: boolean;
     options: CateringOption[];
 }
 

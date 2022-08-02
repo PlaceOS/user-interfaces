@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { Router } from '@angular/router';
 import { HashMap, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
+import { Space } from '@placeos/spaces';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
 import { filter, first, map, take } from 'rxjs/operators';
 
@@ -96,10 +97,10 @@ import { filter, first, map, take } from 'rxjs/operators';
                         class="w-full sm:w-px sm:flex-1 h-[3.25rem] hidden sm:block"
                         overlay
                         appearance="outline"
-                        *ngIf="(features | async).length"
+                        *ngIf="(features | async)?.length"
                     >
                         <mat-select
-                            placeholder="Any Features"
+                            [placeholder]="'Any ' + features_label"
                             multiple
                             [ngModel]="(options | async)?.features"
                             (ngModelChange)="setOptions({ features: $event })"
@@ -115,7 +116,9 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </div>
             </div>
         </div>
-        <div class="flex-1 w-full bg-gray-100 overflow-auto">
+        <div
+            class="flex-1 w-full bg-gray-100 dark:bg-neutral-600 overflow-auto"
+        >
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container
                     *ngIf="(spaces | async)?.length > 0; else empty_state"
@@ -125,7 +128,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         class="w-[640px] max-w-[calc(100%-2rem)] mx-auto "
                         [space]="space"
                         [multiple]="multiple"
-                        [(book)]="book_space[space.id]"
+                        [book]="book_space[space.id]"
                         (bookChange)="handleBookEvent(space, $event)"
                     ></space-flow-find-item>
                     <p class="p-4 text-center opacity-60">
@@ -134,16 +137,19 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </ng-container>
             </ng-container>
         </div>
-        <div *ngIf="multiple" class="bg-white border-t border-gray-200">
+        <div
+            *ngIf="multiple"
+            class="bg-white dark:bg-neutral-700 border-t border-gray-200"
+        >
             <div
                 class="flex items-center w-[640px] max-w-[calc(100%-2rem)] mx-auto p-2"
             >
                 <div class="flex-1 underline" [matMenuTriggerFor]="menu">
-                    {{ space_list.length }} space(s) selected
+                    {{ space_list?.length }} space(s) selected
                 </div>
                 <button
                     class="w-32"
-                    [disabled]="!space_list.length"
+                    [disabled]="!space_list?.length"
                     mat-button
                     (click)="confirmBooking()"
                 >
@@ -211,14 +217,15 @@ import { filter, first, map, take } from 'rxjs/operators';
             }
 
             [topbar] {
-                background-color: #00539f;
+                background-color: var(--secondary-dark);
             }
 
             [filters] {
-                background-color: #007ac8;
+                background-color: var(--secondary);
             }
         `,
     ],
+    providers: [SpacePipe],
 })
 export class SpaceFlowFindComponent implements OnInit {
     public book_space: HashMap<boolean> = {};
@@ -255,7 +262,7 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly options = this._state.options;
 
     public readonly spaces = this._state.available_spaces;
-    public readonly features = this._spaces.features;
+    public readonly features = this._state.features;
     public async setBuilding(bld) {
         const opts = await this.options.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
@@ -272,39 +279,53 @@ export class SpaceFlowFindComponent implements OnInit {
         return this._settings.get('app.events.multiple_spaces') ?? false;
     }
 
+    public get features_label() {
+        return this._settings.get('app.events.features_label') || 'feature';
+    }
+
     constructor(
         private _org: OrganisationService,
-        private _spaces: SpacesService,
         private _state: EventFormService,
         private _settings: SettingsService,
-        private _router: Router
+        private _router: Router,
+        private _space_pipe: SpacePipe
     ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
-        await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
         this.setBuilding(this._org.building);
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
         resources.forEach((_) => (this.book_space[_.id] = true));
-        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
+        this.space_list = await this._getSpaceList();
     }
 
-    public handleBookEvent(space: Space, book: boolean = true) {
+    public async handleBookEvent(space: Space, book: boolean = true) {
         if (this.multiple) {
             this.book_space[space.id] = book;
         } else {
             this.book_space = {};
             this.book_space[space.id] = book;
-            console.log('confirm booking reached');
             this.confirmBooking();
         }
-        this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
+        this.space_list = await this._getSpaceList();
     }
 
-    public confirmBooking() {
-        const spaces = this._spaces.filter((s) => this.book_space[s.id]);
-        this._state.form.patchValue({ resources: spaces, system: spaces[0] as any });
+    public async confirmBooking() {
+        const spaces = await this._getSpaceList();
+        this._state.form.patchValue({
+            resources: spaces,
+            system: spaces[0] as any,
+        });
         this._router.navigate(['/book', 'spaces', 'confirm']);
+    }
+
+    private _getSpaceList() {
+        const id_list = Object.keys(this.book_space).filter(
+            (k) => this.book_space[k]
+        );
+        return id_list.length
+            ? Promise.all(id_list.map((_) => this._space_pipe.transform(_)))
+            : Promise.resolve([]);
     }
 }

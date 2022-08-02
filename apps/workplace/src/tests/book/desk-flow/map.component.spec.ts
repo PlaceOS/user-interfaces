@@ -48,10 +48,6 @@ describe('DeskFlowMapComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should list available desks', () => {
         expect('li').toHaveLength(0);
         const service = spectator.inject(BookingFormService);

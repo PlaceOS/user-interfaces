@@ -7,8 +7,8 @@ import { BookingLike } from './schedule-state.service';
 @Component({
     selector: '[schedule-list-item]',
     template: `
-        <ng-container [ngSwitch]="item?.id">
-            <div *ngSwitchCase="'date'">
+        <ng-container *ngIf="item" [ngSwitch]="item?.id">
+            <div date *ngSwitchCase="'date'">
                 <div class="mx-4 w-full h-12 text-xl flex items-center">
                     {{ item.date | date: 'longDate' }} ({{ item.duration }})
                 </div>
@@ -21,12 +21,13 @@ import { BookingLike } from './schedule-state.service';
             </div>
             <a
                 mat-button
+                item
                 *ngSwitchDefault
-                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white hover:shadow p-0"
+                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white dark:bg-neutral-700 hover:shadow p-0"
                 [class.opacity-50]="has_ended"
                 [routerLink]="['/schedule', 'view', item?.id, type]"
             >
-                <div class="flex items-center border border-gray-200 ">
+                <div class="flex items-center border border-gray-200 dark:border-neutral-500">
                     <div
                         status
                         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"
@@ -34,7 +35,7 @@ import { BookingLike } from './schedule-state.service';
                         [class.bg-pending]="status === 'tentative'"
                         [class.bg-error]="status === 'declined'"
                     >
-                        <app-icon class="text-2xl">{{ icon }}</app-icon>
+                        <app-icon class="text-2xl" [icon]="icon"></app-icon>
                         <div class="font-normal">
                             {{
                                 item?.all_day
@@ -72,7 +73,8 @@ export class ScheduleListItemComponent {
     @Input() public item: BookingLike;
 
     public get type() {
-        return this.item instanceof Booking ? 'booking' : 'event'; 
+        return this.item instanceof Booking 
+            ? 'booking' : 'event'
     }
 
     public get has_ended() {
@@ -84,16 +86,18 @@ export class ScheduleListItemComponent {
     }
 
     public get icon() {
-        if (this.status === 'declined') return 'cancel';
+        if (this.status === 'declined') return 'event_busy';
         if (this.item.asset_id) {
             switch ((this.item as Booking).booking_type) {
+                case 'room':
+                    return { content: 'meeting_room' } ;
                 case 'desk':
-                    return 'view_quilt';
+                    return { type: 'img', src: 'assets/img/desk.svg' } ;
                 case 'parking':
-                    return 'local_parking';
+                    return { content: 'local_parking' };
             }
         }
-        return 'event';
+        return { content: 'event'};
     }
 
     public get status() {

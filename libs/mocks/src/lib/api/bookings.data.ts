@@ -25,12 +25,12 @@ const TRACKING = ['in_storage', 'in_transit', 'at_location']
 
 export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
     const throw_away = predictableRandomInt(999999) % 3 === 0;
-    const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
+    const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)] || {} as any;
     const type = TYPES[predictableRandomInt(TYPES.length)];
     const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
-    const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld.id);
+    const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld?.id);
     const lvl = lvls[predictableRandomInt(lvls.length)];
-    const lvl_spaces = MOCK_SPACES.filter(_ => _.zones.includes(lvl?.id));
+    const lvl_spaces = MOCK_SPACES.filter(_ => _.zones.includes(lvl?.id)) || [];
     const approved = predictableRandomInt(999999) % 4;
     const approver = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
     const asset_count = predictableRandomInt(3, 1);
@@ -60,7 +60,7 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
         approver_id: approved === 0 ? approver.id : '',
         approver_name: approved === 0 ? approver.name : '',
         approver_email: approved === 0 ? approver.email : '',
-        zones: [bld.id, lvl?.id],
+        zones: [bld?.id, lvl?.id],
         extension_data: {
             map_id: `table-10.00${index}`,
             plate_number: randomString(8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'),

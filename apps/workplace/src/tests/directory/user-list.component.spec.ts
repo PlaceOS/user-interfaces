@@ -44,10 +44,6 @@ describe('DirectoryUserListComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should list spaces', async () => {
         expect('a-cdirectory-user-list-item').toHaveLength(0);
         spectator.component.search$.next('User');

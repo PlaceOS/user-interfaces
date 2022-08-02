@@ -2,11 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {
     AuthorisedUserGuard,
+    RedirectComponent,
     UnauthorisedComponent
 } from '@placeos/components';
 
 
 const routes: Routes = [
+    { path: '-', component: RedirectComponent },
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'day-view',
@@ -87,7 +89,7 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
-    { path: '**', redirectTo: 'day-view' },
+    { path: '**', redirectTo: '-' },
 ];
 
 @NgModule({

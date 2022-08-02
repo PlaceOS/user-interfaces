@@ -18,11 +18,10 @@ describe('CateringOrderItemComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
+    it('should show details', () => {
+        expect('[action]').not.toExist();
         spectator.setInput({ item: new CateringItem({ name: 'Test' }) });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-        spectator.click('button');
-        expect(spectator.element).toMatchSnapshot();
+        expect('[action]').toExist();
     });
 });

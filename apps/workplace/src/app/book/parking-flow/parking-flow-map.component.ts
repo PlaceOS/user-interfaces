@@ -64,7 +64,7 @@ class SpacePingComponent extends BaseClass {
             </div>
             <div class="flex w-full h-1/2 flex-1 z-0">
                 <div
-                    class="p-2 sm:w-[18rem] w-full h-full bg-gray-50 shadow z-10 overflow-auto space-y-2"
+                    class="p-2 sm:w-[18rem] w-full h-full bg-gray-50 dark:bg-neutral-600 shadow z-10 overflow-auto space-y-2"
                 >
                     <div
                         class="bg-white sticky top-0 w-full z-10"
@@ -90,7 +90,7 @@ class SpacePingComponent extends BaseClass {
                     <p>{{ (available | async)?.length }} space(s) available</p>
                     <button
                         matRipple
-                        class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-2 w-full"
+                        class="flex items-center justify-between bg-white dark:bg-neutral-700 rounded-lg border border-gray-200 p-2 w-full"
                         [class.active]="(active_space | async)?.id === space.id"
                         (click)="setActive(space)"
                         *ngFor="let space of available | async"

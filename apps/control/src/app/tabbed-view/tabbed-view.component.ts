@@ -98,14 +98,5 @@ export class ControlTabbedViewComponent extends BaseClass implements OnInit {
         this.timeout('init', () =>
             !this._state.id ? this._router.navigate(['/bootstrap']) : ''
         );
-        this.interval(
-            'update',
-            async () =>
-                console.log(
-                    'Space',
-                    await this._state.system.pipe(take(1)).toPromise()
-                ),
-            300
-        );
     }
 }

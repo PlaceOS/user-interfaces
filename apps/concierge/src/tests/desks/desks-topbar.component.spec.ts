@@ -58,10 +58,6 @@ describe('DesksTopbarComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should handle zone_ids query param', async () => {
         jest.spyOn(spectator.component, 'updateZones');
         expect(spectator.component.updateZones).not.toBeCalled();

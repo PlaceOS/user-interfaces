@@ -6,6 +6,7 @@ import { EventFormService } from '@placeos/events';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { Building, OrganisationService } from '@placeos/organisation';
+import { IconComponent } from '@placeos/components';
 
 describe('SpaceFiltersDisplayComponent', () => {
     let spectator: Spectator<SpaceFiltersDisplayComponent>;
@@ -34,7 +35,7 @@ describe('SpaceFiltersDisplayComponent', () => {
                 },
             },
         ],
-        declarations: [],
+        declarations: [MockComponent(IconComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

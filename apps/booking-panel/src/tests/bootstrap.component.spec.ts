@@ -47,11 +47,6 @@ describe('BootstrapComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show loading initially', () => {
-        expect('[load]').toExist();
-        expect('mat-spinner').toExist();
-    });
-
     it('should stop loading when spaces have loaded', () => {
         spectator.detectChanges();
         expect('[load]').not.toExist();
@@ -67,13 +62,13 @@ describe('BootstrapComponent', () => {
         const button: HTMLButtonElement = spectator.query('button');
         expect(button).toBeTruthy();
         // expect(button.disabled).toBeTruthy();
-        spectator.component.system_id = 'sys-B0';
+        spectator.component.system_id$.next('sys-B0');
         spectator.detectChanges();
         expect(button.disabled).toBeFalsy();
     });
 
     it('should route to the panel on submit', () => {
-        spectator.component.system_id = 'sys-B0';
+        spectator.component.system_id$.next('sys-B0');
         spectator.detectChanges();
         expect(spectator.query('button[disabled]')).toBeFalsy();
         spectator.click('button');

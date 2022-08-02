@@ -40,22 +40,29 @@ import { SpaceFiltersComponent } from './space-filters.component';
             </div>
         </section>
         <section filters class="flex items-center flex-wrap p-2">
-            <div filter-item zone *ngIf="location">
+            <div
+                filter-item
+                zone
+                class="dark:border-neutral-500"
+                *ngIf="location"
+            >
                 {{ location }}
             </div>
-            <div filter-item date>{{ start | date: 'mediumDate' }}</div>
-            <div filter-item time>
+            <div filter-item date class="dark:border-neutral-500">
+                {{ start | date: 'mediumDate' }}
+            </div>
+            <div filter-item time class="dark:border-neutral-500">
                 {{ start | date: 'shortTime' }} &mdash;
                 {{ end | date: 'shortTime' }}
             </div>
-            <div filter-item count>
+            <div filter-item count class="dark:border-neutral-500">
                 Min. {{ (options | async)?.capcaity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p>{{ feat }}</p>
                 <button
                     mat-icon-button
-                    class="-mr-4"
+                    class="-mr-4 dark:border-neutral-500"
                     (click)="removeFeature(feat)"
                 >
                     <app-icon>close</app-icon>
@@ -114,7 +121,12 @@ export class SpaceFiltersDisplayComponent extends BaseClass {
     }
 
     public ngOnInit() {
-        this.subscription('opts', this.options.subscribe(({ zone_ids }) => this._updateLocation(zone_ids)))
+        this.subscription(
+            'opts',
+            this.options.subscribe(({ zone_ids }) =>
+                this._updateLocation(zone_ids)
+            )
+        );
     }
 
     public async removeFeature(feat: string) {

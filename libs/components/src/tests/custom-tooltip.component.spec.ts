@@ -8,6 +8,7 @@ import {
     CustomTooltipData,
 } from '../lib/custom-tooltip.component';
 import { SanitizePipe } from '../lib/sanitise.pipe';
+import { fakeAsync } from '@angular/core/testing';
 
 @Component({ selector: 'fake', template: 'Fake Component' })
 export class FakeComponent {}
@@ -30,7 +31,7 @@ describe('CustomTooltipComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow rendering components', () => {
+    it('should allow rendering components', fakeAsync(() => {
         spectator = createHost('<div customTooltip></div>', {
             props: {
                 content: FakeComponent,
@@ -39,14 +40,14 @@ describe('CustomTooltipComponent', () => {
         jest.spyOn(spectator.component, 'open');
         expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.queryHost('div'));
-        spectator.detectChanges();
+        spectator.tick(200);
         expect(spectator.component.type).toBe('component');
         expect(spectator.component.open).toHaveBeenCalled();
         expect('[custom-tooltip]').toExist();
         expect('[custom-tooltip]').toContainText('Fake Component');
-    });
+    }));
 
-    it('should allow rendering templates', () => {
+    it('should allow rendering templates', fakeAsync(() => {
         spectator = createHost(`
             <div customTooltip [content]="content"></div>
             <ng-template #content>Test Template</ng-template>
@@ -54,14 +55,14 @@ describe('CustomTooltipComponent', () => {
         jest.spyOn(spectator.component, 'open');
         expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.queryHost('div'));
-        spectator.detectChanges();
+        spectator.tick(200);
         expect(spectator.component.type).toBe('template');
         expect(spectator.component.open).toHaveBeenCalled();
         expect('[custom-tooltip]').toExist();
         expect('[custom-tooltip]').toContainText('Test Template');
-    });
+    }));
 
-    it('should allow rendering HTML', () => {
+    it('should allow rendering HTML', fakeAsync(() => {
         spectator = createHost('<div customTooltip></div>', {
             props: {
                 content: 'Test HTML',
@@ -70,14 +71,14 @@ describe('CustomTooltipComponent', () => {
         jest.spyOn(spectator.component, 'open');
         expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.queryHost('div'));
-        spectator.detectChanges();
+        spectator.tick(200);
         expect(spectator.component.type).toBe('html');
         expect(spectator.component.open).toHaveBeenCalled();
         expect('[custom-tooltip]').toExist();
         expect('[custom-tooltip]').toContainText('Test HTML');
-    });
+    }));
 
-    it('should inject data into components', () => {
+    it('should inject data into components', fakeAsync(() => {
         spectator = createHost(`<div customTooltip></div>`, {
             props: {
                 content: FakeDataComponent,
@@ -85,11 +86,11 @@ describe('CustomTooltipComponent', () => {
             },
         });
         spectator.click(spectator.queryHost('div'));
-        spectator.detectChanges();
+        spectator.tick(200);
         expect('[custom-tooltip]').toContainText('Fake Data Component');
-    });
+    }));
 
-    it('should inject data into templates', () => {
+    it('should inject data into templates', fakeAsync(() => {
         spectator = createHost(
             `
             <div customTooltip [content]="content"></div>
@@ -102,7 +103,7 @@ describe('CustomTooltipComponent', () => {
             }
         );
         spectator.click(spectator.queryHost('div'));
-        spectator.detectChanges();
+        spectator.tick(200);
         expect('[custom-tooltip]').toContainText('Fake Template Component');
-    });
+    }));
 });

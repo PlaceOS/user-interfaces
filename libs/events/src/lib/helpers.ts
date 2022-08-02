@@ -24,7 +24,7 @@ export function eventStatus(
     details: HashMap
 ): 'approved' | 'tentative' | 'declined' {
     if (details.resources?.length) {
-        if (details.resources.every((i) => i.response_status === 'accepted')) {
+        if (details.resources.every((i) => i.response_status === 'accepted' || details.approved)) {
             return 'approved';
         } else if (
             details.resources.some(

@@ -52,18 +52,6 @@ describe('DeskFlow', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    // it('should allow for quick bookings', () => {
-    //     const service = spectator.inject(BookingFormService);
-    //     spectator.click('[quick] button');
-    //     spectator.detectChanges();
-    //     expect(service.form.patchValue).toHaveBeenCalledTimes(1);
-    //     expect(spectator.router.navigate).toHaveBeenCalledWith([
-    //         '/book',
-    //         'desks',
-    //         'map',
-    //     ]);
-    // });
-
     it('should show detailed booking form', () => {
         expect('detailed-book-desks-form').toExist();
     });
@@ -89,11 +77,9 @@ describe('DeskFlow', () => {
 
     it('should allow for edits', () => {
         const service = spectator.inject(BookingFormService);
-        expect('[quick]').toExist();
-        expect('[form] h2').toContainText('Detailed Booking');
+        expect('[form] h2').toContainText('Detailed Desk Booking');
         (service.form.get as any).mockImplementation((_) => ({ value: true }));
         spectator.detectChanges();
-        expect('[quick]').not.toExist();
-        expect('[form] h2').toContainText('Edit Booking');
+        expect('[form] h2').toContainText('Edit Desk Booking');
     });
 });

@@ -33,10 +33,6 @@ describe('BookingPanelComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should set system on input change', () => {
         const service = spectator.inject(PanelStateService, true);
         service.system = '';

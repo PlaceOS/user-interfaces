@@ -15,3 +15,4 @@ export * from './catering-state.service';
 export * from './catering.interfaces';
 export * from './catering.module';
 export * from './catering.vars';
+export * from './catering-order-modal/new-catering-order-modal.component';

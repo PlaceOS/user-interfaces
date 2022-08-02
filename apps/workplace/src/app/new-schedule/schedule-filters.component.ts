@@ -7,7 +7,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filters',
     template: `
         <div
-            class="hidden sm:block bg-white border border-gray-300 rounded p-2"
+            class="hidden sm:block bg-white dark:bg-neutral-800 border border-gray-300 rounded p-2"
         >
             <h3 class="font-medium mb-2">Category Filters</h3>
             <div class="flex flex-wrap space-x-2">
@@ -48,7 +48,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 Filters
             </button>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white text-sm pl-2"
+                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('event')"
             >
                 <div>Rooms</div>
@@ -57,7 +57,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
             </div>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white text-sm pl-2"
+                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('desk')"
             >
                 <div>Desks</div>
@@ -66,7 +66,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
             </div>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white text-sm pl-2"
+                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('parking')"
             >
                 <div>Car</div>

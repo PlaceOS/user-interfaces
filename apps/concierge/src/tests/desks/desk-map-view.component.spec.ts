@@ -24,6 +24,7 @@ describe('DeskMapViewComponent', () => {
                     setFilters: jest.fn(),
                     desks: new BehaviorSubject([]),
                     filters: new BehaviorSubject({}),
+                    startPolling: jest.fn(() => () => null),
                 },
             },
             {
@@ -48,6 +49,7 @@ describe('DeskMapViewComponent', () => {
                 provide: ExploreDesksService,
                 useValue: {
                     setOptions: jest.fn(),
+                    startPolling: jest.fn(() => () => null),
                 },
             },
         ],
@@ -63,9 +65,5 @@ describe('DeskMapViewComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
-    });
-
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
     });
 });

@@ -49,17 +49,6 @@ describe('DayviewTimelineComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-        const bld = (spectator.inject(OrganisationService)
-            .active_building as any).getValue();
-        (spectator.inject(SpacesService).list as any).next([
-            { zones: [bld.id] },
-        ]);
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should display spaces', () => {
         (spectator.inject(SpacesService).list as any).next([]);
         spectator.detectChanges();

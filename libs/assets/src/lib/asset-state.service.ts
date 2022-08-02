@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import {
-    debounceTime,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { queryAssets } from './assets.fn';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -32,7 +26,11 @@ export class AssetStateService {
             this._loading.next(this._loading.getValue() + '[Assets]');
             return queryAssets();
         }),
-        tap(_ => this._loading.next(this._loading.getValue().replace(/\[Assets\]/g, ''))),
+        tap((_) =>
+            this._loading.next(
+                this._loading.getValue().replace(/\[Assets\]/g, '')
+            )
+        ),
         shareReplay(1)
     );
 
@@ -47,7 +45,11 @@ export class AssetStateService {
                 type: 'asset-request',
             });
         }),
-        tap(_ => this._loading.next(this._loading.getValue().replace(/\[Bookings\]/g, ''))),
+        tap((_) =>
+            this._loading.next(
+                this._loading.getValue().replace(/\[Bookings\]/g, '')
+            )
+        ),
         shareReplay(1)
     );
 
@@ -56,7 +58,13 @@ export class AssetStateService {
         this.asset_bookings,
     ]).pipe(
         map(([list, bookings]) =>
-            list.filter((_) => !bookings.find((b) => b.asset_id === _.id))
+            list
+                .filter((_) => !bookings.find((b) => b.asset_id === _.id))
+                .sort(
+                    (a, b) =>
+                        a.category.localeCompare(b.category) ||
+                        a.name.localeCompare(b.name)
+                )
         ),
         shareReplay(1)
     );

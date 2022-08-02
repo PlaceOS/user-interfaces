@@ -18,8 +18,8 @@ describe('VisitorEventComponent', () => {
                 useValue: {
                     filters: new BehaviorSubject({}),
                     filtered_events: new BehaviorSubject([]),
-                    checkAllGuestsIn: jest.fn(() => of({})),
-                    checkAllGuestsOut: jest.fn(() => of({})),
+                    checkAllGuestsIn: jest.fn(() => Promise.resolve({})),
+                    checkAllGuestsOut: jest.fn(() => Promise.resolve({})),
                 },
             },
         ],
@@ -38,10 +38,10 @@ describe('VisitorEventComponent', () => {
     });
 
     it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+        expect('[event]').not.toExist();
         spectator.setInput({ event: new CalendarEvent({ date: 1 }) });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[event]').toExist();
     });
 
     it("should list event's visitors", () => {

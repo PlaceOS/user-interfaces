@@ -9,13 +9,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
+import { ComponentsModule } from '@placeos/components';
 
 import { FormFieldsModule } from '@placeos/form-fields';
+import { BookingDetailsModalComponent } from './booking-details-modal.component';
 
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
+import { InviteVisitorFormComponent } from './invite-visitor-form.component';
 
-const COMPONENTS = [DeskQuestionsModalComponent, DeskConfirmModalComponent];
+const COMPONENTS = [
+    DeskQuestionsModalComponent,
+    DeskConfirmModalComponent,
+    InviteVisitorFormComponent,
+    BookingDetailsModalComponent
+];
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
@@ -29,9 +37,10 @@ const COMPONENTS = [DeskQuestionsModalComponent, DeskConfirmModalComponent];
         MatButtonModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        FormFieldsModule
+        FormFieldsModule,
+        ComponentsModule
     ],
-    providers: [],
+    providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
 })
 export class SharedBookingsModule {}

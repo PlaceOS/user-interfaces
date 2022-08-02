@@ -18,6 +18,7 @@ import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     debounceTime,
     distinctUntilKeyChanged,
+    filter,
     first,
     map,
     shareReplay,
@@ -27,7 +28,7 @@ import {
 } from 'rxjs/operators';
 
 import { User } from 'libs/users/src/lib/user.class';
-import { Booking } from './booking.class';
+import { Booking, BookingType } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
@@ -35,11 +36,12 @@ import { findNearbyFeature } from '..';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
+export const FAV_DESK_KEY = 'favourite_desks';
 const BOOKING_URLS = ['book/desks'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
-    type: 'desk' | 'parking';
+    type: 'desk' | 'parking' | 'visitor';
     /** Zone to check available */
     zone_id?: string;
     /** List of features that the asset should associate */
@@ -52,6 +54,8 @@ export interface BookingFlowOptions {
     recurr_end?: number;
     /** List of group members to book for */
     members?: User[];
+    /** Whether to only show favourite rooms */
+    show_fav?: boolean;
 }
 
 export interface BookingAsset {
@@ -72,7 +76,6 @@ export class BookingFormService extends BaseClass {
         type: 'desk',
     });
     private _form = new BehaviorSubject(generateBookingForm());
-    private _form_value = new BehaviorSubject<Partial<Booking>>({});
     private _booking = new BehaviorSubject<Booking>(null);
     private _loading = new BehaviorSubject<string>('');
 
@@ -128,17 +131,24 @@ export class BookingFormService extends BaseClass {
     public readonly available_assets = combineLatest([
         this.options,
         this.assets,
-        this._form_value,
+        this._form,
     ]).pipe(
+        filter(
+            ([_, _1, form]) =>
+                form.getRawValue().date > 0 && form.getRawValue().duration > 0
+        ),
         debounceTime(500),
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
         ),
         switchMap(([options, assets, form]) =>
             queryBookings({
-                period_start: getUnixTime(form.date),
+                period_start: getUnixTime(form.getRawValue().date),
                 period_end: getUnixTime(
-                    addMinutes(form.date, form.duration || 24 * 60)
+                    addMinutes(
+                        form.getRawValue().date,
+                        form.getRawValue().duration || 24 * 60
+                    )
                 ),
                 type: options.type,
                 zones: options.zone_id,
@@ -158,7 +168,9 @@ export class BookingFormService extends BaseClass {
                                 (bkn) =>
                                     bkn.asset_id === asset.id &&
                                     bkn.status !== 'declined'
-                            )
+                            ) &&
+                            (!options?.show_fav ||
+                                this.favorite_desks.includes(asset.id))
                     )
                 )
             )
@@ -211,6 +223,10 @@ export class BookingFormService extends BaseClass {
         return this._booking.getValue();
     }
 
+    public get favorite_desks() {
+        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
+    }
+
     public newForm(booking: Booking = new Booking()) {
         this._form.next(generateBookingForm(booking));
         this.subscription(
@@ -252,6 +268,18 @@ export class BookingFormService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...value });
     }
 
+    public setFeature(feature: string, enable: boolean) {
+        if (!feature?.length) return;
+        const features = this._options.getValue()?.features || [];
+        if (enable && !features.includes(feature)) features.push(feature);
+        if (!enable && features.includes(feature))
+            features.splice(
+                features.findIndex((e) => e === feature),
+                1
+            );
+        this.setOptions({ features });
+    }
+
     public resetForm() {
         if (!this._form.getValue()) this.newForm();
         const booking = this._booking.getValue();
@@ -271,13 +299,12 @@ export class BookingFormService extends BaseClass {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.booking_form',
-            JSON.stringify(this._form.getValue()?.value || {})
+            JSON.stringify(this._form.getValue()?.getRawValue() || {})
         );
         sessionStorage.setItem(
             'PLACEOS.booking_form_filters',
             JSON.stringify(this._options.getValue() || {})
         );
-        this._form_value.next(this._form.getValue()?.value || {});
     }
 
     public loadForm() {
@@ -299,11 +326,12 @@ export class BookingFormService extends BaseClass {
         await this.checkQuestions();
         const options = this._options.getValue();
         const form = this._form.getValue();
+        const value = form.getRawValue();
         let content = `Would you like to book the ${options.type} ${
-            form.value.asset_name
-        } for ${format(form.value.date, 'dd MMM yyyy')}${
-            form.value.duration < 12 * 60
-                ? ' at ' + format(form.value.date, 'h:mm a')
+            value.asset_name
+        } for ${format(value.date, 'dd MMM yyyy')}${
+            value.duration < 12 * 60
+                ? ' at ' + format(value.date, 'h:mm a')
                 : ''
         }`;
         if (options.group) {
@@ -341,22 +369,30 @@ export class BookingFormService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
+        const value = form.getRawValue();
         if (!ignore_check) {
             await this.checkResourceAvailable(
-                form.value,
+                value,
                 this._options.getValue().type
             );
         }
-        if (form.value.duration >= 12 * 60 || form.value.all_day) {
+        if (value.duration >= 12 * 60 || value.all_day) {
             form.patchValue({
-                date: set(form.value.date, { hours: 11, minutes: 59 }).valueOf(),
+                date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
                 duration: 12 * 60,
             });
         }
-        const result = await saveBooking(new Booking(form.value)).toPromise();
-        const { booking_type } = form.value;
+        this._loading.next('Saving booking');
+        const result = await saveBooking(
+            new Booking({
+                ...value,
+                approved: !!this._settings.get('app.bookings.no_approval'),
+            })
+        ).toPromise();
+        this._loading.next('');
+        const { booking_type } = value;
         this.clearForm();
-        this._form.getValue()?.patchValue({ booking_type });
+        form?.patchValue({ booking_type });
         this.last_success = result;
         sessionStorage.setItem(
             'PLACEOS.last_booked_booking',
@@ -391,7 +427,6 @@ export class BookingFormService extends BaseClass {
                 extra_members.length
             )),
         ];
-        console.log('Selected Assets:', assets);
         const group_members = [currentUser(), ...extra_members];
         await Promise.all(
             group_members.map((_, idx) =>
@@ -408,20 +443,17 @@ export class BookingFormService extends BaseClass {
         for (let i = 0; i < group_members.length; i++) {
             const user = group_members[i];
             const asset = assets[i];
-            this._form
-                .getValue()
-                .patchValue({
-                    ...form,
-                    user: user as any,
-                    asset_id: asset?.id,
-                    asset_name: asset.name,
-                    map_id: asset?.map_id || asset?.id,
-                    description: asset.name,
-                    zones: asset.zone
-                        ? [asset.zone?.parent_id, asset.zone?.id]
-                        : [],
-                });
-            console.log('Form Value:', this._form.getValue().value);
+            this._form.getValue().patchValue({
+                ...form,
+                user: user as any,
+                asset_id: asset?.id,
+                asset_name: asset.name,
+                map_id: asset?.map_id || asset?.id,
+                description: asset.name,
+                zones: asset.zone
+                    ? [asset.zone?.parent_id, asset.zone?.id]
+                    : [],
+            });
             this.postForm(true);
         }
     }
@@ -436,7 +468,7 @@ export class BookingFormService extends BaseClass {
             ref.afterClosed().toPromise(),
         ]);
         if (result?.reason !== 'done') throw 'User cancelled';
-        const form = ref.componentInstance.form.value;
+        const form = ref.componentInstance.form.getRawValue();
         for (const key in form) {
             if (form[key]) throw 'User failed questionaire';
         }
@@ -446,7 +478,7 @@ export class BookingFormService extends BaseClass {
     /** Check if the given resource is available for the selected user to book */
     private async checkResourceAvailable(
         { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
-        type: string
+        type: BookingType
     ) {
         duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
@@ -467,7 +499,7 @@ export class BookingFormService extends BaseClass {
                     _.status !== 'declined'
             ).length >= allowed_bookings
         ) {
-            const current = user_email === currentUser().email;
+            const current = user_email === currentUser()?.email;
             throw `${current ? 'You' : user_email} already ${
                 current ? 'have' : 'has'
             } a desk booked`;
@@ -483,7 +515,6 @@ export class BookingFormService extends BaseClass {
     ): Promise<BookingAsset[]> {
         const nearby_assets = [];
         let asset_list = assets.filter((_) => _.id !== id && _.map_id !== id);
-        console.log('Assets:', assets, asset_list, id);
         for (let i = 0; i < count; i++) {
             const item = await findNearbyFeature(
                 map_url,
@@ -498,7 +529,6 @@ export class BookingFormService extends BaseClass {
                     (_) => _.id !== item && _.map_id !== item
                 );
             }
-            console.log('Asset List:', asset_list);
         }
         return nearby_assets;
     }

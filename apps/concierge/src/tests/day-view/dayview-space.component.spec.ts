@@ -27,17 +27,6 @@ describe('DayviewSpaceComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-        spectator.setInput({ space: { email: '1@2.3' } as any });
-        const events = spectator.inject(EventsStateService);
-        (events as any).filtered.next([
-            { resources: [{ email: '1@2.3' } as any] },
-        ]);
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should display events', () => {
         expect('dayview-event').not.toExist();
         spectator.setInput({ space: { email: '1@2.3' } as any });

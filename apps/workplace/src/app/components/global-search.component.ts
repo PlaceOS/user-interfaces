@@ -9,12 +9,12 @@ import { ExploreSearchService } from '@placeos/explore';
         <div
             class="h-full w-12 relative"
         >
-            <button mat-icon-button class="text-black h-10 w-10 rounded-full bg-gray-200" (click)="showInput()">
+            <button mat-icon-button class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-700 dark:text-white" (click)="showInput()">
                 <app-icon class="text-2xl">search</app-icon>
             </button>
             <div 
                 search
-                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2"
+                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2 dark:bg-neutral-700 dark:text-white"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,

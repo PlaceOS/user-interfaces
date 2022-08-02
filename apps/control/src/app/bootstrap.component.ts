@@ -52,8 +52,8 @@ import { querySystems } from '@placeos/ts-client';
                     <mat-option
                         class="pointer-events-none opacity-60"
                         *ngIf="
-                            system_id$.getValue().length < 2 &&
-                            !(space_list | async).length
+                            system_id$.getValue()?.length < 2 &&
+                            !(space_list | async)?.length
                         "
                     >
                         Start typing to search for a room
@@ -122,7 +122,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         debounceTime(300),
         switchMap((search) => {
             this.loading = 'search';
-            return search.length < 2
+            return search?.length < 2
                 ? of({ data: [] })
                 : querySystems({ q: search, limit: 20 });
         }),

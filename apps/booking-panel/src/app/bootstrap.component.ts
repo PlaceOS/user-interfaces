@@ -59,8 +59,8 @@ import { querySystems } from '@placeos/ts-client';
                     <mat-option
                         class="pointer-events-none opacity-60"
                         *ngIf="
-                            system_id$.getValue().length < 2 &&
-                            !(space_list | async).length
+                            system_id$.getValue()?.length < 2 &&
+                            !(space_list | async)?.length
                         "
                     >
                         Start typing to search for a room

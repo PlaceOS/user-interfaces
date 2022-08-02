@@ -37,13 +37,13 @@ describe('StaffDetailsComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show when user sets', () => {
+        expect('[details]').not.toExist();
         spectator.setInput({
             user: new StaffUser({ name: 'Jim', email: 'jim@test.com' }),
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[details]').toExist();
     });
 
     it.todo('should allow user to checkin');

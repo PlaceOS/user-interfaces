@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
-import { currentUser, SettingsService } from '@placeos/common';
+import { currentUser, getInvalidFields, notifyError, randomInt, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
 import { first, take } from 'rxjs/operators';
@@ -141,28 +141,31 @@ export class DeskFlowFormComponent implements OnInit {
 
     public findDesk() {
         this.form.markAllAsTouched();
+        this.form.patchValue({ asset_id: ' ' });
         if (!this.form.valid) return;
+        this.form.patchValue({ asset_id: '' });
         this._router.navigate(['/book', 'desks', 'map']);
     }
 
     public async allocateDesk() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        this.form.patchValue({ asset_id: ' ' });
+        if (!this.form.valid) return notifyError(`Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`);
         // Find nearby desk for user's department
-        const settings = this._settings.get('app.departments') || {};
-        const group = currentUser().groups.find(_ => _ in settings);
-        if (!group) {
+        const settings = this._settings.get('app.departments') || { '*': { level: this._org.levelsForBuilding()[0]?.id, centered_at: { x: 0.5, y: 0.5 } } };
+        const group = currentUser().groups.find(_ => _ in settings) ?? '*';
+        if (!settings[group]) {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
         }
         const { level, centered_at } = settings[group];
         const lvl = this._org.levelWithID([level]);
-        if (!level) {
+        if (!lvl) {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
         }
         const desk_list = await this._state.available_assets.pipe(take(1)).toPromise()
-        const desk_id = await findNearbyFeature(lvl.map_id, centered_at, desk_list.map(_ => _.map_id || _.id));
+        const desk_id = level.map_id ? await findNearbyFeature(lvl.map_id, centered_at, desk_list.map(_ => _?.map_id || _?.id || '')) : desk_list[randomInt(desk_list.length)].id;
         const desk = desk_list.find(_ => _.map_id === desk_id || _.id === desk_id);
         if (!desk) {
             this._router.navigate(['/book', 'desks', 'map']);
@@ -176,6 +179,6 @@ export class DeskFlowFormComponent implements OnInit {
             booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
         });
-        this._state.confirmPost();
+        await this._state.confirmPost().catch(_ => console.error(_));
     }
 }

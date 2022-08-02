@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import {
+    getInvalidFields,
+    notifyError,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 
@@ -12,7 +17,12 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             >
                 {{ is_edit ? 'Edit' : 'Detailed' }} Space Booking
             </h2>
-            <detailed-book-space-form [form]="form"></detailed-book-space-form>
+            <detailed-book-space-form
+                [form]="form"
+                [options]="options | async"
+                (optionsChange)="setOptions($event)"
+                [features]="features | async"
+            ></detailed-book-space-form>
             <div
                 class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
             >
@@ -46,6 +56,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     mat-button
                     standalone
+                    *ngIf="is_edit || allow_standalone_bookings"
                     (click)="confirmBooking()"
                 >
                     <div class="flex items-center justify-center">
@@ -95,12 +106,20 @@ export class SpaceFlowFormComponent {
         { name: 'Huge (32+)', value: 33 },
     ];
 
+    public readonly options = this._state.options;
+    public readonly features = this._state.features;
+    public readonly setOptions = (o) => this._state.setOptions(o);
+
     public get is_edit() {
-        return !!this.form?.get('id')?.value;
+        return !!this.form?.value?.id;
     }
 
     public get form() {
         return this._state.form;
+    }
+
+    public get allow_standalone_bookings() {
+        return this._settings.get('app.events.allow_standalone_bookings');
     }
 
     public readonly clearForm = () => {
@@ -108,7 +127,11 @@ export class SpaceFlowFormComponent {
         this._state.clearForm();
     };
 
-    constructor(private _state: EventFormService, private _router: Router) {}
+    constructor(
+        private _state: EventFormService,
+        private _settings: SettingsService,
+        private _router: Router
+    ) {}
 
     public quickBook() {
         this.form.patchValue({
@@ -127,13 +150,23 @@ export class SpaceFlowFormComponent {
 
     public findSpace() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
         this._router.navigate(['/book', 'spaces', 'find']);
     }
 
     public confirmBooking() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
         this._router.navigate(['/book', 'spaces', 'confirm']);
     }
 }

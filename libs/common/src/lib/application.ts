@@ -17,11 +17,15 @@ export function setupCache(
 ) {
     if (cache.isEnabled) {
         if (_timer) clearInterval(_timer);
-        _timer = <any>setInterval(async () => {
+        _timer = <any>setInterval(() => {
             log('CACHE', `Checking for updates...`);
             activateUpdate(cache);
         }, interval);
     }
+}
+
+export function clearCacheCheck() {
+    if (_timer) clearInterval(_timer);
 }
 
 /**

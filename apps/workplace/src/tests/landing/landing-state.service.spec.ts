@@ -19,6 +19,7 @@ describe('LandingStateService', () => {
                 provide: OrganisationService,
                 useValue: {
                     levels: [],
+                    binding: jest.fn(() => 'sys-1'),
                     active_building: new BehaviorSubject(null),
                     organisation: new Organisation(),
                     initialised: of(true),

@@ -14,7 +14,7 @@ import { ExploreZonesService } from '../lib/explore-zones.service';
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
-import { fakeAsync } from '@angular/core/testing';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreZonesService>;
@@ -34,6 +34,7 @@ describe('ExploreStateService', () => {
                 provide: OrganisationService,
                 useValue: {
                     organisation: new Organisation(),
+                    binding: jest.fn(),
                     initialised: of(true),
                     levels: [],
                     buildings: [],
@@ -55,16 +56,13 @@ describe('ExploreStateService', () => {
         (ts_client as any).getModule = jest.fn(() => ({ binding }));
         const state = spectator.inject(ExploreStateService);
         const org = spectator.inject(OrganisationService);
+        (state.level as any).next({});
         expect(ts_client.getModule).not.toHaveBeenCalled();
-        (state as any).level.next(new BuildingLevel());
+        (org.binding as any).mockImplementation(() => '');
+        (state.level as any).next({});
         expect(ts_client.getModule).not.toHaveBeenCalled();
-        (org as any).buildings = [new Building({ id: '1' })];
-        (state as any).level.next(new BuildingLevel({ parent_id: '1' }));
-        expect(ts_client.getModule).not.toHaveBeenCalled();
-        (org as any).buildings = [
-            new Building({ id: '1', bindings: { area_management: 'sys-1' } }),
-        ];
-        (state as any).level.next(new BuildingLevel({ parent_id: '1' }));
+        (org.binding as any).mockImplementation(() => 'sys-1');
+        (state.level as any).next({});
         await new Promise<void>((r) => setTimeout(() => r(), 10));
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'sys-1',
@@ -73,37 +71,36 @@ describe('ExploreStateService', () => {
         expect(bind).toHaveBeenCalled();
     });
 
-    it('should handle binding updates', () => {
-        jest.useFakeTimers();
+    it('should handle binding updates', fakeAsync(() => {
         (spectator.service as any)._location['zone-1'] = { x: 1, y: 1 };
         let data = { value: [{ area_id: 'zone-1', count: 1 }] } as any;
         const state = spectator.inject(ExploreStateService);
         spectator.service.parseData(data);
-        jest.runOnlyPendingTimers();
+        tick();
         expect(state.setLabels).toHaveBeenCalledWith('zones', [
-            { location: { x: 1, y: 1 }, content: '1 Device\n', z_index: 100 },
+            { location: { x: 1, y: 1 }, content: '1 User Device\n', z_index: 100 },
         ]);
         expect(state.setStyles).toHaveBeenCalledWith('zones', {
             '#zone-1': { fill: '#43a047', opacity: 0.6 },
         });
         data = { value: [{ area_id: 'zone-1', count: 50 }] };
         spectator.service.parseData(data);
-        jest.runOnlyPendingTimers();
+        tick();
         expect(state.setLabels).toHaveBeenCalledWith('zones', [
-            { location: { x: 1, y: 1 }, content: '50 Devices\n', z_index: 100 },
+            { location: { x: 1, y: 1 }, content: '50 User Devices\n', z_index: 100 },
         ]);
         expect(state.setStyles).toHaveBeenCalledWith('zones', {
             '#zone-1': { fill: '#ffb300', opacity: 0.6 },
         });
         data = { value: [{ area_id: 'zone-1', count: 99 }] };
         spectator.service.parseData(data);
-        jest.runOnlyPendingTimers();
+        tick();
         expect(state.setLabels).toHaveBeenCalledWith('zones', [
-            { location: { x: 1, y: 1 }, content: '99 Devices\n', z_index: 100 },
+            { location: { x: 1, y: 1 }, content: '99 User Devices\n', z_index: 100 },
         ]);
         expect(state.setStyles).toHaveBeenCalledWith('zones', {
             '#zone-1': { fill: '#e53935', opacity: 0.6 },
         });
-        jest.useRealTimers();
-    });
+        tick();
+    }));
 });

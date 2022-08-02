@@ -73,9 +73,7 @@ describe('OrganisationService', () => {
         expect(spectator.service.buildings).toHaveLength(2);
         expect(spectator.service.building.id).toBe('bld-2');
         for (const { id } of blds) {
-            expect(ts_client.showMetadata).toBeCalledWith(id, {
-                name: 'bindings',
-            });
+            expect(ts_client.showMetadata).toBeCalledWith(id, 'bindings');
         }
     });
 
@@ -113,24 +111,17 @@ describe('OrganisationService', () => {
         });
         (ts_client as any).showMetadata = jest.fn(() => of({ details: {} }));
         await spectator.service.loadSettings();
-        expect(ts_client.showMetadata).toBeCalledWith('org-1', {
-            name: 'workplace_app',
-        });
+        expect(ts_client.showMetadata).toBeCalledWith('org-1', 'workplace_app');
         for (const { id } of spectator.service.buildings) {
-            expect(ts_client.showMetadata).toBeCalledWith(id, {
-                name: 'workplace_app',
-            });
+            expect(ts_client.showMetadata).toBeCalledWith(id, 'workplace_app');
         }
-        expect(settings.overrides).toEqual([{}, {}]);
-        settings.get.mockImplementationOnce(() => 'another');
+        expect(settings.overrides).toEqual([{}, {}, {}]);
+        settings.get.mockReset();
+        (settings as any).app_name = 'another';
         await spectator.service.loadSettings();
-        expect(ts_client.showMetadata).toBeCalledWith('org-1', {
-            name: 'another_app',
-        });
+        expect(ts_client.showMetadata).toBeCalledWith('org-1', 'another_app');
         for (const { id } of spectator.service.buildings) {
-            expect(ts_client.showMetadata).toBeCalledWith(id, {
-                name: 'another_app',
-            });
+            expect(ts_client.showMetadata).toBeCalledWith(id, 'another_app');
         }
     });
 });

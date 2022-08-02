@@ -18,6 +18,7 @@ jest.mock('@placeos/common');
 
 import * as ts_client from '@placeos/ts-client';
 import * as common_mod from '@placeos/common';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('DesksManageComponent', () => {
     let spectator: Spectator<DesksManageComponent>;
@@ -29,7 +30,9 @@ describe('DesksManageComponent', () => {
                 useValue: {
                     setFilters: jest.fn(),
                     desks: new BehaviorSubject([{ id: '1' }]),
+                    new_desks: new BehaviorSubject([]),
                     filters: new BehaviorSubject({}),
+                    clearNewDesks: jest.fn(),
                 },
             },
             {
@@ -41,6 +44,7 @@ describe('DesksManageComponent', () => {
                     buildings: [],
                 },
             },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
         declarations: [
             MockComponent(CustomTableComponent),
@@ -62,10 +66,6 @@ describe('DesksManageComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should handle changes to desks', () => {
         expect('button[save]').not.toExist();
         spectator.component.changes['1'] = { name: 'another' };
@@ -76,8 +76,10 @@ describe('DesksManageComponent', () => {
     it('should allow saving of changes to desks', async () => {
         (ts_client.updateMetadata as any) = jest.fn(() => of({}));
         (common_mod.notifySuccess as any) = jest.fn(() => null);
+        (common_mod.unique as any) = jest.fn((_) => _);
         spectator.component.changes['1'] = { name: 'another' };
         spectator.detectChanges();
+        console.log(spectator.component.changed);
         spectator.click('button[save]');
         await timer(5).toPromise();
         expect(ts_client.updateMetadata).toBeCalledWith('lvl-1', {
@@ -85,7 +87,6 @@ describe('DesksManageComponent', () => {
             description: 'desks',
             details: [new Desk({ id: '1', name: 'another' }).toJSON()],
         });
-
         expect(spectator.component.changes).toEqual({});
     });
 });

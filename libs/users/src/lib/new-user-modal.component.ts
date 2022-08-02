@@ -55,7 +55,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for the new user */
-    public form = generateUserForm(this.user);
+    public form = generateUserForm(this.user || new User());
     /** New user data store */
     public user?: User;
     /** Whether user details are being saved */

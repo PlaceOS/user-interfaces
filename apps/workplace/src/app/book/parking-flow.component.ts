@@ -6,7 +6,7 @@ import { BaseClass } from '@placeos/common';
 @Component({
     selector: 'placeos-book-parking-flow',
     template: `
-        <div class="bg-white h-full w-full">
+        <div class="bg-white dark:bg-neutral-700 h-full w-full">
             <ng-container [ngSwitch]="view">
                 <ng-container *ngSwitchCase="'confirm'">
                     <parking-flow-confirm></parking-flow-confirm>

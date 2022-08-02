@@ -66,6 +66,7 @@ const app = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
+    default_page: '/day-view',
     general,
     guests: { vaccine_check: true }
 };

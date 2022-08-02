@@ -1,8 +1,9 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-import { Space, NewSpaceSelectModalComponent } from '@placeos/spaces';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -86,11 +87,11 @@ const EMPTY_FAVS: string[] = [];
                     mat-icon-button
                     fav
                     class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(asset.id)"
+                    [class.text-blue-400]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
                 >
                     <app-icon>{{
-                        favorites.includes(asset.id)
+                        favorites.includes(asset?.id)
                             ? 'favorite'
                             : 'favorite_border'
                     }}</app-icon>

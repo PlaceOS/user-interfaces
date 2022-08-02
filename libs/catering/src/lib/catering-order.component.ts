@@ -21,7 +21,7 @@ import { CATERING_STATUSES } from './catering.vars';
                     <app-icon>room_service</app-icon>
                 </div>
             </div>
-            <div class="w-24">{{ order.deliver_at | date: 'shortTime' }}</div>
+            <div time class="w-24">{{ order.deliver_at | date: 'shortTime' }}</div>
             <div class="flex-1">
                 {{
                     order.event?.space.display_name ||

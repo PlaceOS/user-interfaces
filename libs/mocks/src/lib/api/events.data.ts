@@ -92,8 +92,8 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
 
 const event_spaces = {};
 MOCK_EVENTS.forEach((event) => {
-    if (!event_spaces[event.system.id]) {
-        event_spaces[event.system.id] = [];
+    if (!event_spaces[event.system?.id]) {
+        event_spaces[event.system?.id] = [];
     }
-    event_spaces[event.system.id].push(event);
+    event_spaces[event.system?.id].push(event);
 });

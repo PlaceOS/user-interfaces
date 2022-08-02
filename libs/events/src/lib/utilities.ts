@@ -11,20 +11,21 @@ import {
     setMinutes,
     addMinutes,
 } from 'date-fns';
-import { timePeriodsIntersect, unique } from '@placeos/common';
+import { currentUser, timePeriodsIntersect, unique } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
 import { User } from '@placeos/users';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
 export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     const form = new FormGroup({
         id: new FormControl(event.id),
-        host: new FormControl(event.host || event.organiser?.email || '', [Validators.required]),
-        organiser: new FormControl(event.organiser || new User(), [
+        host: new FormControl(event.host || event.organiser?.email || currentUser()?.email || '', [Validators.required]),
+        organiser: new FormControl(event.organiser || new User({ email: event.host || '' }), [
             Validators.required,
         ]),
         creator: new FormControl(event.creator, [Validators.required]),
@@ -141,4 +142,13 @@ export function replaceBookings(
     const updated_list = filtered_list.concat(new_bookings);
     updated_list.sort((a, b) => a.date - b.date);
     return unique(updated_list, 'id');
+}
+
+export function newCalendarEventFromBooking(booking: Booking) {
+    return new CalendarEvent({
+        ...booking,
+        ...booking.extension_data,
+        id: booking.id || booking.extension_data.id,
+        host: booking.user_email,
+    } as any);
 }
