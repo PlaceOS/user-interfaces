@@ -173,9 +173,9 @@ export class DeskFlowFormComponent implements OnInit {
         }
         this._state.form.patchValue({
             asset_id: desk?.id,
-            asset_name: desk.name,
+            asset_name: desk.name || desk.id,
             map_id: desk?.map_id || desk?.id,
-            description: desk.name,
+            description: desk.name || desk.id,
             booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
         });
