@@ -6,12 +6,21 @@ import {
     ViewerLabel,
     ViewerStyles,
 } from '@placeos/svg-viewer';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, filter, first, map } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService, unique } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
+import { querySystems } from '@placeos/ts-client';
 
 export interface MapOptions {
     /** List of keys to ignore for any map resource */
@@ -57,13 +66,18 @@ export class ExploreStateService extends BaseClass {
     /** Currently active level */
     public readonly message = this._message.asObservable();
     /** Spaces associated with the active level */
-    public readonly spaces = combineLatest([
-        this._level,
-        this._spaces.list,
-    ]).pipe(
-        map(([level, spaces]) =>
-            spaces.filter((space) => space.zones.includes(level?.id))
-        )
+    public readonly spaces = this._level.pipe(
+        switchMap((level) =>
+            querySystems({ zone_id: level?.id, limit: 50 }).pipe(
+                map(({ data }) =>
+                    data.map(
+                        (_) => new Space(_ as any)
+                    )
+                ),
+                catchError((_) => of([] as Space[]))
+            )
+        ),
+        shareReplay(1)
     );
     /** Currently shown space's map URL */
     public readonly map_url = this._level.pipe(
@@ -229,7 +243,7 @@ export class ExploreStateService extends BaseClass {
         this._features.next({});
         this._labels.next({});
         this._actions.next({});
-        this.setPositions(1, { x: .5, y: .5 });
+        this.setPositions(1, { x: 0.5, y: 0.5 });
     }
 
     public setLevel(zone_id: string) {
