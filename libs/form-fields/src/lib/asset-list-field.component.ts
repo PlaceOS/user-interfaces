@@ -1,7 +1,7 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
 import { Asset } from 'libs/assets/src/lib/asset.class';

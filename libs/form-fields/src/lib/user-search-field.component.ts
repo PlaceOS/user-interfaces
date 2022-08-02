@@ -23,8 +23,8 @@ import { searchGuests, searchStaff, User } from '@placeos/users';
 @Component({
     selector: 'a-user-search-field',
     template: `
-        <div class="user-search-field text-black" form-field>
-            <mat-form-field overlay appearance="outline">
+        <div class="user-search-field" form-field>
+            <mat-form-field appearance="outline">
                 <input
                     #input
                     matInput

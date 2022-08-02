@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { queryBookings } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import { BaseClass, SettingsService } from '@placeos/common';
+import {
+    CalendarEvent,
+    newCalendarEventFromBooking,
+    queryEvents,
+} from '@placeos/events';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -18,12 +22,18 @@ export class ScheduleStateService extends BaseClass {
     private _date = new BehaviorSubject(Date.now());
     /** List of calendar events for the selected date */
     public readonly events = combineLatest([this._date, this._poll]).pipe(
-        switchMap(([date]) =>
-            queryEvents({
+        switchMap(([date]) => {
+            const query = {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
-            })
-        )
+            };
+            return this._settings.get('app.no_user_calendar')
+                ? queryBookings({ ...query, type: 'room' }).pipe(
+                      map((_) => _.map((i) => newCalendarEventFromBooking(i))),
+                      catchError((_) => [])
+                  )
+                : queryEvents({ ...query }).pipe(catchError((_) => []));
+        })
     );
     /** List of desk bookings for the selected date */
     public readonly desks = combineLatest([this._date, this._poll]).pipe(
@@ -76,11 +86,13 @@ export class ScheduleStateService extends BaseClass {
     /** Whether events and bookings are loading */
     public readonly loading = this._loading.asObservable();
 
-    constructor() {
+    constructor(private _settings: SettingsService) {
         super();
         this.subscription(
             'date',
-            combineLatest([this._date, this._poll]).subscribe((_) => this._loading.next(true))
+            combineLatest([this._date, this._poll]).subscribe((_) =>
+                this._loading.next(true)
+            )
         );
     }
 
@@ -90,11 +102,17 @@ export class ScheduleStateService extends BaseClass {
 
     public async toggleType(name: string, clear: boolean = false) {
         const filters = this._filters.getValue() || { shown_types: [] };
-        const { shown_types } = filters
+        const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
-            this._filters.next({ ...filters, shown_types: shown_types.filter(_ => _ !== name) });
+            this._filters.next({
+                ...filters,
+                shown_types: shown_types.filter((_) => _ !== name),
+            });
         } else {
-            this._filters.next({ ...filters, shown_types: [...shown_types, name] });
+            this._filters.next({
+                ...filters,
+                shown_types: [...shown_types, name],
+            });
         }
     }
 }

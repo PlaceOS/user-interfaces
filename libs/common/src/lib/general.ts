@@ -14,6 +14,7 @@ export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
 declare global {
     interface Window {
         debug: boolean;
+        jest: any;
     }
 }
 
@@ -39,6 +40,7 @@ export function log(
     force: boolean = false,
     app_name: string = _app_name
 ) {
+    if (window.jest) return;
     if (window.debug || force) {
         const colors: string[] = [
             'color: #E91E63',
@@ -351,12 +353,29 @@ export function is24HourTime(): boolean {
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
-export function getInvalidFields(form: FormGroup) {
-    const invalid = [];
+export function getInvalidFields(form: FormGroup, prefix: string = '') {
+    let invalid = [];
     for (const key in form.controls) {
-        if (!form.controls[key].valid) {
-            invalid.push(key);
+        if (form.controls[key] instanceof FormGroup) {
+            invalid = [
+                ...invalid,
+                ...getInvalidFields(form.controls[key] as FormGroup, `${key}.`),
+            ];
+        } else if (!form.controls[key].valid) {
+            invalid.push(`${prefix}${key}`);
         }
     }
     return invalid;
+}
+
+export function removeEmptyFields(obj: Record<string, any>) {
+    for (const key in obj) {
+        if (obj[key] === undefined || obj[key] === null || obj[key] === "") {
+            delete obj[key];
+        }
+    }
+}
+
+export function capitalizeFirstLetter(word: string): string {
+    return `${word[0].toUpperCase()}${word.substring(1)}`;
 }

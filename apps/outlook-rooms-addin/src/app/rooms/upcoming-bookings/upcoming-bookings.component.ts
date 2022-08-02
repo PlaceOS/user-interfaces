@@ -28,8 +28,6 @@ export class UpcomingBookingsComponent implements OnInit {
     public user: User | StaffUser = currentUser();
 
     constructor(private _existingBookingsService: ExistingBookingsService) {}
-
-    async ngOnInit() {
         await this._existingBookingsService.events?.pipe(take(1)).toPromise();
         // await currentUser();
         this.getBookingsFromService();
@@ -71,8 +69,6 @@ export class UpcomingBookingsComponent implements OnInit {
                 map((bookings) =>
                     bookings?.filter((booking) => booking !== null)
                 )
-            );
-
         await this.user_bookings$.pipe(take(1)).toPromise();
         this.loading$ = this._existingBookingsService.loading$;
     }

@@ -1,4 +1,4 @@
-import { HashMap, Identity, unique } from '@placeos/common';
+import { HashMap, Identity, removeEmptyFields, unique } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
@@ -133,7 +133,7 @@ export class CalendarEvent {
                         .map((s) => new Space(s)),
                 'email'
             ) || [];
-        this.title = data.title || '';
+        this.title = data.title || 'Space Booking';
         this.body = data.body || '';
         this.private = !!data.private;
         this.all_day = !!data.all_day;
@@ -184,7 +184,7 @@ export class CalendarEvent {
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
-        this.status = eventStatus(this) || 'none';
+        this.status = eventStatus({ ...data, ...this }) || 'none';
         this.location = data.location || this.space?.display_name || this.space?.name || '';
         this.type =
             this.status === 'declined'
@@ -249,6 +249,7 @@ export class CalendarEvent {
         delete obj.date;
         delete obj.duration;
         delete obj.status;
+        removeEmptyFields(obj);
         return obj;
     }
 

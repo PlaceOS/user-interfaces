@@ -2,6 +2,7 @@
     "version": 1,
     "projects": {
         "assets": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/assets",
             "sourceRoot": "libs/assets/src",
@@ -1572,6 +1573,32 @@
             },
             "tags": [],
             "implicitDependencies": ["outlook-rooms-addin"]
+        },
+        "payments": {
+            "projectType": "library",
+            "root": "libs/payments",
+            "sourceRoot": "libs/payments/src",
+            "prefix": "placeos",
+            "architect": {
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/payments"],
+                    "options": {
+                        "jestConfig": "libs/payments/jest.config.ts",
+                        "passWithNoTests": true
+                    }
+                },
+                "lint": {
+                    "builder": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": [
+                            "libs/payments/**/*.ts",
+                            "libs/payments/**/*.html"
+                        ]
+                    }
+                }
+            },
+            "tags": []
         },
         "spaces": {
             "$schema": "../../node_modules/nx/schemas/project-schema.json",

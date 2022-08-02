@@ -52,13 +52,6 @@ describe('EventFormComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        const form = generateEventForm({ extension_data: {} } as any);
-        spectator.setInput({ form });
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow selecting spaces', async () => {
         const form = generateEventForm({ extension_data: {} } as any);
         const spy = jest.spyOn(form, 'patchValue');

@@ -210,7 +210,6 @@ export class VisitorsStateService extends BaseClass {
             },
             this._dialog
         );
-        console.log('Details:', details);
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
         await updateGuest(guest.id, {
@@ -229,7 +228,6 @@ export class VisitorsStateService extends BaseClass {
             },
             this._dialog
         );
-        console.log('Details:', details);
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
         await updateGuest(guest.id, {

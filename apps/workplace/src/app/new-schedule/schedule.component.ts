@@ -8,9 +8,9 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'app-schedule',
     template: `
         <topbar></topbar>
-        <div class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] relative">
+        <div class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] dark:bg-zinc-600 relative">
             <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
-            <div class="w-full bg-white border-b border-gray-300 sm:hidden">
+            <div class="w-full bg-white dark:bg-neutral-700 border-b border-gray-300 sm:hidden">
                 <schedule-mobile-calendar
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"

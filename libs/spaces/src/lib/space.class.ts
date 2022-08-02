@@ -33,7 +33,7 @@ export class Space {
     /** List of available room configurations for this room */
     public readonly configurations: readonly RoomConfiguration[];
     /** Image url */
-    public readonly image: string;
+    public readonly images: string[];
     /** Status of the resource */
     public readonly response_status: ResourceResponseStatus;
     /** Level Assoicated with the space */
@@ -54,7 +54,7 @@ export class Space {
         this.zones = data.zones || [];
         this.support_url = data.support_url || '';
         this.map_id = data.map_id || '';
-        this.image = data.image || '';
+        this.images = data.images || [];
         this.configurations = data.configurations || [];
         this.features = data.features || [];
         this.response_status = data.response_status;

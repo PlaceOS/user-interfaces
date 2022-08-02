@@ -2,29 +2,45 @@ import { Component } from '@angular/core';
 import { ApplicationIcon, currentUser, SettingsService } from '@placeos/common';
 import { UserControlsComponent } from './user-controls.component';
 
+const EMPTY = [];
+
 @Component({
     selector: 'topbar',
     template: `
         <div
             topbar
-            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 text-black z-50 shadow relative"
+            class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 dark:border-neutral-500 text-black z-50 shadow relative dark:bg-neutral-800 dark:text-white"
         >
             <a
                 logo
                 class="p-2 h-full flex items-center flex-1"
                 [routerLink]="['/']"
-                *ngIf="logo"
             >
-                <img class="h-10" [src]="logo?.src" />
+                <img
+                    class="h-10 hidden dark:block sm:dark:block"
+                    [class.hidden]="!title"
+                    *ngIf="logo_dark"
+                    [src]="logo_dark.src"
+                />
+                <img
+                    class="h-10 dark:hidden sm:block"
+                    [class.hidden]="!title"
+                    *ngIf="logo"
+                    [src]="logo.src"
+                />
+                <span *ngIf="title">{{ title }}</span>
             </a>
-            <div class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex">
+            <div
+                class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex"
+            >
                 <top-menu></top-menu>
             </div>
             <div class="flex-1 flex items-center justify-end">
                 <global-search *ngIf="search"></global-search>
                 <button
                     matRipple
-                    class="h-10 w-10 rounded-full mr-2 bg-gray-200 flex items-center justify-center"
+                    avatar
+                    class="h-10 w-10 rounded-full mr-2 bg-gray-200 dark:bg-neutral-700 flex items-center justify-center"
                     customTooltip
                     [content]="user_controls"
                 >
@@ -46,9 +62,13 @@ import { UserControlsComponent } from './user-controls.component';
             </button>
         </mat-menu>
     `,
-    styles: [`
-        .flex-3 { flex: 3 3 0%; }
-    `],
+    styles: [
+        `
+            .flex-3 {
+                flex: 3 3 0%;
+            }
+        `,
+    ],
 })
 export class TopbarComponent {
     public show_menu: boolean;
@@ -57,6 +77,10 @@ export class TopbarComponent {
     /** Application logo to display */
     public get logo(): ApplicationIcon {
         return this._settings.get('app.logo_light');
+    }
+    /** Application logo to display */
+    public get logo_dark(): ApplicationIcon {
+        return this._settings.get('app.logo_dark');
     }
     /** Text to display for page title */
     public get title(): string {
@@ -73,7 +97,7 @@ export class TopbarComponent {
     }
 
     public get features(): string[] {
-        return this._settings.get('app.features');
+        return this._settings.get('app.features') || EMPTY;
     }
 
     constructor(private _settings: SettingsService) {}

@@ -8,9 +8,17 @@ import { ComponentsModule } from '@placeos/components';
 import { NewUserModalComponent } from './new-user-modal.component';
 import { UserFormComponent } from './user-form.component';
 import { UserPipe } from './user.pipe';
+import { WFHSettingsModalComponent } from './wfh-settings-modal.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
-    declarations: [NewUserModalComponent, UserFormComponent, UserPipe],
+    declarations: [
+        NewUserModalComponent,
+        UserFormComponent,
+        WFHSettingsModalComponent,
+        UserPipe,
+    ],
     imports: [
         CommonModule,
         FormsModule,
@@ -18,7 +26,9 @@ import { UserPipe } from './user.pipe';
         MatDialogModule,
         ComponentsModule,
         MatCheckboxModule,
+        MatProgressSpinnerModule,
+        MatMenuModule
     ],
-    exports: [NewUserModalComponent],
+    exports: [NewUserModalComponent, WFHSettingsModalComponent, UserPipe],
 })
 export class SharedUsersModule {}

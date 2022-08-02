@@ -1,7 +1,9 @@
-<div class="flex flex-1 flex-col z-0 bg-gray-50 h-full overflow-y-auto">
+<div class="flex flex-1 flex-col z-0 m-0 bg-gray-50 h-full overflow-y-auto">
     <form *ngIf="form" [formGroup]="form">
-        <section class="flex flex-col border border-gray-300 py-5">
-            <div class="w-[calc(100%-2rem)] max-w-[375px] mx-auto">
+        <section class="flex flex-col border border-gray-300 py-5 items-center">
+            <div
+                class="flex flex-col w-[calc(100%-2rem)] max-w-[360px] self-center"
+            >
                 <span class="flex text-xl font-bold mb-2"> Book Room</span>
 
                 <div class="flex flex-row">
@@ -22,7 +24,7 @@
                             matInput
                             placeholder="e.g Team meeting"
                             formControlName="title"
-                            class="text-sm"
+                            class="text-sm max-w-[360px]"
                         />
                     </mat-form-field>
                 </div>
@@ -33,7 +35,7 @@
                     <a-date-field
                         [from]="min_date"
                         formControlName="date"
-                        class="text-sm"
+                        class="text-sm max-w-[360px]"
                     ></a-date-field>
                 </div>
                 <div class="flex flex-row -mb-5 space-x-2">
@@ -45,7 +47,7 @@
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            class="text-sm"
+                            class="text-sm max-w-[175px]"
                         ></a-time-field>
                     </div>
                     <div class="flex flex-col w-1/2 ml-auto">
@@ -58,15 +60,19 @@
                             [min]="60"
                             [step]="60"
                             formControlName="duration"
-                            class="text-sm"
+                            class="text-sm max-w-[175px]"
                         ></a-duration-field>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="flex flex-col py-3 border-b border-gray-300">
-            <div class="w-[calc(100%-2rem)] max-w-[375px] mx-auto">
+        <section
+            class="flex flex-col py-3 border-b border-gray-300 items-center"
+        >
+            <div
+                class="flex flex-col w-[calc(100%-2rem)] max-w-[360px] self-center"
+            >
                 <div class="flex flex-row">
                     <div
                         class="border border-black rounded-full w-7 h-7 text-center"
@@ -83,8 +89,23 @@
 
                     <a-user-list-field
                         formControlName="attendees"
-                        class="text-sm"
+                        class="text-sm max-w-[360px]"
                     ></a-user-list-field>
+
+                    <div
+                        class="absolute z-200 mt-[70px] ml-[240px] bg-gray-50 w-[140px] h-[50px]"
+                    ></div>
+                    <button
+                        mat-button
+                        type="submit"
+                        target="_parent"
+                        (click)="downloadTemplate()"
+                        class="absolute z-300 bg-white text-secondary border-secondary mt-[74px] ml-[245px] w-[115px]"
+                    >
+                        <div class="flex items-center justify-center">
+                            <span> CSV Template </span>
+                        </div>
+                    </button>
                 </div>
             </div>
         </section>

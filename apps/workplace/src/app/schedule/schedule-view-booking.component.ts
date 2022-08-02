@@ -13,6 +13,7 @@ import {
     notifyError,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
 } from '@placeos/common';
 import { addMinutes, formatDuration, isAfter } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
@@ -34,19 +35,19 @@ import { MapLocateModalComponent } from '@placeos/components';
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-gray-200 p-4 overflow-auto"
+            class="flex-1 w-full flex flex-col items-center bg-gray-200 dark:bg-neutral-600 p-4 overflow-auto"
         >
             <div
-                class="max-w-full w-[28rem] bg-white border border-gray-300 px-4 pb-4"
+                class="max-w-full w-[28rem] bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 px-4 pb-4 divide-y divide-gray-300 dark:divide-neutral-500"
                 *ngIf="event; else load_state"
             >
                 <h2 class="text-xl uppercase font-medium w-full my-4">
                     {{ event.title }}
                 </h2>
                 <div
-                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+                    class="flex items-center py-2 space-x-2 w-full !border-none"
                 >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -65,9 +66,9 @@ import { MapLocateModalComponent } from '@placeos/components';
                     </div>
                 </div>
                 <div
-                    class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+                    class="flex items-center py-2 space-x-2 w-full"
                 >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>schedule</app-icon>
                     </div>
                     <div class="flex-1 truncate">{{ !event.all_day && event.duration < 12 * 60 ? duration : 'All Day' }}</div>
@@ -76,7 +77,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     class="flex items-center py-2 space-x-2 w-full"
                     *ngIf="event.asset_id"
                 >
-                    <div class="p-2 rounded-full bg-gray-300 mr-2">
+                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
                         <app-icon>menu_book</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -85,7 +86,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     <button
                         mat-button
                         locate
-                        *ngIf="event.extension_data.map_id"
+                        *ngIf="event.extension_data.map_id && can_view_location"
                         class="bg-transparent border-none underline text-black"
                         (click)="viewLocation()"
                     >
@@ -93,7 +94,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     </button>
                 </div>
                 <div
-                    class="flex items-center justify-center space-x-2 mt-4"
+                    class="flex items-center justify-center space-x-2 mt-4 !border-none"
                     *ngIf="!has_ended && is_host"
                 >
                     <button
@@ -143,6 +144,10 @@ export class ScheduleViewBookingComponent extends BaseClass {
         return this.event?.user_email === currentUser()?.email;
     }
 
+    public get can_view_location() {
+        return !this._settings.get('app.no_maps');
+    }
+
     public get duration() {
         return this.event.all_day || this.event.duration >= 12 * 60 ? 'All Day' : formatDuration({
             hours: Math.floor(this.event?.duration / 60),
@@ -164,7 +169,8 @@ export class ScheduleViewBookingComponent extends BaseClass {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _bookings: BookingFormService
+        private _bookings: BookingFormService,
+        private _settings: SettingsService
     ) {
         super();
     }

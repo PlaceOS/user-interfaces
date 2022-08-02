@@ -1,5 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { Booking } from '@placeos/bookings';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
+import { Booking, BookingDetailsModalComponent } from '@placeos/bookings';
+import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
@@ -7,36 +10,58 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
     selector: 'booking-card',
     template: `
         <h4 class="mb-2 flex items-center" *ngIf="booking">
-            <span *ngIf="show_day">{{ day }}, </span>
+            <span *ngIf="show_day" day>{{ day }}, </span>
             {{ booking?.date | date: 'h:mm a' }}
-            <span class="text-xs px-2">({{ booking?.date | date:'z' }})</span>
+            <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
         </h4>
         <a
             matRippleColor
+            details
             class="w-full"
-            [routerLink]="['/schedule', 'view', booking?.id, 'booking']"
+            [routerLink]="['./']"
+            [queryParams]="{ booking: booking?.id }"
+            (click)="viewDetails()"
             *ngIf="booking"
         >
-            <div class="w-full bg-white rounded shadow py-2 relative">
+            <div
+                class="w-full bg-white dark:bg-neutral-800 rounded shadow py-2 relative"
+            >
                 <h4 class="px-2">{{ booking?.title }}</h4>
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                        [class.bg-green-600]="booking?.status === 'approved'"
-                        [class.bg-yellow-500]="booking?.status === 'tentative'"
-                        [class.bg-red-600]="booking?.status === 'declined'"
-                        [class.bg-gray-200]="!booking?.status"
+                        [class.bg-green-600]="
+                            !booking.is_done && booking?.status === 'approved'
+                        "
+                        [class.bg-yellow-500]="
+                            !booking.is_done && booking?.status === 'tentative'
+                        "
+                        [class.bg-red-600]="
+                            !booking.is_done && booking?.status === 'declined'
+                        "
+                        [class.bg-gray-300]="booking.is_done"
                     >
                         <div
                             class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                            [class.bg-success]="booking?.status === 'approved'"
-                            [class.bg-pending]="booking?.status === 'tentative'"
-                            [class.bg-error]="booking?.status === 'declined'"
-                            [class.bg-gray-200]="!booking?.status"
+                            [class.bg-success]="
+                                !booking.is_done &&
+                                booking?.status === 'approved'
+                            "
+                            [class.text-pending]="
+                                !booking.is_done &&
+                                booking?.status === 'tentative'
+                            "
+                            [class.bg-error]="
+                                !booking.is_done &&
+                                booking?.status === 'declined'
+                            "
+                            [class.text-neutral-600]="booking.is_done"
                         >
                             <app-icon>
                                 {{
-                                    booking?.status === 'approved'
+                                    booking.is_done
+                                        ? 'not_interested'
+                                        : booking?.status === 'approved'
                                         ? 'done'
                                         : booking?.status === 'tentative'
                                         ? 'warning'
@@ -51,7 +76,9 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-gray-200 py-2 space-y-2 sm:space-y-0"
                 >
                     <div class="flex items-center px-2">
-                        <app-icon *ngIf="type !== 'desk'; else desk_icon">{{ type }}</app-icon>
+                        <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
+                            type
+                        }}</app-icon>
                         <div class="mx-2 truncate">
                             {{ booking?.description || booking?.asset_id }}
                         </div>
@@ -81,9 +108,29 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         `,
     ],
 })
-export class BookingCardComponent {
+export class BookingCardComponent extends BaseClass {
     @Input() public booking: Booking;
     @Input() public show_day: boolean = false;
+
+    constructor(
+        private _dialog: MatDialog,
+        private _route: ActivatedRoute,
+        private _org: OrganisationService
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) =>
+                params.has('booking') &&
+                this.booking?.id === params.get('event')
+                    ? this.viewDetails()
+                    : ''
+            )
+        );
+    }
 
     public get type() {
         if (this.booking?.type === 'desk') return 'desk';
@@ -115,5 +162,12 @@ export class BookingCardComponent {
         return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
     }
 
-    constructor(private _org: OrganisationService) {}
+    public viewDetails() {
+        if (!this.booking) return;
+        this.timeout('open', () =>
+            this._dialog.open(BookingDetailsModalComponent, {
+                data: this.booking,
+            })
+        );
+    }
 }

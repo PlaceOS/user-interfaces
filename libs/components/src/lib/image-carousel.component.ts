@@ -6,11 +6,15 @@ import { Component, Input } from '@angular/core';
         <div class="h-full w-full relative overflow-hidden flex">
             <div
                 image
-                class="h-full min-w-full relative flex items-center justify-center p-8"
+                class="h-full min-w-full relative flex items-center justify-center overflow-hidden"
                 *ngFor="let image of images"
                 [style.transform]="'translateX(-' + offset * 100 + '%)'"
             >
-                <img class="h-full object-contain" *ngIf="image" [src]="image.url || image" />
+                <img
+                    class="h-full object-contain"
+                    *ngIf="image"
+                    [src]="image.url || image"
+                />
             </div>
             <div
                 class="h-full w-full relative flex flex-col items-center justify-center opacity-30 space-y-2"
@@ -20,23 +24,33 @@ import { Component, Input } from '@angular/core';
                 <p>No images</p>
             </div>
             <button
-                mat-icon-button
-                class="text-secondary border border-solid border-secondary absolute top-1/2 left-2 -translate-y-1/2 bg-white"
+                matRipple
+                *ngIf="images?.length"
+                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute left-0 inset-y-0 w-1/3 bg-black/60 text-white"
                 [disabled]="offset === 0"
                 (click)="offset = offset - 1"
             >
-                <app-icon>chevron_left</app-icon>
+                <app-icon class="text-4xl">chevron_left</app-icon>
             </button>
             <button
-                mat-icon-button
-                class="text-secondary border border-solid border-secondary absolute top-1/2 right-2 -translate-y-1/2 bg-white"
+                matRipple
+                *ngIf="images?.length"
+                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute right-0 inset-y-0 w-1/3 bg-black/60 text-white"
                 [disabled]="offset >= images?.length - 1"
                 (click)="offset = offset + 1"
             >
-                <app-icon>chevron_right</app-icon>
+                <app-icon class="text-4xl">chevron_right</app-icon>
             </button>
-            <div class="absolute bottom-1 left-1/2 -translate-x-1/2 text-sm opacity-30" *ngIf="images?.length">
-                {{ offset + 1 }} / {{ images.length }}
+            <div
+                class="absolute bottom-1 left-1/2 -translate-x-1/2 text-sm opacity-30 space-x-2"
+                *ngIf="images?.length"
+            >
+                <button
+                    matRipple
+                    [class.!bg-white]="offset === i"
+                    *ngFor="let img of images; let i = index"
+                    class="h-4 w-4 rounded-full bg-gray-400 shadow"
+                ></button>
             </div>
         </div>
     `,

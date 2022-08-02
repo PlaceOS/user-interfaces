@@ -67,4 +67,4 @@ export const MOCK_SPACES = [
         map_id: 'area-3.03-status',
         zones: ['bld-02', 'bld-02_lvl-3'],
     },
-].map((d) => generateMockSpace({ ...d, features: randomSpaceFeatures() }));
+].map((d) => generateMockSpace({ ...d, features: randomSpaceFeatures(), images: ['https://webcdn.executivecentre.com/wp-content/uploads/sites/39/2020/10/img-meetingroomrental_hire.jpg'] }));

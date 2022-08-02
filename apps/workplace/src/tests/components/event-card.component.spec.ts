@@ -1,3 +1,4 @@
+import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
@@ -16,6 +17,7 @@ describe('EventCardComponent', () => {
                 provide: OrganisationService,
                 useValue: { levelWithID: jest.fn() },
             },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
     });
 
@@ -25,17 +27,18 @@ describe('EventCardComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show event details', () => {
+        expect('[details]').not.toExist();
         spectator.setInput({
             event: new CalendarEvent({
                 date: set(Date.now(), { hours: 8, minutes: 0 }).valueOf(),
             }),
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[details]').toExist();
+        expect('[day]').not.toExist();
         spectator.setInput({ show_day: true });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[day]').toExist();
     });
 });

@@ -39,54 +39,32 @@ describe('TopbarComponent', () => {
 
     it('should render logo', () => {
         const settings = spectator.inject(SettingsService);
-        expect('[logo]').not.toExist();
-        (settings as any).get.mockImplementation(() => ({ src: 'test' }));
+        expect('[logo] img').not.toExist();
+        (settings as any).get.mockImplementation((x) => x.includes('logo') ? ({ src: 'test' }) : null);
         spectator.detectChanges();
-        expect('[logo]').toExist();
+        expect('[logo] img').toExist();
         expect('[logo] img').toHaveAttribute('src', 'test');
     });
 
     it('should render global search', () => {
         expect('global-search').toExist();
         const settings = spectator.inject(SettingsService);
-        (settings as any).value.mockImplementation(() => 'title');
+        (settings as any).get.mockImplementation((x) => x.includes('search') ? false : null);
         spectator.detectChanges();
         expect('global-search').not.toExist();
         (settings as any).value.mockReset();
     });
 
     it('should render page title', () => {
-        expect('h2').not.toExist();
+        expect('[logo] span').not.toExist();
         const settings = spectator.inject(SettingsService);
         (settings as any).value.mockImplementation(
             () => 'An interesting title'
         );
         spectator.detectChanges();
-        expect('h2').toExist();
-        expect('h2').toContainText('An interesting title');
+        expect('[logo] span').toExist();
+        expect('[logo] span').toContainText('An interesting title');
     });
 
-    it('should render user avatar and details', () => {
-        expect('[topbar] a-user-avatar').toExist();
-        (common_mod as any).currentUser = jest.fn(
-            () => new User({ name: 'Jim', email: 'jim@jim.com' })
-        );
-        spectator.detectChanges();
-        spectator.click('[topbar] a-user-avatar');
-        spectator.detectChanges();
-        expect(document.querySelector('[mat-menu-item]')).toExist();
-    });
-
-    it('should allow user to logout', () => {
-        expect(ts_client.logout).not.toHaveBeenCalled();
-        (ts_client as any).logout = jest.fn();
-        (common_mod as any).currentUser = jest.fn(
-            () => new User({ name: 'Jim', email: 'jim@jim.com' })
-        );
-        spectator.detectChanges();
-        spectator.click('[topbar] a-user-avatar');
-        spectator.detectChanges();
-        spectator.click(document.querySelector('button[mat-menu-item]'));
-        expect(ts_client.logout).toHaveBeenCalled();
-    });
+    it('should render user avatar and details', () => expect('[avatar]').toExist());
 });

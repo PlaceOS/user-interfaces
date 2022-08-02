@@ -1,20 +1,26 @@
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     BaseClass,
     currentUser,
+    flatten,
     getInvalidFields,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getUnixTime } from 'date-fns';
+import {
+    queryResourceAvailability,
+    saveBooking,
+} from 'libs/bookings/src/lib/bookings.fn';
 import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    distinctUntilKeyChanged,
     filter,
     map,
     shareReplay,
@@ -23,7 +29,9 @@ import {
 } from 'rxjs/operators';
 import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
-import { generateEventForm } from './utilities';
+import { generateEventForm, newCalendarEventFromBooking } from './utilities';
+import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
+import { querySystems } from '@placeos/ts-client';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -31,6 +39,8 @@ const BOOKING_URLS = [
     'confirm/success',
     'upcoming',
 ];
+
+const MINUTES = 60 * 1000;
 
 export type EventFlowView =
     | 'form'
@@ -66,38 +76,86 @@ export class EventFormService extends BaseClass {
         JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}')
     );
     public readonly loading = this._loading.asObservable();
-    public readonly options = this._options.pipe(shareReplay(1));
-    public readonly available_spaces: Observable<Space[]> = combineLatest([
-        this._view,
-        this._options,
-        this._form,
+    public readonly options = this._options.asObservable();
+
+    public readonly spaces = combineLatest([
+        this._options.pipe(distinctUntilKeyChanged('zone_ids')),
         this._org.initialised.pipe(filter((_) => _)),
+        this._org.active_building.pipe(filter((_) => !!_)),
     ]).pipe(
-        filter(([view, _, form]) => view === 'find' && !!form),
         debounceTime(300),
-        switchMap(([_, options, form]) => {
+        switchMap(([{ zone_ids }]) => {
+            if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+            return forkJoin(
+                zone_ids.map(
+                    (_) =>
+                        querySystems({ zone_id: _ }).pipe(map((_) => _.data)),
+                    catchError((_) => of([]))
+                )
+            );
+        }),
+        map((l) => flatten(l).map((_) => new Space(_ as any))),
+        shareReplay(1)
+    );
+
+    public readonly features = this.spaces.pipe(
+        map((l) => unique(flatten(l.map((_) => _.features))))
+    );
+
+    public readonly filtered_spaces = combineLatest([
+        this.spaces,
+        this.options,
+    ]).pipe(
+        debounceTime(300),
+        map(([spaces, { show_fav, features, capacity }]) =>
+            spaces.filter(
+                (s) =>
+                    (!show_fav || this.favorite_spaces.includes(s.id)) &&
+                    (features || []).every((f) => s.features.includes(f)) &&
+                    s.capacity >= Math.max(0, capacity || 0)
+            )
+        ),
+        shareReplay(1)
+    );
+
+    public readonly available_spaces: Observable<Space[]> = combineLatest([
+        this.filtered_spaces,
+        this._form,
+    ]).pipe(
+        debounceTime(300),
+        switchMap(([spaces, form]) => {
+            if (!spaces.length) return of([]);
             this._loading.next('Retrieving available spaces...');
-            const start = form.value.date;
-            const end = form.value.date + form.value.duration * 60 * 1000;
-            return querySpaceAvailability(
-                {
-                    period_start: getUnixTime(start),
-                    period_end: getUnixTime(end),
-                    zone_ids:
-                        options.zone_ids?.join(',') || this._org.building.id,
-                    features: options.features?.join(','),
-                    capacity: options.capacity,
-                },
-                this._org
+            const { date, duration } = form.getRawValue();
+            const query = {
+                period_start: getUnixTime(date),
+                period_end: getUnixTime(date + duration * MINUTES),
+            };
+            return (
+                !this.has_calendar
+                    ? queryResourceAvailability(
+                          spaces.map(({ id }) => id),
+                          { ...query, type: 'room' }
+                      ).pipe(
+                          map((_) =>
+                              _.map((id) => spaces.find((s) => id === s.id))
+                          ),
+                          catchError((_) => [])
+                      )
+                    : querySpaceAvailability(
+                          {
+                              ...query,
+                              system_ids: spaces.map(({ id }) => id).join(','),
+                          },
+                          this._org
+                      )
             ).pipe(catchError((_) => []));
         }),
         map((_) =>
             _.filter(
                 (space) =>
-                    (!space.availability?.length ||
-                        space.availability.find((_) => _.status !== 'busy')) &&
-                    (!this._options.getValue()?.show_fav ||
-                        this.favorite_spaces.includes(space.id))
+                    !space.availability?.length ||
+                    space.availability.find((_) => _.status !== 'busy')
             )
         ),
         tap((_) => this._loading.next('')),
@@ -116,6 +174,10 @@ export class EventFormService extends BaseClass {
 
     public get favorite_spaces() {
         return this._settings.get<string[]>('favourite_spaces') || [];
+    }
+
+    public get has_calendar() {
+        return this._settings.get('app.no_user_calendar') !== true;
     }
 
     constructor(
@@ -174,7 +236,7 @@ export class EventFormService extends BaseClass {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.event_form',
-            JSON.stringify(this._form.getValue()?.value || {})
+            JSON.stringify(this._form.getValue()?.getRawValue() || {})
         );
     }
 
@@ -190,29 +252,27 @@ export class EventFormService extends BaseClass {
     public postForm(force: boolean = false) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             const form = this._form.getValue();
-            if (!form) throw 'No form for event';
+            form.markAllAsTouched();
+            const event = this.event || new CalendarEvent();
             if (!form.valid && !force)
-                throw `Some form fields are invalid. [${getInvalidFields(
-                    form
-                ).join(', ')}]`;
-            const { id, host, date, duration, creator } = form.value;
-            console.log('Time:', date, duration);
+                return reject(
+                    `Some form fields are invalid. [${getInvalidFields(
+                        form
+                    ).join(', ')}]`
+                );
+            const { id, host, date, duration, creator } = form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             if (
-                (!id ||
-                    date !== this.event.date ||
-                    duration !== this.event.duration) &&
+                (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
             ) {
-                const start = getUnixTime(this.event.date);
+                const start = getUnixTime(event.date);
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
                     date,
                     duration,
-                    id
-                        ? { start, end: start + this.event.duration * 60 }
-                        : undefined
-                );
+                    id ? { start, end: start + event.duration * 60 } : undefined
+                ).catch((_) => reject(_));
             }
             const is_owner =
                 host === currentUser()?.email ||
@@ -223,26 +283,40 @@ export class EventFormService extends BaseClass {
                     ? { calendar: host || creator }
                     : { system_id: space_id }
                 : {};
-            this.subscription(
-                'post-event-form',
-                saveEvent(
-                    new CalendarEvent(this._form.getValue().value),
-                    query
-                ).subscribe(
-                    (result) => {
-                        this.clearForm();
-                        this.last_success = result;
-                        sessionStorage.setItem(
-                            'PLACEOS.last_booked_event',
-                            JSON.stringify(result)
-                        );
-                        this.setView('success');
-                        resolve(result);
-                    },
-                    (e) => reject(e)
-                )
+            const result = await this._makeBooking(
+                new CalendarEvent(this._form.getValue().value),
+                query
+            ).catch((e) => {
+                reject(e);
+                throw e;
+            });
+            this.clearForm();
+            this.last_success = result;
+            sessionStorage.setItem(
+                'PLACEOS.last_booked_event',
+                JSON.stringify(result)
             );
+            this.setView('success');
+            resolve(result);
         });
+    }
+
+    private async _makeBooking(
+        event: CalendarEvent,
+        query: Record<string, any>
+    ) {
+        return (
+            !this.has_calendar
+                ? saveBooking(
+                      newBookingFromCalendarEvent({
+                          ...event.toJSON(),
+                          status: this._settings.get('app.bookings.no_approval')
+                              ? 'approved'
+                              : 'tentative',
+                      } as any)
+                  ).pipe(map((_) => newCalendarEventFromBooking(_)))
+                : saveEvent(event, query)
+        ).toPromise();
     }
 
     private async checkSelectedSpacesAreAvailable(
@@ -251,15 +325,25 @@ export class EventFormService extends BaseClass {
         duration: number,
         exclude?: { start: number; end: number }
     ) {
-        const space_ids = spaces.map((s) => this._spaces.find(s?.email)?.id);
+        const space_ids = spaces.map(
+            (s) => this._spaces.find(s?.email)?.id || s.id
+        );
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
-            system_ids: space_ids.join(','),
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
-        const space_list = spaces.length
-            ? await querySpaceAvailability(query).toPromise()
+        const space_list: any[] = spaces.length
+            ? await (!this.has_calendar
+                  ? (queryResourceAvailability(space_ids, {
+                        ...query,
+                        type: 'room',
+                    }) as any)
+                  : querySpaceAvailability({
+                        ...query,
+                        system_ids: space_ids.join(','),
+                    })
+              ).toPromise()
             : [];
         if (space_list.length !== spaces.length)
             throw `${

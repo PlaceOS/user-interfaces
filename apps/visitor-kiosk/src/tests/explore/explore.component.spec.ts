@@ -43,10 +43,6 @@ describe('ExploreComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should reset kiosk', async () => {
         (spectator.inject(SettingsService).get as any).mockImplementation(
             () => 0.05

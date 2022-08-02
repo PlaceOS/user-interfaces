@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
 import { FeaturesFilterService } from '../rooms/features-filter.service';
@@ -38,9 +39,10 @@ export class RoomBookingComponent implements OnInit {
     };
 
     constructor(
+        @Inject(DOCUMENT) private _document: Document,
         private router: Router,
-        private _state: EventFormService,
-        private _featuresFilterService: FeaturesFilterService
+        private _state: EventFormService
+          private _featuresFilterService: FeaturesFilterService
     ) {}
 
     ngOnInit(): void {
@@ -53,5 +55,9 @@ export class RoomBookingComponent implements OnInit {
         if (!this.form.valid) return;
         await this._state.storeForm();
         this.router.navigate(['/schedule/view']);
+    }
+
+    downloadTemplate() {
+        window.open('assets/template.csv');
     }
 }

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
+import { BaseClass, DialogEvent } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { addHours, startOfHour } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -51,7 +51,6 @@ import { DesksStateService } from '../desks/desks-state.service';
                         >
                         <input
                             matInput
-                            [disabled]="!form.get('type').value"
                             formControlName="name"
                             placeholder="Search for asset..."
                             [matAutocomplete]="auto"
@@ -202,7 +201,7 @@ import { DesksStateService } from '../desks/desks-state.service';
         `,
     ],
 })
-export class PointsAssetModalComponent {
+export class PointsAssetModalComponent extends BaseClass {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public form = new FormGroup({
@@ -243,7 +242,12 @@ export class PointsAssetModalComponent {
         private _desks: DesksStateService,
         @Inject(MAT_DIALOG_DATA) private _data: { asset?: any }
     ) {
+        super();
         this._desks.setFilters({ zones: ['All'] });
+        this.subscription('type_change', this.form.get('type').valueChanges.subscribe((v) => {
+            const field = this.form.get('name');
+            v ? field.enable() : field.disable()
+        }));
     }
 
     public renderPrice(value: number = 0) {

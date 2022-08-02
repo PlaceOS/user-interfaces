@@ -1,15 +1,32 @@
 import { Injectable } from '@angular/core';
 import { Booking, queryBookings } from '@placeos/bookings';
-import { BaseClass, timePeriodsIntersect, unique } from '@placeos/common';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import { queryCalendars } from '@placeos/calendar';
+import {
+    BaseClass,
+    SettingsService,
+    timePeriodsIntersect,
+    unique,
+} from '@placeos/common';
+import {
+    CalendarEvent,
+    newCalendarEventFromBooking,
+    queryEvents,
+} from '@placeos/events';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    Observable,
+    timer,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
     map,
     mergeMap,
     shareReplay,
+    switchMap,
     tap,
 } from 'rxjs/operators';
 
@@ -34,6 +51,11 @@ export class ScheduleStateService extends BaseClass {
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
     public readonly schedule = this._loading.asObservable();
+
+    public readonly calendars = timer(1000).pipe(
+        switchMap((_) => queryCalendars()),
+        shareReplay(1)
+    );
 
     public readonly events: Observable<BookingLike[]> = combineLatest([
         this._options,
@@ -63,15 +85,27 @@ export class ScheduleStateService extends BaseClass {
                     )
             );
             return forkJoin([
-                queryEvents({ ...query }).pipe(catchError((_) => [])),
-                queryBookings({ ...query, type: 'desk' }).pipe(catchError((_) => [])),
+                this._settings.get('app.no_user_calendar')
+                    ? queryBookings({ ...query, type: 'room' }).pipe(
+                          map((_) =>
+                              _.map((i) => newCalendarEventFromBooking(i))
+                          ),
+                          catchError((_) => [])
+                      )
+                    : queryEvents({ ...query }).pipe(catchError((_) => [])),
+                queryBookings({ ...query, type: 'desk' }).pipe(
+                    catchError((_) => [])
+                ),
+                queryBookings({ ...query, type: 'parking' }).pipe(
+                    catchError((_) => [])
+                ),
             ]);
         }),
         map(([events, bookings]) => {
             const list = [
                 ...this._schedule.getValue(),
                 ...events,
-                ...bookings.filter(_ => _.status !== 'declined'),
+                ...bookings.filter((_) => _.status !== 'declined'),
             ].sort((a, b) => a.date - b.date);
             this._schedule.next(unique(list, 'id') as any);
             return list;
@@ -80,6 +114,10 @@ export class ScheduleStateService extends BaseClass {
         tap((_) => this._loading.next('')),
         shareReplay(1)
     );
+
+    constructor(private _settings: SettingsService) {
+        super();
+    }
 
     public startPolling(delay: number = 15 * 1000) {
         this.interval('poll', () => this._poll.next(Date.now()), delay);

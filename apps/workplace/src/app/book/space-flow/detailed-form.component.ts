@@ -1,7 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CateringOrder, CateringStateService } from '@placeos/catering';
 import { SettingsService } from '@placeos/common';
+import { EventFlowOptions } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'detailed-book-space-form',
@@ -12,22 +14,24 @@ import { SettingsService } from '@placeos/common';
                     class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
-                        <label>Date</label>
-                        <a-date-field formControlName="date">
+                        <label for="date">Date</label>
+                        <a-date-field name="date" formControlName="date">
                             Date and time must be in the future
                         </a-date-field>
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3">
-                        <label>Start Time</label>
+                        <label for="start-time">Start Time</label>
                         <a-time-field
+                            name="start-time"
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
                     <div class="flex flex-col flex-1 w-full sm:w-1/3 relative">
-                        <label>End Time</label>
+                        <label for="end-time">End Time</label>
                         <a-duration-field
+                            name="end-time"
                             formControlName="duration"
                             [time]="form.value.date"
                             [max]="max_duration"
@@ -43,22 +47,87 @@ import { SettingsService } from '@placeos/common';
                         </mat-checkbox>
                     </div>
                 </div>
+                <div
+                    class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                >
+                    <div
+                        class="flex flex-col flex-1 w-full"
+                        *ngIf="show_features && features?.length"
+                    >
+                        <label for="building">Building</label>
+                        <mat-form-field
+                            overlay
+                            buildings
+                            class="w-full h-[3.25rem]"
+                            *ngIf="(buildings | async)?.length > 1"
+                            appearance="outline"
+                        >
+                            <mat-select
+                                placeholder="Select Building..."
+                                [ngModel]="building"
+                                (ngModelChange)="setBuilding($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                <mat-option
+                                    *ngFor="let bld of buildings | async"
+                                    [value]="bld"
+                                >
+                                    {{ bld.display_name || bld.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div
+                        class="flex flex-col flex-1 w-full"
+                        *ngIf="show_features && features?.length"
+                    >
+                        <label for="features">Features</label>
+                        <mat-form-field
+                            class="w-full h-[3.25rem]"
+                            overlay
+                            appearance="outline"
+                        >
+                            <mat-select
+                                [placeholder]="'Any ' + features_label"
+                                multiple
+                                [ngModel]="options?.features"
+                                (ngModelChange)="
+                                    optionsChange.emit({ features: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                <mat-option
+                                    *ngFor="let item of features"
+                                    [value]="item"
+                                >
+                                    {{ item }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
             </section>
-            <section class="mb-4 border-b border-gray-300">
+            <section
+                class="mb-4 border-b border-gray-300"
+                *ngIf="can_book_for_others || !hide_attendees"
+            >
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                     *ngIf="can_book_for_others"
                 >
-                    <label>Host</label>
-                    <a-user-search-field
+                    <label for="host">Host<span>*</span></label>
+                    <host-select-field
+                        name="host"
                         formControlName="organiser"
-                    ></a-user-search-field>
+                    ></host-select-field>
                 </div>
                 <div
                     class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-2"
+                    *ngIf="!hide_attendees"
                 >
-                    <label>Attendees</label>
+                    <label for="attendees">Attendees</label>
                     <a-user-list-field
+                        name="attendees"
                         [hideActions]="hide_actions"
                         formControlName="attendees"
                     ></a-user-list-field>
@@ -67,9 +136,12 @@ import { SettingsService } from '@placeos/common';
             <section class="mb-4 border-b border-gray-300">
                 <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                     <div class="flex flex-col">
-                        <label>Meeting Subject <span>*</span></label>
+                        <label for="title"
+                            >Meeting Subject <span>*</span></label
+                        >
                         <mat-form-field appearance="outline">
                             <input
+                                name="title"
                                 matInput
                                 formControlName="title"
                                 placeholder="Meeting title"
@@ -77,9 +149,13 @@ import { SettingsService } from '@placeos/common';
                             <mat-error>Meeting Subject is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col resize-y mb-4">
-                        <label>Notes</label>
+                    <div
+                        class="flex flex-col resize-y mb-4"
+                        *ngIf="!hide_notes"
+                    >
+                        <label for="notes">Notes</label>
                         <rich-text-input
+                            name="notes"
                             formControlName="body"
                             placeholder="Add meeting notes here..."
                         ></rich-text-input>
@@ -118,6 +194,16 @@ import { SettingsService } from '@placeos/common';
 })
 export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;
+    @Input() public options: EventFlowOptions;
+    @Input() public features: string[] = [];
+    @Output() public optionsChange = new EventEmitter<EventFlowOptions>();
+
+    public readonly buildings = this._org.building_list;
+    public readonly setBuilding = (b) => this._org.building = b;
+
+    public get building() {
+        return this._org.building;
+    }
 
     public get has_catering() {
         return !!this._settings.get('app.events.has_catering');
@@ -125,6 +211,14 @@ export class DetailBookSpaceFormComponent {
 
     public get hide_actions() {
         return !!this._settings.get('app.events.hide_user_actions');
+    }
+
+    public get hide_notes() {
+        return !!this._settings.get('app.events.hide_notes');
+    }
+
+    public get hide_attendees() {
+        return !!this._settings.get('app.events.hide_attendees');
     }
 
     public get can_book_for_others() {
@@ -137,6 +231,14 @@ export class DetailBookSpaceFormComponent {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 4 * 60;
+    }
+
+    public get show_features() {
+        return !!this._settings.get('app.events.features_on_form');
+    }
+
+    public get features_label() {
+        return this._settings.get('app.events.features_label') || 'feature';
     }
 
     public readonly editCatering = async () =>
@@ -152,6 +254,7 @@ export class DetailBookSpaceFormComponent {
 
     constructor(
         private _catering: CateringStateService,
+        private _org: OrganisationService,
         private _settings: SettingsService
     ) {}
 }

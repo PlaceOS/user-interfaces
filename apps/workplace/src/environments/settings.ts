@@ -71,7 +71,11 @@ const events: any = {
     breakdown: 15,
     can_book_for_others: false,
     has_catering: true,
-    allow_all_day: true
+    allow_all_day: true,
+    hide_notes: false,
+    hide_attendees: false,
+    features_label: '',
+    features_on_form: false
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -120,15 +124,13 @@ const explore: any = {
     },
     can_select_building: true,
     show_legend_group_names: true,
-    legend: {
-        Spaces: [
-            { key: 'space-free', name: 'Space Available' },
-            { key: 'space-pending', name: 'Space Pending' },
-            { key: 'space-busy', name: 'Space in Use' },
-            { key: 'space-not-bookable', name: 'Space not Bookable' },
-            { key: 'space-unknown', name: 'Unknown' },
-        ],
-    },
+    show_legend: true,
+    legend: [
+        ['Available', '#43a047'],
+        ['In Use', '#e53935'],
+        ['Pending', '#ffb300'],
+        ['Signs of Life', '#1565c0']
+    ],
 };
 /**
  * ROOT APPLICATION SETTINGS
@@ -146,30 +148,33 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
-    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule'],
+    default_route: '/dashboard',
+    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
     can_deliver: true,
+    no_user_calendar: false,
+    no_maps: true,
     general,
     help,
     events,
     space_display,
     directory,
     explore,
+    bookings: {
+        no_approval: false
+    },
     desks: {
         can_book_for_others: true,
         allow_groups: true,
-        auto_allocation: false
+        auto_allocation: false,
+        hide_map: false,
     },
     analytics: {
         enabled: true,
         tracking_id: '',
     },
     hide_contacts: false,
-    schedule,
-    departments: {
-        'user': { level: 'bld-01_lvl-10', centered_at: 'table-10.008' }
-    }
+    schedule
 };
-
 /**
  * ROOT SETTIGNS
  */

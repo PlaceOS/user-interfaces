@@ -26,10 +26,4 @@ describe('AppTimetableComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
-
-    it('should match snapshot', () => {
-        spectator.component.date = 1;
-        spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
 });

@@ -18,6 +18,9 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+
+const EMPTY = [];
 
 @Component({
     selector: 'explore-map-view',
@@ -40,7 +43,7 @@ import { ExploreDesksService } from './explore-desks.service';
         <!-- <explore-search class="absolute top-0 right-0"></explore-search> -->
         <div
             zones
-            class="p-2 bg-white border border-gray-400 absolute left-0 m-2 rounded flex items-center"
+            class="p-2 bg-white dark:bg-neutral-800 border border-gray-400 absolute left-0 m-2 rounded flex items-center"
         >
             Zones
             <mat-slide-toggle
@@ -48,6 +51,23 @@ import { ExploreDesksService } from './explore-desks.service';
                 [ngModel]="!(options | async)?.disable?.includes('zones')"
                 (ngModelChange)="toggleZones($event)"
             ></mat-slide-toggle>
+        </div>
+        <div
+            legend
+            *ngIf="show_legend && legend.length"
+            class="absolute bottom-2 left-2 p-2 rounded bg-white dark:bg-neutral-800 border border-gray-300"
+        >
+            <h3 class="mb-2 font-medium">Legend</h3>
+            <div
+                class="flex items-center space-x-2"
+                *ngFor="let pair of legend"
+            >
+                <div
+                    class="w-3 h-3 rounded-full border border-gray-400"
+                    [style.background-color]="pair[1]"
+                ></div>
+                <div class="text-sm">{{ pair[0] }}</div>
+            </div>
         </div>
     `,
     styles: [
@@ -63,7 +83,7 @@ import { ExploreDesksService } from './explore-desks.service';
             }
         `,
     ],
-    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService],
+    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService, SpacePipe],
 })
 export class ExploreMapViewComponent extends BaseClass implements OnInit {
     /** Observable for the active map */
@@ -89,9 +109,17 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         const options = await this.options.pipe(take(1)).toPromise();
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
-            : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||
+            : options.disable?.filter((_) => _ !== 'zones' && _ !== 'devices') ||
               [];
         this.setOptions({ disable });
+    }
+
+    public get show_legend() {
+        return !!this._settings.get('app.explore.show_legend');
+    }
+
+    public get legend(): [string, string][] {
+        return this._settings.get('app.explore.legend') || EMPTY;
     }
 
     constructor(
@@ -103,7 +131,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         private _router: Router,
         private _spaces: SpacesService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _space_pipe: SpacePipe
     ) {
         super();
     }
@@ -121,9 +150,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
-                    const space = this._spaces.find(params.get('space'));
-                    if (!space) return;
-                    this.locateSpace(space);
+                    this.locateSpace(params.get('space'));
                 } else if (params.has('user')) {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
@@ -174,7 +201,9 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         );
     }
 
-    private locateSpace(space: Space) {
+    private async locateSpace(id: string) {
+        const space = await this._space_pipe.transform(id);
+        if (!space) return;
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             track_id: `locate-${space.id}`,

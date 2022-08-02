@@ -1,3 +1,4 @@
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -18,6 +19,7 @@ describe('AssetSelectModalComponent', () => {
                 provide: SettingsService,
                 useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
             },
+            { provide: MAT_DIALOG_DATA, useValue: [] }
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -26,6 +28,7 @@ describe('AssetSelectModalComponent', () => {
             MockComponent(AssetListComponent),
             MockComponent(AssetDetailsComponent),
         ],
+        imports: [MatDialogModule]
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -53,7 +56,6 @@ describe('AssetSelectModalComponent', () => {
 
     it('should allow toggling favourites', () => {
         const settings = spectator.inject(SettingsService);
-        console.log(settings);
         settings.get.mockImplementation(() => []);
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', ['1']);

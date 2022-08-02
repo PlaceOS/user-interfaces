@@ -7,7 +7,7 @@ import { Space } from '../space.class';
     selector: 'new-space-select-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none bg-white flex flex-col"
+            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
                 <button mat-icon-button mat-dialog-close class="bg-black/20">
@@ -16,26 +16,31 @@ import { Space } from '../space.class';
                 <h3>Find Space</h3>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-gray-200 min-h-[65vh] h-[65vh] w-full"
+                class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
             >
-                <space-filters class="h-full hidden sm:block"></space-filters>
-                <div class="flex flex-col items-center flex-1 w-1/2 h-full">
+                <space-filters
+                    class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                ></space-filters>
+                <div
+                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                >
                     <space-filters-display
-                        class="w-full border-b border-gray-200"
+                        class="w-full border-b border-gray-200 dark:border-neutral-500"
                         [(view)]="view"
                     ></space-filters-display>
                     <space-list
                         *ngIf="view === 'list'; else map_view"
+                        [active]="displayed?.id"
                         [selected]="selected_ids"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2"
+                        class="flex-1 h-1/2 bg-black/5 dark:bg-white/10"
                     ></space-list>
                 </div>
                 <space-details
                     [space]="displayed"
-                    class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20"
+                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20 bg-inherit"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
@@ -46,12 +51,12 @@ import { Space } from '../space.class';
                 ></space-details>
             </main>
             <footer
-                class="flex flex-col-reverse sm:flex-row items-center justify-end p-2 sm:space-x-2 border-t border-gray-200 w-full"
+                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
                     mat-button
                     return
-                    class="inverse sm:hidden w-full sm:w-auto"
+                    class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
@@ -62,9 +67,45 @@ import { Space } from '../space.class';
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
-                    class="w-full sm:w-auto sm:mb-0"
+                    class="w-full sm:w-32 sm:mb-0"
                 >
                     View List
+                </button>
+            </footer>
+            <footer
+                class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
+            >
+                <button
+                    mat-button
+                    [mat-dialog-close]="selected"
+                    class="clear text-primary"
+                >
+                    <div class="flex items-center">
+                        <app-icon class="text-xl">arrow_back</app-icon>
+                        <div class="mr-1 underline">Back to form</div>
+                    </div>
+                </button>
+                <p class="opacity-60 text-sm">
+                    {{ selected.length }} room(s) added
+                </p>
+                <button
+                    mat-button
+                    [disabled]="!displayed"
+                    [class.inverse]="isSelected(displayed?.id)"
+                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                >
+                    <div class="flex items-center">
+                        <app-icon class="text-xl">{{
+                            isSelected(displayed?.id) ? 'remove' : 'add'
+                        }}</app-icon>
+                        <div class="mr-1">
+                            {{
+                                isSelected(displayed?.id)
+                                    ? 'Remove from Booking'
+                                    : 'Add to booking'
+                            }}
+                        </div>
+                    </div>
                 </button>
             </footer>
         </div>
@@ -98,6 +139,10 @@ export class NewSpaceSelectModalComponent {
         @Inject(MAT_DIALOG_DATA) _spaces: Space[]
     ) {
         this.selected = [...(_spaces || [])];
+    }
+
+    public isSelected(id: string) {
+        return id && this.selected_ids.includes(id);
     }
 
     public setSelected(space: Space, state: boolean) {

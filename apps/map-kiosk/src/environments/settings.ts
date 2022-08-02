@@ -20,6 +20,9 @@ const app = {
     },
     general,
     desks,
+    explore: {
+        search_enabled: true,
+    },
     show_qr_for_booking: true
 };
 

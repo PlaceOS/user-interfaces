@@ -42,11 +42,11 @@ describe('CateringItemOptionModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show loading state', () => {
+        expect('[loading]').not.toExist();
         spectator.component.loading = true;
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[loading]').toExist();
     });
 
     it('should submit updated item option details', (done) => {

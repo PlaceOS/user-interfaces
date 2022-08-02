@@ -44,13 +44,13 @@ describe('VisitorDetailsComponent', () => {
 
     it('should match snapshot', () => {
         (ts_client as any).get = jest.fn(() => ({}));
-        expect(spectator.element).toMatchSnapshot();
+        expect('[details]').not.toExist();
         spectator.setInput({
             event: new CalendarEvent({ date: 1 }),
             visitor: new GuestUser(),
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[details]').toExist();
     });
 
     it('should allow toggling remote state', () => {

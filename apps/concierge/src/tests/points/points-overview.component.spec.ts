@@ -24,10 +24,6 @@ describe('PointsOverviewComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it.todo('should load points');
 
     it.todo('should store points');

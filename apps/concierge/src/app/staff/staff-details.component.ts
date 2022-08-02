@@ -9,6 +9,7 @@ import { StaffStateService } from './staff-state.service';
     template: `
         <div
             class="w-full flex items-center px-4 py-2 bg-white border-b border-gray-200"
+            details
             *ngIf="user"
         >
             <a-user-avatar [user]="user"></a-user-avatar>
@@ -30,7 +31,7 @@ import { StaffStateService } from './staff-state.service';
                 <a
                     mat-icon-button
                     matTooltip="Email Staff"
-                    [disabled]="!user?.email"
+                    [attr.disabled]="!user?.email"
                     [href]="'mailto:' + user?.email"
                 >
                     <app-icon>email</app-icon>
@@ -38,7 +39,7 @@ import { StaffStateService } from './staff-state.service';
                 <a
                     mat-icon-button
                     matTooltip="Phone Staff"
-                    [disabled]="!user?.phone"
+                    [attr.disabled]="!user?.phone"
                     [href]="'tel:' + user?.phone"
                 >
                     <app-icon>call</app-icon>

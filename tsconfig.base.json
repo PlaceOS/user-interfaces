@@ -26,6 +26,7 @@
             "@placeos/form-fields": ["libs/form-fields/src/index.ts"],
             "@placeos/mocks": ["libs/mocks/src/index.ts"],
             "@placeos/organisation": ["libs/organisation/src/index.ts"],
+            "@placeos/payments": ["libs/payments/src/index.ts"],
             "@placeos/spaces": ["libs/spaces/src/index.ts"],
             "@placeos/users": ["libs/users/src/index.ts"]
         }

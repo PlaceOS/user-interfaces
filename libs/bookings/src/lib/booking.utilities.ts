@@ -1,20 +1,24 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { currentUser } from '@placeos/common';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { endInFuture } from 'libs/events/src/lib/validators';
 import { createViewer, getViewer, Point, removeViewer } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
 
 export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
-        date: new FormControl(booking.date, []),
+        date: new FormControl(booking.date, [Validators.required]),
         all_day: new FormControl(booking.all_day ?? false),
-        duration: new FormControl(booking.duration),
+        duration: new FormControl(booking.duration, [endInFuture]),
         booking_type: new FormControl(booking.booking_type),
         zones: new FormControl(booking.zones),
         title: new FormControl(booking.title),
         description: new FormControl(booking.description),
-        asset_id: new FormControl(booking.asset_id),
+        booking_asset: new FormControl(null),
+        asset_id: new FormControl(booking.asset_id, [Validators.required]),
         asset_name: new FormControl(booking.description),
+        assets: new FormControl(booking.extension_data?.assets || []),
         map_id: new FormControl(booking.extension_data?.map_id),
         user: new FormControl(currentUser()),
         user_id: new FormControl(booking.user_id),
@@ -56,13 +60,9 @@ export async function findNearbyFeature(map_url: string, centered_at: Point | st
     const point = (typeof centered_at === 'string' ? viewer.mappings[centered_at] : centered_at) || { x: .5, y: .5 };
     let dist = 10;
     let closest = '';
-    console.log(`Desks:`, desk_ids);
-    console.log(`Mappings:`, viewer.mappings);
-    console.log(`Point:`, point);
     for (const desk of desk_ids) {
         const { x, y } = viewer.mappings[desk] || { x: 2, y: 2 };
         const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-        console.log(`Desk ${desk}:`, viewer.mappings[desk], d);
         if (d < dist) {
             dist = d;
             closest = desk;
@@ -71,4 +71,18 @@ export async function findNearbyFeature(map_url: string, centered_at: Point | st
     document.body.removeChild(element);
     removeViewer(id);
     return closest;
+}
+
+export function newBookingFromCalendarEvent(event: CalendarEvent) {
+    return new Booking({
+        id: event.id,
+        user_email: event.host,
+        asset_id: event.system?.id,
+        asset_name: event.system?.display_name || event.system?.name,
+        booking_type: 'room',
+        approved: event.status === 'approved',
+        extension_data: {
+            ...event
+        }
+    });
 }

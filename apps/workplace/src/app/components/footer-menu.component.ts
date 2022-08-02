@@ -18,7 +18,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <div
                     class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                 >
-                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/meeting-room-filled.svg' }"></app-icon>
+                    <app-icon
+                        [icon]="{
+                            type: 'img',
+                            src: 'assets/icons/meeting-room-filled.svg'
+                        }"
+                    ></app-icon>
                 </div>
                 <div>Book Room</div>
             </a>
@@ -31,7 +36,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <div
                     class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                 >
-                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/desk-filled.svg' }"></app-icon>
+                    <app-icon
+                        [icon]="{
+                            type: 'img',
+                            src: 'assets/icons/desk-filled.svg'
+                        }"
+                    ></app-icon>
                 </div>
                 <div>Book Desk</div>
             </a>
@@ -44,7 +54,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <div
                     class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                 >
-                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/car-filled.svg' }"></app-icon>
+                    <app-icon
+                        [icon]="{
+                            type: 'img',
+                            src: 'assets/icons/car-filled.svg'
+                        }"
+                    ></app-icon>
                 </div>
                 <div>Book Car Space</div>
             </a>
@@ -57,13 +72,19 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <div
                     class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                 >
-                    <app-icon [icon]="{ type: 'img', src: 'assets/icons/today-filled.svg' }"></app-icon>
+                    <app-icon
+                        [icon]="{
+                            type: 'img',
+                            src: 'assets/icons/today-filled.svg'
+                        }"
+                    ></app-icon>
                 </div>
                 <div>Your Bookings</div>
             </a>
         </div>
         <div
-            class="flex items-center justify-center bg-white border-t border-gray-200 shadow relative h-16 w-full sm:hidden z-40"
+            class="flex items-center justify-center bg-white dark:bg-neutral-700 border-t border-gray-200 dark:border-neutral-500 shadow relative h-16 w-full sm:hidden z-40"
+            *ngIf="features.length > 3; else simple_state"
         >
             <a
                 matRipple
@@ -76,7 +97,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </a>
             <button
                 matRipple
-                class="flex items-center justify-center w-12 h-12 mb-4 rounded-full z-10"
+                class="flex items-center justify-center w-12 h-12 mb-4 rounded-full z-10 dark:bg-neutral-800"
                 (click)="show_book_items = !show_book_items"
                 [class.bg-secondary]="show_book_items"
                 [class.text-white]="show_book_items"
@@ -99,10 +120,17 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 class="overflow-hidden absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-24 h-2"
             >
                 <div
-                    class="w-16 h-16 rounded-full bg-white shadow mx-auto border-t border-gray-200"
+                    class="w-16 h-16 rounded-full bg-white dark:bg-neutral-700 shadow mx-auto border-t border-gray-200 dark:border-neutral-500"
                 ></div>
             </div>
         </div>
+        <ng-template #simple_state>
+            <div
+                class="flex items-center justify-center bg-white dark:bg-neutral-700 border-t border-gray-200 dark:border-neutral-500 shadow relative h-16 w-full sm:hidden z-40"
+            >
+                <top-menu></top-menu>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
@@ -113,7 +141,5 @@ export class FooterMenuComponent {
         return this._settings.get('app.features') || [];
     }
 
-    constructor(
-        private _settings: SettingsService
-    ) {}
+    constructor(private _settings: SettingsService) {}
 }

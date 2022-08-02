@@ -1,3 +1,4 @@
+import { capitalizeFirstLetter, removeEmptyFields } from '@placeos/common';
 import {
     addHours,
     addMinutes,
@@ -9,7 +10,7 @@ import {
     startOfDay,
 } from 'date-fns';
 
-export type BookingType = 'desk' | 'parking' | 'locker' | '';
+export type BookingType = 'desk' | 'parking' | 'locker' | 'room' | 'visitor' | 'asset-request' | 'staff' | 'wfh-setting' | '';
 
 /** General purpose booking class */
 export class Booking {
@@ -109,7 +110,7 @@ export class Booking {
         this.user_email = data.user_email || '';
         this.user_id = data.user_id || '';
         this.user_name = data.user_name || '';
-        this.title = data.title || 'Desk booking';
+        this.title = data.title || this.booking_type ? `${capitalizeFirstLetter(this.booking_type)} Booking` : '';
         this.description = data.description || '';
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
@@ -142,6 +143,7 @@ export class Booking {
         if (!this.id) delete data.id;
         delete data.date;
         delete data.duration;
+        removeEmptyFields(data);
         return data;
     }
 

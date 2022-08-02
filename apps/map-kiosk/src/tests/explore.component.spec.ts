@@ -17,6 +17,7 @@ import { ExploreComponent } from '../app/explore.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 import { MatDialog } from '@angular/material/dialog';
 import { SpacesService } from '@placeos/spaces';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;
@@ -32,6 +33,7 @@ describe('ExploreComponent', () => {
             { provide: ExploreSpacesService, useValue: {} },
             { provide: ExploreDesksService, useValue: {} },
             { provide: ExploreZonesService, useValue: {} },
+            { provide: SpacePipe, useValue: { transform: jest.fn(() => ({})) } },
         ],
         providers: [
             {
@@ -58,9 +60,5 @@ describe('ExploreComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
-    });
-
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
     });
 });

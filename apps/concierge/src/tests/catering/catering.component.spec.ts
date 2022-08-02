@@ -29,10 +29,6 @@ describe('CateringComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should handle route parameters', () => {
         expect(spectator.component.page).toBeFalsy();
         spectator.setRouteParam('view', 'orders');

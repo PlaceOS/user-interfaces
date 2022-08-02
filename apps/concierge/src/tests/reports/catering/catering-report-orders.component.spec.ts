@@ -33,10 +33,6 @@ describe('CateringReportOrdersComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should allow downloading orders', () => {
         const service = spectator.inject(CateringReportStateService);
         expect(service.downloadOrders).not.toBeCalled();

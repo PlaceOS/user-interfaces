@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { toQueryString } from 'libs/common/src/lib/api';
-import { Booking } from './booking.class';
+import { Booking, BookingType } from './booking.class';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -17,7 +17,7 @@ export interface BookingsQueryParams {
     /** Epoch in seconds for the end of the availability period */
     period_end: number;
     /** Category of booking */
-    type: string;
+    type: BookingType;
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
@@ -30,7 +30,7 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     const query = toQueryString(q);
     return get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new Booking(item))),
-        catchError(_ => of([]))
+        catchError((_) => of([]))
     );
 }
 
@@ -126,4 +126,20 @@ export function checkinBooking(id: string, state: boolean) {
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
         ''
     ).pipe(map((item) => new Booking(item)));
+}
+
+/**
+ * Filter list of resources based of the bookings found in the given query
+ * @param asset_id_list List of resource IDs
+ * @param query Booking query
+ */
+export function queryResourceAvailability(
+    asset_id_list: string[],
+    query: BookingsQueryParams
+): Observable<string[]> {
+    return queryBookings(query).pipe(
+        map((_) =>
+            asset_id_list.filter((id) => !_.find((b) => b.asset_id === id))
+        )
+    );
 }

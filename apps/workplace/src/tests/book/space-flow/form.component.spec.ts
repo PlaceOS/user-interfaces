@@ -8,6 +8,7 @@ import { MockComponent } from 'ng-mocks';
 
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
 import { SpaceFlowFormComponent } from 'apps/workplace/src/app/book/space-flow/form.component';
+import { SettingsService } from '@placeos/common';
 
 describe('SpaceFlowFormComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowFormComponent>;
@@ -27,6 +28,7 @@ describe('SpaceFlowFormComponent', () => {
                     },
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn(() => true) } }
         ],
         declarations: [
             MockComponent(DetailBookSpaceFormComponent),
@@ -39,19 +41,6 @@ describe('SpaceFlowFormComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
-    });
-
-    it('should allow for quick bookings', () => {
-        const service = spectator.inject(EventFormService);
-        spectator.click('[quick] button');
-        spectator.detectChanges();
-        expect(service.form.patchValue).toHaveBeenCalledTimes(1);
-        expect(service.setOptions).toHaveBeenCalledWith({ capacity: 0 });
-        expect(spectator.router.navigate).toHaveBeenCalledWith([
-            '/book',
-            'spaces',
-            'find',
-        ]);
     });
 
     it('should show detailed booking form', () => {
@@ -92,11 +81,9 @@ describe('SpaceFlowFormComponent', () => {
 
     it('should allow for edits', () => {
         const service = spectator.inject(EventFormService);
-        expect('[quick]').toExist();
-        expect('[form] h2').toContainText('Detailed Booking');
-        (service.form.get as any).mockImplementation((_) => ({ value: true }));
+        expect('[form] h2').toContainText('Detailed Space Booking');
+        (service.form.value as any) = { id: '1' };
         spectator.detectChanges();
-        expect('[quick]').not.toExist();
-        expect('[form] h2').toContainText('Edit Booking');
+        expect('[form] h2').toContainText('Edit Space Booking');
     });
 });

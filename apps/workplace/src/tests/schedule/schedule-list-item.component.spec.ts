@@ -20,15 +20,19 @@ describe('ScheduleListItemComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
+    it('should show event details', () => {
+        expect('[item]').not.toExist();
         spectator.setInput({ item: new CalendarEvent() as any });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
+        expect('[item]').toExist();
+    });
+
+    it('should show date', () => {
+        expect('[date]').not.toExist();
         spectator.setInput({
             item: { id: 'date', date: 0, duration: 0 } as any,
         });
         spectator.detectChanges();
-        expect(spectator.element).toMatchSnapshot();
-    });
+        expect('[date]').toExist();
+    })
 });

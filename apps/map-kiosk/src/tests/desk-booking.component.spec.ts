@@ -33,10 +33,6 @@ describe('DeskBookingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should match snapshot', () => {
-        expect(spectator.element).toMatchSnapshot();
-    });
-
     it('should reset to map after time', () => {
         jest.useFakeTimers();
         const router = spectator.inject(Router);

@@ -1,41 +1,69 @@
 import { Component, Input } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BaseClass } from '@placeos/common';
+import { CalendarEvent, EventDetailsModalComponent } from '@placeos/events';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
 @Component({
     selector: 'event-card',
     template: `
-        <h4 class="mb-2 flex items-center" *ngIf="event">
-            <span *ngIf="show_day">{{ day }}, </span>
+        <h4 class="mb-2 flex items-center" *ngIf="event" date>
+            <span *ngIf="show_day" day>{{ day }}, </span>
             {{ event?.date | date: 'h:mm a' }}
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
             matRippleColor
+            details
             class="w-full"
-            [routerLink]="['/schedule', 'view', event?.id, 'event']"
+            [routerLink]="['./']"
+            [queryParams]="{ event: event?.id }"
+            (click)="viewDetails()"
             *ngIf="event"
         >
-            <div class="w-full bg-white rounded shadow py-2 relative">
+            <div
+                class="w-full bg-white dark:bg-neutral-800 rounded shadow py-2 relative"
+            >
                 <h4 class="px-2">{{ event?.title }}</h4>
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                        [class.bg-green-600]="event?.status === 'approved'"
-                        [class.bg-yellow-500]="event?.status === 'tentative'"
-                        [class.bg-red-600]="event?.status === 'declined'"
-                        [class.bg-gray-200]="!event?.status"
+                        [class.bg-green-600]="
+                            event.state !== 'done' &&
+                            event?.status === 'approved'
+                        "
+                        [class.bg-yellow-500]="
+                            event.state !== 'done' &&
+                            event?.status === 'tentative'
+                        "
+                        [class.bg-red-600]="
+                            event.state !== 'done' &&
+                            event?.status === 'declined'
+                        "
+                        [class.bg-gray-300]="event.state === 'done'"
                     >
                         <div
                             class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                            [class.bg-success]="event?.status === 'approved'"
-                            [class.bg-pending]="event?.status === 'tentative'"
-                            [class.bg-error]="event?.status === 'declined'"
-                            [class.bg-gray-200]="!event?.status"
+                            [class.bg-success]="
+                                event.state !== 'done' &&
+                                event?.status === 'approved'
+                            "
+                            [class.text-pending]="
+                                event.state !== 'done' &&
+                                event?.status === 'tentative'
+                            "
+                            [class.bg-error]="
+                                event.state !== 'done' &&
+                                event?.status === 'declined'
+                            "
+                            [class.text-neutral-600]="event.state === 'done'"
                         >
                             <app-icon>
                                 {{
-                                    event?.status === 'approved'
+                                    event.state === 'done'
+                                        ? 'not_interested'
+                                        : event?.status === 'approved'
                                         ? 'done'
                                         : event?.status === 'tentative'
                                         ? 'warning'
@@ -133,9 +161,24 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         `,
     ],
 })
-export class EventCardComponent {
+export class EventCardComponent extends BaseClass {
     @Input() public event: CalendarEvent;
     @Input() public show_day: boolean = false;
+
+    constructor(private _dialog: MatDialog, private _route: ActivatedRoute) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) =>
+                params.has('event') && this.event?.id === params.get('event')
+                    ? this.viewDetails()
+                    : ''
+            )
+        );
+    }
 
     public get day() {
         const date = this.event?.date || Date.now();
@@ -158,5 +201,12 @@ export class EventCardComponent {
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
         return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+    }
+
+    public viewDetails() {
+        if (!this.event) return;
+        this.timeout('open', () =>
+            this._dialog.open(EventDetailsModalComponent, { data: this.event })
+        );
     }
 }

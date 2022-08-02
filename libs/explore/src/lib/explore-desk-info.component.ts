@@ -6,6 +6,7 @@ export interface DeskInfoData {
     id: string;
     map_id: string;
     user: string;
+    name: string;
     start?: number;
     end?: number;
     status: 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
@@ -23,13 +24,14 @@ export interface DeskInfoData {
             [hover]="true"
             class="h-full w-full pointer-events-auto relative"
             [attr.id]="id"
+            [attr.map_id]="map_id"
         ></div>
         <ng-template #desk_tooltip>
             <div
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'absolute rounded bg-white p-4 top-0 left-0 shadow pointer-events-none ' +
+                    'absolute rounded bg-white dark:bg-neutral-800 p-4 top-0 left-0 shadow pointer-events-none ' +
                     x_pos +
                     ' ' +
                     y_pos
@@ -37,7 +39,7 @@ export interface DeskInfoData {
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <h4 map-id class="m-0 font-medium">{{ map_id }}</h4>
+                    <h4 map-id class="m-0 font-medium">{{ name || map_id || id }}</h4>
                     <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
                     <p start class="mt-1 text-sm" *ngIf="start">
                         {{ start | date: 'shortTime' }} &ndash;
@@ -77,6 +79,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     /** Space to display details for */
     public readonly id = this._details.id;
     public readonly map_id = this._details.map_id;
+    public readonly name = this._details.name;
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;

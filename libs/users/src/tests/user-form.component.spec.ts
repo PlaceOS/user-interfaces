@@ -1,3 +1,4 @@
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +12,12 @@ describe('', () => {
     let spectator: Spectator<UserFormComponent>;
     const createComponent = createComponentFactory({
         component: UserFormComponent,
-        imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule],
+        imports: [
+            MatFormFieldModule,
+            MatInputModule,
+            MatCheckboxModule,
+            ReactiveFormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -40,6 +40,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { EventCardComponent } from './event-card.component';
 import { BookingCardComponent } from './booking-card.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
+import { SharedEventsModule } from '@placeos/events';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -90,12 +91,14 @@ const MATERIAL_MODULES: any[] = [
         ReactiveFormsModule,
         ComponentsModule,
         FormFieldsModule,
+        SharedEventsModule,
         ...MATERIAL_MODULES,
     ],
     exports: [
         ...COMPONENTS,
         ComponentsModule,
         FormFieldsModule,
+        SharedEventsModule,
         ...MATERIAL_MODULES,
     ],
 })

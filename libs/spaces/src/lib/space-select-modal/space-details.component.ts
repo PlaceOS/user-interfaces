@@ -13,7 +13,7 @@ import { Space } from '../space.class';
     selector: `space-details`,
     template: `
         <ng-container *ngIf="space; else empty_state">
-            <section image class="relative w-full h-64 bg-black/20">
+            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
                     [images]="space.images"
                     class="absolute inset-0"
@@ -81,7 +81,7 @@ import { Space } from '../space.class';
                 </section>
                 <section
                     map
-                    class="w-[calc(100vw-2rem)] mx-auto h-64 relative border border-gray-200 overflow-hidden rounded"
+                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -91,7 +91,7 @@ import { Space } from '../space.class';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow">
+            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
                 <button
                     mat-button
                     [class.inverse]="active"
@@ -127,7 +127,6 @@ import { Space } from '../space.class';
                 min-width: 20rem;
                 height: 100%;
                 min-height: 65vh;
-                background: white;
             }
         `,
     ],
