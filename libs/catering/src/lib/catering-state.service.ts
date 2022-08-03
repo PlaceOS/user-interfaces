@@ -10,6 +10,7 @@ import {
     notifyError,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
     unique,
 } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
@@ -61,7 +62,7 @@ export class CateringStateService extends BaseClass {
         return unique(menu.map((i) => i.category));
     }
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
+    constructor(private _org: OrganisationService, private _dialog: MatDialog, private _settings: SettingsService) {
         super();
         this.subscription(
             'building',
@@ -70,7 +71,7 @@ export class CateringStateService extends BaseClass {
                     const menu = (await this.getCateringForZone(bld.id)).map(
                         (i) => new CateringItem(i)
                     );
-                    this._currency.next(bld.currency || 'USD');
+                    this._currency.next(this._settings.get('app.currency') || bld.currency || 'USD');
                     this._menu.next(menu);
                 }
             })
