@@ -17,7 +17,7 @@ import { CalendarEvent } from './event.class';
                     [images]="event?.system?.images"
                     class="w-full h-64"
                 ></image-carousel>
-                <h3 class="px-3 mt-2 text-xl font-medium">{{ event.title }}</h3>
+                <h3 title class="px-3 mt-2 text-xl font-medium">{{ event.title }}</h3>
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
@@ -67,6 +67,7 @@ import { CalendarEvent } from './event.class';
                     </div>
                 </div>
                 <div
+                    actions
                     class="flex items-center space-x-2 px-2"
                     *ngIf="event.state !== 'done'"
                 >
@@ -113,6 +114,7 @@ import { CalendarEvent } from './event.class';
                     <h3 class="text-lg font-medium">Attendees</h3>
                     <button
                         mat-button
+                        show-attendees
                         class="clear text-xs underline"
                         (click)="show_attendees = true"
                     >
@@ -144,7 +146,7 @@ import { CalendarEvent } from './event.class';
                 >
                     Host
                 </h3>
-                <div class="px-2 flex items-center space-x-2">
+                <div class="px-2 flex items-center space-x-2" host>
                     <a-user-avatar [user]="event.organiser"></a-user-avatar>
                     <div class="text-sm">
                         <div>{{ event.organiser?.name }}</div>
