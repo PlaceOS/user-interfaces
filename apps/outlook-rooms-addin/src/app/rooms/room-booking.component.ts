@@ -41,8 +41,8 @@ export class RoomBookingComponent implements OnInit {
     constructor(
         @Inject(DOCUMENT) private _document: Document,
         private router: Router,
-        private _state: EventFormService
-          private _featuresFilterService: FeaturesFilterService
+        private _state: EventFormService,
+        private _featuresFilterService: FeaturesFilterService
     ) {}
 
     ngOnInit(): void {

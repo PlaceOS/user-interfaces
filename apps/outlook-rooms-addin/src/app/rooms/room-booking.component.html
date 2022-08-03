@@ -90,22 +90,9 @@
                     <a-user-list-field
                         formControlName="attendees"
                         class="text-sm max-w-[360px]"
+                        [custom_template]="true"
+                        (download)="downloadTemplate()"
                     ></a-user-list-field>
-
-                    <div
-                        class="absolute z-200 mt-[70px] ml-[240px] bg-gray-50 w-[140px] h-[50px]"
-                    ></div>
-                    <button
-                        mat-button
-                        type="submit"
-                        target="_parent"
-                        (click)="downloadTemplate()"
-                        class="absolute z-300 bg-white text-secondary border-secondary mt-[74px] ml-[245px] w-[115px]"
-                    >
-                        <div class="flex items-center justify-center">
-                            <span> CSV Template </span>
-                        </div>
-                    </button>
                 </div>
             </div>
         </section>

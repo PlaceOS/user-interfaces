@@ -146,7 +146,7 @@ function validateEmail(email) {
                     type="button"
                     name="download-template"
                     class="inverse flex-1 sm:flex-none"
-                    (click)="downloadCSVTemplate()"
+                    (click)="downloadCSVTemplate(); download.emit()"
                     i18n="Download template CSV file"
                 >
                     <div class="flex items-center justify-center">
@@ -182,10 +182,14 @@ export class UserListFieldComponent
     @Input() public guests = false;
     /** Whether optional actions should be shown */
     @Input('hideActions') public hide_actions = false;
+    /** Whether as custom template will be provided outside the component */
+    @Input() public custom_template = false;
     /** Function for filtering the results of the user list */
     @Input() public filter: (_: any) => boolean;
     /** Emitter for action to make a new user */
     @Output() public new_user = new EventEmitter<void>();
+    /** Whether user should download the CSV template */
+    @Output() public download = new EventEmitter<void>();
 
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
@@ -342,6 +346,7 @@ export class UserListFieldComponent
     /* istanbul ignore next */
     /** Download template CSV file */
     public downloadCSVTemplate() {
+        if (this.custom_template) return;
         const template = `Organisation,First Name,Last Name,Email,Phone,Assistance Required,Visit Expected\nFake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
         downloadFile('template.csv', template);
     }

@@ -195,7 +195,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     openFilter() {
-        this.bottomSheetRef = this.bottomSheet.open(FilterSpaceComponent, {
+        this.bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
             data: this.buildings as OrganisationService['building_list'],
         });
     }
