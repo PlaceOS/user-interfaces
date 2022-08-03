@@ -15,7 +15,7 @@ import { Observable } from 'rxjs';
     styles: [``],
 })
 export class FilterSpaceComponent implements OnInit {
-    buildings: OrganisationService['building_list'];
+    readonly buildings = this._org.building_list;
     minDate: Date = new Date();
     features$: Observable<Array<{}>>;
 
@@ -23,7 +23,8 @@ export class FilterSpaceComponent implements OnInit {
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
         private _bottomsheetRef: MatBottomSheetRef<any>,
         private _featuresFilterService: FeaturesFilterService,
-        private _state: EventFormService
+        private _state: EventFormService,
+        private _org: OrganisationService
     ) {}
 
     ngOnInit() {
