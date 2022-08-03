@@ -94,7 +94,7 @@
       <bt:Urls>
       <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html"/> 
         <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/"/>
-        <bt:Url id="BookingsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/upcoming"/>
+        <bt:Url id="BookingsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/upcoming"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="PlaceOS | Room Booking"/>
