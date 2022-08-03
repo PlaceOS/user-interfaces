@@ -7,6 +7,7 @@ import { EventFormService } from '@placeos/events';
 import { HashMap } from '@placeos/common';
 import { RoomDetailsComponent } from './room-details/room-details.component';
 import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Injectable({
     providedIn: 'root',
@@ -35,7 +36,8 @@ export class RoomConfirmService {
         private _bottomSheet: MatBottomSheet,
         private router: Router,
         private _state: EventFormService,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
+        private _space_pipe: SpacePipe
     ) {
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
@@ -71,8 +73,10 @@ export class RoomConfirmService {
         this.book_space = {};
         this.book_space[space.id] = book;
     }
-    bookRoom(space?) {
-        const spaces = this._spaces.filter((s) => this.book_space[s.id]);
+
+    async bookRoom(space?) {
+        const id_list = Object.keys(this.book_space).filter(id => this.book_space[id]);
+        const spaces = await Promise.all(id_list.map(id => this._space_pipe.transform(id)));
         this.form.patchValue({ resources: spaces, system: spaces[0] });
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
         this.postForm();

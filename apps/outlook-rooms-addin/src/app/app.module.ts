@@ -11,6 +11,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @NgModule({
     declarations: [AppComponent],
@@ -29,7 +30,7 @@ import { environment } from '../environments/environment';
             enabled: environment.production,
         }),
     ],
-    providers: [],
+    providers: [SpacePipe],
     bootstrap: [AppComponent],
 })
 export class AppModule {}
