@@ -106,7 +106,7 @@ export const mockSpace: Space = {
     bookable: true,
     zones: [''],
     configurations: [''] as any,
-    image: '',
+    images: [],
     response_status: '' as any,
     level: {
         id: '123',
@@ -142,7 +142,7 @@ export const mockSpaceWithViews: Space = {
     bookable: true,
     zones: [''],
     configurations: [''] as any,
-    image: '',
+    images: [],
     response_status: '' as any,
     level: {
         id: '123',
