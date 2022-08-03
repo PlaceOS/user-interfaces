@@ -98,6 +98,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
      */
     public writeValue(value: number) {
         this.duration = value;
+        console.warn('Set Duration:', value);
     }
 
     public setDisabledState(disabled: boolean) {
