@@ -1,11 +1,15 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { ExploreStateService } from '../lib/explore-state.service';
+
+jest.mock('@placeos/ts-client');
+
+import * as client from '@placeos/ts-client';
 
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreStateService>;
@@ -48,17 +52,21 @@ describe('ExploreStateService', () => {
     });
 
     it('should list spaces for active level', async () => {
+        const space = new Space({ id: 'space-1', zones: ['bld-1', 'lvl-1'] });
+        const space2 = new Space({ id: 'space-2', zones: ['bld-2', 'lvl-2'] });
+        (client.querySystems as any) = jest.fn(() => of({ data: [space] }));
         let level = await spectator.service.level.pipe(take(1)).toPromise();
         expect(level).toEqual({ id: 'lvl-1' });
         let spaces = await spectator.service.spaces.pipe(take(1)).toPromise();
         expect(spaces).toHaveLength(1);
-        expect(spaces[0]).toEqual({ id: 'space-1', zones: ['bld-1', 'lvl-1'] });
+        expect(spaces[0]).toEqual(space);
+        (client.querySystems as any) = jest.fn(() => of({ data: [space2] }));
         spectator.service.setLevel('lvl-2');
         level = await spectator.service.level.pipe(take(1)).toPromise();
         expect(level).toEqual({ id: 'lvl-2' });
         spaces = await spectator.service.spaces.pipe(take(1)).toPromise();
         expect(spaces).toHaveLength(1);
-        expect(spaces[0]).toEqual({ id: 'space-2', zones: ['bld-2', 'lvl-2'] });
+        expect(spaces[0]).toEqual(space2);
     });
 
     it('should handle changes to map features', async () => {

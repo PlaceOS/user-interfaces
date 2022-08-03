@@ -1,4 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { CustomTooltipComponent, MAP_FEATURE_DATA } from '@placeos/components';
 import { Space } from '@placeos/spaces';
 
@@ -8,7 +9,10 @@ describe('ExploreSpaceInfoComponent', () => {
     let spectator: Spectator<ExploreSpaceInfoComponent>;
     const createComponent = createComponentFactory({
         component: ExploreSpaceInfoComponent,
-        providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
+        providers: [
+            { provide: MAP_FEATURE_DATA, useValue: {} },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -16,5 +20,4 @@ describe('ExploreSpaceInfoComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
-
 });

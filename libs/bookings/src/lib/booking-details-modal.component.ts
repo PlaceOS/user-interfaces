@@ -19,7 +19,7 @@ import { checkinBooking } from './bookings.fn';
                     class="w-full h-64"
                 ></image-carousel>
             </div>
-            <h3 class="px-3 mt-2 text-xl font-medium">{{ booking.title }}</h3>
+            <h3 title class="px-3 mt-2 text-xl font-medium">{{ booking.title }}</h3>
             <div class="flex m-2">
                 <div
                     class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
@@ -63,6 +63,7 @@ import { checkinBooking } from './bookings.fn';
                 </div>
             </div>
             <div
+                actions
                 class="flex items-center space-x-2 px-2"
                 *ngIf="!booking.is_done"
             >
