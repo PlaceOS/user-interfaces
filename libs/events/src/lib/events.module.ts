@@ -12,10 +12,12 @@ import { MatRadioModule } from '@angular/material/radio';
 import { ComponentsModule } from '@placeos/components';
 
 import { FormFieldsModule } from '@placeos/form-fields';
+import { AttendeeListComponent } from './attendee-list.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 
 const COMPONENTS = [
-    EventDetailsModalComponent
+    EventDetailsModalComponent,
+    AttendeeListComponent
 ];
 
 @NgModule({
