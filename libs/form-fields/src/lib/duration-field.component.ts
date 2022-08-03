@@ -57,11 +57,11 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Special case prepopulation i.e. out of step options */
-    @Input() public specialPreprops: Array<number> = [];
+    @Input() public custom_options: number[] = [];
 
     public duration = 60;
     /** List of available duration options */
-    public duration_options: Identity[];
+    public duration_options: { id: number, name: string }[];
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -70,12 +70,14 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
 
     public ngOnInit(): void {
         this.duration_options = this.generateDurationOptions(this.max, this.min, this.step);
+        this._updateOption();
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
         /* istanbul ignore else */
         if (changes.max || changes.min || changes.step || changes.time) {
             this.duration_options = this.generateDurationOptions(this.max, this.min, this.step);
+            this._updateOption();
         }
     }
 
@@ -98,7 +100,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
      */
     public writeValue(value: number) {
         this.duration = value;
-        console.warn('Set Duration:', value);
+        this._updateOption();
     }
 
     public setDisabledState(disabled: boolean) {
@@ -123,13 +125,13 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
         this._onTouch = fn;
     }
 
-    private generateDurationOptions(max: number, min: number, step: number): Identity[] {
-        const blocks: Identity[] = [];
+    private generateDurationOptions(max: number, min: number, step: number) {
+        const blocks: { id: number, name: string }[] = [];
         let time = min;
         const date = this.time ? dayjs(this.time) : null;
 
-        // Add special case for 10min duration/prepropulation
-        for (const option of this.specialPreprops) {
+        // Add special cases
+        for (const option of this.custom_options) {
             blocks.push({
                 id: option,
                 name: date
@@ -154,5 +156,10 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
             time += step;
         }
         return blocks;
+    }
+
+    private _updateOption() {
+        const idx = this.duration_options.findIndex((_) => _.id === this.duration);
+        if (idx < 0) this.setValue(this.duration_options[0].id);
     }
 }
