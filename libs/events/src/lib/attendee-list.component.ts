@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { User } from "@placeos/users";
+import { User } from "libs/users/src/lib/user.class";
 
 @Component({
     selector: 'attendee-list',

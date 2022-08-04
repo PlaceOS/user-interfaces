@@ -39,7 +39,7 @@
     "@angular/material": "14.0.3",
     "@angular/platform-browser": "14.0.3",
     "@angular/platform-browser-dynamic": "14.0.3",
-    "@angular/pwa": "^13.0.2",
+    "@angular/pwa": "^14.0.3",
     "@angular/router": "14.0.3",
     "@angular/service-worker": "14.0.3",
     "@nrwl/angular": "14.4.2",

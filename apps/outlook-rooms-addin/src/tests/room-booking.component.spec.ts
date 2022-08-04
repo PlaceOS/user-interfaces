@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
 import { EventFormService } from '@placeos/events';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
+import { SettingsService } from '@placeos/common';
 
 describe('RoomBookingComponent', () => {
     const formModel = {
@@ -51,6 +52,7 @@ describe('RoomBookingComponent', () => {
                     view: '',
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         declarations: [MockComponent(FindSpaceComponent)],
         stubsEnabled: false,

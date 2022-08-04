@@ -1,7 +1,9 @@
 import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { UserAvatarComponent } from "@placeos/components";
-import { User } from "@placeos/users";
 import { MockComponent } from "ng-mocks";
+
+import { UserAvatarComponent } from "libs/components/src/lib/user-avatar.component";
+import { IconComponent } from "libs/components/src/lib/icon.component";
+import { User } from "libs/users/src/lib/user.class";
 import { AttendeeListComponent } from "../lib/attendee-list.component";
 
 describe('AttendeeListComponent', () => {
@@ -10,7 +12,8 @@ describe('AttendeeListComponent', () => {
         component: AttendeeListComponent,
         providers: [],
         declarations: [,
-            MockComponent(UserAvatarComponent)
+            MockComponent(UserAvatarComponent),
+            MockComponent(IconComponent)
         ]
     });
 

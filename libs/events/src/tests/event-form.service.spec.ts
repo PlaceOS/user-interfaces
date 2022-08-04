@@ -16,6 +16,8 @@ import * as ts_client from '@placeos/ts-client';
 import * as cal_mod from 'libs/calendar/src/lib/calendar.fn';
 import * as event_mod from 'libs/events/src/lib/events.fn';
 import { NavigationEnd } from '@angular/router';
+import { SettingsService } from '@placeos/common';
+import { SpacesService } from '@placeos/spaces';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<EventFormService>;
@@ -30,6 +32,8 @@ describe('EventFormService', () => {
                 provide: Router,
                 useValue: { navigate: jest.fn(), events: new Subject() },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
+            { provide: SpacesService, useValue: { } }
         ],
     });
 

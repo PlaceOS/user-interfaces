@@ -24,6 +24,7 @@ import {
     mockEventFlowOptions,
     mockForm,
 } from './test-mocks';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('FindSpaceComponent', () => {
     const formModel = mockForm;
@@ -49,10 +50,11 @@ describe('FindSpaceComponent', () => {
             {
                 provide: MatBottomSheet,
                 useValue: {
-                    open: jest.fn((FilterSpaceComponent) => {}),
+                    open: jest.fn(() => {}),
                     afterDismissed: jest.fn(),
                 },
             },
+            { provide: OrganisationService, useValue: { building_list: of([]) } },
             {
                 provide: MAT_BOTTOM_SHEET_DATA,
                 useValue: {},

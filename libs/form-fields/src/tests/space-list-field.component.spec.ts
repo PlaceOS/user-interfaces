@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import { SpaceListFieldComponent } from '../lib/space-list-field.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsService } from '@placeos/common';
 
 describe('SpaceListFieldComponent', () => {
     let spectator: Spectator<SpaceListFieldComponent>;
@@ -18,6 +19,7 @@ describe('SpaceListFieldComponent', () => {
                 provide: MatDialog,
                 useValue: { open: jest.fn(() => ({ afterClosed: () => of() })) },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MatRadioModule, FormsModule],
