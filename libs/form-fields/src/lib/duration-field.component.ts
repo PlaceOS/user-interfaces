@@ -1,7 +1,7 @@
 import { Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Identity } from '@placeos/common';
 import { formatDuration } from 'date-fns';
+
 import * as dayjs from 'dayjs';
 
 

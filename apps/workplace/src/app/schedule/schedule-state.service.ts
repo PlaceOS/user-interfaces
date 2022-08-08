@@ -85,21 +85,16 @@ export class ScheduleStateService extends BaseClass {
                     )
             );
             return forkJoin([
-                this._settings.get('app.no_user_calendar')
+                this._settings.get('app.no_user_calendar') === true
                     ? queryBookings({ ...query, type: 'room' }).pipe(
                           map((_) =>
                               _.map((i) => newCalendarEventFromBooking(i))
-                          ),
-                          catchError((_) => [])
+                          )
                       )
-                    : queryEvents({ ...query }).pipe(catchError((_) => [])),
-                queryBookings({ ...query, type: 'desk' }).pipe(
-                    catchError((_) => [])
-                ),
-                queryBookings({ ...query, type: 'parking' }).pipe(
-                    catchError((_) => [])
-                ),
-            ]);
+                    : queryEvents({ ...query }),
+                queryBookings({ ...query, type: 'desk' }),
+                queryBookings({ ...query, type: 'parking' }),
+            ]).pipe(catchError((_) => []));
         }),
         map(([events, bookings]) => {
             const list = [
