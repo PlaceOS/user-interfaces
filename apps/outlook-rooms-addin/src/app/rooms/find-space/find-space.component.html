@@ -91,23 +91,16 @@
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
                     >
                         <div *ngIf="space_view == 'listView'">
-                            <mat-button-toggle-group
-                                name="selectSpace"
-                                #group="matButtonToggleGroup"
-                                aria-label="Space selection"
-                                class="flex flex-col"
+                            <find-space-item
+                                *ngFor="let space of spaces$ | async"
+                                [space]="space"
+                                [selected]="book_space[space.id]"
+                                (selectedChange)="
+                                    handleBookEvent(space, $event)
+                                "
+                                class="text-sm"
                             >
-                                <find-space-item
-                                    *ngFor="let space of spaces$ | async"
-                                    [space]="space"
-                                    [(book)]="book_space[space.id]"
-                                    (bookChange)="
-                                        handleBookEvent(space, $event)
-                                    "
-                                    class="text-sm"
-                                >
-                                </find-space-item>
-                            </mat-button-toggle-group>
+                            </find-space-item>
                         </div>
                         <div
                             *ngIf="

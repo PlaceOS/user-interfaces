@@ -97,7 +97,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
 
-    public spaces$: Observable<Space[]>;
+    public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
     public readonly features = this._spaces.features;
 
     public readonly setBuilding = (b) => this._org.building = b;
@@ -128,18 +128,9 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
         await this._state.available_spaces.pipe(take(1)).toPromise();
 
-        this.spaces$ = this._state.available_spaces;
-        this._featuresFilterService.updated_spaces_emitter?.subscribe(
-            (result) => {
-                result
-                    ? (this.spaces$ =
-                          this._featuresFilterService.updated_spaces$)
-                    : this._state.available_spaces;
-            }
-        );
-
         this.setBuilding(this._org.building);
         this.book_space = {};
+        this.subscription('features', this.selected_features$.subscribe((v) => this.setOptions({ features: v || [] })));
 
         await this._mapService.locateSpaces(this.spaces$);
 
@@ -161,6 +152,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     }
 
     public handleBookEvent(space: Space, book: boolean = true) {
+        this.book_space[space.id] = book;
         this._roomConfirmService.book_space = this.book_space;
         this._roomConfirmService.handleBookEvent(space, book);
         this.show_room_details$ = of(true);
@@ -199,10 +191,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
                 hour12: true,
             })
         );
-    }
-
-    async updateSpaces() {
-        this.spaces$ = this._featuresFilterService.updated_spaces$;
     }
 
     updateSelectedLevel(e) {
