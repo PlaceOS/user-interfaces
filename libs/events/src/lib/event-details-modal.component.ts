@@ -3,7 +3,6 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration } from 'date-fns';
-import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { CalendarEvent } from './event.class';
 
 @Component({
@@ -15,7 +14,7 @@ import { CalendarEvent } from './event.class';
             <div class="w-full h-full overflow-auto space-y-2 pb-4 max-h-screen sm:max-h-[80vh]">
                 <image-carousel
                     [images]="event?.system?.images"
-                    class="w-full h-64"
+                    class="w-full h-64 bg-black/20 dark:bg-white/20"
                 ></image-carousel>
                 <h3 title class="px-3 mt-2 text-xl font-medium">{{ event.title }}</h3>
                 <div class="flex m-2">

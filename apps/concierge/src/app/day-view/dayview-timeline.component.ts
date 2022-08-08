@@ -15,10 +15,10 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     selector: 'dayview-timeline',
     template: `
         <div class="absolute inset-0 flex">
-            <div class="time h-full w-24 overflow-hidden bg relative">
+            <div class="time h-full w-24 overflow-hidden bg-blue-100/20 dark:bg-neutral-700 relative">
                 <div header class="relative h-16 z-50">
                     <div
-                        class="bg absolute top-0 left-0 right-0 bottom-8"
+                        class="bg-blue-100/20 dark:bg-neutral-700 absolute top-0 left-0 right-0 bottom-8"
                     ></div>
                 </div>
                 <div
@@ -41,7 +41,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             <div class="h-full flex-1 flex flex-col w-1/2">
                 <div
                     header
-                    class="flex relative overflow-hidden border-b border-gray-300 border-opacity-50 bg h-16 w-full"
+                    class="flex relative overflow-hidden border-b border-gray-300 border-opacity-50 bg-blue-100/20 dark:bg-neutral-700 h-16 w-full"
                 >
                     <div
                         *ngFor="let space of space_list | async"
@@ -94,10 +94,6 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                 position: relative;
                 height: 100%;
                 width: 100%;
-            }
-
-            .bg {
-                background-color: #ecf1f5;
             }
 
             [change-transform] {

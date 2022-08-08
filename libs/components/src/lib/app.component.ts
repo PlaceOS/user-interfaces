@@ -85,6 +85,10 @@ export class AppComponent extends BaseClass implements OnInit {
             );
             location.reload();
         });
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyD'], () => {
+            this._settings.saveUserSetting('dark_mode', !this._settings.get('dark_mode'));
+            notifySuccess('Toggled dark mode.');
+        });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
             this._clipboard.copy(`${token()}|${refreshToken()}`);
             notifySuccess('Successfully copied token.');

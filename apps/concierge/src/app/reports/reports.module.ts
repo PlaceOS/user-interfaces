@@ -32,12 +32,12 @@ const ROUTES: Route[] = [
         path: '',
         component: ReportsComponent,
         children: [
-            { path: '' },
+            { path: '', component: ReportsOptionsComponent },
             { path: 'spaces', component: ReportSpacesComponent },
             { path: 'desks', component: ReportDesksComponent },
             { path: 'catering', component: CateringReportComponent },
             { path: 'contact-tracing', component: ContactTracingReportComponent },
-            { path: '**', redirectTo: 'desks' },
+            { path: '**', redirectTo: 'desks', pathMatch: 'full' },
         ],
     },
 ];
