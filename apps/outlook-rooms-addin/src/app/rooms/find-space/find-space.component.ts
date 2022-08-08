@@ -1,19 +1,16 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
 import { HashMap } from '@placeos/common';
-import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { first, take, filter, map, tap } from 'rxjs/operators';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
-import { Location } from '@angular/common';
 import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
 import { ViewerFeature, ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { RoomConfirmService } from '../room-confirm.service';
-import { MapPinComponent } from '@placeos/components';
 import { BaseClass } from '@placeos/common';
 import { MapsList } from '../map.service';
 import { Router } from '@angular/router';
@@ -53,7 +50,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     filtered_spaces: Space[] = [];
     show_room_details$: Observable<boolean> = of(false);
     selected_space: Space;
-    space_view_control = new FormControl();
     space_view?: string;
     locatable_spaces$: Observable<Locatable[]>;
     maps_list$: Observable<MapsList[]>;
@@ -67,7 +63,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
     public selected_level: any;
 
-    public get form(): FormGroup {
+    public get form() {
         return this._state.form;
     }
 
@@ -104,16 +100,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public spaces$: Observable<Space[]>;
     public readonly features = this._spaces.features;
 
-    public async setBuilding(bld) {
-        const opts = await this.options?.pipe(take(1)).toPromise();
-        if (bld) this._org.building = bld;
-        const levels = this._org.levelsForBuilding(this._org.building);
-        const lvl = levels.find((_) => opts.zone_ids?.includes(_.id));
-        if (!lvl && levels.length) {
-            this.setOptions({ zone_ids: [levels[0].id] });
-        }
-    }
-
+    public readonly setBuilding = (b) => this._org.building = b;
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
@@ -121,7 +108,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _state: EventFormService,
-        private _location: Location,
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
         private _roomConfirmService: RoomConfirmService,
@@ -162,19 +148,6 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
         this.maps_list$ = this._mapService.maps_list$?.pipe(
             tap((maps) => (this.selected_level = maps))
         );
-
-        //testing multiple levels//
-        // this.maps_list$ = of([
-        //     {
-        //         map_id: 'assets/maps/level_1.svg',
-        //         level: 'Level 1',
-        //     },
-        //     {
-        //         map_id: 'assets/maps/level_2.svg',
-        //         level: 'Level 2',
-        //     },
-        // ]);
-        //end of testing multiple levels//
 
         await this._mapService.features_loaded$
             .pipe(first((_) => !!_))

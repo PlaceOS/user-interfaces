@@ -20,8 +20,10 @@ import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
+    first,
     map,
     shareReplay,
     switchMap,
@@ -80,11 +82,14 @@ export class EventFormService extends BaseClass {
 
     public readonly spaces = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
-        this._org.initialised.pipe(filter((_) => _)),
-        this._org.active_building.pipe(filter((_) => !!_)),
+        this._org.active_building.pipe(
+            filter((_) => !!_),
+            distinctUntilKeyChanged('id')
+        ),
     ]).pipe(
         debounceTime(300),
         switchMap(([{ zone_ids }]) => {
+            this._loading.next('Loading space list for location...');
             if (!zone_ids?.length) zone_ids = [this._org.building?.id];
             return forkJoin(
                 zone_ids.map(
@@ -95,6 +100,7 @@ export class EventFormService extends BaseClass {
             );
         }),
         map((l) => flatten(l).map((_) => new Space(_ as any))),
+        tap((_) => this._loading.next('')),
         shareReplay(1)
     );
 
@@ -106,7 +112,6 @@ export class EventFormService extends BaseClass {
         this.spaces,
         this.options,
     ]).pipe(
-        debounceTime(300),
         map(([spaces, { show_fav, features, capacity }]) =>
             spaces.filter(
                 (s) =>
@@ -122,6 +127,7 @@ export class EventFormService extends BaseClass {
         this.filtered_spaces,
         this._form,
     ]).pipe(
+        filter(() => !this._loading.getValue()),
         debounceTime(300),
         switchMap(([spaces, form]) => {
             if (!spaces.length) return of([]);
@@ -151,14 +157,18 @@ export class EventFormService extends BaseClass {
                       )
             ).pipe(catchError((_) => []));
         }),
-        map((_) =>
-            _.filter(
+        map((_) =>{
+            console.log('Spaces:', _);
+            return _.filter(
                 (space) =>
                     !space.availability?.length ||
-                    space.availability.find((_) => _.status !== 'busy')
+                    space.availability?.find((_) => _.status !== 'busy')
             )
-        ),
-        tap((_) => this._loading.next('')),
+        }),
+        tap((_) => {
+            console.log('Available Spaces:', _);
+            this._loading.next('');
+        }),
         shareReplay(1)
     );
 
@@ -271,10 +281,12 @@ export class EventFormService extends BaseClass {
                     spaces,
                     date,
                     duration,
-                    id ? { start, end: start + event.duration * 60 } : undefined,
+                    id
+                        ? { start, end: start + event.duration * 60 }
+                        : undefined,
                     id || ''
                 ).catch((_) => {
-                    reject(_)
+                    reject(_);
                     throw _;
                 });
             }
@@ -343,7 +355,7 @@ export class EventFormService extends BaseClass {
                   ? (queryResourceAvailability(space_ids, {
                         ...query,
                         type: 'room',
-                        ignore
+                        ignore,
                     }) as any)
                   : querySpaceAvailability({
                         ...query,

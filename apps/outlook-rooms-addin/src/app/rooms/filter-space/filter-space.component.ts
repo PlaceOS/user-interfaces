@@ -19,11 +19,8 @@ export class FilterSpaceComponent implements OnInit {
     readonly building = this._org.active_building;
     minDate: Date = new Date();
     features$: Observable<Array<{}>>;
-
-    public readonly setBuilding = (b) => {
-        this._org.building = b;
-        this._state.setOptions({ zone_ids: [b.id] })
-    }
+    
+    public readonly setBuilding = (b) => this._org.building = b;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
