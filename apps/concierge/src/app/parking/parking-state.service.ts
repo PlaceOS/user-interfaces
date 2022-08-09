@@ -166,7 +166,7 @@ export class ParkingStateService extends BaseClass {
             this._dialog
         );
         if (state?.reason !== 'done') return;
-        state.loading(true);
+        state.loading('Removing parking space...');
         const zone = this._options.getValue().zones[0];
         const spaces = await this.spaces.pipe(take(1)).toPromise();
         await updateMetadata(zone, {

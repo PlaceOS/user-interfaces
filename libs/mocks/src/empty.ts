@@ -1,4 +1,1 @@
-
-const MOCKS = {};
-
-export default MOCKS;
+export default {};
