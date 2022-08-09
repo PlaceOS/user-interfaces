@@ -174,8 +174,9 @@ export class SettingsService extends BaseClass {
 
     private async _savePendingChanges() {
         const user = currentUser();
-        console.log('Save User Settings:', user?.id, Object.keys(this._pending_settings).join(',').length);
+        console.log('Save User Settings:', user?.id, Object.keys(this._pending_settings).length);
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
+        console.log('Save User Settings', this._pending_settings);
         await updateMetadata(user.id, {
             name: 'settings',
             description: '',
@@ -184,6 +185,8 @@ export class SettingsService extends BaseClass {
                 ...this._pending_settings,
             },
         });
+        this._user_settings.next({ ...this._user_settings.getValue(), ...this._pending_settings });
+        this._pending_settings = {};
     }
 
     private async _applyUserSettings(settings: HashMap) {
