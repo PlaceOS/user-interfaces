@@ -226,10 +226,10 @@ export class EventFormService extends BaseClass {
     public resetForm() {
         this._form.reset();
         const event = this._event.getValue();
-        console.warn('Event:', event);
         this._form.patchValue({
             ...(event || {}),
             ...(event?.extension_data || {}),
+            host: event?.host || currentUser().email,
         });
         this._options.next({});
         this.storeForm();
