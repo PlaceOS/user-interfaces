@@ -47,7 +47,7 @@ import { LandingStateService } from './landing-state.service';
                     <div
                         class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 overflow-hidden"
                     >
-                        <img *ngIf="(space.id | space | async)?.images.length" [src]="(space.id | space | async).images[0]" class="min-h-full object-cover"/>
+                        <img *ngIf="(space.id | space | async)?.images?.length" [src]="(space.id | space | async)?.images[0]" class="min-h-full object-cover"/>
                     </div>
                     <div class="text-left">
                         <div class="max-w-full truncate px-1.5">
