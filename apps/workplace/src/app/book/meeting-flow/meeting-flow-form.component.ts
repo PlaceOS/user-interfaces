@@ -6,6 +6,7 @@ import {
 import { Router } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    currentUser,
     getInvalidFields,
     notifyError,
     SettingsService,
@@ -255,6 +256,7 @@ export class MeetingFlowFormComponent {
     public readonly clearForm = () => this._state.resetForm();
 
     public readonly viewConfirm = () => {
+        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
