@@ -261,6 +261,7 @@ export class EventFormService extends BaseClass {
             const form = this._form;
             form.markAllAsTouched();
             const event = this.event || new CalendarEvent();
+            if (!form.value.host) form.patchValue({ host: currentUser()?.email });
             if (!form.valid && !force)
                 return reject(
                     `Some form fields are invalid. [${getInvalidFields(
