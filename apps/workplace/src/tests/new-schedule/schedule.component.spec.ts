@@ -6,11 +6,11 @@ import { ScheduleFiltersComponent } from "../../app/new-schedule/schedule-filter
 import { ScheduleSidebarComponent } from "../../app/new-schedule/schedule-sidebar.component";
 import { ScheduleMobileCalendarComponent } from "../../app/new-schedule/schedule-mobile-calendar.component";
 import { ScheduleComponent } from "../../app/new-schedule/schedule.component";
-import { EventCardComponent } from "../../app/components/event-card.component";
-import { BookingCardComponent } from "../../app/components/booking-card.component";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { ScheduleStateService } from "../../app/new-schedule/schedule-state.service";
 import { BehaviorSubject } from "rxjs";
+import { EventCardComponent } from "@placeos/events";
+import { BookingCardComponent } from "@placeos/bookings";
 
 describe('ScheduleComponent', () => {
     let spectator: Spectator<ScheduleComponent>;

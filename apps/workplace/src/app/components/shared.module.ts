@@ -5,6 +5,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
+import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedEventsModule } from '@placeos/events';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -23,24 +25,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { GlobalSearchComponent } from './global-search.component';
 import { TopbarComponent } from './topbar.component';
 import { BookingFormModalComponent } from './booking-form-modal.component';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
-import { FormFieldsModule } from '@placeos/form-fields';
 import { TopMenuComponent } from './top-menu.component';
 import { FooterMenuComponent } from './footer-menu.component';
 import { UserControlsComponent } from './user-controls.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { EventCardComponent } from './event-card.component';
-import { BookingCardComponent } from './booking-card.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
-import { SharedEventsModule } from '@placeos/events';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -54,8 +52,6 @@ const COMPONENTS: Type<any>[] = [
     BuildingSelectComponent,
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
-    EventCardComponent,
-    BookingCardComponent,
     SupportTicketModalComponent
 ];
 

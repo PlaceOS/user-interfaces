@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { queryBookings } from '@placeos/bookings';
+import { Booking, queryBookings } from '@placeos/bookings';
 import { BaseClass, SettingsService } from '@placeos/common';
 import {
     CalendarEvent,
@@ -7,8 +7,8 @@ import {
     queryEvents,
 } from '@placeos/events';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -20,8 +20,11 @@ export class ScheduleStateService extends BaseClass {
         shown_types: ['event', 'desk', 'parking'],
     });
     private _date = new BehaviorSubject(Date.now());
+    private _update = combineLatest([this._date, this._poll]).pipe(
+        tap((_) => this._loading.next(true))
+    );
     /** List of calendar events for the selected date */
-    public readonly events = combineLatest([this._date, this._poll]).pipe(
+    public readonly events: Observable<CalendarEvent[]> = this._update.pipe(
         switchMap(([date]) => {
             const query = {
                 period_start: getUnixTime(startOfDay(date)),
@@ -33,27 +36,33 @@ export class ScheduleStateService extends BaseClass {
                       catchError((_) => [])
                   )
                 : queryEvents({ ...query }).pipe(catchError((_) => []));
-        })
+        }),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
     );
     /** List of desk bookings for the selected date */
-    public readonly desks = combineLatest([this._date, this._poll]).pipe(
+    public readonly desks: Observable<Booking[]> = this._update.pipe(
         switchMap(([date]) =>
             queryBookings({
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'desk',
-            })
-        )
+            }).pipe(catchError((_) => []))
+        ),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
     );
     /** List of parking bookings for the selected date */
-    public readonly parking = combineLatest([this._date, this._poll]).pipe(
+    public readonly parking: Observable<Booking[]> = this._update.pipe(
         switchMap(([date]) =>
             queryBookings({
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
-            })
-        )
+            }).pipe(catchError((_) => []))
+        ),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
     );
 
     /** List of events and bookings for the selected date */
@@ -62,8 +71,10 @@ export class ScheduleStateService extends BaseClass {
         this.desks,
         this.parking,
     ]).pipe(
-        map(([e, d, p]) => [...e, ...d, ...p].sort((a, b) => a.date - b.date)),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false)))
+        map(([e, d, p]) => {
+            console.log('List:', e, d, p);
+            return [...e, ...d, ...p].sort((a, b) => a.date - b.date)
+        })
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([
@@ -77,7 +88,8 @@ export class ScheduleStateService extends BaseClass {
                         filters?.shown_types?.includes('event')) ||
                     filters?.shown_types?.includes(_.type)
             )
-        )
+        ),
+        tap((_) => console.log('Bookings:', _))
     );
     /** Currently selected date */
     public readonly filters = this._filters.asObservable();
@@ -88,12 +100,15 @@ export class ScheduleStateService extends BaseClass {
 
     constructor(private _settings: SettingsService) {
         super();
-        this.subscription(
-            'date',
-            combineLatest([this._date, this._poll]).subscribe((_) =>
-                this._loading.next(true)
-            )
-        );
+    }
+
+    public startPolling(delay = 15 * 1000) {
+        this.interval('poll', () => this._poll.next(Date.now()), delay);
+        return () => this.stopPolling();
+    }
+
+    public stopPolling() {
+        this.clearInterval('poll');
     }
 
     public setDate(date: number) {

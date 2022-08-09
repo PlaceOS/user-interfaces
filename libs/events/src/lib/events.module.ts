@@ -13,11 +13,13 @@ import { ComponentsModule } from '@placeos/components';
 
 import { FormFieldsModule } from '@placeos/form-fields';
 import { AttendeeListComponent } from './attendee-list.component';
+import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 
 const COMPONENTS = [
     EventDetailsModalComponent,
-    AttendeeListComponent
+    AttendeeListComponent,
+    EventCardComponent
 ];
 
 @NgModule({

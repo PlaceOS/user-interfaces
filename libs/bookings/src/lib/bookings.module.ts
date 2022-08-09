@@ -12,6 +12,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { ComponentsModule } from '@placeos/components';
 
 import { FormFieldsModule } from '@placeos/form-fields';
+import { BookingCardComponent } from './booking-card.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
@@ -22,7 +23,8 @@ const COMPONENTS = [
     DeskQuestionsModalComponent,
     DeskConfirmModalComponent,
     InviteVisitorFormComponent,
-    BookingDetailsModalComponent
+    BookingDetailsModalComponent,
+    BookingCardComponent
 ];
 @NgModule({
     declarations: [...COMPONENTS],
