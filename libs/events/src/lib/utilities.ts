@@ -22,6 +22,7 @@ import { Booking } from 'libs/bookings/src/lib/booking.class';
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
 export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
+    if (!event) event = new CalendarEvent();
     const form = new FormGroup({
         id: new FormControl(event.id),
         host: new FormControl(event.host || event.organiser?.email || currentUser()?.email || '', [Validators.required]),
@@ -56,7 +57,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         form.controls.host.setValue(o?.email)
     );
     form.get('resources').valueChanges.subscribe((l) =>
-        form.controls.system.setValue(l.length ? l[0] as any : null)
+        form.controls.system.setValue(l?.length ? l[0] as any : null)
     );
     if (event.id) {
         form.get('host').disable();
