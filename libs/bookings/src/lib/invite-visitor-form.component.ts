@@ -111,8 +111,8 @@ import { Booking } from './booking.class';
             </div>
         </ng-container>
         <ng-template #send_state>
-            <div sent class="absolute inset-0 bg-white flex flex-col">
-                <div class="w-full flex-1 h-1/2 space-y-2">
+            <div sent class="absolute inset-0 bg-white flex flex-col items-center justify-center">
+                <div class="w-full max-w-[512px] flex-1 h-1/2 space-y-2">
                     <h2 class="text-4xl">
                         Visitor invite sent to {{ 'Test' }}
                     </h2>
@@ -124,8 +124,8 @@ import { Booking } from './booking.class';
                         {{ booking?.date | date: 'shortTime' }}
                     </p>
                 </div>
-                <div class="w-full p-2 border-t border-gray-200">
-                    <button mat-button (click)="done.emit()">
+                <div class="w-full p-2 border-t border-gray-200 flex items-center justify-center">
+                    <button mat-button class="w-full max-w-[512px]" (click)="done.emit()">
                         Great, thanks
                     </button>
                 </div>

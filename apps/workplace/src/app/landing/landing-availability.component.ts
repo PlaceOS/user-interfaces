@@ -45,7 +45,7 @@ import { LandingStateService } from './landing-state.service';
                     [queryParams]="{ space: space.email }"
                 >
                     <div
-                        class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700"
+                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 overflow-hidden"
                     >
                         <img *ngIf="space.images.length" [src]="space.images[0]" class="min-h-full object-cover"/>
                     </div>
