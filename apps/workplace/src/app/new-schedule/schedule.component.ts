@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
-import { CalendarEvent } from '@placeos/events';
-import { isSameDay } from 'date-fns';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { Booking, removeBooking } from '@placeos/bookings';
+import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
+import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
+import { isSameDay, format } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
 
@@ -8,9 +12,13 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'app-schedule',
     template: `
         <topbar></topbar>
-        <div class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] dark:bg-zinc-600 relative">
+        <div
+            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] dark:bg-zinc-600 relative"
+        >
             <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
-            <div class="w-full bg-white dark:bg-neutral-700 border-b border-gray-300 sm:hidden">
+            <div
+                class="w-full bg-white dark:bg-neutral-700 border-b border-gray-300 sm:hidden"
+            >
                 <schedule-mobile-calendar
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"
@@ -25,13 +33,25 @@ import { ScheduleStateService } from './schedule-state.service';
                 <ng-container
                     *ngIf="(bookings | async)?.length; else empty_state"
                 >
-                    <ng-container *ngFor="let item of (loading | async) ? [] : bookings | async; trackBy: trackByFn">
+                    <ng-container
+                        *ngFor="
+                            let item of (loading | async)
+                                ? []
+                                : (bookings | async);
+                            trackBy: trackByFn
+                        "
+                    >
                         <event-card
                             *ngIf="isEvent(item); else booking_card"
                             [event]="item"
+                            (edit)="edit(item)"
+                            (remove)="remove(item)"
                         ></event-card>
                         <ng-template #booking_card>
-                            <booking-card [booking]="item"></booking-card>
+                            <booking-card
+                                [booking]="item"
+                                (remove)="remove(item)"
+                            ></booking-card>
                         </ng-template>
                     </ng-container>
                 </ng-container>
@@ -79,9 +99,46 @@ export class ScheduleComponent {
         return item instanceof CalendarEvent;
     }
 
-    constructor(private _state: ScheduleStateService) {}
+    constructor(
+        private _state: ScheduleStateService,
+        private _event_form: EventFormService,
+        private _router: Router,
+        private _dialog: MatDialog
+    ) {}
 
     public trackByFn(index: number, item: any) {
         return item?.id;
+    }
+
+    public edit(event: CalendarEvent) {
+        this._router.navigate(['/book', 'meeting', 'form']);
+        this._event_form.newForm(event);
+    }
+
+    public async remove(item: CalendarEvent | Booking) {
+        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const resource_name =
+            item instanceof CalendarEvent
+                ? item.space?.display_name
+                : item.asset_name || item.asset_id;
+        const content = `Delete the booking for ${resource_name} at ${time}`;
+        const resp = await openConfirmModal(
+            { title: `Delete booking`, content, icon: { content: 'delete' } },
+            this._dialog
+        );
+        console;
+        if (resp.reason !== 'done') return;
+        resp.loading('Requesting booking deletion...');
+        await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
+            item.id
+        )
+            .toPromise()
+            .catch((e) => {
+                notifyError(`Unable to delete booking. ${e}`);
+                resp.close();
+                throw e;
+            });
+        notifySuccess('Successfully deleted booking.');
+        resp.close();
     }
 }

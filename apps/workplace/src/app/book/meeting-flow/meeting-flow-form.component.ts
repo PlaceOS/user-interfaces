@@ -23,7 +23,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"
                 >
-                    Book Meeting
+                    {{ form.value.id ? 'Edit' : 'Book'}} Meeting
                 </h2>
                 <form
                     class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
@@ -222,7 +222,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
-                            Clear Form
+                            {{ form.value.id ? 'Reset' : 'Clear' }} Form
                         </button>
                     </section>
                 </form>
@@ -252,7 +252,7 @@ export class MeetingFlowFormComponent {
         return !!this._settings.get('app.events.hide_attendees');
     }
 
-    public readonly clearForm = () => this._state.clearForm();
+    public readonly clearForm = () => this._state.resetForm();
 
     public readonly viewConfirm = () => {
         if (!this.form.valid)

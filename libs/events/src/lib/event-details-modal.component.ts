@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
@@ -180,11 +180,11 @@ import { CalendarEvent } from './event.class';
             </div>
         </div>
         <mat-menu #menu="matMenu" xPosition="before">
-            <button mat-menu-item class="flex items-center space-x-2 text-base">
+            <button mat-menu-item mat-dialog-close class="flex items-center space-x-2 text-base" (click)="edit.emit()">
                 <app-icon>edit</app-icon>
                 <div>Edit event</div>
             </button>
-            <button mat-menu-item class="flex items-center space-x-2 text-base">
+            <button mat-menu-item class="flex items-center space-x-2 text-base" (click)="remove.emit()">
                 <app-icon>delete</app-icon>
                 <div>Delete event</div>
             </button>
@@ -193,6 +193,8 @@ import { CalendarEvent } from './event.class';
     styles: [``],
 })
 export class EventDetailsModalComponent {
+    @Output() public edit = new EventEmitter();
+    @Output() public remove = new EventEmitter();
     public show_attendees: boolean = false;
     public readonly event = this._event;
     public readonly features = [

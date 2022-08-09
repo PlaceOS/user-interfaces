@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
@@ -141,11 +141,11 @@ import { checkinBooking } from './bookings.fn';
             </button>
         </div>
         <mat-menu #menu="matMenu" xPosition="before">
-            <button mat-menu-item class="flex items-center space-x-2 text-base">
+            <!-- <button mat-menu-item mat-dialog-close class="flex items-center space-x-2 text-base" (click)="edit.emit()">
                 <app-icon>edit</app-icon>
                 <div>Edit booking</div>
-            </button>
-            <button mat-menu-item class="flex items-center space-x-2 text-base">
+            </button> -->
+            <button mat-menu-item class="flex items-center space-x-2 text-base" (click)="remove.emit()">
                 <app-icon>delete</app-icon>
                 <div>Delete booking</div>
             </button>
@@ -154,6 +154,8 @@ import { checkinBooking } from './bookings.fn';
     styles: [``],
 })
 export class BookingDetailsModalComponent {
+    @Output() public edit = new EventEmitter();
+    @Output() public remove = new EventEmitter();
     public readonly booking = this._booking;
     public checking_in = false;
     public readonly features = [

@@ -126,10 +126,16 @@ export function randomString(
     return str;
 }
 
+export interface ConfirmRepsonse {
+    reason: 'done' | '' | null;
+    loading: (_: string) => void;
+    close: () => void;
+}
+
 export async function openConfirmModal(
     data: ConfirmModalData,
     dialog: MatDialog
-) {
+): Promise<ConfirmRepsonse> {
     const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(
         ConfirmModalComponent,
         {

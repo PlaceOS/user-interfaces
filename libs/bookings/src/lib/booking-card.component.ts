@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Booking, BookingDetailsModalComponent } from '@placeos/bookings';
@@ -111,6 +111,8 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 export class BookingCardComponent extends BaseClass {
     @Input() public booking: Booking;
     @Input() public show_day: boolean = false;
+    @Output() public edit = new EventEmitter();
+    @Output() public remove = new EventEmitter();
 
     constructor(
         private _dialog: MatDialog,
@@ -164,10 +166,12 @@ export class BookingCardComponent extends BaseClass {
 
     public viewDetails() {
         if (!this.booking) return;
-        this.timeout('open', () =>
-            this._dialog.open(BookingDetailsModalComponent, {
+        this.timeout('open', () =>{
+            const ref = this._dialog.open(BookingDetailsModalComponent, {
                 data: this.booking,
             })
-        );
+            this.subscription('edit', ref.componentInstance.edit.subscribe(() => this.edit.emit()));
+            this.subscription('remove', ref.componentInstance.remove.subscribe(() => this.remove.emit()));
+       } );
     }
 }
