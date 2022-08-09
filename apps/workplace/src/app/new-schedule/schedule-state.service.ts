@@ -71,10 +71,7 @@ export class ScheduleStateService extends BaseClass {
         this.desks,
         this.parking,
     ]).pipe(
-        map(([e, d, p]) => {
-            console.log('List:', e, d, p);
-            return [...e, ...d, ...p].sort((a, b) => a.date - b.date)
-        })
+        map(([e, d, p]) => [...e, ...d, ...p].sort((a, b) => a.date - b.date))
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([
@@ -88,8 +85,7 @@ export class ScheduleStateService extends BaseClass {
                         filters?.shown_types?.includes('event')) ||
                     filters?.shown_types?.includes(_.type)
             )
-        ),
-        tap((_) => console.log('Bookings:', _))
+        )
     );
     /** Currently selected date */
     public readonly filters = this._filters.asObservable();
@@ -129,5 +125,6 @@ export class ScheduleStateService extends BaseClass {
                 shown_types: [...shown_types, name],
             });
         }
+        console.log('Filters:', this._filters.getValue());
     }
 }

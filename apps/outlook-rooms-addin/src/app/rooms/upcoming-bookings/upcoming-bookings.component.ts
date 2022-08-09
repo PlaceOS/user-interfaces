@@ -19,7 +19,7 @@ export class UpcomingBookingsComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        this._schedule.toggleType('desks', true);
+        this._schedule.toggleType('desk', true);
         this._schedule.toggleType('parking', true);
         this.subscription('poll', this._schedule.startPolling());
     }
