@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { CalendarEvent, EventDetailsModalComponent } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
 @Component({
@@ -80,18 +81,8 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                     <div class="flex items-center px-2">
                         <app-icon>meeting_room</app-icon>
                         <div class="mx-2 truncate">
-                            {{
-                                event?.space?.level?.display_name ||
-                                    event?.space?.level?.name
-                            }},
-                            {{
-                                event?.space?.display_name || event?.space?.name
-                            }}
+                            {{ location }}
                         </div>
-                    </div>
-                    <div class="flex items-center px-2" *ngIf="location">
-                        <app-icon>place</app-icon>
-                        <div class="mx-2 truncate">{{ location }}</div>
                     </div>
                     <div class="flex items-center px-2">
                         <app-icon>person_outline</app-icon>
@@ -165,7 +156,11 @@ export class EventCardComponent extends BaseClass {
     @Input() public event: CalendarEvent;
     @Input() public show_day: boolean = false;
 
-    constructor(private _dialog: MatDialog, private _route: ActivatedRoute) {
+    constructor(
+        private _dialog: MatDialog,
+        private _route: ActivatedRoute,
+        private _org: OrganisationService
+    ) {
         super();
     }
 
@@ -187,7 +182,14 @@ export class EventCardComponent extends BaseClass {
     }
 
     public get location() {
-        return '';
+        const zone =
+            this._org.levelWithID(this.event.space?.zones) ||
+            this._org.buildings.find((_) =>
+                this.event.space?.zones.includes(_.id)
+            );
+        return `${zone ? (zone.display_name || zone.name) + ', ' : ''} ${
+            this.event.space?.display_name || this.event.space?.name
+        }`;
     }
 
     public get period() {

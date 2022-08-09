@@ -15,7 +15,7 @@ import { OrganisationService } from '@placeos/organisation';
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 px-2">
-            <app-icon class="text-success">done</app-icon>
+            <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
                 <h3>{{ event.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
@@ -42,7 +42,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="flex space-x-1 px-2"
             *ngIf="event.attendees.length"
         >
-            <app-icon class="text-success">done</app-icon>
+            <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
                 <h3>
                     {{ event.attendees.length }} { event.attendees.length,
@@ -59,7 +59,7 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
         </section>
         <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
-            <app-icon class="text-success">done</app-icon>
+            <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
                 <h3>Booked Room</h3>
                 <div class="flex items-center space-x-2">
@@ -135,10 +135,11 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     }
 
     public get location() {
+        const building = this._org.buildings.find(
+            (_) => _.id === this.space?.level?.parent_id
+        );
         return (
-            this._org.buildings.find(
-                (_) => _.id === this.space?.level?.parent_id
-            )?.address || ''
+            building?.address || building?.display_name || building?.name || '~Unspecified Location~'
         );
     }
 

@@ -31,7 +31,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('spaces')"
-                [routerLink]="['/book', 'spaces']"
+                [routerLink]="['/book', 'meeting']"
                 routerLinkActive="text-primary active dark:text-secondary"
                 matTooltip="Book Room"
                 matTooltipPosition="below"
@@ -148,7 +148,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('schedule')"
-                [routerLink]="['/schedule']"
+                [routerLink]="['/your-bookings']"
                 routerLinkActive="text-primary active dark:text-secondary"
                 matTooltip="Your Bookings"
                 matTooltipPosition="below"

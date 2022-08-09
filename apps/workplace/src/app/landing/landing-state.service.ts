@@ -24,6 +24,7 @@ import { CalendarEvent, queryEvents } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
+import { ScheduleStateService } from '../new-schedule/schedule-state.service';
 
 export interface LandingOptions {
     search?: string;
@@ -37,8 +38,6 @@ export class LandingStateService extends BaseClass {
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
-    private _upcoming_events = new BehaviorSubject<CalendarEvent[]>([]);
-    /**  */
     private _contacts = new BehaviorSubject<User[]>([]);
     /**  */
     private _level_occupancy = new BehaviorSubject<BuildingLevel[]>([]);
@@ -47,7 +46,7 @@ export class LandingStateService extends BaseClass {
     /**  */
     public free_spaces = this._free_spaces.asObservable();
     /**  */
-    public upcoming_events = this._upcoming_events.asObservable();
+    public readonly upcoming_events = this._schedule.filtered_bookings.pipe(map(_ => _.filter(i => i instanceof CalendarEvent)));
     /**  */
     public contacts = this._contacts.asObservable();
     /**  */
@@ -64,6 +63,7 @@ export class LandingStateService extends BaseClass {
 
     constructor(
         private _calendar: CalendarService,
+        private _schedule: ScheduleStateService,
         private _org: OrganisationService
     ) {
         super();
@@ -99,16 +99,12 @@ export class LandingStateService extends BaseClass {
     }
 
     public pollUpcomingEvents(delay: number = 10 * 1000) {
-        this.updateUpcomingEvents();
-        this.interval(
-            'upcoming_events',
-            () => this.updateUpcomingEvents(),
-            delay
-        );
+        this._schedule.setDate(Date.now());
+        return this._schedule.startPolling(delay);
     }
 
     public stopPollingUpcomingEvents() {
-        this.clearInterval('upcoming_events');
+        this._schedule.stopPolling();
     }
 
     public async updateContacts() {
@@ -175,17 +171,6 @@ export class LandingStateService extends BaseClass {
             .toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
-    }
-
-    private async updateUpcomingEvents() {
-        const period_start = Math.floor(new Date().valueOf() / 1000);
-        const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const events = await queryEvents({
-            period_start,
-            period_end,
-            calendars: currentUser().email,
-        }).toPromise();
-        this._upcoming_events.next(events);
     }
 
     private async updateBuildingMetadata() {

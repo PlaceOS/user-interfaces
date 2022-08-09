@@ -41,7 +41,7 @@ import { LandingStateService } from './landing-state.service';
                             ></event-card>
                             <booking-card
                                 *ngSwitchCase="'booking'"
-                                [booking]="booking"
+                                [booking]="event"
                                 [show_day]="true"
                             ></booking-card>
                         </ng-container>
@@ -77,7 +77,7 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
         this._state.stopPollingUpcomingEvents();
     }
 
-    public trackByFn(index: number, item: any) {
+    public trackByFn(_: number, item: any) {
         return item?.id;
     }
 }

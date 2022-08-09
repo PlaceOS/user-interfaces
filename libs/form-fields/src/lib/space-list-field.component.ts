@@ -41,7 +41,9 @@ const EMPTY_FAVS: string[] = [];
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
                 *ngFor="let space of spaces"
             >
-                <div class="w-24 h-24 rounded-xl bg-black/20 mr-4"></div>
+                <div class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden">
+                    <img *ngIf="space.images.length" [src]="space.images[0]" class="min-h-full object-cover" />
+                </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
                         {{ space.name || 'Meeting Space' }}

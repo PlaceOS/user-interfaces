@@ -10,7 +10,7 @@ import { EventFormService } from '@placeos/events';
             >
                 <h2 class="text-2xl font-medium">Booking Confirmed!</h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center">
+                <p class="text-center max-w-[512px]">
                     Your
                     <span *ngIf="space">
                         room booking for
@@ -25,8 +25,8 @@ import { EventFormService } from '@placeos/events';
                     }}.
                 </p>
             </main>
-            <footer class="p-2 w-full border-t border-gray-200 mt-4">
-                <a button mat-button class="w-full" [routerLink]="['/']">
+            <footer class="p-2 w-full border-t border-gray-200 mt-4 flex items-center justify-center">
+                <a button mat-button class="w-full max-w-[512px]" [routerLink]="['/']">
                     Great, thanks!
                 </a>
             </footer>
