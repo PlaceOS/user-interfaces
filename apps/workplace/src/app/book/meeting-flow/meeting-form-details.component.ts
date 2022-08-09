@@ -36,7 +36,7 @@ import { SettingsService } from '@placeos/common';
                         [ngModelOptions]="{ standalone: true }"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3">
+                <div class="flex-1 w-1/3 relative">
                     <label for="end-time">End Time<span>*</span></label>
                     <a-duration-field
                         name="end-time"
@@ -45,7 +45,24 @@ import { SettingsService } from '@placeos/common';
                         [max]="max_duration"
                     >
                     </a-duration-field>
+                    <mat-checkbox
+                        formControlName="all_day"
+                        *ngIf="allow_all_day"
+                        class="absolute top-0 right-0"
+                    >
+                        All Day
+                    </mat-checkbox>
                 </div>
+            </div>
+            <div
+                *ngIf="can_book_for_others"
+                class="w-full"
+            >
+                <label for="host">Host<span>*</span></label>
+                <host-select-field
+                    name="host"
+                    formControlName="organiser"
+                ></host-select-field>
             </div>
         </div>
     `,
@@ -56,6 +73,14 @@ export class MeetingFormDetailsComponent {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get can_book_for_others() {
+        return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get allow_all_day() {
+        return this._settings.get('app.events.allow_all_day');
     }
 
     constructor(private _settings: SettingsService) {}
