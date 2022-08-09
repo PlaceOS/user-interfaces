@@ -184,7 +184,7 @@ export class SettingsService extends BaseClass {
                 ...this._user_settings.getValue(),
                 ...this._pending_settings,
             },
-        });
+        }).toPromise();
         this._user_settings.next({ ...this._user_settings.getValue(), ...this._pending_settings });
         this._pending_settings = {};
     }
