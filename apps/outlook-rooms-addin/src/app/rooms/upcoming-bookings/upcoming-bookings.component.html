@@ -3,7 +3,7 @@
         Your Bookings
     </h3>
     <div
-        class="p-2 flex-1 h-1/2 overflow-auto space-y-4"
+        class="px-4 pb-4 flex-1 h-1/2 overflow-auto space-y-4"
         *ngIf="!(loading$ | async); else load_state"
     >
         <ng-container *ngIf="(events$ | async)?.length; else empty_state">
@@ -26,7 +26,7 @@
 </div>
 <ng-template #load_state>
     <div
-        class="h-full w-full flex flex-col items-center justify-center space-y-4 my-6"
+        class="h-3/4 w-full flex-1 flex flex-col items-center justify-center space-y-4 my-6"
     >
         <mat-spinner [diameter]="32"></mat-spinner>
         <p>Retrieving bookings...</p>
@@ -34,7 +34,7 @@
 </ng-template>
 <ng-template #empty_state>
     <div
-        class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center my-6"
+        class="h-3/4 w-full flex-1 flex flex-col items-center justify-center space-y-2 p-8 text-center my-6"
     >
         <p>No bookings found</p>
     </div>
