@@ -1,162 +1,71 @@
-import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings/upcoming-bookings.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { ngMocks } from 'ng-mocks';
-import { of } from 'rxjs';
-import { take } from 'rxjs/operators';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { BookModule } from '../app/rooms/book.module';
-import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    MatBottomSheetModule,
-    MatBottomSheet,
-} from '@angular/material/bottom-sheet';
-import { ExistingBookingsService } from '../app/rooms/existing-bookings.service';
-import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
+import { MockComponent, ngMocks } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
+import { CalendarEvent, EventCardComponent } from '@placeos/events';
+import { BookingCardComponent } from '@placeos/bookings';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import {
-    mockCalendarEvent,
-    mockStaffUser,
-    mockExternalUser,
-} from './test-mocks';
+import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedule-state.service';
+import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings/upcoming-bookings.component';
 
 describe('UpcomingBookingsComponent', () => {
     let spectator: Spectator<UpcomingBookingsComponent>;
 
     const createComponent = createComponentFactory({
         component: UpcomingBookingsComponent,
-        imports: [
-            ReactiveFormsModule,
-            FormsModule,
-            MatFormFieldModule,
-            BookModule,
-            CommonModule,
-            BrowserModule,
-            BrowserAnimationsModule,
-            MatBottomSheetModule,
-            ComponentsModule,
-        ],
+        imports: [MatProgressSpinnerModule],
         providers: [
             {
-                provide: ExistingBookingsService,
+                provide: ScheduleStateService,
                 useValue: {
-                    loading$: of(false),
-                    events: of(null) as any,
+                    loading: new BehaviorSubject(false),
+                    filtered_bookings: new BehaviorSubject([]),
+                    toggleType: jest.fn(),
+                    startPolling: jest.fn(),
                 },
             },
         ],
-        declarations: [],
+        declarations: [
+            MockComponent(EventCardComponent),
+            MockComponent(BookingCardComponent),
+        ],
     });
 
-    beforeEach(() => {
-        spectator = createComponent();
-    });
+    beforeEach(() => (spectator = createComponent()));
 
     afterEach(() => {
-        jest.clearAllMocks();
-        jest.resetModules();
-        ngMocks.reset();
+        (spectator.inject(ScheduleStateService).loading as any).next(false);
+        (spectator.inject(ScheduleStateService).filtered_bookings as any).next(
+            []
+        );
     });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show the correct number of bookings for the current user', async () => {
-        spectator.component.user = mockStaffUser;
-        const bookings_service = spectator.inject(ExistingBookingsService);
-        bookings_service.loading$ = of(true);
-        bookings_service.events = of([
-            mockCalendarEvent,
-            mockCalendarEvent,
-            mockCalendarEvent,
-            mockCalendarEvent,
-        ]);
+    it('should show loading state', () => {
+        expect('[loading]').not.toExist();
+        (spectator.inject(ScheduleStateService).loading as any).next(true);
         spectator.detectChanges();
-        bookings_service.loading$ = of(false);
-        spectator.detectChanges();
-
-        await spectator.component.getBookingsFromService();
-        await spectator.component.user_bookings$.pipe(take(1)).toPromise();
-
-        let service_bookings;
-        let bookings_displayed;
-
-        service_bookings = await bookings_service.events
-            .pipe(take(1))
-            .toPromise();
-
-        bookings_displayed = await spectator.component.user_bookings$
-            .pipe(take(1))
-            .toPromise();
-
-        expect(bookings_displayed.length).toBe(service_bookings.length);
-
-        bookings_service.events.subscribe((events) =>
-            events.forEach((event) =>
-                expect(event.organiser.name).toBe(spectator.component.user.name)
-            )
-        );
+        expect('[loading]').toExist();
     });
 
-    it('should not show bookings that were not organised by the current user', async () => {
-        spectator.component.user = mockExternalUser;
-        const bookings_service = spectator.inject(ExistingBookingsService);
-        bookings_service.loading$ = of(true);
-        bookings_service.events = of([
-            mockCalendarEvent,
-            mockCalendarEvent,
-            mockCalendarEvent,
-            mockCalendarEvent,
+    it('should show empty state', () => {
+        expect('[empty]').toExist();
+        (spectator.inject(ScheduleStateService).filtered_bookings as any).next([
+            new CalendarEvent(),
         ]);
         spectator.detectChanges();
-        bookings_service.loading$ = of(false);
-        spectator.detectChanges();
-
-        await spectator.component.getBookingsFromService();
-
-        let service_bookings;
-        let bookings_displayed;
-
-        service_bookings = await bookings_service.events
-            .pipe(take(1))
-            .toPromise();
-
-        bookings_displayed = await spectator.component.user_bookings$
-            .pipe(take(1))
-            .toPromise();
-
-        expect(service_bookings.length).toBe(4);
-
-        expect(bookings_displayed.length).toBe(0);
-        bookings_service.events.subscribe((events) =>
-            events.forEach((event) =>
-                expect(event.organiser.name).not.toBe(
-                    spectator.component.user.name
-                )
-            )
-        );
+        expect('[empty]').not.toExist();
     });
 
-    it('should say -no bookings found- if there are no bookings', async () => {
-        spectator = createComponent();
-        spectator.component.user = mockStaffUser;
-        const bookings_service = spectator.inject(ExistingBookingsService);
-        bookings_service.loading$ = of(true);
-        bookings_service.events = of([null, null, null]);
-        bookings_service.loading$ = of(false);
+    it("should show user's events", () => {
+        expect('event-card').not.toExist();
+        (spectator.inject(ScheduleStateService).filtered_bookings as any).next([
+            new CalendarEvent(),
+        ]);
         spectator.detectChanges();
-
-        await spectator.component.ngOnInit();
-        spectator.detectChanges();
-
-        expect(spectator.debugElement.nativeElement.outerHTML).toContain(
-            'No bookings found'
-        );
-        expect(spectator.debugElement.nativeElement.outerHTML).not.toContain(
-            'results found'
-        );
+        expect('event-card').toExist();
     });
 });

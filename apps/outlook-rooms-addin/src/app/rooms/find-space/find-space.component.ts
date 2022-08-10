@@ -130,7 +130,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this.setBuilding(this._org.building);
         this.book_space = {};
-        this.subscription('features', this.selected_features$.subscribe((v) => this.setOptions({ features: v || [] })));
+        this.subscription('features', this.selected_features$?.subscribe((v) => this.setOptions({ features: v || [] })));
 
         await this._mapService.locateSpaces(this.spaces$);
 
