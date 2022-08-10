@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+    currentUser,
     getInvalidFields,
     notifyError,
     SettingsService,
@@ -150,6 +151,7 @@ export class SpaceFlowFormComponent {
 
     public findSpace() {
         this.form.markAllAsTouched();
+        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
