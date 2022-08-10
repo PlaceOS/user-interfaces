@@ -14,7 +14,7 @@ const EMPTY = [];
             <a
                 logo
                 class="p-2 h-full flex items-center flex-1"
-                [routerLink]="['/']"
+                [routerLink]="['/-']"
             >
                 <img
                     class="h-10 hidden dark:block sm:dark:block"
@@ -51,7 +51,7 @@ const EMPTY = [];
         <mat-menu #menu="matMenu">
             <button
                 mat-menu-item
-                [routerLink]="['/schedule']"
+                [routerLink]="new_features ? ['/your-bookings'] : ['/schedule']"
                 routerLinkActive="text-primary"
                 *ngIf="features?.includes('schedule')"
             >
@@ -90,6 +90,10 @@ export class TopbarComponent {
     /** Text to display for page title */
     public get search(): boolean {
         return this._settings.get('app.general.search') !== false;
+    }
+
+    public get new_features(): boolean {
+        return !!this._settings.get('app.new_features');
     }
 
     public get user() {

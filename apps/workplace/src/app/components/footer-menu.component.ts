@@ -11,7 +11,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
         >
             <a
                 matRipple
-                [routerLink]="['/book', 'spaces']"
+                [routerLink]="new_features ? ['/book', 'meeting'] : ['/book', 'spaces']"
                 *ngIf="features.includes('spaces')"
                 class="flex items-center space-x-4 text-base w-48"
             >
@@ -29,7 +29,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </a>
             <a
                 matRipple
-                [routerLink]="['/book', 'desks']"
+                [routerLink]="new_features ? ['/book', 'newdesk'] : ['/book', 'desks']"
                 *ngIf="features.includes('desks')"
                 class="flex items-center space-x-4 text-base w-48"
             >
@@ -65,7 +65,20 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </a>
             <a
                 matRipple
-                [routerLink]="['/schedule']"
+                *ngIf="features.includes('visitor-invite')"
+                [routerLink]="['/book', 'visitor']"
+                class="flex items-center space-x-4 text-base w-48"
+            >
+                <div
+                    class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                >
+                    <app-icon>person_add</app-icon>
+                </div>
+                <div>Invite Visitor</div>
+            </a>
+            <a
+                matRipple
+                [routerLink]="new_features ? ['/your-bookings'] : ['/schedule']"
                 *ngIf="features.includes('schedule')"
                 class="flex items-center space-x-4 text-base w-48"
             >
@@ -89,7 +102,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             <a
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
-                [routerLink]="['/dashboard']"
+                [routerLink]="['/']"
                 routerLinkActive="text-primary"
             >
                 <app-icon class="text-2xl">home</app-icon>
@@ -139,6 +152,10 @@ export class FooterMenuComponent {
 
     public get features(): string[] {
         return this._settings.get('app.features') || [];
+    }
+
+    public get new_features(): boolean {
+        return !!this._settings.get('app.new_features');
     }
 
     constructor(private _settings: SettingsService) {}
