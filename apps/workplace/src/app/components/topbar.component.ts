@@ -18,13 +18,13 @@ const EMPTY = [];
             >
                 <img
                     class="h-10 hidden dark:block sm:dark:block"
-                    [class.hidden]="!title"
+                    [class.dark:hidden]="title"
                     *ngIf="logo_dark"
                     [src]="logo_dark.src"
                 />
                 <img
                     class="h-10 dark:hidden sm:block"
-                    [class.hidden]="!title"
+                    [class.hidden]="title"
                     *ngIf="logo"
                     [src]="logo.src"
                 />
