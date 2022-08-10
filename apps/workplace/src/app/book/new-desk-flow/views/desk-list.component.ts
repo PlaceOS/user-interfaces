@@ -28,12 +28,12 @@ import { Desk } from '@placeos/organisation';
                 <li
                     desk
                     *ngFor="let desk of desks | async"
-                    class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
+                    class="relative rounded-lg w-full shadow border bg-white border-gray-200 overflow-hidden"
                 >
                     <button
                         select
                         matRipple
-                        class="w-full h-full flex"
+                        class="w-full h-full flex p-2"
                         (click)="selectDesk(desk)"
                     >
                         <div

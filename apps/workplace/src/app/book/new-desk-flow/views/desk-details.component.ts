@@ -26,7 +26,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
     ],
     template: `
         <ng-container *ngIf="desk; else emptyState">
-            <section image class="relative w-full h-64 bg-black/20">
+            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
                     [images]="desk.images"
                     class="absolute inset-0"
@@ -105,7 +105,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                 </section>
                 <section
                     map
-                    class="w-[calc(100vw-2rem)] mx-auto h-64 relative border border-gray-200 overflow-hidden rounded"
+                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
                 >
                     <interactive-map
                         class="pointer-events-none"

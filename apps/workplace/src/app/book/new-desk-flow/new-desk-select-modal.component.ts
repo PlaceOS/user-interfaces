@@ -20,14 +20,14 @@ import { Desk } from '@placeos/organisation';
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 min-h-[65vh] h-[65vh] w-full"
             >
-                <div class="flex flex-col items-center flex-1 w-1/2 h-full">
+                <div class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[80vh]">
                     <desk-filters-display
                         class="w-full border-b border-gray-200"
                         [(view)]="view"
                     ></desk-filters-display>
                     <desk-list
                         *ngIf="view === 'list'; else mapView"
-                        class="flex-1 h-1/2"
+                        class="flex-1 h-1/2 max-h-full"
                         [favorites]="favorites"
                         (onSelect)="displayed = $event"
                         (toggleFav)="toggleFavourite($event)"
@@ -36,7 +36,7 @@ import { Desk } from '@placeos/organisation';
                 <desk-details
                     *ngIf="displayed"
                     [desk]="displayed"
-                    class="h-full w-full sm:w-auto absolute sm:relative sm:block z-20 inset-0"
+                    class="h-full w-full sm:h-[80vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20 bg-inherit"
                     [fav]="displayed && favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (onSelect)="selectDesk(displayed)"
