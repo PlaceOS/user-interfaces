@@ -63,7 +63,6 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
-                            [disabled]="form.value.all_day"
                         >
                         </a-duration-field>
                     </div>

@@ -35,7 +35,6 @@ import { OrganisationService } from '@placeos/organisation';
                             formControlName="duration"
                             [time]="form.value.date"
                             [max]="max_duration"
-                            [disabled]="form.value.all_day"
                         >
                         </a-duration-field>
                         <mat-checkbox

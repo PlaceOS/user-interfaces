@@ -3,6 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CateringStateService } from '@placeos/catering';
+import { SettingsService } from '@placeos/common';
 import { generateEventForm } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -31,6 +32,7 @@ describe('DetailBookSpaceFormComponent', () => {
         providers: [
             { provide: OrganisationService, useValue: {} },
             { provide: CateringStateService, useValue: {} },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
         imports: [
             ReactiveFormsModule,

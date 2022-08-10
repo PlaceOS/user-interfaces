@@ -1,5 +1,6 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { CalendarService } from '@placeos/calendar';
+import { SettingsService } from '@placeos/common';
 import { Organisation, OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
 import { LandingStateService } from '../../app/landing/landing-state.service';
@@ -26,6 +27,7 @@ describe('LandingStateService', () => {
                     levelWithID: jest.fn(),
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
     });
 

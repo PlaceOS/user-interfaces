@@ -1,9 +1,9 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormField } from '@angular/material/form-field';
+import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { BookingFormService, FAV_DESK_KEY } from '@placeos/bookings';
+import { BookingFormService, FAV_DESK_KEY, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
@@ -15,7 +15,7 @@ import { Building, Desk, OrganisationService } from '@placeos/organisation';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
 import { AssetListFieldComponent } from 'libs/form-fields/src/lib/asset-list-field.component';
 import { MockComponent, MockModule } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;
@@ -50,7 +50,7 @@ describe('NewDeskFormDetailsComponent', () => {
             {
                 provide: MatDialog,
                 useValue: {
-                    open: jest.fn(),
+                    open: jest.fn(() => ({ afterClosed: jest.fn(() => of()) })),
                 },
             },
         ],
@@ -62,17 +62,13 @@ describe('NewDeskFormDetailsComponent', () => {
             MockComponent(TimeFieldComponent),
             MockComponent(AssetListFieldComponent),
         ],
-        imports: [MockModule(MatCheckboxModule)],
+        imports: [MockModule(MatCheckboxModule), MockModule(MatFormFieldModule), FormsModule, ReactiveFormsModule],
     });
 
     beforeEach(() => {
         spectator = createComponent();
         spectator.setInput({
-            form: new FormGroup({
-                title: new FormControl(),
-                date: new FormControl(),
-                duration: new FormControl(),
-            }),
+            form: generateBookingForm()
         });
     });
 

@@ -1,14 +1,16 @@
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { IconComponent } from '@placeos/components';
+import { EventFormService, generateEventForm } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
 import { AssetListFieldComponent } from 'libs/form-fields/src/lib/asset-list-field.component';
+import { RichTextInputComponent } from 'libs/form-fields/src/lib/rich-text-input.component';
 import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-field.component';
 import { MockComponent } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -21,8 +23,13 @@ describe('MeetingFlowFormComponent', () => {
             {
                 provide: EventFormService,
                 useValue: {
-                    form: new FormGroup({}),
-                    clearForm: jest.fn(),
+                    form: generateEventForm({
+                        host: 'test@test.com',
+                        title: 'Yep',
+                        creator: 'jim@j.com',
+                        date: Date.now(),
+                    } as any),
+                    resetForm: jest.fn(),
                 },
             },
             {
@@ -45,7 +52,10 @@ describe('MeetingFlowFormComponent', () => {
             MockComponent(SpaceListFieldComponent),
             MockComponent(CateringListFieldComponent),
             MockComponent(AssetListFieldComponent),
+            MockComponent(IconComponent),
+            MockComponent(RichTextInputComponent),
         ],
+        imports: [ReactiveFormsModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -79,7 +89,7 @@ describe('MeetingFlowFormComponent', () => {
         expect(spectator.query('button[clear-form]')).toExist();
         spectator.click('button[clear-form]');
         expect(
-            spectator.inject(EventFormService).clearForm
+            spectator.inject(EventFormService).resetForm
         ).toHaveBeenCalledTimes(1);
     });
 

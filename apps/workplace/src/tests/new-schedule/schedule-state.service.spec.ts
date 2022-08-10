@@ -1,16 +1,17 @@
-import { createServiceFactory, SpectatorService } from "@ngneat/spectator/jest";
-import { ScheduleStateService } from "../../app/new-schedule/schedule-state.service";
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
+import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
 
 describe('ScheduleStateService', () => {
-
     let spectator: SpectatorService<ScheduleStateService>;
     const createService = createServiceFactory({
-        service: ScheduleStateService
+        service: ScheduleStateService,
+        providers: [{ provide: SettingsService, useValue: { get: jest.fn() } }],
     });
-  
-    beforeEach(() => spectator = createService());
-  
+
+    beforeEach(() => (spectator = createService()));
+
     it('should create service', () => {
-      expect(spectator.service).toBeTruthy();
+        expect(spectator.service).toBeTruthy();
     });
-})
+});

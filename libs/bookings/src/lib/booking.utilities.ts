@@ -42,6 +42,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
               )
             : '';
     });
+    form.controls.all_day.valueChanges.subscribe((all_day) => {
+        if (all_day) form.controls.duration.disable();
+        else form.controls.duration.enable();
+    });
     return form;
 }
 

@@ -35,7 +35,9 @@ describe('SpaceFlowFindComponent', () => {
                 provide: OrganisationService,
                 useValue: {
                     initialised: of(true),
-                    building: new BehaviorSubject({}),
+                    building: {},
+                    active_building: new BehaviorSubject({}),
+                    building_list: new BehaviorSubject([]),
                     levelsForBuilding: jest.fn(() => []),
                 },
             },
@@ -104,10 +106,8 @@ describe('SpaceFlowFindComponent', () => {
         const elements = spectator.queryAll('space-flow-find-item');
         expect(elements).toHaveLength(2);
         spectator.component.handleBookEvent(spaces[0] as any, true);
-        console.log(spectator.component.book_space);
         expect(spectator.component.book_space[spaces[0].id]).toBeTruthy();
         spectator.component.handleBookEvent(spaces[1] as any, true);
-        console.log(spectator.component.book_space);
         expect(spectator.component.book_space[spaces[1].id]).toBeTruthy();
     });
 });

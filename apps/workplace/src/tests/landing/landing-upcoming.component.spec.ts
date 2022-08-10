@@ -5,6 +5,8 @@ import { BookingCardComponent } from "@placeos/bookings";
 import { EventCardComponent } from "@placeos/events";
 import { LandingStateService } from "../../app/landing/landing-state.service";
 import { LandingUpcomingComponent } from "../../app/landing/landing-upcoming.component";
+import { MatDialog } from "@angular/material/dialog";
+import { SettingsService } from "@placeos/common";
 
 describe('LandingUpcomingComponent', () => {
     let spectator: SpectatorRouting<LandingUpcomingComponent>;
@@ -15,11 +17,13 @@ describe('LandingUpcomingComponent', () => {
             MockComponent(BookingCardComponent),
         ],
         providers: [
+            { provide: MatDialog, useValue: { open: jest.fn() } },
             { provide: LandingStateService, useValue: {
                 upcoming_events: new BehaviorSubject([]),
                 pollUpcomingEvents: jest.fn(),
                 stopPollingUpcomingEvents: jest.fn()
-            } }
+            } },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ]
     });
 

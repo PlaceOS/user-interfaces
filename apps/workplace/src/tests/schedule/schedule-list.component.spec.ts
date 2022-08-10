@@ -2,6 +2,7 @@ import {
     CdkVirtualScrollViewport,
     ScrollingModule,
 } from '@angular/cdk/scrolling';
+import { FormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,6 +45,7 @@ describe('ScheduleListComponent', () => {
             MatDatepickerModule,
             MatNativeDateModule,
             MatProgressSpinnerModule,
+            FormsModule
         ],
         declarations: [
             MockComponent(ScheduleListItemComponent),

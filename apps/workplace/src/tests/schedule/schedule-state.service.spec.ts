@@ -9,11 +9,13 @@ jest.mock('@placeos/bookings');
 
 import * as booking_mod from '@placeos/bookings';
 import * as event_mod from '@placeos/events';
+import { SettingsService } from '@placeos/common';
 
 describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;
     const createService = createServiceFactory({
         service: ScheduleStateService,
+        providers: [{ provide: SettingsService, useValue: { get: jest.fn() } }],
     });
 
     beforeEach(() => {

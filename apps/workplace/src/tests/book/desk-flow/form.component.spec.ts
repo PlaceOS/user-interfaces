@@ -10,6 +10,7 @@ import { DeskFlowDetailedFormComponent } from 'apps/workplace/src/app/book/desk-
 import { DeskFlowFormComponent } from 'apps/workplace/src/app/book/desk-flow/form.component';
 import { OrganisationService } from '@placeos/organisation';
 import { of } from 'rxjs';
+import { SettingsService } from '@placeos/common';
 
 describe('DeskFlow', () => {
     let spectator: SpectatorRouting<DeskFlowFormComponent>;
@@ -38,6 +39,7 @@ describe('DeskFlow', () => {
                     levelsForBuilding: jest.fn(() => []),
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         declarations: [
             MockComponent(DeskFlowDetailedFormComponent),

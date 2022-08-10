@@ -1,5 +1,6 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 
 import { BookDeskFlowComponent } from '../../app/book/desk-flow.component';
@@ -23,6 +24,7 @@ describe('BookDeskFlowComponent', () => {
                     last_success: null,
                 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         declarations: [
             MockComponent(DeskFlowFormComponent),

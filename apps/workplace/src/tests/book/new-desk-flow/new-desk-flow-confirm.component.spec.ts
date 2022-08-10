@@ -3,8 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Asset } from '@placeos/assets';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
+import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-confirm.component';
+import { MockComponent } from 'ng-mocks';
 
 describe('NewDeskFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowConfirmComponent>;
@@ -28,7 +30,7 @@ describe('NewDeskFlowConfirmComponent', () => {
             },
             { provide: MatDialog, useValue: { open: jest.fn() } },
         ],
-        declarations: [],
+        declarations: [MockComponent(IconComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

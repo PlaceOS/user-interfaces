@@ -9,6 +9,7 @@ import { MockComponent } from 'ng-mocks';
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
 import { SpaceFlowFormComponent } from 'apps/workplace/src/app/book/space-flow/form.component';
 import { SettingsService } from '@placeos/common';
+import { Router } from '@angular/router';
 
 describe('SpaceFlowFormComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowFormComponent>;
@@ -25,6 +26,7 @@ describe('SpaceFlowFormComponent', () => {
                         get: jest.fn(),
                         markAllAsTouched: jest.fn(),
                         valid: true,
+                        value: { host: 'yep' }
                     },
                 },
             },
@@ -70,9 +72,9 @@ describe('SpaceFlowFormComponent', () => {
 
     it('should allow finding a space', () => {
         spectator.click('button[find-space]');
-        const service = spectator.inject(EventFormService);
-        expect(service.form.markAllAsTouched).toHaveBeenCalled();
-        expect(spectator.router.navigate).toHaveBeenCalledWith([
+        const router = spectator.inject(Router);
+        expect(spectator.component.form.markAllAsTouched).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith([
             '/book',
             'spaces',
             'find',

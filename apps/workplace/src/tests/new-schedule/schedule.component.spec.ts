@@ -1,4 +1,4 @@
-import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
+import { createRoutingFactory, SpectatorRouting } from "@ngneat/spectator/jest";
 import { MockComponent } from "ng-mocks";
 import { FooterMenuComponent } from "../../app/components/footer-menu.component";
 import { TopbarComponent } from "../../app/components/topbar.component";
@@ -9,12 +9,14 @@ import { ScheduleComponent } from "../../app/new-schedule/schedule.component";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { ScheduleStateService } from "../../app/new-schedule/schedule-state.service";
 import { BehaviorSubject } from "rxjs";
-import { EventCardComponent } from "@placeos/events";
+import { EventCardComponent, EventFormService } from "@placeos/events";
 import { BookingCardComponent } from "@placeos/bookings";
+import { MatDialog } from "@angular/material/dialog";
+import { FormsModule } from "@angular/forms";
 
 describe('ScheduleComponent', () => {
-    let spectator: Spectator<ScheduleComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<ScheduleComponent>;
+    const createComponent = createRoutingFactory({
         component: ScheduleComponent,
         declarations: [
             MockComponent(ScheduleSidebarComponent),
@@ -32,9 +34,11 @@ describe('ScheduleComponent', () => {
                 date: new BehaviorSubject(0),
                 toggleType: jest.fn(),
                 setDate: jest.fn()
-            } }
+            } },
+            { provide: EventFormService, useValue: { newForm: jest.fn() } },
+            { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
-        imports: [MatProgressBarModule]
+        imports: [MatProgressBarModule, FormsModule]
     });
 
     beforeEach(() => spectator = createComponent());

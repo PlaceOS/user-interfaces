@@ -25,8 +25,13 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     if (!event) event = new CalendarEvent();
     const form = new FormGroup({
         id: new FormControl(event.id),
-        host: new FormControl(event.host || event.organiser?.email || currentUser()?.email || '', [Validators.required]),
-        organiser: new FormControl(event.organiser || new User({ email: event.host || '' })),
+        host: new FormControl(
+            event.host || event.organiser?.email || currentUser()?.email || '',
+            [Validators.required]
+        ),
+        organiser: new FormControl(
+            event.organiser || new User({ email: event.host || '' })
+        ),
         creator: new FormControl(event.creator, [Validators.required]),
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
@@ -57,8 +62,12 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         form.controls.host.setValue(o?.email)
     );
     form.get('resources').valueChanges.subscribe((l) =>
-        form.controls.system.setValue(l?.length ? l[0] as any : null)
+        form.controls.system.setValue(l?.length ? (l[0] as any) : null)
     );
+    form.controls.all_day.valueChanges.subscribe((all_day) => {
+        if (all_day) form.controls.duration.disable();
+        else form.controls.duration.enable();
+    });
     if (event.id) {
         form.get('host').disable();
         form.get('organiser').disable();

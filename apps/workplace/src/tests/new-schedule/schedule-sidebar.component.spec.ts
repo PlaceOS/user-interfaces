@@ -1,5 +1,7 @@
+import { FormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
+import { IconComponent } from "@placeos/components";
 import { MockComponent } from "ng-mocks";
 import { BehaviorSubject } from "rxjs";
 import { ScheduleCalendarComponent } from "../../app/new-schedule/schedule-calendar.component";
@@ -12,6 +14,7 @@ describe('ScheduleSidebarComponent', () => {
         component: ScheduleSidebarComponent,
         declarations: [
             MockComponent(ScheduleCalendarComponent),
+            MockComponent(IconComponent)
         ],
         providers: [
             { provide: ScheduleStateService, useValue: {
@@ -21,7 +24,7 @@ describe('ScheduleSidebarComponent', () => {
                 setDate: jest.fn()
             } }
         ],
-        imports: [MatCheckboxModule]
+        imports: [MatCheckboxModule, FormsModule]
     });
 
     beforeEach(() => spectator = createComponent());

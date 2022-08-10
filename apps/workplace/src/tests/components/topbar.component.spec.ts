@@ -1,17 +1,11 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { IconComponent, UserAvatarComponent } from '@placeos/components';
-import { User } from '@placeos/users';
+import { CustomTooltipComponent, IconComponent, UserAvatarComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
-
-jest.mock('@placeos/common');
-jest.mock('@placeos/ts-client');
-
-import * as common_mod from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { TopMenuComponent } from '../../app/components/top-menu.component';
 
 describe('TopbarComponent', () => {
     let spectator: SpectatorRouting<TopbarComponent>;
@@ -28,6 +22,8 @@ describe('TopbarComponent', () => {
             MockComponent(UserAvatarComponent),
             MockComponent(IconComponent),
             MockComponent(GlobalSearchComponent),
+            MockComponent(TopMenuComponent),
+            MockComponent(CustomTooltipComponent)
         ],
     });
 

@@ -1,4 +1,7 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import {
@@ -7,6 +10,7 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
 import { MockComponent } from 'ng-mocks';
 
 describe('MeetingFormDetailsComponent', () => {
@@ -18,7 +22,9 @@ describe('MeetingFormDetailsComponent', () => {
             MockComponent(DateFieldComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
+            MockComponent(HostSelectFieldComponent)
         ],
+        imports: [MatFormFieldModule, MatInputModule, MatSelectModule, ReactiveFormsModule, FormsModule]
     });
 
     beforeEach(() => {

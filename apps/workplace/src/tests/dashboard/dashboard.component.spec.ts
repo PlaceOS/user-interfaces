@@ -1,4 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 
@@ -19,6 +20,9 @@ describe('DashboardComponent', () => {
             MockComponent(DashboardUpcomingComponent),
             MockComponent(DashboardContactsComponent),
         ],
+        providers: [
+            { provide: SettingsService, useValue: { get: jest.fn() } }
+        ]
     });
 
     beforeEach(() => (spectator = createComponent()));
