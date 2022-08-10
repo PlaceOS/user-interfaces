@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
 import { FeaturesFilterService } from '../rooms/features-filter.service';
+import { currentUser } from '@placeos/common';
 
 @Component({
     selector: 'room-booking',
@@ -52,6 +53,7 @@ export class RoomBookingComponent implements OnInit {
 
     async findSpace() {
         this.form.markAllAsTouched();
+        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid) return;
         await this._state.storeForm();
         this.router.navigate(['/schedule/view']);
