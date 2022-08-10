@@ -184,7 +184,6 @@ interface CateringOptionGroup {
                 min-width: 20rem;
                 height: 100%;
                 min-height: 65vh;
-                background: white;
             }
         `,
     ],

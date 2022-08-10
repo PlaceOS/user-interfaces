@@ -28,7 +28,7 @@ import { Desk } from '@placeos/organisation';
                 <li
                     desk
                     *ngFor="let desk of desks | async"
-                    class="relative rounded-lg w-full shadow border bg-white border-gray-200 overflow-hidden"
+                    class="relative rounded-lg w-full shadow border bg-white dark:bg-neutral-600 border-gray-200 dark:border-neutral-500 overflow-hidden"
                 >
                     <button
                         select

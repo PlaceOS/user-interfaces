@@ -41,7 +41,7 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <catering-item-details
                     [item]="displayed!"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[16rem] z-20"
+                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[16rem] z-20 bg-white dark:bg-neutral-700"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id || '')"

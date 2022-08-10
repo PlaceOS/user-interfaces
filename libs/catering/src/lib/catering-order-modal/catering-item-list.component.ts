@@ -20,7 +20,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                     item
                     *ngFor="let item of item_list | async"
                     [class.!border-black]="active === item.id"
-                    class="relative p-2 rounded-lg w-full shadow border bg-white border-gray-200"
+                    class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-600 border-gray-200 dark:border-neutral-500"
                 >
                     <button
                         matRipple

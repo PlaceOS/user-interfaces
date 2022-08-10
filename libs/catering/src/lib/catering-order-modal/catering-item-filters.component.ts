@@ -84,7 +84,7 @@ const ICONS = {
                     [class.text-white]="
                         (filters | async)?.tags?.includes('coffee')
                     "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
+                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
                     (click)="toggleTag('coffee')"
                     [innerHTML]="icons.coffee | safe"
                 ></button>
@@ -100,7 +100,7 @@ const ICONS = {
                     [class.text-white]="
                         (filters | async)?.tags?.includes('drinks')
                     "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
+                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
                     (click)="toggleTag('drinks')"
                     [innerHTML]="icons.drinks | safe"
                 ></button>
@@ -116,7 +116,7 @@ const ICONS = {
                     [class.text-white]="
                         (filters | async)?.tags?.includes('snacks')
                     "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
+                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
                     (click)="toggleTag('snacks')"
                     [innerHTML]="icons.snacks | safe"
                 ></button>
@@ -132,7 +132,7 @@ const ICONS = {
                     [class.text-white]="
                         (filters | async)?.tags?.includes('meals')
                     "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300"
+                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
                     (click)="toggleTag('meals')"
                     [innerHTML]="icons.meals | safe"
                 ></button>

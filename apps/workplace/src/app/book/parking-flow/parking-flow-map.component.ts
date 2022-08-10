@@ -67,7 +67,7 @@ class SpacePingComponent extends BaseClass {
                     class="p-2 sm:w-[18rem] w-full h-full bg-gray-50 dark:bg-neutral-600 shadow z-10 overflow-auto space-y-2"
                 >
                     <div
-                        class="bg-white sticky top-0 w-full z-10"
+                        class="bg-white dark:bg-neutral-700 sticky top-0 w-full z-10"
                         *ngIf="(levels | async)?.length > 1"
                     >
                         <mat-form-field
@@ -119,7 +119,7 @@ class SpacePingComponent extends BaseClass {
                 </div>
                 <div
                     *ngIf="active_space | async"
-                    class="absolute left-1/2 bottom-2 -translate-x-1/2 bg-white shadow rounded p-4 flex flex-col space-y-2"
+                    class="absolute left-1/2 bottom-2 -translate-x-1/2 bg-white dark:bg-neutral-800 shadow rounded p-4 flex flex-col space-y-2"
                 >
                     <p>
                         Parking Bay No.
