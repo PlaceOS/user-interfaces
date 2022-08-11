@@ -1,11 +1,14 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { User } from "libs/users/src/lib/user.class";
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     selector: 'attendee-list',
     template: `
-        <div class="w-full h-full overflow-hidden flex flex-col bg-white dark:bg-neutral-700">
-            <div class="flex items-center border-b border-gray-200 dark:border-neutral-500 p-2">
+        <div
+            class="w-full h-full overflow-hidden flex flex-col bg-white dark:bg-neutral-700"
+        >
+            <div
+                class="flex items-center border-b border-gray-200 dark:border-neutral-500 p-2"
+            >
                 <button close mat-icon-button (click)="close.emit()">
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -14,7 +17,11 @@ import { User } from "libs/users/src/lib/user.class";
                 </div>
             </div>
             <div class="flex-1 w-full overflow-auto">
-                <div attendee class="flex items-center p-2 space-x-2" *ngFor="let user of list">
+                <div
+                    attendee
+                    class="flex items-center p-2 space-x-2"
+                    *ngFor="let user of list"
+                >
                     <a-user-avatar [user]="user"></a-user-avatar>
                     <div class="">
                         <div>{{ user.name }}</div>
@@ -26,10 +33,10 @@ import { User } from "libs/users/src/lib/user.class";
             </div>
         </div>
     `,
-    styles: [``]
+    styles: [``],
 })
 export class AttendeeListComponent {
     @Input() public host: string = '';
-    @Input() public list: User[] = [];
+    @Input() public list: any[] = [];
     @Output() public close = new EventEmitter();
 }

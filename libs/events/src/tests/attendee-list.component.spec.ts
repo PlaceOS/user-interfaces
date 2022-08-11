@@ -1,9 +1,7 @@
 import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { MockComponent } from "ng-mocks";
-
-import { UserAvatarComponent } from "libs/components/src/lib/user-avatar.component";
 import { IconComponent } from "libs/components/src/lib/icon.component";
-import { User } from "libs/users/src/lib/user.class";
+import { UserAvatarComponent } from "libs/components/src/lib/user-avatar.component";
+import { MockComponent } from "ng-mocks";
 import { AttendeeListComponent } from "../lib/attendee-list.component";
 
 describe('AttendeeListComponent', () => {
@@ -11,9 +9,9 @@ describe('AttendeeListComponent', () => {
     const createComponent = createComponentFactory({
         component: AttendeeListComponent,
         providers: [],
-        declarations: [,
-            MockComponent(UserAvatarComponent),
-            MockComponent(IconComponent)
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(UserAvatarComponent)
         ]
     });
 
@@ -23,10 +21,10 @@ describe('AttendeeListComponent', () => {
 
     it('should show attendees', () => {
         expect('[attendee]').not.toExist();
-        spectator.setInput({ list: [new User()] });
+        spectator.setInput({ list: [{}] });
         spectator.detectChanges();
         expect('[attendee]').toExist();
-        spectator.setInput({ list: [new User(), new User()] });
+        spectator.setInput({ list: [{}, {}] });
         spectator.detectChanges();
         expect('[attendee]').toHaveLength(2);
     });
@@ -36,4 +34,5 @@ describe('AttendeeListComponent', () => {
         spectator.component.close.subscribe(() => done());
         spectator.click('button[close]');
     });
+
 });

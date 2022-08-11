@@ -5,8 +5,9 @@ import { FormGroup } from '@angular/forms';
 import { take } from 'rxjs/operators';
 import { BehaviorSubject, of, Subject, timer } from 'rxjs';
 import { EventFormService } from '../lib/event-form.service';
-
-import { CalendarEvent } from '../lib/event.class';
+import { NavigationEnd } from '@angular/router';
+import { SettingsService } from '@placeos/common';
+import { SpacesService } from '@placeos/spaces';
 
 jest.mock('libs/calendar/src/lib/calendar.fn');
 jest.mock('libs/events/src/lib/events.fn');
@@ -15,9 +16,6 @@ jest.mock('@placeos/ts-client');
 import * as ts_client from '@placeos/ts-client';
 import * as cal_mod from 'libs/calendar/src/lib/calendar.fn';
 import * as event_mod from 'libs/events/src/lib/events.fn';
-import { NavigationEnd } from '@angular/router';
-import { SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/spaces';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<EventFormService>;
@@ -70,7 +68,6 @@ describe('EventFormService', () => {
         expect(spectator.service.form.value.date).toBe(0);
         spectator.service.clearForm();
         expect(spectator.service.form.value.date).not.toBe(0);
-        expect(form).not.toBe(spectator.service.form);
         spy.mockRestore();
     });
 

@@ -15,7 +15,7 @@ describe('EventCardComponent', () => {
         providers: [
             {
                 provide: OrganisationService,
-                useValue: { levelWithID: jest.fn() },
+                useValue: { levelWithID: jest.fn(), buildings: [] },
             },
             { provide: MatDialog, useValue: { open: jest.fn() } }
         ],
