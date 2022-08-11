@@ -70,7 +70,7 @@ const events: any = {
     desk_start: 9,
     breakdown: 15,
     can_book_for_others: false,
-    has_catering: true,
+    catering_enabled: '',
     allow_all_day: true,
     hide_notes: false,
     hide_attendees: false,

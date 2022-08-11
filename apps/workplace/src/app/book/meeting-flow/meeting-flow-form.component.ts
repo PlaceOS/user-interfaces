@@ -6,12 +6,15 @@ import {
 import { Router } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    BaseClass,
     currentUser,
     getInvalidFields,
     notifyError,
+    notifyWarn,
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { Space } from '@placeos/spaces';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
 @Component({
@@ -162,7 +165,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                5
+                                {{ !has_catering ? '4' : '5'}}
                             </div>
                             <div class="text-xl">Assets</div>
                             <div class="flex-1 w-px"></div>
@@ -191,7 +194,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                6
+                                {{ !has_catering ? '5' : '6'}}
                             </div>
                             <div class="text-xl">Notes</div>
                         </h3>
@@ -233,7 +236,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class MeetingFlowFormComponent {
+export class MeetingFlowFormComponent extends BaseClass {
     public sheet_ref: MatBottomSheetRef<any>;
     public hide_block: Record<string, boolean> = {};
 
@@ -242,7 +245,7 @@ export class MeetingFlowFormComponent {
     }
 
     public get has_catering() {
-        return !!this._settings.get('app.events.has_catering');
+        return !!this._settings.get('app.events.catering_enabled');
     }
 
     public get hide_notes() {
@@ -280,5 +283,28 @@ export class MeetingFlowFormComponent {
         private _settings: SettingsService,
         private _router: Router,
         private _bottom_sheet: MatBottomSheet
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription('space_changes', this.form.controls.resources.valueChanges.subscribe((l) => 
+            this._checkCateringEligibility(l)
+        ));
+        this._checkCateringEligibility(this.form.value.resources || []);
+    }
+
+    private _checkCateringEligibility(list: Space[]) {
+        const zone = this._settings.get('app.events.catering_enabled');
+        if (zone && list.length) {
+            const can_cater = list.every(s => s.zones.includes(zone));
+            if (!can_cater) {
+                this.form.patchValue({ catering: [] });
+                this.form.controls.catering.disable();
+                notifyWarn(`Catering is unavailable for some of the selected spaces.`);
+            } else {
+                this.form.controls.catering.enable();
+            }
+        }
+    }
 }
