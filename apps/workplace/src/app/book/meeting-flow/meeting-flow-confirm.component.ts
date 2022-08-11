@@ -1,6 +1,6 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BaseClass } from '@placeos/common';
+import { BaseClass, notifyError } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -120,7 +120,10 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     public readonly loading = this._event_form.loading;
 
     public readonly postForm = async () => {
-        await this._event_form.postForm();
+        await this._event_form.postForm().catch(_ => {
+            notifyError(_);
+            throw _;
+        });
         this.dismiss(true);
     };
     public readonly cancelPost = () => this._event_form.cancelPostForm();
