@@ -87,7 +87,7 @@ export class ScheduleStateService extends BaseClass {
                 (_) =>
                     (_ instanceof CalendarEvent &&
                         filters?.shown_types?.includes('event')) ||
-                    filters?.shown_types?.includes(_.type)
+                    filters?.shown_types?.includes((_ as any).booking_type)
             )
         )
     );
