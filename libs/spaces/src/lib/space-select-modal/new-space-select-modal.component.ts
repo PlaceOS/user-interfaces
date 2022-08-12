@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { EventFlowOptions, EventFormService } from '@placeos/events';
 import { Space } from '../space.class';
 
 @Component({
@@ -40,7 +41,7 @@ import { Space } from '../space.class';
                 </div>
                 <space-details
                     [space]="displayed"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20 bg-inherit"
+                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20 bg-white dark:bg-neutral-600 block"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
@@ -136,9 +137,12 @@ export class NewSpaceSelectModalComponent {
 
     constructor(
         private _settings: SettingsService,
-        @Inject(MAT_DIALOG_DATA) _spaces: Space[]
+        private _event_form: EventFormService,
+        @Inject(MAT_DIALOG_DATA)
+        _data: { spaces: Space[]; options: Partial<EventFlowOptions> }
     ) {
-        this.selected = [...(_spaces || [])];
+        this.selected = [...(_data.spaces || [])];
+        this._event_form.setOptions(_data.options);
     }
 
     public isSelected(id: string) {

@@ -21,13 +21,13 @@ const EMPTY_FAVS: string[] = [];
                             [(ngModel)]="room_size"
                             [ngModelOptions]="{ standalone: true }"
                         >
-                            <mat-radio-button [value]="2">
+                            <mat-radio-button [value]="1">
                                 1-2 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="9">
+                            <mat-radio-button [value]="3">
                                 3-9 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="100">
+                            <mat-radio-button [value]="10">
                                 10+ People
                             </mat-radio-button>
                         </mat-radio-group>
@@ -122,7 +122,7 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class SpaceListFieldComponent implements ControlValueAccessor {
-    public room_size = 9;
+    public room_size = 3;
     public spaces: Space[] = [];
     public disabled = false;
 
@@ -141,7 +141,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     /** Add or edit selected spaces */
     public changeSpaces() {
         const ref = this._dialog.open(NewSpaceSelectModalComponent, {
-            data: this.spaces,
+            data: { spaces: this.spaces, options: { capacity: this.room_size } },
         });
         ref.afterClosed().subscribe((spaces?: Space[]) => {
             if (!spaces) return;
