@@ -62,13 +62,15 @@ import { OrganisationService } from '@placeos/organisation';
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
                 <h3>Booked Room</h3>
-                <div class="flex items-center space-x-2">
-                    <app-icon>meeting_room</app-icon>
-                    <div>
-                        {{ space.level?.display_name || space.level?.name }},
-                        {{ space.display_name || space.name }}
+                <ng-container *ngFor="let s of event.resources">
+                    <div class="flex items-center space-x-2">
+                        <app-icon>meeting_room</app-icon>
+                        <div>
+                            {{ s.level?.display_name || s.level?.name }},
+                            {{ s.display_name || s.name }}
+                        </div>
                     </div>
-                </div>
+                </ng-container>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
                     <div>{{ location }}</div>
