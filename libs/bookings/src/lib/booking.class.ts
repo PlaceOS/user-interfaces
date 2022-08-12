@@ -95,7 +95,7 @@ export class Booking {
                 addMinutes(this.booking_start * 1000, data.duration || 60)
             );
         this.booking_type = data.booking_type || '';
-        this.type = data.type || 'booking';
+        this.type = data.type || data.booking_type || 'booking';
         this.date = data.date || this.booking_start * 1000;
         this.duration =
             data.duration ||
