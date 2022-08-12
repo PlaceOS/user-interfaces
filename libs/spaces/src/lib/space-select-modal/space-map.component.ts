@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { BaseClass, unique } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { BuildingLevel } from '@placeos/organisation';
-import { debounceTime, map, tap } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 import { Space } from '../space.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 

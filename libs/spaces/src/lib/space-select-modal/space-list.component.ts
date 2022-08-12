@@ -43,7 +43,7 @@ import { Space } from '../space.class';
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <p>{{ space.location }}</p>
+                                <p>{{ space.location || space.level?.display_name || space.level?.name }}</p>
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500"

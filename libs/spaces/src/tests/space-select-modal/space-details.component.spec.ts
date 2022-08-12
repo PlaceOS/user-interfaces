@@ -5,12 +5,15 @@ import { MockComponent } from "ng-mocks";
 import {  Space} from '../../lib/space.class';
 import { SpaceDetailsComponent } from "../../lib/space-select-modal/space-details.component";
 import { IconComponent, InteractiveMapComponent } from "@placeos/components";
+import { OrganisationService } from "@placeos/organisation";
 
 describe('SpaceDetailsComponent', () => {
     let spectator: Spectator<SpaceDetailsComponent>;
     const createComponent = createComponentFactory({
         component: SpaceDetailsComponent,
-        providers: [],
+        providers: [
+            { provide: OrganisationService, useValue: { buildings: [], levelWithID: jest.fn() } }
+        ],
         declarations: [
             MockComponent(ImageCarouselComponent),
             MockComponent(IconComponent),

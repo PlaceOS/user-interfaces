@@ -6,6 +6,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MapPinComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
 import { Space } from '../space.class';
 
@@ -55,12 +56,12 @@ import { Space } from '../space.class';
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
                         <p>
-                            {{ space.level?.display_name || space.level?.name }}
+                            {{ level?.display_name || level?.name }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>place</app-icon>
-                        <p>BLD 1</p>
+                        <p>{{ building?.address || building?.display_name || building?.name }}</p>
                     </div>
                 </section>
                 <hr />
@@ -143,6 +144,16 @@ export class SpaceDetailsComponent {
     public map_url = '';
     public features: ViewerFeature[] = [];
 
+    public get level() {
+        return this._org.levelWithID(this.space?.zones) || this.space?.level;
+    }
+
+    public get building() {
+        return this._org.buildings.find(_ => this.space?.zones.includes(_.id));
+    }
+
+    constructor(private _org: OrganisationService) {}
+
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.space && this.space) {
             this._updateFeature();
@@ -150,10 +161,10 @@ export class SpaceDetailsComponent {
     }
 
     private _updateFeature() {
-        this.map_url = this.space.level.map_id;
+        this.map_url = this.level?.map_id;
         this.features = [
             {
-                location: this.space.map_id,
+                location: this.space?.map_id,
                 content: MapPinComponent,
             },
         ];
