@@ -47,7 +47,10 @@ export class ScheduleStateService extends BaseClass {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'desk',
-            }).pipe(catchError((_) => []))
+            }).pipe(catchError((_) => {
+                console.error(_);
+                return [];
+            }))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
@@ -71,6 +74,7 @@ export class ScheduleStateService extends BaseClass {
         this.desks,
         this.parking,
     ]).pipe(
+        tap((_) => console.log('Data:', _)),
         map(([e, d, p]) => [...e, ...d, ...p].sort((a, b) => a.date - b.date))
     );
     /** Filtered list of events and bookings for the selected date */
