@@ -11,12 +11,16 @@ import { CalendarEvent } from './event.class';
         <div
             class="absolute inset-0 sm:relative sm:inset-auto sm:w-[24rem] sm:max-h-[80vh] bg-white dark:bg-neutral-600 sm:rounded overflow-hidden"
         >
-            <div class="w-full h-full overflow-auto space-y-2 pb-4 max-h-screen sm:max-h-[80vh]">
+            <div
+                class="w-full h-full overflow-auto space-y-2 pb-4 max-h-screen sm:max-h-[80vh]"
+            >
                 <image-carousel
                     [images]="event?.system?.images"
                     class="w-full h-64 bg-black/20 dark:bg-white/20"
                 ></image-carousel>
-                <h3 title class="px-3 mt-2 text-xl font-medium">{{ event.title }}</h3>
+                <h3 title class="px-3 mt-2 text-xl font-medium">
+                    {{ event.title }}
+                </h3>
                 <div class="flex m-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
@@ -163,6 +167,18 @@ import { CalendarEvent } from './event.class';
                         [options]="{ disable_pan: true, disable_zoom: true }"
                     ></interactive-map>
                 </div>
+                <h3
+                    class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"
+                    *ngIf="event.body"
+                >
+                    Notes
+                </h3>
+                <div
+                    notes
+                    class="mx-4"
+                    *ngIf="event.body"
+                    [innerHTML]="event.body | sanitize"
+                ></div>
                 <button
                     mat-icon-button
                     mat-dialog-close
@@ -180,11 +196,20 @@ import { CalendarEvent } from './event.class';
             </div>
         </div>
         <mat-menu #menu="matMenu" xPosition="before">
-            <button mat-menu-item mat-dialog-close class="flex items-center space-x-2 text-base" (click)="edit.emit()">
+            <button
+                mat-menu-item
+                mat-dialog-close
+                class="flex items-center space-x-2 text-base"
+                (click)="edit.emit()"
+            >
                 <app-icon>edit</app-icon>
                 <div>Edit event</div>
             </button>
-            <button mat-menu-item class="flex items-center space-x-2 text-base" (click)="remove.emit()">
+            <button
+                mat-menu-item
+                class="flex items-center space-x-2 text-base"
+                (click)="remove.emit()"
+            >
                 <app-icon>delete</app-icon>
                 <div>Delete event</div>
             </button>
