@@ -21,6 +21,14 @@ import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 import * as MOCKS from '@placeos/mocks';
 
+declare global {
+    interface Window {
+        Office: any;
+    }
+}
+
+declare let Office: any;
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -46,6 +54,8 @@ export class AppComponent extends BaseClass implements OnInit {
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        const get_token = Office?.auth?.getAccessToken( { allowSignInPrompt: true });
+        if (get_token) await get_token;
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock =
@@ -53,7 +63,6 @@ export class AppComponent extends BaseClass implements OnInit {
             location.origin.includes('demo.place.tech');
 
         await setupPlace(settings).catch((_) => console.error(_));
-
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
