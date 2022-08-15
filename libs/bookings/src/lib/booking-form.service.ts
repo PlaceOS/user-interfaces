@@ -33,6 +33,7 @@ import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from '..';
+import { PaymentsService } from '@placeos/payments';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -241,7 +242,8 @@ export class BookingFormService extends BaseClass {
         private _router: Router,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _payments: PaymentsService
     ) {
         super();
         this.subscription(
@@ -380,6 +382,15 @@ export class BookingFormService extends BaseClass {
             form.patchValue({
                 date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
                 duration: 12 * 60,
+            });
+        }
+        if (this._payments.payment_module) {
+            await this._payments.makePayment({
+                type: 'space',
+                resource_name: value.asset_name,
+                date: value.date,
+                duration: value.duration,
+                all_day: value.all_day,
             });
         }
         this._loading.next('Saving booking');

@@ -34,9 +34,9 @@ export class PaymentsService {
 
     public readonly payment_sources = of(1).pipe(
         switchMap(() => {
-            const mod = getModule(this.payment_module, 'StripePayments');
+            const mod = getModule(this.payment_module, 'Payment');
             if (!mod) return of([]);
-            return mod.execute('get_payment_methods');
+            return mod.execute('list_payment_methods', ['card']);
         }),
         tap((_) => (_[0] ? this._active_card.next(_[0].id) : '')),
         shareReplay(1)
@@ -76,20 +76,20 @@ export class PaymentsService {
         exp_month,
         exp_year,
     }: PaymentCardDetails) {
-        const mod = getModule(this.payment_module, 'StripePayments');
+        const mod = getModule(this.payment_module, 'Payment');
         if (!mod) throw 'Unable to load module';
-        await mod.execute('add_payment_method', [
+        await mod.execute('add_payment_method', ['card', {
             card_number,
             cardholder,
             cvv,
             exp_month,
             exp_year,
-        ]);
+       }]);
     }
 
     private async _getCostOfProduct(type: string) {
         let price: [number, number] = [0, 60];
-        const mod = getModule(this.payment_module, 'StripePayments');
+        const mod = getModule(this.payment_module, 'Payment');
         if (!mod) return price;
         price =
             (await mod.execute('get_product_price', [type, 'hourly'])) || price;
@@ -105,13 +105,13 @@ export class PaymentsService {
             : this._active_card.getValue();
         if (!source) throw 'No payment source selected';
         console.log('Process Payment:', amount, card_details);
-        const mod = getModule(this.payment_module, 'StripePayments');
+        const mod = getModule(this.payment_module, 'Payment');
         if (!mod) throw 'Unable to load module';
         const id = await mod.execute<string>('create_payment_intent', [
             amount,
             source,
         ]);
         if (!id) throw 'Failed to create payment';
-        await mod.execute('confirm_payment', [id]);
+        await mod.execute('confirm_payment_intent', [id]);
     }
 }

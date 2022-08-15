@@ -32,6 +32,7 @@ import { saveEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { querySystems } from '@placeos/ts-client';
+import { PaymentsService } from '@placeos/payments';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -189,6 +190,7 @@ export class EventFormService extends BaseClass {
         private _org: OrganisationService,
         private _spaces: SpacesService,
         private _router: Router,
+        private _payments: PaymentsService,
         private _settings: SettingsService
     ) {
         super();
@@ -267,7 +269,8 @@ export class EventFormService extends BaseClass {
                         form
                     ).join(', ')}]`
                 );
-            const { id, host, date, duration, creator } = form.getRawValue();
+            const { id, host, date, duration, creator, all_day } =
+                form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
@@ -296,6 +299,15 @@ export class EventFormService extends BaseClass {
                     ? { calendar: host || creator }
                     : { system_id: space_id }
                 : {};
+            if (this._payments.payment_module && spaces.length) {
+                await this._payments.makePayment({
+                    type: 'space',
+                    resource_name: spaces[0].display_name || spaces[0].name,
+                    date,
+                    duration,
+                    all_day,
+                });
+            }
             const result = await this._makeBooking(
                 new CalendarEvent(this._form.getRawValue()),
                 query
