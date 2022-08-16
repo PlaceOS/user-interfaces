@@ -7,6 +7,7 @@ import {
     invalidateToken,
     isMock,
     setToken,
+    token,
 } from '@placeos/ts-client';
 import {
     BaseClass,
@@ -60,6 +61,7 @@ export class AppComponent extends BaseClass implements OnInit {
         const get_token = OFFICE?.auth?.getAccessToken({
             allowSignInPrompt: true,
         });
+        if (token()) return this._finishInitialise();
         if (get_token) {
             const office_token = await get_token.catch((e) => console.error(e));
             if (office_token) {
