@@ -47,9 +47,9 @@ import { Booking } from './booking.class';
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="flex-1 flex flex-col w-1/3">
-                            <label for="start-time"
-                                >Start Time<span>*</span></label
-                            >
+                            <label for="start-time">
+                                Start Time<span>*</span>
+                            </label>
                             <a-time-field
                                 name="start-time"
                                 formControlName="date"
@@ -104,14 +104,22 @@ import { Booking } from './booking.class';
                     </div>
                 </form>
                 <div class="sticky p-4 border-t border-gray-200 bottom-0">
-                    <button mat-button send class="w-full sm:w-auto" (click)="sendInvite()">
+                    <button
+                        mat-button
+                        send
+                        class="w-full sm:w-auto"
+                        (click)="sendInvite()"
+                    >
                         Send Visitor Invite
                     </button>
                 </div>
             </div>
         </ng-container>
         <ng-template #send_state>
-            <div sent class="absolute inset-0 bg-white flex flex-col items-center justify-center">
+            <div
+                sent
+                class="absolute inset-0 bg-white flex flex-col items-center justify-center"
+            >
                 <div class="w-full max-w-[512px] flex-1 h-1/2 space-y-2">
                     <h2 class="text-4xl">
                         Visitor invite sent to {{ 'Test' }}
@@ -124,8 +132,14 @@ import { Booking } from './booking.class';
                         {{ booking?.date | date: 'shortTime' }}
                     </p>
                 </div>
-                <div class="w-full p-2 border-t border-gray-200 flex items-center justify-center">
-                    <button mat-button class="w-full max-w-[512px]" (click)="done.emit()">
+                <div
+                    class="w-full p-2 border-t border-gray-200 flex items-center justify-center"
+                >
+                    <button
+                        mat-button
+                        class="w-full max-w-[512px]"
+                        (click)="done.emit()"
+                    >
                         Great, thanks
                     </button>
                 </div>
@@ -163,7 +177,9 @@ export class InviteVisitorFormComponent {
     public ngOnInit() {
         this._service.setOptions({ type: 'visitor' });
         this.form.patchValue({ zones: [this._org.building?.id] });
-        this.form.get('asset_id').setValidators([Validators.required, Validators.email]);
+        this.form
+            .get('asset_id')
+            .setValidators([Validators.required, Validators.email]);
     }
 
     public async sendInvite() {

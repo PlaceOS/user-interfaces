@@ -7,7 +7,6 @@ import {
     isAfter,
     isSameDay,
     roundToNearestMinutes,
-    startOfDay,
 } from 'date-fns';
 
 export type BookingType = 'desk' | 'parking' | 'locker' | 'room' | 'visitor' | 'asset-request' | 'staff' | 'wfh-setting' | '';
@@ -32,6 +31,8 @@ export class Booking {
     public readonly user_email: string;
     /** Display name of the user who owns the booking */
     public readonly user_name: string;
+    /** ID of an associated calendar event */
+    public readonly event_id?: string;
     /** Identifier of the physical asset assocated with the booking */
     public readonly asset_id: string;
     /** Name of the physical asset assocated with the booking */
@@ -124,6 +125,7 @@ export class Booking {
         this.approver_name = data.approver_name || '';
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
+        this.event_id = data.event_id;
         this.all_day = data.all_day ?? this.duration > 12 * 60;
         this.status = this.rejected
             ? 'declined'
