@@ -3,7 +3,9 @@ import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { FormGroup } from '@angular/forms';
 import { NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { PaymentsService } from '@placeos/payments';
 import { of, Subject } from 'rxjs';
+
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from '../lib/booking-form.service';
@@ -28,6 +30,7 @@ describe('BookingFormService', () => {
                 useValue: { navigate: jest.fn(), events: new Subject() },
             },
             { provide: MatDialog, useValue: { open: jest.fn() } },
+            { provide: PaymentsService, useValue: { makePayment: jest.fn(), payment_module: '' } },
             { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
     });
