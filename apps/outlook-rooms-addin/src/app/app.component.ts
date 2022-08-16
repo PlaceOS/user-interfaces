@@ -13,6 +13,7 @@ import {
     setupCache,
     setupPlace,
     log,
+    notifyInfo,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -54,6 +55,7 @@ export class AppComponent extends BaseClass implements OnInit {
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        notifyInfo(`Has Identity: ${Office?.isSetSupported('IdentityAPI', '1.3')}`);
         const get_token = Office?.auth?.getAccessToken( { allowSignInPrompt: true });
         if (get_token) await get_token.catch(e => console.error(e));
         setAppName(this._settings.get('app.short_name'));
