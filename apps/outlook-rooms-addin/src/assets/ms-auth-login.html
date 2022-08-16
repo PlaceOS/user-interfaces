@@ -37,7 +37,7 @@
                 var map = {};
                 var str_pairs = str.split('&');
                 for (let i = 0; i < str_pairs.length; i++) {
-                    var split_pair = str_pair[i].split('=');
+                    var split_pair = str_pairs[i].split('=');
                     if (split_pair[1]) {
                         map[decodeURIComponent(split_pair[0])] =
                             decodeURIComponent(split_pair[1]);
