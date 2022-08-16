@@ -49,27 +49,41 @@
             function handleAuthAndContinue() {
                 var element = document.getElementById('info');
                 try {
-                    element.innerHTML = "Establishing session...";
+                    element.innerHTML = 'Establishing session...';
                     var query = convertPairStringToMap(window.location.search);
                     if (query.redirect) {
-                        element.innerHTML = "Redirecting to auth provider...";
+                        element.innerHTML = 'Redirecting to auth provider...';
                         location.href = query.redirect;
                     } else {
-                        element.innerHTML = "Returning credentials to plugin...";
-                        Office.context.ui.messageParent(query.access_token || '');
+                        element.innerHTML =
+                            'Returning credentials to plugin...';
+                        Office.context.ui.messageParent(
+                            query.access_token || ''
+                        );
                     }
                 } catch (e) {
-                    element.innerHTML = element.innerHTML + "<code>Error:" + e + "</code>";
+                    element.innerHTML =
+                        element.innerHTML + '<code>Error:' + e + '</code>';
                 }
-            };
+            }
 
             window.onerror = function (msg) {
                 var element = document.getElementById('info');
-                element.innerHTML = element.innerHTML + "<code>Error:" + msg + "</code>";
-            }
+                element.innerHTML =
+                    element.innerHTML +
+                    '<code>Error:' +
+                    msg +
+                    '</code>[' +
+                    Object.keys(Office).join(', ') +
+                    ']' +
+                    +Object.keys((Office || {}).context).join(', ');
+            };
 
             if (window.addEventListener) {
-                window.addEventListener('DOMContentLoaded', handleAuthAndContinue);
+                window.addEventListener(
+                    'DOMContentLoaded',
+                    handleAuthAndContinue
+                );
             } else {
                 handleAuthAndContinue(); // IE 8
             }
