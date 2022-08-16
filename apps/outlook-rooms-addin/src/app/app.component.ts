@@ -61,7 +61,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 return this._finishInitialise();
             }
         }
-        OFFICE.context.ui.displayDialogAsync(
+        Office?.context?.ui?.displayDialogAsync(
             `${location.origin}${location.pathname}/assets/ms-auth-login.html`,
             (result) => {
                 if (result.status === Office.AsyncResultStatus.Succeeded) {
