@@ -56,16 +56,16 @@
                         location.href = query.redirect;
                     } else {
                         element.innerHTML = "Returning credentials to plugin...";
-                        Office.messageParent(query.access_token || '');
+                        Office.context.ui.messageParent(query.access_token || '');
                     }
                 } catch (e) {
-                    element.innerHTML = "<code>Error:" + e + "</code>";
+                    element.innerHTML = element.innerHTML + "<code>Error:" + e + "</code>";
                 }
             };
 
             window.onerror = function (msg) {
                 var element = document.getElementById('info');
-                element.innerHTML = "<code>Error:" + msg + "</code>";
+                element.innerHTML = element.innerHTML + "<code>Error:" + msg + "</code>";
             }
 
             if (window.addEventListener) {
