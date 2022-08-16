@@ -50,11 +50,35 @@ export class AppComponent extends BaseClass implements OnInit {
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        const get_token = (OfficeRuntime || Office)?.auth?.getAccessToken( { allowSignInPrompt: true });
+        const OFFICE = OfficeRuntime || Office;
+        const get_token = OFFICE?.auth?.getAccessToken({
+            allowSignInPrompt: true,
+        });
         if (get_token) {
-            const office_token = await get_token.catch(e => console.error(e));
-            if (office_token) notifyInfo(`Loaded office token.`);
+            const office_token = await get_token.catch((e) => console.error(e));
+            if (office_token) { 
+                notifyInfo(`Loaded office token.`);
+                return this._finishInitialise();
+            }
         }
+        OFFICE.context.ui.displayDialogAsync(
+            `${location.origin}${location.pathname}/assets/ms-auth-login.html`,
+            (result) => {
+                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                    const dialog = result.value;
+                    this.subscription(
+                        'state',
+                        dialog.addEventHandler(
+                            Office.EventType.DialogMessageReceived,
+                            () => this._finishInitialise()
+                        )
+                    );
+                }
+            }
+        );
+    }
+
+    private async _finishInitialise() {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock =
