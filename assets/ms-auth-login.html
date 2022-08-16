@@ -59,9 +59,14 @@
                         Office.messageParent(query.access_token || '');
                     }
                 } catch (e) {
-                    element.innerHTML = "<code>Error:" + JSON.stringify(e, undefined, 4) + "</code>";
+                    element.innerHTML = "<code>Error:" + e + "</code>";
                 }
             };
+
+            window.onerror = function (msg) {
+                var element = document.getElementById('info');
+                element.innerHTML = "<code>Error:" + msg + "</code>";
+            }
 
             if (window.addEventListener) {
                 window.addEventListener('DOMContentLoaded', handleAuthAndContinue);
