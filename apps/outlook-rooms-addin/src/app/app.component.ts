@@ -22,13 +22,8 @@ import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 import * as MOCKS from '@placeos/mocks';
 
-declare global {
-    interface Window {
-        Office: any;
-    }
-}
-
 declare let Office: any;
+declare let OfficeRuntime: any;
 
 @Component({
     selector: 'app-root',
@@ -55,7 +50,7 @@ export class AppComponent extends BaseClass implements OnInit {
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        const get_token = Office?.auth?.getAccessToken( { allowSignInPrompt: true });
+        const get_token = (OfficeRuntime || Office)?.auth?.getAccessToken( { allowSignInPrompt: true });
         if (get_token) {
             const office_token = await get_token.catch(e => console.error(e));
             if (office_token) notifyInfo(`Loaded office token.`);
