@@ -55,9 +55,12 @@ export class AppComponent extends BaseClass implements OnInit {
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        notifyInfo(`Has Identity: ${Office?.isSetSupported('IdentityAPI', '1.3')}`);
+        notifyInfo(`Has Identity: ${Office?.context?.requirements?.isSetSupported('IdentityAPI', '1.3')}`);
         const get_token = Office?.auth?.getAccessToken( { allowSignInPrompt: true });
-        if (get_token) await get_token.catch(e => console.error(e));
+        if (get_token) {
+            const office_token = await get_token.catch(e => console.error(e));
+            if (office_token) notifyInfo(`Loaded office token.`);
+        }
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock =
