@@ -2,7 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
-import { invalidateToken, isMock } from '@placeos/ts-client';
+import {
+    authority,
+    invalidateToken,
+    isMock,
+    setToken,
+} from '@placeos/ts-client';
 import {
     BaseClass,
     current_user,
@@ -50,19 +55,23 @@ export class AppComponent extends BaseClass implements OnInit {
 
         setNotifyOutlet(this._snackbar);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        await this._initialiseAuth();
         const OFFICE = OfficeRuntime || Office;
         const get_token = OFFICE?.auth?.getAccessToken({
             allowSignInPrompt: true,
         });
         if (get_token) {
             const office_token = await get_token.catch((e) => console.error(e));
-            if (office_token) { 
+            if (office_token) {
                 notifyInfo(`Loaded office token.`);
                 return this._finishInitialise();
             }
         }
+        const path = `${location.origin}${location.pathname}/assets/ms-auth-login.html`
         Office?.context?.ui?.displayDialogAsync(
-            `${location.origin}${location.pathname}/assets/ms-auth-login.html`,
+            `${path}?redirect=${encodeURIComponent(
+                authority()?.login_url.replace('{{url}}', encodeURIComponent(path))
+            )}`,
             (result) => {
                 if (result.status === Office.AsyncResultStatus.Succeeded) {
                     const dialog = result.value;
@@ -70,7 +79,11 @@ export class AppComponent extends BaseClass implements OnInit {
                         'state',
                         dialog.addEventHandler(
                             Office.EventType.DialogMessageReceived,
-                            () => this._finishInitialise()
+                            (token) => {
+                                if (token) setToken(token);
+                                this._finishInitialise();
+                                dialog.close();
+                            }
                         )
                     );
                 }
@@ -78,16 +91,19 @@ export class AppComponent extends BaseClass implements OnInit {
         );
     }
 
-    private async _finishInitialise() {
+    private async _initialiseAuth() {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
+        settings.local_login = true;
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
-
         await setupPlace(settings).catch((_) => console.error(_));
+    }
+
+    private async _finishInitialise() {
         setupCache(this._cache);
-        if (!settings.local_login) {
+        if (!this._settings.get('composer.local_login')) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }
         await current_user.pipe(first((_) => !!_)).toPromise();
