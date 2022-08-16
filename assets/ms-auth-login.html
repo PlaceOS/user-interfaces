@@ -4,6 +4,10 @@
         <meta charset="utf-8" />
         <title>Outlook Plugin Auth | PlaceOS</title>
         <style>
+            * {
+                font-family: monospace;
+            }
+
             [loader] {
                 position: absolute;
                 top: 0;
@@ -24,8 +28,29 @@
             <div spinner></div>
             <p>Establishing session...</p>
         </div>
+        <script
+            type="text/javascript"
+            src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"
+        ></script>
         <script>
-            Office.messageParent('done');
+            document.onload = function () {
+                const query = convertPairStringToMap(window.location.search);
+                if (query.redirect) location.href = query.redirect;
+                else Office.messageParent(query.access_token || '');
+            };
+
+            function convertPairStringToMap(str) {
+                var map = {};
+                var str_pairs = str.split('&');
+                for (let i = 0; i < str_pairs.length; i++) {
+                    var split_pair = str_pair[i].split('=');
+                    if (split_pair[1]) {
+                        map[decodeURIComponent(split_pair[0])] =
+                            decodeURIComponent(split_pair[1]);
+                    }
+                }
+                return map;
+            }
         </script>
     </body>
 </html>
