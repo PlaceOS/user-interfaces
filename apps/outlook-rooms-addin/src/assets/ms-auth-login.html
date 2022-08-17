@@ -63,7 +63,10 @@
                     }
                 } catch (e) {
                     element.innerHTML =
-                        element.innerHTML + '<code>Error:' + e + '</code>';
+                        element.innerHTML + '<code>Error:' + e + '</code>[' +
+                    Object.keys(Office).join(', ') +
+                    ']' +
+                    +Object.keys((Office || {}).context).join(', ');
                 }
             }
 
