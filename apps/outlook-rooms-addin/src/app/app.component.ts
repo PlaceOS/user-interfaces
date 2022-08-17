@@ -75,6 +75,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 authority()?.login_url.replace('{{url}}', encodeURIComponent(path))
             )}`,
             (result) => {
+                notifyInfo(JSON.stringify(result));
                 if (result.status === Office.AsyncResultStatus.Succeeded) {
                     const dialog = result.value;
                     this.subscription(
