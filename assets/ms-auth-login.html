@@ -54,7 +54,7 @@
                     if (query.redirect) {
                         element.innerHTML = 'Redirecting to auth provider...';
                         location.href = query.redirect;
-                    } else {
+                    } else if (query.access_token) {
                         element.innerHTML =
                             'Returning credentials to plugin...';
                         Office.onReady(() => {
@@ -62,6 +62,8 @@
                                 query.access_token || ''
                             );
                         })
+                    } else {
+                        element.innerHTML = 'Unable to complete login. ' + location.href;
                     }
                 } catch (e) {
                     element.innerHTML =
