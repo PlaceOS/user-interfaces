@@ -82,6 +82,7 @@ export class AppComponent extends BaseClass implements OnInit {
                         dialog.addEventHandler(
                             Office.EventType.DialogMessageReceived,
                             (token) => {
+
                                 if (token) setToken(token);
                                 this._finishInitialise();
                                 dialog.close();
