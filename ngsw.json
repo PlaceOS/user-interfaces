@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1660643008506,
+  "timestamp": 1660696238892,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -119,7 +119,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "c1e6f13f244a8e2483359c9f3e2f808e167adadf",
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "fb91c04b4ece2b7b5d0f935676191f524cd89b33",
     "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "74f9c8a6184cff40dcdcd386f9437f0e4f676740",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -203,7 +203,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "daca90dc7f000a629d8127896e287af766ffb0fe",
-    "./main.js": "bb5523a3165f7d9285f394206828ef8f46b5818b",
+    "./main.js": "8558a2131e9d6d0b83fbb1cc08b70d226afcd76b",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "3603a8552aec221408b8f4094f5af662b1e68a70",
     "./polyfills.js": "c4fdd05a75382cf27e0f425306c414faabeb220e",
