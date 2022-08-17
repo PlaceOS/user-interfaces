@@ -57,9 +57,11 @@
                     } else {
                         element.innerHTML =
                             'Returning credentials to plugin...';
-                        Office.context.ui.messageParent(
-                            query.access_token || ''
-                        );
+                        Office.onReady(() => {
+                            Office.context.ui.messageParent(
+                                query.access_token || ''
+                            );
+                        })
                     }
                 } catch (e) {
                     element.innerHTML =
