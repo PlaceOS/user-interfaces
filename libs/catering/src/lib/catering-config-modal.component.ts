@@ -28,7 +28,7 @@ export interface CateringConfigModalData {
             >
                 New Ruleset
             </button>
-            <div *ngFor="let set of rulesets" class="ruleset">
+            <div *ngFor="let set of rulesets; let i = index" class="ruleset">
                 <div class="flex">
                     <mat-form-field class="flex-1" appearance="outline">
                         <input
@@ -60,6 +60,9 @@ export interface CateringConfigModalData {
                                 ? 'expand_less'
                                 : 'expand_more'
                         }}</app-icon>
+                    </button>
+                    <button mat-icon-button class="mb-6" (click)="rulesets.splice(i, 1)">
+                        <app-icon>delete</app-icon>
                     </button>
                 </div>
                 <div
