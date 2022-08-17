@@ -61,16 +61,23 @@
                             Office.context.ui.messageParent(
                                 query.access_token || ''
                             );
-                        })
+                        });
                     } else {
-                        element.innerHTML = 'Unable to complete login. ' + location.href;
+                        element.innerHTML =
+                            'Unable to complete login. <pre>' +
+                            JSON.stringify(query, undefined, 4) +
+                            '</pre>' +
+                            location.href;
                     }
                 } catch (e) {
                     element.innerHTML =
-                        element.innerHTML + '<code>Error:' + e + '</code>[' +
-                    Object.keys(Office || {}).join(', ') +
-                    ']' +
-                    +Object.keys((Office || {}).context || {}).join(', ');
+                        element.innerHTML +
+                        '<code>Error:' +
+                        e +
+                        '</code>[' +
+                        Object.keys(Office || {}).join(', ') +
+                        ']' +
+                        +Object.keys((Office || {}).context || {}).join(', ');
                 }
             }
 
