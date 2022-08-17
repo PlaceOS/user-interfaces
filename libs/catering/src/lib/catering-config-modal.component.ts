@@ -66,13 +66,13 @@ export interface CateringConfigModalData {
                     name="rules"
                     class="bg-gray-100 rounded overflow-hidden"
                     [style.height]="
-                        (show_rules === set.id ? 3.5 * set.rules.length : 0) +
+                        (show_rules === set.id ? 5 * set.rules.length : 0) +
                         'em'
                     "
                 >
                     <div
-                        class="flex px-2 h-14 space-x-2"
-                        *ngFor="let rule of set.rules"
+                        class="flex items-center px-2 h-20 space-x-2"
+                        *ngFor="let rule of set.rules; let i = index"
                     >
                         <mat-form-field class="flex-1" appearance="outline">
                             <mat-select
@@ -98,6 +98,9 @@ export interface CateringConfigModalData {
                             />
                             <mat-error>Rule value is required</mat-error>
                         </mat-form-field>
+                        <button mat-icon-button class="mb-6" (click)="set.rules.splice(i, 1)">
+                            <app-icon>delete</app-icon>
+                        </button>
                     </div>
                 </div>
             </div>
