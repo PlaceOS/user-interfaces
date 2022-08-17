@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1660643023543,
+  "timestamp": 1660696247882,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -163,12 +163,12 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "fa9bde7a81cfd29d4c7540b81a42741974634fba",
     "./default-libs_bookings_src_index_ts.js": "697b01847539bc4099030f71b312195c43c9a791",
-    "./default-libs_catering_src_index_ts.js": "5ce2b96227d13b71ff467779fb50d6cde2f8ad88",
+    "./default-libs_catering_src_index_ts.js": "458dd3a76fc71601f908a84258416c25c420e038",
     "./default-libs_explore_src_index_ts.js": "dc666f689dd5bad1ae5b9416c92fa16899a3544f",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "175b010831c1245c318091e7433398a66610b1c3",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1c2792faaa2b8e3c1f29214a1cb8fd02f81e99eb",
-    "./main.js": "1fa673f6d2d8f91637658165b04dee54c1bea2aa",
+    "./main.js": "a81c1e3184cb900b6dcde724da47069bc56a684b",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
