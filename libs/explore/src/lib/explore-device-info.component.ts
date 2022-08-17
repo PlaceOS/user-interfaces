@@ -11,7 +11,7 @@ import {
 import { getModule } from '@placeos/ts-client';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
-import { BaseClass } from '@placeos/common';
+import { BaseClass, SettingsService } from '@placeos/common';
 import { Observable } from 'rxjs';
 export interface DeviceInfoData {
     mac: string;
@@ -25,6 +25,8 @@ export interface DeviceInfoData {
     bg_color?: string;
     zoom$?: Observable<number>;
 }
+
+const EMPTY = [];
 
 @Component({
     selector: '[explore-device-info]',
@@ -63,16 +65,16 @@ export interface DeviceInfoData {
                     <p class="break-words"><label>MAC:</label> {{ mac }}</p>
                     <p><label>Accuracy:</label> {{ variance }}m</p>
                     <p><label>Last Seen:</label> {{ last_seen }}</p>
-                    <p type *ngIf="manufacturer">
+                    <p type *ngIf="manufacturer && !hide_fields.includes('manufacturer')">
                         <label>Manufacturer:</label> {{ manufacturer }}
                     </p>
-                    <p os *ngIf="os"><label>OS:</label> {{ os }}</p>
-                    <p ssid *ngIf="ssid"><label>SSID:</label> {{ ssid }}</p>
-                    <p username *ngIf="username">
+                    <p os *ngIf="os && !hide_fields.includes('os')"><label>OS:</label> {{ os }}</p>
+                    <p ssid *ngIf="ssid && !hide_fields.includes('ssid')"><label>SSID:</label> {{ ssid }}</p>
+                    <p username *ngIf="username && !hide_fields.includes('username')">
                         <label>Username:</label>
                         {{ user?.name || user?.username || username }}
                     </p>
-                    <p user *ngIf="user">
+                    <p user *ngIf="user && !hide_fields.includes('user')">
                         <label>Type:</label> {{ user.type }}
                     </p>
                 </div>
@@ -121,6 +123,10 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
 
     public zoom = 1;
 
+    public get hide_fields() {
+        return this._settings.get('app.explore.hide_device_fields') || EMPTY;
+    }
+
     /** Time of the last update */
     public get last_seen() {
         return formatDistanceToNow((this._details.last_seen || 0) * 1000, {
@@ -155,6 +161,7 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
+        private _settings: SettingsService,
         private _element: ElementRef<HTMLElement>
     ) {
         super();
