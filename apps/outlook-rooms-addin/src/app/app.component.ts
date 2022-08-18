@@ -72,7 +72,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 return this._finishInitialise();
             }
         }
-        this._authenticateWithOffice();
+        await this._authenticateWithOffice();
     }
 
     private async _initialiseAuth(local = true) {
