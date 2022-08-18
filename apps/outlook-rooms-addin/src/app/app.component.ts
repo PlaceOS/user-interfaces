@@ -68,7 +68,7 @@ export class AppComponent extends BaseClass implements OnInit {
             const office_token = await get_token.catch((e) => console.error(e));
             if (office_token) {
                 notifyInfo(`Loaded office token.`);
-                return this._finishInitialise();
+                // return this._finishInitialise();
             }
         }
         const path = `${location.origin}${location.pathname}/assets/ms-auth-login.html`;
