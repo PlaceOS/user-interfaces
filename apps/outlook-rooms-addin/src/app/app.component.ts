@@ -35,7 +35,7 @@ declare let OfficeRuntime: any;
     template: `
         <router-outlet></router-outlet>
         <global-loading></global-loading>
-        <debug-console [show]="true"></debug-console>
+        <debug-console></debug-console>
     `,
     styles: [``],
 })
@@ -105,6 +105,7 @@ export class AppComponent extends BaseClass implements OnInit {
         this.timeout('office_auth', () => {
             const path = `${location.origin}${location.pathname}/#ms-auth=true`;
             console.info(`Opening dialog to authenticate with office...`);
+            console.info(`Opening dialog with URL: ${path}`);
             Office.context.ui.displayDialogAsync(path,
                 (result) => {
                     if (result.status === Office.AsyncResultStatus.Succeeded) {
@@ -123,6 +124,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 }
             );
         })
+        console.info(`Search: ${window.location.hash} | ${window.location.search}`);
         if (window.location.hash.includes('ms-auth=') || window.location.search.includes('ms-auth=')) {
             console.info(`Authenticating with office from a dialog...`);
             this.clearTimeout('office_auth');

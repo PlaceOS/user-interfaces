@@ -40,20 +40,20 @@ const COLOR_MAP = {
                 ></div>
             </cdk-virtual-scroll-viewport>
             <div
-                class="absolute top-0 right-2 rounded-b-lg bg-black/80 p-2 flex items-center space-x-2"
+                class="absolute bottom-0 right-2 rounded-t-lg bg-black/90 p-2 flex items-center space-x-2 w-[20rem]"
             >
                 <input
                     #search_input
+                    name="log-filter"
                     [ngModel]="filter | async"
                     (ngModelChange)="filter.next($event)"
                     placeholder="Filter logs..."
-                    class="border-none bg-white/10 flex-1 text-base px-2 py-1 font-mono"
+                    class="border-none bg-white/10 flex-1 text-base px-2 py-1 font-mono rounded"
                 />
                 <div *ngIf="(filter | async)?.length" class="font-mono text-xs">
-                    {{ (filtered_logs | async)?.length || '0' }}/{{
+                    {{ (filtered_logs | async)?.length || '0' }} of {{
                         (logs | async)?.length
                     }}
-                    Matches
                 </div>
             </div>
         </div>
