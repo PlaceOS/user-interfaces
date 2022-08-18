@@ -24,7 +24,6 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 import * as MOCKS from '@placeos/mocks';
 
@@ -36,6 +35,7 @@ declare let OfficeRuntime: any;
     template: `
         <router-outlet></router-outlet>
         <global-loading></global-loading>
+        <debug-console></debug-console>
     `,
     styles: [``],
 })

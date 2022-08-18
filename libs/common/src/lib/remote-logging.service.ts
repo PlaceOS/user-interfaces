@@ -50,6 +50,8 @@ export class RemoteLoggingService extends BaseClass {
         )
     );
 
+    public readonly history = this._event_history;
+
     constructor() {
         super();
         this._patchConsoleMethods();

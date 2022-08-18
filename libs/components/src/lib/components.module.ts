@@ -45,6 +45,8 @@ import { MapLocateModalComponent } from './map-locate-modal.component';
 import { ImageCarouselComponent } from './image-carousel.component';
 import { DurationPipe } from './duration.pipe';
 import { RedirectComponent } from './redirect.component';
+import { DebugConsoleComponent } from './debug-console.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -64,6 +66,7 @@ const MAT_MODULES: any[] = [
     CdkTableModule,
     PortalModule,
     MatSortModule,
+    ScrollingModule
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -86,6 +89,7 @@ const COMPONENTS: Type<any>[] = [
     MapLocateModalComponent,
     ImageCarouselComponent,
     RedirectComponent,
+    DebugConsoleComponent,
 
     FixedPipe,
     SafePipe,
