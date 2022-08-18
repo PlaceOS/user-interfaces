@@ -7,6 +7,19 @@ import {
     ClientEvent,
     RemoteLoggingService,
 } from 'libs/common/src/lib/remote-logging.service';
+import { BehaviorSubject } from 'rxjs';
+
+const COLOR_MAP = {
+    console: 'bg-purple-600/30',
+    network: 'bg-green-600/30',
+    dom: 'bg-indigo-600/30',
+    
+    log: `bg-blue-600/50`,
+    info: `bg-blue-600/50`,
+    warn: `bg-orange-600/50`,
+    debug: `bg-gray-600/50`,
+    error: `bg-red-600/50`,
+}
 
 @Component({
     selector: `debug-console`,
@@ -31,7 +44,7 @@ import {
 })
 export class DebugConsoleComponent extends BaseClass {
     @Input() public show = false;
-    public readonly logs: ClientEvent[] = [];
+    public readonly logs = new BehaviorSubject<ClientEvent[]>([]);
 
     constructor(
         private _logs: RemoteLoggingService,
@@ -43,7 +56,7 @@ export class DebugConsoleComponent extends BaseClass {
     public ngOnInit() {
         this.subscription(
             'logs',
-            this._logs.history.subscribe((event) => this.logs.push(event))
+            this._logs.history.subscribe((event) => this.logs.next([...this.logs.getValue(), event]))
         );
         this.subscription(
             'toggle',
@@ -56,16 +69,16 @@ export class DebugConsoleComponent extends BaseClass {
 
     public logDisplay(log: ClientEvent) {
         return `
-            <span class="text-xs p-1 bg-white/10 rounded">${format(
+            <span class="uppercase text-xs p-1 bg-white/10 rounded font-mono">${format(
                 log.timestamp,
-                'yyyy/MM/dd h:mma'
+                'MMM dd HH:mm:ss'
             )}</span>
             &nbsp;
-            <span class="uppercase text-xs p-1 bg-purple-600/30 rounded">${
+            <span class="uppercase text-xs p-1 ${COLOR_MAP[log.type]} rounded font-mono">${
                 log.type
             }</span>
             &nbsp;
-            <span class="capitalize text-xs p-1 bg-blue-600/30 rounded w-16 text-center">${
+            <span class="capitalize text-xs p-1 ${COLOR_MAP[log.subtype]} rounded w-16 text-center font-mono">${
                 log.subtype
             }</span>
             &nbsp;
