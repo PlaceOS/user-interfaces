@@ -13,7 +13,7 @@ const COLOR_MAP = {
     console: 'bg-purple-600/30',
     network: 'bg-green-600/30',
     dom: 'bg-indigo-600/30',
-    
+
     log: `bg-blue-600/50`,
     info: `bg-blue-600/50`,
     warn: `bg-orange-600/50`,
@@ -34,7 +34,7 @@ const COLOR_MAP = {
             >
                 <div
                     class="font-mono h-8 truncate p-2 text-sm flex items-center max-w-full hover:bg-white/10"
-                    *cdkVirtualFor="let message of logs"
+                    *cdkVirtualFor="let message of logs | async"
                     [innerHTML]="logDisplay(message) | safe"
                 ></div>
             </cdk-virtual-scroll-viewport>

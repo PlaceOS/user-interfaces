@@ -101,25 +101,14 @@ export class AppComponent extends BaseClass implements OnInit {
 
     private async _authenticateWithOffice() {
         await Office.onReady();
-        console.log(`Authenticating with office...`);
-        if (Office.context.ui?.addHandlerAsync){
-            Office.context.ui.addHandlerAsync(Office.EventType.DialogParentMessageReceived, async (result) => {
-                if (result.status === Office.AsyncResultStatus.Succeeded) {
-                    console.log(`Authenticating with office in dialog...`);
-                    this.clearTimeout('office_auth');
-                    await this._initialiseAuth(false);
-                    if (!token()) return;
-                    Office.context.ui.messageParent(token() || '');
-                }
-            });
-        }
+        console.info(`Authenticating with office...`);
         this.timeout('office_auth', () => {
-            const path = `${location.origin}${location.pathname}/`;
-            console.log(`Opening dialog to authenticate with office...`);
+            const path = `${location.origin}${location.pathname}/?ms-auth=true`;
+            console.info(`Opening dialog to authenticate with office...`);
             Office.context.ui.displayDialogAsync(path,
                 (result) => {
                     if (result.status === Office.AsyncResultStatus.Succeeded) {
-                        console.log(`Authenticated with office from dialog...`);
+                        console.info(`Authenticated with office from dialog...`);
                         const dialog = result.value;
                         dialog.messageChild('auth_please');
                         dialog.addEventHandler(
@@ -134,6 +123,13 @@ export class AppComponent extends BaseClass implements OnInit {
                 }
             );
         })
+        if (window.location.hash.includes('ms-auth=')) {
+            console.info(`Authenticating with office from a dialog...`);
+            this.clearTimeout('office_auth');
+            await this._initialiseAuth(false);
+            if (!token()) return;
+            Office.context.ui.messageParent(token() || '');
+        }
     }
 
     private onInitError() {
