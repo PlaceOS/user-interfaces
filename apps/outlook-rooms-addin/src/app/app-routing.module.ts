@@ -13,6 +13,12 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     {
+        path: 'ms-auth',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        component: RoomBookingComponent,
+    },
+    {
         path: 'book/spaces',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
