@@ -26,6 +26,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 
 import * as MOCKS from '@placeos/mocks';
+import { loadAuthority } from '@placeos/ts-client/dist/esm/auth/functions';
 
 declare let Office: any;
 declare let OfficeRuntime: any;
@@ -52,27 +53,36 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     public async ngOnInit() {
+        console.info(`Initialising application...`);
         window.history.replaceState = (data: null, unused: null) => {};
 
         log('APP', 'MOCKS:', MOCKS);
 
         setNotifyOutlet(this._snackbar);
+        console.info(`Waiting for application settings...`);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        await this._initialiseAuth();
-        const OFFICE = OfficeRuntime || Office;
-        const get_token = (OFFICE?.auth || OFFICE?.context?.auth)?.getAccessToken({
-            allowSignInPrompt: true,
-        });
+        console.info(`Waiting for office library to initialise...`);
+        await Office.onReady();
+        console.info(`Initialising auth...`);
+        await this._initialiseAuth()
+        console.info(`Checking for existing auth...`);
         if (token()) return this._finishInitialise();
-        if (get_token) {
-            const office_token = await get_token.catch((e) => console.error(e));
-            if (office_token) {
-                console.log(`Loaded office token.`);
-                await this._initialiseAuth(false);
-                return this._finishInitialise();
-            }
+        console.info(`No existing auth...`);
+        console.info(Office?.isSetSupported('IdentityAPI', '1.3'))
+        try {
+            const get_token = Office?.auth?.getAccessToken();
+            console.info(`Checking for office token...`);
+            this.timeout('error', () => {throw 'Unable to get office token...'}, 2000);
+            const token = await (get_token || Promise.resolve());
+            this.clearTimeout('error');
+            if (!token) throw 'Unable to get office token...';
+            console.info(`Loaded office token. ${token}`);
+            await this._initialiseAuth(false);
+            this._finishInitialise();
+        } catch (e) {
+            console.info(JSON.stringify(e));
+            await this._authenticateWithOffice();
         }
-        await this._authenticateWithOffice();
     }
 
     private async _initialiseAuth(local = true) {
@@ -100,12 +110,12 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     private async _authenticateWithOffice() {
-        await Office.onReady();
         console.info(`Authenticating with office...`);
         this.timeout('office_auth', () => {
             const path = `${location.origin}${location.pathname}#ms-auth=true`;
-            console.info(`Opening dialog to authenticate with office...`);
-            console.info(`Opening dialog with URL: ${path}`);
+            console.info(
+                `Opening office authentication dialog with URL: ${path}`
+            );
             Office.context.ui.displayDialogAsync(
                 path,
                 { height: 60, width: 30 },
@@ -124,7 +134,11 @@ export class AppComponent extends BaseClass implements OnInit {
             );
         });
         console.info(`URL: ${window.location.href}`);
-        if (window.location.href.includes('ms-auth=true')) {
+        if (
+            window.location.href.includes('ms-auth=true') ||
+            sessionStorage.getItem('ms-auth')
+        ) {
+            sessionStorage.setItem('ms-auth', 'true');
             console.info(`Authenticating with office from a dialog...`);
             this.clearTimeout('office_auth');
             await this._initialiseAuth(false);
