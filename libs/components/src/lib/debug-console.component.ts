@@ -12,7 +12,7 @@ import {
     selector: `debug-console`,
     template: `
         <div
-            class="absolute bottom-2 inset-x-2 bg-black/80 text-white shadow rounded overflow-hidden h-[32rem] max-h-65vh flex flex-col"
+            class="absolute bottom-2 inset-x-2 bg-black/80 text-white shadow rounded overflow-hidden h-[32rem] max-h-65vh flex flex-col z-[10000]"
             *ngIf="show"
         >
             <cdk-virtual-scroll-viewport
