@@ -60,7 +60,7 @@ export class AppComponent extends BaseClass implements OnInit {
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         await this._initialiseAuth();
         const OFFICE = OfficeRuntime || Office;
-        const get_token = OFFICE?.auth?.getAccessToken({
+        const get_token = (OFFICE?.auth || OFFICE?.context?.auth)?.getAccessToken({
             allowSignInPrompt: true,
         });
         if (token()) return this._finishInitialise();
@@ -106,25 +106,24 @@ export class AppComponent extends BaseClass implements OnInit {
             const path = `${location.origin}${location.pathname}#ms-auth=true`;
             console.info(`Opening dialog to authenticate with office...`);
             console.info(`Opening dialog with URL: ${path}`);
-            Office.context.ui.displayDialogAsync(path,
+            Office.context.ui.displayDialogAsync(
+                path,
+                { height: 60, width: 30 },
                 (result) => {
-                    if (result.status === Office.AsyncResultStatus.Succeeded) {
-                        console.info(`Authenticated with office from dialog...`);
-                        const dialog = result.value;
-                        dialog.messageChild('auth_please');
-                        dialog.addEventHandler(
-                            Office.EventType.DialogMessageReceived,
-                            (token) => {
-                                if (token) setToken(token);
-                                this._finishInitialise();
-                                dialog.close();
-                            }
-                        );
-                    }
+                    console.info(`Authenticated with office from dialog...`);
+                    const dialog = result.value;
+                    dialog.addEventHandler(
+                        Office.EventType.DialogMessageReceived,
+                        (token) => {
+                            if (token) setToken(token);
+                            this._finishInitialise();
+                            dialog.close();
+                        }
+                    );
                 }
             );
-        })
-        console.info(`Search: ${window.location.hash} | ${window.location.search}`);
+        });
+        console.info(`URL: ${window.location.href}`);
         if (window.location.href.includes('ms-auth=true')) {
             console.info(`Authenticating with office from a dialog...`);
             this.clearTimeout('office_auth');
