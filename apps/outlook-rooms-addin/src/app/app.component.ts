@@ -123,7 +123,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 }
             );
         })
-        if (window.location.hash.includes('ms-auth=')) {
+        if (window.location.hash.includes('ms-auth=') || window.location.search.includes('ms-auth=')) {
             console.info(`Authenticating with office from a dialog...`);
             this.clearTimeout('office_auth');
             await this._initialiseAuth(false);
