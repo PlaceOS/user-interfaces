@@ -109,7 +109,7 @@
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
       <WebApplicationInfo>
         <Id>b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Id>
-        <Resource>api://b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Resource>
+        <Resource>api://microsoft.poc.placeos.com/outlook/b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Resource>
         <Scopes>
           <Scope>profile</Scope>
           <Scope>openid</Scope>
