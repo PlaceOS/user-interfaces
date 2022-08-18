@@ -101,11 +101,13 @@ export class AppComponent extends BaseClass implements OnInit {
 
     private async _authenticateWithOffice() {
         await Office.onReady();
-        Office.context.ui.addHandlerAsync(Office.EventType.DialogParentMessageReceived, async () => {
-            this.clearTimeout('office_auth');
-            await this._initialiseAuth(false);
-            if (!token()) return;
-            Office.context.ui.messageParent(token() || '');
+        Office.context.ui.addHandlerAsync(Office.EventType.DialogParentMessageReceived, async (result) => {
+            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                this.clearTimeout('office_auth');
+                await this._initialiseAuth(false);
+                if (!token()) return;
+                Office.context.ui.messageParent(token() || '');
+            }
         });
         this.timeout('office_auth', () => {
             const path = `${location.origin}${location.pathname}`;
