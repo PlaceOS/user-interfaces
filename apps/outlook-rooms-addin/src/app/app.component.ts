@@ -102,15 +102,17 @@ export class AppComponent extends BaseClass implements OnInit {
     private async _authenticateWithOffice() {
         await Office.onReady();
         console.log(`Authenticating with office...`);
-        Office.context.ui.addHandlerAsync(Office.EventType.DialogParentMessageReceived, async (result) => {
-            if (result.status === Office.AsyncResultStatus.Succeeded) {
-                console.log(`Authenticating with office in dialog...`);
-                this.clearTimeout('office_auth');
-                await this._initialiseAuth(false);
-                if (!token()) return;
-                Office.context.ui.messageParent(token() || '');
-            }
-        });
+        if (Office.context.ui?.addHandlerAsync){
+            Office.context.ui.addHandlerAsync(Office.EventType.DialogParentMessageReceived, async (result) => {
+                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                    console.log(`Authenticating with office in dialog...`);
+                    this.clearTimeout('office_auth');
+                    await this._initialiseAuth(false);
+                    if (!token()) return;
+                    Office.context.ui.messageParent(token() || '');
+                }
+            });
+        }
         this.timeout('office_auth', () => {
             const path = `${location.origin}${location.pathname}/`;
             console.log(`Opening dialog to authenticate with office...`);
