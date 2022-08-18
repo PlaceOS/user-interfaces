@@ -47,6 +47,7 @@ import { DurationPipe } from './duration.pipe';
 import { RedirectComponent } from './redirect.component';
 import { DebugConsoleComponent } from './debug-console.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { JsonDisplayComponent } from './json-display.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -90,6 +91,7 @@ const COMPONENTS: Type<any>[] = [
     ImageCarouselComponent,
     RedirectComponent,
     DebugConsoleComponent,
+    JsonDisplayComponent,
 
     FixedPipe,
     SafePipe,

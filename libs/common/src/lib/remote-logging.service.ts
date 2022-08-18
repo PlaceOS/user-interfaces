@@ -22,7 +22,7 @@ function hookMethod<T, K extends keyof T>(
     var previousFunction = rootObject[functionToHook];
     (rootObject as any)[functionToHook] = (...args: any[]) => {
         hookingFunction(args);
-        (previousFunction as any).apply(rootObject, args);
+        (previousFunction as any).call(rootObject, ...args);
     };
     return previousFunction;
 }
@@ -78,12 +78,13 @@ export class RemoteLoggingService extends BaseClass {
     }
 
     private _handleEvent(type: string, data: any, event_type: any = 'console') {
+        data[0] = typeof data[0] === 'string' ? data[0].replace(/%c/g, '') : data[0];
         this._events.next({
             id: `${event_type}-${randomInt(99999_99999)}`,
             type: event_type,
             subtype: type,
             timestamp: Date.now(),
-            data,
+            data: data.filter(_ => typeof _ !== 'string' || !_.startsWith('color:')),
         });
     }
 
