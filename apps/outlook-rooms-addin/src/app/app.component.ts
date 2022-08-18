@@ -103,7 +103,7 @@ export class AppComponent extends BaseClass implements OnInit {
         await Office.onReady();
         console.info(`Authenticating with office...`);
         this.timeout('office_auth', () => {
-            const path = `${location.origin}${location.pathname}/?ms-auth=true`;
+            const path = `${location.origin}${location.pathname}/#ms-auth=true`;
             console.info(`Opening dialog to authenticate with office...`);
             Office.context.ui.displayDialogAsync(path,
                 (result) => {
