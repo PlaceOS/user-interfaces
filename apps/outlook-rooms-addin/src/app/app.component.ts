@@ -68,41 +68,17 @@ export class AppComponent extends BaseClass implements OnInit {
             const office_token = await get_token.catch((e) => console.error(e));
             if (office_token) {
                 notifyInfo(`Loaded office token.`);
-                // return this._finishInitialise();
+                await this._initialiseAuth(false);
+                return this._finishInitialise();
             }
         }
-        const path = `${location.origin}${location.pathname}/assets/ms-auth-login.html`;
-        Office?.context?.ui?.displayDialogAsync(
-            `${path}?redirect=${encodeURIComponent(
-                authority()?.login_url.replace(
-                    '{{url}}',
-                    encodeURIComponent(path)
-                )
-            )}`,
-            (result) => {
-                notifyInfo(JSON.stringify(result));
-                if (result.status === Office.AsyncResultStatus.Succeeded) {
-                    const dialog = result.value;
-                    this.subscription(
-                        'state',
-                        dialog.addEventHandler(
-                            Office.EventType.DialogMessageReceived,
-                            (token) => {
-                                if (token) setToken(token);
-                                this._finishInitialise();
-                                dialog.close();
-                            }
-                        )
-                    );
-                }
-            }
-        );
+        this._authenticateWithOffice();
     }
 
-    private async _initialiseAuth() {
+    private async _initialiseAuth(local = true) {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
-        settings.local_login = true;
+        settings.local_login = local;
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
@@ -121,6 +97,36 @@ export class AppComponent extends BaseClass implements OnInit {
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
+    }
+
+    private async _authenticateWithOffice() {
+        await Office.onReady();
+        Office.context.ui.addHandlerAsync(Office.EventType.DialogParentMessageReceived, async () => {
+            this.clearTimeout('office_auth');
+            await this._initialiseAuth(false);
+            if (!token()) return;
+            Office.context.ui.messageParent(token() || '');
+        });
+        this.timeout('office_auth', () => {
+            const path = `${location.origin}${location.pathname}`;
+            Office.context.ui.displayDialogAsync(path,
+                (result) => {
+                    notifyInfo(JSON.stringify(result));
+                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                        const dialog = result.value;
+                        dialog.messageChild('auth_please');
+                        dialog.addEventHandler(
+                            Office.EventType.DialogMessageReceived,
+                            (token) => {
+                                if (token) setToken(token);
+                                this._finishInitialise();
+                                dialog.close();
+                            }
+                        );
+                    }
+                }
+            );
+        })
     }
 
     private onInitError() {
