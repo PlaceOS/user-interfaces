@@ -33,8 +33,11 @@ declare let OfficeRuntime: any;
 
 @Component({
     selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
+    template: `
+        <router-outlet></router-outlet>
+        <global-loading></global-loading>
+    `,
+    styles: [``],
 })
 export class AppComponent extends BaseClass implements OnInit {
     title = 'outlook-rooms-addin';
@@ -42,7 +45,6 @@ export class AppComponent extends BaseClass implements OnInit {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
-        private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar
     ) {
@@ -69,10 +71,13 @@ export class AppComponent extends BaseClass implements OnInit {
                 return this._finishInitialise();
             }
         }
-        const path = `${location.origin}${location.pathname}/assets/ms-auth-login.html`
+        const path = `${location.origin}${location.pathname}/assets/ms-auth-login.html`;
         Office?.context?.ui?.displayDialogAsync(
             `${path}?redirect=${encodeURIComponent(
-                authority()?.login_url.replace('{{url}}', encodeURIComponent(path))
+                authority()?.login_url.replace(
+                    '{{url}}',
+                    encodeURIComponent(path)
+                )
             )}`,
             (result) => {
                 notifyInfo(JSON.stringify(result));
@@ -83,7 +88,6 @@ export class AppComponent extends BaseClass implements OnInit {
                         dialog.addEventHandler(
                             Office.EventType.DialogMessageReceived,
                             (token) => {
-
                                 if (token) setToken(token);
                                 this._finishInitialise();
                                 dialog.close();

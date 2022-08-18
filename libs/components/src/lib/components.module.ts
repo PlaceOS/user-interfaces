@@ -90,7 +90,7 @@ const COMPONENTS: Type<any>[] = [
     FixedPipe,
     SafePipe,
     SanitizePipe,
-    DurationPipe
+    DurationPipe,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

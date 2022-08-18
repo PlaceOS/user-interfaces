@@ -27,6 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedEventsModule } from '@placeos/events';
+import { ComponentsModule } from '@placeos/components';
 
 const COMPONENTS: Type<any>[] = [NotFoundComponent];
 
@@ -56,12 +57,13 @@ const MATERIAL_MODULES: any[] = [
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [SharedBookingsModule, SharedEventsModule],
+    imports: [SharedBookingsModule, SharedEventsModule, ComponentsModule],
     exports: [
         ...COMPONENTS,
         ...MATERIAL_MODULES,
         SharedBookingsModule,
         SharedEventsModule,
+        ComponentsModule
     ],
 })
 export class SharedComponentModule {}

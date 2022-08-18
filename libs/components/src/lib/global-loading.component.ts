@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { first } from 'rxjs/operators';
-import { isOnline } from '@placeos/ts-client';
+import { isOnline, token } from '@placeos/ts-client';
+import { BaseClass, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'global-loading',
@@ -35,7 +35,7 @@ import { isOnline } from '@placeos/ts-client';
         `,
     ],
 })
-export class GlobalLoadingComponent implements OnInit {
+export class GlobalLoadingComponent extends BaseClass implements OnInit {
     public loading: boolean;
 
     public get online() {
@@ -44,13 +44,20 @@ export class GlobalLoadingComponent implements OnInit {
 
     constructor(
         private _org: OrganisationService,
-        private _spaces: SpacesService,
-    ) {}
+        private _settings: SettingsService,
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         this.loading = true;
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
-        setTimeout(() => (this.loading = false), 300);
+        await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        this.interval('has_token', () => {
+            if (token()) {
+                this.loading = false;
+                this.clearInterval('has_token');
+            }
+        }, 1000);
     }
 }

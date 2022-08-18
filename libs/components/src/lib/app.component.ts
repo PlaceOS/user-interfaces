@@ -67,7 +67,6 @@ export class AppComponent extends BaseClass implements OnInit {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
-        private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
         private _hotkey: HotkeysService,
