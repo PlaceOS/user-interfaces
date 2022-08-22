@@ -34,6 +34,7 @@ import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
 import { MOCKS } from '@placeos/mocks';
+import { ActivatedRoute, Router } from '@angular/router';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -53,6 +54,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
             <router-outlet></router-outlet>
         </div>
         <global-loading></global-loading>
+        <debug-console *ngIf="debug"></debug-console>
     `,
     styles: [`
         :host {
@@ -64,13 +66,19 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     `],
 })
 export class AppComponent extends BaseClass implements OnInit {
+
+    public get debug() {
+        return window.debug;
+    }
+
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
         private _hotkey: HotkeysService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -105,6 +113,9 @@ export class AppComponent extends BaseClass implements OnInit {
                 notifySuccess('Successfully pasted token.');
                 setTimeout(() => location.reload(), 2000);
             });
+        });
+        this._route.queryParamMap.subscribe((params) => {
+            if (params.has('hide_nav')) localStorage.setItem('PlaceOS.hide_nav', 'true');
         });
         setNotifyOutlet(this._snackbar);
         /** Wait for settings to initialise */

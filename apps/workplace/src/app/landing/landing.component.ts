@@ -5,7 +5,7 @@ import { startOfMinute } from 'date-fns';
 @Component({
     selector: 'app-dashboard',
     template: `
-        <topbar class="z-10"></topbar>
+        <topbar class="z-10" *ngIf="!hide_nav"></topbar>
         <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-zinc-700">
             <landing-colleagues
                 class="h-full hidden sm:block"
@@ -26,7 +26,7 @@ import { startOfMinute } from 'date-fns';
                 <landing-upcoming></landing-upcoming>
             </div>
         </div>
-        <footer-menu></footer-menu>
+        <footer-menu *ngIf="!hide_nav"></footer-menu>
     `,
     styles: [
         `
@@ -49,6 +49,10 @@ import { startOfMinute } from 'date-fns';
 })
 export class LandingComponent {
     public time: number;
+
+    public get hide_nav() {
+        return localStorage.getItem('PlaceOS.hide_nav') === 'true';
+    }
 
     public get date() {
         return startOfMinute(this.time || Date.now());

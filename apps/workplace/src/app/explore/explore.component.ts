@@ -4,7 +4,7 @@ import { DesksService } from '@placeos/bookings';
 @Component({
     selector: 'app-explore',
     template: `
-        <topbar></topbar>
+        <topbar *ngIf="!hide_nav"></topbar>
         <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
             <main
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
@@ -12,7 +12,7 @@ import { DesksService } from '@placeos/bookings';
                 <explore-map-view></explore-map-view>
             </main>
         </div>
-        <footer-menu></footer-menu>
+        <footer-menu *ngIf="!hide_nav"></footer-menu>
     `,
     styles: [
         `
@@ -30,6 +30,11 @@ import { DesksService } from '@placeos/bookings';
     ],
 })
 export class ExploreComponent implements OnInit {
+
+    public get hide_nav() {
+        return localStorage.getItem('PlaceOS.hide_nav') === 'true';
+    }
+
     constructor(private _desks: DesksService) {}
 
     public ngOnInit() {

@@ -11,7 +11,7 @@ import { ScheduleStateService } from './schedule-state.service';
 @Component({
     selector: 'app-schedule',
     template: `
-        <topbar></topbar>
+        <topbar *ngIf="hide_nav"></topbar>
         <div
             class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-zinc-600 relative"
         >
@@ -62,7 +62,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 mode="indeterminate"
             ></mat-progress-bar>
         </div>
-        <footer-menu></footer-menu>
+        <footer-menu *ngIf="!hide_nav"></footer-menu>
         <ng-template #empty_state>
             <div
                 class="w-full p-8 flex flex-col items-center justify-center space-y-4"
@@ -97,6 +97,10 @@ export class ScheduleComponent {
 
     public isEvent(item: any) {
         return item instanceof CalendarEvent;
+    }
+
+    public get hide_nav() {
+        return localStorage.getItem('PlaceOS.hide_nav') === 'true';
     }
 
     constructor(
