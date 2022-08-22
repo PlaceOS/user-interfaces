@@ -13,7 +13,7 @@ import { OrganisationService } from '@placeos/organisation';
             <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
-                [routerLink]="['/+']"
+                [routerLink]="[default_page]"
                 routerLinkActive="text-primary active dark:text-secondary"
                 matTooltip="Home"
                 matTooltipPosition="below"
@@ -193,6 +193,11 @@ export class TopMenuComponent {
 
     public get features(): string[] {
         return this._settings.get('app.features') || [];
+    }
+
+
+    public get default_page(): string {
+        return this._settings.get('app.default_route') || '/dashboard';
     }
 
     public get new_features(): boolean {

@@ -19,7 +19,7 @@ a[button],
     min-height: 3em;
 
     &.inverse {
-        background-color: #fff;
+        background: none;
         color: var(--color);
     }
 

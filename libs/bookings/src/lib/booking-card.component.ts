@@ -24,10 +24,10 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             *ngIf="booking"
         >
             <div
-                class="w-full bg-white dark:bg-neutral-800 rounded shadow py-2 relative"
+                class="w-full bg-white dark:bg-neutral-800 rounded-xl shadow py-4 relative"
             >
-                <h4 class="px-2">{{ booking?.title }}</h4>
-                <div class="flex m-2">
+                <h4 class="px-4">{{ booking?.title }}</h4>
+                <div class="flex mx-4 my-2">
                     <div
                         class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
                         [class.bg-green-600]="
@@ -73,9 +73,9 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                     </div>
                 </div>
                 <div
-                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-gray-200 py-2 space-y-2 sm:space-y-0"
+                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-neutral-500 py-2 space-y-2 sm:space-y-0"
                 >
-                    <div class="flex items-center px-2">
+                    <div class="flex items-center px-4">
                         <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
                             type
                         }}</app-icon>
@@ -83,7 +83,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                             {{ booking?.description || booking?.asset_id }}
                         </div>
                     </div>
-                    <div class="flex items-center px-2" *ngIf="location">
+                    <div class="flex items-center px-4" *ngIf="location">
                         <app-icon>place</app-icon>
                         <div class="mx-2 truncate">{{ location }}</div>
                     </div>

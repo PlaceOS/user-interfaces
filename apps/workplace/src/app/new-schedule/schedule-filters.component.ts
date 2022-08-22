@@ -45,7 +45,10 @@ import { ScheduleStateService } from './schedule-state.service';
         </div>
         <div class="sm:hidden flex items-center space-x-2">
             <button mat-button class="w-24" (click)="openFilters()">
-                Filters
+                <div class="flex items-center space-x-2">
+                    <app-icon class="text-xl -mr-2">filter_list</app-icon>
+                    <div class="mr-2">Filters</div>
+                </div>
             </button>
             <div
                 class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"

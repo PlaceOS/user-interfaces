@@ -13,7 +13,7 @@ import { ScheduleStateService } from './schedule-state.service';
     template: `
         <topbar></topbar>
         <div
-            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#E5E5E5] dark:bg-zinc-600 relative"
+            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-zinc-600 relative"
         >
             <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
             <div
