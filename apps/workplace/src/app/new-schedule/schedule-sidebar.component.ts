@@ -68,7 +68,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                     <div class="flex-1">
                         <div class="">Parking</div>
-                        <div class="text-sm opacity-60">Car space bookings</div>
+                        <div class="text-sm opacity-60">Car, Bike, Van and ACC bookings</div>
                     </div>
                     <mat-checkbox
                         [ngModel]="

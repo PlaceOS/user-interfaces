@@ -26,10 +26,10 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             <div
                 class="w-full bg-white dark:bg-neutral-800 rounded-xl shadow py-4 relative"
             >
-                <h4 class="px-4">{{ event?.title }}</h4>
+                <h4 class="px-4 text-lg">{{ event?.title }}</h4>
                 <div class="flex mx-4 my-2">
                     <div
-                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
+                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base space-x-2 pr-2 font-medium"
                         [class.bg-green-600]="
                             event.state !== 'done' &&
                             event?.status === 'approved'
