@@ -68,7 +68,6 @@ export class AppComponent extends BaseClass implements OnInit {
         console.info(`Checking for existing auth...`);
         if (token()) return this._finishInitialise();
         console.info(`No existing auth...`);
-        console.info(Office?.isSetSupported('IdentityAPI', '1.3'))
         try {
             const get_token = Office?.auth?.getAccessToken();
             console.info(`Checking for office token...`);
