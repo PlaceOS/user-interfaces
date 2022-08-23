@@ -28,7 +28,7 @@ import { BookingLike } from './schedule-state.service';
                 [routerLink]="[
                     '/schedule',
                     'view',
-                    item?.id + (item?.system?.id ? '|' + item?.system?.id : ''),
+                    item?.id + (((item?.system?.email) | space | async)?.id ? '|' + ((item?.system?.email) | space | async)?.id : ''),
                     type
                 ]"
             >
