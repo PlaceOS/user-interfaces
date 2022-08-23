@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661155623818,
+  "timestamp": 1661219757842,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -30,6 +30,10 @@
         "ignoreVary": true
       },
       "urls": [
+        "./MaterialIcons-Regular.ttf",
+        "./MaterialIconsOutlined-Regular.otf",
+        "./assets/fonts/MaterialIcons-Regular.ttf",
+        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -82,6 +86,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
+    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -130,11 +138,11 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "e16878201ab12683613142578bb01b225339816c",
-    "./main.js": "dc9cd5eaa9cacacb333b6dec2292acf20546ad72",
+    "./main.js": "26d9c3ec5347375d3f494be407d4d29b32e4d3d0",
     "./manifest.webmanifest": "8c6fdda8ecb155f4951a7175bd0b695d39d23ad7",
     "./polyfills.js": "3f4fec4c884a35b9b0fbca839682ec87ddc62b2b",
     "./runtime.js": "18caf59b615b61916113d0671eaaef55d1e68167",
-    "./styles.css": "f338f268ebcaa9f2e8a9c426ba581adb550bb992",
+    "./styles.css": "55e8b0dddef990c65706433a9598d3d19d2af8fa",
     "./vendor.js": "e007145b001875c09db372dce8b51944d089a0cb"
   },
   "navigationUrls": [
