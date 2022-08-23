@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661155628073,
+  "timestamp": 1661219758157,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -30,7 +30,11 @@
         "ignoreVary": true
       },
       "urls": [
+        "./MaterialIcons-Regular.ttf",
+        "./MaterialIconsOutlined-Regular.otf",
         "./assets/boardroom.jpg",
+        "./assets/fonts/MaterialIcons-Regular.ttf",
+        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -86,7 +90,11 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/boardroom.jpg": "9b1b67ca868d5f8d2d2ed8d958ccc34c6a5443d8",
+    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -138,11 +146,11 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "df3785d205b7dc4474fdebfc2e6ae6dad9479dac",
-    "./main.js": "469f4943de7b178f97830ee157b92407fea863d0",
+    "./main.js": "4cb1dcf129e31e2a3d563fc07b38dd3e9513feb0",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./polyfills.js": "77abe5e38fe6b1d61a559cf9db7052fcc6a04709",
     "./runtime.js": "9022e11db4a6afac8a1b7fde5fc9e248a84403d9",
-    "./styles.css": "75e8e0289c5a08e3111a18f901ee46e0db25a7c0",
+    "./styles.css": "7327ccc6b817344bd50ef11698d64b8089d10df1",
     "./vendor.js": "136605120a238e8e69b6c64c812b0a4105cc3f72"
   },
   "navigationUrls": [
