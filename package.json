@@ -90,7 +90,6 @@
     "jest": "27.5.1",
     "jest-preset-angular": "11.1.2",
     "marked": "^4.0.10",
-    "material-design-icons": "^3.0.1",
     "ng-mocks": "^14.0.1",
     "nx": "14.5.4",
     "postcss": "^8.4.4",
