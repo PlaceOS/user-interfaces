@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CateringItem } from '@placeos/catering';
 import { notifyError, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
@@ -173,6 +174,69 @@ import { EventFormService } from '@placeos/events';
                     </div>
                 </div>
             </div>
+            <div class="border-b border-gray-200 w-full" *ngIf="form.value.catering?.length">
+                <div class="flex items-center py-2 space-x-2 ">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
+                        <app-icon>group</app-icon>
+                    </div>
+                    <div class="flex-1 truncate">
+                        {{ form.value.catering[0]?.item_count || 0 }}
+                        Catering Item(s)
+                    </div>
+                    <button
+                        mat-button
+                        class="clear bg-transparent border-none underline"
+                        (click)="show_catering = !show_catering"
+                    >
+                        {{ show_people ? 'Hide' : 'Show' }}
+                    </button>
+                    <a
+                        mat-button
+                        class="clear underline"
+                        [routerLink]="['/book', 'spaces', 'form']"
+                        >Edit</a
+                    >
+                </div>
+                <div
+                    list
+                    [style.height]="
+                        !show_catering
+                            ? '0'
+                            : form.value.catering[0]?.items.length * 3 + 'rem'
+                    "
+                    class="overflow-hidden"
+                >
+                    <div
+                        class="flex items-center h-12 pl-12 space-x-2"
+                        *ngFor="let item of form.value.catering[0]?.items"
+                    >
+                        <div class="flex-1 w-1/2">
+                            <div class="flex-1 w-1/2">{{ item.name }}</div>
+                            <div
+                                class="text-xs underline"
+                                *ngIf="item.options.length"
+                                [matTooltip]="optionsFor(item)"
+                            >
+                                {{ item.options.length }} option{{
+                                    item.options.length === 1 ? '' : 's'
+                                }}
+                                selected
+                            </div>
+                        </div>
+                        <div
+                            class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                        >
+                            {{ item.total_cost / 100 | currency }}
+                        </div>
+                        <a-counter
+                            [ngModel]="item.quantity"
+                            (ngModelChange)="updateItemQuantity(item, $event)"
+                        ></a-counter>
+                    </div>
+                </div>
+            </div>
             <button
                 mat-button
                 class="w-32"
@@ -212,6 +276,7 @@ import { EventFormService } from '@placeos/events';
 export class SpaceFlowConfirmComponent {
     public show_spaces = false;
     public show_people = false;
+    public show_catering = false;
     public loading = false;
 
     public readonly postForm = async () => {
@@ -225,6 +290,10 @@ export class SpaceFlowConfirmComponent {
             );
         this.loading = false;
     };
+
+    public optionsFor(item: CateringItem) {
+        return item.options.map((i) => i.name).join('\n');
+    }
 
     public get can_view_location() {
         return !this._settings.get('app.no_maps');

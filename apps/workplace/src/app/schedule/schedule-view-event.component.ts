@@ -20,6 +20,7 @@ import { formatDuration } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
 import { removeBooking, showBooking } from '@placeos/bookings';
 import { map } from 'rxjs/operators';
+import { CateringItem } from '@placeos/catering';
 
 @Component({
     selector: 'schedule-view-event',
@@ -191,6 +192,69 @@ import { map } from 'rxjs/operators';
                         </div>
                     </div>
                 </div>
+                <div class="w-full" *ngIf="event.extension_data.catering?.length">
+                    <div
+                        class="border-b border-gray-200 w-full"
+                    >
+                        <div class="flex items-center py-2 space-x-2 ">
+                            <div
+                                class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                            >
+                                <app-icon>group</app-icon>
+                            </div>
+                            <div class="flex-1 truncate">
+                                {{ event.extension_data.catering[0]?.item_count || 0 }}
+                                Catering Item(s)
+                            </div>
+                            <button
+                                mat-button
+                                class="clear bg-transparent border-none underline"
+                                (click)="show_catering = !show_catering"
+                            >
+                                {{ show_people ? 'Hide' : 'Show' }}
+                            </button>
+                        </div>
+                        <div
+                            list
+                            [style.height]="
+                                !show_catering
+                                    ? '0'
+                                    : event.extension_data.catering[0]?.items.length * 3 +
+                                      'rem'
+                            "
+                            class="overflow-hidden"
+                        >
+                            <div
+                                class="flex items-center h-12 pl-12 space-x-2"
+                                *ngFor="let item of event.extension_data.catering[0]?.items"
+                            >
+                                <div class="flex-1 w-1/2">
+                                    <div class="flex-1 w-1/2">
+                                        {{ item.name }}
+                                    </div>
+                                    <div
+                                        class="text-xs underline"
+                                        *ngIf="item.options.length"
+                                        [matTooltip]="optionsFor(item)"
+                                    >
+                                        {{ item.options.length }} option{{
+                                            item.options.length === 1 ? '' : 's'
+                                        }}
+                                        selected
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                                >
+                                    {{ item.total_cost / 100 | currency }}
+                                </div>
+                                <div class="m-2 bg-neutral-500 text-white h-8 w-8 rounded-full flex items-center justify-center text-sm">
+                                    {{ item.quantity }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="w-full">
                     <div
                         class="flex items-center py-2 space-x-2 w-full"
@@ -311,6 +375,10 @@ export class ScheduleViewEventComponent extends BaseClass {
             () => (!this.event ? this._router.navigate(['/schedule']) : ''),
             8 * 1000
         );
+    }
+
+    public optionsFor(item: CateringItem) {
+        return item.options.map((i) => i.name).join('\n');
     }
 
     public viewLocation(space: Space) {
