@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661155622292,
+  "timestamp": 1661219776632,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -46,7 +46,11 @@
         "ignoreVary": true
       },
       "urls": [
+        "./MaterialIcons-Regular.ttf",
+        "./MaterialIconsOutlined-Regular.otf",
         "./assets/asset_success.svg",
+        "./assets/fonts/MaterialIcons-Regular.ttf",
+        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -101,6 +105,8 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "40b3903812d06c231eb81a60b8931da53b02d258",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "4205d911937faa1e674a23a57ca6335b9d1cce2b",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "5649907165f989faf21efa0d8904dbbb25e89f88",
@@ -113,6 +119,8 @@
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "c9e110ff3742542a5e6ec1d734d5cc07a585088a",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "d27bcf9fc55809a9bd26fbfb17694e7a535426c6",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
+    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -168,11 +176,11 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1c2792faaa2b8e3c1f29214a1cb8fd02f81e99eb",
-    "./main.js": "247f91faac2ccdd7497b6474add3bbf736875ab9",
+    "./main.js": "4dfe273e435bd5dde7c00c4ae3f2a1a125bbfcd5",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "d53d1684156b23df4c2335caa2d5a105ac1b506b",
+    "./styles.css": "7985acd0030bbcd0f86d94829e2cbb13c5c0c85d",
     "./vendor.js": "64963cb7e24140be2dea45e23e0ab21b66688584"
   },
   "navigationUrls": [
