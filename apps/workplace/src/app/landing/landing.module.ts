@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { SharedComponentModule } from "../components/shared.module";
 import { LandingAvailabilityComponent } from "./landing-availability.component";
@@ -23,6 +24,7 @@ const ROUTES = [
     imports: [
         CommonModule,
         SharedComponentModule,
+        FormsModule,
         RouterModule.forChild(ROUTES)
     ]
 })

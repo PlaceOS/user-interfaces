@@ -15,6 +15,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
 
@@ -35,6 +36,7 @@ export interface LandingOptions {
 })
 export class LandingStateService extends BaseClass {
     private _options = new BehaviorSubject<LandingOptions>({});
+    private _loading = new BehaviorSubject<string>('');
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
@@ -46,16 +48,25 @@ export class LandingStateService extends BaseClass {
     /**  */
     public free_spaces = this._free_spaces.asObservable();
     /**  */
-    public readonly upcoming_events = this._schedule.filtered_bookings.pipe(map(_ => _.filter(i => i instanceof CalendarEvent)));
+    public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
+        map((_) => _.filter((i) => i instanceof CalendarEvent))
+    );
     /**  */
     public contacts = this._contacts.asObservable();
     /**  */
     public options = this._options.asObservable();
+    /**  */
+    public loading = this._loading.asObservable();
 
     public readonly search_results = this._options.pipe(
         debounceTime(500),
-        switchMap(({ search }) => (search ? searchStaff(search) : of([]))),
-        catchError((_) => []),
+        switchMap(({ search }) => {
+            this._loading.next('Loading users...');
+            return search
+                ? searchStaff(search).pipe(catchError(() => of([])))
+                : of([]);
+        }),
+        tap(() => this._loading.next('')),
         shareReplay(1)
     );
     /**  */
