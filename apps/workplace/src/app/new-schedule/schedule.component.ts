@@ -11,7 +11,7 @@ import { ScheduleStateService } from './schedule-state.service';
 @Component({
     selector: 'app-schedule',
     template: `
-        <topbar *ngIf="hide_nav"></topbar>
+        <topbar *ngIf="!hide_nav"></topbar>
         <div
             class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-zinc-600 relative"
         >
