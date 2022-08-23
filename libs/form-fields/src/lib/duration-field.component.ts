@@ -159,7 +159,8 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     }
 
     private _updateOption() {
+        if (!this.duration_options?.length) return;
         const idx = this.duration_options.findIndex((_) => _.id === this.duration);
-        if (idx < 0) this.setValue(this.duration_options[0].id);
+        if (idx < 0) this.setValue(this.min);
     }
 }

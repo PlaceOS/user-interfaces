@@ -231,8 +231,7 @@ import { EventFormService } from '@placeos/events';
                             {{ item.total_cost / 100 | currency }}
                         </div>
                         <a-counter
-                            [ngModel]="item.quantity"
-                            (ngModelChange)="updateItemQuantity(item, $event)"
+                            [(ngModel)]="item.quantity"
                         ></a-counter>
                     </div>
                 </div>
