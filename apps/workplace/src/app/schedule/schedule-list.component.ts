@@ -17,7 +17,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
                     (ngModelChange)="setOptions({ calendar: $event })"
                     [placeholder]="user?.name"
                 >
-                    <mat-option *ngFor="let cal of calendars | async">{{
+                    <mat-option *ngFor="let cal of calendars | async" [value]="cal.id">{{
                         (cal.id | user | async)?.name || cal.id
                     }}</mat-option>
                 </mat-select>
