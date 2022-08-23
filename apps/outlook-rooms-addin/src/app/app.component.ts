@@ -80,7 +80,11 @@ export class AppComponent extends BaseClass implements OnInit {
             this._finishInitialise();
         } catch (e) {
             console.info(JSON.stringify(e));
-            await this._authenticateWithOffice();
+            if (!Office?.context?.ui) {
+                await this._initialiseAuth(false);
+            } else {
+                await this._authenticateWithOffice();
+            }
         }
     }
 
@@ -150,6 +154,6 @@ export class AppComponent extends BaseClass implements OnInit {
         if (isMock() || currentUser()?.is_logged_in) return;
         invalidateToken();
         location.reload();
-        
+
     }
 }
