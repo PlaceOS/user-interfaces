@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661155639473,
+  "timestamp": 1661219788660,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -33,6 +33,10 @@
         "ignoreVary": true
       },
       "urls": [
+        "./MaterialIcons-Regular.ttf",
+        "./MaterialIconsOutlined-Regular.otf",
+        "./assets/fonts/MaterialIcons-Regular.ttf",
+        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -119,8 +123,12 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "9c81f68544fef232fca0b8a9aeb3fdc19cd8b074",
     "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "7f49525602577132b04ced952d036a49aa18a276",
+    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
+    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -203,12 +211,12 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "daca90dc7f000a629d8127896e287af766ffb0fe",
-    "./main.js": "23453634e4b3ad1d36aebddf66dea4220286fbef",
+    "./main.js": "11e12891f2bbd5509773ad5eecec29d38fe8ef88",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "3603a8552aec221408b8f4094f5af662b1e68a70",
     "./polyfills.js": "c4fdd05a75382cf27e0f425306c414faabeb220e",
     "./runtime.js": "33ff0b24afb25fe8de7ec1d6c40774973ab7011a",
-    "./styles.css": "d53d1684156b23df4c2335caa2d5a105ac1b506b",
+    "./styles.css": "7985acd0030bbcd0f86d94829e2cbb13c5c0c85d",
     "./vendor.js": "9ab6eda9e3fe2d5364ba8661f7b74bcde9376e7e"
   },
   "navigationUrls": [
