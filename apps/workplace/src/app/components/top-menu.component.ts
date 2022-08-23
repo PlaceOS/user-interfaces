@@ -27,11 +27,13 @@ import { OrganisationService } from '@placeos/organisation';
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
             </a>
-            <button
+            <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('spaces')"
-                [routerLink]="new_features ? ['/book', 'meeting'] : ['/book', 'spaces']"
+                [routerLink]="
+                    new_features ? ['/book', 'meeting'] : ['/book', 'spaces']
+                "
                 routerLinkActive="text-primary active dark:text-secondary"
                 matTooltip="Book Room"
                 matTooltipPosition="below"
@@ -57,12 +59,14 @@ import { OrganisationService } from '@placeos/organisation';
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
-            </button>
-            <button
+            </a>
+            <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('desks')"
-                [routerLink]="new_features ? ['/book', 'newdesk'] : ['/book', 'desks']"
+                [routerLink]="
+                    new_features ? ['/book', 'newdesk'] : ['/book', 'desks']
+                "
                 routerLinkActive="text-primary active dark:text-secondary"
                 matTooltip="Book Desk"
                 matTooltipPosition="below"
@@ -89,8 +93,8 @@ import { OrganisationService } from '@placeos/organisation';
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
-            </button>
-            <button
+            </a>
+            <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
@@ -107,8 +111,8 @@ import { OrganisationService } from '@placeos/organisation';
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
-            </button>
-            <button
+            </a>
+            <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('visitor-invite')"
@@ -125,8 +129,8 @@ import { OrganisationService } from '@placeos/organisation';
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
-            </button>
-            <button
+            </a>
+            <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('explore')"
@@ -143,8 +147,8 @@ import { OrganisationService } from '@placeos/organisation';
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
-            </button>
-            <button
+            </a>
+            <a
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('schedule')"
@@ -161,7 +165,7 @@ import { OrganisationService } from '@placeos/organisation';
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
                 ></div>
-            </button>
+            </a>
         </div>
     `,
     styles: [
@@ -194,7 +198,6 @@ export class TopMenuComponent {
     public get features(): string[] {
         return this._settings.get('app.features') || [];
     }
-
 
     public get default_page(): string {
         return this._settings.get('app.default_route') || '/dashboard';
