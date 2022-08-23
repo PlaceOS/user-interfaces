@@ -25,9 +25,16 @@ import { BookingLike } from './schedule-state.service';
                 *ngSwitchDefault
                 class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white dark:bg-neutral-700 hover:shadow p-0"
                 [class.opacity-50]="has_ended"
-                [routerLink]="['/schedule', 'view', item?.id, type]"
+                [routerLink]="[
+                    '/schedule',
+                    'view',
+                    item?.id + (item?.system?.id ? '|' + item?.system?.id : ''),
+                    type
+                ]"
             >
-                <div class="flex items-center border border-gray-200 dark:border-neutral-500">
+                <div
+                    class="flex items-center border border-gray-200 dark:border-neutral-500"
+                >
                     <div
                         status
                         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"
@@ -73,8 +80,7 @@ export class ScheduleListItemComponent {
     @Input() public item: BookingLike;
 
     public get type() {
-        return this.item instanceof Booking 
-            ? 'booking' : 'event'
+        return this.item instanceof Booking ? 'booking' : 'event';
     }
 
     public get has_ended() {
@@ -90,14 +96,14 @@ export class ScheduleListItemComponent {
         if (this.item.asset_id) {
             switch ((this.item as Booking).booking_type) {
                 case 'room':
-                    return { content: 'meeting_room' } ;
+                    return { content: 'meeting_room' };
                 case 'desk':
-                    return { type: 'img', src: 'assets/img/desk.svg' } ;
+                    return { type: 'img', src: 'assets/img/desk.svg' };
                 case 'parking':
                     return { content: 'local_parking' };
             }
         }
-        return { content: 'event'};
+        return { content: 'event' };
     }
 
     public get status() {

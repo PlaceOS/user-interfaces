@@ -362,11 +362,12 @@ export class ScheduleViewEventComponent extends BaseClass {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
+                    const parts = params.get('id').split('|');
                     this.event = this._settings.get('app.no_user_calendar')
-                        ? await showBooking(params.get('id'))
+                        ? await showBooking(parts[0])
                               .pipe(map((_) => newCalendarEventFromBooking(_)))
                               .toPromise()
-                        : await showEvent(params.get('id')).toPromise();
+                        : await showEvent(parts[0], { system_id: parts[1] }).toPromise();
                 }
             })
         );
