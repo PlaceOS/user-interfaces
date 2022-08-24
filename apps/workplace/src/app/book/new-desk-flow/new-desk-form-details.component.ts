@@ -55,9 +55,10 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3">
+                    <div class="flex-1 w-1/3 relative">
                         <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
+                            name="end-time"
                             formControlName="duration"
                             [time]="form.get('date')?.value"
                             [max]="12 * 60"
@@ -65,6 +66,13 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                             [step]="60"
                         >
                         </a-duration-field>
+                        <mat-checkbox
+                            formControlName="all_day"
+                            *ngIf="allow_all_day"
+                            class="absolute top-0 right-0"
+                        >
+                            All Day
+                        </mat-checkbox>
                     </div>
                 </div>
             </section>
