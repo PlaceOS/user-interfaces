@@ -396,6 +396,7 @@ export class BookingFormService extends BaseClass {
         this._loading.next('Saving booking');
         const result = await saveBooking(
             new Booking({
+                ...this._options.getValue(),
                 ...value,
                 approved: !!this._settings.get('app.bookings.no_approval'),
             })
