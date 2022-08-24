@@ -131,7 +131,7 @@ export class DayviewTimelineComponent
                 catchError(() => of({ data: [] }))
             )
         ),
-        map(({ data }) => data.map((_) => new Space(_ as any))),
+        map(({ data }) => data.map((_) => new Space({ ..._, level: this._org.levelWithID(_.zones)} as any))),
         shareReplay(1)
     );
     /** List of spaces to display */

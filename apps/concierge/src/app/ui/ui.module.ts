@@ -24,6 +24,7 @@ import { SearchbarComponent } from './searchbar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedSpacesModule } from '@placeos/spaces';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
@@ -59,6 +60,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...ANGULAR_MODULES,
         ...MAT_MODULES,
         ComponentsModule,
+        SharedSpacesModule,
         RouterModule.forChild([]),
     ],
     exports: [

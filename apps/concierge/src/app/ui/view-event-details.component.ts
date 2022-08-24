@@ -4,6 +4,7 @@ import { format, addMinutes } from 'date-fns';
 import { CalendarEvent } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
 import { EventsStateService } from '../day-view/events-state.service';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'view-event-details',
@@ -64,7 +65,13 @@ import { EventsStateService } from '../day-view/events-state.service';
                 </div>
                 <div class="flex items-center mb-2">
                     <app-icon class="mr-1">place</app-icon>
-                    <span class="text-dark-fade">{{ location }}</span>
+                    <span class="text-dark-fade"
+                        >{{ building.display_name || building.name }},
+                        {{
+                            (event.system.id | space | async)?.display_name ||
+                                (event.system.id | space | async)?.name
+                        }}</span
+                    >
                 </div>
                 <div class="flex items-center">
                     <app-icon class="mr-1">format_align_left</app-icon>
@@ -133,11 +140,8 @@ export class ViewEventDetailsComponent {
 
     public readonly remove = () => this._state.removeBooking(this.event);
 
-    public get location() {
-        const space = this._spaces.find(this.event.resources[0].id);
-        return `${space.level.display_name || space.level.name}, ${
-            space.display_name || space.name
-        }`;
+    public get building() {
+        return this._org.building;
     }
 
     public get time() {
@@ -151,6 +155,6 @@ export class ViewEventDetailsComponent {
 
     constructor(
         private _state: EventsStateService,
-        private _spaces: SpacesService
+        private _org: OrganisationService
     ) {}
 }

@@ -119,7 +119,6 @@ export class EventsStateService extends BaseClass {
                     : endOfDay;
             const start = start_fn(date);
             const end = end_fn(date);
-            console.log('Events:', events);
             return this.filterEvents(events, start, end, filters, zones);
         }),
         shareReplay(1)
@@ -354,7 +353,6 @@ export class EventsStateService extends BaseClass {
             const show =
                 !filters.hide_type?.length ||
                 !filters.hide_type.includes(type as any);
-            console.log('Bookings:', intersects, has_space, in_zones, show);
             return intersects && has_space && in_zones && show;
         });
     }
