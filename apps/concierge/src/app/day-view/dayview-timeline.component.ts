@@ -1,11 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
+import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
+import { querySystems } from '@placeos/ts-client';
 
 const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     return (idx % 12 === 0 ? 12 : idx % 12) + (idx >= 12 ? ' PM' : ' AM');
@@ -15,7 +22,9 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     selector: 'dayview-timeline',
     template: `
         <div class="absolute inset-0 flex">
-            <div class="time h-full w-24 overflow-hidden bg-blue-100/20 dark:bg-neutral-700 relative">
+            <div
+                class="time h-full w-24 overflow-hidden bg-blue-100/20 dark:bg-neutral-700 relative"
+            >
                 <div header class="relative h-16 z-50">
                     <div
                         class="bg-blue-100/20 dark:bg-neutral-700 absolute top-0 left-0 right-0 bottom-8"
@@ -72,7 +81,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     <div
                         *ngFor="let time of blocks; let i = index"
                         class="absolute bg-gray-300 h-px min-w-full left-0"
-                        [style.width]="(space_list | async).length * 12 + 'rem'"
+                        [style.width]="(space_list | async)?.length * 12 + 'rem'"
                         [style.top]="i * 4 + 'rem'"
                     ></div>
                 </div>
@@ -104,7 +113,8 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
 })
 export class DayviewTimelineComponent
     extends BaseClass
-    implements OnInit, OnDestroy {
+    implements OnInit, OnDestroy
+{
     /** Time blocks to display */
     public readonly blocks: string[] = HOUR_BLOCKS;
     /** Current scroll position of the content */
@@ -113,26 +123,34 @@ export class DayviewTimelineComponent
     public readonly loading = this._state.loading;
     /** Whether event data is loading */
     public readonly event = this._state.event;
+
+    public readonly spaces = this._org.active_building.pipe(
+        filter((_) => !!_),
+        switchMap(({ id }) =>
+            querySystems({ zone_id: id, limit: 1000 }).pipe(
+                catchError(() => of({ data: [] }))
+            )
+        ),
+        map(({ data }) => data.map((_) => new Space(_ as any))),
+        shareReplay(1)
+    );
     /** List of spaces to display */
     public readonly space_list = combineLatest([
-        this._org.active_building,
-        this._spaces.list,
+        this.spaces,
         this._state.zones,
     ]).pipe(
         map(
-            ([bld, spaces, zones]) =>
+            ([spaces, zones]) =>
                 spaces.filter(
                     (space) =>
-                        space.zones.includes(bld.id) &&
-                        (!zones?.length ||
-                            space.zones.find((z) => zones.includes(z)))
+                        !zones?.length ||
+                        space.zones.find((z) => zones.includes(z))
                 ) || []
         )
     );
 
     constructor(
         private _org: OrganisationService,
-        private _spaces: SpacesService,
         private _state: EventsStateService
     ) {
         super();

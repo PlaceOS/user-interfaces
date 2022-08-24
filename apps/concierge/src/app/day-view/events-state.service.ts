@@ -119,6 +119,7 @@ export class EventsStateService extends BaseClass {
                     : endOfDay;
             const start = start_fn(date);
             const end = end_fn(date);
+            console.log('Events:', events);
             return this.filterEvents(events, start, end, filters, zones);
         }),
         shareReplay(1)
@@ -335,9 +336,6 @@ export class EventsStateService extends BaseClass {
                 bkn.date,
                 bkn.date + bkn.duration * 60 * 1000
             );
-            const in_zone = !!bkn.resources
-                .map((r) => this._spaces.find(r.id || r.email))
-                .find((space) => zones.find((z) => space?.zones?.includes(z)));
             const has_space =
                 !filters.space_emails?.length ||
                 !!bkn.resources.find((space) =>
@@ -356,7 +354,8 @@ export class EventsStateService extends BaseClass {
             const show =
                 !filters.hide_type?.length ||
                 !filters.hide_type.includes(type as any);
-            return intersects && has_space && in_zone && in_zones && show;
+            console.log('Bookings:', intersects, has_space, in_zones, show);
+            return intersects && has_space && in_zones && show;
         });
     }
 }
