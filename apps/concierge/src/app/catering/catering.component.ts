@@ -19,7 +19,7 @@ import { BaseClass } from '@placeos/common';
                 ></catering-menu>
                 <div
                     *ngSwitchDefault
-                    class="flex flex-1 items-center justify-center"
+                    class="flex flex-1 flex-wrap items-center justify-center"
                 >
                     <a
                         matRipple

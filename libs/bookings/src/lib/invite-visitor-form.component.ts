@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { notifyError, getInvalidFields } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
 
@@ -148,7 +149,7 @@ import { Booking } from './booking.class';
         <ng-template #load_state>
             <div
                 loading
-                class="relative bg-white flex flex-col justify-center items-center rounded overflow-hidden w-[18rem] h-[18rem]"
+                class="relative flex flex-col items-center justify-center rounded overflow-hidden w-full h-full min-h-[18rem]"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Sending invitation...</p>
@@ -174,7 +175,8 @@ export class InviteVisitorFormComponent {
         private _org: OrganisationService
     ) {}
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first(_ => _)).toPromise();
         this._service.setOptions({ type: 'visitor' });
         this.form.patchValue({ zones: [this._org.building?.id] });
         this.form
