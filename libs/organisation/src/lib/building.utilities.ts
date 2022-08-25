@@ -1,4 +1,3 @@
-import { HashMap } from '@placeos/common';
 
 let BLD_COUNT = 0;
 let LVL_COUNT = 0;
@@ -8,7 +7,7 @@ let LVL_COUNT = 0;
  * Generate raw mock data for creating a building
  * @param id Forced ID for the mock
  */
-export function generateMockBuilding(id?: string): HashMap {
+export function generateMockBuilding(id?: string): Record<string, any> {
     if (!id) {
         id = `zone_bld-${BLD_COUNT++}`;
     }
@@ -80,7 +79,7 @@ export function generateMockBuilding(id?: string): HashMap {
  * @param id Forced ID for the mock
  * @param map_url Map URL for the level
  */
-export function generateMockLevel(id?: string, map_url?: string): HashMap {
+export function generateMockLevel(id?: string, map_url?: string): Record<string, any> {
     if (!id) {
         id = `zone_lvl-${LVL_COUNT++}`;
     }

@@ -1,10 +1,9 @@
 
-import { HashMap } from '@placeos/common';
 import { generateMockBuilding } from './building.utilities';
 
 let ORG_COUNT = 0;
 
-export function generateMockOrganisation(): HashMap {
+export function generateMockOrganisation(): Record<string, any> {
     return {
         id: `zone_org-${ORG_COUNT++}`,
         name: `Organisation ${ORG_COUNT}`,

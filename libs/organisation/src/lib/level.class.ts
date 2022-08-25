@@ -1,4 +1,3 @@
-import { HashMap, Identity } from '@placeos/common';
 
 /** Building Level data */
 export class BuildingLevel {
@@ -19,9 +18,9 @@ export class BuildingLevel {
     /** URL of the map associated with the level */
     public readonly tags: string[];
     /** Settings overrides associated with the level */
-    public readonly settings: HashMap = {};
+    public readonly settings: Record<string, any> = {};
     /** List of points of interest for the level */
-    public readonly locations: readonly Identity[];
+    public readonly locations: readonly { id: string, name: string }[];
 
     constructor(_data: Partial<BuildingLevel> = {}) {
         this.id = _data.id || '';

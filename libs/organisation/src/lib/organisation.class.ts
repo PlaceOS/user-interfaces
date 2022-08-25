@@ -1,7 +1,7 @@
-import { getItemWithKeys, HashMap } from '@placeos/common';
+import { getItemWithKeys } from 'libs/common/src/lib/general';
 
 export interface OrganisationComplete extends Organisation {
-    settings?: HashMap;
+    settings?: Record<string, any>;
 }
 
 export class Organisation {
@@ -18,9 +18,9 @@ export class Organisation {
     /** Capacity for the Organisation */
     public readonly capacity: number;
     /** PlaceOS bindings for applications */
-    public readonly bindings: HashMap<string>;
+    public readonly bindings: Record<string, string>;
     /** Map of custom settings for the building */
-    private _settings: HashMap;
+    private _settings: Record<string, any>;
 
     constructor(raw_data: Partial<OrganisationComplete> = {}) {
         this.id = raw_data.id || '';

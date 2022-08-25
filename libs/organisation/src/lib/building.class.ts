@@ -1,7 +1,18 @@
-import { HashMap, Identity, RoomConfiguration } from '@placeos/common';
+
 import { BookingRulesmap } from 'libs/events/src/lib/event.interfaces';
 
 import { BuildingLevel } from './level.class';
+
+interface Identity {
+    id: string,
+    name: string
+}
+interface RoomConfiguration {
+    id: string;
+    name?: string;
+    description?: string;
+    capacity?: number;
+}
 
 export interface IBuildingRoleUser {
     name: string;
@@ -40,12 +51,12 @@ export interface BookingRuleDetails {
 }
 
 export interface BuildingComplete extends Building {
-    settings: HashMap;
-    locker_structure: HashMap;
-    roles: HashMap;
+    settings: Record<string, any>;
+    locker_structure: Record<string, any>;
+    roles: Record<string, any>;
     zone: string;
     location: string;
-    neighbourhoods: HashMap;
+    neighbourhoods: Record<string, any>;
 }
 
 export class Building {
@@ -90,18 +101,18 @@ export class Building {
     /** Start and end hours catering can be delivered */
     public readonly catering_hours: { start: number; end: number };
     /** PlaceOS bindings for applications */
-    public readonly bindings: HashMap<string>;
+    public readonly bindings: Record<string, string>;
 
-    public readonly orientations: HashMap<number>;
+    public readonly orientations: Record<string, number>;
     public readonly attributes: readonly Identity[];
     /** Map of roles and list of the associated users */
-    private _roles: HashMap<IBuildingRoleUser[]>;
+    private _roles: Record<string, IBuildingRoleUser[]>;
     /** Map of the locker ID arrays */
     private _lockers: LockerMap;
     /** Map of important system ids for the building */
-    private _systems: HashMap<string>;
+    private _systems: Record<string, string>;
     /** Map of important phone numbers for the building */
-    private _phone_numbers: HashMap<string>;
+    private _phone_numbers: Record<string, string>;
     /** Globe coordiates for the build */
     private _location: ICoordinates;
 
@@ -223,11 +234,11 @@ export class Building {
         return { ...(this._lockers || {}) };
     }
     /** Map of important system ids for the building */
-    public get systems(): HashMap<string> {
+    public get systems(): Record<string, string> {
         return { ...(this._systems || {}) };
     }
     /** Map of important phone numbers for the building */
-    public get phone_numbers(): HashMap<string> {
+    public get phone_numbers(): Record<string, string> {
         return { ...(this._phone_numbers || {}) };
     }
 
