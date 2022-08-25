@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { querySystems } from '@placeos/ts-client';
 import { combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -12,7 +13,6 @@ import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
-import { querySystems } from '@placeos/ts-client';
 
 const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     return (idx % 12 === 0 ? 12 : idx % 12) + (idx >= 12 ? ' PM' : ' AM');

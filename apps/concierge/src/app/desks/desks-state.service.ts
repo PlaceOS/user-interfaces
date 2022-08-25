@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { listChildMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
     catchError,
     debounceTime,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -23,11 +24,9 @@ import {
     notifyError,
     notifyInfo,
     notifySuccess,
+    openConfirmModal,
 } from '@placeos/common';
-import { listChildMetadata, showMetadata } from '@placeos/ts-client';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmModalComponent } from '@placeos/components';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
@@ -223,46 +222,27 @@ export class DesksStateService extends BaseClass {
 
     public async rejectAllDesks() {
         const list = this._desk_bookings || [];
-        if (list.length > 0) {
-            const ref = this._dialog.open(ConfirmModalComponent, {
-                data: {
-                    title: 'Cancel all desk bookings',
-                    content:
-                        'Are you sure you want to cancel all bookings for the selected date?',
-                    icon: {
-                        type: 'icon',
-                        class: 'material-icons',
-                        content: 'delete',
-                    },
-                },
-            });
-            return new Promise((resolve, reject) => {
-                let success = false;
-                ref.componentInstance.event
-                    .pipe(first((_) => _.reason === 'done'))
-                    .subscribe(async () => {
-                        ref.componentInstance.loading =
-                            'Rejecting all desks for selected date...';
-                        success = true;
-                        await Promise.all(
-                            list.map((desk) =>
-                                rejectBooking(desk.id).toPromise()
-                            )
-                        );
-                        resolve('');
-                        notifySuccess(
-                            'Successfull rejected all desk bookings for selected date.'
-                        );
-                        ref.close();
-                    });
-                ref.afterClosed()
-                    .toPromise()
-                    .then(() => {
-                        if (!success) reject();
-                    });
-            });
-        } else {
-            notifyInfo('No desks to reject for the selected date');
-        }
+        if (list.length <= 0) return notifyInfo('No desks to reject for the selected date');
+        const resp = await openConfirmModal({
+            title: 'Cancel all desk bookings',
+            content:
+                'Are you sure you want to cancel all bookings for the selected date?',
+            icon: {
+                type: 'icon',
+                class: 'material-icons',
+                content: 'delete',
+            },
+        }, this._dialog);
+        if (resp.reason === 'done') return;
+        resp.loading('Rejecting all desks for selected date...');
+        await Promise.all(
+            list.map((desk) =>
+                rejectBooking(desk.id).toPromise()
+            )
+        );
+        notifySuccess(
+            'Successfull rejected all desk bookings for selected date.'
+        );
+        resp.close();
     }
 }
