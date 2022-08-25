@@ -6,7 +6,7 @@ name: BUILD
 # events but only for the master branch
 on:
     push:
-        branches: [develop, release/**, master]
+        branches: [develop, release/**, rc/**, release]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -51,11 +51,11 @@ jobs:
               shell: bash
               id: build_ext
               run: |
-                    if [[ ${{ steps.branch_name.outputs.name }} == "master" ]] || [[ ${{ steps.branch_name.outputs.name }} == "production" ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
+                    if [[ ${{ steps.branch_name.outputs.name }} == "release" ]] || [[ ${{ steps.branch_name.outputs.name }} == release/* ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
                     then
                         echo "::set-output name=configuration::production"
                         echo "::set-output name=deploy_branch::prod"
-                    elif [[ ${{ steps.branch_name.outputs.name }} == release/* ]]
+                    elif [[ ${{ steps.branch_name.outputs.name }} == rc/* ]]
                     then
                         echo "::set-output name=configuration::staging"
                         echo "::set-output name=deploy_branch::uat"
