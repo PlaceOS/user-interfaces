@@ -1,8 +1,7 @@
-import { Asset } from '@placeos/assets';
-import { HashMap } from '@placeos/common';
-import { Space } from '@placeos/spaces';
-import { User } from '@placeos/users';
 
+import { Asset } from 'libs/assets/src/lib/asset.class';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { User } from 'libs/users/src/lib/user.class';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 
 export interface FileDetails {
@@ -144,7 +143,7 @@ export interface TimeBlock {
     end: number;
 }
 
-export interface TimePeriod extends HashMap {
+export interface TimePeriod extends Record<string, any> {
     date: number;
     duration: number;
 }

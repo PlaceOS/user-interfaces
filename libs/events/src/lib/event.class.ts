@@ -1,4 +1,4 @@
-import { HashMap, Identity, removeEmptyFields, unique } from '@placeos/common';
+import { Identity, removeEmptyFields, unique } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
@@ -121,7 +121,7 @@ export class CalendarEvent {
             _default_user.email ||
             ''
         ).toLowerCase();
-        const attendees: HashMap = data.attendees || [];
+        const attendees = data.attendees || [];
         this.attendees = attendees
             .filter((user: any) => !user.resource)
             .map((u) => new User(u));
@@ -129,8 +129,8 @@ export class CalendarEvent {
             unique(
                 data.resources ||
                     attendees
-                        .filter((user) => user.resource)
-                        .map((s) => new Space(s)),
+                        .filter((user) => (user as any).resource)
+                        .map((s) => new Space(s as any)),
                 'email'
             ) || [];
         this.title = data.title || 'Space Booking';
@@ -218,8 +218,8 @@ export class CalendarEvent {
     /**
      * Convert class data to simple JSON object
      */
-    public toJSON(): HashMap {
-        const obj: HashMap = { ...this };
+    public toJSON(): Record<string, any> {
+        const obj: Record<string, any> = { ...this };
         const end = getUnixTime(addMinutes(this.date, this.duration));
         const date = this.all_day ? set(this.date, { hours: 12 }) : this.date;
         obj.event_start = getUnixTime(date);

@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
-import { CalendarEvent, EventDetailsModalComponent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+import { BaseClass } from '@placeos/common';
+
+import { CalendarEvent } from './event.class';
+import { EventDetailsModalComponent } from './event-details-modal.component'
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 @Component({
     selector: 'event-card',

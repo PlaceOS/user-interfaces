@@ -16,7 +16,7 @@ import { currentUser, timePeriodsIntersect, unique } from '@placeos/common';
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
-import { User } from '@placeos/users';
+import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });

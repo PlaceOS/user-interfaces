@@ -9,9 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
-import { ComponentsModule } from '@placeos/components';
 
-import { FormFieldsModule } from '@placeos/form-fields';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
+
 import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';

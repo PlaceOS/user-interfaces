@@ -1,21 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import {
-    BaseClass,
-    currentUser,
-    flatten,
-    getInvalidFields,
-    SettingsService,
-    unique,
-} from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
-import { getUnixTime } from 'date-fns';
-import {
-    queryResourceAvailability,
-    saveBooking,
-} from 'libs/bookings/src/lib/bookings.fn';
-import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
+import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -27,12 +12,28 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import { getUnixTime } from 'date-fns';
+import {
+    BaseClass,
+    currentUser,
+    flatten,
+    getInvalidFields,
+    SettingsService,
+    unique,
+} from '@placeos/common';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import {
+    queryResourceAvailability,
+    saveBooking,
+} from 'libs/bookings/src/lib/bookings.fn';
+import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
 import { CalendarEvent } from './event.class';
 import { saveEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
-import { querySystems } from '@placeos/ts-client';
-import { PaymentsService } from '@placeos/payments';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -188,7 +189,6 @@ export class EventFormService extends BaseClass {
 
     constructor(
         private _org: OrganisationService,
-        private _spaces: SpacesService,
         private _router: Router,
         private _payments: PaymentsService,
         private _settings: SettingsService
@@ -293,7 +293,7 @@ export class EventFormService extends BaseClass {
             const is_owner =
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;
-            const space_id = this._spaces.find(spaces[0]?.email)?.id;
+            const space_id = spaces[0]?.id;
             const query = id
                 ? is_owner
                     ? { calendar: host || creator }
@@ -351,9 +351,7 @@ export class EventFormService extends BaseClass {
         exclude?: { start: number; end: number },
         ignore?: string
     ) {
-        const space_ids = spaces.map(
-            (s) => this._spaces.find(s?.email)?.id || s.id
-        );
+        const space_ids = spaces.map((s) => s.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),

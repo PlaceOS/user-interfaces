@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MapPinComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration } from 'date-fns';
+
 import { CalendarEvent } from './event.class';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 @Component({
     selector: 'event-details-modal',
