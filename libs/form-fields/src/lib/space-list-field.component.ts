@@ -1,6 +1,7 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
@@ -42,7 +43,7 @@ const EMPTY_FAVS: string[] = [];
                 *ngFor="let space of spaces"
             >
                 <div class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden">
-                    <img *ngIf="space.images.length" [src]="space.images[0]" class="min-h-full object-cover" />
+                    <img *ngIf="space.images?.length" [src]="space.images[0]" class="min-h-full object-cover" />
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">

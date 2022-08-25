@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { EventFlowOptions, EventFormService } from '@placeos/events';
+import { EventFlowOptions, EventFormService } from 'libs/events/src/lib/event-form.service';
 import { Space } from '../space.class';
 
 @Component({

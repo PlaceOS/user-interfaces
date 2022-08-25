@@ -2,13 +2,14 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SpaceListFieldComponent } from '../lib/space-list-field.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsService } from '@placeos/common';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { fakeAsync } from '@angular/core/testing';
 
 describe('SpaceListFieldComponent', () => {
     let spectator: Spectator<SpaceListFieldComponent>;
@@ -17,12 +18,12 @@ describe('SpaceListFieldComponent', () => {
         providers: [
             {
                 provide: MatDialog,
-                useValue: { open: jest.fn(() => ({ afterClosed: () => of() })) },
+                useValue: { open: jest.fn(() => ({ afterClosed: () => of([{}]) })) },
             },
             { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         declarations: [MockComponent(IconComponent)],
-        imports: [MatRadioModule, FormsModule],
+        imports: [MockModule(MatRadioModule), FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -45,18 +46,19 @@ describe('SpaceListFieldComponent', () => {
         expect(spectator.queryAll('div[space]').length).toBe(0);
     });
 
-    it('should handle space changes', () => {
+    it('should handle space changes', fakeAsync(() => {
         let count = 0;
         spectator
             .inject(MatDialog)
             .open.mockImplementation(
-                (_, { data }) =>
+                (_, { data: { spaces } }) =>
                     ({
                         afterClosed: () =>
-                            of([...(data || []), new Space({ id: `${count++}` })]),
+                            of([...(spaces || []), new Space({ id: `${count++}` })]),
                     } as any)
             );
         spectator.click('button[add-space]');
+        spectator.tick(1001);
         spectator.detectChanges();
         expect(spectator.queryAll('div[space]').length).toBe(1);
         spectator.click('button[add-space]');
@@ -65,7 +67,7 @@ describe('SpaceListFieldComponent', () => {
         spectator.click('button[edit-space]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[space]').length).toBe(3);
-    });
+    }));
 
     it('should display selected spaces', () => {
         expect(spectator.query('div[space]')).not.toExist();

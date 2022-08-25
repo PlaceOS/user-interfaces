@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
-import { ComponentsModule } from '@placeos/components';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { NewSpaceSelectModalComponent } from './space-select-modal/new-space-select-modal.component';
 
 import { SpaceSelectItemComponent } from './space-select-item.component';
@@ -12,10 +16,7 @@ import { SpaceListComponent } from './space-select-modal/space-list.component';
 import { SpaceFiltersComponent } from './space-select-modal/space-filters.component';
 import { SpaceFiltersDisplayComponent } from './space-select-modal/space-filters-display.component';
 import { SpaceSelectMapComponent } from './space-select-modal/space-map.component';
-import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormFieldsModule } from '@placeos/form-fields';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { SpaceLocationPinComponent } from './space-select-modal/space-location-pin.component';
 import { SpacePipe } from './space.pipe';
 
