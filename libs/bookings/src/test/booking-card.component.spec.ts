@@ -1,10 +1,12 @@
 import { MatDialog } from "@angular/material/dialog";
 import { createRoutingFactory, SpectatorRouting } from "@ngneat/spectator/jest";
-import { Booking } from "@placeos/bookings";
-import { IconComponent } from "@placeos/components";
-import { OrganisationService } from "@placeos/organisation";
 import { set } from "date-fns";
 import { MockComponent } from "ng-mocks";
+
+import { IconComponent } from "@placeos/components";
+import { OrganisationService } from "libs/organisation/src/lib/organisation.service";
+
+import { Booking } from "../lib/booking.class";
 import { BookingCardComponent } from "../lib/booking-card.component";
 
 describe('BookingCardComponent', () => {

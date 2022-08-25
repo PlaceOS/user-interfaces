@@ -22,7 +22,7 @@ export function notify(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     if (!_service) {
-        throw new Error("Snackbar service hasn't been initialised");
+        return console.warn("Snackbar service hasn't been initialised");
     }
     const snackbar_ref = _service.open(message, action, {
         panelClass: [type],

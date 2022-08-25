@@ -22,16 +22,16 @@ describe('BookingFormService', () => {
         service: BookingFormService,
         providers: [
             {
-                provide: OrganisationService,
-                useValue: { initialised: of(true), building: { id: 'bld-1' } },
-            },
-            {
                 provide: Router,
                 useValue: { navigate: jest.fn(), events: new Subject() },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } },
+            {
+                provide: OrganisationService,
+                useValue: { initialised: of(true), building: { id: 'bld-1' } },
+            },
             { provide: MatDialog, useValue: { open: jest.fn() } },
             { provide: PaymentsService, useValue: { makePayment: jest.fn(), payment_module: '' } },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
     });
 

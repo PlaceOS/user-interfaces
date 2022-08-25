@@ -1,8 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { notifyError, getInvalidFields } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
+
+import { notifyError } from 'libs/common/src/lib/notifications';
+import { getInvalidFields } from 'libs/common/src/lib/general';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
 

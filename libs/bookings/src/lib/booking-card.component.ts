@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { Booking, BookingDetailsModalComponent } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Booking } from './booking.class';
+import { BookingDetailsModalComponent } from './booking-details-modal.component';
+import { BaseClass } from 'libs/common/src/lib/base.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
 @Component({

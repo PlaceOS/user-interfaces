@@ -11,7 +11,6 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { listChildMetadata, PlaceZone } from '@placeos/ts-client';
 import { format, getUnixTime, addMinutes, set } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -27,13 +26,14 @@ import {
     tap,
 } from 'rxjs/operators';
 
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking, BookingType } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
-import { findNearbyFeature } from '..';
-import { PaymentsService } from '@placeos/payments';
+import { findNearbyFeature } from './booking.utilities';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 

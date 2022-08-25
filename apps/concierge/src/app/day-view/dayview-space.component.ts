@@ -33,7 +33,6 @@ export class DayviewSpaceComponent extends BaseClass implements OnInit {
     /** List of events for the selected space */
     public readonly events = this._state.filtered.pipe(
         map((bookings) =>{
-            console.log('Bookings:', bookings);
             return bookings.filter((bkn) =>
                 bkn.resources.find((space) => this.space.email === space.email)
             )

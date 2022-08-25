@@ -3,28 +3,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { getInvalidFields } from 'libs/common/src/lib/general';
-import {
-    DateFieldComponent,
-    DurationFieldComponent,
-    TimeFieldComponent,
-} from '@placeos/form-fields';
-import { OrganisationService } from '@placeos/organisation';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { MockComponent, MockModule } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
 import { Booking } from '../lib/booking.class';
 import { generateBookingForm } from '../lib/booking.utilities';
 
 import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 
-jest.mock('@placeos/common');
-
-import * as common_mod from '@placeos/common';
-
 describe('InviteVisitorFormComponent', () => {
-    let spectator: Spectator<InviteVisitorFormComponent>;
+    let spectator: SpectatorRouting<InviteVisitorFormComponent>;
     const createComponent = createRoutingFactory({
         component: InviteVisitorFormComponent,
         providers: [
@@ -34,12 +28,15 @@ describe('InviteVisitorFormComponent', () => {
                     form: generateBookingForm(),
                     loading: new BehaviorSubject(''),
                     setOptions: jest.fn(),
-                    postForm: jest.fn(async () => new Booking())
+                    postForm: jest.fn(async () => new Booking()),
                 },
             },
             {
                 provide: OrganisationService,
-                useValue: { building_list: new BehaviorSubject([]) },
+                useValue: {
+                    initialised: of(true),
+                    building_list: new BehaviorSubject([]),
+                },
             },
         ],
         declarations: [
@@ -58,7 +55,6 @@ describe('InviteVisitorFormComponent', () => {
     });
 
     beforeEach(() => {
-        (common_mod.notifyError as any) = jest.fn();
         spectator = createComponent();
     });
 
@@ -80,7 +76,7 @@ describe('InviteVisitorFormComponent', () => {
         spectator.click('button[send]');
         expect(service.postForm).not.toBeCalled();
         service.form.patchValue({
-            asset_id: 'test@mail.com'
+            asset_id: 'test@mail.com',
         });
         spectator.click('button[send]');
         expect(service.postForm).toBeCalled();
