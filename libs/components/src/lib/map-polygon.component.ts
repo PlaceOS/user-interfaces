@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
-import { BaseClass, HashMap } from '@placeos/common';
+import { BaseClass } from '@placeos/common';
 import { Observable } from 'rxjs';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 
@@ -153,7 +153,7 @@ export class MapPolygonComponent extends BaseClass implements OnInit {
     }
 
     public processPoints(points: [number, number][]) {
-        const diff: HashMap<number> = points.reduce(
+        const diff: Record<string, number> = points.reduce(
             (m, [x, y]) => ({
                 x_min: x < m.x_min ? x : m.x_min,
                 x_max: x > m.x_max ? x : m.x_max,

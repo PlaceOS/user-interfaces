@@ -1,8 +1,7 @@
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Integrations } from '@sentry/tracing';
 import { first } from 'rxjs/operators';
 import {
     clientId,
@@ -11,6 +10,8 @@ import {
     refreshToken,
     token,
 } from '@placeos/ts-client';
+import { ActivatedRoute } from '@angular/router';
+import { addHours } from 'date-fns';
 
 import {
     BaseClass,
@@ -25,16 +26,13 @@ import {
     setupPlace,
     log,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
-import { addHours } from 'date-fns';
 
 import * as Sentry from '@sentry/angular';
 import { MOCKS } from '@placeos/mocks';
-import { ActivatedRoute, Router } from '@angular/router';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -56,17 +54,18 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         <global-loading></global-loading>
         <debug-console *ngIf="debug"></debug-console>
     `,
-    styles: [`
-        :host {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+        `,
+    ],
 })
 export class AppComponent extends BaseClass implements OnInit {
-
     public get debug() {
         return window.debug;
     }
@@ -78,7 +77,7 @@ export class AppComponent extends BaseClass implements OnInit {
         private _snackbar: MatSnackBar,
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
-        private _route: ActivatedRoute,
+        private _route: ActivatedRoute
     ) {
         super();
     }
@@ -93,7 +92,10 @@ export class AppComponent extends BaseClass implements OnInit {
             location.reload();
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyD'], () => {
-            this._settings.saveUserSetting('dark_mode', !this._settings.get('dark_mode'));
+            this._settings.saveUserSetting(
+                'dark_mode',
+                !this._settings.get('dark_mode')
+            );
             notifySuccess('Toggled dark mode.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
@@ -115,7 +117,8 @@ export class AppComponent extends BaseClass implements OnInit {
             });
         });
         this._route.queryParamMap.subscribe((params) => {
-            if (params.has('hide_nav')) localStorage.setItem('PlaceOS.hide_nav', 'true');
+            if (params.has('hide_nav'))
+                localStorage.setItem('PlaceOS.hide_nav', 'true');
         });
         setNotifyOutlet(this._snackbar);
         /** Wait for settings to initialise */
@@ -126,7 +129,7 @@ export class AppComponent extends BaseClass implements OnInit {
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
-        await setupPlace(settings).catch((_) =>  console.error(_));
+        await setupPlace(settings).catch((_) => console.error(_));
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);

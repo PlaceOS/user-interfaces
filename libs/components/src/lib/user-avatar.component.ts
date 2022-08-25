@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { User } from '../../../users/src/lib/user.class';
+import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: 'a-user-avatar',

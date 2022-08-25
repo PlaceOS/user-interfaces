@@ -3,8 +3,9 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
 import { BaseClass } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { MapPinComponent } from '@placeos/components';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { MapPinComponent } from './map-pin.component';
 
 export interface Locatable {
     id: string;

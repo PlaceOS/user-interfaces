@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     ApplicationIcon,
-    BaseClass,
     SettingsService,
 } from '@placeos/common';
 import { first } from 'rxjs/operators';

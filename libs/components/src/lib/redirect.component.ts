@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { SettingsService } from "@placeos/common";
-import { OrganisationService } from "@placeos/organisation";
 import { first } from "rxjs/operators";
+
+import { SettingsService } from "@placeos/common";
+import { OrganisationService } from "libs/organisation/src/lib/organisation.service";
 
 @Component({
     selector: 'page-redirect',

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { first } from 'rxjs/operators';
 import { isOnline, token } from '@placeos/ts-client';
 import { BaseClass, SettingsService } from '@placeos/common';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 @Component({
     selector: 'global-loading',

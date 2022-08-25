@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { format } from 'date-fns';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { BaseClass } from 'libs/common/src/lib/base.class';
@@ -7,8 +8,6 @@ import {
     ClientEvent,
     RemoteLoggingService,
 } from 'libs/common/src/lib/remote-logging.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { JsonDisplayComponent } from './json-display.component';
 
 const COLOR_MAP = {
@@ -99,7 +98,7 @@ const URL_STARTS = [
                                     [data]="obj"
                                     [hover]="true"
                                     [backdrop]="false"
-                                >Object</span
+                                    >Object</span
                                 >]
                             </ng-container>
                             <ng-container *ngSwitchDefault>{{

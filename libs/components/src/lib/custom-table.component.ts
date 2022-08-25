@@ -12,7 +12,7 @@ import {
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { BaseClass, HashMap } from '@placeos/common';
+import { BaseClass } from '@placeos/common';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -124,7 +124,7 @@ export class CustomTableComponent<T extends {} = any>
     /** Displayed value when the table is empty */
     @Input() public empty: string;
     /** Displayed value when the table is empty */
-    @Input() public template: HashMap<TemplateRef<any>> = {};
+    @Input() public template: Record<string, TemplateRef<any>> = {};
 
     @Output() public row_clicked = new EventEmitter<T>();
 
