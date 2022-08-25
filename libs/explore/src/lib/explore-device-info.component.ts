@@ -1,18 +1,12 @@
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal } from '@angular/cdk/portal';
-import {
-    Component,
-    ElementRef,
-    HostListener,
-    Inject,
-    OnInit,
-    ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
-import { MAP_FEATURE_DATA } from '@placeos/components';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
-import { BaseClass, SettingsService } from '@placeos/common';
 import { Observable } from 'rxjs';
+
+import { BaseClass, SettingsService } from '@placeos/common';
+
+import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+
 export interface DeviceInfoData {
     mac: string;
     variance: number;
@@ -36,7 +30,10 @@ const EMPTY = [];
             class="radius absolute center bg-blue-600 bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
-        <div shadow class="absolute center bg-black/40 h-8 w-8 rounded-full"></div>
+        <div
+            shadow
+            class="absolute center bg-black/40 h-8 w-8 rounded-full"
+        ></div>
         <div
             name="dot"
             #dot
@@ -65,12 +62,25 @@ const EMPTY = [];
                     <p class="break-words"><label>MAC:</label> {{ mac }}</p>
                     <p><label>Accuracy:</label> {{ variance }}m</p>
                     <p><label>Last Seen:</label> {{ last_seen }}</p>
-                    <p type *ngIf="manufacturer && !hide_fields.includes('manufacturer')">
+                    <p
+                        type
+                        *ngIf="
+                            manufacturer &&
+                            !hide_fields.includes('manufacturer')
+                        "
+                    >
                         <label>Manufacturer:</label> {{ manufacturer }}
                     </p>
-                    <p os *ngIf="os && !hide_fields.includes('os')"><label>OS:</label> {{ os }}</p>
-                    <p ssid *ngIf="ssid && !hide_fields.includes('ssid')"><label>SSID:</label> {{ ssid }}</p>
-                    <p username *ngIf="username && !hide_fields.includes('username')">
+                    <p os *ngIf="os && !hide_fields.includes('os')">
+                        <label>OS:</label> {{ os }}
+                    </p>
+                    <p ssid *ngIf="ssid && !hide_fields.includes('ssid')">
+                        <label>SSID:</label> {{ ssid }}
+                    </p>
+                    <p
+                        username
+                        *ngIf="username && !hide_fields.includes('username')"
+                    >
                         <label>Username:</label>
                         {{ user?.name || user?.username || username }}
                     </p>
@@ -170,8 +180,8 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
     public ngOnInit(tries: number = 0) {
         if (tries > 10) return;
         setTimeout(() => {
-            const parent = this._element.nativeElement.parentElement
-                ?.parentElement;
+            const parent =
+                this._element.nativeElement.parentElement?.parentElement;
             if (!parent) return this.ngOnInit(++tries);
             const position = {
                 y: parseInt(parent.style.top, 10) / 100,
@@ -179,14 +189,17 @@ export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
             };
             this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
             this.x_pos = position.x >= 0.5 ? 'end' : 'start';
-            this.subscription('zoom', this._details.zoom$.subscribe(_ => this.zoom = _));
+            this.subscription(
+                'zoom',
+                this._details.zoom$.subscribe((_) => (this.zoom = _))
+            );
         }, 200);
     }
 
     public async loadUser() {
         if (this.username) return;
         const mod = getModule(this._details.system, 'LocationServices');
-        if (!mod) return
+        if (!mod) return;
         this.username = 'Loading...';
         const details = await mod
             .execute('check_ownership_of', [this.mac])

@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
-import { Space } from '@placeos/spaces';
 
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
 const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;

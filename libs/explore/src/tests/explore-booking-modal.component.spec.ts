@@ -5,22 +5,15 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
-import { IconComponent } from '@placeos/components';
-import { DurationFieldComponent } from '@placeos/form-fields';
-import { Space } from '@placeos/spaces';
+import { SettingsService } from '@placeos/common';
+import { EventFormService, generateEventForm } from '@placeos/events';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 
 import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.component';
-
-jest.mock('@placeos/calendar');
-jest.mock('@placeos/common');
-jest.mock('libs/events/src/lib/events.fn');
-
-import * as cal_mod from '@placeos/calendar';
-import * as common_mod from '@placeos/common';
-import * as events_mod from 'libs/events/src/lib/events.fn';
-import { SettingsService } from '@placeos/common';
+import { fakeAsync } from '@angular/core/testing';
 
 describe('ExploreBookingModalComponent', () => {
     let spectator: Spectator<ExploreBookingModalComponent>;
@@ -37,6 +30,15 @@ describe('ExploreBookingModalComponent', () => {
                     space: { id: 'one', name: 'Test Space', email: '1' },
                 },
             },
+            {
+                provide: EventFormService,
+                useValue: {
+                    form: generateEventForm(),
+                    newForm: jest.fn(),
+                    postForm: jest.fn(async () => ({})),
+                    loading: of(''),
+                },
+            },
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: MatDialogRef, useValue: { close: jest.fn() } },
         ],
@@ -49,12 +51,7 @@ describe('ExploreBookingModalComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        (common_mod as any).notifyError = jest.fn();
-        (common_mod as any).notifySuccess = jest.fn();
-        (common_mod as any).unique = jest.fn((_) => _);
-        spectator = createComponent();
-    });
+    beforeEach(() => spectator = createComponent());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -71,54 +68,16 @@ describe('ExploreBookingModalComponent', () => {
         expect('[name="space"]').toContainText('Test Space');
     });
 
-    it('should allow booking space', (done) => {
-        spectator.detectChanges();
+    it('should allow booking space', fakeAsync(() => {
         spectator.component.form.patchValue({
             host: 'host@place.tech',
             creator: 'creator@place.tech',
         });
         spectator.typeInElement('Freedom Booking', 'input[name="title"]');
-        const dialog_ref = spectator.inject(MatDialogRef);
-        (cal_mod as any).querySpaceAvailability = jest.fn(() =>
-            of([new Space()])
-        );
-        (events_mod as any).saveEvent = jest.fn(() => of(new Space()));
-        dialog_ref.close.mockImplementation(() => {
-            expect(cal_mod.querySpaceAvailability).toBeCalledTimes(1);
-            expect(events_mod.saveEvent).toBeCalledTimes(1);
-            done();
-        });
         const spy = jest.spyOn(spectator.component, 'save');
         spectator.click('footer button');
-        spectator.detectChanges();
         expect(spy).toHaveBeenCalled();
-    });
-
-    it('should handle booking errors', async () => {
-        spectator.detectChanges();
-        await spectator.component.save().catch(() => null);
-        expect(common_mod.notifyError).toHaveBeenCalled();
-        spectator.component.form.patchValue({
-            host: 'host@place.tech',
-            creator: 'creator@place.tech',
-            title: 'Testing',
-        });
-        (cal_mod as any).querySpaceAvailability = jest.fn(() =>
-            throwError('Failed')
-        );
-        await spectator.component.save().catch(() => null);
-        expect(common_mod.notifyError).toHaveBeenCalledTimes(2);
-        (cal_mod as any).querySpaceAvailability = jest.fn(() => of([]));
-        await spectator.component.save().catch(() => null);
-        expect(common_mod.notifyError).toHaveBeenCalledTimes(3);
-        (cal_mod as any).querySpaceAvailability = jest.fn(() =>
-            of([new Space()])
-        );
-        (events_mod as any).saveEvent = jest.fn(() => throwError('Failed'));
-        await spectator.component.save().catch(() => null);
-        expect(common_mod.notifyError).toHaveBeenCalledTimes(4);
-        (events_mod as any).saveEvent = jest.fn(() => of(new Space()));
-        await spectator.component.save().catch(() => null);
-        expect(common_mod.notifyError).toHaveBeenCalledTimes(4);
-    });
+        spectator.tick();
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
+    }));
 });

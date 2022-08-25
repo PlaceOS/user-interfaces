@@ -1,21 +1,22 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
-import { BookingFormService, queryBookings } from '@placeos/bookings';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import {
     BaseClass,
     currentUser,
-    HashMap,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
-import { StaffUser } from '@placeos/users';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Desk } from 'libs/organisation/src/lib/desk.class';
+import { StaffUser } from 'libs/users/src/lib/user.class';
 
-import { MatDialog } from '@angular/material/dialog';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
@@ -40,8 +41,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _options = new BehaviorSubject<DeskOptions>({});
     private _presence = new BehaviorSubject<string[]>([]);
     private _signs_of_life = new BehaviorSubject<string[]>([]);
-    private _statuses: HashMap<string> = {};
-    private _users: HashMap<string> = {};
+    private _statuses: Record<string, string> = {};
+    private _users: Record<string, string> = {};
     private _poll = new BehaviorSubject<number>(0);
 
     private _checked_in = new BehaviorSubject<string[]>([]);
@@ -66,7 +67,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             showMetadata(lvl.id, 'desks').pipe(
                 map((i) =>
                     (i.details instanceof Array ? i.details : []).map(
-                        (j: HashMap) => new Desk({ ...j, zone: lvl as any })
+                        (j: Record<string, any>) =>
+                            new Desk({ ...j, zone: lvl as any })
                     )
                 )
             )
@@ -228,7 +230,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._state.setStyles('desks', style_map);
     }
 
-    private processDevices(devices: HashMap[], system_id: string) {
+    private processDevices(devices: Record<string, any>[], system_id: string) {
         const list = [];
         for (const device of devices) {
             const x = device.x / device.map_width;
@@ -246,7 +248,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this._state.setFeatures('devices', list);
     }
 
-    private processDesks(desks: HashMap[]) {
+    private processDesks(desks: Record<string, any>[]) {
         const list = [];
         const actions = [];
         const options = this._options.getValue();

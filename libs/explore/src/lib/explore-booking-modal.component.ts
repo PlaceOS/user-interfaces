@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
-import { CalendarEvent, generateEventForm, saveEvent } from '@placeos/events';
-import { Space } from '@placeos/spaces';
-import { querySpaceAvailability } from '@placeos/calendar';
+import { SettingsService } from '@placeos/common';
+
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 export interface ExploreBookingModalData {
     space: Space;
@@ -16,11 +16,11 @@ export interface ExploreBookingModalData {
         <header>
             <h2>New Booking</h2>
             <div class="flex-1"></div>
-            <button *ngIf="!loading" mat-icon-button mat-dialog-close>
+            <button *ngIf="!(loading | async)" mat-icon-button mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <ng-container *ngIf="!loading; else load_state">
+        <ng-container *ngIf="!(loading | async); else load_state">
             <main *ngIf="form" [formGroup]="form" class="p-4">
                 <div class="flex flex-col">
                     <label for="title">Title<span>*</span>:</label>
@@ -67,7 +67,7 @@ export interface ExploreBookingModalData {
         <ng-template #load_state>
             <div load class="h-64 flex flex-col items-center justify-center">
                 <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading | async }}</p>
             </div>
         </ng-template>
     `,
@@ -85,9 +85,10 @@ export interface ExploreBookingModalData {
     ],
 })
 export class ExploreBookingModalComponent implements OnInit {
-    public booking: CalendarEvent;
-    public form = generateEventForm();
-    public loading = '';
+
+    public readonly loading = this._event_form.loading;
+
+    public get form() { return this._event_form.form };
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 4 * 60;
@@ -96,69 +97,17 @@ export class ExploreBookingModalComponent implements OnInit {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
         private _settings: SettingsService,
+        private _event_form: EventFormService,
         private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>
     ) {}
 
     public ngOnInit() {
-        this.booking = new CalendarEvent({
-            attendees: [{ ...(this._data.space || {}), resource: true } as any],
-        });
-        this.form = generateEventForm(this.booking);
+        this._event_form.newForm();
+        this.form.patchValue({ resources: [this._data.space] });
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        const on_error = (msg) => {
-            this.loading = '';
-            notifyError(msg);
-            this._dialog_ref.disableClose = false;
-        };
-        if (!this.form.valid) {
-            const list = [];
-            for (const key in this.form.controls) {
-                if (this.form.controls[key].invalid) {
-                    list.push(key);
-                }
-            }
-            throw on_error(
-                `Some form fields are not valid: [${list.join(', ')}]`
-            );
-        }
-        this._dialog_ref.disableClose = true;
-        this.loading = 'Checking space availability...';
-        const spaces = await querySpaceAvailability({
-            system_ids: this.form.controls.resources.value
-                ?.map((s) => s.id)
-                .join(','),
-            period_start: Math.floor(this.form.value.date / 1000),
-            period_end:
-                Math.floor(this.form.value.date / 1000) +
-                this.form.value.duration * 60,
-        })
-            .toPromise()
-            .catch((e) => {
-                on_error(
-                    'Space is unavailble for the selected time and duration'
-                );
-                throw e;
-            });
-        if (spaces.length <= 0) {
-            return on_error(
-                'Space is unavailble for the selected time and duration'
-            );
-        }
-        this.loading = 'Creating booking...';
-        await saveEvent(new CalendarEvent(this.form.value))
-            .toPromise()
-            .catch((e) => {
-                on_error('Error creating booking.');
-                throw e;
-            });
-        notifySuccess(
-            `Successfully created booking in ${
-                this._data.space.display_name || this._data.space.name
-            }`
-        );
+        await this._event_form.postForm();
         this._dialog_ref.close();
     }
 }

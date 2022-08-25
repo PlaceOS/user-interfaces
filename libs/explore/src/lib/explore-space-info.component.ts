@@ -1,8 +1,8 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { MAP_FEATURE_DATA } from '@placeos/components';
-import { CalendarEvent } from '@placeos/events';
-import { Space } from '@placeos/spaces';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 export interface SpaceInfoData {
     space: Space;

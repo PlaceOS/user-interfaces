@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { ExploreStateService } from './explore-state.service';
 
 @Component({

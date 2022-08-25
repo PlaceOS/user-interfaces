@@ -13,6 +13,7 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 import { MockComponent } from 'ng-mocks';
+import { SettingsService } from '@placeos/common';
 
 describe('ExploreDeviceInfoComponent', () => {
     let spectator: Spectator<ExploreDeviceInfoComponent>;
@@ -24,6 +25,7 @@ describe('ExploreDeviceInfoComponent', () => {
                 provide: MAP_FEATURE_DATA,
                 useValue: { mac: 'User', variance: 10 },
             },
+            { provide: SettingsService, useValue: { get: jest.fn() } }
         ],
         imports: [PortalModule, OverlayModule],
     });

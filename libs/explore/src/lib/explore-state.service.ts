@@ -6,6 +6,7 @@ import {
     ViewerLabel,
     ViewerStyles,
 } from '@placeos/svg-viewer';
+import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -18,9 +19,10 @@ import {
 } from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService, unique } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
-import { querySystems } from '@placeos/ts-client';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 export interface MapOptions {
     /** List of keys to ignore for any map resource */

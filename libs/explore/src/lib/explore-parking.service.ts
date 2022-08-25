@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { queryBookings } from '@placeos/bookings';
 import {
     BaseClass,
     currentUser,
     flatten,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
@@ -17,7 +15,11 @@ import {
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
-import { DEFAULT_COLOURS, ExploreStateService } from '..';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
+import { ExploreStateService } from './explore-state.service';
+import { DEFAULT_COLOURS } from './explore-spaces.service';
 
 export interface ExploreParkingOptions {
     date: number;

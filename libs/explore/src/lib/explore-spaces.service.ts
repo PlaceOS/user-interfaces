@@ -4,14 +4,10 @@ import { getModule } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import { map } from 'rxjs/operators';
 
-import {
-    BaseClass,
-    HashMap,
-    SettingsService,
-} from '@placeos/common';
-import {  notifyError } from 'libs/common/src/lib/notifications';
-import { Space } from '@placeos/spaces';
-import { CalendarEvent } from '@placeos/events';
+import { BaseClass, HashMap, SettingsService } from '@placeos/common';
+import { notifyError } from 'libs/common/src/lib/notifications';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';

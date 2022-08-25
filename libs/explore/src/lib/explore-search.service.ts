@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { getModule, querySystems } from '@placeos/ts-client';
+import { unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -10,11 +12,10 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { Space } from '@placeos/spaces';
-import { searchStaff, StaffUser, User } from '@placeos/users';
-import { getModule, querySystems } from '@placeos/ts-client';
-import { unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { StaffUser, User } from 'libs/users/src/lib/user.class';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 export interface SearchResult {
     /** Unique ID of the result item */
@@ -55,15 +56,17 @@ export class ExploreSearchService {
             q?.length > 2
                 ? querySystems({ q }).pipe(
                       map(({ data }) =>
-                          data.filter(_ => _.map_id).map(
-                              (_) =>
-                                  new Space({
-                                      ..._,
-                                      level: this._org.levelWithID(
-                                          _.zones as any
-                                      ),
-                                  } as any)
-                          )
+                          data
+                              .filter((_) => _.map_id)
+                              .map(
+                                  (_) =>
+                                      new Space({
+                                          ..._,
+                                          level: this._org.levelWithID(
+                                              _.zones as any
+                                          ),
+                                      } as any)
+                              )
                       )
                   )
                 : of([])
@@ -127,9 +130,7 @@ export class ExploreSearchService {
     /** Function used to query for users */
     public search_fn = (q: string) => searchStaff(q);
 
-    constructor(
-        private _org: OrganisationService
-    ) {
+    constructor(private _org: OrganisationService) {
         this.search_results.subscribe();
         this.init();
     }

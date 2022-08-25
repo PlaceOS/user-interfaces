@@ -1,13 +1,15 @@
 import { MatDialog } from '@angular/material/dialog';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { BookingFormService, DesksService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
+
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';

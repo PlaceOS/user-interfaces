@@ -4,7 +4,7 @@ import { ViewerLabel, Point } from '@placeos/svg-viewer';
 import { first, map } from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';

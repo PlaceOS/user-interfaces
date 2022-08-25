@@ -9,16 +9,17 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { Space, SpacesService } from '@placeos/spaces';
 import { MapLocation, showStaff, User } from '@placeos/users';
-import { MapPinComponent, MapRadiusComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 const EMPTY = [];
 
