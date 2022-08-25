@@ -30,7 +30,10 @@ export const STRIPE_ID_TOKEN = 'STRIPE+customer_id';
     providedIn: 'root',
 })
 export class PaymentsService {
+    private _loading = new BehaviorSubject('');
     private _active_card = new BehaviorSubject('');
+
+    public readonly loading = this._loading.asObservable();
 
     public readonly payment_sources = of(1).pipe(
         switchMap(() => {
@@ -55,14 +58,22 @@ export class PaymentsService {
         details: PaymentDetails
     ): Promise<PaymentResult | undefined> {
         // if (!this.payment_module) throw 'Payments not enabled';
-        const [cost, period] = await this._getCostOfProduct(details?.type).catch(_ => [6000, 60]);
+        const [cost, period] = await this._getCostOfProduct(
+            details?.type
+        ).catch((_) => [6000, 60]);
         const amount = cost * (details.duration / period);
-        const makePayment = (c: any) => this._processPayment(amount, c);
+        const makePayment = async (c: any) => {
+            await this._processPayment(amount, c).catch((e) => {
+                this._loading.next('');
+                throw e;
+            });
+        };
         const data = {
             ...details,
             rate: `$${(cost / 100).toFixed(2)} per hour`,
             amount,
             makePayment,
+            loading: this.loading,
         };
         const ref = this._dialog.open(PaymentModalComponent, { data });
         const result = await ref.afterClosed().toPromise();
@@ -78,13 +89,16 @@ export class PaymentsService {
     }: PaymentCardDetails) {
         const mod = getModule(this.payment_module, 'Payment');
         if (!mod) throw 'Unable to load module';
-        await mod.execute('add_payment_method', ['card', {
-            card_number,
-            cardholder,
-            cvv,
-            exp_month,
-            exp_year,
-       }]);
+        await mod.execute('add_payment_method', [
+            'card',
+            {
+                card_number,
+                cardholder,
+                cvv,
+                exp_month,
+                exp_year,
+            },
+        ]);
     }
 
     private async _getCostOfProduct(type: string) {
@@ -100,10 +114,12 @@ export class PaymentsService {
         amount: number,
         card_details?: PaymentCardDetails
     ) {
+        this._loading.next('Checking payment method...');
         const source = card_details
             ? await this._addPaymentMethod(card_details)
             : this._active_card.getValue();
         if (!source) throw 'No payment source selected';
+        this._loading.next('Processing payment...');
         console.log('Process Payment:', amount, card_details);
         const mod = getModule(this.payment_module, 'Payment');
         if (!mod) throw 'Unable to load module';
@@ -113,5 +129,6 @@ export class PaymentsService {
         ]);
         if (!id) throw 'Failed to create payment';
         await mod.execute('confirm_payment_intent', [id]);
+        this._loading.next('');
     }
 }

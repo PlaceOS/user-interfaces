@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
 import { PaymentCardDetails } from './card-input-field.component';
 
 export interface PaymentData {
@@ -11,6 +12,7 @@ export interface PaymentData {
     has_payment_method: boolean;
     rate: string;
     amount: number; // Number in cents
+    loading: Observable<string>
     makePayment: (_?: PaymentCardDetails) => Promise<void>;
 }
 
@@ -58,23 +60,32 @@ export interface PaymentData {
             </button>
         </div>
         <ng-template #load_state>
-            <div class=""></div>
+            <div class="w-full h-full flex flex-col items-center justify-center p-8">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>{{ loading | async }}</p>
+            </div>
         </ng-template>
+        <ng-template #success_state>
+
+        <ng-template>
+
     `,
     styles: [``],
 })
 export class PaymentModalComponent {
     @Output() public readonly event = new EventEmitter();
     public readonly details = this._data;
-    public loading = false;
+    public readonly loading = this._data.loading;
     public card_details?: PaymentCardDetails;
+    public success = false;
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: PaymentData) {}
 
-    public processPayment() {
+    public async processPayment() {
         if (!this.card_details || !this._validCardDetails()) return;
-        this.loading = true;
         this.event.emit(this.card_details);
+        await this._data.makePayment(this.card_details);
+        this.success = true;
     }
 
     private _validCardDetails() {

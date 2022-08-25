@@ -11,6 +11,7 @@ import { createCaptureModule } from './realtime/capture';
 import { createMeetingPushModule } from './realtime/meeting';
 import { createVideoConferenceModule } from './realtime/video-conference';
 import { createContactTracingModule } from './realtime/contact-tracing';
+import { createPaymentsModule } from './realtime/payments';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {
@@ -26,7 +27,8 @@ export function createSystem(space: HashMap) {
             .map((_) => createMicrophoneModule(space)),
         Capture: [createCaptureModule(space)],
         MeetingPush: [createMeetingPushModule()],
-        VidConf: [createVideoConferenceModule()]
+        VidConf: [createVideoConferenceModule()],
+        StripePayments: [createPaymentsModule(space)]
     });
 
     const system = mockSystem(space.id);

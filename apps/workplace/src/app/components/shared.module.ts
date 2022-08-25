@@ -41,6 +41,7 @@ import { AccessibilityTooltipComponent } from './accessibility-tooltip.component
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { PaymentsModule } from '@placeos/payments';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -92,6 +93,7 @@ const MATERIAL_MODULES: any[] = [
         SharedEventsModule,
         SharedBookingsModule,
         SharedSpacesModule,
+        PaymentsModule,
         ...MATERIAL_MODULES,
     ],
     exports: [
@@ -101,6 +103,7 @@ const MATERIAL_MODULES: any[] = [
         SharedEventsModule,
         SharedBookingsModule,
         SharedSpacesModule,
+        PaymentsModule,
         ...MATERIAL_MODULES,
     ],
 })
