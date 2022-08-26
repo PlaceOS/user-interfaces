@@ -393,6 +393,7 @@ export class BookingFormService extends BaseClass {
                 all_day: value.all_day,
             });
             if (!receipt?.success) return;
+            (value as any).extension_data = { invoice: receipt, invoice_id: receipt.invoice_id };
         }
         this._loading.next('Saving booking');
         const result = await saveBooking(
