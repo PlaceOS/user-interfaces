@@ -41,7 +41,11 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         (keydown)="(false)"
                         maxlength="17"
                     />
-                    <img *ngIf="card_type" [src]="'assets/icons/' + card_type + '.svg'" class="h-8" />
+                    <img
+                        *ngIf="card_type"
+                        [src]="'assets/icons/' + card_type + '.svg'"
+                        class="h-8"
+                    />
                 </div>
             </div>
             <div class="flex flex-col flex-1">
@@ -53,6 +57,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         placeholder="Mr John Smith"
                         formControlName="cardholder"
                     />
+                    <mat-error>Cardholder name is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex items-center space-x-2">
@@ -70,6 +75,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                                 {{ item[1] }} ({{ item[0] }})
                             </mat-option>
                         </mat-select>
+                        <mat-error>Expiry month is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col flex-1 w-1/4">
@@ -85,6 +91,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                                 >{{ item }}</mat-option
                             >
                         </mat-select>
+                        <mat-error>Expiry year is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
@@ -96,6 +103,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                             formControlName="cvv"
                             maxlength="4"
                         />
+                        <mat-error>Invalid security code</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -147,7 +155,8 @@ export class CardInputFieldComponent
     public readonly digits = Array(16).fill(0);
     private _index = 0;
 
-    @ViewChild('input', { static: true }) private _input_el!: ElementRef<HTMLInputElement>;
+    @ViewChild('input', { static: true })
+    private _input_el!: ElementRef<HTMLInputElement>;
 
     private _onChange?: (_: PaymentCardDetails) => void;
     private _onTouch?: (_: PaymentCardDetails) => void;
@@ -188,6 +197,15 @@ export class CardInputFieldComponent
         );
     }
 
+    public ngOnInit() {
+        this.subscription(
+            'changes',
+            this.details.valueChanges.subscribe((v) =>
+                this.timeout('update', () => this.setValue(this.details.getRawValue()))
+            )
+        );
+    }
+
     public focusInput() {
         this._input_el.nativeElement.focus();
         this._index = this._input_el.nativeElement.selectionStart || 0;
@@ -198,7 +216,11 @@ export class CardInputFieldComponent
         const idx = this._index;
         if (idx < 0 || idx > 16) return;
         let card_number = this.details.value.card_number!;
-        if ((event.code.startsWith('Digit') || event.code.startsWith('Numpad')) && idx < (this.is_amex ? 15 : 16)) {
+        if (
+            (event.code.startsWith('Digit') ||
+                event.code.startsWith('Numpad')) &&
+            idx < (this.is_amex ? 15 : 16)
+        ) {
             card_number =
                 card_number.substring(0, idx) +
                 event.key +
@@ -229,8 +251,7 @@ export class CardInputFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: PaymentCardDetails) {
-        this.details.patchValue(new_value || BLANK_CARD);
-        if (this._onChange) this._onChange(this.details.getRawValue() as any);
+        if (this._onChange) this._onChange(new_value);
     }
 
     /**

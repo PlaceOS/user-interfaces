@@ -1,4 +1,4 @@
-import { HashMap, randomInt } from '@placeos/common';
+import { HashMap, randomInt, randomString } from '@placeos/common';
 
 class PaymentsModule {
     
@@ -11,19 +11,18 @@ class PaymentsModule {
     }
 
     $get_product_price(id: string, period) {
-
+        return [12000, 60];
     }
 
     $create_payment_intent(amount: number, source: string) {
-
+        return randomString(12);
     }
 
     $confirm_payment_intent(id: string) {
-        
+
     }
 
     $cancel_payment_intent(id: string) {
-        
     }
 
     constructor(_) {}

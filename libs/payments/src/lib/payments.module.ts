@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { PaymentModalComponent } from './payment-modal.component';
 import { CardInputFieldComponent } from './card-input-field.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const COMPONENTS = [
     PaymentModalComponent, 
@@ -25,7 +26,8 @@ const COMPONENTS = [
         FormsModule,
         ReactiveFormsModule,
         MatButtonModule,
-        MatSelectModule
+        MatSelectModule,
+        MatProgressSpinnerModule
     ],
     exports: [...COMPONENTS],
 })

@@ -25,6 +25,7 @@ export interface PaymentResult {
 }
 
 export const STRIPE_ID_TOKEN = 'STRIPE+customer_id';
+const STRIPE_MODULE = 'StripePayments';
 
 @Injectable({
     providedIn: 'root',
@@ -37,7 +38,7 @@ export class PaymentsService {
 
     public readonly payment_sources = of(1).pipe(
         switchMap(() => {
-            const mod = getModule(this.payment_module, 'Payment');
+            const mod = getModule(this.payment_module, STRIPE_MODULE);
             if (!mod) return of([]);
             return mod.execute('list_payment_methods', ['card']);
         }),
@@ -61,6 +62,7 @@ export class PaymentsService {
         const [cost, period] = await this._getCostOfProduct(
             details?.type
         ).catch((_) => [6000, 60]);
+        // if (cost <= 0) return;
         const amount = cost * (details.duration / period);
         const makePayment = async (c: any) => {
             await this._processPayment(amount, c).catch((e) => {
@@ -77,33 +79,20 @@ export class PaymentsService {
         };
         const ref = this._dialog.open(PaymentModalComponent, { data });
         const result = await ref.afterClosed().toPromise();
+        console.log('Result:', result);
         return result;
     }
 
-    private async _addPaymentMethod({
-        card_number,
-        cardholder,
-        cvv,
-        exp_month,
-        exp_year,
-    }: PaymentCardDetails) {
-        const mod = getModule(this.payment_module, 'Payment');
+    private async _addPaymentMethod(card: PaymentCardDetails) {
+        const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
-        await mod.execute('add_payment_method', [
-            'card',
-            {
-                card_number,
-                cardholder,
-                cvv,
-                exp_month,
-                exp_year,
-            },
-        ]);
+        await mod.execute('add_payment_method', ['card', card]);
+        return card;
     }
 
     private async _getCostOfProduct(type: string) {
         let price: [number, number] = [0, 60];
-        const mod = getModule(this.payment_module, 'Payment');
+        const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) return price;
         price =
             (await mod.execute('get_product_price', [type, 'hourly'])) || price;
@@ -121,7 +110,7 @@ export class PaymentsService {
         if (!source) throw 'No payment source selected';
         this._loading.next('Processing payment...');
         console.log('Process Payment:', amount, card_details);
-        const mod = getModule(this.payment_module, 'Payment');
+        const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
         const id = await mod.execute<string>('create_payment_intent', [
             amount,
