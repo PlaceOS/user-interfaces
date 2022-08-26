@@ -115,7 +115,6 @@ export class PaymentModalComponent {
     constructor(@Inject(MAT_DIALOG_DATA) private _data: PaymentData) {}
 
     public async processPayment() {
-        console.log(!this.card_details, !this._validCardDetails(), this.card_details);
         if (!this.card_details || !this._validCardDetails()) return;
         this.event.emit(this.card_details);
         await this._data.makePayment(this.card_details);

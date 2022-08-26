@@ -109,7 +109,6 @@ export class PaymentsService {
             : this._active_card.getValue();
         if (!source) throw 'No payment source selected';
         this._loading.next('Processing payment...');
-        console.log('Process Payment:', amount, card_details);
         const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
         const id = await mod.execute<string>('create_payment_intent', [

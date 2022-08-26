@@ -188,7 +188,6 @@ export class LandingColleaguesComponent extends BaseClass {
     public openSearch() {
         this.updateSearch('');
         this.show_search = true;
-        console.log('Input:', this._input_el);
         this.timeout('open', () => this._input_el.nativeElement.focus(), 100);
     }
 }

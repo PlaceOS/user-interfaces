@@ -74,7 +74,6 @@ export class ScheduleStateService extends BaseClass {
         this.desks,
         this.parking,
     ]).pipe(
-        tap((_) => console.log('Data:', _)),
         map(([e, d, p]) => [...e, ...d, ...p].sort((a, b) => a.date - b.date))
     );
     /** Filtered list of events and bookings for the selected date */
@@ -129,6 +128,5 @@ export class ScheduleStateService extends BaseClass {
                 shown_types: [...shown_types, name],
             });
         }
-        console.log('Filters:', this._filters.getValue());
     }
 }

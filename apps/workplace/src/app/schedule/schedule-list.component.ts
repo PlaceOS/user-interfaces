@@ -133,7 +133,6 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
                       ];
                 start = addDays(start, 1);
             }
-            console.log('Items:', items);
             return items;
         })
     );
