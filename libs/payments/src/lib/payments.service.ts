@@ -64,8 +64,9 @@ export class PaymentsService {
         ).catch((_) => [6000, 60]);
         // if (cost <= 0) return;
         const amount = cost * (details.duration / period);
+        let result = undefined;
         const makePayment = async (c: any) => {
-            await this._processPayment(amount, c).catch((e) => {
+            result = await this._processPayment(amount, c).catch((e) => {
                 this._loading.next('');
                 throw e;
             });
@@ -78,8 +79,7 @@ export class PaymentsService {
             loading: this.loading,
         };
         const ref = this._dialog.open(PaymentModalComponent, { data });
-        const result = await ref.afterClosed().toPromise();
-        console.log('Result:', result);
+        await ref.afterClosed().toPromise();
         return result;
     }
 
@@ -119,5 +119,13 @@ export class PaymentsService {
         if (!id) throw 'Failed to create payment';
         await mod.execute('confirm_payment_intent', [id]);
         this._loading.next('');
+        return {
+            success: true,
+            state: 'approved',
+            invoice_id: id,
+            amount: amount,
+            created_at: Date.now(),
+            updated_at: Date.now()
+        };
     }
 }

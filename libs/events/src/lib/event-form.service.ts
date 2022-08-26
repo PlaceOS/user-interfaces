@@ -300,13 +300,14 @@ export class EventFormService extends BaseClass {
                     : { system_id: space_id }
                 : {};
             if (this._payments.payment_module && spaces.length) {
-                await this._payments.makePayment({
+                const receipt = await this._payments.makePayment({
                     type: 'space',
                     resource_name: spaces[0].display_name || spaces[0].name,
                     date,
                     duration,
                     all_day,
                 });
+                if (!receipt?.success) return;
             }
             const result = await this._makeBooking(
                 new CalendarEvent(this._form.getRawValue()),

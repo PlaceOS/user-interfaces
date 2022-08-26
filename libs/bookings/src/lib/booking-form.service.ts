@@ -385,13 +385,14 @@ export class BookingFormService extends BaseClass {
             });
         }
         if (this._payments.payment_module) {
-            await this._payments.makePayment({
+            const receipt = await this._payments.makePayment({
                 type: 'space',
                 resource_name: value.asset_name,
                 date: value.date,
                 duration: value.duration,
                 all_day: value.all_day,
             });
+            if (!receipt?.success) return;
         }
         this._loading.next('Saving booking');
         const result = await saveBooking(
