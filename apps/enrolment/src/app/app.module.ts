@@ -18,6 +18,8 @@ import * as Sentry from '@sentry/angular';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },
@@ -42,6 +44,8 @@ const ROUTES: Route[] = [
         MatSnackBarModule,
         MatCheckboxModule,
         BrowserAnimationsModule,
+        PaymentsModule,
+        AssetsModule,
         RouterModule.forRoot(ROUTES, {
             initialNavigation: 'enabledBlocking',
             useHash: true,

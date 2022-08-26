@@ -27,6 +27,8 @@ import { DeskBookingComponent } from './desk-booking.component';
 
 import * as Sentry from '@sentry/angular';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 @NgModule({
     declarations: [
@@ -54,6 +56,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         ComponentsModule,
         FormFieldsModule,
         SharedExploreModule,
+        PaymentsModule,
+        AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

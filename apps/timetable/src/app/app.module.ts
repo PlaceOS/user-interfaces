@@ -13,6 +13,8 @@ import { SpaceEventDetailsComponent } from './space-event-details.component';
 import { environment } from '../environments/environment';
 
 import * as Sentry from '@sentry/angular';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 @NgModule({
     declarations: [
@@ -26,6 +28,8 @@ import * as Sentry from '@sentry/angular';
         BrowserAnimationsModule,
         ComponentsModule,
         MatSnackBarModule,
+        PaymentsModule,
+        AssetsModule,
         RouterModule.forRoot([
             { path: '', component: AppTimetableComponent },
             { path: '**', redirectTo: '' },

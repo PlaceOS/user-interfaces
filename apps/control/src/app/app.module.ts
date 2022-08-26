@@ -29,6 +29,8 @@ import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
 import { DeviceOutputListItemComponent } from './tabbed-view/output-list-item.component';
 
 import * as Sentry from '@sentry/angular';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 @NgModule({
     declarations: [
@@ -55,6 +57,8 @@ import * as Sentry from '@sentry/angular';
         MatProgressSpinnerModule,
         UIModule,
         MatSliderModule,
+        PaymentsModule,
+        AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

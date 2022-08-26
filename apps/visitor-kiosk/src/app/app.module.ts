@@ -17,6 +17,8 @@ import { environment } from '../environments/environment';
 import * as Sentry from '@sentry/angular';
 import { ComponentsModule } from '@placeos/components';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 @NgModule({
     declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
     imports: [
@@ -31,6 +33,8 @@ import { SharedSpacesModule } from '@placeos/spaces';
         ComponentsModule,
         SharedSpacesModule,
         SharedComponentsModule,
+        PaymentsModule,
+        AssetsModule,
     ],
     providers: [
         {

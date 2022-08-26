@@ -33,6 +33,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { PanelTimelineComponent } from './panel/timeline.component';
 import { AppPanelViewModule } from './new-panel/panel-view.module';
 import { AppCheckinModule } from './checkin/checkin.module';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -66,6 +68,8 @@ const MAT_MODULES: any[] = [
         AppPanelViewModule,
         AppCheckinModule,
         ComponentsModule,
+        PaymentsModule,
+        AssetsModule,
         ...MAT_MODULES,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,

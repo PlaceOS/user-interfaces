@@ -12,6 +12,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 @NgModule({
     declarations: [AppComponent],
@@ -25,6 +27,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         FormsModule,
         MatNativeDateModule,
         MatSnackBarModule,
+        PaymentsModule,
+        AssetsModule,
 
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,

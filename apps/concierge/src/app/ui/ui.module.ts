@@ -25,6 +25,8 @@ import { ViewEventDetailsComponent } from './view-event-details.component';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
@@ -61,6 +63,8 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...MAT_MODULES,
         ComponentsModule,
         SharedSpacesModule,
+        PaymentsModule,
+        AssetsModule,
         RouterModule.forChild([]),
     ],
     exports: [
@@ -68,7 +72,8 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...MAT_MODULES,
         ...ANGULAR_MODULES,
         FormFieldsModule,
-        ComponentsModule
+        ComponentsModule,
+        PaymentsModule,
     ],
 })
 export class UIModule {}
