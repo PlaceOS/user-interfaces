@@ -81,7 +81,8 @@ export class AppComponent extends BaseClass implements OnInit {
         } catch (e) {
             console.info(JSON.stringify(e));
             if (!Office?.context?.ui) {
-                await this._initialiseAuth(false);
+                console.info(`Error office API not loaded.`);
+                // await this._initialiseAuth(false);
             } else {
                 await this._authenticateWithOffice();
             }
