@@ -16,6 +16,8 @@ export interface PlaceSettings {
     local_login: boolean;
     /** Whether application should mock out API requests */
     mock: boolean;
+
+    storage?: 'session' | 'local';
 }
 
 /**

@@ -77,13 +77,13 @@ export class AppComponent extends BaseClass implements OnInit {
             if (!token) throw 'Unable to get office token...';
             console.info(`Loaded office token. ${token}`);
             sessionStorage.setItem('OFFICE.token', token);
-            // await this._initialiseAuth(false);
-            // this._finishInitialise();
+            await this._initialiseAuth(false);
+            this._finishInitialise();
         } catch (e) {
             console.info(JSON.stringify(e));
             if (!Office?.context?.ui) {
                 console.info(`Error office API not loaded.`);
-                // await this._initialiseAuth(false);
+                await this._initialiseAuth(false);
             } else {
                 await this._authenticateWithOffice();
             }
@@ -94,6 +94,7 @@ export class AppComponent extends BaseClass implements OnInit {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.local_login = local;
+        settings.storage = 'local';
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
