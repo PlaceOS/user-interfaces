@@ -76,6 +76,7 @@ export class AppComponent extends BaseClass implements OnInit {
             this.clearTimeout('error');
             if (!token) throw 'Unable to get office token...';
             console.info(`Loaded office token. ${token}`);
+            sessionStorage.setItem('OFFICE.token', token);
             // await this._initialiseAuth(false);
             // this._finishInitialise();
         } catch (e) {
