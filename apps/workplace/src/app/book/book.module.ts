@@ -45,6 +45,9 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confi
 import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { NewParkingFlowComponent } from './new-parking-flow.component';
+import { ParkingFlowFormComponent } from './new-parking-flow/parking-flow-form.component';
+import { ParkingFlowSuccessComponent } from './new-parking-flow/parking-flow-success.component';
 
 const ROUTES: Route[] = [
     {
@@ -62,6 +65,8 @@ const ROUTES: Route[] = [
             { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: BookParkingFlowComponent },
+            { path: 'new-parking', redirectTo: 'new-parking/form' },
+            { path: 'new-parking/:step', component: NewParkingFlowComponent },
             { path: 'visitor', redirectTo: 'visitor/form' },
             { path: 'visitor/:step', component: VisitorFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
@@ -105,7 +110,12 @@ const ROUTES: Route[] = [
         DeskMapComponent,
         NewDeskFlowConfirmComponent,
         NewDeskFlowSuccessComponent,
-        VisitorFlowComponent
+        VisitorFlowComponent,
+
+        NewParkingFlowComponent,
+        ParkingFlowFormComponent,
+        ParkingFlowConfirmComponent,
+        ParkingFlowSuccessComponent,
     ],
     imports: [
         CommonModule,
