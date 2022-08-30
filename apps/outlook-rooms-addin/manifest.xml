@@ -111,6 +111,7 @@
         <Id>b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Id>
         <Resource>api://microsoft.poc.placeos.com/b2d59a3c-5fcf-4307-9e9c-0fd385902ff0</Resource>
         <Scopes>
+          <Scope>User.Read</Scope>
           <Scope>profile</Scope>
           <Scope>openid</Scope>
         </Scopes>

@@ -66,14 +66,12 @@ export class AppComponent extends BaseClass implements OnInit {
         console.info(`Initialising auth...`);
         await this._initialiseAuth()
         console.info(`Checking for existing auth...`);
-        const get_token = Office?.auth?.getAccessToken();
-        const tkn = await (get_token || Promise.resolve()).catch(_ => null);
-        console.info(`Loaded office token. ${tkn}`);
         if (token()) return this._finishInitialise();
         console.info(`No existing auth...`);
         try {
             console.info(`Checking for office token...`);
             this.timeout('error', () => {throw 'Unable to get office token...'}, 2000);
+            const get_token = Office?.auth?.getAccessToken();
             const tkn = await (get_token || Promise.resolve());
             this.clearTimeout('error');
             if (!tkn) throw 'Unable to get office token...';
