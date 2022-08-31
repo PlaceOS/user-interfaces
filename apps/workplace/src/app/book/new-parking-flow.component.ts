@@ -1,19 +1,30 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { BookingFormService } from "@placeos/bookings";
-import { BaseClass } from "@placeos/common";
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BookingFormService } from '@placeos/bookings';
+import { BaseClass } from '@placeos/common';
 
 @Component({
     selector: 'placeos-new-parking-flow',
     template: `
-    <div class="bg-white dark:bg-neutral-700 h-full w-full z-50" [ngSwitch]="view">
-        <parking-flow-success *ngSwitchCase="'success'">
-        </parking-flow-success>
-        <parking-flow-confirm *ngSwitchCase="'confirm'">
-        </parking-flow-confirm>
-        <parking-flow-form *ngSwitchDefault></parking-flow-form>
-    </div>`,
-    styles: [``]
+        <div
+            class="bg-white dark:bg-neutral-700 h-full w-full z-50"
+            [ngSwitch]="view"
+        >
+            <parking-flow-success *ngSwitchCase="'success'">
+            </parking-flow-success>
+            <parking-flow-confirm *ngSwitchCase="'confirm'">
+            </parking-flow-confirm>
+            <parking-flow-form *ngSwitchDefault></parking-flow-form>
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                height: 100%;
+                width: 100%;
+            }
+        `,
+    ],
 })
 export class NewParkingFlowComponent extends BaseClass implements OnInit {
     public get view() {
@@ -33,6 +44,8 @@ export class NewParkingFlowComponent extends BaseClass implements OnInit {
     public ngOnInit() {
         this._state.loadForm();
         if (!this._state.form) this._state.newForm();
+        this._state.setOptions({ type: 'parking' });
+        this._state.form.patchValue({ booking_type: 'parking' });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

@@ -48,6 +48,7 @@ import { SharedBookingsModule } from '@placeos/bookings';
 import { NewParkingFlowComponent } from './new-parking-flow.component';
 import { ParkingFlowFormComponent } from './new-parking-flow/parking-flow-form.component';
 import { ParkingFlowSuccessComponent } from './new-parking-flow/parking-flow-success.component';
+import { ParkingFormDetailsComponent } from './new-parking-flow/parking-form-details.component';
 
 const ROUTES: Route[] = [
     {
@@ -116,6 +117,7 @@ const ROUTES: Route[] = [
         ParkingFlowFormComponent,
         ParkingFlowConfirmComponent,
         ParkingFlowSuccessComponent,
+        ParkingFormDetailsComponent
     ],
     imports: [
         CommonModule,

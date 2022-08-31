@@ -7,3 +7,4 @@ export * from './lib/bookings.module';
 export * from './lib/desk.service';
 export * from './lib/booking-details-modal.component';
 export * from './lib/booking-card.component';
+export * from './lib/parking-select-modal/parking-select-modal.component';

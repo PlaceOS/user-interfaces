@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -19,13 +20,28 @@ import { BookingDetailsModalComponent } from './booking-details-modal.component'
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { InviteVisitorFormComponent } from './invite-visitor-form.component';
+import { PakringSpaceDetailsComponent } from './parking-select-modal/parking-details.component';
+import { ParkingSpaceFiltersDisplayComponent } from './parking-select-modal/parking-filters-display.component';
+import { ParkingSpaceFiltersComponent } from './parking-select-modal/parking-filters.component';
+import { ParkingSpaceListComponent } from './parking-select-modal/parking-list.component';
+import { ParkingSpaceLocationPinComponent } from './parking-select-modal/parking-location-pin.component';
+import { ParkingSpaceSelectMapComponent } from './parking-select-modal/parking-map.component';
+import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
     DeskConfirmModalComponent,
     InviteVisitorFormComponent,
     BookingDetailsModalComponent,
-    BookingCardComponent
+    BookingCardComponent,
+
+    ParkingSpaceSelectModalComponent,
+    ParkingSpaceFiltersComponent,
+    ParkingSpaceFiltersDisplayComponent,
+    ParkingSpaceListComponent,
+    ParkingSpaceLocationPinComponent,
+    ParkingSpaceSelectMapComponent,
+    PakringSpaceDetailsComponent
 ];
 @NgModule({
     declarations: [...COMPONENTS],
@@ -40,6 +56,7 @@ const COMPONENTS = [
         MatButtonModule,
         MatDialogModule,
         MatProgressSpinnerModule,
+        MatCheckboxModule,
         FormFieldsModule,
         ComponentsModule
     ],
