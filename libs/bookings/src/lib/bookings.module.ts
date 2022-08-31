@@ -20,13 +20,14 @@ import { BookingDetailsModalComponent } from './booking-details-modal.component'
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { InviteVisitorFormComponent } from './invite-visitor-form.component';
-import { PakringSpaceDetailsComponent } from './parking-select-modal/parking-details.component';
+import { ParkingSpaceDetailsComponent } from './parking-select-modal/parking-details.component';
 import { ParkingSpaceFiltersDisplayComponent } from './parking-select-modal/parking-filters-display.component';
 import { ParkingSpaceFiltersComponent } from './parking-select-modal/parking-filters.component';
 import { ParkingSpaceListComponent } from './parking-select-modal/parking-list.component';
 import { ParkingSpaceLocationPinComponent } from './parking-select-modal/parking-location-pin.component';
 import { ParkingSpaceSelectMapComponent } from './parking-select-modal/parking-map.component';
 import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
+import { ParkingSpaceListFieldComponent } from './parking-space-list-field.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -41,7 +42,8 @@ const COMPONENTS = [
     ParkingSpaceListComponent,
     ParkingSpaceLocationPinComponent,
     ParkingSpaceSelectMapComponent,
-    PakringSpaceDetailsComponent
+    ParkingSpaceDetailsComponent,
+    ParkingSpaceListFieldComponent
 ];
 @NgModule({
     declarations: [...COMPONENTS],

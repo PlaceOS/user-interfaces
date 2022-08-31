@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Route, RouterModule } from '@angular/router';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 import { SharedExploreModule } from '@placeos/explore';
+import { SharedBookingsModule } from '@placeos/bookings';
+import { AssetsModule } from '@placeos/assets';
+import { SharedCateringModule } from '@placeos/catering';
 
 import { BookComponent } from './book.component';
 import { BookCodeFlowComponent } from './code-flow.component';
@@ -29,8 +33,6 @@ import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.compo
 import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
-import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import { AssetsModule } from '@placeos/assets';
 import { NewDeskFlowComponent } from './new-desk-flow.component';
 import { NewDeskFlowFormComponent } from './new-desk-flow/new-desk-flow-form.component';
 import { NewDeskFormDetailsComponent } from './new-desk-flow/new-desk-form-details.component';
@@ -38,13 +40,11 @@ import { NewDeskSelectModalComponent } from './new-desk-flow/new-desk-select-mod
 import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-display.component';
 import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
 import { DeskFiltersComponent } from './new-desk-flow/views/desk-filters.component';
-import { SharedCateringModule } from '@placeos/catering';
 import { DeskDetailsComponent } from './new-desk-flow/views/desk-details.component';
 import { DeskMapComponent } from './new-desk-flow/views/desk-map.component';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confirm.component';
 import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
-import { SharedBookingsModule } from '@placeos/bookings';
 import { NewParkingFlowComponent } from './new-parking-flow.component';
 import { ParkingFlowFormComponent } from './new-parking-flow/parking-flow-form.component';
 import { ParkingFlowSuccessComponent } from './new-parking-flow/parking-flow-success.component';

@@ -140,7 +140,7 @@ import { BookingAsset } from '../booking-form.service';
         `,
     ],
 })
-export class PakringSpaceDetailsComponent {
+export class ParkingSpaceDetailsComponent {
     @Input() public space?: BookingAsset;
     @Input() public fav: boolean = false;
     @Input() public active: boolean = false;

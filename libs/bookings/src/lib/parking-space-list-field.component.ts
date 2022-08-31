@@ -3,8 +3,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
-import { ParkingSpaceSelectModalComponent } from 'libs/bookings/src/lib/parking-select-modal/parking-select-modal.component';
+import { BookingAsset } from './booking-form.service';
+import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 

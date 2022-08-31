@@ -26,7 +26,6 @@ import { AssetListFieldComponent } from './asset-list-field.component';
 import { SpaceListFieldComponent } from './space-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 import { HostSelectFieldComponent } from './host-select-field.component';
-import { ParkingSpaceListFieldComponent } from './parking-space-list-field.component';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -42,8 +41,7 @@ const COMPONENTS: Type<any>[] = [
     AssetListFieldComponent,
     SpaceListFieldComponent,
     RichTextInputComponent,
-    HostSelectFieldComponent,
-    ParkingSpaceListFieldComponent
+    HostSelectFieldComponent
 ];
 
 @NgModule({
