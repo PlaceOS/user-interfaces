@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661739878328,
+  "timestamp": 1661918503494,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -109,15 +109,15 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "70c41f4da0bdc89520994649ae5bb34cb155853c",
-    "./apps_concierge_src_app_catering_catering_module_ts.js": "c4fe53faae570729be4d1bca8e89a818a0c61282",
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "0d6b1bc3cd1adb140d83a7a4c7b20e869fe25397",
+    "./apps_concierge_src_app_catering_catering_module_ts.js": "c8fc451af048c6cfa74c7aab4f8d2349089c263c",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "7d7fffa366c63f2ce9f27a1086c70799fdbecccb",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "ca57805ae293478d649b497696e2409f716c13f9",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "1a2870059b4b213a8f407ed799e85ecdc8fc1747",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "08553c69cf9a98dc0a5efa23007fa3549a56cbad",
-    "./apps_concierge_src_app_parking_parking_module_ts.js": "7f872763bf47611e51e49626c6bddc9514c3d32e",
-    "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "82efef03f6ad26a41e1f60c38594a6983a162e95",
-    "./apps_concierge_src_app_reports_reports_module_ts.js": "d033c5713fd9c2d4b3e3c9a296cdc1e236a2aa20",
-    "./apps_concierge_src_app_staff_staff_module_ts.js": "5c5a0facbcc2f6072bb449420be577ebbea915b8",
+    "./apps_concierge_src_app_parking_parking_module_ts.js": "7ee20f11c9d8e10b9cd5ad4b8751125a8f7cdebf",
+    "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "9ed3c9fbc6f45b93b3467656e615d37987d0c865",
+    "./apps_concierge_src_app_reports_reports_module_ts.js": "f9e33d741a6c2f7c346e7f04e3507fcbc2757000",
+    "./apps_concierge_src_app_staff_staff_module_ts.js": "322b0badd2a77e479a9ac2df851b9dd53fded4af",
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "f03c0996b4cabda3c4b5f61976a5ae4732fc2fc4",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "4f7d4cee350eb4b711345199ffb0f36bd516c487",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
@@ -172,20 +172,20 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "c52fedc475f6ed7abd8354c938f0ed10be52ebbf",
-    "./default-libs_bookings_src_index_ts.js": "b0f1498ddd0a8f402c0718236c1a72ea7fe0ea22",
+    "./common.js": "6ccde50b67caf3c89d2bc410f6f3a2736b50e06e",
+    "./default-libs_bookings_src_index_ts.js": "32910f759ede4c73dbbf17b69ee2944910a614bd",
     "./default-libs_bookings_src_lib_booking-form_service_ts.js": "9e66e5e6e6c7ec6e8c4b69e41bfe5bbc3f5aaf4e",
-    "./default-libs_catering_src_index_ts.js": "71f8ae0ff067b0053bd98597ae62c7d20c932f7a",
+    "./default-libs_catering_src_index_ts.js": "145d11a5871f0c4d4d878d851b12ca7166539fd8",
     "./default-libs_explore_src_index_ts.js": "a701a25c585062b8704b47af145ff8618a6e0ddd",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "1c2792faaa2b8e3c1f29214a1cb8fd02f81e99eb",
-    "./main.js": "1f4664728fc7e0b85931716a341fa433c5f71b48",
+    "./index.html": "1255959532c8fee7178719e553e7ef1bf3f16f15",
+    "./main.js": "4aabe346ba62a5eb51bdaaaba50ddc434b28a9ef",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "910343fa136feddab3d3798894fcc232b840f6bd",
-    "./vendor.js": "eeba9b066928dd273cee7b5556ae8d9305fc5f89"
+    "./styles.css": "6bc51fba4d7285a664006aa4d09e17a0ea7dc732",
+    "./vendor.js": "df9d95c96c2059508ce20a904775fde40cf1a661"
   },
   "navigationUrls": [
     {
