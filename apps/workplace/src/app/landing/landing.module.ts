@@ -5,6 +5,7 @@ import { RouterModule } from "@angular/router";
 import { SharedComponentModule } from "../components/shared.module";
 import { LandingAvailabilityComponent } from "./landing-availability.component";
 import { LandingColleaguesComponent } from "./landing-colleagues.component";
+import { LandingFavouritesComponent } from "./landing-favourites.component";
 import { LandingUpcomingComponent } from "./landing-upcoming.component";
 import { LandingComponent } from "./landing.component";
 
@@ -12,7 +13,8 @@ const COMPONENTS = [
     LandingComponent,
     LandingColleaguesComponent,
     LandingAvailabilityComponent,
-    LandingUpcomingComponent
+    LandingUpcomingComponent,
+    LandingFavouritesComponent
 ]
 
 const ROUTES = [

@@ -7,14 +7,16 @@ import { LandingStateService } from './landing-state.service';
 @Component({
     selector: 'landing-colleagues',
     template: `
-        <div
-            class="relative flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-neutral-700 border-r border-gray-200 dark:border-neutral-500"
-        >
-            <div class="flex items-center justify-between px-4 py-2">
-                <h2 class="font-medium">Colleagues</h2>
-                <button mat-button class="inverse" (click)="openSearch()">
-                    Add
-                </button>
+            <div class="flex items-center justify-between py-2 mx-2 border-b border-gray-200">
+                <h2 class="mx-2">{{ (contacts | async)?.length || 0 }} People</h2>
+                <div class="flex items-center space-x-2 text-primary">
+                    <button mat-icon-button class="!border !border-solid !border-primary">
+                        <app-icon>search</app-icon>
+                    </button>
+                    <button mat-icon-button class="!border !border-solid !border-primary">
+                        <app-icon>filter_list</app-icon>
+                    </button>
+                </div>
             </div>
             <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
                 <ng-container
@@ -48,10 +50,13 @@ import { LandingStateService } from './landing-state.service';
                     </div>
                 </ng-container>
             </div>
+            <button mat-button class="inverse w-[calc(100%-1rem)] m-2" (click)="openSearch()">
+                Add
+            </button>
             <div
                 search
                 [class.hidden]="!show_search"
-                class="absolute inset-x-2 bottom-2 top-[3.5rem] rounded-lg overflow-hidden flex flex-col bg-white dark:bg-neutral-600 shadow border border-gray-200"
+                class="absolute inset-x-2 top-2 bottom-[3.5rem] rounded-lg overflow-hidden flex flex-col bg-white dark:bg-neutral-600 shadow border border-gray-200"
             >
                 <input
                     #search_input
@@ -101,7 +106,6 @@ import { LandingStateService } from './landing-state.service';
                     </ng-container>
                 </div>
             </div>
-        </div>
         <ng-template #empty_state>
             <div
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
@@ -140,6 +144,13 @@ import { LandingStateService } from './landing-state.service';
     styles: [`
         [user]:hover button {
             opacity: 1;
+        }
+
+        :host {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
         }
     `]
 })
