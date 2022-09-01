@@ -18,7 +18,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Home"
                 matTooltipPosition="below"
             >
-                <app-icon class="text-xl">home</app-icon>
+                <app-icon filled class="text-xl">home</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">home</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Home</span
                 >
@@ -38,20 +39,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Book Room"
                 matTooltipPosition="below"
             >
-                <div class="">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="24px"
-                        viewBox="0 0 24 24"
-                        width="24px"
-                        fill="currentColor"
-                    >
-                        <path d="M0 0h24v24H0V0z" fill="none" />
-                        <path
-                            d="M19 19V4h-4V3H5v16H3v2h12V6h2v15h4v-2h-2zm-6 0H7V5h6v14zm-3-8h2v2h-2z"
-                        />
-                    </svg>
-                </div>
+                <app-icon filled class="text-xl">meeting_room</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">meeting_room</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Book Room</span
                 >
@@ -103,7 +92,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Book Car Space"
                 matTooltipPosition="below"
             >
-                <app-icon class="text-xl">directions_car</app-icon>
+                <app-icon filled class="text-xl">directions_car</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">directions_car</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Book Car Space</span
                 >
@@ -121,7 +111,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Invite Visitor"
                 matTooltipPosition="below"
             >
-                <app-icon class="text-xl">person_add</app-icon>
+                <app-icon filled class="text-xl">person_add</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">person_add</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Invite Visitor</span
                 >
@@ -139,7 +130,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Spaces"
                 matTooltipPosition="below"
             >
-                <app-icon class="text-xl">place</app-icon>
+                <app-icon filled class="text-xl">place</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">place</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Spaces</span
                 >
@@ -157,7 +149,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltip="Your Bookings"
                 matTooltipPosition="below"
             >
-                <app-icon class="text-xl">event</app-icon>
+                <app-icon filled class="text-xl">event</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">event</app-icon>
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Your Bookings</span
                 >
@@ -182,6 +175,11 @@ import { OrganisationService } from '@placeos/organisation';
             .active > [bar] {
                 display: block;
             }
+
+            a:not(.active) > [filled],
+            a.active > [outline] {
+                display: none;
+            } 
         `,
     ],
 })

@@ -13,7 +13,7 @@ const EMPTY = [];
             class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
         >
             <h2 class="mx-2">{{ spaces?.length || 0 }} Resources</h2>
-            <div class="flex items-center space-x-2 text-primary">
+            <!-- <div class="flex items-center space-x-2 text-primary">
                 <button
                     mat-icon-button
                     class="!border !border-solid !border-primary"
@@ -26,7 +26,7 @@ const EMPTY = [];
                 >
                     <app-icon>filter_list</app-icon>
                 </button>
-            </div>
+            </div> -->
         </div>
         <div class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-gray-300">
             <ng-container *ngIf="spaces?.length; else empty_state">

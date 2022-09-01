@@ -26,7 +26,8 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon class="text-neutral-500">meeting_room</app-icon>
+                        <app-icon filled class="text-neutral-500">meeting_room</app-icon>
+                        <app-icon outline className="material-icons-outlined">meeting_room</app-icon>
                     </div>
                     <div class="text-xs">Book Meeting</div>
                 </a>
@@ -58,7 +59,8 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon class="text-neutral-500">directions_car</app-icon>
+                        <app-icon filled class="text-neutral-500">directions_car</app-icon>
+                        <app-icon outline className="material-icons-outlined">directions_car</app-icon>
                     </div>
                     <div class="text-xs">Book Car Space</div>
                 </a>
@@ -72,7 +74,8 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon class="text-neutral-500">person_add</app-icon>
+                        <app-icon filled class="text-neutral-500">person_add</app-icon>
+                        <app-icon outline className="material-icons-outlined">person_add</app-icon>
                     </div>
                     <div class="text-xs">Invite Visitor</div>
                 </a>
@@ -88,7 +91,8 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon class="text-neutral-500">today</app-icon>
+                        <app-icon filled class="text-neutral-500">today</app-icon>
+                        <app-icon outline className="material-icons-outlined">today</app-icon>
                     </div>
                     <div class="text-xs">Your Bookings</div>
                 </a>
@@ -101,10 +105,11 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             <a
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
-                [routerLink]="['/']"
-                routerLinkActive="text-primary"
+                [routerLink]="[default_page]"
+                routerLinkActive="text-primary active"
             >
-                <app-icon class="text-2xl">home</app-icon>
+                <app-icon filled class="text-2xl">home</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-2xl !m-0">home</app-icon>
                 <span class="text-sm">Home</span>
             </a>
             <button
@@ -123,9 +128,10 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
                 [routerLink]="['/explore']"
-                routerLinkActive="text-primary"
+                routerLinkActive="text-primary active"
             >
-                <app-icon class="text-2xl">place</app-icon>
+                <app-icon filled class="text-2xl">place</app-icon>
+                <app-icon outline className="material-icons-outlined" class="text-2xl !m-0">place</app-icon>
                 <span class="text-sm">Spaces</span>
             </a>
             <div
@@ -148,10 +154,19 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
         a.active app-icon {
             color: var(--primary) !important;
         }
+
+        a:not(.active) [filled],
+        a.active [outline] {
+            display: none;
+        } 
     `],
 })
 export class FooterMenuComponent {
     public show_book_items = false;
+
+    public get default_page(): string {
+        return this._settings.get('app.default_route') || '/dashboard';
+    }
 
     public get features(): string[] {
         return this._settings.get('app.features') || [];

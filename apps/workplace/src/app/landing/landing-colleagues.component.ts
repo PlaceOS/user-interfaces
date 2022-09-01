@@ -14,7 +14,7 @@ import { LandingStateService } from './landing-state.service';
             class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
         >
             <h2 class="mx-2">{{ (contacts | async)?.length || 0 }} People</h2>
-            <div class="flex items-center space-x-2 text-primary">
+            <!-- <div class="flex items-center space-x-2 text-primary">
                 <button
                     mat-icon-button
                     class="!border !border-solid !border-primary"
@@ -27,7 +27,7 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <app-icon>filter_list</app-icon>
                 </button>
-            </div>
+            </div> -->
         </div>
         <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
             <ng-container *ngIf="(contacts | async)?.length; else empty_state">
