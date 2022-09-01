@@ -28,14 +28,14 @@ const EMPTY = [];
                 </button>
             </div>
         </div>
-        <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
+        <div class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-gray-300">
             <ng-container *ngIf="spaces?.length; else empty_state">
                 <div
-                    class="flex flex-col items-center px-4 space-y-2 relative"
-                    user
+                    class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
+                    item
                     *ngFor="let item of spaces"
                 >
-                    <div class="flex w-full items-center space-x-2">
+                    <div class="flex w-full items-center space-x-2 relative">
                         <div class="w-24 h-20 overflow-hidden rounded relative">
                             <img
                                 *ngIf="(item | space | async)?.images?.length"
@@ -43,15 +43,15 @@ const EMPTY = [];
                                 [src]="(item | space | async)?.images[0]"
                             />
                         </div>
-                        <div class="space-y-1">
-                            <div class="truncate">
+                        <div class="h-20">
+                            <div class="truncate mb-4">
                                 {{
                                     (item | space | async)?.display_name ||
                                         (item | space | async)?.name
                                 }}
                             </div>
                             <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2"
+                                class="flex items-center text-xs opacity-60 truncate space-x-2 mb-2"
                             >
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <div>
@@ -68,9 +68,7 @@ const EMPTY = [];
                                     >people</app-icon
                                 >
                                 <div>
-                                    {{
-                                        (item | space | async)?.capacity || 2
-                                    }}
+                                    {{ (item | space | async)?.capacity || 2 }}
                                     People
                                 </div>
                             </div>
@@ -83,6 +81,30 @@ const EMPTY = [];
                     >
                         Book
                     </button>
+                    <button
+                        mat-icon-button
+                        [matMenuTriggerFor]="menu"
+                        class="absolute top-2 right-0 bg-gray-200 rounded !m-0"
+                    >
+                        <app-icon>more_horiz</app-icon>
+                    </button>
+                    <mat-menu #menu="matMenu" xPosition="before">
+                        <button
+                            mat-menu-item
+                            class="flex items-center space-x-2"
+                        >
+                            <app-icon class="text-2xl">info</app-icon>
+                            <div>View Details</div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="toggleFavourite('space', id)"
+                            class="flex items-center space-x-2"
+                        >
+                            <app-icon class="text-2xl">cancel</app-icon>
+                            <div>Remove Favourite</div>
+                        </button>
+                    </mat-menu>
                 </div>
             </ng-container>
         </div>
@@ -126,6 +148,20 @@ export class LandingFavouritesComponent extends BaseClass {
         private _router: Router
     ) {
         super();
+    }
+
+    public toggleFavourite(type: 'space' | 'desk' | 'parking', id: string) {
+        const fav_list = type === 'space' ? this.spaces : [];
+        const key = type === 'space' ? 'favourite_spaces' : '';
+        const new_state = !fav_list.includes(id);
+        if (new_state) {
+            this._settings.saveUserSetting(key, [...fav_list, id]);
+        } else {
+            this._settings.saveUserSetting(
+                key,
+                fav_list.filter((_) => _ !== id)
+            );
+        }
     }
 
     public async newSpaceMeeting(id: string) {

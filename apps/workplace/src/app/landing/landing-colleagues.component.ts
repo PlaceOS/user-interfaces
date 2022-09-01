@@ -32,7 +32,7 @@ import { LandingStateService } from './landing-state.service';
         <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
             <ng-container *ngIf="(contacts | async)?.length; else empty_state">
                 <div
-                    class="flex items-center px-4 space-x-2 relative"
+                    class="flex items-center px-2 space-x-2 relative"
                     user
                     *ngFor="let user of contacts | async"
                 >
