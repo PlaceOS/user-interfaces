@@ -15,7 +15,7 @@ import { startOfMinute } from 'date-fns';
                 >
                     <button
                         matRipple
-                        class="flex-1 font-medium p-4 flex items-center justify-center space-x-2"
+                        class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
                         [class.border-b]="tab !== 'people'"
                         [class.border-gray-300]="tab !== 'people'"
                         [class.bg-black]="tab !== 'people'"
@@ -27,7 +27,7 @@ import { startOfMinute } from 'date-fns';
                     </button>
                     <button
                         matRipple
-                        class="flex-1 font-medium p-4 flex items-center justify-center space-x-2"
+                        class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
                         [class.border-b]="tab !== 'fav'"
                         [class.border-gray-300]="tab !== 'fav'"
                         [class.bg-black]="tab !== 'fav'"
