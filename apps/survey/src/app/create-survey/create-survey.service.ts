@@ -1,19 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { BaseClass } from '@placeos/common';
-
-export enum QuestionType {
-    text = 'text',
-    checkbox = 'checkbox',
-    dropdown = 'dropdown',
-    rating = 'rating',
-}
-export interface Question {
-    type: QuestionType;
-    name: string;
-    title: string;
-    choices?: any[];
-}
+import { Question } from '../survey-types';
 
 @Injectable({
     providedIn: 'root',
@@ -51,6 +39,12 @@ export class CreateSurveyService extends BaseClass {
     }
 
     generateJSON() {
-        console.log('triggered');
+        this.surveyJSON = {
+            pages: [
+                {
+                    elements: [],
+                },
+            ],
+        };
     }
 }
