@@ -50,5 +50,7 @@ export class CreateSurveyService extends BaseClass {
         super();
     }
 
-    private _generateJSON() {}
+    generateJSON() {
+        console.log('triggered');
+    }
 }
