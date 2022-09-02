@@ -3,8 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
+import { AppRoutingModule } from '../app/app-routing.module';
 import { CreateSurveyFormComponent } from './create-survey-form/create-survey-form.component';
-import { CreateSurveyService } from './create-survey/create-survey.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
@@ -20,6 +20,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     imports: [
         BrowserModule,
         RouterModule,
+        AppRoutingModule,
         BrowserAnimationsModule,
         HttpClientModule,
         FormsModule,
