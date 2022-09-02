@@ -1,15 +1,23 @@
-const questionElement = {
-    TEXT: {
+export const SurveyJSON = {
+    pages: [
+        {
+            elements: [],
+        },
+    ],
+};
+
+export const QuestionElement = {
+    text: {
         type: 'text',
         name: '',
         title: '',
     },
-    CHECKBOX: { type: 'checkbox', name: '', title: '', choices: [] },
-    DROPDOWN: {
+    checkbox: { type: 'checkbox', name: '', title: '', choices: [] },
+    dropdown: {
         type: 'dropdown',
         name: '',
         title: '',
         choices: [],
     },
-    RATING: { type: 'rating', name: '', title: '' },
+    rating: { type: 'rating', name: '', title: '' },
 };
