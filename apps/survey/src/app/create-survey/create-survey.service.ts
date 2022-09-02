@@ -33,7 +33,22 @@ export class CreateSurveyService extends BaseClass {
         return this._questions.getValue();
     }
 
+    //Store of JSON generated from survey questions
+    private _surveyJSON: BehaviorSubject<any> = new BehaviorSubject<any>({}); //TODO: data type
+
+    surveyJSON$: Observable<any> = this._surveyJSON.asObservable();
+
+    set surveyJSON(json: any) {
+        this._surveyJSON.next(json);
+    }
+
+    get surveyJSON() {
+        return this._surveyJSON.getValue();
+    }
+
     constructor() {
         super();
     }
+
+    private _generateJSON() {}
 }
