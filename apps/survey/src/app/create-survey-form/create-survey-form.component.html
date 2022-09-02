@@ -3,6 +3,12 @@
 <button (click)="addTextQuestion()">Add text question</button>
 <button (click)="addCheckboxQuestion()">Add checkbox question</button>
 
+<div
+    id="questionForm"
+    style="display: flex; flex-direction: column; width: 600px; margin: 2rem"
+></div>
+
+<button (click)="reset()">Reset survey</button>
 <h2>{{ survey_title }}</h2>
 <div id="surveyContainer"></div>
 
