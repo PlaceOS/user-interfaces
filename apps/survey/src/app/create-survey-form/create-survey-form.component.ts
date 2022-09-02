@@ -16,18 +16,20 @@ export class CreateSurveyFormComponent implements OnInit {
         this.surveyJSON = this._createSurveyService.surveyJSON;
     }
 
-    async addTextQuestion(): Promise<void> {
-        await this._createSurveyService.newQuestionForm('text');
-        // this._createSurveyService.addQuestion('text');
+    addTextQuestion(): void {
+        this._createSurveyService.newQuestionForm('text');
     }
 
     addCheckboxQuestion(): void {
-        this._createSurveyService.addQuestion('checkbox');
+        this._createSurveyService.newQuestionForm('checkbox');
     }
 
+    submitSurvey(): void {
+        this._createSurveyService.submitSurvey();
+    }
     reset(): void {
         document.getElementById('questionForm').textContent = '';
-        this._createSurveyService.counter = 1;
+        this._createSurveyService.counter = 0;
         this._createSurveyService.createNewJSON();
     }
 }

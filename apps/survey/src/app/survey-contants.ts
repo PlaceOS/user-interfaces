@@ -1,11 +1,3 @@
-export const SurveyJSON = {
-    pages: [
-        {
-            elements: [],
-        },
-    ],
-};
-
 export const QuestionElement = {
     text: {
         type: 'text',
