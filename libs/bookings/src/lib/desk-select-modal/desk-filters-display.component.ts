@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { BookingFormService } from '@placeos/bookings';
 import { BaseClass } from '@placeos/common';
+
 import { DeskFiltersComponent } from './desk-filters.component';
+import { BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-filters-display',

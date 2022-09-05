@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -35,7 +37,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                             >
                                 <app-icon>done</app-icon>
                             </div>
-                            <img *ngIf="space.images?.length" class="object-cover h-full" [src]="space.images[0]" />
+                            <img
+                                *ngIf="space.images?.length"
+                                class="object-cover h-full"
+                                [src]="space.images[0]"
+                            />
                         </div>
                         <div class="space-y-2">
                             <div class="font-medium truncate mr-10">
@@ -43,7 +49,13 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <p>{{ space.location || space.level?.display_name || space.level?.name }}</p>
+                                <p>
+                                    {{
+                                        space.location ||
+                                            space.level?.display_name ||
+                                            space.level?.name
+                                    }}
+                                </p>
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500"
@@ -65,13 +77,18 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         [class.text-blue-400]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
-                        <app-icon>{{ isFavourite(space.id) ? 'favorite' : 'favorite_border' }}</app-icon>
+                        <app-icon>{{
+                            isFavourite(space.id)
+                                ? 'favorite'
+                                : 'favorite_border'
+                        }}</app-icon>
                     </button>
                 </li>
             </ul>
         </ng-container>
         <ng-template #empty_state>
-            <div empty
+            <div
+                empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
@@ -80,7 +97,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             </div>
         </ng-template>
         <ng-template #load_state>
-            <div loading
+            <div
+                loading
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
@@ -106,12 +124,17 @@ export class ParkingSpaceListComponent {
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
 
-    public readonly assets = this._form.available_assets;
+    public readonly assets = combineLatest([
+        this._form.options,
+        this._form.available_assets,
+    ]).pipe(
+        map(([{ show_fav }, _]) =>
+            _.filter((i) => !show_fav || this.isFavourite(i.id))
+        )
+    );
     public readonly loading = this._form.loading;
 
-    constructor(
-        private _form: BookingFormService
-    ) {}
+    constructor(private _form: BookingFormService) {}
 
     public isFavourite(space_id: string) {
         return this.favorites.includes(space_id);

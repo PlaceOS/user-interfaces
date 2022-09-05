@@ -1,12 +1,17 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { BookingAsset, BookingFlowOptions, BookingFormService } from '../booking-form.service';
+import {
+    BookingAsset,
+    BookingFlowOptions,
+    BookingFormService,
+} from '../booking-form.service';
 
-export const FAV_PARKING_KEY = 'favourite_parking_spaces';
+export const FAV_DESK_KEY = 'favourite_desks'
 
 @Component({
-    selector: 'parking-space-select-modal',
+    selector: 'desk-select-modal',
+    styles: [],
     template: `
         <div
             class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
@@ -15,22 +20,22 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 <button mat-icon-button mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
-                <h3>Find Parking Space</h3>
+                <h3>Find Desk</h3>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
             >
-                <parking-space-filters
+                <desk-filters
                     class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
-                ></parking-space-filters>
+                ></desk-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
                 >
-                    <parking-space-filters-display
+                    <desk-filters-display
                         class="w-full border-b border-gray-200 dark:border-neutral-500"
                         [(view)]="view"
-                    ></parking-space-filters-display>
-                    <parking-space-list
+                    ></desk-filters-display>
+                    <desk-list
                         *ngIf="view === 'list'; else map_view"
                         [active]="displayed?.id"
                         [selected]="selected_ids"
@@ -38,10 +43,10 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
                         class="flex-1 h-1/2 bg-black/5 dark:bg-white/10"
-                    ></parking-space-list>
+                    ></desk-list>
                 </div>
-                <parking-space-details
-                    [space]="displayed"
+                <desk-details
+                    [desk]="displayed"
                     class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20 bg-white dark:bg-neutral-600 block"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
@@ -50,7 +55,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (close)="displayed = null"
-                ></parking-space-details>
+                ></desk-details>
             </main>
             <footer
                 class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
@@ -88,7 +93,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     </div>
                 </button>
                 <p class="opacity-60 text-sm">
-                    {{ selected.length }} bay(s) added
+                    {{ selected.length }} desk(s) added
                 </p>
                 <button
                     mat-button
@@ -112,18 +117,17 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
             </footer>
         </div>
         <ng-template #map_view>
-            <parking-space-map
+            <desk-map
                 class="flex-1 h-1/2 w-full"
                 [selected]="selected_ids"
                 [is_displayed]="!!displayed"
                 (onSelect)="displayed = $event"
             >
-            </parking-space-map>
+            </desk-map>
         </ng-template>
     `,
-    styles: [``],
 })
-export class ParkingSpaceSelectModalComponent {
+export class DeskSelectModalComponent {
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
     public view = 'list';
@@ -133,16 +137,17 @@ export class ParkingSpaceSelectModalComponent {
     }
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_PARKING_KEY) || [];
+        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
     }
 
     constructor(
+        public dialogRef: MatDialogRef<DeskSelectModalComponent>,
         private _settings: SettingsService,
         private _event_form: BookingFormService,
         @Inject(MAT_DIALOG_DATA)
-        _data: { spaces: BookingAsset[]; options: Partial<BookingFlowOptions> }
+        _data: { items: BookingAsset[]; options: Partial<BookingFlowOptions> }
     ) {
-        this.selected = [...(_data.spaces || [])];
+        this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
     }
 
@@ -160,13 +165,13 @@ export class ParkingSpaceSelectModalComponent {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_PARKING_KEY, [
+            this._settings.saveUserSetting(FAV_DESK_KEY, [
                 ...fav_list,
                 space.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_PARKING_KEY,
+                FAV_DESK_KEY,
                 fav_list.filter((_) => _ !== space.id)
             );
         }

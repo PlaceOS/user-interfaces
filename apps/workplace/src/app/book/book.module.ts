@@ -36,12 +36,6 @@ import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success
 import { NewDeskFlowComponent } from './new-desk-flow.component';
 import { NewDeskFlowFormComponent } from './new-desk-flow/new-desk-flow-form.component';
 import { NewDeskFormDetailsComponent } from './new-desk-flow/new-desk-form-details.component';
-import { NewDeskSelectModalComponent } from './new-desk-flow/new-desk-select-modal.component';
-import { DeskFiltersDisplayComponent } from './new-desk-flow/views/desk-filters-display.component';
-import { DeskListComponent } from './new-desk-flow/views/desk-list.component';
-import { DeskFiltersComponent } from './new-desk-flow/views/desk-filters.component';
-import { DeskDetailsComponent } from './new-desk-flow/views/desk-details.component';
-import { DeskMapComponent } from './new-desk-flow/views/desk-map.component';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confirm.component';
 import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
@@ -103,12 +97,6 @@ const ROUTES: Route[] = [
         NewDeskFlowFormComponent,
         NewDeskFormDetailsComponent,
         NewDeskFlowComponent,
-        NewDeskSelectModalComponent,
-        DeskFiltersDisplayComponent,
-        DeskListComponent,
-        DeskFiltersComponent,
-        DeskDetailsComponent,
-        DeskMapComponent,
         NewDeskFlowConfirmComponent,
         NewDeskFlowSuccessComponent,
         VisitorFlowComponent,

@@ -5,9 +5,10 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { MapPinComponent } from '@placeos/components';
-import { Desk } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
+
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { BookingAsset } from '../booking-form.service';
 
 @Component({
     selector: 'desk-details',
@@ -115,7 +116,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow">
+            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
                 <button
                     mat-button
                     [class.inverse]="active"
@@ -150,7 +151,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
     `,
 })
 export class DeskDetailsComponent {
-    @Input() public desk?: Desk;
+    @Input() public desk?: BookingAsset;
     @Input() public fav: boolean = false;
     @Input() public active: boolean = false;
 

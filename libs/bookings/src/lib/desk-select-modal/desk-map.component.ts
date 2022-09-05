@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BookingFormService } from '@placeos/bookings';
 import { BaseClass, unique } from '@placeos/common';
-import { Desk } from '@placeos/organisation';
 import { distinctUntilChanged, map } from 'rxjs/operators';
+
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-map',
@@ -69,7 +69,7 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 })
 export class DeskMapComponent extends BaseClass implements OnInit {
     @Input() public is_displayed: boolean = false;
-    @Output() public onSelect = new EventEmitter<Desk>();
+    @Output() public onSelect = new EventEmitter<BookingAsset>();
 
     public readonly desks = this._state.available_assets;
     public readonly loading = this._state.loading;
@@ -123,7 +123,7 @@ export class DeskMapComponent extends BaseClass implements OnInit {
         );
     }
 
-    public selectDesk(desk: Desk) {
+    public selectDesk(desk: BookingAsset) {
         this.onSelect.emit(desk);
     }
 

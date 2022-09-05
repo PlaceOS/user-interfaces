@@ -1,9 +1,10 @@
 import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { addDays, endOfDay } from 'date-fns';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-filters',

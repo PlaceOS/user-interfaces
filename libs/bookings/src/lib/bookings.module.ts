@@ -19,6 +19,12 @@ import { BookingDetailsModalComponent } from './booking-details-modal.component'
 
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
+import { DeskDetailsComponent } from './desk-select-modal/desk-details.component';
+import { DeskFiltersDisplayComponent } from './desk-select-modal/desk-filters-display.component';
+import { DeskFiltersComponent } from './desk-select-modal/desk-filters.component';
+import { DeskListComponent } from './desk-select-modal/desk-list.component';
+import { DeskMapComponent } from './desk-select-modal/desk-map.component';
+import { DeskSelectModalComponent } from './desk-select-modal/desk-select-modal.component';
 import { InviteVisitorFormComponent } from './invite-visitor-form.component';
 import { ParkingSpaceDetailsComponent } from './parking-select-modal/parking-details.component';
 import { ParkingSpaceFiltersDisplayComponent } from './parking-select-modal/parking-filters-display.component';
@@ -28,6 +34,7 @@ import { ParkingSpaceLocationPinComponent } from './parking-select-modal/parking
 import { ParkingSpaceSelectMapComponent } from './parking-select-modal/parking-map.component';
 import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 import { ParkingSpaceListFieldComponent } from './parking-space-list-field.component';
+import { DeskListFieldComponent } from './desk-list-field.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -43,7 +50,15 @@ const COMPONENTS = [
     ParkingSpaceLocationPinComponent,
     ParkingSpaceSelectMapComponent,
     ParkingSpaceDetailsComponent,
-    ParkingSpaceListFieldComponent
+    ParkingSpaceListFieldComponent,
+
+    DeskSelectModalComponent,
+    DeskDetailsComponent,
+    DeskFiltersComponent,
+    DeskFiltersDisplayComponent,
+    DeskListComponent,
+    DeskMapComponent,
+    DeskListFieldComponent
 ];
 @NgModule({
     declarations: [...COMPONENTS],

@@ -37,8 +37,7 @@ import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
-export const FAV_DESK_KEY = 'favourite_desks';
-const BOOKING_URLS = ['book/desks'];
+const BOOKING_URLS = ['book/desks', 'book/parking', 'book/newdesk', 'book/new-parking'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
@@ -169,9 +168,7 @@ export class BookingFormService extends BaseClass {
                                 (bkn) =>
                                     bkn.asset_id === asset.id &&
                                     bkn.status !== 'declined'
-                            ) &&
-                            (!options?.show_fav ||
-                                this.favorite_desks.includes(asset.id))
+                            )
                     )
                 )
             )
@@ -222,10 +219,6 @@ export class BookingFormService extends BaseClass {
 
     public get booking() {
         return this._booking.getValue();
-    }
-
-    public get favorite_desks() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
     }
 
     public newForm(booking: Booking = new Booking()) {

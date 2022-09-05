@@ -1,11 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { BookingFormService, FAV_DESK_KEY } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
+import { BookingFormService } from '@placeos/bookings';
+import { BaseClass, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay } from 'date-fns';
-import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
 
 @Component({
     selector: 'new-desk-form-details',
@@ -86,103 +83,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
                     </div>
                     <div class="text-xl">Desk</div>
                 </h3>
-                <div *ngIf="(features | async)?.length" class="flex flex-col">
-                    <label for="title">Type</label>
-                    <div features class="flex items-center flex-wrap space-x-2">
-                        <mat-checkbox
-                            *ngFor="let opt of features | async"
-                            [ngModel]="
-                                ((options | async)?.features || []).includes(
-                                    opt
-                                )
-                            "
-                            (ngModelChange)="setFeature(opt, $event)"
-                            [ngModelOptions]="{ standalone: true }"
-                        >
-                            {{ opt }}
-                        </mat-checkbox>
-                    </div>
-                </div>
-                <div *ngIf="selectedDesk" selected-desk class="my-2 space-y-2">
-                    <div
-                        class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
-                    >
-                        <div
-                            class="w-24 h-24 rounded-xl bg-black/20 mr-4"
-                        ></div>
-                        <div class="space-y-2 pb-4">
-                            <div class="font-medium">
-                                {{
-                                    selectedDesk.display_name ||
-                                        selectedDesk.name ||
-                                        selectedDesk.id
-                                }}
-                            </div>
-                            <div class="flex items-center text-sm space-x-2">
-                                <app-icon class="text-blue-500">place</app-icon>
-                                <p class="text-xs">
-                                    {{
-                                        selectedDesk.zone?.display_name ||
-                                            selectedDesk.zone?.name ||
-                                            '&lt;No Level&gt;'
-                                    }}
-                                </p>
-                            </div>
-                            <div
-                                class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
-                            >
-                                <button
-                                    mat-button
-                                    edit-desk
-                                    class="clear"
-                                    (click)="selectDesk()"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <app-icon>edit</app-icon>
-                                        Change
-                                    </div>
-                                </button>
-                                <button
-                                    mat-button
-                                    remove-desk
-                                    class="clear"
-                                    (click)="clearSelectedDesk()"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <app-icon>close</app-icon>
-                                        Remove
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
-                        <button
-                            mat-icon-button
-                            fav
-                            class="absolute top-1 right-1"
-                            [class.text-blue-400]="
-                                favorites.includes(selectedDesk?.id)
-                            "
-                            (click)="toggleFavourite(selectedDesk)"
-                        >
-                            <app-icon>{{
-                                favorites.includes(selectedDesk?.id)
-                                    ? 'favorite'
-                                    : 'favorite_border'
-                            }}</app-icon>
-                        </button>
-                    </div>
-                </div>
-                <button
-                    mat-button
-                    add-space
-                    class="w-full inverse mt-2"
-                    (click)="selectDesk()"
-                >
-                    <div class="flex items-center justify-center space-x-2">
-                        <app-icon>search</app-icon>
-                        <span>Find Desk</span>
-                    </div>
-                </button>
+                <desk-list-field formControlName="resources"></desk-list-field>
             </section>
             <section class="p-2">
                 <h3 class="space-x-2 flex items-center mb-4">
@@ -198,7 +99,7 @@ import { NewDeskSelectModalComponent } from './new-desk-select-modal.component';
         </div>
     `,
 })
-export class NewDeskFormDetailsComponent {
+export class NewDeskFormDetailsComponent extends BaseClass {
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */
@@ -252,52 +153,23 @@ export class NewDeskFormDetailsComponent {
         );
     }
 
-    public get favorites() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
-    }
-
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _dialog: MatDialog
-    ) {}
-
-    /** Open desk selector */
-    public selectDesk() {
-        const ref = this._dialog.open(NewDeskSelectModalComponent);
-        ref.afterClosed().subscribe((desk?: Desk) => {
-            if (!desk) return;
-            this.setBookingAsset(desk);
-        });
+        private _settings: SettingsService
+    ) {
+        super();
     }
 
-    public clearSelectedDesk(){
-        this.selectedDesk = null;
-        this._state.form.patchValue({
-            asset_id: '',
-            asset_name: '',
-            map_id: '',
-            description: '',
-            zones: [],
-            booking_asset: null,
-        });
-    }
-
-    public toggleFavourite(desk: Desk) {
-        const fav_list = this.favorites;
-        const new_state = !fav_list.includes(desk.id);
-        if (new_state) {
-            this._settings.saveUserSetting(FAV_DESK_KEY, [
-                ...fav_list,
-                desk.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== desk.id)
-            );
-        }
+    public ngOnInit() {
+        this.subscription(
+            'change',
+            this._state.form
+                .get('resources')
+                ?.valueChanges?.subscribe((list) =>
+                    list.length ? this.setBookingAsset(list[0]) : ''
+                )
+        );
     }
 
     private setBookingAsset(desk: Desk) {

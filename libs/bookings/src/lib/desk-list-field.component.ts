@@ -1,15 +1,15 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingAsset } from './booking-form.service';
-import { FAV_PARKING_KEY, ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
+import { DeskSelectModalComponent, FAV_DESK_KEY } from './desk-select-modal/desk-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
 @Component({
-    selector: `parking-space-list-field`,
+    selector: `desk-list-field`,
     template: `
         <div list class="space-y-2">
             <div
@@ -17,12 +17,29 @@ const EMPTY_FAVS: string[] = [];
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
                 *ngFor="let space of spaces"
             >
+                <div *ngIf="(features | async)?.length" class="flex flex-col">
+                    <label for="title">Type</label>
+                    <div features class="flex items-center flex-wrap space-x-2">
+                        <mat-checkbox
+                            *ngFor="let opt of features | async"
+                            [ngModel]="
+                                ((options | async)?.features || []).includes(
+                                    opt
+                                )
+                            "
+                            (ngModelChange)="setFeature(opt, $event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            {{ opt }}
+                        </mat-checkbox>
+                    </div>
+                </div>
                 <div class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden">
                     <img *ngIf="space.images?.length" [src]="space.images[0]" class="min-h-full object-cover" />
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
-                        {{ space.name || 'Meeting Resource' }}
+                        {{ space.name || 'Desk' }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>
@@ -84,7 +101,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Parking Resource</span>
+                <span>Add Desk</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
@@ -97,12 +114,13 @@ const EMPTY_FAVS: string[] = [];
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ParkingSpaceListFieldComponent),
+            useExisting: forwardRef(() => DeskListFieldComponent),
             multi: true,
         },
     ],
 })
-export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
+export class DeskListFieldComponent implements ControlValueAccessor {
+    @Input() public features: string[] = [];
     public room_size = 3;
     public spaces: BookingAsset[] = [];
     public disabled = false;
@@ -121,7 +139,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected spaces */
     public changeResources() {
-        const ref = this._dialog.open(ParkingSpaceSelectModalComponent, {
+        const ref = this._dialog.open(DeskSelectModalComponent, {
             data: { spaces: this.spaces, options: { capacity: this.room_size } },
         });
         ref.afterClosed().subscribe((spaces?: BookingAsset[]) => {
@@ -165,13 +183,13 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_PARKING_KEY, [
+            this._settings.saveUserSetting(FAV_DESK_KEY, [
                 ...fav_list,
                 space.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_PARKING_KEY,
+                FAV_DESK_KEY,
                 fav_list.filter((_) => _ !== space.id)
             );
         }

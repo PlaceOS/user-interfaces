@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BookingFormService } from '@placeos/bookings';
-import { Desk } from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BookingFormService, BookingAsset } from '../booking-form.service';
 
 @Component({
     selector: 'desk-list',
@@ -95,10 +96,18 @@ import { Desk } from '@placeos/organisation';
 export class DeskListComponent {
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
-    @Output() public onSelect = new EventEmitter<Desk>();
-    @Output() public toggleFav = new EventEmitter<Desk>();
+    @Output() public onSelect = new EventEmitter<BookingAsset>();
+    @Output() public toggleFav = new EventEmitter<BookingAsset>();
 
-    public readonly desks = this._state.available_assets;
+
+    public readonly desks = combineLatest([
+        this._state.options,
+        this._state.available_assets,
+    ]).pipe(
+        map(([{ show_fav }, _]) =>
+            _.filter((i) => !show_fav || this.isFavourite(i.id))
+        )
+    );
     public readonly loading = this._state.loading;
 
     constructor(private _state: BookingFormService) {}
@@ -107,7 +116,7 @@ export class DeskListComponent {
         return this.favorites.includes(desk_id);
     }
 
-    public selectDesk(desk: Desk) {
+    public selectDesk(desk: BookingAsset) {
         this.onSelect.emit(desk);
     }
 }
