@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CreateSurveyService } from '../create-survey/create-survey.service';
 import { StylesManager, Model, SurveyNG } from 'survey-angular';
+import { Question, QuestionType } from '../survey-types';
 
 @Component({
     selector: 'placeos-create-survey-form',
@@ -17,11 +18,11 @@ export class CreateSurveyFormComponent implements OnInit {
     }
 
     addTextQuestion(): void {
-        this._createSurveyService.newQuestionForm('text');
+        this._createSurveyService.newQuestionForm(QuestionType.text);
     }
 
     addCheckboxQuestion(): void {
-        this._createSurveyService.newQuestionForm('checkbox');
+        this._createSurveyService.newQuestionForm(QuestionType.checkbox);
     }
 
     submitSurvey(): void {
