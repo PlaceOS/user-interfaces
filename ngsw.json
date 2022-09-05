@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661918507636,
+  "timestamp": 1662349144623,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -62,6 +62,7 @@
         "./assets/icons/more-filled.svg",
         "./assets/icons/more-outline.svg",
         "./assets/icons/no-contacts.svg",
+        "./assets/icons/no-favourites.svg",
         "./assets/icons/payment-confirmed.svg",
         "./assets/icons/place-filled.svg",
         "./assets/icons/place-outline.svg",
@@ -127,7 +128,7 @@
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "9522227de835ea021cab577bc2ff9c441dd5b8ac",
-    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "8bec22020e04171d13fd309be3504700e0603eb3",
+    "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "8ace802c9e8ee13edc4aa9503b35a8e6a2647d9e",
     "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
@@ -155,6 +156,7 @@
     "./assets/icons/more-filled.svg": "a736dcf0bd45c84f52e1f19e8fd709267a60a114",
     "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
+    "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
     "./assets/icons/payment-confirmed.svg": "f011484b0d845fa2a1b5c9db5107e2bb9c3d2c09",
     "./assets/icons/place-filled.svg": "89ab65674b9e909b284ad78a7f8d7544a13ab74a",
     "./assets/icons/place-outline.svg": "6059875d2deb6a48ea76d30ac29bd329a888a48d",
@@ -213,12 +215,12 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "98b33c18091589c6ea2975d1bb89256171f8c660",
-    "./main.js": "0adeb5dec152409136547943f40a2028e6ee2a63",
+    "./main.js": "4c716fa77e93b8fdac051881f8e2b88ffcdf50fe",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "3603a8552aec221408b8f4094f5af662b1e68a70",
     "./polyfills.js": "c4fdd05a75382cf27e0f425306c414faabeb220e",
     "./runtime.js": "33ff0b24afb25fe8de7ec1d6c40774973ab7011a",
-    "./styles.css": "6bc51fba4d7285a664006aa4d09e17a0ea7dc732",
+    "./styles.css": "b6ca9c183b873dfd75e8ee3a82f5910af6cdfcab",
     "./vendor.js": "30208279863e1b7df015ee0bd07d8b098d78c5fc"
   },
   "navigationUrls": [
