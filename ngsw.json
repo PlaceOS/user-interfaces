@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1662011413945,
+  "timestamp": 1662349170970,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -157,12 +157,12 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_workplace_src_app_book_book_module_ts.js": "049d44dbd8dfb7aec24c010eecbeda638f3fdc9e",
+    "./apps_workplace_src_app_book_book_module_ts.js": "f50353eb1d25ecfc778b395f49a216d05b43b3f9",
     "./apps_workplace_src_app_control_control_module_ts.js": "008cbd6af6b1123d1894853e242a0c6195790457",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "cb26d5942dd174e1ad8ac08e3a8827a6c263491a",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "31befba6656f4b818d0b08e85ddfd28a177afed2",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "085ec42580854a8b8ea917adbadb1ff28ceee38a",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "623285915d7211664fc151b21ac9b6c833e04983",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "047ae9e3eb534f8a63706c773383c76c112d3084",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "7f821f7ea070d71726de68cfb9188c953e2f97e1",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "343601a29e0ebb4e26867b702af9055f0587a3cb",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "8323a20c82ba28507166087ac1f003418ed926ba",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "309e88aa14925d28afa56ca18fe5a16e240d7f58",
@@ -275,12 +275,12 @@
     "./common.js": "fe467d4b7a678d3dd48a49fb9a946ccbbfb9c261",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "d603fe52ad5906bbcc6369dfdf861aa939f76ab6",
-    "./main.js": "8d1eb23c3e7fbee01ab97271ae612338a3a4ad89",
+    "./main.js": "c975cb8aad1c0cfce71909b56309d89cbf11ee4b",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "b834ea14ae6dd9819f7306a06ce0eda8693fcae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "496294cd6f9b56891ac339baf1a7778b46155854",
+    "./styles.css": "b6ca9c183b873dfd75e8ee3a82f5910af6cdfcab",
     "./vendor.js": "82211a86be01bc39b71c5a1db9851aed57d2797b"
   },
   "navigationUrls": [
