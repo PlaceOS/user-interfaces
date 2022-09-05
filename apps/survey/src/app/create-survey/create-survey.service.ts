@@ -10,7 +10,8 @@ import { Question, QuestionType } from '../survey-types';
 export class CreateSurveyService extends BaseClass {
     surveyTitle: Text;
     surveyData: any;
-    counter: number = 0;
+    question_counter: number = 0;
+    answer_counter: number = 0;
 
     //Store of JSON generated from survey questions
     private _surveyJSON: BehaviorSubject<any> = new BehaviorSubject<any>({}); //TODO: data type
@@ -30,61 +31,46 @@ export class CreateSurveyService extends BaseClass {
     }
 
     newQuestionForm(questionType): void {
-        this.counter++;
-        const question_counter: HTMLElement = document.createElement('text');
-        question_counter.innerHTML = 'Question ' + this.counter;
+        this.question_counter++;
 
-        const question_title: HTMLInputElement = document.createElement(
-            'INPUT'
-        ) as HTMLInputElement;
-        question_title.setAttribute('type', 'text');
-        question_title.id = this.counter.toString();
+        const question_label: HTMLElement = document.createElement('text');
+        question_label.innerHTML = 'Question ' + this.question_counter;
 
-        document.getElementById('questionForm').appendChild(question_counter);
-        document.getElementById('questionForm').appendChild(question_title);
+        document.getElementById('questionForm').appendChild(question_label);
 
-        if (questionType == QuestionType.checkbox || QuestionType.dropdown) {
+        const question_title = this._addInputField(
+            'text',
+            this.question_counter.toString()
+        );
+
+        if (
+            questionType == QuestionType.checkbox ||
+            questionType == QuestionType.dropdown ||
+            questionType == QuestionType.rating
+        ) {
             this.newAnswerForm();
         }
     }
 
     newAnswerForm(): void {
-        let answerCounter: number = 1;
-
         const answer_label: HTMLElement = document.createElement('text');
         answer_label.innerHTML = 'Enter Answer Options';
-
-        const checkbox_title: HTMLInputElement = document.createElement(
-            'INPUT'
-        ) as HTMLInputElement;
-
-        checkbox_title.setAttribute('type', 'text');
-        checkbox_title.id = 'Answer' + answerCounter.toString();
-        checkbox_title.setAttribute('style', 'width: 200px');
-
-        const add_checkbox_button: HTMLElement =
-            document.createElement('button');
-        add_checkbox_button.innerHTML = 'Add another answer option';
-        add_checkbox_button.setAttribute('style', 'width: 100px');
-
-        const finish_checkbox_button: HTMLElement =
-            document.createElement('button');
-        finish_checkbox_button.innerHTML = 'Finish checkbox answer';
-        finish_checkbox_button.setAttribute('style', 'width: 100px');
-
+        const add_answer_button: HTMLElement = document.createElement('button');
+        add_answer_button.innerHTML = 'Add answer option';
+        add_answer_button.setAttribute('style', 'width: 100px');
+        add_answer_button.setAttribute('onclick', 'addAnswer');
+        add_answer_button.onclick = () => {
+            this._addInputField(
+                'text',
+                'Answer' + this.answer_counter.toString(),
+                'width: 200px'
+            );
+        };
         document.getElementById('questionForm').appendChild(answer_label);
-        document.getElementById('questionForm').appendChild(checkbox_title);
-
-        document
-            .getElementById('questionForm')
-            .appendChild(add_checkbox_button);
-
-        document
-            .getElementById('questionForm')
-            .appendChild(finish_checkbox_button);
-
-        answerCounter++;
+        document.getElementById('questionForm').appendChild(add_answer_button);
+        this.answer_counter++;
     }
+
     createNewJSON() {
         this.surveyJSON = {
             pages: [
@@ -99,7 +85,7 @@ export class CreateSurveyService extends BaseClass {
     submitSurvey() {
         this.createNewJSON();
 
-        for (let i = 1; i <= this.counter; i++) {
+        for (let i = 1; i <= this.question_counter; i++) {
             const question = document.getElementById(
                 i.toString()
             ) as HTMLInputElement;
@@ -127,11 +113,15 @@ export class CreateSurveyService extends BaseClass {
         });
     }
 
-    private _addInputField(): void {
-        ///
-    }
+    private _addInputField(type: string, id: string, style?: string) {
+        const input_field: HTMLInputElement = document.createElement(
+            'INPUT'
+        ) as HTMLInputElement;
 
-    private _addButton(): void {
-        ///
+        input_field.setAttribute('type', type);
+        input_field.setAttribute('id', id);
+        input_field.setAttribute('style', style);
+        document.getElementById('questionForm').appendChild(input_field);
+        return input_field;
     }
 }
