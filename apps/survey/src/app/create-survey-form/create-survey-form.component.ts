@@ -31,7 +31,6 @@ export class CreateSurveyFormComponent implements OnInit {
     reset(): void {
         document.getElementById('questionForm').textContent = '';
         this._createSurveyService.question_counter = 0;
-        this._createSurveyService.answer_counter = 0;
         this._createSurveyService.createNewJSON();
     }
 }
