@@ -25,6 +25,14 @@ export class CreateSurveyFormComponent implements OnInit {
         this._createSurveyService.newQuestionForm(QuestionType.checkbox);
     }
 
+    addDropdownQuestion(): void {
+        this._createSurveyService.newQuestionForm(QuestionType.dropdown);
+    }
+
+    addRatingQuestion(): void {
+        this._createSurveyService.newQuestionForm(QuestionType.rating);
+    }
+
     submitSurvey(): void {
         this._createSurveyService.submitSurvey();
     }

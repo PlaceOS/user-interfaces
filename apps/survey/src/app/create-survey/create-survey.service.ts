@@ -61,8 +61,7 @@ export class CreateSurveyService extends BaseClass {
 
         if (
             questionType == QuestionType.checkbox ||
-            questionType == QuestionType.dropdown ||
-            questionType == QuestionType.rating
+            questionType == QuestionType.dropdown
         ) {
             this.newAnswerForm();
         }
