@@ -48,7 +48,8 @@ export class CreateSurveyService extends BaseClass {
 
         const question_title = this._addInputField(
             'text',
-            this.question_counter.toString()
+            this.question_counter.toString(),
+            questionType.toString()
         );
 
         document
@@ -77,7 +78,8 @@ export class CreateSurveyService extends BaseClass {
         add_answer_button.onclick = () => {
             const answer_field = this._addInputField(
                 'text',
-                this.question_counter.toString() + 'answer_option',
+                '',
+                'answer_option',
                 'width: 200px'
             );
 
@@ -113,13 +115,21 @@ export class CreateSurveyService extends BaseClass {
                 i.toString()
             ) as HTMLInputElement;
 
-            let answers = document.getElementById(i.toString()).childNodes;
-            console.log(answers, 'answers');
+            let child_nodes = document.getElementById(
+                i.toString() + 'div'
+            ).childNodes;
+
+            let answers = [].filter.call(child_nodes, (item) => {
+                return item.classList.contains('answer_option');
+            });
+
+            answers = answers.map((item) => item.value);
 
             this.surveyJSON.pages[0].elements[i - 1] = {
-                type: question?.type,
+                type: question?.className,
                 name: i.toString(),
                 title: question?.value,
+                choices: answers,
             };
         }
 
@@ -128,6 +138,8 @@ export class CreateSurveyService extends BaseClass {
 
     async buildSurvey() {
         const survey = new Model(this.surveyJSON);
+
+        console.log(this.surveyJSON, 'survey');
 
         SurveyNG.render('surveyContainer', { model: survey });
         survey.onComplete.add((sender: any) => {
@@ -141,7 +153,8 @@ export class CreateSurveyService extends BaseClass {
 
     private _addInputField(
         type: string,
-        id: string,
+        id?: string,
+        class_name?: string,
         style?: string
     ): HTMLElement | HTMLInputElement {
         const input_field: HTMLInputElement = document.createElement(
@@ -150,6 +163,7 @@ export class CreateSurveyService extends BaseClass {
 
         input_field.setAttribute('type', type);
         input_field.setAttribute('id', id);
+        input_field.setAttribute('class', class_name);
         input_field.setAttribute('style', style);
         return input_field;
     }
