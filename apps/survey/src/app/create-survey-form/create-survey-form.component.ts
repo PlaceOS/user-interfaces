@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CreateSurveyService } from '../create-survey/create-survey.service';
-import { StylesManager, Model, SurveyNG } from 'survey-angular';
-import { Question, QuestionType } from '../survey-types';
+import { QuestionType } from '../survey-types';
 
 @Component({
     selector: 'placeos-create-survey-form',
@@ -9,13 +8,10 @@ import { Question, QuestionType } from '../survey-types';
     styles: [``],
 })
 export class CreateSurveyFormComponent implements OnInit {
-    surveyJSON: any;
     survey_title: String = 'Survey';
     constructor(private _createSurveyService: CreateSurveyService) {}
 
-    ngOnInit(): void {
-        this.surveyJSON = this._createSurveyService.surveyJSON;
-    }
+    ngOnInit(): void {}
 
     addTextQuestion(): void {
         this._createSurveyService.newQuestionForm(QuestionType.text);

@@ -8,8 +8,6 @@ import { Question, QuestionType } from '../survey-types';
     providedIn: 'root',
 })
 export class CreateSurveyService extends BaseClass {
-    surveyTitle: Text;
-    surveyData: any;
     question_counter: number = 0;
 
     //Store of JSON generated from survey questions
@@ -128,24 +126,21 @@ export class CreateSurveyService extends BaseClass {
                 type: question?.className,
                 name: i.toString(),
                 title: question?.value,
-                choices: answers,
-            };
+                choices: answers || [],
+            } as Question;
         }
 
         this.buildSurvey();
     }
 
-    async buildSurvey() {
+    async buildSurvey(): Promise<void> {
         const survey = new Model(this.surveyJSON);
-
-        console.log(this.surveyJSON, 'survey');
 
         SurveyNG.render('surveyContainer', { model: survey });
         survey.onComplete.add((sender: any) => {
             console.log('completed');
-            this.surveyData = sender.data;
             document.getElementById('surveyResults').innerHTML = Object.values(
-                this.surveyData
+                sender.data
             ).toString();
         });
     }
