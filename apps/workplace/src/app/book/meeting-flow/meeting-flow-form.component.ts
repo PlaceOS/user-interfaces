@@ -245,7 +245,7 @@ export class MeetingFlowFormComponent extends BaseClass {
     }
 
     public get has_catering() {
-        return !!this._settings.get('app.events.catering_enabled');
+        return !!this._settings.get('app.events.catering_enabled') || !!this._settings.get('app.events.has_catering');
     }
 
     public get hide_notes() {
