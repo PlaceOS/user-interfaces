@@ -25,7 +25,7 @@ export interface PaymentResult {
 }
 
 export const STRIPE_ID_TOKEN = 'STRIPE+customer_id';
-const STRIPE_MODULE = 'StripePayments';
+const STRIPE_MODULE = 'Payment';
 
 @Injectable({
     providedIn: 'root',

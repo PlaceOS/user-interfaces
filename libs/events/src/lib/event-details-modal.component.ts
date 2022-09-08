@@ -5,6 +5,9 @@ import { addMinutes, format, formatDuration } from 'date-fns';
 import { CalendarEvent } from './event.class';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 
 @Component({
     selector: 'event-details-modal',
@@ -247,6 +250,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
         </mat-menu>
     `,
     styles: [``],
+    providers: [SpacePipe]
 })
 export class EventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
@@ -262,21 +266,15 @@ export class EventDetailsModalComponent {
 
     public readonly has_catering = this.event?.ext('catering')?.length > 0;
 
-    public get level() {
-        return this._org.levelWithID((this.event?.system?.zones || []) as any);
-    }
-
-    public get building() {
-        return this._org.buildings.find((bld) =>
-            (this.event?.system?.zones || []).includes(bld.id)
-        );
-    }
+    public level: BuildingLevel = new BuildingLevel();
+    public building: Building = new Building();
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _space_pipe: SpacePipe
     ) {
-        console.log('Catering:', this._event.ext('catering'));
+        this._load().then();
     }
 
     public get period() {
@@ -290,5 +288,22 @@ export class EventDetailsModalComponent {
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
         return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+    }
+
+    private async _load() {
+        console.log('Event:', this._event);
+        this.level = await this._getLevel() || this.level;
+        this.building = await this._getBuilding() || this.building;
+        console.log('Details:', this.level, this.building);
+    }
+
+    private async _getLevel() {
+        const space = await this._space_pipe.transform(this._event.system?.id || this._event.system?.email);
+        return this._org.levelWithID(space.zones);
+    }
+
+    private async _getBuilding() {
+        const space = await this._space_pipe.transform(this._event.system?.id || this._event.system?.email);
+        return this._org.buildings.find(bld => space.zones.includes(bld.id));
     }
 }

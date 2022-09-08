@@ -197,6 +197,7 @@ export class CateringItemDetailsComponent {
     @Output() public activeChange = new EventEmitter<boolean>();
     @Output() public close = new EventEmitter<void>();
 
+    public option_state: Record<string, boolean> = {};
     public groups: CateringOptionGroup[];
 
     public ngOnChanges(changes: SimpleChanges) {
