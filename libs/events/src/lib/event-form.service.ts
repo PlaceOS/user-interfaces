@@ -34,6 +34,7 @@ import { saveEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
+import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -274,6 +275,7 @@ export class EventFormService extends BaseClass {
             const { id, host, date, duration, creator, all_day } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
+            const catering = form.get('catering')?.value || [];
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
@@ -315,7 +317,7 @@ export class EventFormService extends BaseClass {
                 (value as any).extension_data = { invoice: receipt, invoice_id: receipt.invoice_id };
             }
             const result = await this._makeBooking(
-                new CalendarEvent(value),
+                new CalendarEvent({ ...value, catering: [new CateringOrder({ items: catering as any })] }),
                 query
             ).catch((e) => {
                 reject(e);

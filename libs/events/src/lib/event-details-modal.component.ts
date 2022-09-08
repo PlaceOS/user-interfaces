@@ -157,6 +157,36 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                         <div class="opacity-60">{{ event.host }}</div>
                     </div>
                 </div>
+                <ng-container *ngIf="has_catering">
+                    <h3
+                        class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"
+                    >
+                        Catering
+                    </h3>
+                    <div class="flex flex-col px-4 space-y-2">
+                        <div
+                            catering-item
+                            class="flex space-x-2"
+                            *ngFor="let item of event.ext('catering')[0].items"
+                        >
+                            <div
+                                count
+                                class="flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-sm font-medium"
+                            >
+                                {{ item.quantity }}
+                            </div>
+                            <div details class="pt-0.5">
+                                <div class="text-sm">{{ item.name }}</div>
+                                <div
+                                    class="text-xs opacity-40"
+                                    *ngFor="let opt of item.options"
+                                >
+                                    {{ opt.name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
                 <div
                     map
                     class="mx-4 h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
@@ -230,6 +260,8 @@ export class EventDetailsModalComponent {
         },
     ];
 
+    public readonly has_catering = this.event?.ext('catering')?.length > 0;
+
     public get level() {
         return this._org.levelWithID((this.event?.system?.zones || []) as any);
     }
@@ -243,7 +275,9 @@ export class EventDetailsModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService
-    ) {}
+    ) {
+        console.log('Catering:', this._event.ext('catering'));
+    }
 
     public get period() {
         const start = this.event?.date || Date.now();
