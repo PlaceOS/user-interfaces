@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CreateSurveyService } from '../create-survey/create-survey.service';
-import { QuestionType } from '../survey-types';
+import {
+    SurveyCreatorService,
+    QuestionType,
+    Question,
+    Answer,
+} from '../../../../../libs/survey-creator/index';
 
 @Component({
     selector: 'placeos-create-survey-form',
@@ -9,7 +13,7 @@ import { QuestionType } from '../survey-types';
 })
 export class CreateSurveyFormComponent implements OnInit {
     survey_title: String = 'Survey';
-    constructor(private _createSurveyService: CreateSurveyService) {}
+    constructor(private _createSurveyService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
 

@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Model, SurveyNG } from 'survey-angular';
-import { BaseClass } from '@placeos/common';
-import { Question, QuestionType } from '../survey-types';
+import { Question, QuestionType } from './survey-types';
 
 @Injectable({
     providedIn: 'root',
 })
-export class CreateSurveyService extends BaseClass {
+export class SurveyCreatorService {
     question_counter: number = 0;
 
     //Store of JSON generated from survey questions
@@ -22,11 +21,7 @@ export class CreateSurveyService extends BaseClass {
     get surveyJSON() {
         return this._surveyJSON.getValue();
     }
-
-    constructor() {
-        super();
-    }
-
+    constructor() {}
     newQuestionForm(questionType): void {
         this.question_counter++;
 
