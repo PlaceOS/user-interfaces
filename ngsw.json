@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1662599569917,
+  "timestamp": 1662610030697,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -138,7 +138,7 @@
     "./assets/tick_success.svg": "84c88546933b8055d960b3194eca112f05ae685f",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "18c31462bee9ea7216c2c426b5e89c55937b93d8",
-    "./main.js": "09adbb1398c2c1a9299fc965997ddd7732242b74",
+    "./main.js": "fb60a4f09f99c66d9de880f969ca142f86adb713",
     "./manifest.webmanifest": "4ec1747780e920f1cce2ad926ba4ae682c20cb5f",
     "./polyfills.js": "e02aad5f465cff769c47ba821e4c64583625a4b4",
     "./runtime.js": "ab80969a83454d2747f71cd90ada31d9f7bc3adc",
