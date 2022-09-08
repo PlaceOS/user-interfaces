@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1662349191350,
+  "timestamp": 1662599459042,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -78,6 +78,7 @@
         "./assets/icons/more-outline.svg",
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
+        "./assets/icons/parking-success.svg",
         "./assets/icons/payment-confirmed.svg",
         "./assets/icons/place-filled.svg",
         "./assets/icons/place-outline.svg",
@@ -150,6 +151,7 @@
     "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
+    "./assets/icons/parking-success.svg": "f50d3173f7e5ff00f4175ac6fd85f0bd1f5da57b",
     "./assets/icons/payment-confirmed.svg": "f011484b0d845fa2a1b5c9db5107e2bb9c3d2c09",
     "./assets/icons/place-filled.svg": "89ab65674b9e909b284ad78a7f8d7544a13ab74a",
     "./assets/icons/place-outline.svg": "6059875d2deb6a48ea76d30ac29bd329a888a48d",
@@ -182,7 +184,7 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1255959532c8fee7178719e553e7ef1bf3f16f15",
-    "./main.js": "3c830e239ef3daf4d865479f53b8a44c078904ad",
+    "./main.js": "596ed3b788e194261b9bac1f1eaa442ee2445d5a",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
