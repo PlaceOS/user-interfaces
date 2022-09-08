@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1662349139644,
+  "timestamp": 1662599424757,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -60,6 +60,7 @@
         "./assets/icons/more-outline.svg",
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
+        "./assets/icons/parking-success.svg",
         "./assets/icons/payment-confirmed.svg",
         "./assets/icons/place-filled.svg",
         "./assets/icons/place-outline.svg",
@@ -118,6 +119,7 @@
     "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
+    "./assets/icons/parking-success.svg": "f50d3173f7e5ff00f4175ac6fd85f0bd1f5da57b",
     "./assets/icons/payment-confirmed.svg": "f011484b0d845fa2a1b5c9db5107e2bb9c3d2c09",
     "./assets/icons/place-filled.svg": "89ab65674b9e909b284ad78a7f8d7544a13ab74a",
     "./assets/icons/place-outline.svg": "6059875d2deb6a48ea76d30ac29bd329a888a48d",
@@ -142,7 +144,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "d1135debd6fd58481c30fcdcbafde194529597a8",
-    "./main.js": "5f4919a02908794ea514bd6d2add6bbeaa90f49c",
+    "./main.js": "0fa0f930d4b3bba242a764188afe862698016463",
     "./manifest.webmanifest": "8c6fdda8ecb155f4951a7175bd0b695d39d23ad7",
     "./polyfills.js": "3f4fec4c884a35b9b0fbca839682ec87ddc62b2b",
     "./runtime.js": "18caf59b615b61916113d0671eaaef55d1e68167",
