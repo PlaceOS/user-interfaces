@@ -296,7 +296,7 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     private _checkCateringEligibility(list: Space[]) {
         const zone = this._settings.get('app.events.catering_enabled');
-        if (zone && list.length) {
+        if (zone && list?.length) {
             const can_cater = list.every(s => s.zones.includes(zone));
             if (!can_cater) {
                 this.form.patchValue({ catering: [] });
