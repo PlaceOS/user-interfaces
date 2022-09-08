@@ -1,27 +1,23 @@
-import {
-    MatProgressSpinnerModule
-} from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { IconComponent } from '@placeos/components';
 import { Desk } from '@placeos/organisation';
-import { DeskListComponent } from 'apps/workplace/src/app/book/new-desk-flow/views/desk-list.component';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
+import { DeskListComponent } from '../../lib/desk-select-modal/desk-list.component';
 
 describe('DeskListComponent', () => {
     let spectator: Spectator<DeskListComponent>;
     const createComponent = createComponentFactory({
         component: DeskListComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    available_assets: new BehaviorSubject([]),
-                    loading: new BehaviorSubject(''),
-                    setView: jest.fn(),
-                },
-            },
+            MockProvider(BookingFormService, {
+                options: new BehaviorSubject([{}]) as any,
+                available_assets: new BehaviorSubject([{}]) as any,
+                loading: new BehaviorSubject('') as any,
+                setView: jest.fn(),
+            }),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatProgressSpinnerModule)],

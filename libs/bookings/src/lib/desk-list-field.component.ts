@@ -4,7 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingAsset } from './booking-form.service';
-import { DeskSelectModalComponent, FAV_DESK_KEY } from './desk-select-modal/desk-select-modal.component';
+import {
+    DeskSelectModalComponent,
+    FAV_DESK_KEY,
+} from './desk-select-modal/desk-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -13,20 +16,16 @@ const EMPTY_FAVS: string[] = [];
     template: `
         <div list class="space-y-2">
             <div
-                space
+                desk
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
-                *ngFor="let space of spaces"
+                *ngFor="let space of items"
             >
-                <div *ngIf="(features | async)?.length" class="flex flex-col">
+                <div *ngIf="features?.length" class="flex flex-col">
                     <label for="title">Type</label>
                     <div features class="flex items-center flex-wrap space-x-2">
                         <mat-checkbox
-                            *ngFor="let opt of features | async"
-                            [ngModel]="
-                                ((options | async)?.features || []).includes(
-                                    opt
-                                )
-                            "
+                            *ngFor="let opt of features"
+                            [ngModel]="(selected_features || []).includes(opt)"
                             (ngModelChange)="setFeature(opt, $event)"
                             [ngModelOptions]="{ standalone: true }"
                         >
@@ -34,8 +33,14 @@ const EMPTY_FAVS: string[] = [];
                         </mat-checkbox>
                     </div>
                 </div>
-                <div class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden">
-                    <img *ngIf="space.images?.length" [src]="space.images[0]" class="min-h-full object-cover" />
+                <div
+                    class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden"
+                >
+                    <img
+                        *ngIf="space.images?.length"
+                        [src]="space.images[0]"
+                        class="min-h-full object-cover"
+                    />
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
@@ -56,7 +61,7 @@ const EMPTY_FAVS: string[] = [];
                     >
                         <button
                             mat-button
-                            edit-space
+                            edit-desk
                             class="clear"
                             (click)="changeResources(space)"
                         >
@@ -67,7 +72,7 @@ const EMPTY_FAVS: string[] = [];
                         </button>
                         <button
                             mat-button
-                            remove-space
+                            remove-desk
                             class="clear"
                             (click)="removeResource(space)"
                         >
@@ -95,7 +100,7 @@ const EMPTY_FAVS: string[] = [];
         </div>
         <button
             mat-button
-            add-space
+            add-desk
             class="w-full inverse mt-2"
             (click)="changeResources()"
         >
@@ -105,9 +110,7 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
-            <div class="flex-1 min-w-[256px] space-y-2">
-                
-            </div>
+            <div class="flex-1 min-w-[256px] space-y-2"></div>
         </div>
     `,
     styles: [``],
@@ -122,14 +125,15 @@ const EMPTY_FAVS: string[] = [];
 export class DeskListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];
     public room_size = 3;
-    public spaces: BookingAsset[] = [];
+    public items: BookingAsset[] = [];
     public disabled = false;
+    public selected_features: string[] = [];
 
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
+        return this._settings.get<string[]>(FAV_DESK_KEY) || EMPTY_FAVS;
     }
 
     constructor(
@@ -137,20 +141,23 @@ export class DeskListFieldComponent implements ControlValueAccessor {
         private _dialog: MatDialog
     ) {}
 
-    /** Add or edit selected spaces */
+    /** Add or edit selected items */
     public changeResources() {
         const ref = this._dialog.open(DeskSelectModalComponent, {
-            data: { spaces: this.spaces, options: { capacity: this.room_size } },
+            data: {
+                items: this.items,
+                options: { capacity: this.room_size },
+            },
         });
-        ref.afterClosed().subscribe((spaces?: BookingAsset[]) => {
-            if (!spaces) return;
-            this.setValue(spaces);
+        ref.afterClosed().subscribe((items?: BookingAsset[]) => {
+            if (!items) return;
+            this.setValue(items);
         });
     }
 
     /** Remove the selected space from the list */
     public removeResource(space: BookingAsset) {
-        this.setValue(this.spaces.filter((_) => _.id !== space.id));
+        this.setValue(this.items.filter((_) => _.id !== space.id));
     }
 
     /**
@@ -158,8 +165,8 @@ export class DeskListFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: BookingAsset[]) {
-        this.spaces = new_value;
-        if (this._onChange) this._onChange(this.spaces);
+        this.items = new_value;
+        if (this._onChange) this._onChange(this.items);
     }
 
     /* istanbul ignore next */
@@ -168,7 +175,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: BookingAsset[]) {
-        this.spaces = value || [];
+        this.items = value || [];
     }
 
     /* istanbul ignore next */

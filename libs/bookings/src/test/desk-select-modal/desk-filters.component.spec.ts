@@ -9,9 +9,9 @@ import { SettingsService } from "@placeos/common";
 import { IconComponent } from "@placeos/components";
 import { DateFieldComponent, DurationFieldComponent, TimeFieldComponent } from "@placeos/form-fields";
 import { Building, OrganisationService } from "@placeos/organisation";
-import { DeskFiltersComponent } from "apps/workplace/src/app/book/new-desk-flow/views/desk-filters.component";
 import { MockComponent, MockModule } from "ng-mocks";
 import { BehaviorSubject, of } from "rxjs";
+import { DeskFiltersComponent } from "../../lib/desk-select-modal/desk-filters.component";
 
 describe('DeskFiltersComponent', () => {
     let spectator: Spectator<DeskFiltersComponent>;

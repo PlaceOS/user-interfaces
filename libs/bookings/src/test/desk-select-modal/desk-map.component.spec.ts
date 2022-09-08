@@ -5,10 +5,10 @@ import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
 import { BookingFormService } from "@placeos/bookings";
 import { IconComponent, InteractiveMapComponent } from "@placeos/components";
 import { Desk } from "@placeos/organisation";
-import { DeskMapComponent } from "apps/workplace/src/app/book/new-desk-flow/views/desk-map.component";
 import { MockComponent, MockModule } from "ng-mocks";
 import { BehaviorSubject } from "rxjs";
 import { take } from "rxjs/operators";
+import { DeskMapComponent } from "../../lib/desk-select-modal/desk-map.component";
 
 
 describe('DeskMapComponent', () => {

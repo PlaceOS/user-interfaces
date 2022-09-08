@@ -3,9 +3,9 @@ import { MatBottomSheet } from "@angular/material/bottom-sheet";
 import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
 import { BookingFormService } from "@placeos/bookings";
 import { IconComponent } from "@placeos/components";
-import { DeskFiltersDisplayComponent } from "apps/workplace/src/app/book/new-desk-flow/views/desk-filters-display.component";
 import { MockComponent } from "ng-mocks";
 import { BehaviorSubject } from "rxjs";
+import { DeskFiltersDisplayComponent } from "../../lib/desk-select-modal/desk-filters-display.component";
 
 
 describe('DeskFiltersDisplayComponent', () => {
