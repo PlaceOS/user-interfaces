@@ -5,11 +5,12 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
+import { InputTitleComponent } from './components/input-title/input-title.component';
 
-const COMPONENTS: Type<any>[] = [SurveyCreatorComponent];
+const COMPONENTS: Type<any>[] = [SurveyCreatorComponent, InputTitleComponent];
 
 @NgModule({
-    declarations: [SurveyCreatorComponent],
+    declarations: [...COMPONENTS],
     imports: [
         CommonModule,
         MatDialogModule,
@@ -17,7 +18,6 @@ const COMPONENTS: Type<any>[] = [SurveyCreatorComponent];
         FormsModule,
         ReactiveFormsModule,
     ],
-
-    exports: [SurveyCreatorComponent],
+    exports: [...COMPONENTS],
 })
 export class SurveyCreatorModule {}

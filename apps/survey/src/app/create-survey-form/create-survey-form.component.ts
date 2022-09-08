@@ -4,12 +4,13 @@ import {
     QuestionType,
     Question,
     Answer,
-} from '../../../../../libs/survey-creator/index';
+    InputTitleComponent,
+} from '@placeos/survey';
 
 @Component({
     selector: 'placeos-create-survey-form',
     templateUrl: './create-survey-form.component.html',
-    styles: [``],
+    styles: [],
 })
 export class CreateSurveyFormComponent implements OnInit {
     survey_title: String = 'Survey';
