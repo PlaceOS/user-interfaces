@@ -260,15 +260,17 @@ export class EventFormService extends BaseClass {
 
     public postForm(force: boolean = false) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
+            this._loading.next('Creating event...');
             const form = this._form;
             form.markAllAsTouched();
             const event = this.event || new CalendarEvent();
-            if (!form.valid && !force)
+            if (!form.valid && !force){
+                this._loading.next('');
                 return reject(
                     `Some form fields are invalid. [${getInvalidFields(
                         form
                     ).join(', ')}]`
-                );
+                );}
             const { id, host, date, duration, creator, all_day } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
@@ -286,6 +288,7 @@ export class EventFormService extends BaseClass {
                         : undefined,
                     id || ''
                 ).catch((_) => {
+                    this._loading.next('');
                     reject(_);
                     throw _;
                 });
@@ -308,7 +311,7 @@ export class EventFormService extends BaseClass {
                     duration,
                     all_day,
                 });
-                if (!receipt?.success) return;
+                if (!receipt?.success) return this._loading.next('');
                 (value as any).extension_data = { invoice: receipt, invoice_id: receipt.invoice_id };
             }
             const result = await this._makeBooking(
@@ -316,6 +319,7 @@ export class EventFormService extends BaseClass {
                 query
             ).catch((e) => {
                 reject(e);
+                this._loading.next('');
                 throw e;
             });
             this.clearForm();
@@ -326,6 +330,7 @@ export class EventFormService extends BaseClass {
             );
             this.setView('success');
             resolve(result);
+            this._loading.next('');
         });
     }
 
