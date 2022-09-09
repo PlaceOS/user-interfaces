@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1662616355890,
+  "timestamp": 1662707964402,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -27,6 +27,7 @@
         "./default-libs_bookings_src_lib_booking-form_service_ts.js",
         "./default-libs_catering_src_index_ts.js",
         "./default-libs_explore_src_index_ts.js",
+        "./default-libs_users_src_index_ts.js",
         "./default-node_modules_angular_material_fesm2020_tabs_mjs.js",
         "./favicon.ico",
         "./index.html",
@@ -113,15 +114,15 @@
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "72af5cc60265d8c48dad7ef7c52a144adb4d49cf",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "3dd533201e334a69218f1f258bc4b1c4d2e5d789",
-    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "7d7fffa366c63f2ce9f27a1086c70799fdbecccb",
+    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "f1e8edaae1f3ae2e9010538c81fd5731600fec75",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "3d52fcf9779e035f1f5dab6971f430b00446211d",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "08553c69cf9a98dc0a5efa23007fa3549a56cbad",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "5d2ca35b4f30986e57070adf5782eecb079a51eb",
     "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "3b524a0df95b384c0058952327b536c2508b3cff",
-    "./apps_concierge_src_app_reports_reports_module_ts.js": "0ad591504faa763a38fe9e25d5b60fe492805951",
-    "./apps_concierge_src_app_staff_staff_module_ts.js": "98cae07ce2cde114e77927b63b941a5cf5161081",
-    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "f03c0996b4cabda3c4b5f61976a5ae4732fc2fc4",
-    "./apps_concierge_src_app_week-view_week-view_module_ts.js": "4f7d4cee350eb4b711345199ffb0f36bd516c487",
+    "./apps_concierge_src_app_reports_reports_module_ts.js": "bf6c16859558a90e116c5bd8760eea8401a26ec1",
+    "./apps_concierge_src_app_staff_staff_module_ts.js": "0462bbc49a2c93ff2d22750b37c57f085fbd26db",
+    "./apps_concierge_src_app_visitors_visitors_module_ts.js": "23e938e37f3ead109af54a0a534b3407e9ceaea6",
+    "./apps_concierge_src_app_week-view_week-view_module_ts.js": "33e8a9c8fc3e74c8c17cc1875b2fb73ff0686472",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
     "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
@@ -180,16 +181,17 @@
     "./default-libs_bookings_src_index_ts.js": "198b34bf1b4d806beb16aedca581c0ec31590ba9",
     "./default-libs_bookings_src_lib_booking-form_service_ts.js": "1e1c35e0856d9e2c2535f32a2a6aa1703b11f7a8",
     "./default-libs_catering_src_index_ts.js": "4dace29ad1dac6954986acd75d05c6104f9176b8",
-    "./default-libs_explore_src_index_ts.js": "045c2124930e33ea31fcbcfc648c887a2c15ee08",
+    "./default-libs_explore_src_index_ts.js": "7c4718dab5531a6ae3cf13b1cd12bd22fa15d76c",
+    "./default-libs_users_src_index_ts.js": "deaa66a6fe169d5e73aa4497cf0e54db912ab320",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1255959532c8fee7178719e553e7ef1bf3f16f15",
-    "./main.js": "5ca61fba089ddc424a64f7d9931a0b7c3dc05ca1",
+    "./main.js": "f921551d89d33fa0ee2905de8202c374a7b7db80",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "2f23dfe8b615f7c61673bc05d8f9ac27bb8751ce",
-    "./vendor.js": "df9d95c96c2059508ce20a904775fde40cf1a661"
+    "./styles.css": "80e3f0b6cd10ee8d063ce8e5714c64dd578ce1f5",
+    "./vendor.js": "1dced10b50b1a658d79d5badf1fef3c077c8d1a5"
   },
   "navigationUrls": [
     {
