@@ -3,11 +3,17 @@ import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title/input-title.component';
+import { ButtonWithIconComponent } from './components/button-with-icon/button-with-icon.component';
 
-const COMPONENTS: Type<any>[] = [SurveyCreatorComponent, InputTitleComponent];
+const COMPONENTS: Type<any>[] = [
+    SurveyCreatorComponent,
+    InputTitleComponent,
+    ButtonWithIconComponent,
+];
 
 @NgModule({
     declarations: [...COMPONENTS],
@@ -17,6 +23,7 @@ const COMPONENTS: Type<any>[] = [SurveyCreatorComponent, InputTitleComponent];
         MatCheckboxModule,
         FormsModule,
         ReactiveFormsModule,
+        MatIconModule,
     ],
     exports: [...COMPONENTS],
 })
