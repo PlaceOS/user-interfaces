@@ -1,5 +1,6 @@
 export * from './lib/users.module';
 export * from './lib/new-user-modal.component';
+export * from './lib/find-availability-modal/find-availability-modal.component';
 export * from './lib/user-form.component';
 export * from './lib/location.class';
 export * from './lib/user.class';

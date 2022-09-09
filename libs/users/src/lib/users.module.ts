@@ -8,29 +8,37 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 
 import { NewUserModalComponent } from './new-user-modal.component';
 import { UserFormComponent } from './user-form.component';
 import { UserPipe } from './user.pipe';
 import { WFHSettingsModalComponent } from './wfh-settings-modal.component';
+import { FindAvailabilityModalComponent } from './find-availability-modal/find-availability-modal.component';
+import { UserAvailabilityComponent } from './find-availability-modal/user-availability.component';
+
+const COMPONENTS = [
+    NewUserModalComponent,
+    UserFormComponent,
+    WFHSettingsModalComponent,
+    UserPipe,
+    FindAvailabilityModalComponent,
+    UserAvailabilityComponent,
+];
 
 @NgModule({
-    declarations: [
-        NewUserModalComponent,
-        UserFormComponent,
-        WFHSettingsModalComponent,
-        UserPipe,
-    ],
+    declarations: [...COMPONENTS],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         MatDialogModule,
+        FormFieldsModule,
         ComponentsModule,
         MatCheckboxModule,
         MatProgressSpinnerModule,
-        MatMenuModule
+        MatMenuModule,
     ],
-    exports: [NewUserModalComponent, WFHSettingsModalComponent, UserPipe],
+    exports: [...COMPONENTS],
 })
 export class SharedUsersModule {}

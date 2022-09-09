@@ -3,6 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -15,6 +16,7 @@ import {
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
+import { FindAvailabilityModalComponent } from '@placeos/users';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
 @Component({
@@ -282,6 +284,7 @@ export class MeetingFlowFormComponent extends BaseClass {
         private _state: EventFormService,
         private _settings: SettingsService,
         private _router: Router,
+        private _dialog: MatDialog,
         private _bottom_sheet: MatBottomSheet
     ) {
         super();
@@ -292,6 +295,26 @@ export class MeetingFlowFormComponent extends BaseClass {
             this._checkCateringEligibility(l)
         ));
         this._checkCateringEligibility(this.form.value.resources || []);
+    }
+
+    public findAvailableTime() {
+        const { attendees, organiser, date, duration } = this.form.value;
+        const ref = this._dialog.open(FindAvailabilityModalComponent, {
+            data: {
+                users: attendees,
+                host: organiser || currentUser(),
+                date,
+                duration
+            }
+        });
+        ref.afterClosed().subscribe(d => {
+            if (!d) return;
+            this.form.patchValue({
+                date: d.date,
+                attendees: d.users,
+                duration: d.duration
+            });
+        })
     }
 
     private _checkCateringEligibility(list: Space[]) {

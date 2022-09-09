@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 
-import { ComponentsModule } from '@placeos/components';
+import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
 import { ActionFieldComponent } from './action-field.component';
 import { CounterComponent } from './counter.component';

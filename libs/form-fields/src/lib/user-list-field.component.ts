@@ -21,22 +21,18 @@ import {
     debounceTime,
     first,
     map,
-    mergeMap,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
-
-import {
-    NewUserModalComponent,
-    searchGuests,
-    searchStaff,
-    User,
-    USER_DOMAIN,
-} from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { BehaviorSubject, of, zip } from 'rxjs';
+
+import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
+import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
+import { User } from 'libs/users/src/lib/user.class';
+import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
 
 function validateEmail(email) {
     const re =
@@ -247,10 +243,14 @@ export class UserListFieldComponent
         if (!email) email = this.search$.getValue();
         if (!validateEmail(email)) return;
         this.addUser(new User({ id: email, email, name: email.split('@')[0] }));
-        this.timeout('clear_search', () => {
-            this.search$.next('');
-            this._search_el.nativeElement.value = '';
-        }, 100);
+        this.timeout(
+            'clear_search',
+            () => {
+                this.search$.next('');
+                this._search_el.nativeElement.value = '';
+            },
+            100
+        );
     }
 
     /**
@@ -270,10 +270,14 @@ export class UserListFieldComponent
                         : null) ?? true,
             }),
         ]);
-        this.timeout('clear_search', () => {
-            this.search$.next('');
-            this._search_el.nativeElement.value = '';
-        }, 100);
+        this.timeout(
+            'clear_search',
+            () => {
+                this.search$.next('');
+                this._search_el.nativeElement.value = '';
+            },
+            100
+        );
     }
 
     /**

@@ -1,7 +1,8 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { currentUser, unique } from '@placeos/common';
-import { showStaff, User } from '@placeos/users';
+import { showStaff } from 'libs/users/src/lib/staff.fn';
+import { User } from 'libs/users/src/lib/user.class';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
 import { of, zip } from 'rxjs';

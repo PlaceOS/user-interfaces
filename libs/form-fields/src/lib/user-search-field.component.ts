@@ -18,7 +18,9 @@ import {
 } from 'rxjs/operators';
 
 import { BaseClass, flatten } from '@placeos/common';
-import { searchGuests, searchStaff, User } from '@placeos/users';
+import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
+import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: 'a-user-search-field',
