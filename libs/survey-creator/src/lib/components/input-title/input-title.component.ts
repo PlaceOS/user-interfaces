@@ -1,15 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
     selector: 'input-title',
     template: `
-        <input type="text" id="title" name="title" placeholder="Survey Title" />
+        <input
+            type="text"
+            id="title"
+            name="title"
+            [placeholder]="placeholder"
+            [style.fontSize.px]="fontSize"
+        />
     `,
     styles: [
         `
             input[type='text'] {
                 border: none;
-                font-size: 2rem;
                 padding: 12px 20px;
             }
 
@@ -23,6 +28,9 @@ import { Component, OnInit } from '@angular/core';
     ],
 })
 export class InputTitleComponent implements OnInit {
+    @Input() placeholder: string = 'Title';
+    @Input() fontSize: string = '';
+
     constructor() {}
 
     ngOnInit(): void {}
