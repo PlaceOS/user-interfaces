@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule } from '@placeos/ts-client';
+import { getModule, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 
 import { CalendarEvent, EventFormService } from '@placeos/events';
-import { SpacesService } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
 import {
     BaseClass,
     notifyError,
@@ -85,11 +85,9 @@ export class PanelStateService extends BaseClass {
     /** Mapping of current settings for the active system */
     public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
-    public readonly space = combineLatest([
-        this._system,
-        this._spaces.list,
-    ]).pipe(
-        map(([id, list]) => list.find((_) => _.id === id)),
+    public readonly space = this._system.pipe(
+        switchMap(id => showSystem(id)),
+        map(_ => new Space(_ as any)),
         shareReplay(1)
     );
     /** Active system */
