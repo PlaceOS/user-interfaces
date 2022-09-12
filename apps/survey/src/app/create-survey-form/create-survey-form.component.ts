@@ -6,6 +6,7 @@ import {
     Answer,
     InputTitleComponent,
     ButtonWithIconComponent,
+    QuestionBoxComponent,
 } from '@placeos/survey';
 
 @Component({
