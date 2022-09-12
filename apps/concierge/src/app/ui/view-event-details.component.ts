@@ -5,6 +5,7 @@ import { CalendarEvent } from '@placeos/events';
 import { SpacesService } from '@placeos/spaces';
 import { EventsStateService } from '../day-view/events-state.service';
 import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'view-event-details',
@@ -88,6 +89,7 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
             <div
                 name="actions"
+                *ngIf="!is_delegated"
                 class="flex items-center justify-content p-4 space-x-4"
             >
                 <button class="flex-1 inverse" mat-button (click)="remove()">
@@ -153,8 +155,13 @@ export class ViewEventDetailsComponent {
         );
     }
 
+    public get is_delegated() {
+        return this._settings.get('app.delegated');
+    }
+
     constructor(
         private _state: EventsStateService,
+        private _settings: SettingsService,
         private _org: OrganisationService
     ) {}
 }
