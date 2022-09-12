@@ -15,16 +15,17 @@ import { Component, OnInit, Input } from '@angular/core';
         `
             input[type='text'] {
                 border: none;
-                padding: 6px 10px;
-                margin: 2px;
-                font-weight: 700;
+                padding: 10px 10px;
+                margin: 5px;
+                font-weight: 500;
             }
 
             input[type='text']:focus {
-                border: 2px solid orange;
-                background-color: #f5f5f5;
-                border-radius: 5px;
                 font: #808080;
+            }
+
+            input[type='text']:active {
+                border: none;
             }
         `,
     ],

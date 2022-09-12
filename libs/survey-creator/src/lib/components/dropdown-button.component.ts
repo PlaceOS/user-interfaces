@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { QuestionType } from '../../survey-types';
+import { QuestionType } from '../survey-types';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 

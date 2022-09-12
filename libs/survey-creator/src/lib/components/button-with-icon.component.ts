@@ -30,6 +30,10 @@ import { Component, OnInit, Input } from '@angular/core';
             }
 
             .button-with-icon:hover {
+                background-color: orange;
+            }
+
+            .button-with-icon:active {
                 background-color: #fff;
             }
 
