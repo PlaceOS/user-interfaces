@@ -9,12 +9,14 @@ import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title/input-title.component';
 import { ButtonWithIconComponent } from './components/button-with-icon/button-with-icon.component';
 import { QuestionBoxComponent } from './components/question-box/question-box.component';
+import { DropdownButtonComponent } from './components/dropdown-button/dropdown-button.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
     InputTitleComponent,
     ButtonWithIconComponent,
     QuestionBoxComponent,
+    DropdownButtonComponent,
 ];
 
 @NgModule({

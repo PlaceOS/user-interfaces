@@ -15,8 +15,8 @@ import { Component, OnInit, Input } from '@angular/core';
         `
             input[type='text'] {
                 border: none;
-                padding: 8px 12px;
-                margin: 5px;
+                padding: 6px 10px;
+                margin: 2px;
                 font-weight: 700;
             }
 

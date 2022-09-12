@@ -3,7 +3,24 @@ import { Component, OnInit } from '@angular/core';
 @Component({
     selector: 'question-box',
     template: ` <section class="box">
-        <input-title [placeholder]="'Page 1'" [fontSize]="'30'"></input-title>
+        <input-title [placeholder]="'Page 1'" [fontSize]="'24'"></input-title>
+        <input-title
+            [placeholder]="'Description'"
+            [fontSize]="'16'"
+        ></input-title>
+        <div class="question-wrapper">
+            <div class="question-row">
+                <span class="question-number">1.</span>
+                <input-title
+                    [placeholder]="'question1'"
+                    [fontSize]="'16'"
+                ></input-title>
+            </div>
+            <div class="question-row">
+                <dropdown-button></dropdown-button>
+            </div>
+        </div>
+        <div class="question-wrapper"></div>
     </section>`,
     styles: [
         `
@@ -11,7 +28,6 @@ import { Component, OnInit } from '@angular/core';
                 display: flex;
                 flex-direction: column;
                 width: 600px;
-                height: 250px;
                 background-color: #f5f5f5;
                 margin: auto;
                 border: 3px solid #808080;
@@ -22,6 +38,24 @@ import { Component, OnInit } from '@angular/core';
             .box:active {
                 border: 3px solid orange;
                 background-color: #ffeed2;
+            }
+
+            .question-wrapper {
+                background-color: #fff;
+                margin: 5px 15px 15px 15px;
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            .question-number {
+                font-size: 12px;
+                color: #808080;
+            }
+
+            .question-row {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
             }
         `,
     ],

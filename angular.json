@@ -2346,39 +2346,7 @@
             "tags": [],
             "implicitDependencies": ["workplace"]
         },
-        "survey-generator": {
-            "projectType": "library",
-            "root": "survey-generator",
-            "sourceRoot": "survey-generator/src",
-            "prefix": "lib",
-            "architect": {
-                "build": {
-                    "builder": "@angular-devkit/build-angular:ng-packagr",
-                    "options": {
-                        "project": "survey-generator/ng-package.json"
-                    },
-                    "configurations": {
-                        "production": {
-                            "tsConfig": "survey-generator/tsconfig.lib.prod.json"
-                        },
-                        "development": {
-                            "tsConfig": "survey-generator/tsconfig.lib.json"
-                        }
-                    },
-                    "defaultConfiguration": "production"
-                },
-                "test": {
-                    "builder": "@angular-devkit/build-angular:karma",
-                    "options": {
-                        "main": "survey-generator/src/test.ts",
-                        "tsConfig": "survey-generator/tsconfig.spec.json",
-                        "karmaConfig": "survey-generator/karma.conf.js"
-                    }
-                }
-            }
-        },
         "survey-creator": {
-            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/survey-creator",
             "sourceRoot": "libs/survey-creator/src",
@@ -2387,7 +2355,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:ng-packagr",
                     "options": {
-                        "project": "survey-creator/ng-package.json"
+                        "project": "libs/survey-creator/ng-package.json"
                     },
                     "configurations": {
                         "production": {
@@ -2397,7 +2365,8 @@
                             "tsConfig": "survey-creator/tsconfig.lib.json"
                         }
                     },
-                    "defaultConfiguration": "production"
+                    "defaultConfiguration": "production",
+                    "styles": ["libs/survey-creator/src/styles.css"]
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",

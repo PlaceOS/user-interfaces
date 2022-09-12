@@ -1,8 +1,8 @@
 export enum QuestionType {
-    text = 'text',
-    checkbox = 'checkbox',
-    dropdown = 'dropdown',
-    rating = 'rating',
+    text = 'Text',
+    checkbox = 'Checkbox',
+    dropdown = 'Dropdown',
+    rating = 'Rating',
 }
 export interface Question {
     type: QuestionType;
