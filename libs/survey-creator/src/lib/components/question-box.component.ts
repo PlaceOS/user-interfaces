@@ -16,9 +16,6 @@ import { Component, OnInit } from '@angular/core';
                     [fontSize]="'16'"
                 ></input-title>
             </div>
-            <div class="question-row">
-                <dropdown-button></dropdown-button>
-            </div>
         </div>
         <div class="question-wrapper"></div>
     </section>`,

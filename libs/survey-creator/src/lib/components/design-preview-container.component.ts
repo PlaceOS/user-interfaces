@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Question, QuestionType } from '../survey-types';
+import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
     selector: 'design-preview-container',
@@ -13,6 +16,23 @@ import { Component, OnInit } from '@angular/core';
                                     [placeholder]="'Survey Title'"
                                     [fontSize]="20"
                                 ></input-title>
+                            </div>
+                            <div
+                                class="drag-drop-container"
+                                cdkDropList
+                                [cdkDropListData]="question_bank$ | async"
+                                (cdkDropListDropped)="drop($event)"
+                            >
+                                <div
+                                    class="dropped-items"
+                                    *ngFor="let item of question_bank$ | async"
+                                    cdkDrag
+                                >
+                                    <question-list-item
+                                        [question]="item?.title"
+                                    >
+                                    </question-list-item>
+                                </div>
                             </div>
                         </div>
                     </mat-tab>
@@ -49,7 +69,17 @@ import { Component, OnInit } from '@angular/core';
     ],
 })
 export class DesignPreviewContainerComponent implements OnInit {
-    constructor() {}
+    question_bank$: Observable<Question[]>;
 
-    ngOnInit(): void {}
+    constructor(private _surveyCreatorService: SurveyCreatorService) {}
+
+    ngOnInit(): void {
+        this.question_bank$ = this._surveyCreatorService.question_bank$;
+
+        this.question_bank$.subscribe((i) => console.log(i, 'q bank'));
+    }
+
+    drop(e) {
+        console.log(e, 'event');
+    }
 }
