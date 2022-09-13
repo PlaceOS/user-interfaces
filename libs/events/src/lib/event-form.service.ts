@@ -12,7 +12,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { getUnixTime } from 'date-fns';
+import { getUnixTime, startOfDay } from 'date-fns';
 import {
     BaseClass,
     currentUser,
@@ -333,9 +333,11 @@ export class EventFormService extends BaseClass {
                     invoice_id: receipt.invoice_id,
                 };
             }
+            const d = value.all_day ? startOfDay(value.date).valueOf() : value.date;
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
+                    date: d,
                     catering: [new CateringOrder({ items: catering as any })],
                 }),
                 query

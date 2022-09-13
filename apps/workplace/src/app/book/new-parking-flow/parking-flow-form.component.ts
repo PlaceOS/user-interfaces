@@ -119,6 +119,8 @@ import {
 export class ParkingFlowFormComponent extends BaseClass {
     public hide_block: Record<string, boolean> = {};
 
+    public readonly clearForm = () => this._state.resetForm();
+
     public get form() {
         return this._state.form;
     }
@@ -132,7 +134,9 @@ export class ParkingFlowFormComponent extends BaseClass {
         super();
     }
 
-    public readonly clearForm = () => this._state.resetForm();
+    public ngOnInit() {
+        this._state.setOptions({ type: 'parking' });
+    }
 
     public readonly viewConfirm = () => {
         if (!this.form.valid)
