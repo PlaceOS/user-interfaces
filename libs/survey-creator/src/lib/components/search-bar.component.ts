@@ -76,15 +76,11 @@ import { Question } from '../survey-types';
                 display: flex;
                 margin-left: 10px;
             }
-
-            .question-list {
-                background-color: #f5f5f5;
-            }
         `,
     ],
 })
 export class SearchBarComponent implements OnInit {
-    @Input() query: string;
+    // @Input() query: string;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 

@@ -21,6 +21,7 @@ import { Component, OnInit, Input } from '@angular/core';
         `
             .button-with-icon {
                 height: 35px;
+                font-size: 12px;
                 background-color: #fff;
                 margin: 10px;
                 border: 1px solid rgba(0, 0, 0, 0.12);

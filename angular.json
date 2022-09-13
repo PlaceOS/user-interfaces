@@ -2347,6 +2347,7 @@
             "implicitDependencies": ["workplace"]
         },
         "survey-creator": {
+            "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "library",
             "root": "libs/survey-creator",
             "sourceRoot": "libs/survey-creator/src",
@@ -2365,8 +2366,7 @@
                             "tsConfig": "survey-creator/tsconfig.lib.json"
                         }
                     },
-                    "defaultConfiguration": "production",
-                    "styles": ["libs/survey-creator/src/styles.css"]
+                    "defaultConfiguration": "production"
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",

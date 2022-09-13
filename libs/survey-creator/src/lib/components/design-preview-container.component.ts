@@ -7,6 +7,7 @@ import {
     CdkDragDrop,
     moveItemInArray,
     copyArrayItem,
+    transferArrayItem,
 } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -23,20 +24,28 @@ import {
                                     [fontSize]="16"
                                 ></input-title>
                             </div>
-                            <div class="selected-questions">
+                            <div class="selected-questions-container">
                                 <div
                                     cdkDropList
-                                    (cdkDropListDropped)="drop($event)"
+                                    (cdkDropListDropped)="
+                                        surveyCreatorService.drop($event)
+                                    "
                                     [cdkDropListData]="selected_questions"
+                                    class="selected-questions-list"
                                 >
                                     <div
                                         *ngFor="let item of selected_questions"
                                         cdkDrag
                                     >
-                                        <question-list-item
+                                        <rating-question
+                                            *ngIf="item.type === 'Rating'"
                                             [question]="item?.title"
                                         >
-                                        </question-list-item>
+                                        </rating-question>
+                                        <text-question
+                                            *ngIf="item.type === 'Text'"
+                                            [question]="item?.title"
+                                        ></text-question>
                                     </div>
                                 </div>
                             </div>
@@ -50,19 +59,20 @@ import {
                     <span class="title">Question Bank</span>
                 </header>
                 <search-bar></search-bar>
-                <div
-                    class="question-bank"
-                    cdkDropList
-                    [cdkDropListData]="question_bank"
-                    (cdkDropListDropped)="drop($event)"
-                >
+                <div class="question-bank-container">
                     <div
-                        class="dropped-items"
-                        *ngFor="let item of question_bank"
-                        cdkDrag
+                        cdkDropList
+                        [cdkDropListData]="question_bank"
+                        (cdkDropListDropped)="surveyCreatorService.drop($event)"
                     >
-                        <question-list-item [question]="item?.title">
-                        </question-list-item>
+                        <div
+                            class="dropped-items"
+                            *ngFor="let item of question_bank"
+                            cdkDrag
+                        >
+                            <question-list-item [question]="item?.title">
+                            </question-list-item>
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -71,25 +81,6 @@ import {
 
     styles: [
         `
-            /* design-preview-container .mat-tab-label-container {
-                background-color: red;
-                padding: 0px;
-            }
-
-            design-preview-container .mat-tab-group.mat-primary .mat-ink-bar {
-                background-color: red;
-            }
-
-            mat-tab-group mat-tab-label {
-                background-color: red;
-            } */
-
-            design-preview-container
-                .design-preview-section
-                .mat-tab-group
-                mat-tab-header {
-                background-color: red !important;
-            }
             .section-wrapper {
                 display: flex;
                 flex-direction: row;
@@ -145,6 +136,19 @@ import {
                 color: #808080;
                 margin: 20px;
             }
+
+            .selected-questions-container {
+                display: inline-block;
+                margin: 0 20px 20px 0;
+                width: 100%;
+                min-height: 300px;
+            }
+
+            .selected-questions-list {
+                display: inline-block;
+                width: 100%;
+                min-height: 300px;
+            }
         `,
     ],
 })
@@ -156,22 +160,4 @@ export class DesignPreviewContainerComponent implements OnInit {
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
-
-    drop(event: any) {
-        console.log('dropped');
-        if (event.previousContainer === event.container) {
-            moveItemInArray(
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex
-            );
-        } else {
-            copyArrayItem(
-                event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex
-            );
-        }
-    }
 }
