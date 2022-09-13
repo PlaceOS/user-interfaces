@@ -123,7 +123,13 @@ export class EventFormService extends BaseClass {
                 const zone = (this._settings.get(
                     'app.events.restrict_spaces'
                 ) || {})[domain];
-                (!zone || s.zones.includes(zone)) &&
+                const limit_map = (this._settings.get(
+                    'app.events.limit_spaces'
+                ) || {});
+                const limited_zones = Object.keys(limit_map);
+                const zone_limit = s.zones.find(_ => limited_zones.includes(_)) 
+                return (!zone || s.zones.includes(zone)) &&
+                    (!zone_limit || limit_map[zone_limit] === domain) &&
                     (!show_fav || this.favorite_spaces.includes(s.id)) &&
                     features.every((f) => s.features.includes(f)) &&
                     s.capacity >= Math.max(0, capacity || 0);
