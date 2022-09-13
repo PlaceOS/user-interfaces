@@ -20,31 +20,38 @@ import { Component, OnInit, Input } from '@angular/core';
     styles: [
         `
             .button-with-icon {
+                height: 35px;
+                background-color: #fff;
+                margin: 10px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
                 display: inline-flex;
                 align-items: center;
                 flex-direction: row;
                 text-decoration: none;
-                border: none;
                 padding: 5px 10px;
-                border-radius: 5px;
+                border-radius: 20px;
             }
 
             .button-with-icon:hover {
-                background-color: orange;
+                background-color: #f5f5f5;
             }
 
             .button-with-icon:active {
-                background-color: #fff;
+                background-color: #f5f5f5;
             }
 
             .button-with-icon span {
                 display: inline-flex;
+                align-items: center;
                 vertical-align: middle;
             }
 
             .icon {
-                display: inline-flex;
-                color: orange;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 5px;
+                color: gray;
             }
 
             .button-title {

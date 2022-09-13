@@ -18,6 +18,7 @@ import { Component, OnInit, Input } from '@angular/core';
                 padding: 10px 10px;
                 margin: 5px;
                 font-weight: 500;
+                width: 100%;
             }
 
             input[type='text']:focus {

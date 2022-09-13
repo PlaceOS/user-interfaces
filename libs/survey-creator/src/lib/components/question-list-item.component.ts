@@ -37,6 +37,13 @@ import { Question } from '../survey-types';
                 display: inline-flex;
                 vertical-align: center;
             }
+
+            .icon {
+                display: inline-flex;
+                vertical-align: center;
+                justify-content: center;
+                align-items: center;
+            }
         `,
     ],
 })
