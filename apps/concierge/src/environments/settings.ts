@@ -68,7 +68,8 @@ const app = {
     },
     default_route: '/day-view',
     general,
-    guests: { vaccine_check: true }
+    guests: { vaccine_check: true },
+    delegated: false,
 };
 
 /**
