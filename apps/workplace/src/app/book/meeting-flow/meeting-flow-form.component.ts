@@ -76,6 +76,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </div>
                             <div class="text-xl">Attendees</div>
                             <div class="flex-1 w-px"></div>
+                            <button matRipple class="bg-none underline text-xs text-blue-500" (click)="findAvailableTime()">
+                                Availability
+                            </button>
                             <button
                                 mat-icon-button
                                 (click)="
@@ -310,9 +313,9 @@ export class MeetingFlowFormComponent extends BaseClass {
         ref.afterClosed().subscribe(d => {
             if (!d) return;
             this.form.patchValue({
-                date: d.date,
-                attendees: d.users,
-                duration: d.duration
+                date: ref.componentInstance.date,
+                attendees: ref.componentInstance.users,
+                duration: ref.componentInstance.duration
             });
         })
     }
