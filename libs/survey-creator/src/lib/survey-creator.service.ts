@@ -94,7 +94,7 @@ export class SurveyCreatorService {
 
     drop(event: any) {
         if (event.previousContainer === event.container) {
-            console.log('trig');
+            //TODO: re-order items
             // moveItemInArray(
             //     event.container.data,
             //     event.previousIndex,
@@ -104,15 +104,16 @@ export class SurveyCreatorService {
             const question = event.previousContainer.data[event.previousIndex];
 
             this.selected_questions.push(question);
-            // copyArrayItem(
-            //     event.previousContainer.data,
-            //     event.container.data,
-            //     event.previousIndex,
-            //     event.currentIndex
-            // );
 
             console.log(this.selected_questions, 'selected question in store');
         }
+    }
+
+    deleteQuestion(question?: string) {
+        const index_to_delete = this.selected_questions.findIndex((object) => {
+            return object.title == question;
+        });
+        this.selected_questions.splice(index_to_delete, 1);
     }
 
     // newQuestionForm(questionType): void {

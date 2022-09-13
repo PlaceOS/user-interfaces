@@ -1,9 +1,21 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
     selector: 'rating-question',
     template: `
         <div class="rating-question-container">
+            <span
+                class="close"
+                (click)="surveyCreatorService.deleteQuestion(question)"
+            >
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Material icon for deleting question"
+                    class="icon"
+                    >close</mat-icon
+                >
+            </span>
             <div class="rating-question">
                 <span>
                     {{ question }}
@@ -42,6 +54,7 @@ import { Component, OnInit, Input } from '@angular/core';
                 display: flex;
                 flex-direction: row;
                 margin-top: 10px;
+                margin-bottom: 10px;
             }
 
             .rating-number {
@@ -58,12 +71,20 @@ import { Component, OnInit, Input } from '@angular/core';
             .rating-number span {
                 display: flex;
             }
+
+            .close {
+                z-index: 99;
+                position: flex;
+                text-align: right;
+                margin-top: -10px;
+                margin-right: -10px;
+            }
         `,
     ],
 })
 export class RatingQuestionComponent implements OnInit {
     @Input() question: string;
-    constructor() {}
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
 }

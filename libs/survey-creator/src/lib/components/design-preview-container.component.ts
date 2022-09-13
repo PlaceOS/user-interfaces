@@ -26,15 +26,17 @@ import {
                             </div>
                             <div class="selected-questions-container">
                                 <div
+                                    id="question_bank"
                                     cdkDropList
+                                    cdkDropListConnectedTo="question_bank"
                                     (cdkDropListDropped)="
                                         surveyCreatorService.drop($event)
                                     "
-                                    [cdkDropListData]="selected_questions"
                                     class="selected-questions-list"
                                 >
                                     <div
                                         *ngFor="let item of selected_questions"
+                                        [cdkDropListData]="selected_questions"
                                         cdkDrag
                                     >
                                         <rating-question
@@ -61,9 +63,12 @@ import {
                 <search-bar></search-bar>
                 <div class="question-bank-container">
                     <div
+                        id="selected_questions"
                         cdkDropList
+                        cdkDropListConnectedTo="selected_questions"
                         [cdkDropListData]="question_bank"
                         (cdkDropListDropped)="surveyCreatorService.drop($event)"
+                        [cdkDropListEnterPredicate]="noReturnPredicate"
                     >
                         <div
                             class="dropped-items"
@@ -160,4 +165,8 @@ export class DesignPreviewContainerComponent implements OnInit {
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
+
+    noReturnPredicate() {
+        // return false;
+    }
 }

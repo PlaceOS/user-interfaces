@@ -1,9 +1,21 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
     selector: 'text-question',
     template: `
         <div class="question-container">
+            <span
+                class="close"
+                (click)="surveyCreatorService.deleteQuestion(question)"
+            >
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Material icon for deleting question"
+                    class="icon"
+                    >close</mat-icon
+                >
+            </span>
             <div class="question">
                 <span>
                     {{ question }}
@@ -28,13 +40,22 @@ import { Component, OnInit, Input } from '@angular/core';
             .question {
                 display: flex;
                 flex-direction: row;
+                margin-bottom: 10px;
+            }
+
+            .close {
+                z-index: 99;
+                position: flex;
+                text-align: right;
+                margin-top: -10px;
+                margin-right: -10px;
             }
         `,
     ],
 })
 export class TextQuestionComponent implements OnInit {
     @Input() question: string;
-    constructor() {}
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
 }
