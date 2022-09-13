@@ -1,4 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Observable } from 'rxjs';
+import { SurveyCreatorService } from '../survey-creator.service';
+import { Question } from '../survey-types';
 
 @Component({
     selector: 'search-bar',
@@ -73,12 +76,17 @@ import { Component, OnInit, Input } from '@angular/core';
                 display: flex;
                 margin-left: 10px;
             }
+
+            .question-list {
+                background-color: #f5f5f5;
+            }
         `,
     ],
 })
 export class SearchBarComponent implements OnInit {
     @Input() query: string;
-    constructor() {}
+
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
 }

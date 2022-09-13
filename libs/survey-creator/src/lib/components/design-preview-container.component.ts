@@ -2,11 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
+import {
+    DragDropModule,
+    CdkDragDrop,
+    moveItemInArray,
+    copyArrayItem,
+} from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'design-preview-container',
     template: `
-        <div class="section-wrapper">
+        <div class="section-wrapper" cdkDropListGroup>
             <section class="design-preview-section">
                 <mat-tab-group mat-align-tabs="start" animationDuration="0ms">
                     <mat-tab label="Design">
@@ -17,21 +23,21 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                     [fontSize]="16"
                                 ></input-title>
                             </div>
-                            <div
-                                class="drag-drop-container"
-                                cdkDropList
-                                [cdkDropListData]="question_bank$ | async"
-                                (cdkDropListDropped)="drop($event)"
-                            >
+                            <div class="selected-questions">
                                 <div
-                                    class="dropped-items"
-                                    *ngFor="let item of question_bank$ | async"
-                                    cdkDrag
+                                    cdkDropList
+                                    (cdkDropListDropped)="drop($event)"
+                                    [cdkDropListData]="selected_questions"
                                 >
-                                    <question-list-item
-                                        [question]="item?.title"
+                                    <div
+                                        *ngFor="let item of selected_questions"
+                                        cdkDrag
                                     >
-                                    </question-list-item>
+                                        <question-list-item
+                                            [question]="item?.title"
+                                        >
+                                        </question-list-item>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -44,7 +50,21 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     <span class="title">Question Bank</span>
                 </header>
                 <search-bar></search-bar>
-                <div></div>
+                <div
+                    class="question-bank"
+                    cdkDropList
+                    [cdkDropListData]="question_bank"
+                    (cdkDropListDropped)="drop($event)"
+                >
+                    <div
+                        class="dropped-items"
+                        *ngFor="let item of question_bank"
+                        cdkDrag
+                    >
+                        <question-list-item [question]="item?.title">
+                        </question-list-item>
+                    </div>
+                </div>
             </aside>
         </div>
     `,
@@ -129,17 +149,29 @@ import { SurveyCreatorService } from '../survey-creator.service';
     ],
 })
 export class DesignPreviewContainerComponent implements OnInit {
-    question_bank$: Observable<Question[]>;
+    question_bank: Question[] = this.surveyCreatorService.question_bank;
+    selected_questions: Question[] =
+        this.surveyCreatorService.selected_questions;
 
-    constructor(private _surveyCreatorService: SurveyCreatorService) {}
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
-    ngOnInit(): void {
-        this.question_bank$ = this._surveyCreatorService.question_bank$;
+    ngOnInit(): void {}
 
-        this.question_bank$.subscribe((i) => console.log(i, 'q bank'));
-    }
-
-    drop(e) {
-        console.log(e, 'event');
+    drop(event: any) {
+        console.log('dropped');
+        if (event.previousContainer === event.container) {
+            moveItemInArray(
+                event.container.data,
+                event.previousIndex,
+                event.currentIndex
+            );
+        } else {
+            copyArrayItem(
+                event.previousContainer.data,
+                event.container.data,
+                event.previousIndex,
+                event.currentIndex
+            );
+        }
     }
 }
