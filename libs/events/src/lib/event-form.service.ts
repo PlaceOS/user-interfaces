@@ -57,7 +57,7 @@ export interface EventFlowOptions {
     /** Calendar to associate event with */
     calendar_id?: string;
     /** List of features to filter spaces on */
-    features?: string[];
+    features: string[];
     /** List of zones to filter spaces on */
     zone_ids?: string[];
     /** Minimum number of attendees to filter space on */
@@ -71,7 +71,10 @@ export interface EventFlowOptions {
 })
 export class EventFormService extends BaseClass {
     private _view = new BehaviorSubject<EventFlowView>('form');
-    private _options = new BehaviorSubject<EventFlowOptions>({ zone_ids: [] });
+    private _options = new BehaviorSubject<EventFlowOptions>({
+        zone_ids: [],
+        features: [],
+    });
     private _form = generateEventForm();
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
@@ -115,12 +118,16 @@ export class EventFormService extends BaseClass {
         this.options,
     ]).pipe(
         map(([spaces, { show_fav, features, capacity }]) =>
-            spaces.filter(
-                (s) =>
+            spaces.filter((s) => {
+                const domain = (currentUser()?.email || '@').split('@')[1];
+                const zone = (this._settings.get(
+                    'app.events.restrict_spaces'
+                ) || {})[domain];
+                (!zone || s.zones.includes(zone)) &&
                     (!show_fav || this.favorite_spaces.includes(s.id)) &&
-                    (features || []).every((f) => s.features.includes(f)) &&
-                    s.capacity >= Math.max(0, capacity || 0)
-            )
+                    features.every((f) => s.features.includes(f)) &&
+                    s.capacity >= Math.max(0, capacity || 0);
+            })
         ),
         shareReplay(1)
     );
@@ -234,7 +241,7 @@ export class EventFormService extends BaseClass {
             ...(event?.extension_data || {}),
             host: event?.host || currentUser().email,
         });
-        this._options.next({});
+        this._options.next({ features: [] });
         this.storeForm();
     }
 
@@ -265,13 +272,14 @@ export class EventFormService extends BaseClass {
             const form = this._form;
             form.markAllAsTouched();
             const event = this.event || new CalendarEvent();
-            if (!form.valid && !force){
+            if (!form.valid && !force) {
                 this._loading.next('');
                 return reject(
                     `Some form fields are invalid. [${getInvalidFields(
                         form
                     ).join(', ')}]`
-                );}
+                );
+            }
             const { id, host, date, duration, creator, all_day } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
@@ -314,10 +322,16 @@ export class EventFormService extends BaseClass {
                     all_day,
                 });
                 if (!receipt?.success) return this._loading.next('');
-                (value as any).extension_data = { invoice: receipt, invoice_id: receipt.invoice_id };
+                (value as any).extension_data = {
+                    invoice: receipt,
+                    invoice_id: receipt.invoice_id,
+                };
             }
             const result = await this._makeBooking(
-                new CalendarEvent({ ...value, catering: [new CateringOrder({ items: catering as any })] }),
+                new CalendarEvent({
+                    ...value,
+                    catering: [new CateringOrder({ items: catering as any })],
+                }),
                 query
             ).catch((e) => {
                 reject(e);
