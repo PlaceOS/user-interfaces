@@ -137,7 +137,7 @@ export class CalendarEvent {
         this.body = data.body || '';
         this.private = !!data.private;
         this.all_day = !!data.all_day;
-        this.date = this.event_start * 1000;
+        this.date = this.event_start * 1000 || this.date;
         this.duration = this.all_day
             ? 24 * 60
             : data.duration ||
