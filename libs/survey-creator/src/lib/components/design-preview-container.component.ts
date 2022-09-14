@@ -2,119 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
-import {
-    DragDropModule,
-    CdkDragDrop,
-    moveItemInArray,
-    copyArrayItem,
-    transferArrayItem,
-} from '@angular/cdk/drag-drop';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { AddQuestionBankComponent } from './add-question-bank.component';
 
 @Component({
     selector: 'design-preview-container',
-    template: `
-        <div class="section-wrapper" cdkDropListGroup>
-            <section class="design-preview-section">
-                <mat-tab-group mat-align-tabs="start" animationDuration="0ms">
-                    <mat-tab label="Design">
-                        <div class="design-content">
-                            <div id="survey-title">
-                                <input-title
-                                    [placeholder]="'Survey Title'"
-                                    [fontSize]="16"
-                                ></input-title>
-                            </div>
-                            <div class="selected-questions-container">
-                                <div
-                                    id="question_bank"
-                                    cdkDropList
-                                    cdkDropListConnectedTo="question_bank"
-                                    (cdkDropListDropped)="
-                                        surveyCreatorService.drop($event)
-                                    "
-                                    class="selected-questions-list"
-                                >
-                                    <ng-container
-                                        *ngIf="
-                                            selected_questions.length;
-                                            else none
-                                        "
-                                    >
-                                        <div
-                                            *ngFor="
-                                                let item of selected_questions
-                                            "
-                                            [cdkDropListData]="
-                                                selected_questions
-                                            "
-                                            cdkDrag
-                                        >
-                                            <rating-question
-                                                *ngIf="item.type === 'Rating'"
-                                                [question]="item?.title"
-                                            >
-                                            </rating-question>
-                                            <text-question
-                                                *ngIf="item.type === 'Text'"
-                                                [question]="item?.title"
-                                            ></text-question>
-                                        </div>
-                                    </ng-container>
-                                </div>
-                            </div>
-                        </div>
-                    </mat-tab>
-                    <mat-tab label="Preview">Preview</mat-tab>
-                </mat-tab-group>
-            </section>
-            <aside class="question-bank-section">
-                <header class="header">
-                    <span class="title">Question Bank</span>
-                    <div class="edit-add-buttons">
-                        <buttons-borderless
-                            [button_title]="'Edit'"
-                            [icon]="'edit'"
-                        ></buttons-borderless>
-                        <buttons-borderless
-                            [button_title]="'Add'"
-                            [icon]="'add'"
-                        ></buttons-borderless>
-                    </div>
-                </header>
-                <search-bar></search-bar>
-                <div class="question-bank-container">
-                    <div
-                        id="selected_questions"
-                        cdkDropList
-                        cdkDropListConnectedTo="selected_questions"
-                        [cdkDropListData]="question_bank"
-                        (cdkDropListDropped)="surveyCreatorService.drop($event)"
-                        [cdkDropListEnterPredicate]="noReturnPredicate"
-                    >
-                        <div
-                            class="dropped-items"
-                            *ngFor="let item of question_bank"
-                            cdkDrag
-                        >
-                            <question-list-item [question]="item?.title">
-                            </question-list-item>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-        </div>
-
-        <ng-template #none>
-            <div class="none-selected">
-                <img src="assets/icons/dragdrop.svg" alt="Icon" height="30px" />
-                <span
-                    >Click and drag to add questions from the question bank
-                    here</span
-                >
-            </div>
-        </ng-template>
-    `,
-
+    templateUrl: './design-preview-container.component.html',
     styles: [
         `
             .section-wrapper {
@@ -207,9 +100,20 @@ export class DesignPreviewContainerComponent implements OnInit {
     selected_questions: Question[] =
         this.surveyCreatorService.selected_questions;
 
-    constructor(public surveyCreatorService: SurveyCreatorService) {}
+    dialogConfig = {
+        width: '900px',
+        height: '700px',
+    };
+
+    constructor(
+        public surveyCreatorService: SurveyCreatorService,
+        public addDialog: MatDialog
+    ) {}
 
     ngOnInit(): void {}
+    openAddQuestionBankDialog(): void {
+        this.addDialog.open(AddQuestionBankComponent, this.dialogConfig);
+    }
 
     noReturnPredicate() {
         // return false;

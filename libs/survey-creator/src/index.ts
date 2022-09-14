@@ -10,3 +10,5 @@ export * from './lib/components/question-list-item.component';
 export * from './lib/components/search-bar.component';
 export * from './lib/components/rating-question.component';
 export * from './lib/components/text-question.component';
+export * from './lib/components/buttons-borderless.component';
+export * from './lib/components/add-question-bank.component';

@@ -45,7 +45,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
 
             .close {
                 z-index: 99;
-                position: flex;
                 text-align: right;
                 margin-top: -10px;
                 margin-right: -10px;

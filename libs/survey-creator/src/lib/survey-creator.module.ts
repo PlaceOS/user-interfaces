@@ -16,6 +16,8 @@ import { QuestionListItemComponent } from './components/question-list-item.compo
 import { SearchBarComponent } from './components/search-bar.component';
 import { RatingQuestionComponent } from './components/rating-question.component';
 import { TextQuestionComponent } from './components/text-question.component';
+import { ButtonsBorderlessComponent } from './components/buttons-borderless.component';
+import { AddQuestionBankComponent } from './components/add-question-bank.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -27,6 +29,8 @@ const COMPONENTS: Type<any>[] = [
     SearchBarComponent,
     RatingQuestionComponent,
     TextQuestionComponent,
+    ButtonsBorderlessComponent,
+    AddQuestionBankComponent,
 ];
 
 @NgModule({
