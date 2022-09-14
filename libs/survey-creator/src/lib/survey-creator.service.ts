@@ -87,9 +87,6 @@ export class SurveyCreatorService {
                 title: 'Any additional feedback?',
             },
         ];
-
-        //Mock selected questions
-        this.selected_questions = [];
     }
 
     drop(event: any) {

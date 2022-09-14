@@ -34,21 +34,32 @@ import {
                                     "
                                     class="selected-questions-list"
                                 >
-                                    <div
-                                        *ngFor="let item of selected_questions"
-                                        [cdkDropListData]="selected_questions"
-                                        cdkDrag
+                                    <ng-container
+                                        *ngIf="
+                                            selected_questions.length;
+                                            else none
+                                        "
                                     >
-                                        <rating-question
-                                            *ngIf="item.type === 'Rating'"
-                                            [question]="item?.title"
+                                        <div
+                                            *ngFor="
+                                                let item of selected_questions
+                                            "
+                                            [cdkDropListData]="
+                                                selected_questions
+                                            "
+                                            cdkDrag
                                         >
-                                        </rating-question>
-                                        <text-question
-                                            *ngIf="item.type === 'Text'"
-                                            [question]="item?.title"
-                                        ></text-question>
-                                    </div>
+                                            <rating-question
+                                                *ngIf="item.type === 'Rating'"
+                                                [question]="item?.title"
+                                            >
+                                            </rating-question>
+                                            <text-question
+                                                *ngIf="item.type === 'Text'"
+                                                [question]="item?.title"
+                                            ></text-question>
+                                        </div>
+                                    </ng-container>
                                 </div>
                             </div>
                         </div>
@@ -82,6 +93,16 @@ import {
                 </div>
             </aside>
         </div>
+
+        <ng-template #none>
+            <div class="none-selected">
+                <img src="assets/icons/dragdrop.svg" alt="Icon" height="30px" />
+                <span
+                    >Click and drag to add questions from the question bank
+                    here</span
+                >
+            </div>
+        </ng-template>
     `,
 
     styles: [
@@ -153,6 +174,19 @@ import {
                 display: inline-block;
                 width: 100%;
                 min-height: 300px;
+            }
+
+            .none-selected {
+                display: flex;
+                flex-direction: column;
+                color: #808080;
+                width: 200px;
+                text-align: center;
+                margin: 200px auto;
+            }
+
+            .none-selected img {
+                margin: 10px;
             }
         `,
     ],
