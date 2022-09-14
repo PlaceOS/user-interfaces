@@ -70,6 +70,16 @@ import {
             <aside class="question-bank-section">
                 <header class="header">
                     <span class="title">Question Bank</span>
+                    <div class="edit-add-buttons">
+                        <buttons-borderless
+                            [button_title]="'Edit'"
+                            [icon]="'edit'"
+                        ></buttons-borderless>
+                        <buttons-borderless
+                            [button_title]="'Add'"
+                            [icon]="'add'"
+                        ></buttons-borderless>
+                    </div>
                 </header>
                 <search-bar></search-bar>
                 <div class="question-bank-container">
@@ -150,6 +160,7 @@ import {
 
             .header {
                 display: flex;
+                justify-content: space-between;
                 height: 49px;
                 border-bottom: 1px solid rgb(0, 0, 0, 0.12);
                 width: 400px;
