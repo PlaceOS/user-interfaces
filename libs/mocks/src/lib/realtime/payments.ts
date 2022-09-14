@@ -25,6 +25,10 @@ class PaymentsModule {
     $cancel_payment_intent(id: string) {
     }
 
+    $create_customer(...args: any) {
+        return `stripe-${randomInt(9_999_999, 1_000_000)}`;
+    }
+
     constructor(_) {}
 }
 

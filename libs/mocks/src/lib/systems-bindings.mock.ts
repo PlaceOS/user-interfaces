@@ -28,7 +28,7 @@ export function createSystem(space: HashMap) {
         Capture: [createCaptureModule(space)],
         MeetingPush: [createMeetingPushModule()],
         VidConf: [createVideoConferenceModule()],
-        StripePayments: [createPaymentsModule(space)]
+        Payment: [createPaymentsModule(space)]
     });
 
     const system = mockSystem(space.id);

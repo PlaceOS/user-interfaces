@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
@@ -52,24 +53,31 @@ export class PaymentsService {
 
     constructor(
         private _org: OrganisationService,
+        private _settings: SettingsService,
         private _dialog: MatDialog
     ) {}
 
     public async makePayment(
         details: PaymentDetails
     ): Promise<PaymentResult | undefined> {
-        // if (!this.payment_module) throw 'Payments not enabled';
+        if (!this.payment_module) throw 'Payments not enabled';
         const [cost, period] = await this._getCostOfProduct(
             details?.type
-        ).catch((_) => [6000, 60]);
-        // if (cost <= 0) return;
+        ).catch((_) => [0, 60]);
+        if (cost <= 0) return;
+
+        let customer_id = this._settings.get('STRIPE_Customer_ID');
+        if (!customer_id) customer_id = await this._newCustomerID();
+        this._settings.saveUserSetting('STRIPE_Customer_ID', customer_id);
         const amount = cost * (details.duration / period);
         let result = undefined;
         const makePayment = async (c: any) => {
-            result = await this._processPayment(amount, c).catch((e) => {
-                this._loading.next('');
-                throw e;
-            });
+            result = await this._processPayment(amount, customer_id, c).catch(
+                (e) => {
+                    this._loading.next('');
+                    throw e;
+                }
+            );
         };
         const data = {
             ...details,
@@ -83,24 +91,44 @@ export class PaymentsService {
         return result;
     }
 
-    private async _addPaymentMethod(card: PaymentCardDetails) {
+    private async _addPaymentMethod(card: PaymentCardDetails): Promise<string> {
         const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
-        await mod.execute('add_payment_method', ['card', card]);
-        return card;
+        const payment_method = await mod.execute('add_payment_method', [
+            'card',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            card,
+        ]);
+        return payment_method.id || payment_method;
     }
 
     private async _getCostOfProduct(type: string) {
         let price: [number, number] = [0, 60];
         const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) return price;
-        price =
-            (await mod.execute('get_product_price', [type, 'hourly'])) || price;
+        const product_list = await mod.execute('get_product_prices', [
+            null,
+            null,
+            type,
+        ]);
+        if (!product_list.length) return price;
+
         return price;
     }
 
     private async _processPayment(
         amount: number,
+        customer_id: string,
         card_details?: PaymentCardDetails
     ) {
         this._loading.next('Checking payment method...');
@@ -113,10 +141,17 @@ export class PaymentsService {
         if (!mod) throw 'Unable to load module';
         const id = await mod.execute<string>('create_payment_intent', [
             amount,
-            source,
+            this._org.building.currency || 'USD',
+            null,
+            null,
+            customer_id,
+            null,
+            null,
+            null,
+            currentUser()?.email,
         ]);
         if (!id) throw 'Failed to create payment';
-        await mod.execute('confirm_payment_intent', [id]);
+        await mod.execute('confirm_payment_intent', [id, source]);
         this._loading.next('');
         return {
             success: true,
@@ -124,7 +159,22 @@ export class PaymentsService {
             invoice_id: id,
             amount: amount,
             created_at: Date.now(),
-            updated_at: Date.now()
+            updated_at: Date.now(),
         };
+    }
+
+    private async _newCustomerID() {
+        const mod = getModule(this.payment_module, STRIPE_MODULE);
+        if (!mod) throw 'Unable to load module';
+        const user = currentUser();
+        const id = await mod.execute<string>('create_customer', [
+            0,
+            null,
+            null,
+            null,
+            `${user.id}|${user.name}|FromPlaceOS`,
+            user.email,
+        ]);
+        return id;
     }
 }
