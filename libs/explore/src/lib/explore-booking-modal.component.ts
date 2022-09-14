@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { currentUser, SettingsService } from '@placeos/common';
 
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -85,10 +85,11 @@ export interface ExploreBookingModalData {
     ],
 })
 export class ExploreBookingModalComponent implements OnInit {
-
     public readonly loading = this._event_form.loading;
 
-    public get form() { return this._event_form.form };
+    public get form() {
+        return this._event_form.form;
+    }
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 4 * 60;
@@ -103,7 +104,11 @@ export class ExploreBookingModalComponent implements OnInit {
 
     public ngOnInit() {
         this._event_form.newForm();
-        this.form.patchValue({ resources: [this._data.space] });
+        this.form.patchValue({
+            resources: [this._data.space],
+            host: currentUser().email,
+            organiser: currentUser(),
+        });
     }
 
     public async save() {
