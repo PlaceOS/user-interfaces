@@ -92,10 +92,16 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
             }
 
             .preview-questions-container {
-                display: inline-block;
+                display: flex;
+                flex-direction: column;
                 width: 100%;
                 min-height: 600px;
                 margin-top: -10px;
+                align-items: center;
+            }
+
+            .preview-list {
+                width: 600px;
             }
 
             .none-selected {
@@ -109,6 +115,10 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
             }
             .none-selected img {
                 margin: 10px;
+            }
+
+            .complete-button {
+                color: #fff;
             }
         `,
     ],

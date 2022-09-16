@@ -18,6 +18,7 @@ import { RatingQuestionComponent } from './components/rating-question.component'
 import { TextQuestionComponent } from './components/text-question.component';
 import { ButtonsBorderlessComponent } from './components/buttons-borderless.component';
 import { AddQuestionBankComponent } from './components/add-question-bank.component';
+import { MatButtonModule } from '@angular/material/button';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -44,6 +45,7 @@ const COMPONENTS: Type<any>[] = [
         MatIconModule,
         MatTabsModule,
         DragDropModule,
+        MatButtonModule,
     ],
     exports: [...COMPONENTS],
 })

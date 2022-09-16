@@ -74,7 +74,10 @@
                                 >Please add a question in the 'Design' tab</span
                             >
                         </div>
-                        <div *ngFor="let item of selected_questions">
+                        <div
+                            *ngFor="let item of selected_questions"
+                            class="preview-list"
+                        >
                             <rating-question
                                 *ngIf="item.type === 'Rating'"
                                 [question]="item?.title"
@@ -87,6 +90,13 @@
                                 [preview]="true"
                             ></text-question>
                         </div>
+                        <button
+                            mat-button
+                            color="primary"
+                            class="complete-button"
+                        >
+                            Complete
+                        </button>
                     </div>
                 </ng-template>
             </mat-tab>

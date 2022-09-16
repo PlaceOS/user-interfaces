@@ -32,7 +32,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 align-items: center;
                 justify-content: space-between;
                 font-size: 12px;
-                width: 800px;
+                max-width: 800px;
                 height: 80px;
                 color: #808080;
                 background-color: #fff;
