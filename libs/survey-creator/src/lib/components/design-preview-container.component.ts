@@ -94,6 +94,7 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
             .preview-questions-container {
                 display: inline-block;
                 width: 100%;
+                min-height: 600px;
                 margin-top: -10px;
             }
 

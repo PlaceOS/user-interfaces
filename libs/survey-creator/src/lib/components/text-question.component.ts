@@ -5,7 +5,12 @@ import { SurveyCreatorService } from '../survey-creator.service';
     selector: 'text-question',
     template: `
         <div class="question-container">
-            <span
+            <div class="question">
+                <span>
+                    {{ question }}
+                </span>
+            </div>
+            <div
                 *ngIf="!preview"
                 class="close"
                 (click)="surveyCreatorService.deleteQuestion(question)"
@@ -16,11 +21,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     class="icon"
                     >close</mat-icon
                 >
-            </span>
-            <div class="question">
-                <span>
-                    {{ question }}
-                </span>
             </div>
         </div>
     `,
@@ -28,9 +28,12 @@ import { SurveyCreatorService } from '../survey-creator.service';
         `
             .question-container {
                 display: flex;
-                flex-direction: column;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
                 font-size: 12px;
                 width: 800px;
+                height: 80px;
                 color: #808080;
                 background-color: #fff;
                 padding: 20px;
@@ -40,14 +43,14 @@ import { SurveyCreatorService } from '../survey-creator.service';
 
             .question {
                 display: flex;
-                flex-direction: row;
-                margin-bottom: 10px;
+                flex-direction: column;
             }
 
             .close {
+                display: flex;
+                flex-direction: column;
                 z-index: 99;
-                text-align: right;
-                margin-top: -10px;
+                margin-top: -30px;
                 margin-right: -10px;
             }
         `,

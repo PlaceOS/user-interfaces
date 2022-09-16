@@ -5,7 +5,24 @@ import { SurveyCreatorService } from '../survey-creator.service';
     selector: 'rating-question',
     template: `
         <div class="rating-question-container">
-            <span
+            <div class="wrapper">
+                <div class="rating-question">
+                    <span>
+                        {{ question }}
+                    </span>
+                </div>
+
+                <div class="rating-numbers-container">
+                    <div
+                        *ngFor="let number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+                        class="rating-number"
+                    >
+                        <span>{{ number }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div
                 *ngIf="!preview"
                 class="close"
                 (click)="surveyCreatorService.deleteQuestion(question)"
@@ -16,20 +33,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     class="icon"
                     >close</mat-icon
                 >
-            </span>
-            <div class="rating-question">
-                <span>
-                    {{ question }}
-                </span>
-            </div>
-
-            <div class="rating-numbers-container">
-                <div
-                    *ngFor="let number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-                    class="rating-number"
-                >
-                    <span>{{ number }}</span>
-                </div>
             </div>
         </div>
     `,
@@ -37,7 +40,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
         `
             .rating-question-container {
                 display: flex;
-                flex-direction: column;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
                 font-size: 12px;
                 width: 800px;
                 color: #808080;
@@ -45,6 +50,11 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 padding: 20px;
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
+            }
+
+            .wrapper {
+                display: flex;
+                flex-direction: column;
             }
 
             .rating-question {
@@ -60,6 +70,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 
             .rating-number {
                 display: flex;
+                flex-direction: row;
                 border: 1px solid rgba(0, 0, 0, 0.12);
                 width: 30px;
                 height: 30px;
@@ -74,10 +85,10 @@ import { SurveyCreatorService } from '../survey-creator.service';
             }
 
             .close {
+                display: flex;
+                flex-direction: column;
                 z-index: 99;
-                position: flex;
-                text-align: right;
-                margin-top: -10px;
+                margin-top: -30px;
                 margin-right: -10px;
             }
         `,
