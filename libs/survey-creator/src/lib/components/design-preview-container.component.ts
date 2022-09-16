@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Observable, fromEvent } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -18,16 +19,31 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 margin: 10px;
                 background-color: #f5f5f5;
             }
-
-            #survey-title {
+            .survey-title {
                 border-bottom: 2px solid #808080;
                 margin: 10px 25px;
             }
+            .preview-survey-title {
+                padding: 10px 10px;
+                border-bottom: 2px solid #808080;
+                margin: 20px 25px;
+                font-weight: 500;
+                align-items: center;
+                /* background-color: green; */
+            }
+
+            .preview-survey-title span {
+                display: flex;
+                margin: -5px 0px 5px 5px;
+            }
+
             .design-preview-section {
                 display: flex;
                 flex: 3;
                 flex-direction: column;
+
                 background-color: #f5f5f5;
+                color: #808080;
                 border-right: 1px solid #808080;
                 width: 800px;
             }
@@ -37,11 +53,9 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 padding: 0;
                 background-color: #f5f5f5;
             }
-
             .mat-tab-body-wrapper {
                 background-color: #fff;
             }
-
             .question-bank-section {
                 display: flex;
                 flex: 0.5;
@@ -50,7 +64,6 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 background-color: #f5f5f5;
                 width: 400px;
             }
-
             .header {
                 display: flex;
                 justify-content: space-between;
@@ -66,20 +79,17 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 color: #808080;
                 margin: 20px;
             }
-
             .selected-questions-container {
                 display: inline-block;
                 margin: 0 20px 20px 0;
                 width: 100%;
                 min-height: 300px;
             }
-
             .selected-questions-list {
                 display: inline-block;
                 width: 100%;
                 min-height: 300px;
             }
-
             .none-selected {
                 display: flex;
                 flex-direction: column;
@@ -88,7 +98,6 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 text-align: center;
                 margin: 200px auto;
             }
-
             .none-selected img {
                 margin: 10px;
             }
@@ -97,6 +106,8 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
 })
 export class DesignPreviewContainerComponent implements OnInit {
     question_bank: Question[] = this.surveyCreatorService.question_bank;
+    // survey_title: string = this.surveyCreatorService.survey_title || '';
+
     selected_questions: Question[] =
         this.surveyCreatorService.selected_questions;
 
@@ -111,11 +122,18 @@ export class DesignPreviewContainerComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {}
+
+    ngAfterViewInit() {}
+
     openAddQuestionBankDialog(): void {
         this.addDialog.open(AddQuestionBankComponent, this.dialogConfig);
     }
 
     noReturnPredicate() {
         // return false;
+    }
+
+    onKey(event: any) {
+        this.surveyCreatorService.survey_title.next(event.target.value);
     }
 }

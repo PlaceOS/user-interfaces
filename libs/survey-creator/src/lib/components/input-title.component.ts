@@ -5,8 +5,8 @@ import { Component, OnInit, Input } from '@angular/core';
     template: `
         <input
             type="text"
-            id="title"
             name="title"
+            [id]="id"
             [placeholder]="placeholder"
             [style.fontSize.px]="fontSize"
         />
@@ -22,7 +22,7 @@ import { Component, OnInit, Input } from '@angular/core';
             }
 
             input[type='text']:focus {
-                font: #808080;
+                color: #808080;
             }
 
             input[type='text']:active {
@@ -34,6 +34,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class InputTitleComponent implements OnInit {
     @Input() placeholder: string = 'Title';
     @Input() fontSize: string = '';
+    @Input() id: string = '';
 
     constructor() {}
 

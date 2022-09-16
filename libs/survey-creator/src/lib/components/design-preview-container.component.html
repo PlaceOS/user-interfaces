@@ -4,10 +4,12 @@
         <mat-tab-group mat-align-tabs="start" animationDuration="0ms">
             <mat-tab label="Design">
                 <div class="design-content">
-                    <div id="survey-title">
+                    <div class="survey-title">
                         <input-title
                             [placeholder]="'Survey Title'"
                             [fontSize]="16"
+                            [id]="'survey-title-design'"
+                            (keyup)="onKey($event)"
                         ></input-title>
                     </div>
                     <div class="selected-questions-container">
@@ -43,7 +45,17 @@
                     </div>
                 </div>
             </mat-tab>
-            <mat-tab label="Preview">Preview</mat-tab>
+            <mat-tab label="Preview">
+                <div class="preview-content">
+                    <div class="preview-survey-title">
+                        <span>
+                            {{
+                                surveyCreatorService.survey_title$ | async
+                            }}</span
+                        >
+                    </div>
+                </div>
+            </mat-tab>
         </mat-tab-group>
     </section>
     <aside class="question-bank-section">

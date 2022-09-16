@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model, SurveyNG } from 'survey-angular';
 import { Question, QuestionType } from './survey-types';
 import {
@@ -15,10 +16,10 @@ import {
 })
 export class SurveyCreatorService {
     question_counter: number = 0;
-    private _survey_title: BehaviorSubject<any> = new BehaviorSubject<string>(
-        ''
+    survey_title: BehaviorSubject<string> = new BehaviorSubject<string>(
+        'Survey Title'
     );
-    survey_title$: Observable<string> = this._survey_title.asObservable();
+    survey_title$: Observable<string> = this.survey_title.asObservable();
 
     //Store of survey question bank
 
@@ -87,6 +88,8 @@ export class SurveyCreatorService {
                 title: 'Any additional feedback?',
             },
         ];
+
+        this.survey_title.pipe(debounceTime(700), distinctUntilChanged());
     }
 
     drop(event: any) {
