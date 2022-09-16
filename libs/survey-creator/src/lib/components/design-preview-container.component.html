@@ -1,9 +1,14 @@
 `
 <div class="section-wrapper" cdkDropListGroup>
     <section class="design-preview-section">
-        <mat-tab-group mat-align-tabs="start" animationDuration="0ms">
+        <mat-tab-group
+            #tabGroup
+            mat-align-tabs="start"
+            animationDuration="0ms"
+            (selectedTabChange)="tabChanged($event)"
+        >
             <mat-tab label="Design">
-                <div class="design-content">
+                <ng-template matTabContent class="design-content">
                     <div class="survey-title">
                         <input-title
                             [placeholder]="'Survey Title'"
@@ -22,9 +27,7 @@
                             "
                             class="selected-questions-list"
                         >
-                            <ng-container
-                                *ngIf="selected_questions.length; else none"
-                            >
+                            <div *ngIf="selected_questions.length; else none">
                                 <div
                                     *ngFor="let item of selected_questions"
                                     [cdkDropListData]="selected_questions"
@@ -33,20 +36,22 @@
                                     <rating-question
                                         *ngIf="item.type === 'Rating'"
                                         [question]="item?.title"
+                                        [preview]="false"
                                     >
                                     </rating-question>
                                     <text-question
                                         *ngIf="item.type === 'Text'"
                                         [question]="item?.title"
+                                        [preview]="false"
                                     ></text-question>
                                 </div>
-                            </ng-container>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </ng-template>
             </mat-tab>
             <mat-tab label="Preview">
-                <div class="preview-content">
+                <ng-template matTabContent class="preview-content">
                     <div class="preview-survey-title">
                         <span>
                             {{
@@ -54,7 +59,36 @@
                             }}</span
                         >
                     </div>
-                </div>
+
+                    <div class="preview-questions-container">
+                        <div
+                            *ngIf="!selected_questions.length"
+                            class="none-selected"
+                        >
+                            <img
+                                src="assets/icons/dragdrop.svg"
+                                alt="Icon"
+                                height="30px"
+                            />
+                            <span
+                                >Please add a question in the 'Design' tab</span
+                            >
+                        </div>
+                        <div *ngFor="let item of selected_questions">
+                            <rating-question
+                                *ngIf="item.type === 'Rating'"
+                                [question]="item?.title"
+                                [preview]="true"
+                            >
+                            </rating-question>
+                            <text-question
+                                *ngIf="item.type === 'Text'"
+                                [question]="item?.title"
+                                [preview]="true"
+                            ></text-question>
+                        </div>
+                    </div>
+                </ng-template>
             </mat-tab>
         </mat-tab-group>
     </section>
@@ -102,4 +136,5 @@
         <span>Click and drag to add questions from the question bank here</span>
     </div>
 </ng-template>
+
 `

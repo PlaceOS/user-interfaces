@@ -6,6 +6,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
     template: `
         <div class="rating-question-container">
             <span
+                *ngIf="!preview"
                 class="close"
                 (click)="surveyCreatorService.deleteQuestion(question)"
             >
@@ -84,6 +85,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 })
 export class RatingQuestionComponent implements OnInit {
     @Input() question: string;
+    @Input() preview?: boolean = false;
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
