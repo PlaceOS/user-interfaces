@@ -19,12 +19,13 @@ import { PlusButtonComponent } from './plus-button.component';
                     <mat-checkbox></mat-checkbox>
                     <input-title
                         [placeholder]="'Type option here'"
+                        [fontSize]="12"
                     ></input-title>
                 </div>
             </div>
             <div class="plus-minus-buttons">
-                <plus-button></plus-button>
-                <minus-button></minus-button>
+                <plus-button (click)="addOption()"></plus-button>
+                <minus-button (click)="deleteOption()"></minus-button>
             </div>
         </div>
 
@@ -116,4 +117,11 @@ export class CheckboxQuestionComponent implements OnInit {
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
+
+    protected addOption() {
+        console.log('add');
+        document.getElementsByClassName('question-container');
+    }
+
+    protected deleteOption() {}
 }

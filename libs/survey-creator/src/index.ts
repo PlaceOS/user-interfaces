@@ -12,3 +12,6 @@ export * from './lib/components/rating-question.component';
 export * from './lib/components/text-question.component';
 export * from './lib/components/buttons-borderless.component';
 export * from './lib/components/add-question-bank.component';
+export * from './lib/components/checkbox-question.component';
+export * from './lib/components/plus-button.component';
+export * from './lib/components/minus-button.component';

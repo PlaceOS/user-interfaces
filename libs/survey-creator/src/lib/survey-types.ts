@@ -3,6 +3,7 @@ export enum QuestionType {
     checkbox = 'Checkbox',
     dropdown = 'Dropdown',
     rating = 'Rating',
+    comment = 'Comment',
 }
 export interface Question {
     type: QuestionType;

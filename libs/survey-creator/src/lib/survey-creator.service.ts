@@ -87,6 +87,11 @@ export class SurveyCreatorService {
                 name: '',
                 title: 'Any additional feedback?',
             },
+            {
+                type: QuestionType.checkbox,
+                name: '',
+                title: 'Which features were available?',
+            },
         ];
 
         this.survey_title.pipe(debounceTime(700), distinctUntilChanged());
