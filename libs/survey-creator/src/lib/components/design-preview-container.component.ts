@@ -118,7 +118,10 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
             }
 
             .complete-button {
+                display: flex;
                 color: #fff;
+                border-radius: 2px;
+                margin: 20px 0px 0px 20px;
             }
         `,
     ],

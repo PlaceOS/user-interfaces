@@ -55,6 +55,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
             .wrapper {
                 display: flex;
                 flex-direction: column;
+                align-items: center;
             }
 
             .rating-question {
@@ -65,7 +66,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 display: flex;
                 flex-direction: row;
                 margin-top: 10px;
-                margin-bottom: 10px;
             }
 
             .rating-number {
