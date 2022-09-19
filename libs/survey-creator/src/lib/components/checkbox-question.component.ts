@@ -1,4 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    Input,
+    ViewChild,
+    ViewContainerRef,
+    TemplateRef,
+    ElementRef,
+} from '@angular/core';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { InputTitleComponent } from './input-title.component';
@@ -14,7 +22,7 @@ import { PlusButtonComponent } from './plus-button.component';
                 </span>
             </div>
 
-            <div class="checkbox-container">
+            <ng-container #viewcontainer class="checkbox-container">
                 <div *ngFor="let number of ['test']" class="checkbox">
                     <mat-checkbox></mat-checkbox>
                     <input-title
@@ -22,7 +30,14 @@ import { PlusButtonComponent } from './plus-button.component';
                         [fontSize]="12"
                     ></input-title>
                 </div>
-            </div>
+            </ng-container>
+            <ng-template>
+                <mat-checkbox></mat-checkbox>
+                <input-title
+                    [placeholder]="'Type option here'"
+                    [fontSize]="12"
+                ></input-title>
+            </ng-template>
             <div class="plus-minus-buttons">
                 <plus-button (click)="addOption()"></plus-button>
                 <minus-button (click)="deleteOption()"></minus-button>
@@ -113,15 +128,27 @@ import { PlusButtonComponent } from './plus-button.component';
 export class CheckboxQuestionComponent implements OnInit {
     @Input() question: string;
     @Input() preview?: boolean = false;
-
-    constructor(public surveyCreatorService: SurveyCreatorService) {}
+    @ViewChild('child', { read: ElementRef }) childComp: InputTitleComponent;
+    @ViewChild('viewcontainer', { read: ViewContainerRef }) viewcontainer;
+    @ViewChild(TemplateRef) template: TemplateRef<null>;
+    constructor(
+        public surveyCreatorService: SurveyCreatorService,
+        private host: ElementRef
+    ) {}
 
     ngOnInit(): void {}
 
-    protected addOption() {
-        console.log('add');
-        document.getElementsByClassName('question-container');
+    ngAfterViewChecked() {
+        console.log(this.childComp, 'child comp');
     }
 
-    protected deleteOption() {}
+    ngAfterViewInit() {}
+
+    protected addOption() {
+        this.viewcontainer.createEmbeddedView(this.template);
+    }
+
+    protected deleteOption() {
+        this.viewcontainer.remove();
+    }
 }
