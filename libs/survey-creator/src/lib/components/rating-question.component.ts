@@ -65,7 +65,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
             .rating-numbers-container {
                 display: flex;
                 flex-direction: row;
-                margin-top: 10px;
+                margin: 10px 0px 0px -4px;
             }
 
             .rating-number {
@@ -97,6 +97,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 export class RatingQuestionComponent implements OnInit {
     @Input() question: string;
     @Input() preview?: boolean = false;
+
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}

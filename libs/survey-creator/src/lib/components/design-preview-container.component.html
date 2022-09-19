@@ -44,6 +44,11 @@
                                         [question]="item?.title"
                                         [preview]="false"
                                     ></text-question>
+                                    <checkbox-question
+                                        *ngIf="item.type === 'Checkbox'"
+                                        [question]="item?.title"
+                                        [preview]="false"
+                                    ></checkbox-question>
                                 </div>
                             </div>
                         </div>
@@ -89,6 +94,11 @@
                                 [question]="item?.title"
                                 [preview]="true"
                             ></text-question>
+                            <checkbox-question
+                                *ngIf="item.type === 'Checkbox'"
+                                [question]="item?.title"
+                                [preview]="true"
+                            ></checkbox-question>
                         </div>
                         <div class="preview-list">
                             <button
