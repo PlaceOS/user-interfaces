@@ -52,6 +52,8 @@ export interface PanelSettings {
     presence?: boolean;
     /** Capacity for the space */
     room_capacity?: number;
+    /** Whether meeting details should not be displayed on the UI */
+    hide_meeting_details?: boolean;
 }
 
 export function currentBooking(
@@ -137,6 +139,7 @@ export class PanelStateService extends BaseClass {
                 'custom_qr_url',
                 'custom_qr_color',
                 'disable_book_now',
+                'hide_meeting_details',
                 'pending',
                 'status',
                 'control_ui',

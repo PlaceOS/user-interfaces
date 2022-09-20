@@ -14,7 +14,7 @@ import { PanelStateService } from '../panel-state.service';
                 [style.background-image]="'url(' + room_image + ')'"
             ></div>
             <div class="absolute inset-0 bg-black/60"></div>
-            <div name class="absolute top-4 left-4 text-3xl font-medium">
+            <div name class="absolute top-4 left-4 text-4xl font-medium">
                 {{
                     (system | async)?.display_name ||
                         (system | async)?.name ||
@@ -32,9 +32,28 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
             </div>
             <div
-                class="absolute top-2/3 left-1/2 -translate-x-1/2 text-3xl font-light"
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 font-normal space-y-4 text-center"
             >
-                {{ time | date: 'EEE, MMM d, y h:mm a' }}
+                <p class="text-3xl">
+                    {{ time | date: 'EEE, MMM d, y h:mm a' }}
+                </p>
+                <p
+                    class="text-4xl"
+                    *ngIf="(current | async) && !hide_meeting_details"
+                >
+                    Host:
+                    {{
+                        (current | async).organiser?.name ||
+                            (current | async).host
+                    }}
+                </p>
+            </div>
+            <div
+                *ngIf="(current | async) && !hide_meeting_details"
+                class="absolute bottom-0 inset-x-0 bg-black/20 text-white p-4 text-center text-3xl"
+            >
+                {{ (current | async).title }}
+                <span class="font-light">is currently in progress</span>
             </div>
         </div>
     `,
@@ -48,10 +67,15 @@ import { PanelStateService } from '../panel-state.service';
 })
 export class PanelViewDetailsComponent {
     public readonly system = this._state.space;
+    public readonly current = this._state.current;
     public qr_code: any;
 
     public get time() {
         return startOfMinute(Date.now());
+    }
+
+    public get hide_meeting_details() {
+        return this._state.setting('hide_meeting_details');
     }
 
     public get room_image() {
@@ -69,12 +93,21 @@ export class PanelViewDetailsComponent {
     constructor(private _state: PanelStateService) {}
 
     public async ngOnInit() {
+        this._state.current.subscribe((v) => console.log('Current:', v));
         this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {
             if (custom_qr_url) {
-                this.qr_code = generateQRCode(custom_qr_url, '#fff0', custom_qr_color || '#fff');
+                this.qr_code = generateQRCode(
+                    custom_qr_url,
+                    '#fff0',
+                    custom_qr_color || '#fff'
+                );
             } else if (!this.qr_code) {
                 const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                this.qr_code = generateQRCode(url, '#fff0', custom_qr_color || '#fff');
+                this.qr_code = generateQRCode(
+                    url,
+                    '#fff0',
+                    custom_qr_color || '#fff'
+                );
             }
         });
     }
