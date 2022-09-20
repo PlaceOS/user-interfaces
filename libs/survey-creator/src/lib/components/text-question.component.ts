@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SurveyCreatorService } from '../survey-creator.service';
+import { Question } from '../survey-types';
 
 @Component({
     selector: 'text-question',
@@ -7,7 +8,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
         <div class="question-container">
             <div class="question">
                 <span>
-                    {{ question }}
+                    {{ question?.title }}
                 </span>
             </div>
             <div
@@ -57,7 +58,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
     ],
 })
 export class TextQuestionComponent implements OnInit {
-    @Input() question: string;
+    @Input() question: Question;
     @Input() preview?: boolean = false;
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 

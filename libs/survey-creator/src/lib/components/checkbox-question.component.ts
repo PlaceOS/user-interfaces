@@ -1,16 +1,8 @@
-import {
-    Component,
-    OnInit,
-    Input,
-    ViewChild,
-    ViewContainerRef,
-    TemplateRef,
-    ElementRef,
-} from '@angular/core';
+import { Component, OnInit, Input, ElementRef } from '@angular/core';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { InputTitleComponent } from './input-title.component';
-import { PlusButtonComponent } from './plus-button.component';
 
 @Component({
     selector: 'checkbox-question',
@@ -18,26 +10,20 @@ import { PlusButtonComponent } from './plus-button.component';
         <div class="wrapper">
             <div class="question">
                 <span>
-                    {{ question }}
+                    {{ question?.title }}
                 </span>
             </div>
-
-            <ng-container #viewcontainer class="checkbox-container">
-                <div *ngFor="let number of ['test']" class="checkbox">
+            <div class="checkbox-container">
+                <div *ngFor="let choice of question?.choices" class="checkbox">
                     <mat-checkbox></mat-checkbox>
-                    <input-title
+                    <input
+                        type="text"
                         [placeholder]="'Type option here'"
-                        [fontSize]="12"
-                    ></input-title>
+                        [style.fontSize.px]="12"
+                        value="{{ choice }}"
+                    />
                 </div>
-            </ng-container>
-            <ng-template>
-                <mat-checkbox></mat-checkbox>
-                <input-title
-                    [placeholder]="'Type option here'"
-                    [fontSize]="12"
-                ></input-title>
-            </ng-template>
+            </div>
             <div class="plus-minus-buttons">
                 <plus-button (click)="addOption()"></plus-button>
                 <minus-button (click)="deleteOption()"></minus-button>
@@ -85,7 +71,7 @@ import { PlusButtonComponent } from './plus-button.component';
             }
             .checkbox-container {
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
                 margin-right: auto;
                 margin-top: 10px;
                 justify-content: center;
@@ -118,33 +104,75 @@ import { PlusButtonComponent } from './plus-button.component';
                 margin-right: auto;
                 margin-left: 20px;
             }
+
+            input[type='text'] {
+                border: none;
+                padding: 10px 10px;
+                margin: 5px;
+                font-weight: 500;
+                width: 100%;
+            }
+
+            input[type='text']:focus {
+                color: #808080;
+            }
+
+            input[type='text']:active {
+                border: none;
+            }
         `,
     ],
 })
 export class CheckboxQuestionComponent implements OnInit {
-    @Input() question: string;
+    @Input() question: Question;
     @Input() preview?: boolean = false;
-    @ViewChild('child', { read: ElementRef }) childComp: InputTitleComponent;
-    @ViewChild('viewcontainer', { read: ViewContainerRef }) viewcontainer;
-    @ViewChild(TemplateRef) template: TemplateRef<null>;
+
+    // choicesForm = this.fb.group({
+    //     choiceField: new FormControl(''),
+    // });
+
     constructor(
         public surveyCreatorService: SurveyCreatorService,
-        private host: ElementRef
+        private host: ElementRef // private fb: FormBuilder
     ) {}
 
-    ngOnInit(): void {}
-
-    ngAfterViewChecked() {
-        console.log(this.childComp, 'child comp');
+    ngOnInit(): void {
+        // this.choices = this.question.choices;
     }
 
     ngAfterViewInit() {}
 
-    protected addOption() {
-        this.viewcontainer.createEmbeddedView(this.template);
+    // onKey(event: any) {
+    //     // this.surveyCreatorService.survey_title.next(event.target.value);
+
+    //     const current_question = this._findQuestion();
+
+    //     current_question.choices.push(event.target.value);
+    // }
+
+    protected addOption(event?: any) {
+        // console.log(this.choice);
+        // this.surveyCreatorService.selected_questions[0].choices?.push(
+        //     event.target.value
+        // );
+        // this._findQuestion();
+        const current_question = this._findQuestion();
+        current_question.choices?.push('');
     }
 
     protected deleteOption() {
-        this.viewcontainer.remove();
+        if (
+            this.surveyCreatorService.selected_questions[0].choices?.length == 1
+        )
+            return;
+
+        const current_question = this._findQuestion();
+        current_question.choices?.pop();
+    }
+
+    private _findQuestion() {
+        return this.surveyCreatorService.selected_questions.find(
+            (item) => item.name == this.question.name
+        );
     }
 }

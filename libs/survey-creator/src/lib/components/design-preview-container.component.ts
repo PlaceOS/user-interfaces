@@ -30,12 +30,10 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 font-weight: 500;
                 align-items: center;
             }
-
             .preview-survey-title span {
                 display: flex;
                 margin: -5px 0px 5px 5px;
             }
-
             .design-preview-section {
                 display: flex;
                 flex: 3;
@@ -45,14 +43,12 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 border-right: 1px solid #808080;
                 width: 800px;
             }
-
             .design-content {
                 margin: 0;
                 padding: 0;
                 background-color: #f5f5f5;
                 min-height: 500px;
             }
-
             .mat-tab-body-wrapper {
                 background-color: #fff;
             }
@@ -90,7 +86,6 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 width: 100%;
                 min-height: 300px;
             }
-
             .preview-questions-container {
                 display: flex;
                 flex-direction: column;
@@ -99,11 +94,9 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
                 margin-top: -10px;
                 align-items: center;
             }
-
             .preview-list {
                 width: 600px;
             }
-
             .none-selected {
                 display: flex;
                 flex-direction: column;
@@ -116,12 +109,11 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
             .none-selected img {
                 margin: 10px;
             }
-
             .complete-button {
                 display: flex;
                 color: #fff;
                 border-radius: 2px;
-                margin: 20px 0px 0px 20px;
+                margin: 20px 0px 20px 20px;
             }
         `,
     ],

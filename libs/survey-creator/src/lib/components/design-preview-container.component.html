@@ -35,18 +35,18 @@
                                 >
                                     <rating-question
                                         *ngIf="item.type === 'Rating'"
-                                        [question]="item?.title"
+                                        [question]="item"
                                         [preview]="false"
                                     >
                                     </rating-question>
                                     <text-question
                                         *ngIf="item.type === 'Text'"
-                                        [question]="item?.title"
+                                        [question]="item"
                                         [preview]="false"
                                     ></text-question>
                                     <checkbox-question
                                         *ngIf="item.type === 'Checkbox'"
-                                        [question]="item?.title"
+                                        [question]="item"
                                         [preview]="false"
                                     ></checkbox-question>
                                 </div>
@@ -85,18 +85,18 @@
                         >
                             <rating-question
                                 *ngIf="item.type === 'Rating'"
-                                [question]="item?.title"
+                                [question]="item"
                                 [preview]="true"
                             >
                             </rating-question>
                             <text-question
                                 *ngIf="item.type === 'Text'"
-                                [question]="item?.title"
+                                [question]="item"
                                 [preview]="true"
                             ></text-question>
                             <checkbox-question
                                 *ngIf="item.type === 'Checkbox'"
-                                [question]="item?.title"
+                                [question]="item"
                                 [preview]="true"
                             ></checkbox-question>
                         </div>
