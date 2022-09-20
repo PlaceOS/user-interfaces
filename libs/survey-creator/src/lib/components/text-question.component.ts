@@ -31,27 +31,27 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
+                position: relative;
                 font-size: 12px;
                 max-width: 800px;
                 height: 80px;
                 color: #808080;
                 background-color: #fff;
-                padding: 20px;
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
-
             .question {
                 display: flex;
                 flex-direction: column;
+                margin: 20px;
             }
-
             .close {
-                display: flex;
-                flex-direction: column;
+                position: absolute;
+                right: 0;
+                top: 0;
                 z-index: 99;
-                margin-top: -30px;
-                margin-right: -10px;
+                margin-top: 10px;
+                margin-right: 5px;
             }
         `,
     ],

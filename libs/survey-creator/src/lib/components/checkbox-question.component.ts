@@ -64,21 +64,20 @@ import { PlusButtonComponent } from './plus-button.component';
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
+                position: relative;
                 font-size: 12px;
                 max-width: 800px;
                 color: #808080;
                 background-color: #fff;
-                padding: 20px;
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
-
             .wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                margin: 20px;
             }
-
             .question {
                 display: flex;
                 flex-direction: row;
@@ -91,7 +90,6 @@ import { PlusButtonComponent } from './plus-button.component';
                 margin-top: 10px;
                 justify-content: center;
             }
-
             .checkbox {
                 display: flex;
                 flex-direction: row;
@@ -99,7 +97,6 @@ import { PlusButtonComponent } from './plus-button.component';
                 align-items: center;
                 margin-right: 5px;
             }
-
             .checkbox mat-checkbox {
                 display: flex;
             }
@@ -107,15 +104,14 @@ import { PlusButtonComponent } from './plus-button.component';
                 display: flex;
                 margin: 0px 0px 5px 5px;
             }
-
             .close {
-                display: flex;
-                flex-direction: column;
+                position: absolute;
+                right: 0;
+                top: 0;
                 z-index: 99;
-                margin-top: -30px;
-                margin-right: -10px;
+                margin-top: 10px;
+                margin-right: 5px;
             }
-
             .plus-minus-buttons {
                 display: flex;
                 flex-direction: row;
