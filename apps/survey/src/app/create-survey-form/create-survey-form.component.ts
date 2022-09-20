@@ -3,7 +3,6 @@ import {
     SurveyCreatorService,
     QuestionType,
     Question,
-    Answer,
     InputTitleComponent,
     ButtonWithIconComponent,
     QuestionBoxComponent,

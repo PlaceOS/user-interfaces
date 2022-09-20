@@ -76,6 +76,7 @@ export class SurveyCreatorService {
                 type: QuestionType.rating,
                 name: '',
                 title: 'On a scale of 1-10, how likely would you recommend this space?',
+                rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             },
             {
                 type: QuestionType.text,
@@ -83,7 +84,7 @@ export class SurveyCreatorService {
                 title: 'What was this space booked for?',
             },
             {
-                type: QuestionType.text,
+                type: QuestionType.comment,
                 name: '',
                 title: 'Any additional feedback?',
             },
@@ -91,6 +92,7 @@ export class SurveyCreatorService {
                 type: QuestionType.checkbox,
                 name: '',
                 title: 'Which features were available?',
+                choices: ['whiteboard', 'jamboard'],
             },
         ];
 
@@ -107,7 +109,7 @@ export class SurveyCreatorService {
             // );
         } else {
             const question = event.previousContainer.data[event.previousIndex];
-
+            question.name = this._generateID();
             this.selected_questions.push(question);
 
             console.log(this.selected_questions, 'selected question in store');
@@ -119,6 +121,10 @@ export class SurveyCreatorService {
             return object.title == question;
         });
         this.selected_questions.splice(index_to_delete, 1);
+    }
+
+    private _generateID() {
+        return Math.floor(Math.random() * 10000000).toString();
     }
 
     // newQuestionForm(questionType): void {

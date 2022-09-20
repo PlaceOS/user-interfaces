@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SurveyCreatorService } from '../survey-creator.service';
+import { Question } from '../survey-types';
 
 @Component({
     selector: 'rating-question',
@@ -8,13 +9,13 @@ import { SurveyCreatorService } from '../survey-creator.service';
             <div class="wrapper">
                 <div class="rating-question">
                     <span>
-                        {{ question }}
+                        {{ question.title }}
                     </span>
                 </div>
 
                 <div class="rating-numbers-container">
                     <div
-                        *ngFor="let number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+                        *ngFor="let number of question?.rateValues"
                         class="rating-number"
                     >
                         <span>{{ number }}</span>
@@ -92,7 +93,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
     ],
 })
 export class RatingQuestionComponent implements OnInit {
-    @Input() question: string;
+    @Input() question: Question;
     @Input() preview?: boolean = false;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}

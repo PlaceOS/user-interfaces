@@ -9,11 +9,6 @@ export interface Question {
     type: QuestionType;
     name: string;
     title: string;
-    choices?: Answer[];
-}
-
-export interface Answer {
-    type: QuestionType;
-    name: string;
-    value: any;
+    choices?: string[];
+    rateValues?: number[];
 }

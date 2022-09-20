@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SurveyCreatorService } from './survey-creator.service';
-import { QuestionType, Question, Answer } from './survey-types';
+import { QuestionType, Question } from './survey-types';
 
 @Component({
     selector: 'lib-survey-creator',
