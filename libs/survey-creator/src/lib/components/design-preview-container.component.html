@@ -40,7 +40,10 @@
                                     >
                                     </rating-question>
                                     <text-question
-                                        *ngIf="item.type === 'Text'"
+                                        *ngIf="
+                                            item.type === 'Text' ||
+                                            item.type === 'Comment'
+                                        "
                                         [question]="item"
                                         [preview]="false"
                                     ></text-question>
@@ -90,7 +93,10 @@
                             >
                             </rating-question>
                             <text-question
-                                *ngIf="item.type === 'Text'"
+                                *ngIf="
+                                    item.type === 'Text' ||
+                                    item.type === 'Comment'
+                                "
                                 [question]="item"
                                 [preview]="true"
                             ></text-question>

@@ -110,17 +110,27 @@ export class SurveyCreatorService {
         } else {
             const question = event.previousContainer.data[event.previousIndex];
             question.name = this._generateID();
+
+            console.log(this.selected_questions, 'selected q at start');
+            if (this.findQuestion(question)) return;
+
             this.selected_questions.push(question);
 
             console.log(this.selected_questions, 'selected question in store');
         }
     }
 
-    deleteQuestion(question?: string) {
+    deleteQuestion(question?: Question) {
         const index_to_delete = this.selected_questions.findIndex((object) => {
-            return object.title == question;
+            return object.title === question.title;
         });
         this.selected_questions.splice(index_to_delete, 1);
+    }
+
+    public findQuestion(question: Question) {
+        return this.selected_questions.find((object) => {
+            return object.title === question.title;
+        });
     }
 
     private _generateID() {
