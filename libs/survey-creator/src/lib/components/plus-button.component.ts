@@ -14,22 +14,26 @@ import { Component, OnInit } from '@angular/core';
             .button-container {
                 display: flex;
                 justify-content: center;
-                width: 50px;
+                width: 40px;
             }
 
             .button-container button {
                 display: flex;
+                position: relative;
                 background-color: #529a60;
-                height: 25px;
-                width: 25px;
+                height: 20px;
+                width: 20px;
                 justify-content: center;
             }
 
             .button-container button mat-icon {
-                display: absolute;
-                margin-top: -14px;
-                font-size: 20px;
-                font-weight: 600;
+                position: absolute;
+                top: 0;
+                left: 0;
+                margin-left: -2px;
+                margin-top: 1px;
+                font-size: 18px;
+                font-weight: 700;
             }
         `,
     ],

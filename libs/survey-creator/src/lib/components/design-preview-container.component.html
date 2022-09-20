@@ -100,7 +100,10 @@
                                 [preview]="true"
                             ></checkbox-question>
                         </div>
-                        <div class="preview-list">
+                        <div
+                            class="preview-list"
+                            *ngIf="selected_questions.length"
+                        >
                             <button
                                 mat-button
                                 color="primary"
