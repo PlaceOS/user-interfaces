@@ -1,26 +1,35 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { SurveyCreatorService } from '../survey-creator.service';
 import { Question } from '../survey-types';
+import { SurveyCreatorService } from '../survey-creator.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
-    selector: 'rating-question',
+    selector: 'dropdown-question',
     template: `
-        <div class="rating-question-container">
+        <div class="question-container">
             <div class="wrapper">
-                <div class="rating-question">
+                <div class="question">
                     <span>
-                        {{ question.title }}
+                        {{ question?.title }}
                     </span>
                 </div>
-
-                <div class="rating-numbers-container">
-                    <div
-                        *ngFor="let number of question?.rateValues"
-                        class="rating-number"
-                    >
-                        <span>{{ number }}</span>
-                    </div>
+                <div class="dropdown-container">
+                    <mat-form-field appearance="outline" class="dropdown">
+                        <mat-label>Select...</mat-label>
+                        <mat-select [formControl]="choices">
+                            <mat-option
+                                *ngFor="let choice of question?.choices"
+                                [value]="choice"
+                            >
+                                {{ choice }}</mat-option
+                            >
+                        </mat-select>
+                    </mat-form-field>
                 </div>
+                <!-- <div class="plus-minus-buttons">
+                <plus-button (click)="addOption()"></plus-button>
+                <minus-button (click)="deleteOption()"></minus-button>
+                </div> -->
             </div>
 
             <div
@@ -39,7 +48,7 @@ import { Question } from '../survey-types';
     `,
     styles: [
         `
-            .rating-question-container {
+            .question-container {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -58,28 +67,20 @@ import { Question } from '../survey-types';
                 align-items: flex-start;
                 margin: 20px;
             }
-            .rating-question {
+            .question {
                 display: flex;
                 flex-direction: row;
             }
-            .rating-numbers-container {
+            .dropdown-container {
                 display: flex;
                 flex-direction: row;
                 margin: 10px 0px 0px -4px;
             }
-            .rating-number {
+            .dropdown {
                 display: flex;
-                flex-direction: row;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                width: 30px;
+                width: 500px;
                 height: 30px;
-                border-radius: 20px;
-                align-items: center;
-                justify-content: center;
-                margin-right: 5px;
-            }
-            .rating-number span {
-                display: flex;
+                margin-bottom: 10px;
             }
             .close {
                 position: absolute;
@@ -92,9 +93,11 @@ import { Question } from '../survey-types';
         `,
     ],
 })
-export class RatingQuestionComponent implements OnInit {
+export class DropdownQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
+
+    choices = new FormControl('');
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 

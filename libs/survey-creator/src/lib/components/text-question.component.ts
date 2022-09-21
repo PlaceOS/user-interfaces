@@ -6,11 +6,17 @@ import { Question } from '../survey-types';
     selector: 'text-question',
     template: `
         <div class="question-container">
-            <div class="question">
-                <span>
-                    {{ question?.title }}
-                </span>
+            <div class="wrapper">
+                <div class="question">
+                    <span>
+                        {{ question?.title }}
+                    </span>
+                </div>
+                <div class="input-field-container">
+                    <input class="input-field" disabled type="text" />
+                </div>
             </div>
+
             <div
                 *ngIf="!preview"
                 class="close"
@@ -35,16 +41,31 @@ import { Question } from '../survey-types';
                 position: relative;
                 font-size: 12px;
                 max-width: 800px;
-                height: 80px;
                 color: #808080;
                 background-color: #fff;
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
-            .question {
+            .wrapper {
                 display: flex;
                 flex-direction: column;
+                align-items: flex-start;
                 margin: 20px;
+            }
+            .question {
+                display: flex;
+                flex-direction: row;
+            }
+            .input-field-container {
+                display: flex;
+                flex-direction: row;
+                margin: 10px 0px 0px -4px;
+            }
+            .input-field {
+                display: flex;
+                width: 500px;
+                height: 30px;
+                margin-bottom: 10px;
             }
             .close {
                 position: absolute;

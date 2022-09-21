@@ -17,6 +17,7 @@ import { InputTitleComponent } from './input-title.component';
                 <div *ngFor="let choice of question?.choices" class="checkbox">
                     <mat-checkbox></mat-checkbox>
                     <input
+                        readonly
                         type="text"
                         [placeholder]="'Type option here'"
                         [style.fontSize.px]="12"
@@ -24,10 +25,10 @@ import { InputTitleComponent } from './input-title.component';
                     />
                 </div>
             </div>
-            <div class="plus-minus-buttons">
+            <!-- <div class="plus-minus-buttons">
                 <plus-button (click)="addOption()"></plus-button>
                 <minus-button (click)="deleteOption()"></minus-button>
-            </div>
+            </div> -->
         </div>
 
         <div
@@ -127,52 +128,30 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
 
-    // choicesForm = this.fb.group({
-    //     choiceField: new FormControl(''),
-    // });
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
-    constructor(
-        public surveyCreatorService: SurveyCreatorService,
-        private host: ElementRef // private fb: FormBuilder
-    ) {}
-
-    ngOnInit(): void {
-        // this.choices = this.question.choices;
-    }
+    ngOnInit(): void {}
 
     ngAfterViewInit() {}
 
-    // onKey(event: any) {
-    //     // this.surveyCreatorService.survey_title.next(event.target.value);
-
+    // protected addOption(event?: any) {
     //     const current_question = this._findQuestion();
-
-    //     current_question.choices.push(event.target.value);
+    //     current_question.choices?.push('');
     // }
 
-    protected addOption(event?: any) {
-        // console.log(this.choice);
-        // this.surveyCreatorService.selected_questions[0].choices?.push(
-        //     event.target.value
-        // );
-        // this._findQuestion();
-        const current_question = this._findQuestion();
-        current_question.choices?.push('');
-    }
+    // protected deleteOption() {
+    //     if (
+    //         this.surveyCreatorService.selected_questions[0].choices?.length == 1
+    //     )
+    //         return;
 
-    protected deleteOption() {
-        if (
-            this.surveyCreatorService.selected_questions[0].choices?.length == 1
-        )
-            return;
+    //     const current_question = this._findQuestion();
+    //     current_question.choices?.pop();
+    // }
 
-        const current_question = this._findQuestion();
-        current_question.choices?.pop();
-    }
-
-    private _findQuestion() {
-        return this.surveyCreatorService.selected_questions.find(
-            (item) => item.name == this.question.name
-        );
-    }
+    // private _findQuestion() {
+    //     return this.surveyCreatorService.selected_questions.find(
+    //         (item) => item.name == this.question.name
+    //     );
+    // }
 }

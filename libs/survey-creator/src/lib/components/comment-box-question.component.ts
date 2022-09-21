@@ -3,23 +3,17 @@ import { SurveyCreatorService } from '../survey-creator.service';
 import { Question } from '../survey-types';
 
 @Component({
-    selector: 'rating-question',
+    selector: 'comment-box-question',
     template: `
-        <div class="rating-question-container">
+        <div class="question-container">
             <div class="wrapper">
-                <div class="rating-question">
+                <div class="question">
                     <span>
-                        {{ question.title }}
+                        {{ question?.title }}
                     </span>
                 </div>
-
-                <div class="rating-numbers-container">
-                    <div
-                        *ngFor="let number of question?.rateValues"
-                        class="rating-number"
-                    >
-                        <span>{{ number }}</span>
-                    </div>
+                <div class="input-field-container">
+                    <textarea class="input-field" disabled></textarea>
                 </div>
             </div>
 
@@ -39,7 +33,7 @@ import { Question } from '../survey-types';
     `,
     styles: [
         `
-            .rating-question-container {
+            .question-container {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -58,28 +52,20 @@ import { Question } from '../survey-types';
                 align-items: flex-start;
                 margin: 20px;
             }
-            .rating-question {
+            .question {
                 display: flex;
                 flex-direction: row;
             }
-            .rating-numbers-container {
+            .input-field-container {
                 display: flex;
                 flex-direction: row;
                 margin: 10px 0px 0px -4px;
             }
-            .rating-number {
+            .input-field {
                 display: flex;
-                flex-direction: row;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                width: 30px;
-                height: 30px;
-                border-radius: 20px;
-                align-items: center;
-                justify-content: center;
-                margin-right: 5px;
-            }
-            .rating-number span {
-                display: flex;
+                width: 500px;
+                height: 50px;
+                margin-bottom: 10px;
             }
             .close {
                 position: absolute;
@@ -92,7 +78,7 @@ import { Question } from '../survey-types';
         `,
     ],
 })
-export class RatingQuestionComponent implements OnInit {
+export class CommentBoxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
 

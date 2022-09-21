@@ -15,3 +15,5 @@ export * from './lib/components/add-question-bank.component';
 export * from './lib/components/checkbox-question.component';
 export * from './lib/components/plus-button.component';
 export * from './lib/components/minus-button.component';
+export * from './lib/components/comment-box-question.component';
+export * from './lib/components/dropdown-question.component';

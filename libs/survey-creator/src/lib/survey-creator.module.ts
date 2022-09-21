@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title.component';
@@ -22,6 +23,8 @@ import { AddQuestionBankComponent } from './components/add-question-bank.compone
 import { CheckboxQuestionComponent } from './components/checkbox-question.component';
 import { PlusButtonComponent } from './components/plus-button.component';
 import { MinusButtonComponent } from './components/minus-button.component';
+import { CommentBoxQuestionComponent } from './components/comment-box-question.component';
+import { DropdownQuestionComponent } from './components/dropdown-question.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -38,6 +41,8 @@ const COMPONENTS: Type<any>[] = [
     CheckboxQuestionComponent,
     PlusButtonComponent,
     MinusButtonComponent,
+    CommentBoxQuestionComponent,
+    DropdownQuestionComponent,
 ];
 
 @NgModule({
@@ -52,6 +57,7 @@ const COMPONENTS: Type<any>[] = [
         MatTabsModule,
         DragDropModule,
         MatButtonModule,
+        MatSelectModule,
     ],
     exports: [...COMPONENTS],
 })

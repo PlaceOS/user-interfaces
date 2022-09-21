@@ -79,9 +79,10 @@ export class SurveyCreatorService {
                 rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             },
             {
-                type: QuestionType.text,
+                type: QuestionType.dropdown,
                 name: '',
-                title: 'What was this space booked for?',
+                title: 'What was this meeting booked for?',
+                choices: ['External calls', 'Internal calls', 'Rather not say'],
             },
             {
                 type: QuestionType.comment,
