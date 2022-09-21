@@ -14,7 +14,15 @@ import { Question } from '../survey-types';
                 >
             </span>
             <span>
-                {{ question }}
+                {{ question.title }}
+            </span>
+            <span *ngIf="question.selected">
+                <mat-icon
+                    aria-hidden="false"
+                    aria-label="Material tick icon"
+                    class="tick-icon"
+                    >done</mat-icon
+                >
             </span>
         </div>
     `,
@@ -22,6 +30,7 @@ import { Question } from '../survey-types';
         `
             .question-list-item {
                 display: flex;
+                position: relative;
                 background-color: #fff;
                 align-items: center;
                 margin: 10px;
@@ -32,23 +41,28 @@ import { Question } from '../survey-types';
                 font-size: 12px;
                 color: #808080;
             }
-
             .question-list-item span {
                 display: inline-flex;
                 vertical-align: center;
             }
-
             .icon {
                 display: inline-flex;
                 vertical-align: center;
                 justify-content: center;
                 align-items: center;
             }
+            .tick-icon {
+                position: absolute;
+                top: 10px;
+                right: 0;
+                color: #529a60;
+            }
         `,
     ],
 })
 export class QuestionListItemComponent implements OnInit {
     @Input() question: Question;
+
     constructor() {}
 
     ngOnInit(): void {}

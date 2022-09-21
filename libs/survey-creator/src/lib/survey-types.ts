@@ -11,4 +11,5 @@ export interface Question {
     title: string;
     choices?: string[];
     rateValues?: number[];
+    selected?: boolean;
 }

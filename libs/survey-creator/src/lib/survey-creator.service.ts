@@ -110,10 +110,9 @@ export class SurveyCreatorService {
         } else {
             const question = event.previousContainer.data[event.previousIndex];
             question.name = this._generateID();
+            question.selected = true;
 
-            console.log(this.selected_questions, 'selected q at start');
             if (this.findQuestion(question)) return;
-
             this.selected_questions.push(question);
 
             console.log(this.selected_questions, 'selected question in store');
@@ -124,6 +123,8 @@ export class SurveyCreatorService {
         const index_to_delete = this.selected_questions.findIndex((object) => {
             return object.title === question.title;
         });
+        this.selected_questions[index_to_delete].selected = false;
+
         this.selected_questions.splice(index_to_delete, 1);
     }
 

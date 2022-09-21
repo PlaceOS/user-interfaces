@@ -139,7 +139,9 @@
             </div>
         </header>
         <search-bar></search-bar>
-        <div class="question-bank-container">
+        <ng-container #outlet [ngTemplateOutlet]="content"> </ng-container>
+
+        <ng-template #content class="question-bank-container">
             <div
                 id="selected_questions"
                 cdkDropList
@@ -148,16 +150,11 @@
                 (cdkDropListDropped)="surveyCreatorService.drop($event)"
                 [cdkDropListEnterPredicate]="noReturnPredicate"
             >
-                <div
-                    class="dropped-items"
-                    *ngFor="let item of question_bank"
-                    cdkDrag
-                >
-                    <question-list-item [question]="item?.title">
-                    </question-list-item>
+                <div *ngFor="let item of question_bank" cdkDrag>
+                    <question-list-item [question]="item"> </question-list-item>
                 </div>
             </div>
-        </div>
+        </ng-template>
     </aside>
 </div>
 

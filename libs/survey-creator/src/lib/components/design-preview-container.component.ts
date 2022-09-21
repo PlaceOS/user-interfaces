@@ -120,6 +120,7 @@ import { AddQuestionBankComponent } from './add-question-bank.component';
 })
 export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     @ViewChild('tabGroup') tabGroup;
+
     question_bank: Question[] = this.surveyCreatorService.question_bank;
     // survey_title: string = this.surveyCreatorService.survey_title || '';
 
