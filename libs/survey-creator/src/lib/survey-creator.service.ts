@@ -129,6 +129,17 @@ export class SurveyCreatorService {
         this.selected_questions.splice(index_to_delete, 1);
     }
 
+    submitSurvey() {
+        this._createNewJSON();
+
+        this.surveyJSON.pages[0].elements = this.selected_questions.map(
+            ({ selected, ...keepProperties }) => keepProperties
+        );
+
+        console.log(this.surveyJSON, 'survey json');
+        this._buildSurvey();
+    }
+
     public findQuestion(question: Question) {
         return this.selected_questions.find((object) => {
             return object.title === question.title;
@@ -138,6 +149,57 @@ export class SurveyCreatorService {
     private _generateID() {
         return Math.floor(Math.random() * 10000000).toString();
     }
+
+    private _createNewJSON() {
+        this.surveyJSON = {
+            pages: [
+                {
+                    elements: [],
+                },
+            ],
+        };
+    }
+
+    private async _buildSurvey(): Promise<void> {
+        const survey = new Model(this.surveyJSON);
+
+        SurveyNG.render('surveyContainer', { model: survey });
+        survey.onComplete.add((sender: any) => {
+            console.log('completed');
+            document.getElementById('surveyResults').innerHTML = Object.values(
+                sender.data
+            ).toString();
+        });
+    }
+
+    // submitSurvey() {
+    //     this.createNewJSON();
+
+    //     for (let i = 1; i <= this.question_counter; i++) {
+    //         const question = document.getElementById(
+    //             i.toString()
+    //         ) as HTMLInputElement;
+
+    //         let child_nodes = document.getElementById(
+    //             i.toString() + 'div'
+    //         ).childNodes;
+
+    //         let answers = [].filter.call(child_nodes, (item) => {
+    //             return item.classList.contains('answer_option');
+    //         });
+
+    //         answers = answers.map((item) => item.value);
+
+    //         this.surveyJSON.pages[0].elements[i - 1] = {
+    //             type: question?.className,
+    //             name: i.toString(),
+    //             title: question?.value,
+    //             choices: answers || [],
+    //         } as Question;
+    //     }
+
+    //     this.buildSurvey();
+    // }
 
     // newQuestionForm(questionType): void {
     //     this.question_counter++;
@@ -203,58 +265,6 @@ export class SurveyCreatorService {
     //     document
     //         .getElementById(this.question_counter.toString() + 'div')
     //         .appendChild(add_answer_button);
-    // }
-
-    // createNewJSON() {
-    //     this.surveyJSON = {
-    //         pages: [
-    //             {
-    //                 elements: [],
-    //             },
-    //         ],
-    //     };
-    //     document.getElementById('surveyContainer').textContent = '';
-    // }
-
-    // submitSurvey() {
-    //     this.createNewJSON();
-
-    //     for (let i = 1; i <= this.question_counter; i++) {
-    //         const question = document.getElementById(
-    //             i.toString()
-    //         ) as HTMLInputElement;
-
-    //         let child_nodes = document.getElementById(
-    //             i.toString() + 'div'
-    //         ).childNodes;
-
-    //         let answers = [].filter.call(child_nodes, (item) => {
-    //             return item.classList.contains('answer_option');
-    //         });
-
-    //         answers = answers.map((item) => item.value);
-
-    //         this.surveyJSON.pages[0].elements[i - 1] = {
-    //             type: question?.className,
-    //             name: i.toString(),
-    //             title: question?.value,
-    //             choices: answers || [],
-    //         } as Question;
-    //     }
-
-    //     this.buildSurvey();
-    // }
-
-    // async buildSurvey(): Promise<void> {
-    //     const survey = new Model(this.surveyJSON);
-
-    //     SurveyNG.render('surveyContainer', { model: survey });
-    //     survey.onComplete.add((sender: any) => {
-    //         console.log('completed');
-    //         document.getElementById('surveyResults').innerHTML = Object.values(
-    //             sender.data
-    //         ).toString();
-    //     });
     // }
 
     // private _addInputField(

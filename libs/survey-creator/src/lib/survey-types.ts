@@ -6,10 +6,10 @@ export enum QuestionType {
     comment = 'Comment',
 }
 export interface Question {
+    selected?: boolean;
     type: QuestionType;
     name: string;
     title: string;
     choices?: string[];
     rateValues?: number[];
-    selected?: boolean;
 }
