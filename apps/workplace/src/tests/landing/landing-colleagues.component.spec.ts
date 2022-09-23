@@ -1,25 +1,30 @@
-import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
+import { FormGroup } from "@angular/forms";
+import { createRoutingFactory, SpectatorRouting } from "@ngneat/spectator/jest";
+import { SettingsService } from "@placeos/common";
 import { UserAvatarComponent } from "@placeos/components";
-import { MockComponent } from "ng-mocks";
+import { EventFormService } from "@placeos/events";
+import { MockComponent, MockProvider } from "ng-mocks";
 import { BehaviorSubject } from "rxjs";
 import { LandingColleaguesComponent } from "../../app/landing/landing-colleagues.component";
 import { LandingStateService } from "../../app/landing/landing-state.service";
 
 describe('LandingColleaguesComponent', () => {
-    let spectator: Spectator<LandingColleaguesComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<LandingColleaguesComponent>;
+    const createComponent = createRoutingFactory({
         component: LandingColleaguesComponent,
         declarations: [
             MockComponent(UserAvatarComponent),
         ],
         providers: [
-            { provide: LandingStateService, useValue: {
+            MockProvider(LandingStateService, {
                 contacts: new BehaviorSubject([]),
                 search_results: new BehaviorSubject([]),
                 addContact: jest.fn(),
                 removeContact: jest.fn(),
                 setOptions: jest.fn()
-            } }
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(EventFormService, { newForm: jest.fn(), form: new FormGroup({}) as any })
         ]
     });
 

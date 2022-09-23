@@ -10,7 +10,6 @@ import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
     BookingFormService,
-    FAV_DESK_KEY,
     generateBookingForm,
 } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';

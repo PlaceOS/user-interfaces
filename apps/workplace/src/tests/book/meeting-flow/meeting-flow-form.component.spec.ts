@@ -1,5 +1,6 @@
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
@@ -12,7 +13,7 @@ import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-
 import { AssetListFieldComponent } from 'libs/form-fields/src/lib/asset-list-field.component';
 import { RichTextInputComponent } from 'libs/form-fields/src/lib/rich-text-input.component';
 import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-field.component';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 describe('MeetingFlowFormComponent', () => {
@@ -20,9 +21,7 @@ describe('MeetingFlowFormComponent', () => {
     const createComponent = createRoutingFactory({
         component: MeetingFlowFormComponent,
         providers: [
-            {
-                provide: EventFormService,
-                useValue: {
+            MockProvider(EventFormService, {
                     form: generateEventForm({
                         host: 'test@test.com',
                         title: 'Yep',
@@ -31,20 +30,16 @@ describe('MeetingFlowFormComponent', () => {
                     } as any),
                     resetForm: jest.fn(),
                 },
-            },
-            {
-                provide: MatBottomSheet,
-                useValue: {
+            ),
+            MockProvider(MatBottomSheet, {
                     open: jest.fn(() => ({
                         instance: {},
                         afterDismissed: () => of('1'),
                     })),
-                },
-            },
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn(() => false) },
-            },
+                } as any
+            ),
+            MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
+            MockProvider(MatDialog, { open: jest.fn(() => ({ instance: {}, afterClosed: () => of('1') }))} as any)
         ],
         declarations: [
             MockComponent(MeetingFormDetailsComponent),
