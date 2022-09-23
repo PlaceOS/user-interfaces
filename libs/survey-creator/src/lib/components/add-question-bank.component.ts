@@ -65,18 +65,19 @@ import { Question, QuestionType } from '../survey-types';
                                 [question]="placeholder_question"
                             ></checkbox-question>
                         </ng-template>
-
                         <ng-template #Dropdown>
                             <dropdown-question
                                 [question]="placeholder_question"
                             ></dropdown-question>
                         </ng-template>
                     </div>
-
                     <section class="options-container">
                         <div class="dropdown-container">
                             <mat-form-field appearance="none" class="dropdown">
-                                <mat-select [(value)]="selected_tag">
+                                <mat-select
+                                    [(value)]="selected_tag"
+                                    (selectionChange)="updateSelectedTag()"
+                                >
                                     <mat-option
                                         *ngFor="
                                             let enum of QuestionType | keyvalue
@@ -175,7 +176,7 @@ import { Question, QuestionType } from '../survey-types';
                 justify-content: space-between;
                 width: 90px;
                 align-items: center;
-                margin: 0px 10px 5px 0px;
+                margin: 0px 15px 5px 0px;
             }
             .close {
                 display: flex;
@@ -191,10 +192,10 @@ import { Question, QuestionType } from '../survey-types';
 export class AddQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
-    question_type: string = QuestionType.text;
+    question_type: string = QuestionType.rating;
 
     placeholder_question: Question = {
-        type: QuestionType.text,
+        type: '' as QuestionType,
         title: 'Type a question...',
         name: '',
     };
@@ -204,8 +205,12 @@ export class AddQuestionBankComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<AddQuestionBankComponent>) {}
 
     ngOnInit(): void {
-        // console.log(this.selected_tag, 'selected tag');
         console.log(this.question_type, 'question type');
+        console.log(this.selected_tag, 'selected_tag');
+    }
+
+    updateSelectedTag() {
+        this.question_type = this.selected_tag;
     }
 
     closeDialog() {

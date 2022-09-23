@@ -5,37 +5,65 @@ import { Question } from '../survey-types';
 @Component({
     selector: 'rating-question',
     template: `
-        <div class="rating-question-container">
-            <div class="wrapper">
-                <div class="rating-question">
-                    <span>
-                        {{ question.title }}
-                    </span>
+        <ng-container *ngIf="!draft; else draft">
+            <div class="rating-question-container">
+                <div class="wrapper">
+                    <div class="question">
+                        <span>
+                            {{ question.title }}
+                        </span>
+                    </div>
+
+                    <div class="rating-numbers-container">
+                        <div
+                            *ngFor="let number of question?.rateValues"
+                            class="rating-number"
+                        >
+                            <span>{{ number }}</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="rating-numbers-container">
-                    <div
-                        *ngFor="let number of question?.rateValues"
-                        class="rating-number"
+                <div
+                    *ngIf="!preview"
+                    class="close"
+                    (click)="surveyCreatorService.deleteQuestion(question)"
+                >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Material icon for deleting question"
+                        class="icon"
+                        >close</mat-icon
                     >
-                        <span>{{ number }}</span>
+                </div>
+            </div>
+        </ng-container>
+        <ng-template #draft>
+            <div class="draft-rating-question-container">
+                <div class="wrapper">
+                    <div class="draft-question">
+                        <input-title
+                            [placeholder]="'Type question here...'"
+                        ></input-title>
+                    </div>
+                    <div class="rating-numbers-container">
+                        <div class="buttons-wrapper">
+                            <minus-button
+                                (click)="minusRating()"
+                            ></minus-button>
+                            <plus-button (click)="addRating()"></plus-button>
+                        </div>
+
+                        <div
+                            *ngFor="let number of rateValues"
+                            class="rating-number"
+                        >
+                            <span>{{ number }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div
-                *ngIf="!preview"
-                class="close"
-                (click)="surveyCreatorService.deleteQuestion(question)"
-            >
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Material icon for deleting question"
-                    class="icon"
-                    >close</mat-icon
-                >
-            </div>
-        </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -52,20 +80,38 @@ import { Question } from '../survey-types';
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
+            .draft-rating-question-container {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                font-size: 12px;
+                max-width: 800px;
+                color: #808080;
+                background-color: #fff;
+                margin: 5px 20px;
+            }
             .wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
                 margin: 20px;
             }
-            .rating-question {
+            .question {
                 display: flex;
                 flex-direction: row;
+            }
+            .draft-question {
+                display: flex;
+                flex-direction: row;
+                margin-left: -15px;
             }
             .rating-numbers-container {
                 display: flex;
                 flex-direction: row;
                 margin: 10px 0px 0px -4px;
+                align-items: center;
             }
             .rating-number {
                 display: flex;
@@ -80,6 +126,11 @@ import { Question } from '../survey-types';
             }
             .rating-number span {
                 display: flex;
+            }
+            .buttons-wrapper {
+                display: flex;
+                flex-direction: row;
+                margin: 0px 5px 0px -5px;
             }
             .close {
                 position: absolute;
@@ -96,7 +147,19 @@ export class RatingQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
 
+    rateValues = [1, 2, 3, 4, 5];
+
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
+
+    protected addRating() {
+        if (this.rateValues.length > 14) return;
+        this.rateValues.push(this.rateValues.length + 1);
+    }
+
+    protected minusRating() {
+        if (this.rateValues.length < 4) return;
+        this.rateValues.pop();
+    }
 }
