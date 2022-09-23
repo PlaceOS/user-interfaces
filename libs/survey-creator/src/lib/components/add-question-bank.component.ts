@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
-import { QuestionType } from '../survey-types';
+import { Question, QuestionType } from '../survey-types';
 
 @Component({
     selector: 'add-question-bank',
@@ -29,30 +29,81 @@ import { QuestionType } from '../survey-types';
                     <mat-checkbox>{{ tag }}</mat-checkbox>
                 </div>
                 <div class="question-box">
-                    <div>placeholder question</div>
-                    <div class="dropdown-container">
-                        <mat-form-field appearance="none" class="dropdown">
-                            <mat-select [(value)]="selected_tag">
-                                <mat-option
-                                    *ngFor="let enum of QuestionType | keyvalue"
-                                    [value]="enum.value"
-                                >
-                                    {{ enum.value }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                    <div class="new-question">
+                        <ng-container
+                            [ngTemplateOutlet]="
+                                question_type == 'Text'
+                                    ? Text
+                                    : question_type == 'Checkbox'
+                                    ? Checkbox
+                                    : question_type == 'Comment'
+                                    ? Comment
+                                    : question_type == 'Dropdown'
+                                    ? Dropdown
+                                    : Rating
+                            "
+                        >
+                        </ng-container>
+                        <ng-template #Rating>
+                            <rating-question
+                                [question]="placeholder_question"
+                            ></rating-question>
+                        </ng-template>
+                        <ng-template #Text>
+                            <text-question
+                                [question]="placeholder_question"
+                                [draft]="true"
+                            ></text-question>
+                        </ng-template>
+                        <ng-template #Comment>
+                            <comment-box-question
+                                [question]="placeholder_question"
+                            ></comment-box-question>
+                        </ng-template>
+                        <ng-template #Checkbox>
+                            <checkbox-question
+                                [question]="placeholder_question"
+                            ></checkbox-question>
+                        </ng-template>
+
+                        <ng-template #Dropdown>
+                            <dropdown-question
+                                [question]="placeholder_question"
+                            ></dropdown-question>
+                        </ng-template>
                     </div>
 
-                    <button-with-icon
-                        [button_title]="'Delete'"
-                        [icon]="'delete'"
-                    ></button-with-icon>
+                    <section class="options-container">
+                        <div class="dropdown-container">
+                            <mat-form-field appearance="none" class="dropdown">
+                                <mat-select [(value)]="selected_tag">
+                                    <mat-option
+                                        *ngFor="
+                                            let enum of QuestionType | keyvalue
+                                        "
+                                        [value]="enum.value"
+                                    >
+                                        {{ enum.value }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="required-container">
+                            <mat-slide-toggle> </mat-slide-toggle>
+                            <span>Required</span>
+                        </div>
+                    </section>
                 </div>
             </main>
         </section>
     `,
     styles: [
         `
+            ::ng-deep .mat-select-value {
+                max-width: min-content;
+                margin-right: 3px;
+            }
             .header {
                 display: flex;
                 align-items: center;
@@ -61,7 +112,6 @@ import { QuestionType } from '../survey-types';
                 height: 70px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
-
             main {
                 margin: 20px;
             }
@@ -87,7 +137,7 @@ import { QuestionType } from '../survey-types';
             }
 
             .category-tags mat-checkbox {
-                margin-right: 20px;
+                margin-right: 50px;
             }
             .question-box {
                 border: 1px solid #3b82f6;
@@ -95,11 +145,16 @@ import { QuestionType } from '../survey-types';
                     0px 20px 25px -5px rgba(15, 23, 42, 0.1),
                     0px 10px 10px -5px rgba(15, 23, 42, 0.04);
                 border-radius: 4px;
+                margin-top: 20px;
+            }
+            .new-question {
+                margin: 20px;
             }
             .dropdown-container {
-                display: flex;
+                display: inline-flex;
                 position: relative;
                 width: 100px;
+                margin-bottom: -10px;
             }
             .dropdown {
                 display: absolute;
@@ -107,6 +162,20 @@ import { QuestionType } from '../survey-types';
                 width: 100%;
                 height: 30px;
                 margin-bottom: 10px;
+            }
+            .options-container {
+                display: inline-flex;
+                width: 100%;
+                justify-content: flex-end;
+                align-items: center;
+            }
+            .required-container {
+                display: inline-flex;
+                font-size: 12px;
+                justify-content: space-between;
+                width: 90px;
+                align-items: center;
+                margin: 0px 10px 5px 0px;
             }
             .close {
                 display: flex;
@@ -122,13 +191,21 @@ import { QuestionType } from '../survey-types';
 export class AddQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
+    question_type: string = QuestionType.text;
+
+    placeholder_question: Question = {
+        type: QuestionType.text,
+        title: 'Type a question...',
+        name: '',
+    };
 
     public QuestionType = QuestionType;
 
     constructor(public dialogRef: MatDialogRef<AddQuestionBankComponent>) {}
 
     ngOnInit(): void {
-        console.log(this.selected_tag, 'selected tag');
+        // console.log(this.selected_tag, 'selected tag');
+        console.log(this.question_type, 'question type');
     }
 
     closeDialog() {
