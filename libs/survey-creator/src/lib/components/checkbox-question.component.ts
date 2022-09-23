@@ -6,44 +6,74 @@ import { InputTitleComponent } from './input-title.component';
 
 @Component({
     selector: 'checkbox-question',
-    template: ` <div class="question-container">
-        <div class="wrapper">
-            <div class="question">
-                <span>
-                    {{ question?.title }}
-                </span>
-            </div>
-            <div class="checkbox-container">
-                <div *ngFor="let choice of question?.choices" class="checkbox">
-                    <mat-checkbox></mat-checkbox>
-                    <input
-                        readonly
-                        type="text"
-                        [placeholder]="'Type option here'"
-                        [style.fontSize.px]="12"
-                        value="{{ choice }}"
-                    />
+    template: `
+        <ng-container *ngIf="!draft; else draft">
+            <div class="question-container">
+                <div class="wrapper">
+                    <div class="question">
+                        <span>
+                            {{ question?.title }}
+                        </span>
+                    </div>
+                    <div class="checkbox-container">
+                        <div
+                            *ngFor="let choice of question?.choices"
+                            class="checkbox"
+                        >
+                            <mat-checkbox></mat-checkbox>
+                            <input
+                                readonly
+                                type="text"
+                                [placeholder]="'Type option here'"
+                                [style.fontSize.px]="12"
+                                value="{{ choice }}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    *ngIf="!preview"
+                    class="close"
+                    (click)="surveyCreatorService.deleteQuestion(question)"
+                >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Material icon for deleting question"
+                        class="icon"
+                        >close</mat-icon
+                    >
                 </div>
             </div>
-            <!-- <div class="plus-minus-buttons">
-                <plus-button (click)="addOption()"></plus-button>
-                <minus-button (click)="deleteOption()"></minus-button>
-            </div> -->
-        </div>
+        </ng-container>
 
-        <div
-            *ngIf="!preview"
-            class="close"
-            (click)="surveyCreatorService.deleteQuestion(question)"
-        >
-            <mat-icon
-                aria-hidden="false"
-                aria-label="Material icon for deleting question"
-                class="icon"
-                >close</mat-icon
-            >
-        </div>
-    </div>`,
+        <ng-template #draft>
+            <div class="draft-question-container">
+                <div class="wrapper">
+                    <div class="draft-question">
+                        <input-title
+                            [placeholder]="'Type question here...'"
+                        ></input-title>
+                    </div>
+                    <div class="checkbox-container">
+                        <!-- <div
+                            *ngFor="let choice of question?.choices"
+                            class="checkbox"
+                        >
+                            <mat-checkbox></mat-checkbox>
+                            <input
+                                readonly
+                                type="text"
+                                [placeholder]="'Type option here'"
+                                [style.fontSize.px]="12"
+                                value="{{ choice }}"
+                            />
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    `,
     styles: [
         `
             .question-container {
@@ -59,6 +89,18 @@ import { InputTitleComponent } from './input-title.component';
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
+            .draft-question-container {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                font-size: 12px;
+                max-width: 800px;
+                color: #808080;
+                background-color: #fff;
+                margin: 5px 20px;
+            }
             .wrapper {
                 display: flex;
                 flex-direction: column;
@@ -69,6 +111,11 @@ import { InputTitleComponent } from './input-title.component';
                 display: flex;
                 flex-direction: row;
                 margin-right: auto;
+            }
+            .draft-question {
+                display: flex;
+                flex-direction: row;
+                margin-left: -15px;
             }
             .checkbox-container {
                 display: flex;

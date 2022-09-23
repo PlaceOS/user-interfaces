@@ -132,13 +132,14 @@ import { Question, QuestionType } from '../survey-types';
                 size: 11px;
                 font-weight: 400;
                 margin-top: 3px;
+                color: #808080;
             }
             .category-tags {
                 display: inline-flex;
             }
 
             .category-tags mat-checkbox {
-                margin-right: 50px;
+                margin: 10px 40px 10px 0px;
             }
             .question-box {
                 border: 1px solid #3b82f6;
@@ -147,6 +148,7 @@ import { Question, QuestionType } from '../survey-types';
                     0px 10px 10px -5px rgba(15, 23, 42, 0.04);
                 border-radius: 4px;
                 margin-top: 20px;
+                padding: 10px;
             }
             .new-question {
                 margin: 20px;
