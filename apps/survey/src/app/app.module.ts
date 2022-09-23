@@ -15,9 +15,14 @@ import { environment } from '../environments/environment';
 
 import { SurveyCreatorModule } from '@placeos/survey';
 import { CreateSurveyFormComponent } from './create-survey-form/create-survey-form.component';
+import { CompleteSurveyComponent } from './complete-survey.component';
 
 @NgModule({
-    declarations: [AppComponent, CreateSurveyFormComponent],
+    declarations: [
+        AppComponent,
+        CreateSurveyFormComponent,
+        CompleteSurveyComponent,
+    ],
     imports: [
         BrowserModule,
         RouterModule,

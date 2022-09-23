@@ -17,3 +17,4 @@ export * from './lib/components/plus-button.component';
 export * from './lib/components/minus-button.component';
 export * from './lib/components/comment-box-question.component';
 export * from './lib/components/dropdown-question.component';
+export * from './lib/complete-survey.component';
