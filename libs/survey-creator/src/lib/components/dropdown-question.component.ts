@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
-import { FormControl } from '@angular/forms';
 
 @Component({
     selector: 'dropdown-question',
@@ -16,7 +15,7 @@ import { FormControl } from '@angular/forms';
                 <div class="dropdown-container">
                     <mat-form-field appearance="outline" class="dropdown">
                         <mat-label>Select...</mat-label>
-                        <mat-select [formControl]="choices">
+                        <mat-select [(value)]="selected_choice">
                             <mat-option
                                 *ngFor="let choice of question?.choices"
                                 [value]="choice"
@@ -97,7 +96,7 @@ export class DropdownQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
 
-    choices = new FormControl('');
+    selected_choice: any;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
