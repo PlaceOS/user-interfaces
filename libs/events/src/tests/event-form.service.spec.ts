@@ -17,6 +17,8 @@ import * as ts_client from '@placeos/ts-client';
 import * as cal_mod from 'libs/calendar/src/lib/calendar.fn';
 import * as event_mod from 'libs/events/src/lib/events.fn';
 import { PaymentsService } from '@placeos/payments';
+import { MockProvider } from 'ng-mocks';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<EventFormService>;
@@ -33,7 +35,8 @@ describe('EventFormService', () => {
             },
             { provide: PaymentsService, useValue: { makePayment: jest.fn(), payment_module: '' } },
             { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: SpacesService, useValue: { } }
+            MockProvider(SpacesService, { }),
+            MockProvider(MatDialog, { open: jest.fn() })
         ],
     });
 

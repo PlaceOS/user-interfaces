@@ -16,11 +16,13 @@ import { ComponentsModule } from 'libs/components/src/lib/components.module';
 import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
+import { EventLinkModalComponent } from './event-link-modal.component';
 
 const COMPONENTS = [
     EventDetailsModalComponent,
     AttendeeListComponent,
-    EventCardComponent
+    EventCardComponent,
+    EventLinkModalComponent
 ];
 
 @NgModule({

@@ -8,8 +8,8 @@ export function toQueryString(map: HashMap) {
     let str = '';
     if (map) {
         for (const key in map) {
-            if (map.hasOwnProperty(key) && map[key] !== undefined && map[key] !== null) {
-                str += `${(str ? '&' : '')}${key}=${map[key]}`;
+            if (key in map && map[key] !== undefined && map[key] !== null) {
+                str += `${(str ? '&' : '')}${key}=${encodeURIComponent(map[key])}`;
             }
         }
     }

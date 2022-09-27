@@ -35,6 +35,8 @@ import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
+import { MatDialog } from '@angular/material/dialog';
+import { EventLinkModalComponent } from './event-link-modal.component';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -205,7 +207,8 @@ export class EventFormService extends BaseClass {
         private _org: OrganisationService,
         private _router: Router,
         private _payments: PaymentsService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {
         super();
         this.available_spaces.subscribe();
@@ -272,6 +275,14 @@ export class EventFormService extends BaseClass {
 
     public readonly cancelPostForm = () => this.unsub('post-event-form');
 
+    public openEventLinkModal(force: boolean = false) {
+        const form = this._form;
+        form.markAllAsTouched();
+        if (!form.valid && !force) return;
+        const event = new CalendarEvent({ ...this.event, ...form.getRawValue() });
+        this._dialog.open(EventLinkModalComponent, { data: event })
+    }
+
     public postForm(force: boolean = false) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             this._loading.next('Creating event...');
@@ -319,7 +330,9 @@ export class EventFormService extends BaseClass {
                     : { system_id: space_id }
                 : {};
             const value = this._form.getRawValue();
+            console.log('Payments:', this._payments.payment_module, spaces.length);
             if (this._payments.payment_module && spaces.length) {
+                console.log('Make Payment...');
                 const receipt = await this._payments.makePayment({
                     type: 'space',
                     resource_name: spaces[0].display_name || spaces[0].name,
@@ -332,6 +345,7 @@ export class EventFormService extends BaseClass {
                     invoice: receipt,
                     invoice_id: receipt.invoice_id,
                 };
+                console.log('Payment success.', receipt);
             }
             const d = value.all_day ? startOfDay(value.date).valueOf() : value.date;
             const result = await this._makeBooking(

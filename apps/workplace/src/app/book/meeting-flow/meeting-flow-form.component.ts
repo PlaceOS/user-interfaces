@@ -271,6 +271,7 @@ export class MeetingFlowFormComponent extends BaseClass {
                     ', '
                 )}]`
             );
+        if (this._settings.get('app.events.booking_unavailable')) return this._state.openEventLinkModal();
         this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {

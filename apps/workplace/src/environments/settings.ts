@@ -75,7 +75,8 @@ const events: any = {
     hide_notes: false,
     hide_attendees: false,
     features_label: '',
-    features_on_form: false
+    features_on_form: false,
+    booking_unavailable: false
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
