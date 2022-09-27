@@ -7,7 +7,12 @@ import { InputTitleComponent } from './input-title.component';
 @Component({
     selector: 'checkbox-question',
     template: `
-        <ng-container *ngIf="!!draft; else draft">
+        <ng-container
+            [ngTemplateOutlet]="view === 'nonDraft' ? nonDraft : draft"
+        >
+        </ng-container>
+
+        <ng-template #nonDraft>
             <div class="question-container">
                 <div class="wrapper">
                     <div class="question">
@@ -31,7 +36,6 @@ import { InputTitleComponent } from './input-title.component';
                         </div>
                     </div>
                 </div>
-
                 <div
                     *ngIf="!preview"
                     class="close"
@@ -45,7 +49,7 @@ import { InputTitleComponent } from './input-title.component';
                     >
                 </div>
             </div>
-        </ng-container>
+        </ng-template>
 
         <ng-template #draft>
             <div class="draft-question-container">
@@ -55,20 +59,30 @@ import { InputTitleComponent } from './input-title.component';
                             [placeholder]="'Type question here...'"
                         ></input-title>
                     </div>
-                    <div class="checkbox-container">
-                        <!-- <div
-                            *ngFor="let choice of question?.choices"
+                    <div class="draft-checkbox-container">
+                        <div
+                            *ngFor="let choice of new_choices"
                             class="checkbox"
                         >
                             <mat-checkbox></mat-checkbox>
                             <input
-                                readonly
+                                matInput
                                 type="text"
+                                class="choices_box"
+                                id="{{
+                                    surveyCreatorService.choices.length - 1
+                                }}"
+                                [(ngModel)]="surveyCreatorService.choices[id]"
                                 [placeholder]="'Type option here'"
                                 [style.fontSize.px]="12"
-                                value="{{ choice }}"
                             />
-                        </div> -->
+                        </div>
+                        <div class="plus-minus-buttons">
+                            <minus-button
+                                (click)="deleteOption()"
+                            ></minus-button>
+                            <plus-button (click)="addOption()"></plus-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -104,7 +118,7 @@ import { InputTitleComponent } from './input-title.component';
             .wrapper {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-start;
                 margin: 20px;
             }
             .question {
@@ -124,15 +138,20 @@ import { InputTitleComponent } from './input-title.component';
                 margin-top: 10px;
                 justify-content: center;
             }
-            .checkbox {
+            .draft-checkbox-container {
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
+                margin-top: 10px 0px 0px -10px;
+            }
+            .checkbox {
+                display: inline-flex;
                 justify-content: center;
                 align-items: center;
-                margin-right: 5px;
+                margin-left: -5px;
             }
             .checkbox mat-checkbox {
                 display: flex;
+                margin: 3px 0px 0px 5px;
             }
             .checkbox input-title {
                 display: flex;
@@ -149,10 +168,9 @@ import { InputTitleComponent } from './input-title.component';
             .plus-minus-buttons {
                 display: flex;
                 flex-direction: row;
-                margin-right: auto;
-                margin-left: 20px;
+                align-items: flex-start;
+                margin: 10px 0px 0px -10px;
             }
-
             input[type='text'] {
                 border: none;
                 padding: 10px 10px;
@@ -160,11 +178,9 @@ import { InputTitleComponent } from './input-title.component';
                 font-weight: 500;
                 width: 100%;
             }
-
             input[type='text']:focus {
                 color: #808080;
             }
-
             input[type='text']:active {
                 border: none;
             }
@@ -174,27 +190,41 @@ import { InputTitleComponent } from './input-title.component';
 export class CheckboxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
+    @Input() view = 'nonDraft';
+
+    new_choices: string[] = this.surveyCreatorService.choices;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log(this.new_choices, 'new choices');
+    }
 
     ngAfterViewInit() {}
 
-    // protected addOption(event?: any) {
-    //     const current_question = this._findQuestion();
-    //     current_question.choices?.push('');
-    // }
+    protected addOption(event?: any) {
+        // const current_question = this._findQuestion();
 
-    // protected deleteOption() {
-    //     if (
-    //         this.surveyCreatorService.selected_questions[0].choices?.length == 1
-    //     )
-    //         return;
+        this.surveyCreatorService.choices.push('Type a choice here...');
 
-    //     const current_question = this._findQuestion();
-    //     current_question.choices?.pop();
-    // }
+        console.log(this.surveyCreatorService.choices, 'choices');
+
+        let input1 = document.getElementById('1') as HTMLInputElement;
+        console.log(input1?.value, 'input 1');
+    }
+
+    protected deleteOption() {
+        // if (
+        //     this.surveyCreatorService.selected_questions[0].choices?.length == 1
+        // )
+        //     return;
+
+        // const current_question = this._findQuestion();
+        // current_question.choices?.pop();
+        if (this.surveyCreatorService.choices.length > 1) {
+            this.surveyCreatorService.choices.pop();
+        }
+    }
 
     // private _findQuestion() {
     //     return this.surveyCreatorService.selected_questions.find(
