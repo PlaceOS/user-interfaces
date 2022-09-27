@@ -5,7 +5,11 @@ import { Question } from '../survey-types';
 @Component({
     selector: 'rating-question',
     template: `
-        <ng-container *ngIf="!draft; else draft">
+        <ng-container
+            [ngTemplateOutlet]="view === 'nonDraft' ? nonDraft : draft"
+        >
+        </ng-container>
+        <ng-template #nonDraft>
             <div class="rating-question-container">
                 <div class="wrapper">
                     <div class="question">
@@ -37,7 +41,7 @@ import { Question } from '../survey-types';
                     >
                 </div>
             </div>
-        </ng-container>
+        </ng-template>
         <ng-template #draft>
             <div class="draft-rating-question-container">
                 <div class="wrapper">
@@ -146,6 +150,7 @@ import { Question } from '../survey-types';
 export class RatingQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
+    @Input() view: string = 'nonDraft';
 
     rateValues = [1, 2, 3, 4, 5];
 
@@ -154,7 +159,7 @@ export class RatingQuestionComponent implements OnInit {
     ngOnInit(): void {}
 
     protected addRating() {
-        if (this.rateValues.length > 14) return;
+        if (this.rateValues.length > 9) return;
         this.rateValues.push(this.rateValues.length + 1);
     }
 

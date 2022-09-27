@@ -5,7 +5,12 @@ import { Question } from '../survey-types';
 @Component({
     selector: 'comment-box-question',
     template: `
-        <ng-container *ngIf="!draft; else draft">
+        <ng-container
+            [ngTemplateOutlet]="view === 'nonDraft' ? nonDraft : draft"
+        >
+        </ng-container>
+
+        <ng-template #nonDraft>
             <div class="question-container">
                 <div class="wrapper">
                     <div class="question">
@@ -31,7 +36,7 @@ import { Question } from '../survey-types';
                     >
                 </div>
             </div>
-        </ng-container>
+        </ng-template>
         <ng-template #draft>
             <div class="draft-question-container">
                 <div class="wrapper">
@@ -114,6 +119,7 @@ import { Question } from '../survey-types';
 export class CommentBoxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
+    @Input() view: string = 'nonDraft';
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 

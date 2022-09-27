@@ -47,27 +47,36 @@ import { Question, QuestionType } from '../survey-types';
                         <ng-template #Rating>
                             <rating-question
                                 [question]="placeholder_question"
+                                [view]="'draft'"
+                                [preview]="true"
                             ></rating-question>
                         </ng-template>
                         <ng-template #Text>
                             <text-question
                                 [question]="placeholder_question"
-                                [draft]="true"
+                                [view]="'draft'"
+                                [preview]="true"
                             ></text-question>
                         </ng-template>
                         <ng-template #Comment>
                             <comment-box-question
                                 [question]="placeholder_question"
+                                [view]="'draft'"
+                                [preview]="true"
                             ></comment-box-question>
                         </ng-template>
                         <ng-template #Checkbox>
                             <checkbox-question
                                 [question]="placeholder_question"
+                                [view]="'draft'"
+                                [preview]="true"
                             ></checkbox-question>
                         </ng-template>
                         <ng-template #Dropdown>
                             <dropdown-question
                                 [question]="placeholder_question"
+                                [view]="'draft'"
+                                [preview]="true"
                             ></dropdown-question>
                         </ng-template>
                     </div>
@@ -151,7 +160,7 @@ import { Question, QuestionType } from '../survey-types';
                 padding: 10px;
             }
             .new-question {
-                margin: 20px;
+                margin-left: -10px;
             }
             .dropdown-container {
                 display: inline-flex;

@@ -37,27 +37,32 @@
                                         *ngIf="item.type === 'Rating'"
                                         [question]="item"
                                         [preview]="false"
+                                        [draft]="false"
                                     >
                                     </rating-question>
                                     <text-question
                                         *ngIf="item.type === 'Text'"
                                         [question]="item"
                                         [preview]="false"
+                                        [view]="'nonDraft'"
                                     ></text-question>
                                     <comment-box-question
                                         *ngIf="item.type === 'Comment'"
                                         [question]="item"
                                         [preview]="false"
+                                        [draft]="false"
                                     ></comment-box-question>
                                     <checkbox-question
                                         *ngIf="item.type === 'Checkbox'"
                                         [question]="item"
                                         [preview]="false"
+                                        [draft]="false"
                                     ></checkbox-question>
                                     <dropdown-question
                                         *ngIf="item.type === 'Dropdown'"
                                         [question]="item"
                                         [preview]="false"
+                                        [draft]="false"
                                     ></dropdown-question>
                                 </div>
                             </div>
@@ -97,27 +102,32 @@
                                 *ngIf="item.type === 'Rating'"
                                 [question]="item"
                                 [preview]="true"
+                                [draft]="false"
                             >
                             </rating-question>
                             <text-question
                                 *ngIf="item.type === 'Text'"
                                 [question]="item"
                                 [preview]="true"
+                                [draft]="false"
                             ></text-question>
                             <comment-box-question
                                 *ngIf="item.type === 'Comment'"
                                 [question]="item"
                                 [preview]="true"
+                                [draft]="false"
                             ></comment-box-question>
                             <checkbox-question
                                 *ngIf="item.type === 'Checkbox'"
                                 [question]="item"
                                 [preview]="true"
+                                [draft]="false"
                             ></checkbox-question>
                             <dropdown-question
                                 *ngIf="item.type === 'Dropdown'"
                                 [question]="item"
                                 [preview]="true"
+                                [draft]="false"
                             ></dropdown-question>
                         </div>
                         <div

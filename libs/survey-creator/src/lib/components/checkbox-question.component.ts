@@ -7,7 +7,7 @@ import { InputTitleComponent } from './input-title.component';
 @Component({
     selector: 'checkbox-question',
     template: `
-        <ng-container *ngIf="!draft; else draft">
+        <ng-container *ngIf="!!draft; else draft">
             <div class="question-container">
                 <div class="wrapper">
                     <div class="question">
