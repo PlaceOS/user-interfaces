@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
+import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
     selector: 'add-question-bank',
@@ -213,7 +214,10 @@ export class AddQuestionBankComponent implements OnInit {
 
     public QuestionType = QuestionType;
 
-    constructor(public dialogRef: MatDialogRef<AddQuestionBankComponent>) {}
+    constructor(
+        public dialogRef: MatDialogRef<AddQuestionBankComponent>,
+        private _surveyCreatorService: SurveyCreatorService
+    ) {}
 
     ngOnInit(): void {
         console.log(this.question_type, 'question type');
@@ -225,6 +229,7 @@ export class AddQuestionBankComponent implements OnInit {
     }
 
     closeDialog() {
+        this._surveyCreatorService.choices = ['Type a choice here...'];
         this.dialogRef.close();
     }
 }

@@ -69,12 +69,10 @@ import { InputTitleComponent } from './input-title.component';
                                 matInput
                                 type="text"
                                 class="choices_box"
-                                id="{{
-                                    surveyCreatorService.choices.length - 1
-                                }}"
-                                [(ngModel)]="surveyCreatorService.choices[id]"
-                                [placeholder]="'Type option here'"
+                                [id]="choices_counter"
+                                keyup="saveOption()"
                                 [style.fontSize.px]="12"
+                                [placeholder]="'Type a choice here...'"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -193,6 +191,7 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() view = 'nonDraft';
 
     new_choices: string[] = this.surveyCreatorService.choices;
+    choices_counter: number = 0;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -204,7 +203,7 @@ export class CheckboxQuestionComponent implements OnInit {
 
     protected addOption(event?: any) {
         // const current_question = this._findQuestion();
-
+        this.choices_counter++;
         this.surveyCreatorService.choices.push('Type a choice here...');
 
         console.log(this.surveyCreatorService.choices, 'choices');
@@ -224,6 +223,11 @@ export class CheckboxQuestionComponent implements OnInit {
         if (this.surveyCreatorService.choices.length > 1) {
             this.surveyCreatorService.choices.pop();
         }
+    }
+
+    protected saveOption() {
+        const input1 = document.getElementById('0') as HTMLInputElement;
+        console.log(input1?.value, 'input 1');
     }
 
     // private _findQuestion() {
