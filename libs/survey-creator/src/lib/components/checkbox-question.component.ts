@@ -70,7 +70,6 @@ import { InputTitleComponent } from './input-title.component';
                                 type="text"
                                 class="choices_box"
                                 [id]="choices_counter"
-                                keyup="saveOption()"
                                 [style.fontSize.px]="12"
                                 [placeholder]="'Type a choice here...'"
                             />
@@ -82,6 +81,7 @@ import { InputTitleComponent } from './input-title.component';
                             <plus-button (click)="addOption()"></plus-button>
                         </div>
                     </div>
+                    <button (click)="saveOption()">Save</button>
                 </div>
             </div>
         </ng-template>
@@ -191,7 +191,7 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() view = 'nonDraft';
 
     new_choices: string[] = this.surveyCreatorService.choices;
-    choices_counter: number = 0;
+    choices_counter: number = 1;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -205,11 +205,6 @@ export class CheckboxQuestionComponent implements OnInit {
         // const current_question = this._findQuestion();
         this.choices_counter++;
         this.surveyCreatorService.choices.push('Type a choice here...');
-
-        console.log(this.surveyCreatorService.choices, 'choices');
-
-        let input1 = document.getElementById('1') as HTMLInputElement;
-        console.log(input1?.value, 'input 1');
     }
 
     protected deleteOption() {
@@ -226,8 +221,22 @@ export class CheckboxQuestionComponent implements OnInit {
     }
 
     protected saveOption() {
-        const input1 = document.getElementById('0') as HTMLInputElement;
-        console.log(input1?.value, 'input 1');
+        let updated_choices: string[] = [];
+        console.log(this.choices_counter, 'choices counter');
+
+        for (let i = 1; i == this.choices_counter; i++) {
+            let a = i.toString();
+            let input_box = document.getElementById(a) as HTMLInputElement;
+            console.log(input_box?.value, 'value');
+            updated_choices.push(input_box?.value);
+        }
+        this.surveyCreatorService.choices = updated_choices;
+
+        console.log(this.surveyCreatorService.choices, 'choices');
+
+        console.log((document.getElementById('1') as HTMLInputElement).value);
+        console.log((document.getElementById('2') as HTMLInputElement).value);
+        console.log((document.getElementById('3') as HTMLInputElement).value);
     }
 
     // private _findQuestion() {
