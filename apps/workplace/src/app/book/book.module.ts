@@ -43,6 +43,7 @@ import { NewParkingFlowComponent } from './new-parking-flow.component';
 import { ParkingFlowFormComponent } from './new-parking-flow/parking-flow-form.component';
 import { ParkingFlowSuccessComponent } from './new-parking-flow/parking-flow-success.component';
 import { ParkingFormDetailsComponent } from './new-parking-flow/parking-form-details.component';
+import { MeetingFlowConfirmModalComponent } from './meeting-flow/meeting-flow-confirm-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -93,6 +94,7 @@ const ROUTES: Route[] = [
         MeetingFlowFormComponent,
         MeetingFormDetailsComponent,
         MeetingFlowConfirmComponent,
+        MeetingFlowConfirmModalComponent,
         MeetingFlowSuccessComponent,
         NewDeskFlowFormComponent,
         NewDeskFormDetailsComponent,

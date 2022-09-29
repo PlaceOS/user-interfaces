@@ -3,7 +3,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -17,6 +17,7 @@ import {
 import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
+import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
 @Component({
@@ -243,6 +244,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 })
 export class MeetingFlowFormComponent extends BaseClass {
     public sheet_ref: MatBottomSheetRef<any>;
+    public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
 
     public get form() {
@@ -272,14 +274,25 @@ export class MeetingFlowFormComponent extends BaseClass {
                 )}]`
             );
         if (this._settings.get('app.events.booking_unavailable')) return this._state.openEventLinkModal();
-        this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
-        this.sheet_ref.instance.show_close = true;
-        this.sheet_ref.afterDismissed().subscribe((value) => {
-            if (value) {
-                this._router.navigate(['/book', 'meeting', 'success']);
-                this._state.setView('success');
-            }
-        });
+        if (window.innerWidth >= 768) {
+            this.dialog_ref = this._dialog.open(MeetingFlowConfirmModalComponent);
+            this.dialog_ref.componentInstance.show_close = true;
+            this.dialog_ref.afterClosed().subscribe((value) => {
+                if (value) {
+                    this._router.navigate(['/book', 'meeting', 'success']);
+                    this._state.setView('success');
+                }
+            });
+        } else {
+            this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
+            this.sheet_ref.instance.show_close = true;
+            this.sheet_ref.afterDismissed().subscribe((value) => {
+                if (value) {
+                    this._router.navigate(['/book', 'meeting', 'success']);
+                    this._state.setView('success');
+                }
+            });
+        }
     };
 
     @ViewChild('confirm_ref') private _confirm_ref: TemplateRef<any>;
