@@ -135,6 +135,7 @@ export class SpaceFlowFormComponent {
     ) {}
 
     public quickBook() {
+        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
         this.form.patchValue({
             date: (this.time < 24 * 60
                 ? addMinutes(
@@ -162,6 +163,7 @@ export class SpaceFlowFormComponent {
     }
 
     public confirmBooking() {
+        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
         this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(
