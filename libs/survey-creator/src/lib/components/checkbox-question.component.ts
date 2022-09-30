@@ -191,7 +191,6 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() view = 'nonDraft';
 
     new_choices: string[] = this.surveyCreatorService.choices;
-    choices_counter: number = 1;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -203,7 +202,7 @@ export class CheckboxQuestionComponent implements OnInit {
 
     protected addOption(event?: any) {
         // const current_question = this._findQuestion();
-        this.choices_counter++;
+
         this.surveyCreatorService.choices.push('Type a choice here...');
     }
 
@@ -222,21 +221,15 @@ export class CheckboxQuestionComponent implements OnInit {
 
     protected saveOption() {
         let updated_choices: string[] = [];
-        console.log(this.choices_counter, 'choices counter');
 
-        for (let i = 1; i == this.choices_counter; i++) {
-            let a = i.toString();
-            let input_box = document.getElementById(a) as HTMLInputElement;
-            console.log(input_box?.value, 'value');
-            updated_choices.push(input_box?.value);
+        const choices = document.getElementsByClassName('choices_box');
+
+        console.log(choices.length, 'choices length');
+
+        for (let i = 0; i < choices.length; i++) {
+            updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
         }
         this.surveyCreatorService.choices = updated_choices;
-
-        console.log(this.surveyCreatorService.choices, 'choices');
-
-        console.log((document.getElementById('1') as HTMLInputElement).value);
-        console.log((document.getElementById('2') as HTMLInputElement).value);
-        console.log((document.getElementById('3') as HTMLInputElement).value);
     }
 
     // private _findQuestion() {
