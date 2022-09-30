@@ -78,7 +78,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [id]="choices_counter"
                                 [style.fontSize.px]="12"
                                 [placeholder]="'Type a choice here...'"
-                                (keyup)="saveChoice()"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -204,6 +203,7 @@ export class DropdownQuestionComponent implements OnInit {
         }
     }
     protected saveChoice() {
+        //refactor this method to be saved when 'Add New' or 'Add' is pressed
         setTimeout(() => {
             let updated_choices: string[] = [];
 

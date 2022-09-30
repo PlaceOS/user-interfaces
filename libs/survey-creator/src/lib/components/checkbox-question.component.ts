@@ -72,7 +72,6 @@ import { InputTitleComponent } from './input-title.component';
                                 [id]="choices_counter"
                                 [style.fontSize.px]="12"
                                 [placeholder]="'Type a choice here...'"
-                                (keyup)="saveChoice()"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -220,6 +219,7 @@ export class CheckboxQuestionComponent implements OnInit {
     }
 
     protected saveChoice() {
+        //refactor this method to be saved when 'Add New' or 'Add' is pressed
         setTimeout(() => {
             let updated_choices: string[] = [];
 
