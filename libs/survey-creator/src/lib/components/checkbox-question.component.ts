@@ -72,6 +72,7 @@ import { InputTitleComponent } from './input-title.component';
                                 [id]="choices_counter"
                                 [style.fontSize.px]="12"
                                 [placeholder]="'Type a choice here...'"
+                                (keyup)="saveChoice()"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -81,7 +82,6 @@ import { InputTitleComponent } from './input-title.component';
                             <plus-button (click)="addOption()"></plus-button>
                         </div>
                     </div>
-                    <button (click)="saveOption()">Save</button>
                 </div>
             </div>
         </ng-template>
@@ -219,17 +219,21 @@ export class CheckboxQuestionComponent implements OnInit {
         }
     }
 
-    protected saveOption() {
-        let updated_choices: string[] = [];
+    protected saveChoice() {
+        setTimeout(() => {
+            let updated_choices: string[] = [];
 
-        const choices = document.getElementsByClassName('choices_box');
+            const choices = document.getElementsByClassName('choices_box');
 
-        console.log(choices.length, 'choices length');
+            console.log(choices.length, 'choices length');
 
-        for (let i = 0; i < choices.length; i++) {
-            updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
-        }
-        this.surveyCreatorService.choices = updated_choices;
+            for (let i = 0; i < choices.length; i++) {
+                updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
+            }
+            this.surveyCreatorService.choices = updated_choices;
+
+            console.log(this.surveyCreatorService.choices, 'choices');
+        }, 800);
     }
 
     // private _findQuestion() {
