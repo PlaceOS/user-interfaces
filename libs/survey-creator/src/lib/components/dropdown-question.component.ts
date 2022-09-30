@@ -5,45 +5,92 @@ import { SurveyCreatorService } from '../survey-creator.service';
 @Component({
     selector: 'dropdown-question',
     template: `
-        <div class="question-container">
-            <div class="wrapper">
-                <div class="question">
-                    <span>
-                        {{ question?.title }}
-                    </span>
-                </div>
-                <div class="dropdown-container">
-                    <mat-form-field appearance="outline" class="dropdown">
-                        <mat-label>Select...</mat-label>
-                        <mat-select [(value)]="selected_choice">
-                            <mat-option
-                                *ngFor="let choice of question?.choices"
-                                [value]="choice"
-                            >
-                                {{ choice }}</mat-option
-                            >
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <!-- <div class="plus-minus-buttons">
-                <plus-button (click)="addOption()"></plus-button>
-                <minus-button (click)="deleteOption()"></minus-button>
-                </div> -->
-            </div>
+        <ng-container
+            [ngTemplateOutlet]="view === 'nonDraft' ? nonDraft : draft"
+        ></ng-container>
 
-            <div
-                *ngIf="!preview"
-                class="close"
-                (click)="surveyCreatorService.deleteQuestion(question)"
-            >
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Material icon for deleting question"
-                    class="icon"
-                    >close</mat-icon
+        <ng-template #nonDraft>
+            <div class="question-container">
+                <div class="wrapper">
+                    <div class="question">
+                        <span>
+                            {{ question?.title }}
+                        </span>
+                    </div>
+                    <div class="dropdown-container">
+                        <mat-form-field appearance="outline" class="dropdown">
+                            <mat-label>Select...</mat-label>
+                            <mat-select [(value)]="selected_choice">
+                                <mat-option
+                                    *ngFor="let choice of question?.choices"
+                                    [value]="choice"
+                                >
+                                    {{ choice }}</mat-option
+                                >
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div
+                    *ngIf="!preview"
+                    class="close"
+                    (click)="surveyCreatorService.deleteQuestion(question)"
                 >
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Material icon for deleting question"
+                        class="icon"
+                        >close</mat-icon
+                    >
+                </div>
             </div>
-        </div>
+        </ng-template>
+        <ng-template #draft>
+            <div class="draft-question-container">
+                <div class="wrapper">
+                    <div class="draft-question">
+                        <input-title
+                            [placeholder]="'Type question here...'"
+                        ></input-title>
+                    </div>
+                    <div class="dropdown-container">
+                        <mat-form-field
+                            disabled
+                            appearance="outline"
+                            class="draft-dropdown"
+                        >
+                            <mat-label class="select-label"
+                                >Select...</mat-label
+                            >
+                            <mat-select disabled> </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="draft-checkbox-container">
+                        <div
+                            *ngFor="let choice of new_choices"
+                            class="checkbox"
+                        >
+                            <input
+                                matInput
+                                type="text"
+                                class="choices_box"
+                                [id]="choices_counter"
+                                [style.fontSize.px]="12"
+                                [placeholder]="'Type a choice here...'"
+                                (keyup)="saveChoice()"
+                            />
+                        </div>
+                        <div class="plus-minus-buttons">
+                            <minus-button
+                                (click)="deleteOption()"
+                            ></minus-button>
+                            <plus-button (click)="addOption()"></plus-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -60,6 +107,18 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
+            .draft-question-container {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                font-size: 12px;
+                max-width: 800px;
+                color: #808080;
+                background-color: #fff;
+                margin: 5px 20px;
+            }
             .wrapper {
                 display: flex;
                 flex-direction: column;
@@ -70,16 +129,49 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 display: flex;
                 flex-direction: row;
             }
+            .draft-question {
+                display: flex;
+                flex-direction: row;
+                margin-left: -15px;
+            }
             .dropdown-container {
                 display: flex;
                 flex-direction: row;
                 margin: 10px 0px 0px -4px;
             }
-            .dropdown {
+            .draft-dropdown mat-label {
+                margin-left: 30px;
+            }
+            .draft-checkbox-container {
                 display: flex;
-                width: 500px;
-                height: 30px;
-                margin-bottom: 10px;
+                flex-direction: column;
+                margin-top: 10px 0px 0px -10px;
+            }
+            .checkbox {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                margin-left: -5px;
+            }
+
+            .plus-minus-buttons {
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+                margin: 10px 0px 0px -10px;
+            }
+            input[type='text'] {
+                border: none;
+                padding: 10px 10px;
+                margin: 5px;
+                font-weight: 500;
+                width: 100%;
+            }
+            input[type='text']:focus {
+                color: #808080;
+            }
+            input[type='text']:active {
+                border: none;
             }
             .close {
                 position: absolute;
@@ -95,10 +187,36 @@ import { SurveyCreatorService } from '../survey-creator.service';
 export class DropdownQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
+    @Input() view = 'nonDraft';
 
-    selected_choice: any;
+    new_choices: string[] = this.surveyCreatorService.choices;
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
+
+    protected addOption() {
+        this.surveyCreatorService.choices.push('Type a choice here...');
+    }
+    protected deleteOption() {
+        if (this.surveyCreatorService.choices.length > 1) {
+            this.surveyCreatorService.choices.pop();
+        }
+    }
+    protected saveChoice() {
+        setTimeout(() => {
+            let updated_choices: string[] = [];
+
+            const choices = document.getElementsByClassName('choices_box');
+
+            console.log(choices.length, 'choices length');
+
+            for (let i = 0; i < choices.length; i++) {
+                updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
+            }
+            this.surveyCreatorService.choices = updated_choices;
+
+            console.log(this.surveyCreatorService.choices, 'choices');
+        }, 800);
+    }
 }

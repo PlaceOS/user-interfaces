@@ -200,7 +200,7 @@ export class CheckboxQuestionComponent implements OnInit {
 
     ngAfterViewInit() {}
 
-    protected addOption(event?: any) {
+    protected addOption() {
         // const current_question = this._findQuestion();
 
         this.surveyCreatorService.choices.push('Type a choice here...');
