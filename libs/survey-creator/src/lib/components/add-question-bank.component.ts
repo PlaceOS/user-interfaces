@@ -27,7 +27,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     </p>
                 </div>
                 <div class="category-tags" *ngFor="let tag of tags">
-                    <mat-checkbox>{{ tag }}</mat-checkbox>
+                    <mat-checkbox color="primary">{{ tag }}</mat-checkbox>
                 </div>
                 <div class="question-box">
                     <div class="new-question">
@@ -105,6 +105,11 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             <span>Required</span>
                         </div>
                     </section>
+                </div>
+                <div>
+                    <button mat-button class="add-another-question">
+                        Add another
+                    </button>
                 </div>
             </main>
         </section>
@@ -189,6 +194,14 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 width: 90px;
                 align-items: center;
                 margin: 0px 15px 5px 0px;
+            }
+            .add-another-question {
+                background-color: #eeeeeeee;
+                width: 100%;
+                border-radius: 0px;
+                color: black;
+                border: none;
+                margin-top: 30px;
             }
             .close {
                 display: flex;
