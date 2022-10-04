@@ -7,7 +7,7 @@ import { CateringOrdersService } from './catering-orders.service';
     selector: 'catering-order-list',
     template: `
         <div
-            class="w-full text-sm font-medium flex items-center py-4 border-solid border-b border-gray-300 bg-white"
+            class="sticky top-0 w-full text-sm font-medium flex items-center py-4 border-solid border-b border-gray-300 bg-white"
         >
             <div class="w-20"></div>
             <div class="w-24">Time</div>

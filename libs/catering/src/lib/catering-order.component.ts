@@ -10,18 +10,24 @@ import { CATERING_STATUSES } from './catering.vars';
     selector: 'catering-order',
     template: `
         <div
-            class="w-full flex items-center py-2 bg-gray-100"
-            [class.shown]="show_items"
+            class="w-full flex items-center py-2"
+            [class.bg-gray-100]="!show_items"
+            [class.bg-gray-200]="show_items"
             *ngIf="order"
         >
-            <div class="w-20 flex items-center justify-center">
+            <div
+                class="w-20 flex items-center justify-center z-20 h-full"
+                [class.bg-gray-200]="show_items"
+            >
                 <div
                     class="rounded-full bg-gray-300  p-2 text-2xl text-dark-fade flex items-center justify-center"
                 >
                     <app-icon>room_service</app-icon>
                 </div>
             </div>
-            <div time class="w-24">{{ order.deliver_at | date: 'shortTime' }}</div>
+            <div time class="w-24">
+                {{ order.deliver_at | date: 'shortTime' }}
+            </div>
             <div class="flex-1">
                 {{
                     order.event?.space.display_name ||
@@ -66,15 +72,10 @@ import { CATERING_STATUSES } from './catering.vars';
         </div>
         <ul
             *ngIf="order?.items.length"
-            class="list-none p-0 m-0 w-full relative"
+            class="list-none p-0 m-0 w-full relative z-0"
             [class.shown]="show_items"
             [@show]="show_items ? 'show' : 'hide'"
         >
-            <div
-                name="bar"
-                class="absolute top-0 bg-gray-300"
-                [style.height]="3.125 * order.items.length - 1 + 'rem'"
-            ></div>
             <li
                 catering-order-item
                 class="flex items-center"
