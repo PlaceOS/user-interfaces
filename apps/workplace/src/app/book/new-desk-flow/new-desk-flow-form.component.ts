@@ -42,7 +42,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         (click)="viewConfirm()"
                         [disabled]="!form.valid"
                     >
-                        Confirm Meeting
+                        Confirm Desk
                     </button>
                 </section>
             </div>
