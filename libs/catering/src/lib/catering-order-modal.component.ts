@@ -10,6 +10,7 @@ import { stringToMinutes } from 'libs/events/src/lib/helpers';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import { CateringOption, CateringRuleset } from './catering.interfaces';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
@@ -282,10 +283,13 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
     public menu_items: HashMap<CateringItem[]> = {};
     /** List of categories for the active menu */
     public categories: string[] = [];
-
-    public readonly code = this._data.code || 'USD';
+    
+    public get code() {
+        return this._org.currency_code;
+    }
 
     constructor(
+        private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData
     ) {
         super();
