@@ -300,7 +300,7 @@ export class EventFormService extends BaseClass {
             const { id, host, date, duration, creator, all_day } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
-            const catering = form.get('catering')?.value || [];
+            let catering = form.get('catering')?.value || [];
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
@@ -348,11 +348,14 @@ export class EventFormService extends BaseClass {
                 console.log('Payment success.', receipt);
             }
             const d = value.all_day ? startOfDay(value.date).valueOf() : value.date;
+            if (catering.length && !('items' in catering[0])) {
+                catering = [new CateringOrder({ items: catering as any })];
+            }
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
                     date: d,
-                    catering: [new CateringOrder({ items: catering as any })],
+                    catering,
                 }),
                 query
             ).catch((e) => {
