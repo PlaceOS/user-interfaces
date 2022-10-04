@@ -179,7 +179,7 @@ import { OrganisationService } from '@placeos/organisation';
                                 <div class="text-xs opacity-60 px-4">
                                     {{
                                         form?.value.catering[0].total_cost / 100
-                                            | currency
+                                            | currency:code
                                     }}
                                 </div>
                             </div>
@@ -238,6 +238,10 @@ export class DetailBookSpaceFormComponent {
 
     public get features_label() {
         return this._settings.get('app.events.features_label') || 'feature';
+    }
+
+    public get code() {
+        return this._org.currency_code;
     }
 
     public readonly editCatering = async () =>

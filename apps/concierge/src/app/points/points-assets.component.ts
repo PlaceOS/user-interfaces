@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { OrganisationService } from '@placeos/organisation';
 import { PointsStateService } from './points-state.service';
 
 export interface CustomRate {
@@ -52,7 +53,7 @@ export interface PointAsset {
             <span class="p-2 bg-gray-200 rounded capitalize">{{ data }}</span>
         </ng-template>
         <ng-template #price_template let-data="data">
-            <span class="text-xs"> {{ data / 100 | currency }} per hour </span>
+            <span class="text-xs"> {{ data / 100 | currency:code }} per hour </span>
         </ng-template>
         <ng-template #accept_template let-data="data">
             <div class="flex justify-center h-px">
@@ -90,5 +91,9 @@ export class PointsAssetsComponent {
     public readonly edit = (d) => this._state.newAsset(d);
     public readonly remove = (d) => this._state.removeAsset(d?.id);
 
-    constructor(private _state: PointsStateService) {}
+    public get code() {
+        return this._org.currency_code;
+    }
+
+    constructor(private _state: PointsStateService, private _org: OrganisationService) {}
 }

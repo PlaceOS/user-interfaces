@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CateringItem } from '@placeos/catering';
 import { notifyError, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'space-flow-confirm',
@@ -228,7 +229,7 @@ import { EventFormService } from '@placeos/events';
                         <div
                             class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
                         >
-                            {{ item.total_cost / 100 | currency }}
+                            {{ item.total_cost / 100 | currency:code }}
                         </div>
                         <a-counter
                             [(ngModel)]="item.quantity"
@@ -302,7 +303,12 @@ export class SpaceFlowConfirmComponent {
         return this._state.form;
     }
 
+    public get code() {
+        return this._org.currency_code;
+    }
+
     constructor(
+        private _org: OrganisationService,
         private _state: EventFormService,
         private _settings: SettingsService
     ) {}

@@ -88,6 +88,7 @@ export class CateringStateService extends BaseClass {
             CateringOrderModalData
         >(CateringOrderModalComponent, {
             data: {
+                code: this._currency.getValue(),
                 order,
                 menu: this.menu,
                 loading: this.loading,
@@ -182,6 +183,7 @@ export class CateringStateService extends BaseClass {
             CateringOrderOptionsModalData
         >(CateringOrderOptionsModalComponent, {
             data: {
+                code: this._currency.getValue(),
                 options,
             },
         });

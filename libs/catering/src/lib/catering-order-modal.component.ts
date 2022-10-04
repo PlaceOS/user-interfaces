@@ -13,6 +13,7 @@ import { CateringOption, CateringRuleset } from './catering.interfaces';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
+    code: string;
     menu: Observable<CateringItem[]>;
     loading: Observable<boolean>;
     getCateringConfig: (_: string) => Promise<CateringRuleset[]>;
@@ -105,7 +106,7 @@ export function cateringItemAvailable(
                                     <div
                                         class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
                                     >
-                                        {{ item.unit_price / 100 | currency }}
+                                        {{ item.unit_price / 100 | currency:code }}
                                     </div>
                                     <a-counter
                                         ngDefaultControl
@@ -217,7 +218,7 @@ export function cateringItemAvailable(
                     <div
                         class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
                     >
-                        {{ item.total_cost / 100 | currency }}
+                        {{ item.total_cost / 100 | currency:code }}
                     </div>
                     <a-counter
                         [ngModel]="item.quantity"
@@ -281,6 +282,8 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
     public menu_items: HashMap<CateringItem[]> = {};
     /** List of categories for the active menu */
     public categories: string[] = [];
+
+    public readonly code = this._data.code || 'USD';
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData

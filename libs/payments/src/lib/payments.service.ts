@@ -132,11 +132,13 @@ export class PaymentsService {
         card_details?: PaymentCardDetails
     ) {
         this._loading.next('Checking payment method...');
+        console.log('Getting payment method...');
         const source = card_details
             ? await this._addPaymentMethod(card_details)
             : this._active_card.getValue();
         if (!source) throw 'No payment source selected';
         this._loading.next('Processing payment...');
+        console.log('Processing payment...');
         const mod = getModule(this.payment_module, STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
         const id = await mod.execute<string>('create_payment_intent', [
@@ -151,6 +153,7 @@ export class PaymentsService {
             currentUser()?.email,
         ]);
         if (!id) throw 'Failed to create payment';
+        console.log('Confirming payment...');
         await mod.execute('confirm_payment_intent', [id, source]);
         this._loading.next('');
         return {

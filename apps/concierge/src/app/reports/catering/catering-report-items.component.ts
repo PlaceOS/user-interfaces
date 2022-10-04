@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CateringOption } from '@placeos/catering';
+import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
 
 @Component({
@@ -49,7 +50,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 </span>
             </ng-template>
             <ng-template #cost_state let-data="data">
-                {{ (data || 0) / 100 | currency }}
+                {{ (data || 0) / 100 | currency:code }}
             </ng-template>
         </div>
     `,
@@ -58,7 +59,11 @@ import { CateringReportStateService } from './catering-report-state.service';
 export class CateringReportItemsComponent {
     public readonly items = this._report.catering_items;
 
-    constructor(private _report: CateringReportStateService) {}
+    public get code() {
+        return this._org.currency_code;
+    }
+
+    constructor(private _report: CateringReportStateService, private _org: OrganisationService) {}
 
     public options(opts: CateringOption[]) {
         return opts.map((_) => _.name).join('\n');

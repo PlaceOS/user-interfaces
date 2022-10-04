@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
 
 @Component({
@@ -36,7 +37,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 {{ data | date }} at {{ data | date: 'shortTime' }}
             </ng-template>
             <ng-template #cost_state let-data="data">
-                {{ data / 100 | currency }}
+                {{ data / 100 | currency:code }}
             </ng-template>
         </div>
     `,
@@ -45,7 +46,11 @@ import { CateringReportStateService } from './catering-report-state.service';
 export class CateringReportOrdersComponent {
     public readonly orders = this._report.catering_orders;
 
-    constructor(private _report: CateringReportStateService) {}
+    public get code() {
+        return this._org.currency_code;
+    }
+
+    constructor(private _report: CateringReportStateService, private _org: OrganisationService) {}
 
     public readonly download = () => this._report.downloadOrders();
 }

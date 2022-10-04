@@ -90,6 +90,10 @@ export class OrganisationService {
         ];
     }
 
+    public get currency_code() : string {
+        return this._service.get('app.currency') || this.building.currency || 'USD';
+    }
+
     /** Get binding value from the building/organisation */
     public binding(name: string) {
         return this.building?.bindings[name] || this._organisation?.bindings[name];

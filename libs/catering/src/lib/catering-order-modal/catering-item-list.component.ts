@@ -47,7 +47,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                                 class="flex items-center text-sm space-x-2"
                             >
                                 <p *ngIf="item.unit_price">
-                                    {{ item.unit_price / 100 | currency }}
+                                    {{ item.unit_price / 100 | currency:code }}
                                 </p>
                             </div>
                         </div>
@@ -100,6 +100,10 @@ export class CateringItemListComponent {
 
     public readonly loading = this._state.loading;
     public readonly item_list = this._state.filtered_menu;
+
+    public get code() {
+        return this._state.currency_code;
+    }
 
     constructor(private _state: CateringOrderStateService) {}
 

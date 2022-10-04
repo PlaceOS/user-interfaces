@@ -120,7 +120,7 @@ import { OrganisationService } from '@placeos/organisation';
                             {{ item.quantity }}
                         </div>
                         <div name class="flex-1">{{ item.name }}</div>
-                        <div price>{{ item.price | currency }}</div>
+                        <div price>{{ item.price | currency:code }}</div>
                     </div>
                 </div>
                 <div
@@ -213,6 +213,10 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
             building?.name ||
             '~Unspecified Location~'
         );
+    }
+
+    public get code() {
+        return this._org.currency_code;
     }
 
     constructor(

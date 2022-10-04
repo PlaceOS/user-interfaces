@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -196,7 +197,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 "
                             >
                                 <label>{{ item.name }}</label>
-                                <div>{{ item.price | currency }}</div>
+                                <div>{{ item.price | currency:code }}</div>
                                 <a
                                     class="underline"
                                     [href]="invoice.url | safe"
@@ -315,11 +316,16 @@ export class AssetViewComponent extends BaseClass {
         this._tooltip_el?.close();
     }
 
+    public get code() {
+        return this._org.currency_code;
+    }
+
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
         private _state: AssetManagerStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _org: OrganisationService
     ) {
         super();
     }

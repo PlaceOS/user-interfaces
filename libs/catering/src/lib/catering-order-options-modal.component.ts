@@ -7,6 +7,7 @@ import { unique } from 'libs/common/src/lib/general';
 import { CateringOption, CateringOptionGroup } from './catering.interfaces';
 
 export interface CateringOrderOptionsModalData {
+    code: string;
     options: CateringOption[];
 }
 
@@ -50,7 +51,7 @@ export interface CateringOrderOptionsModalData {
                                         class="opacity-60 text-xs"
                                         *ngIf="opt.unit_price"
                                     >
-                                        +{{ opt.unit_price / 100 | currency }}
+                                        +{{ opt.unit_price / 100 | currency:code }}
                                     </div>
                                 </div>
                             </mat-radio-button>
@@ -69,7 +70,7 @@ export interface CateringOrderOptionsModalData {
                                     class="opacity-60 text-xs"
                                     *ngIf="opt.unit_price"
                                 >
-                                    +{{ opt.unit_price / 100 | currency }}
+                                    +{{ opt.unit_price / 100 | currency:code }}
                                 </div>
                             </div>
                         </mat-checkbox>
@@ -100,6 +101,7 @@ export class CateringOrderOptionsModalComponent {
     public readonly groups: CateringOptionGroup[];
     /** Mapping of options to their active state */
     public option_state: HashMap<boolean> = {};
+    public readonly code = this._data.code;
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringOrderOptionsModalData

@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { CateringItem } from '../catering-item.class';
 
 const EMPTY_FAVS: string[] = [];
@@ -46,6 +47,7 @@ const EMPTY_FAVS: string[] = [];
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id || '')"
                     (activeChange)="setSelected(displayed!, $event)"
+                    [code]="code"
                     [fav]="
                         !!displayed &&
                         this.favorites.includes(displayed?.id || '')
@@ -132,8 +134,13 @@ export class NewCateringOrderModalComponent {
         return this.selected.reduce((t, i) => t + i.quantity, 0);
     }
 
+    public get code() {
+        return this._org.currency_code;
+    }
+
     constructor(
         private _settings: SettingsService,
+        private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _items: CateringItem[]
     ) {}
 

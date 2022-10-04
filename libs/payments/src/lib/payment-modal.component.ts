@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { OrganisationService } from '@placeos/organisation';
 import { Observable } from 'rxjs';
 import { PaymentCardDetails } from './card-input-field.component';
 
@@ -43,7 +44,7 @@ export interface PaymentData {
                     </p>
                     <p class="text-sm">You booking will cost:</p>
                     <p class="text-lg font-medium text-center">
-                        <strong>{{ details.amount / 100 | currency }}</strong>
+                        <strong>{{ details.amount / 100 | currency:code }}</strong>
                     </p>
                     <card-input-field
                         class="w-full"
@@ -82,7 +83,7 @@ export interface PaymentData {
             >
                 <h2 class="text-2xl font-medium">Payment Successful</h2>
                 <h3 class="text-xl font-medium mb-2">Ref #{{ transaction_id }}</h3>
-                <p>{{ details.amount / 100 | currency }} paid.</p>
+                <p>{{ details.amount / 100 | currency:code }} paid.</p>
                 <p>{{ details.resource_name }} booked.</p>
                 <p>{{ details.date | date: 'mediumDate' }}</p>
                 <p>
@@ -112,7 +113,11 @@ export class PaymentModalComponent {
     public success = false;
     public transaction_id = '12345678';
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: PaymentData) {}
+    public get code() {
+        return this._org.currency_code;
+    }
+
+    constructor(@Inject(MAT_DIALOG_DATA) private _data: PaymentData, private _org: OrganisationService) {}
 
     public async processPayment() {
         if (!this.card_details || !this._validCardDetails()) return;

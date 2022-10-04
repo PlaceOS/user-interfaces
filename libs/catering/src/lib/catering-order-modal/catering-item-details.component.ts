@@ -52,7 +52,7 @@ interface CateringOptionGroup {
                             {{ item.name }}
                         </h2>
                         <p *ngIf="item.unit_price">
-                            {{ item.unit_price / 100 | currency }}
+                            {{ item.unit_price / 100 | currency:code }}
                         </p>
                     </div>
                     <a-counter
@@ -108,7 +108,7 @@ interface CateringOptionGroup {
                                                 >
                                                     +{{
                                                         opt.unit_price / 100
-                                                            | currency
+                                                            | currency:code
                                                     }}
                                                 </div>
                                             </div>
@@ -134,7 +134,7 @@ interface CateringOptionGroup {
                                             >
                                                 +{{
                                                     opt.unit_price / 100
-                                                        | currency
+                                                        | currency:code
                                                 }}
                                             </div>
                                         </div>
@@ -192,6 +192,7 @@ export class CateringItemDetailsComponent {
     @Input() public item?: CateringItem;
     @Input() public active: boolean = false;
     @Input() public fav: boolean = false;
+    @Input() public code: string = 'USD';
 
     @Output() public toggleFav = new EventEmitter<void>();
     @Output() public activeChange = new EventEmitter<boolean>();

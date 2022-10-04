@@ -56,6 +56,10 @@ export class CateringOrderStateService {
         shareReplay(1)
     );
 
+    public get currency_code() {
+        return this._org.currency_code;
+    }
+
     constructor(
         private _dialog: MatDialog,
         private _org: OrganisationService
