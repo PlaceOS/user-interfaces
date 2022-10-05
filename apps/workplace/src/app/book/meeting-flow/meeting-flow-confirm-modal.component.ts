@@ -1,5 +1,6 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { CateringOrder } from '@placeos/catering';
 import { BaseClass, notifyError } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
@@ -7,7 +8,10 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'meeting-flow-confirm-modal',
     template: `
-        <div header class="p-4 flex items-center justify-center border-b border-grey-200 relative">
+        <div
+            header
+            class="p-4 flex items-center justify-center border-b border-grey-200 relative"
+        >
             <button
                 mat-icon-button
                 mat-dialog-close
@@ -97,8 +101,10 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-chip-list>
                 </div>
             </div>
-            <div class="flex divide-x divide-gray-300" 
-                    *ngIf="event.catering?.length || event.assets?.length">
+            <div
+                class="flex divide-x divide-gray-300"
+                *ngIf="event.catering?.length || event.assets?.length"
+            >
                 <div
                     class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
                     *ngIf="event.catering?.length"
@@ -109,18 +115,59 @@ import { OrganisationService } from '@placeos/organisation';
                         <app-icon>done</app-icon>
                     </div>
                     <h3 class="text-xl !mt-0">Catering</h3>
-                    <div
-                        class="flex items-center"
-                        *ngFor="let item of event.catering"
-                    >
+                    <div class="space-y-2">
                         <div
-                            count
-                            class="flex items-center justify-center w-12 h-12 rounded-full"
+                            class="flex items-center space-x-2"
+                            *ngFor="let item of catering_order.items"
                         >
-                            {{ item.quantity }}
+                            <div
+                                count
+                                class="flex items-center justify-center min-w-[2rem] h-8 rounded-full bg-gray-200"
+                            >
+                                ×{{ item.quantity }}
+                            </div>
+                            <div name class="flex-1">{{ item.name }}</div>
+                            <div class="flex items-center space-x-2">
+                                <div
+                                    class="flex items-center text-xs px-2 py-1 rounded-2xl bg-gray-100"
+                                    [matTooltip]="opt.name"
+                                    *ngFor="let opt of item.option_list"
+                                >
+                                    <div class="font-medium">{{ opt.name }}</div>
+                                    <!-- <div
+                                        class="font-mono ml-2"
+                                        *ngIf="opt.unit_price"
+                                    >
+                                        +{{
+                                            opt.unit_price / 100
+                                                | currency: code
+                                        }}
+                                    </div> -->
+                                </div>
+                            </div>
+                            <div
+                                price
+                                class="font-mono text-right p-2 text-sm"
+                                *ngIf="item.quantity > 1"
+                            >
+                                {{ item.unit_price_with_options / 100 | currency: code }} ea
+                            </div>
+                            <div total-price class="font-mono min-w-[6rem] text-right p-2">
+                                {{
+                                    (item.total_cost / 100)
+                                        | currency: code
+                                }}
+                            </div>
                         </div>
-                        <div name class="flex-1">{{ item.name }}</div>
-                        <div price>{{ item.price | currency:code }}</div>
+                        <div class="w-full bg-gray-200 flex justify-end p-2">
+                            <div class="font-medium">Total:</div>
+                            <div class="font-mono text-right min-w-[6rem]">
+                                {{
+                                    catering_order.total_cost / 100
+                                        | currency: code
+                                }}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div
@@ -184,6 +231,9 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._event_form.loading;
+    public readonly catering_order = new CateringOrder({
+        items: this.event.catering as any,
+    });
 
     public readonly postForm = async () => {
         await this._event_form.postForm().catch((_) => {
@@ -226,5 +276,6 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
         private _dialog_ref: MatDialogRef<MeetingFlowConfirmModalComponent>
     ) {
         super();
+        console.log('Order:', this.catering_order);
     }
 }

@@ -23,10 +23,14 @@ export class CateringItem {
     public readonly discount_cap: number;
     /** Total cost for the item */
     public readonly total_cost: number;
-
+    /** String list of available options */
     public readonly options_string: string;
-
+    /** List of images for the catering item */
     public readonly images: string[];
+    /** List of active options for the  */
+    public readonly option_list: CateringOption[];
+    /**  */
+    public readonly unit_price_with_options: number;
 
     constructor(data: Partial<CateringItem> = {}) {
         this.id = data.id || '';
@@ -40,13 +44,13 @@ export class CateringItem {
         this.options = data.options || [];
         this.tags = data.tags || [];
         this.images = data.images || [];
-        this.total_cost =
-            (this.unit_price +
-                this.options
-                    .map((i) => i.unit_price || 0)
-                    .reduce((c, a) => c + a, 0)) *
-            this.quantity;
-
+        this.option_list = this.options.filter((_) => _.active);
+        this.unit_price_with_options =
+            this.unit_price +
+            this.option_list
+                .map((i) => i.unit_price || 0)
+                .reduce((c, a) => c + a, 0);
+        this.total_cost = this.unit_price_with_options * this.quantity;
         this.options_string =
             this.options
                 ?.map((_) => _.id || '')
