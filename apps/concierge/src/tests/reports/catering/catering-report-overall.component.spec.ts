@@ -4,6 +4,8 @@ import { BehaviorSubject } from 'rxjs';
 import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/catering/catering-report-overall.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
 import { Router } from '@angular/router';
+import { MockProvider } from 'ng-mocks';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('CateringReportOverallComponent', () => {
     let spectator: Spectator<CateringReportOverallComponent>;
@@ -18,6 +20,7 @@ describe('CateringReportOverallComponent', () => {
                 },
             },
             { provide: Router, useValue: {} },
+            MockProvider(OrganisationService, {}),
         ],
     });
 

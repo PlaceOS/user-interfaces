@@ -1,6 +1,7 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CustomTableComponent, IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { OrganisationService } from '@placeos/organisation';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { PointsAssetsComponent } from '../../app/points/points-assets.component';
 import { PointsStateService } from '../../app/points/points-state.service';
@@ -17,6 +18,7 @@ describe('PointsAssetsComponent', () => {
                     removeAsset: jest.fn(),
                 },
             },
+            MockProvider(OrganisationService, {})
         ],
         declarations: [
             MockComponent(CustomTableComponent),

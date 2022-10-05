@@ -5,7 +5,7 @@ import {
     EventFormService,
     generateEventForm,
 } from '@placeos/events';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SpaceFlowConfirmComponent } from 'apps/workplace/src/app/book/space-flow/confirm.component';
 import { throwError, timer } from 'rxjs';
@@ -17,20 +17,19 @@ jest.mock('@placeos/common');
 import * as common_mod from '@placeos/common';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('SpaceFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowConfirmComponent>;
     const createComponent = createRoutingFactory({
         component: SpaceFlowConfirmComponent,
         providers: [
-            {
-                provide: EventFormService,
-                useValue: {
-                    postForm: jest.fn(async () => await timer(1).toPromise()),
-                    form: generateEventForm(new CalendarEvent()),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            MockProvider(EventFormService, {
+                postForm: jest.fn(async () => await timer(1).toPromise()),
+                form: generateEventForm(new CalendarEvent()),
+            } as any),
+            MockProvider(OrganisationService, {}),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             DurationPipe,
@@ -74,6 +73,6 @@ describe('SpaceFlowConfirmComponent', () => {
     it('should allow user to return to previous page', () => {
         expect('[topbar] a[button]').toExist();
     });
-    
+
     it.todo('should show event details');
 });

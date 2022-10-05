@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatBadgeModule } from '@angular/material/badge';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
@@ -13,6 +13,7 @@ import { CateringOrderModalComponent } from '../lib/catering-order-modal.compone
 import { CateringOrder } from '../lib/catering-order.class';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItem } from '../lib/catering-item.class';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('CateringOrderModalComponent', () => {
     let spectator: Spectator<CateringOrderModalComponent>;
@@ -23,18 +24,16 @@ describe('CateringOrderModalComponent', () => {
             MockComponent(CounterComponent),
         ],
         providers: [
-            {
-                provide: MAT_DIALOG_DATA,
-                useValue: {
-                    order: new CateringOrder(),
-                    menu: new BehaviorSubject([
-                        new CateringItem({ id: '1', name: 'Coffee' }),
-                    ]),
-                    loading: new BehaviorSubject(false),
-                    getCateringConfig: jest.fn(async () => []),
-                    selectOptions: jest.fn(async () => []),
-                },
-            },
+            MockProvider(MAT_DIALOG_DATA, {
+                order: new CateringOrder(),
+                menu: new BehaviorSubject([
+                    new CateringItem({ id: '1', name: 'Coffee' }),
+                ]),
+                loading: new BehaviorSubject(false),
+                getCateringConfig: jest.fn(async () => []),
+                selectOptions: jest.fn(async () => []),
+            }),
+            MockProvider(OrganisationService, {}),
         ],
         imports: [
             MatTabsModule,

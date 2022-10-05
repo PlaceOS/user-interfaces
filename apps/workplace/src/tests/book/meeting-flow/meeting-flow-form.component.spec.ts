@@ -7,6 +7,7 @@ import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
+import { OrganisationService } from '@placeos/organisation';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
@@ -38,8 +39,9 @@ describe('MeetingFlowFormComponent', () => {
                     })),
                 } as any
             ),
+            MockProvider(OrganisationService, {}),
             MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
-            MockProvider(MatDialog, { open: jest.fn(() => ({ instance: {}, afterClosed: () => of('1') }))} as any)
+            MockProvider(MatDialog, { open: jest.fn(() => ({ componentInstance: {}, afterClosed: () => of('1') }))} as any)
         ],
         declarations: [
             MockComponent(MeetingFormDetailsComponent),
