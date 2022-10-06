@@ -687,6 +687,17 @@ custom-table[header-dark] {
 
         }
 
+
+        .mat-spinner {
+            circle {
+                stroke: var(--secondary);
+            }
+        }
+
+        .mat-autocomplete-panel {
+            @apply bg-neutral-700;
+        }
+
         .ql-toolbar {
             .ql-stroke {
                 stroke: #eee;

@@ -6,15 +6,17 @@ import { ExploreSearchService } from '@placeos/explore';
 @Component({
     selector: 'global-search',
     template: `
-        <div
-            class="h-full w-12 relative"
-        >
-            <button mat-icon-button class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-700 dark:text-white" (click)="showInput()">
+        <div class="h-full w-12 relative">
+            <button
+                mat-icon-button
+                class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-700 dark:text-white"
+                (click)="showInput()"
+            >
                 <app-icon class="text-2xl">search</app-icon>
             </button>
-            <div 
+            <div
                 search
-                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded space-x-2 dark:bg-neutral-700 dark:text-white"
+                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded-[24px] space-x-2 dark:bg-neutral-700 dark:text-white border-2 border-neutral-600 dark:border-neutral-300 z-50"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
@@ -31,38 +33,44 @@ import { ExploreSearchService } from '@placeos/explore';
                     class="flex-1 w-1/2 py-2 outline-none"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
-                    [matAutocomplete]="auto"
-                    [matAutocompleteConnectedTo]="origin"
                     (blur)="hideInput()"
                 />
-                <mat-spinner *ngIf="loading | async" [diameter]="32"></mat-spinner>
-                <div
-                    class="absolute bottom-0 left-2 right-2 min-w-[20rem]"
-                    matAutocompleteOrigin
-                    #origin="matAutocompleteOrigin"
-                ></div>
+                <mat-spinner
+                    *ngIf="loading | async"
+                    [diameter]="32"
+                ></mat-spinner>
             </div>
-        </div>
-        <mat-autocomplete #auto="matAutocomplete">
-            <ng-container *ngIf="(loading | async) !== true && filter_str">
-                <mat-option
-                    *ngIf="!(results | async)?.length"
-                    class="pointer-events-none"
+            <div
+                search
+                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] bg-white shadow text-black rounded-b dark:bg-neutral-700 dark:text-white pt-4 overflow-hidden border border-neutral-200 dark:border-neutral-600"
+                [ngClass]="{
+                    'w-[32rem]': show,
+                    'w-px': !show,
+                    'opacity-100': show,
+                    'opacity-0': !show,
+                    'pointer-events-none': !show
+                }"
+            >
+                <div
+                    class="p-4 w-full text-center opacity-60"
+                    *ngIf="
+                        !(results | async)?.length && filter_str;
+                        else empty_state
+                    "
                 >
-                    No matches found
-                </mat-option>
-                <mat-option
-                    *ngFor="let option of results | async | slice: 0:5"
-                    [value]="option"
-                >
+                    No matches found.
+                </div>
+                <ng-container *ngIf="(loading | async) !== true && filter_str">
                     <a
+                        matRipple
+                        *ngFor="let option of results | async | slice: 0:5"
                         [routerLink]="['/explore']"
                         [queryParams]="
                             option.type === 'space'
                                 ? { space: option.id }
                                 : { user: option.id }
                         "
-                        class="w-full h-full flex items-center leading-tight"
+                        class="w-full h-full flex items-center leading-tight p-4 hover:bg-black/5 dark:hover:bg-white/5"
                     >
                         <div class="flex-1 overflow-hidden">
                             <div class="truncate w-full">
@@ -78,16 +86,23 @@ import { ExploreSearchService } from '@placeos/explore';
                             {{ option.type }}
                         </div>
                     </a>
-                </mat-option>
-            </ng-container>
-        </mat-autocomplete>
+                </ng-container>
+            </div>
+        </div>
+        <ng-template #empty_state>
+            <div
+                *ngIf="!(results | async)?.length"
+                class="p-4 w-full text-center opacity-60"
+            >
+                Start typing to search...
+            </div>
+        </ng-template>
     `,
     styles: [
         `
             [search] {
                 transition: width 200ms, opacity 200ms;
             }
-
         `,
     ],
 })
@@ -103,7 +118,7 @@ export class GlobalSearchComponent extends BaseClass {
             ? (this.filter_str = '')
             : this._service.setFilter(s);
 
-    @ViewChild('input') public _input_el: ElementRef<HTMLInputElement>
+    @ViewChild('input') public _input_el: ElementRef<HTMLInputElement>;
 
     constructor(private _service: ExploreSearchService) {
         super();
@@ -116,6 +131,6 @@ export class GlobalSearchComponent extends BaseClass {
     }
 
     public hideInput() {
-        this.timeout('close', () => this.show = false);
+        this.timeout('close', () => (this.show = false));
     }
 }
