@@ -20,7 +20,7 @@ import { BookingFormService } from '../booking-form.service';
     ],
     template: `
         <div
-            class="flex rounded-t-md items-center border-b border-gray-200 pb-2"
+            class="flex rounded-t-md items-center border-b border-gray-200 dark:border-neutral-500 pb-2 sm:p-4"
         >
             <div class="flex-1 pl-2">
                 <button

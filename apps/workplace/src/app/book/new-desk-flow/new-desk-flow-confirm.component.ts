@@ -53,7 +53,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         </section>
         <section
             desk
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 py-4 px-2 border-t dark:border-neutral-500"
             *ngIf="booking_asset?.id"
         >
             <app-icon class="text-success">done</app-icon>
@@ -77,21 +77,34 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         </section>
         <section
             assets
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 py-4 px-2 border-t dark:border-neutral-500"
             *ngIf="assets?.length"
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
                 <h3>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-gray-100 rounded-full">
+                    <div class="h-5 w-5 bg-gray-100 dark:bg-neutral-600 rounded-full">
                         {{ asset.amount }}
                     </div>
                     <span>{{ asset.name }}</span>
                 </div>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-gray-200 mt-4">
+        <section
+            assets
+            class="flex space-x-1 py-4 px-2 border-t dark:border-neutral-500"
+            *ngIf="needs_locker"
+        >
+            <app-icon class="text-success">done</app-icon>
+            <div details class="leading-6">
+                <h3>Requested Locker</h3>
+                <div class="flex space-x-2">
+                    <span>Locker 1234</span>
+                </div>
+            </div>
+        </section>
+        <footer class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4">
             <button
                 confirm
                 mat-button
@@ -121,6 +134,10 @@ export class NewDeskFlowConfirmComponent extends BaseClass {
 
     public get assets() {
         return this.booking.assets || null;
+    }
+
+    public get needs_locker() {
+        return !!this.booking.secondary_resource;
     }
 
     public get assets_count() {

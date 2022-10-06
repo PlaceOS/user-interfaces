@@ -48,6 +48,7 @@ export class NewDeskFlowComponent extends BaseClass implements OnInit {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._state.loadForm();
         if (!this._state.form) this._state.newForm();
+        this._state.setOptions({ type: 'desk' });
         this._state.form.patchValue({ booking_type: 'desk' });
         this.subscription(
             'route.params',

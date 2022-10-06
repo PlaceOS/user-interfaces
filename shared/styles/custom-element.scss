@@ -94,7 +94,7 @@ a[button],
         
         &.inverse {
             background: none;
-            --color: #fff;
+            --color: #fffa;
         }
 
         &.error {
@@ -696,6 +696,21 @@ custom-table[header-dark] {
         .mat-spinner {
             circle {
                 stroke: var(--secondary);
+            }
+        }
+
+        mat-pseudo-checkbox.mat-pseudo-checkbox-checked {
+            background: var(--secondary);
+        }
+
+        mat-checkbox {
+
+            .mat-checkbox-frame {
+                border-color: #fff6
+            }
+
+            &.mat-checkbox-checked .mat-checkbox-background {
+                background-color: var(--secondary);
             }
         }
 

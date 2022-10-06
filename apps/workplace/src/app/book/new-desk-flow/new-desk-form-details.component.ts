@@ -52,7 +52,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative">
+                    <div class="flex-1 w-1/3 relative" *ngIf="can_book_lockers">
                         <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
@@ -69,6 +69,21 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                             class="absolute top-0 right-0"
                         >
                             All Day
+                        </mat-checkbox>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="flex-1 w-1/3">
+                        <mat-checkbox
+                            [ngModel]="!!form.value.secondary_resource"
+                            (ngModelChange)="
+                                form.patchValue({
+                                    secondary_resource: $event ? 'locker' : ''
+                                })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            Require locker
                         </mat-checkbox>
                     </div>
                 </div>
@@ -129,6 +144,10 @@ export class NewDeskFormDetailsComponent extends BaseClass {
 
     public get can_book_for_others() {
         return this._settings.get('app.desks.can_book_for_others');
+    }
+
+    public get can_book_lockers() {
+        return this._settings.get('app.desks.can_book_lockers');
     }
     public get can_recurr() {
         return this._settings.get('app.desks.recurrence_allowed');
