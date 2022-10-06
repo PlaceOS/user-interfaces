@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1665030756145,
+  "timestamp": 1665031991462,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -161,9 +161,9 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_workplace_src_app_book_book_module_ts.js": "20aa643bda08f69ba9d9fbe597a3586d9adfd9ad",
+    "./apps_workplace_src_app_book_book_module_ts.js": "6db021c8a4eebb8cad0991fc6288483416c988f6",
     "./apps_workplace_src_app_control_control_module_ts.js": "2291ec5458e1c3df46da5fdb40f4b6e2fa90a65f",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "f387e17fe6979fab3d1c5d08b24beb756475e144",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "082828cbab7ebf0f92339f3259a4eb5fc3bde807",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "0001e0b3c836fa2745aaa4e04dc2144ed84195c1",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "64ffe2652dddaa2dd8b28d721a097812f03cce1c",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "6671701cb6a7ad37bfdd2171c23699dec7248041",
@@ -283,12 +283,12 @@
     "./common.js": "fe467d4b7a678d3dd48a49fb9a946ccbbfb9c261",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "fc97f758703823e6b24f5c929f682be4905f7d54",
-    "./main.js": "6648227f324cb8cdd1eebf98fbe2eae9e40ef717",
+    "./main.js": "4c14da5ef7c74cfa604f81155c0224daaf9e50dd",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "b834ea14ae6dd9819f7306a06ce0eda8693fcae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "59c4fd3e4319446669ec2e3189bf1dce6a2201d6",
+    "./styles.css": "9602b4a38897c217a60c94dca6937159215b94b6",
     "./vendor.js": "82211a86be01bc39b71c5a1db9851aed57d2797b"
   },
   "navigationUrls": [
