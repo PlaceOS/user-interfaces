@@ -5,7 +5,7 @@ import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
-    selector: 'add-question-bank',
+    selector: 'edit-question-bank',
     template: `
         <section>
             <div class="header">
@@ -106,15 +106,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                         </div>
                     </section>
                 </div>
-                <div>
-                    <button
-                        mat-button
-                        class="add-another-question"
-                        (click)="addQuestion()"
-                    >
-                        Add another
-                    </button>
-                </div>
             </main>
         </section>
     `,
@@ -199,14 +190,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 align-items: center;
                 margin: 0px 15px 5px 0px;
             }
-            .add-another-question {
-                background-color: #eeeeeeee;
-                width: 100%;
-                border-radius: 0px;
-                color: black;
-                border: none;
-                margin-top: 30px;
-            }
+
             .close {
                 display: flex;
                 z-index: 99;
@@ -218,28 +202,19 @@ import { SurveyCreatorService } from '../survey-creator.service';
         `,
     ],
 })
-export class AddQuestionBankComponent implements OnInit {
+export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
 
-    placeholder_question: Question = {
-        type: '' as QuestionType,
-        title: 'Type a question...',
-        name: '',
-    };
-
     public QuestionType = QuestionType;
 
     constructor(
-        public dialogRef: MatDialogRef<AddQuestionBankComponent>,
+        public dialogRef: MatDialogRef<EditQuestionBankComponent>,
         private _surveyCreatorService: SurveyCreatorService
     ) {}
 
-    ngOnInit(): void {
-        console.log(this.question_type, 'question type');
-        console.log(this.selected_tag, 'selected_tag');
-    }
+    ngOnInit(): void {}
 
     updateSelectedTag() {
         this.question_type = this.selected_tag;
@@ -250,12 +225,7 @@ export class AddQuestionBankComponent implements OnInit {
         this._resetChoices();
         this.dialogRef.close();
     }
-
     private _resetChoices() {
         this._surveyCreatorService.choices = ['Type a choice here...'];
-    }
-
-    addQuestion() {
-        console.log('add');
     }
 }

@@ -5,6 +5,7 @@ import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from './add-question-bank.component';
+import { EditQuestionBankComponent } from './edit-question-bank.component';
 
 @Component({
     selector: 'design-preview-container',
@@ -147,6 +148,9 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         this.addDialog.open(AddQuestionBankComponent, this.dialogConfig);
     }
 
+    openEditQuestionBankDialog(): void {
+        this.addDialog.open(EditQuestionBankComponent, this.dialogConfig);
+    }
     noReturnPredicate() {
         // return false;
     }
