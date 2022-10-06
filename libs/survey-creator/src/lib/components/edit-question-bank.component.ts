@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
@@ -9,7 +10,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
     template: `
         <section>
             <div class="header">
-                <span class="dialog-title">Add to question bank</span>
+                <span class="dialog-title">Edit question bank</span>
                 <span class="close" (click)="closeDialog()">
                     <mat-icon
                         aria-hidden="false"
@@ -19,7 +20,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     >
                 </span>
             </div>
-            <main>
+            <div class="category-container">
                 <div><span class="section-heading">Category</span></div>
                 <div>
                     <p class="small-text">
@@ -29,84 +30,74 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 <div class="category-tags" *ngFor="let tag of tags">
                     <mat-checkbox color="primary">{{ tag }}</mat-checkbox>
                 </div>
-                <div class="question-box">
-                    <div class="new-question">
-                        <ng-container
-                            [ngTemplateOutlet]="
-                                question_type == 'Text'
-                                    ? Text
-                                    : question_type == 'Checkbox'
-                                    ? Checkbox
-                                    : question_type == 'Comment'
-                                    ? Comment
-                                    : question_type == 'Dropdown'
-                                    ? Dropdown
-                                    : Rating
-                            "
-                        >
-                        </ng-container>
-                        <ng-template #Rating>
-                            <rating-question
-                                [question]="placeholder_question"
-                                [view]="'draft'"
-                                [preview]="true"
-                            ></rating-question>
-                        </ng-template>
-                        <ng-template #Text>
-                            <text-question
-                                [question]="placeholder_question"
-                                [view]="'draft'"
-                                [preview]="true"
-                            ></text-question>
-                        </ng-template>
-                        <ng-template #Comment>
-                            <comment-box-question
-                                [question]="placeholder_question"
-                                [view]="'draft'"
-                                [preview]="true"
-                            ></comment-box-question>
-                        </ng-template>
-                        <ng-template #Checkbox>
-                            <checkbox-question
-                                [question]="placeholder_question"
-                                [view]="'draft'"
-                                [preview]="true"
-                            ></checkbox-question>
-                        </ng-template>
-                        <ng-template #Dropdown>
-                            <dropdown-question
-                                [question]="placeholder_question"
-                                [view]="'draft'"
-                                [preview]="true"
-                            ></dropdown-question>
-                        </ng-template>
-                    </div>
-                    <section class="options-container">
-                        <div class="dropdown-container">
-                            <mat-form-field appearance="none" class="dropdown">
-                                <mat-select
-                                    [(value)]="selected_tag"
-                                    (selectionChange)="updateSelectedTag()"
-                                >
-                                    <mat-option
-                                        *ngFor="
-                                            let enum of QuestionType | keyvalue
-                                        "
-                                        [value]="enum.value"
-                                    >
-                                        {{ enum.value }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
+            </div>
+            <main>
+                <div *ngFor="let question of this.question_bank$ | async">
+                    <ng-container
+                        [ngTemplateOutlet]="
+                            question.type == 'Text'
+                                ? Text
+                                : question_type == 'Checkbox'
+                                ? Checkbox
+                                : question_type == 'Comment'
+                                ? Comment
+                                : question_type == 'Dropdown'
+                                ? Dropdown
+                                : Rating
+                        "
+                    >
+                    </ng-container>
 
-                        <div class="required-container">
-                            <mat-slide-toggle> </mat-slide-toggle>
-                            <span>Required</span>
-                        </div>
-                    </section>
+                    <ng-template #Rating>
+                        <rating-question
+                            [question]="question"
+                            [view]="'nonDraft'"
+                            [preview]="true"
+                        ></rating-question>
+                    </ng-template>
+                    <ng-template #Text>
+                        <text-question
+                            [question]="question"
+                            [view]="'nonDraft'"
+                            [preview]="true"
+                        ></text-question>
+                    </ng-template>
+                    <ng-template #Comment>
+                        <comment-box-question
+                            [question]="question"
+                            [view]="'nonDraft'"
+                            [preview]="true"
+                        ></comment-box-question>
+                    </ng-template>
+                    <ng-template #Checkbox>
+                        <checkbox-question
+                            [question]="question"
+                            [view]="'nonDraft'"
+                            [preview]="true"
+                        ></checkbox-question>
+                    </ng-template>
+                    <ng-template #Dropdown>
+                        <dropdown-question
+                            [question]="question"
+                            [view]="'nonDraft'"
+                            [preview]="true"
+                        ></dropdown-question>
+                    </ng-template>
                 </div>
             </main>
+            <footer>
+                <button
+                    mat-button
+                    class="cancel-button"
+                    color="basic"
+                    (click)="closeDialog()"
+                >
+                    Cancel
+                </button>
+                <button mat-button class="update-button" color="primary">
+                    Update
+                </button>
+            </footer>
         </section>
     `,
     styles: [
@@ -124,7 +115,13 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
             main {
-                margin: 20px;
+                margin: 0px;
+                padding: 20px;
+                background-color: #f8f8fa;
+                border: 1px solid #d4d4d4;
+            }
+            .category-container {
+                margin: 20px 20px 10px 20px;
             }
             .dialog-title {
                 display: flex;
@@ -151,46 +148,30 @@ import { SurveyCreatorService } from '../survey-creator.service';
             .category-tags mat-checkbox {
                 margin: 10px 40px 10px 0px;
             }
-            .question-box {
-                border: 1px solid #3b82f6;
-                box-shadow: 0px 0px 1px rgba(15, 23, 42, 0.06),
-                    0px 20px 25px -5px rgba(15, 23, 42, 0.1),
-                    0px 10px 10px -5px rgba(15, 23, 42, 0.04);
-                border-radius: 4px;
-                margin-top: 20px;
-                padding: 10px;
-            }
+
             .new-question {
                 margin-left: -10px;
             }
-            .dropdown-container {
-                display: inline-flex;
-                position: relative;
-                width: 100px;
-                margin-bottom: -10px;
+            .cancel-button {
+                display: flex;
+                color: #292f5b;
+                background-color: #fff;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
             }
-            .dropdown {
-                display: absolute;
-                font-size: 12px;
-                width: 100%;
-                height: 30px;
-                margin-bottom: 10px;
+            .update-button {
+                display: flex;
+                color: #fff;
+                background-color: #292f5b;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
             }
-            .options-container {
-                display: inline-flex;
-                width: 100%;
+            footer {
+                display: flex;
+                flex-direction: row;
                 justify-content: flex-end;
-                align-items: center;
+                margin-right: 20px;
             }
-            .required-container {
-                display: inline-flex;
-                font-size: 12px;
-                justify-content: space-between;
-                width: 90px;
-                align-items: center;
-                margin: 0px 15px 5px 0px;
-            }
-
             .close {
                 display: flex;
                 z-index: 99;
@@ -206,6 +187,8 @@ export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
+    question_bank$: Observable<Question[]> =
+        this._surveyCreatorService.question_bank$;
 
     public QuestionType = QuestionType;
 
@@ -220,7 +203,6 @@ export class EditQuestionBankComponent implements OnInit {
         this.question_type = this.selected_tag;
         this._resetChoices();
     }
-
     closeDialog() {
         this._resetChoices();
         this.dialogRef.close();

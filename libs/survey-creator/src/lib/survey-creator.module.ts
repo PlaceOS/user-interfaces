@@ -27,6 +27,7 @@ import { MinusButtonComponent } from './components/minus-button.component';
 import { CommentBoxQuestionComponent } from './components/comment-box-question.component';
 import { DropdownQuestionComponent } from './components/dropdown-question.component';
 import { CompleteSurveyComponent } from './complete-survey.component';
+import { EditQuestionBankComponent } from './components/edit-question-bank.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -49,7 +50,7 @@ const COMPONENTS: Type<any>[] = [
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
+    declarations: [...COMPONENTS, EditQuestionBankComponent],
     imports: [
         CommonModule,
         MatDialogModule,

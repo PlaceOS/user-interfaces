@@ -105,6 +105,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 background-color: #fff;
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 4px;
             }
             .draft-question-container {
                 display: flex;

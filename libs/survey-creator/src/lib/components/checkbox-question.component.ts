@@ -50,7 +50,6 @@ import { InputTitleComponent } from './input-title.component';
                 </div>
             </div>
         </ng-template>
-
         <ng-template #draft>
             <div class="draft-question-container">
                 <div class="wrapper">
@@ -99,6 +98,7 @@ import { InputTitleComponent } from './input-title.component';
                 background-color: #fff;
                 margin: 5px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 4px;
             }
             .draft-question-container {
                 display: flex;
