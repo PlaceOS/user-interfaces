@@ -34,7 +34,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #state_template let-row="row">
             <i
                 *ngIf="!row?.checked_in; else checkin_state"
-                class="p-2 rounded-full material-icons border-2 border-dotted border-gray-600"
+                class="p-2 rounded-full material-icons border-2 border-dotted border-gray-600 dark:border-neutral-800"
                 >face</i
             >
             <ng-template #checkin_state>

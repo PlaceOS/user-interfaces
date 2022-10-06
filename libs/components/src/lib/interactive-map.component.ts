@@ -42,7 +42,7 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
 @Component({
     selector: `i-map,interactive-map`,
     template: `
-        <div #outlet tabindex="0" role="map" class="absolute inset-0 dark:bg-neutral-700"></div>
+        <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
         <ng-container *ngIf="src; else empty_state">
         <mat-spinner
             *ngIf="!viewer || loading"

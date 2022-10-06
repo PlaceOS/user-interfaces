@@ -100,7 +100,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
             <div details class="leading-6">
                 <h3>Requested Locker</h3>
                 <div class="flex space-x-2">
-                    <span>Locker 1234</span>
+                    <span>Locker E-043</span>
                 </div>
             </div>
         </section>

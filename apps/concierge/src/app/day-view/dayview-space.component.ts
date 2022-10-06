@@ -20,7 +20,6 @@ import { BaseClass } from '@placeos/common';
         `
             :host {
                 position: relative;
-                border-right: 1px solid rgba(0, 0, 0, 0.1);
             }
         `,
     ],

@@ -7,22 +7,22 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-event',
     template: `
-        <div event class="flex items-center px-2 bg-gray-100" *ngIf="event">
+        <div event class="flex items-center px-2 bg-gray-100 dark:bg-neutral-700" *ngIf="event">
             <div class="w-12 text-lg flex justify-center">
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400"
+                    class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800"
                     *ngIf="
                         event?.status !== 'declined' && event?.state !== 'done'
                     "
                     >event</i
                 >
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400"
+                    class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800"
                     *ngIf="event?.status === 'declined'"
                     >close</i
                 >
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400 opacity-40"
+                    class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800 opacity-40"
                     *ngIf="
                         event?.state === 'done' && event?.status !== 'declined'
                     "
@@ -90,29 +90,20 @@ import { VisitorsStateService } from './visitors-state.service';
         </div>
         <div
             attendees
-            class="w-full overflow-hidden relative border-b border-gray-300"
+            class="w-full overflow-hidden relative border-b border-gray-300 dark:border-neutral-600"
             [style.height]="
                 !show_attendees && !has_search
                     ? '0rem'
                     : event?.attendees?.length * 3.5 + 'rem'
             "
         >
-            <div
-                bar
-                class="absolute top-0 bg-gray-400 z-10"
-                [style.height]="
-                    'calc(' +
-                    ((event?.attendees?.length - 1) * 3.5 + 1.75) +
-                    'rem + 1px)'
-                "
-            ></div>
             <ng-container *ngIf="show_attendees || has_search">
                 <div
                     visitor
-                    class="relative w-full pl-12 bg-gray-200"
+                    class="relative w-full pl-12 bg-gray-200 dark:bg-neutral-600"
                     *ngFor="let user of event?.attendees || []"
                 >
-                    <div l-bar class="absolute bg-gray-400"></div>
+                    <div class="absolute left-8 top-1/2 -translate-y-full border-b-2 border-l-2 border-gray-400 dark:border-neutral-700 w-4 h-full"></div>
                     <visitor-details
                         [attr.disabled]="!matches[user.email]"
                         [visitor]="user"
@@ -138,18 +129,6 @@ import { VisitorsStateService } from './visitors-state.service';
 
             [visitor] {
                 height: 3.5rem;
-            }
-
-            [bar] {
-                width: 2px;
-                left: calc(2rem - 1px);
-            }
-
-            [l-bar] {
-                height: 2px;
-                left: 2rem;
-                top: calc(50% - 1px);
-                width: 1rem;
             }
 
             [disabled='true'] {

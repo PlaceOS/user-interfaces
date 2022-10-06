@@ -33,7 +33,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                 <div
                     *ngFor="let time of blocks"
                     change-transform
-                    class="relative h-16 border-r border-gray-300 z-10"
+                    class="relative h-16 border-r border-gray-300 dark:border-neutral-500 z-10"
                     [style.transform]="'translateY(-' + scroll.y + 'px)'"
                 >
                     <div
@@ -42,15 +42,15 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                         {{ time }}
                     </div>
                     <div
-                        class="absolute h-px w-2 top-0 right-0 bg-gray-300"
+                        class="absolute h-px w-2 top-0 right-0 bg-gray-300 dark:bg-neutral-500"
                     ></div>
                 </div>
-                <div class="absolute h-8 w-px top-8 right-0 bg-gray-300"></div>
+                <div class="absolute h-8 w-px top-8 right-0 bg-gray-300 dark:bg-neutral-500"></div>
             </div>
             <div class="h-full flex-1 flex flex-col w-1/2">
                 <div
                     header
-                    class="flex relative overflow-hidden border-b border-gray-300 border-opacity-50 bg-blue-100/20 dark:bg-neutral-700 h-16 w-full"
+                    class="flex relative overflow-hidden border-b border-gray-300 dark:border-neutral-500 border-opacity-50 bg-blue-100/20 dark:bg-neutral-700 h-16 w-full"
                 >
                     <div
                         *ngFor="let space of space_list | async"
@@ -60,7 +60,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     >
                         <div
                             bar
-                            class="absolute h-8 w-px bottom-0 -left-px bg-gray-300"
+                            class="absolute h-8 w-px bottom-0 -left-px bg-gray-300 dark:bg-neutral-500"
                         ></div>
                         <div class="name m-2 text-center">
                             {{ space.display_name || space.name }}
@@ -76,11 +76,11 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     <dayview-space
                         *ngFor="let space of space_list | async"
                         [space]="space"
-                        class="w-48 min-w-[12rem] h-[96rem]"
+                        class="w-48 min-w-[12rem] h-[96rem] border-r border-gray-300 dark:border-neutral-500"
                     ></dayview-space>
                     <div
                         *ngFor="let time of blocks; let i = index"
-                        class="absolute bg-gray-300 h-px min-w-full left-0"
+                        class="absolute bg-gray-300 dark:bg-neutral-500 h-px min-w-full left-0"
                         [style.width]="(space_list | async)?.length * 12 + 'rem'"
                         [style.top]="i * 4 + 'rem'"
                     ></div>

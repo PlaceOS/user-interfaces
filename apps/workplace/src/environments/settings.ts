@@ -165,6 +165,7 @@ const app: any = {
         no_approval: false
     },
     desks: {
+        can_book_lockers: true,
         can_book_for_others: true,
         allow_groups: true,
         auto_allocation: false,
