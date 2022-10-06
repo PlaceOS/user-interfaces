@@ -36,25 +36,28 @@ export interface SpaceInfoData {
                 name="space-info"
                 [id]="space?.id"
                 class="
-                    absolute rounded bg-white dark:bg-neutral-800 p-4 top-0 left-0 transform shadow pointer-events-none
+                    absolute rounded bg-white dark:bg-neutral-800 top-0 left-0 transform shadow pointer-events-none overflow-hidden
                 "
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"
             >
                 <div class="arrow"></div>
-                <div class="details">
-                    <h4 class="m-0 mb-2">
-                        {{ space.display_name || space.name }}
-                    </h4>
-                    <div capacity class="text-sm" *ngIf="space.capacity >= 0">
-                        <span>Capacity: </span>{{ space.capacity }}
-                        {{ space.capacity === 1 ? 'person' : 'people' }}
+                <div class="relative">
+                    <div
+                        class="w-full h-32 overflow-hidden bg-black/20 flex items-center justify-center relative"
+                    >
+                        <img
+                            *ngIf="space.images[0]"
+                            [src]="space.images[0]"
+                            class="object-cover min-h-full min-w-full"
+                        />
+                        <div class="absolute inset-0 bg-black/30"></div>
                     </div>
-                    <div class="flex flex-wrap my-2 text-sm">
+                    <div class="absolute top-2 left-2 flex flex-wrap text-sm ">
                         <div
                             status
                             [class]="
-                                'capitalize rounded p-1 px-2 text-light ' +
+                                'capitalize rounded p-1 px-2 text-light border border-white shadow ' +
                                 status
                             "
                         >
@@ -64,11 +67,24 @@ export interface SpaceInfoData {
                             {{ available_until }}
                         </div>
                     </div>
-                    <div features *ngIf="space.features?.length > 0 && show_features">
-                        <h4 class="m-0 mb-2">Room Features</h4>
-                        <ul class="pl-2">
+                    <div class="flex flex-col py-4 px-2">
+                        <h4 class="font-medium text-xl mb-2 px-2">
+                            {{ space.display_name || space.name }}
+                        </h4>
+                        <div
+                            capacity
+                            class="text-base px-2 mb-2"
+                            *ngIf="space.capacity >= 0"
+                        >
+                            <span>Capacity: </span>{{ space.capacity }}
+                            {{ space.capacity === 1 ? 'person' : 'people' }}
+                        </div>
+                        <ul
+                            class="flex flex-wrap"
+                            *ngIf="space.features?.length > 0 && show_features"
+                        >
                             <li
-                                class="text-sm"
+                                class="text-xs px-2 py-1 m-1 rounded-2xl bg-gray-200 dark:bg-neutral-600 font-medium"
                                 *ngFor="let feature of space.features"
                             >
                                 {{ feature }}
@@ -129,8 +145,8 @@ export class ExploreSpaceInfoComponent implements OnInit {
     public ngOnInit(tries: number = 0) {
         if (tries > 10) return;
         setTimeout(() => {
-            const parent = this._element.nativeElement.parentElement
-                ?.parentElement;
+            const parent =
+                this._element.nativeElement.parentElement?.parentElement;
             if (!parent) return this.ngOnInit(++tries);
             const position = {
                 y: parseInt(parent.style.top, 10) / 100,
