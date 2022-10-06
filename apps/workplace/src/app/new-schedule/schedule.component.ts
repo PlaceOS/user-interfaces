@@ -13,7 +13,7 @@ import { ScheduleStateService } from './schedule-state.service';
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
         <div
-            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-zinc-600 relative"
+            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-600 relative"
         >
             <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
             <div

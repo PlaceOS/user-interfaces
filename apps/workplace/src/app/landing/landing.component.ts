@@ -6,7 +6,7 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-dashboard',
     template: `
         <topbar class="z-10" *ngIf="!hide_nav"></topbar>
-        <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-zinc-700">
+        <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-600">
             <div
                 class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-neutral-700 border-r border-gray-200 dark:border-neutral-500"
             >
@@ -45,7 +45,7 @@ import { startOfMinute } from 'date-fns';
             </div>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto z-0">
                 <header
-                    class="sticky top-0 z-50 bg-[#ECF0F3] dark:bg-neutral-800 px-4 rounded-b flex items-center justify-between overflow-hidden"
+                    class="sticky top-0 z-50 bg-[#ECF0F3] dark:bg-zinc-800 px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
                 >
                     <div class="">
                         <div class="sm:text-xl font-medium">

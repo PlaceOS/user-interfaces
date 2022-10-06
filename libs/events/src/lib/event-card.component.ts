@@ -26,7 +26,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             *ngIf="event"
         >
             <div
-                class="w-full bg-white dark:bg-neutral-800 rounded-xl shadow py-4 relative"
+                class="w-full bg-white dark:bg-neutral-700 rounded-xl shadow py-4 relative"
             >
                 <h4 class="px-4 text-lg">{{ event?.title }}</h4>
                 <div class="flex mx-4 my-2">
