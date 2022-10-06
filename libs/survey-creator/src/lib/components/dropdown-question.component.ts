@@ -146,13 +146,15 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 flex-direction: column;
                 margin-top: 10px 0px 0px -10px;
             }
+            .draft-checkbox-container .choices_box {
+                margin-left: -10px;
+            }
             .checkbox {
                 display: inline-flex;
                 justify-content: center;
                 align-items: center;
                 margin-left: -5px;
             }
-
             .plus-minus-buttons {
                 display: flex;
                 flex-direction: row;
