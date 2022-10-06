@@ -7,6 +7,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
         <div
             class="fixed z-20 inset-0 bottom-16 bg-black/75 text-white"
             *ngIf="show_book_items"
+            [attr.dark]="dark_mode"
             (click)="show_book_items = false"
         >
             <div
@@ -26,8 +27,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500">meeting_room</app-icon>
-                        <app-icon outline className="material-icons-outlined">meeting_room</app-icon>
+                        <app-icon filled class="text-neutral-500"
+                            >meeting_room</app-icon
+                        >
+                        <app-icon outline className="material-icons-outlined"
+                            >meeting_room</app-icon
+                        >
                     </div>
                     <div class="text-xs">Book Meeting</div>
                 </a>
@@ -44,7 +49,25 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
                         <app-icon class="text-neutral-500">
-                            <svg style="font-size: 1em; height: 1em" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26"><defs><style>.cls-1{fill:currentColor;}</style></defs><polygon class="cls-1" points="24.999 7 0.999 7 0.999 9 2.999 9 2.999 22 4.999 22 4.999 12 20.999 12 20.999 22 22.999 22 22.999 9 24.999 9 24.999 7"/></svg>
+                            <svg
+                                style="font-size: 1em; height: 1em"
+                                id="Layer_1"
+                                data-name="Layer 1"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 26 26"
+                            >
+                                <defs>
+                                    <style>
+                                        .cls-1 {
+                                            fill: currentColor;
+                                        }
+                                    </style>
+                                </defs>
+                                <polygon
+                                    class="cls-1"
+                                    points="24.999 7 0.999 7 0.999 9 2.999 9 2.999 22 4.999 22 4.999 12 20.999 12 20.999 22 22.999 22 22.999 9 24.999 9 24.999 7"
+                                />
+                            </svg>
                         </app-icon>
                     </div>
                     <div class="text-xs">Book Desk</div>
@@ -59,8 +82,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500">directions_car</app-icon>
-                        <app-icon outline className="material-icons-outlined">directions_car</app-icon>
+                        <app-icon filled class="text-neutral-500"
+                            >directions_car</app-icon
+                        >
+                        <app-icon outline className="material-icons-outlined"
+                            >directions_car</app-icon
+                        >
                     </div>
                     <div class="text-xs">Book Car Space</div>
                 </a>
@@ -74,8 +101,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500">person_add</app-icon>
-                        <app-icon outline className="material-icons-outlined">person_add</app-icon>
+                        <app-icon filled class="text-neutral-500"
+                            >person_add</app-icon
+                        >
+                        <app-icon outline className="material-icons-outlined"
+                            >person_add</app-icon
+                        >
                     </div>
                     <div class="text-xs">Invite Visitor</div>
                 </a>
@@ -91,8 +122,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500">today</app-icon>
-                        <app-icon outline className="material-icons-outlined">today</app-icon>
+                        <app-icon filled class="text-neutral-500"
+                            >today</app-icon
+                        >
+                        <app-icon outline className="material-icons-outlined"
+                            >today</app-icon
+                        >
                     </div>
                     <div class="text-xs">Your Bookings</div>
                 </a>
@@ -101,6 +136,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
         <div
             class="flex items-center justify-center bg-white dark:bg-neutral-700 border-t border-gray-200 dark:border-neutral-500 shadow relative h-16 w-full sm:hidden z-40"
             *ngIf="features.length > 3; else simple_state"
+            [attr.dark]="dark_mode"
         >
             <a
                 matRipple
@@ -109,7 +145,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 routerLinkActive="text-primary active"
             >
                 <app-icon filled class="text-2xl">home</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-2xl !m-0">home</app-icon>
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-2xl !m-0"
+                    >home</app-icon
+                >
                 <span class="text-sm">Home</span>
             </a>
             <button
@@ -131,7 +172,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 routerLinkActive="text-primary active"
             >
                 <app-icon filled class="text-2xl">place</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-2xl !m-0">place</app-icon>
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-2xl !m-0"
+                    >place</app-icon
+                >
                 <span class="text-sm">Spaces</span>
             </a>
             <div
@@ -150,16 +196,23 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </div>
         </ng-template>
     `,
-    styles: [`
-        a.active app-icon {
-            color: var(--primary) !important;
-        }
+    styles: [
+        `
+            a.active app-icon {
+                color: var(--primary) !important;
+            }
 
-        a:not(.active) [filled],
-        a.active [outline] {
-            display: none;
-        } 
-    `],
+            [dark="true"] a.active app-icon,
+            [dark="true"] a.active {
+                color: var(--secondary) !important;
+            }
+
+            a:not(.active) [filled],
+            a.active [outline] {
+                display: none;
+            }
+        `,
+    ],
 })
 export class FooterMenuComponent {
     public show_book_items = false;
@@ -174,6 +227,10 @@ export class FooterMenuComponent {
 
     public get new_features(): boolean {
         return !!this._settings.get('app.new_features');
+    }
+
+    public get dark_mode(): boolean {
+        return !!this._settings.get('dark_mode');
     }
 
     constructor(private _settings: SettingsService) {}

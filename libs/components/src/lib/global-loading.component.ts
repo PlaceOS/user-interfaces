@@ -17,7 +17,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
         <div
             *ngIf="loading"
             loader
-            class="fixed inset-0 flex items-center justify-center pointer-events-auto bg-white"
+            class="fixed inset-0 flex items-center justify-center pointer-events-auto bg-white dark:bg-neutral-600"
         >
             <mat-spinner [diameter]="64"></mat-spinner>
         </div>

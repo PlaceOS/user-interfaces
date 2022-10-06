@@ -96,6 +96,7 @@ export class SettingsService extends BaseClass {
      * Initialise the settings
      */
     public async init() {
+        this._setDarkMode();
         if (this.get('debug')) window.debug = true;
         if (this.get('app')?.name) {
             this._app_name = this.get('app').name;
@@ -203,7 +204,7 @@ export class SettingsService extends BaseClass {
     }
 
     private _setDarkMode() {
-        if (this.get('dark_mode')) {
+        if (this.get('dark_mode') ?? window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.body.classList.add('dark');
         } else {
             document.body.classList.remove('dark');
