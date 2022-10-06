@@ -42,7 +42,9 @@ import { Question } from '../survey-types';
                 <div class="wrapper">
                     <div class="draft-question">
                         <input-title
-                            [placeholder]="'Type question here...'"
+                            [placeholder]="
+                                question?.title || 'Type question here...'
+                            "
                         ></input-title>
                     </div>
                     <div class="input-field-container">
@@ -54,6 +56,9 @@ import { Question } from '../survey-types';
     `,
     styles: [
         `
+            input-title {
+                width: 500px;
+            }
             .question-container {
                 display: flex;
                 flex-direction: row;

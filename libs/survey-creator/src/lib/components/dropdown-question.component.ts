@@ -93,6 +93,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
     `,
     styles: [
         `
+            input-title {
+                width: 500px;
+            }
             .question-container {
                 display: flex;
                 flex-direction: row;

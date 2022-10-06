@@ -71,6 +71,9 @@ import { Question } from '../survey-types';
     `,
     styles: [
         `
+            input-title {
+                width: 500px;
+            }
             .rating-question-container {
                 display: flex;
                 flex-direction: row;

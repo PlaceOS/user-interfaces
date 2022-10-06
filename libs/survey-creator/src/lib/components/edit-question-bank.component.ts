@@ -37,11 +37,11 @@ import { SurveyCreatorService } from '../survey-creator.service';
                         [ngTemplateOutlet]="
                             question.type == 'Text'
                                 ? Text
-                                : question_type == 'Checkbox'
+                                : question.type == 'Checkbox'
                                 ? Checkbox
-                                : question_type == 'Comment'
+                                : question.type == 'Comment'
                                 ? Comment
-                                : question_type == 'Dropdown'
+                                : question.type == 'Dropdown'
                                 ? Dropdown
                                 : Rating
                         "
@@ -51,35 +51,35 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     <ng-template #Rating>
                         <rating-question
                             [question]="question"
-                            [view]="'nonDraft'"
+                            [view]="'draft'"
                             [preview]="true"
                         ></rating-question>
                     </ng-template>
                     <ng-template #Text>
                         <text-question
                             [question]="question"
-                            [view]="'nonDraft'"
+                            [view]="'draft'"
                             [preview]="true"
                         ></text-question>
                     </ng-template>
                     <ng-template #Comment>
                         <comment-box-question
                             [question]="question"
-                            [view]="'nonDraft'"
+                            [view]="'draft'"
                             [preview]="true"
                         ></comment-box-question>
                     </ng-template>
                     <ng-template #Checkbox>
                         <checkbox-question
                             [question]="question"
-                            [view]="'nonDraft'"
+                            [view]="'draft'"
                             [preview]="true"
                         ></checkbox-question>
                     </ng-template>
                     <ng-template #Dropdown>
                         <dropdown-question
                             [question]="question"
-                            [view]="'nonDraft'"
+                            [view]="'draft'"
                             [preview]="true"
                         ></dropdown-question>
                     </ng-template>

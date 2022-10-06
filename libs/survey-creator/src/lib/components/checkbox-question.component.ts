@@ -55,7 +55,9 @@ import { InputTitleComponent } from './input-title.component';
                 <div class="wrapper">
                     <div class="draft-question">
                         <input-title
-                            [placeholder]="'Type question here...'"
+                            [placeholder]="
+                                question?.title || 'Type question here...'
+                            "
                         ></input-title>
                     </div>
                     <div class="draft-checkbox-container">
@@ -86,6 +88,9 @@ import { InputTitleComponent } from './input-title.component';
     `,
     styles: [
         `
+            input-title {
+                width: 500px;
+            }
             .question-container {
                 display: flex;
                 flex-direction: row;
