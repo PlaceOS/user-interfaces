@@ -39,31 +39,26 @@ describe('GlobalSearchComponent', () => {
         spectator.dispatchFakeEvent('input', 'input');
         spectator.detectChanges();
         expect(service.setFilter).toHaveBeenCalled();
-        expect(document.querySelector('mat-option')).toExist();
-        expect(document.querySelector('mat-option')).toContainText(
-            'No matches found'
-        );
+        expect(document.querySelector('[empty]')).toExist();
+        spectator.component.filter_str = "Alex";
         (service.search_results as any).next([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
         spectator.detectChanges();
-        expect(document.querySelector('mat-option')).toExist();
-        expect(document.querySelector('mat-option')).not.toContainText(
-            'No matches found'
-        );
+        expect(document.querySelector('[empty]')).not.toExist();
+        expect(document.querySelector('a')).toExist();
     });
 
     it('should navigate to selected item', () => {
+        expect(document.querySelector('a')).not.toExist();
         const service = spectator.inject(ExploreSearchService);
-        spectator.triggerEventHandler('input', 'ngModelChange', 'Alex');
-        spectator.dispatchFakeEvent('input', 'focusin');
-        spectator.dispatchFakeEvent('input', 'input');
+        spectator.component.filter_str = "Alex";
         (service.search_results as any).next([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
         spectator.detectChanges();
-        expect(document.querySelector('mat-option')).toExist();
-        expect(document.querySelector('mat-option a')).toContainText('Alex S');
-        spectator.click(document.querySelector('mat-option a'));
+        expect(document.querySelector('a')).toExist();
+        expect(document.querySelector('a')).toContainText('Alex S');
+        spectator.click(document.querySelector('a'));
     });
 });

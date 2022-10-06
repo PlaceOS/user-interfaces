@@ -1,7 +1,7 @@
-import { FormGroup } from "@angular/forms";
+import { FormGroup, FormsModule } from "@angular/forms";
 import { createRoutingFactory, SpectatorRouting } from "@ngneat/spectator/jest";
 import { SettingsService } from "@placeos/common";
-import { UserAvatarComponent } from "@placeos/components";
+import { IconComponent, UserAvatarComponent } from "@placeos/components";
 import { EventFormService } from "@placeos/events";
 import { MockComponent, MockProvider } from "ng-mocks";
 import { BehaviorSubject } from "rxjs";
@@ -14,6 +14,7 @@ describe('LandingColleaguesComponent', () => {
         component: LandingColleaguesComponent,
         declarations: [
             MockComponent(UserAvatarComponent),
+            MockComponent(IconComponent)
         ],
         providers: [
             MockProvider(LandingStateService, {
@@ -25,7 +26,8 @@ describe('LandingColleaguesComponent', () => {
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(EventFormService, { newForm: jest.fn(), form: new FormGroup({}) as any })
-        ]
+        ],
+        imports: [FormsModule]
     });
 
     beforeEach(() => spectator = createComponent());

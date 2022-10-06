@@ -81,7 +81,7 @@ describe('ExploreMapViewComponent', () => {
     it('should show map component', () => expect('i-map').toExist());
 
     it('should handle option changes', () => {
-        expect('[zones]').toExist();
+        expect('[name="zones"]').toExist();
         const state = spectator.inject(ExploreStateService);
         spectator.triggerEventHandler(
             'mat-slide-toggle',

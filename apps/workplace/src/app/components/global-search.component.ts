@@ -52,6 +52,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 }"
             >
                 <div
+                    empty
                     class="p-4 w-full text-center opacity-60"
                     *ngIf="
                         !(results | async)?.length && filter_str;
@@ -60,7 +61,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 >
                     No matches found.
                 </div>
-                <ng-container *ngIf="(loading | async) !== true && filter_str">
+                <ng-container *ngIf="!(loading | async) && filter_str">
                     <a
                         matRipple
                         *ngFor="let option of results | async | slice: 0:5"
@@ -91,6 +92,7 @@ import { ExploreSearchService } from '@placeos/explore';
         </div>
         <ng-template #empty_state>
             <div
+                empty
                 *ngIf="!(results | async)?.length"
                 class="p-4 w-full text-center opacity-60"
             >
