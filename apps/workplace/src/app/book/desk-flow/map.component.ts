@@ -43,18 +43,18 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             </mat-menu>
             <div listing class="flex flex-1 h-1/2 relative space-x-2">
                 <ul
-                    class="list-style-none w-full sm:w-[20rem] max-w-[768px] mx-auto bg-gray-100 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+                    class="list-style-none w-full sm:w-[20rem] max-w-[768px] mx-auto bg-gray-100 dark:bg-neutral-600 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
                     [class.!w-full]="hide_map"
                     [class.rounded-tl-lg]="hide_map"
                 >
-                    <div class="py-2 px-4 sticky top-0 inset-x-0 bg-gray-100 z-10">
+                    <div class="py-2 px-4 sticky top-0 inset-x-0 bg-gray-100 dark:bg-neutral-600 border-b border-gray-200 dark:border-neutral-500 z-10">
                         {{ (desks | async)?.length || '0' }} matches available
                     </div>
                     <li
                         matRipple
                         *ngFor="let desk of desks | async"
                         [attr.desk-id]="desk.id"
-                        class="flex items-center p-2 mx-2 bg-white rounded shadow cursor-pointer space-x-2 min-h-[5rem] border"
+                        class="flex items-center p-2 mx-2 bg-white dark:bg-neutral-700 rounded shadow cursor-pointer space-x-2 min-h-[5rem] border"
                         [class.border-primary]="active_desk?.id === desk.id"
                         (click)="setActiveDesk(desk)"
                     >
@@ -80,7 +80,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                     </li>
                 </ul>
                 <div
-                    class="hidden sm:block flex-1 bg-gray-200 rounded-tl-lg border-l border-t border-gray-300 relative overflow-hidden h-full"
+                    class="hidden sm:block flex-1 bg-gray-200 dark:bg-neutral-600 rounded-tl-lg border-l border-t border-gray-300 dark:border-neutral-500 relative overflow-hidden h-full"
                     *ngIf="!hide_map"
                 >
                     <i-map
@@ -94,7 +94,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                         [focus]="active_desk?.map_id || active_desk?.id"
                     ></i-map>
                     <div
-                        class="absolute top-2 left-2 bg-white rounded-3xl h-10 px-3 flex items-center border border-gray-300"
+                        class="absolute top-2 left-2 bg-white dark:bg-neutral-700 rounded-3xl h-10 px-3 flex items-center border border-gray-300 dark:border-neutral-500"
                         *ngIf="level | async"
                     >
                         {{
@@ -105,14 +105,14 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                 </div>
                 <div
                     *ngIf="loading | async"
-                    class="absolute inset-0 bg-white bg-opacity-60 flex flex-col items-center justify-center space-y-2 !m-0 z-20"
+                    class="absolute inset-0 bg-white dark:bg-neutral-700 bg-opacity-60 flex flex-col items-center justify-center space-y-2 !m-0 z-20"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>{{ loading | async }}</p>
                 </div>
                 <div
                     selection
-                    class="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white shadow rounded w-[24rem] max-w-[calc(100vw-1rem)] space-y-2 !m-0 border border-gray-200"
+                    class="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white dark:bg-neutral-700 shadow rounded w-[24rem] max-w-[calc(100vw-1rem)] space-y-2 !m-0 border border-gray-200"
                     *ngIf="active_desk"
                 >
                     <div class="">
@@ -268,7 +268,7 @@ export class DeskFlowMapComponent extends BaseClass implements OnInit {
                                           this.active_desk.map_id ||
                                           this.active_desk.id,
                                       content: `
-                    <span class="flex h-4 w-4 rounded-full absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 border-[3px] border-white shadow" >
+                    <span class="flex h-4 w-4 rounded-full absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 border-[3px] border-white dark:border-neutral-4å00 shadow" >
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-full w-full bg-primary"></span>
                     </span>`,

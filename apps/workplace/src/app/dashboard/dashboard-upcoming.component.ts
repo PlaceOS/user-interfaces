@@ -16,23 +16,22 @@ import { DashboardStateService } from './dashboard-state.service';
         <div
             name="event"
             *ngFor="let event of event_list | async | slice: 0:3"
-            class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4 dark:bg-neutral-800"
+            class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4 dark:bg-neutral-700"
         >
             <div name="status" class="absolute rounded-lg" [class.bg-primary]="event.asset_id"></div>
             <div name="details" class="flex-1 mr-2">
-                <div name="time" class="text-sm text-bold mb-2">
+                <div time class="text-primary dark:text-secondary text-sm font-bold mb-2">
                     {{ event.date | date: 'shortTime' }}
                 </div>
-                <div name="title" class="text-sm text-bold mb-2">
+                <div name="title" class="text-sm font-bold mb-2">
                     {{ event.title }}
                 </div>
                 <div name="space" class="text-xs flex items-center mb-2">
                     <app-icon
                         class="mr-2"
-                        [icon]="{ class: 'material-icons', content: 'room' }"
-                    ></app-icon>
+                    >room</app-icon>
                     <a
-                        class="text-black"
+                        class="text-black dark:text-white"
                         [class.underline]="!!event.space || !!event.asset_id"
                         [matTooltip]="event.space ? 'Locate Space' : ''"
                         (click)="event.space || event.asset_id ? locateSpace(event.space || event) : ''"
@@ -83,10 +82,6 @@ import { DashboardStateService } from './dashboard-state.service';
             :host {
                 padding: 1em;
                 min-width: 16rem;
-            }
-
-            [name='time'] {
-                color: #00529b;
             }
 
             [name='event'] {

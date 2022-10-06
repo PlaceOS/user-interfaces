@@ -7,7 +7,7 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
     selector: 'dashboard-deliveries',
     template: `
         <h3 class="m-0 my-2 font-medium text-xl">Deliveries</h3>
-        <div class="bg-white shadow p-2 rounded dark:bg-neutral-800">
+        <div class="bg-white shadow p-2 rounded dark:bg-neutral-700">
             <div class="divide-y" *ngIf="deliveries?.length; else empty_state">
                 <div
                     class="flex items-center py-2"

@@ -9,7 +9,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <h3 class="m-0 mb-2 font-medium text-xl">Colleagues</h3>
         <div
             name="contact-list"
-            class="bg-gray-400 dark:bg-neutral-600 shadow rounded-lg p-2 pl-0 space-y-2 flex flex-wrap"
+            class="bg-gray-400 dark:bg-neutral-600 border border-gray-200 dark:border-neutral-500 shadow rounded-lg p-2 pl-0 space-y-2 flex flex-wrap"
         >
             <div
                 name="contact"

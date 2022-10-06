@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'detailed-book-space-form',
     template: `
         <form *ngIf="form" [formGroup]="form">
-            <section class="mb-4 border-b border-gray-300">
+            <section class="mb-4 border-b border-gray-300 dark:border-neutral-500">
                 <div
                     class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
@@ -107,7 +107,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </section>
             <section
-                class="mb-4 border-b border-gray-300"
+                class="mb-4 border-b border-gray-300 dark:border-neutral-500"
                 *ngIf="can_book_for_others || !hide_attendees"
             >
                 <div
@@ -132,7 +132,7 @@ import { OrganisationService } from '@placeos/organisation';
                     ></a-user-list-field>
                 </div>
             </section>
-            <section class="mb-4 border-b border-gray-300">
+            <section class="mb-4 border-b border-gray-300 dark:border-neutral-500">
                 <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                     <div class="flex flex-col">
                         <label for="title"

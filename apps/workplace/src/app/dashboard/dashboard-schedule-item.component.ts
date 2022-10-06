@@ -8,7 +8,7 @@ import { BookingLike } from '../schedule/schedule-state.service';
   template: `
     <a
         mat-button
-        class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-24 bg-white dark:bg-neutral-800 hover:shadow p-0"
+        class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-24 bg-white dark:bg-neutral-700 hover:shadow p-0"
         [class.opacity-50]="has_ended"
         [routerLink]="['/schedule', 'view', item?.id, type]"
     >

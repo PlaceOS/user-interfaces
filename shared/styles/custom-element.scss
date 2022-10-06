@@ -52,6 +52,13 @@ a[button],
     flex-grow: 1;
 }
 
+#placeos {
+    .mat-button-toggle {
+        background: inherit;
+        color: currentColor;
+    }
+}
+
 #placeos .dark,
 #placeos [dark] {
     mat-tab-group {
