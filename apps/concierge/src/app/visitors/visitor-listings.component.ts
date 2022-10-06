@@ -7,7 +7,7 @@ import { VisitorsStateService } from './visitors-state.service';
     template: `
         <div class="w-full flex flex-col flex-1 text-sm h-full">
             <div
-                class="w-full flex items-center bg-white border-b border-gray-500 p-2 font-medium"
+                class="w-full flex items-center bg-white dark:bg-neutral-700 border-b border-gray-500 p-2 font-medium"
             >
                 <div class="w-12 p-2"></div>
                 <div class="w-24 p-2">Time</div>

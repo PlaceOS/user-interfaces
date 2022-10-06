@@ -7,7 +7,7 @@ import { DesksStateService } from './desks-state.service';
     selector: '[app-desks]',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden flex-1 flex flex-col">
+        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
             <desks-topbar class="w-full"></desks-topbar>
             <div class="dark">
                 <nav mat-tab-nav-bar>
@@ -53,7 +53,6 @@ import { DesksStateService } from './desks-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
         `,
     ],

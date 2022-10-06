@@ -6,7 +6,7 @@ import { BaseClass } from '@placeos/common';
     selector: '[app-catering]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-1/2 flex-1 flex flex-col">
+        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
             <catering-topbar class="relative z-10"></catering-topbar>
             <div class="flex flex-1 h-1/2 w-full overflow-auto">
                 <ng-container [ngSwitch]="page">
@@ -24,7 +24,7 @@ import { BaseClass } from '@placeos/common';
                     >
                         <a
                             matRipple
-                            class="rounded flex flex-col items-center bg-white shadow text-black"
+                            class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white"
                             [routerLink]="['/catering', 'menu']"
                         >
                             <div
@@ -47,7 +47,7 @@ import { BaseClass } from '@placeos/common';
                         </a>
                         <a
                             matRipple
-                            class="rounded flex flex-col items-center bg-white shadow text-black"
+                            class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white"
                             [routerLink]="['/catering', 'orders']"
                         >
                             <div
@@ -80,7 +80,6 @@ import { BaseClass } from '@placeos/common';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
 
             a {
@@ -92,7 +91,7 @@ import { BaseClass } from '@placeos/common';
             }
 
             a:hover {
-                background-color: #00000001 !important;
+                opacity: 0.8;
             }
 
             a:first-child {

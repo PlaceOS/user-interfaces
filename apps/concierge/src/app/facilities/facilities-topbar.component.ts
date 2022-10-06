@@ -9,44 +9,43 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'facilities-topbar',
     template: `
-        <mat-form-field appearance="outline">
-            <mat-select
-                multiple
-                [(ngModel)]="zones"
-                (ngModelChange)="updateZones($event)"
-                placeholder="All Levels"
-            >
-                <mat-option *ngFor="let level of levels | async" [value]="level.id">
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-select
-                multiple
-                [(ngModel)]="type_list"
-                (ngModelChange)="updateTypes($event)"
-                placeholder="No Events"
-            >
-                <mat-select-trigger>Legend</mat-select-trigger>
-                <mat-option *ngFor="let type of types" [value]="type.id">
-                    {{ type.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <div class="flex-full"></div>
-        <searchbar class="mr-2"></searchbar>
+        <div
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
+        >
+            <mat-form-field appearance="outline">
+                <mat-select
+                    multiple
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
+                    placeholder="All Levels"
+                >
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-select
+                    multiple
+                    [(ngModel)]="type_list"
+                    (ngModelChange)="updateTypes($event)"
+                    placeholder="No Events"
+                >
+                    <mat-select-trigger>Legend</mat-select-trigger>
+                    <mat-option *ngFor="let type of types" [value]="type.id">
+                        {{ type.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div class="flex-full"></div>
+            <searchbar class="mr-2"></searchbar>
+        </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 2em;
-            }
-
             .flex-full {
                 flex: 1;
                 width: 0.5em;
@@ -102,7 +101,7 @@ export class FacilitiesTopbarComponent extends BaseClass {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first(_ => _)).toPromise();
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -110,7 +109,9 @@ export class FacilitiesTopbarComponent extends BaseClass {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
-                        if (!level) { return; }
+                        if (!level) {
+                            return;
+                        }
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
@@ -122,7 +123,9 @@ export class FacilitiesTopbarComponent extends BaseClass {
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) => levels.find((lvl) => lvl.id === zone));
+                this.zones = this.zones.filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone)
+                );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }

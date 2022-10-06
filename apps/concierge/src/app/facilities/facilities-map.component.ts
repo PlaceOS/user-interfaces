@@ -15,7 +15,9 @@ import { EventsStateService } from '../day-view/events-state.service';
             [features]="features | async"
             [actions]="actions | async"
         ></i-map>
-        <explore-zoom-controls class="absolute bottom-0 right-0"></explore-zoom-controls>
+        <explore-zoom-controls
+            class="absolute bottom-2 right-2"
+        ></explore-zoom-controls>
     `,
     styles: [
         `
@@ -39,7 +41,10 @@ export class FacilitiesMapComponent extends BaseClass {
     /** Observable for the active map */
     public readonly actions = this._explore.map_actions;
 
-    constructor(private _explore: ExploreStateService, private _state: EventsStateService) {
+    constructor(
+        private _explore: ExploreStateService,
+        private _state: EventsStateService
+    ) {
         super();
     }
 

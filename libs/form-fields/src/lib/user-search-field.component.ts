@@ -61,7 +61,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     (click)="setValue(option); blurInput()"
                 >
                     <div class="leading-tight">{{ option.name }}</div>
-                    <div class="text-xs text-black opacity-60">
+                    <div class="text-xs opacity-60">
                         {{ option.email }}
                     </div>
                 </mat-option>

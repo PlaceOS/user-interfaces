@@ -9,64 +9,58 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitors-topbar',
     template: `
-        <mat-form-field appearance="outline">
-            <mat-select
-                multiple
-                [(ngModel)]="zones"
-                (ngModelChange)="updateZones($event)"
-                placeholder="All Levels"
-            >
-                <mat-option
-                    *ngFor="let level of levels | async"
-                    [value]="level.id"
+        <div
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
+        >
+            <mat-form-field appearance="outline">
+                <mat-select
+                    multiple
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
+                    placeholder="All Levels"
                 >
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-select
-                [ngModel]="(filters | async)?.period || 1"
-                (ngModelChange)="setFilters({ period: $event })"
-                placeholder="Viewing Period"
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-select
+                    [ngModel]="(filters | async)?.period || 1"
+                    (ngModelChange)="setFilters({ period: $event })"
+                    placeholder="Viewing Period"
+                >
+                    <mat-option [value]="1">Show Day</mat-option>
+                    <mat-option [value]="7">Show Week</mat-option>
+                    <mat-option [value]="30">Show Month</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-slide-toggle
+                class="m-2"
+                [ngModel]="(filters | async)?.show_guests"
+                (ngModelChange)="setFilters({ show_guests: $event })"
+                ><div class="text-xs">Only Guests</div></mat-slide-toggle
             >
-                <mat-option [value]="1">Show Day</mat-option>
-                <mat-option [value]="7">Show Week</mat-option>
-                <mat-option [value]="30">Show Month</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-slide-toggle
-            class="m-2"
-            [ngModel]="(filters | async)?.show_guests"
-            (ngModelChange)="setFilters({ show_guests: $event })"
-            ><div class="text-xs">Only Guests</div></mat-slide-toggle
-        >
-        <mat-slide-toggle
-            class="m-2"
-            *ngIf="!(filters | async)?.show_guests"
-            [ngModel]="(filters | async)?.all_bookings"
-            (ngModelChange)="setFilters({ all_bookings: $event })"
-            ><div class="text-xs">All Bookings</div></mat-slide-toggle
-        >
-        <div class="flex-1 w-2"></div>
-        <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
-        <date-options (dateChange)="setDate($event)"></date-options>
+            <mat-slide-toggle
+                class="m-2"
+                *ngIf="!(filters | async)?.show_guests"
+                [ngModel]="(filters | async)?.all_bookings"
+                (ngModelChange)="setFilters({ all_bookings: $event })"
+                ><div class="text-xs">All Bookings</div></mat-slide-toggle
+            >
+            <div class="flex-1 w-2"></div>
+            <searchbar
+                class="mr-2"
+                (modelChange)="setSearch($event)"
+            ></searchbar>
+            <date-options (dateChange)="setDate($event)"></date-options>
+        </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-                border-bottom: 1px solid #ccc;
-            }
-
-            :host > * + * {
-                margin-left: 0.5rem;
-            }
-
             mat-form-field {
                 height: 3.25em;
                 width: 8em;

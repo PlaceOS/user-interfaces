@@ -7,7 +7,7 @@ import { CateringOrdersService } from './catering-orders.service';
     selector: 'catering-order-list',
     template: `
         <div
-            class="sticky top-0 w-full text-sm font-medium flex items-center py-4 border-solid border-b border-gray-300 bg-white"
+            class="sticky top-0 w-full text-sm font-medium flex items-center py-4 border-solid border-b border-gray-300 bg-white dark:bg-neutral-800"
         >
             <div class="w-20"></div>
             <div class="w-24">Time</div>
@@ -20,14 +20,14 @@ import { CateringOrdersService } from './catering-orders.service';
         </div>
         <ul class="list-none p-0 m-0 w-full flex-1 overflow-auto">
             <li
-                class="border-solid border-b border-gray-300"
+                class="border-solid border-b border-gray-300 dark:border-neutral-500"
                 *ngFor="let order of order_list | async; trackBy: trackByFn"
             >
                 <catering-order [order]="order"></catering-order>
             </li>
             <div
                 empty
-                class="info-block text-dark-fade"
+                class="info-block opacity-60"
                 *ngIf="!(order_list | async)?.length"
             >
                 <p>No Catering Orders</p>

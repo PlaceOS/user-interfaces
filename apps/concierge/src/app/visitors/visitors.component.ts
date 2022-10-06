@@ -5,7 +5,7 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: '[app-visitors]',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden flex-1 flex flex-col">
+        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
             <visitors-topbar class="w-full"></visitors-topbar>
             <visitor-listings *ngIf="!(filters | async)?.show_guests" class="w-full flex-1 h-0"></visitor-listings>
             <guest-listings *ngIf="(filters | async)?.show_guests" class="w-full flex-1 h-0"></guest-listings>
@@ -18,7 +18,6 @@ import { VisitorsStateService } from './visitors-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
         `
     ],

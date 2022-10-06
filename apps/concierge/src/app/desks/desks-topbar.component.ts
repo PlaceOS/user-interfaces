@@ -2,7 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, take } from 'rxjs/operators';
 
-import { BaseClass, csvToJson, loadTextFileFromInputEvent, notifyError, notifySuccess } from '@placeos/common';
+import {
+    BaseClass,
+    csvToJson,
+    loadTextFileFromInputEvent,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { DesksStateService } from './desks-state.service';
 import { showBooking } from '@placeos/bookings';
@@ -11,53 +17,57 @@ import { randomInt } from '@placeos/common';
 @Component({
     selector: 'desks-topbar',
     template: `
-        <mat-form-field appearance="outline">
-            <mat-select
-                [ngModel]="(filters | async).zones ? (filters | async).zones[0] : 'All'"
-                (ngModelChange)="updateZones([$event])"
-                placeholder="All Levels"
-            >
-                <mat-option value="All" *ngIf="!is_map">All Levels</mat-option>
-                <mat-option
-                    *ngFor="let level of levels | async"
-                    [value]="level.id"
+        <div
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
+        >
+            <mat-form-field appearance="outline">
+                <mat-select
+                    [ngModel]="
+                        (filters | async).zones
+                            ? (filters | async).zones[0]
+                            : 'All'
+                    "
+                    (ngModelChange)="updateZones([$event])"
+                    placeholder="All Levels"
                 >
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <button mat-button *ngIf="manage" class="mx-2 w-32" (click)="newDesk()">New Desk</button>
-        <button mat-button *ngIf="manage" class="relative w-32">
-            Upload CSV
-            <input
-                type="file"
-                class="absolute inset-0 opacity-0"
-                (change)="loadCSVData($event)"
-            />
-        </button>
-        <div class="flex-1 w-2"></div>
-        <searchbar
-            class="mr-2"
-            [model]="(filters | async)?.search"
-            (modelChange)="setFilters({ search: $event })"
-        ></searchbar>
-        <date-options (dateChange)="setDate($event)"></date-options>
+                    <mat-option value="All" *ngIf="!is_map"
+                        >All Levels</mat-option
+                    >
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button
+                mat-button
+                *ngIf="manage"
+                class="mx-2 w-32"
+                (click)="newDesk()"
+            >
+                New Desk
+            </button>
+            <button mat-button *ngIf="manage" class="relative w-32">
+                Upload CSV
+                <input
+                    type="file"
+                    class="absolute inset-0 opacity-0"
+                    (change)="loadCSVData($event)"
+                />
+            </button>
+            <div class="flex-1 w-2"></div>
+            <searchbar
+                class="mr-2"
+                [model]="(filters | async)?.search"
+                (modelChange)="setFilters({ search: $event })"
+            ></searchbar>
+            <date-options (dateChange)="setDate($event)"></date-options>
+        </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-                border-bottom: 1px solid #ccc;
-            }
-
-            :host > * + * {
-                margin-left: 0.5rem;
-            }
-
             mat-form-field {
                 height: 3.25em;
                 width: 8em;
@@ -145,7 +155,9 @@ export class DesksTopbarComponent extends BaseClass implements OnInit {
 
     public newDesk() {
         this._desks.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
-        notifySuccess('New desk added to local data. Make sure to save the desk before using it.')
+        notifySuccess(
+            'New desk added to local data. Make sure to save the desk before using it.'
+        );
     }
 
     public async loadCSVData(event: InputEvent) {

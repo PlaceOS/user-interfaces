@@ -4,7 +4,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
 @Component({
     selector: 'contact-tracing-options',
     template: `
-        <div class="flex items-center space-x-2 w-full p-2 bg-white shadow">
+        <div class="flex items-center space-x-2 w-full p-2 bg-white dark:bg-neutral-700 shadow">
             <mat-form-field appearance="outline" class="w-[18rem]">
                 <mat-date-range-input [rangePicker]="picker">
                     <input

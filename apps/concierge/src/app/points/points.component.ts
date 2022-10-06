@@ -7,7 +7,7 @@ import { PointsStateService } from './points-state.service';
     selector: 'placeos-points',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col">
+        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
             <points-topbar class="relative z-10">
                 <button
                     *ngIf="page === 'assets'"
@@ -44,7 +44,6 @@ import { PointsStateService } from './points-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
         `,
     ],

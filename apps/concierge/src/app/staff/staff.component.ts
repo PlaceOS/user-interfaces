@@ -6,7 +6,7 @@ import { StaffStateService } from './staff-state.service';
     selector: '[app-staff]',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden flex-1 flex flex-col">
+        <main class="relative overflow-hidden flex-1 flex flex-col bg-gray-200  dark:bg-neutral-600">
             <staff-topbar class="w-full"></staff-topbar>
             <staff-listings class="w-full flex-1 h-0"></staff-listings>
             <mat-progress-bar
@@ -22,7 +22,6 @@ import { StaffStateService } from './staff-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
         `,
     ],

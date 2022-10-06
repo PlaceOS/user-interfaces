@@ -60,12 +60,12 @@ import { Observable } from 'rxjs';
             </ng-container>
 
             <cdk-header-row
-                class="flex items-center bg-white sticky top-0 z-10"
+                class="sticky flex items-center bg-white dark:bg-neutral-700 top-0 z-10 border-b border-gray-300 dark:border-neutral-400"
                 *cdkHeaderRowDef="columns"
             ></cdk-header-row>
             <cdk-row
                 row
-                class="flex z-0 relative hover:bg-black/5"
+                class="flex z-0 relative hover:bg-black/5 dark:hover:bg-white/5 border-b border-gray-200 dark:border-neutral-500"
                 (click)="row_clicked.emit(row)"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
@@ -87,19 +87,9 @@ import { Observable } from 'rxjs';
     styles: [
         `
             cdk-header-row {
-                position: sticky;
-                border-bottom: 1px solid #999;
                 font-weight: 500;
                 text-transform: capitalize;
                 min-height: 3rem;
-            }
-
-            cdk-row {
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            }
-
-            cdk-row:hover {
-                background-color: #f0f0f0;
             }
         `,
     ],

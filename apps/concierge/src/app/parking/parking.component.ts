@@ -7,7 +7,7 @@ import { ParkingStateService } from './parking-state.service';
     selector: 'app-parking',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden">
+        <main class="relative overflow-hidden bg-gray-100 dark:bg-neutral-600">
             <parking-topbar></parking-topbar>
             <div class="dark">
                 <nav mat-tab-nav-bar>
@@ -40,7 +40,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="flex-1 h-1/2 w-full relative overflow-auto">
                 <router-outlet></router-outlet>
             </div>
-            <div *ngIf="!(levels | async)?.length" class="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-50">
+            <div *ngIf="!(levels | async)?.length" class="absolute inset-0 bg-white/80 dark:bg-white/20 flex flex-col items-center justify-center z-50">
                 <p>No parking floors for the currently selected building</p>
             </div>
         </main>
@@ -51,7 +51,6 @@ import { ParkingStateService } from './parking-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
 
             sidebar {

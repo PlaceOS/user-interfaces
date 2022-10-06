@@ -9,6 +9,8 @@ import { StaffStateService } from './staff-state.service';
 @Component({
     selector: 'staff-topbar',
     template: `
+    <div 
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2">
         <mat-form-field appearance="outline">
             <mat-select
                 multiple
@@ -32,22 +34,10 @@ import { StaffStateService } from './staff-state.service';
         >
         <div class="flex-1 w-2"></div>
         <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
+</div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-                border-bottom: 1px solid #ccc;
-            }
-
-            :host > * + * {
-                margin-left: 0.5rem;
-            }
-
             mat-form-field {
                 height: 3.25em;
                 width: 8em;

@@ -8,10 +8,10 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         <contact-tracing-options></contact-tracing-options>
         <div class="flex-1 h-1/2 w-full overflow-auto">
             <div
-                class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-white shadow mx-auto my-2"
+                class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-white dark:bg-neutral-700 shadow mx-auto my-2"
             >
                 <div
-                    class="border-b border-gray-200 flex items-center justify-between px-4"
+                    class="border-b border-gray-200 dark:border-neutral-500 flex items-center justify-between px-4"
                 >
                     <h2 class="py-2 text-xl font-medium">Contact Events</h2>
                 </div>
@@ -41,7 +41,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 ></custom-table>
                 <ng-template #option_state let-data="data">
                     <span
-                        class="text-xs px-2 py-1 rounded bg-gray-300"
+                        class="text-xs px-2 py-1 rounded bg-gray-300 dark:bg-neutral-600"
                         *ngIf="data.length"
                         [matTooltip]="options(data)"
                     >
@@ -65,7 +65,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         </div>
         <button
             mat-icon-button
-            class="bg-white absolute bottom-2 left-2 shadow"
+            class="bg-white dark:bg-neutral-700 absolute bottom-2 left-2 shadow"
             matTooltip="Download Report"
             (click)="downloadReport()"
         >

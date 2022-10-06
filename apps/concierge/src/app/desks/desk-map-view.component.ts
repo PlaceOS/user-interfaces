@@ -18,7 +18,7 @@ import { OrganisationService } from '@placeos/organisation';
                 [actions]="actions | async"
             ></i-map>
             <explore-zoom-controls
-                class="absolute bottom-0 right-0"
+                class="absolute bottom-2 right-2"
             ></explore-zoom-controls>
             <div class="absolute top-0 left-0 p-2 text-black">
                 <a-user-search-field
@@ -29,7 +29,7 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
             <div
                 info
-                class="absolute bottom-0 rounded p-2 m-2 bg-white shadow text-center"
+                class="absolute bottom-0 rounded p-2 m-2 bg-white dark:bg-neutral-700 shadow text-center"
             >
                 Click/Tap an available desk to book it.
             </div>

@@ -50,7 +50,7 @@ export interface PointAsset {
             empty="No priced assets"
         ></custom-table>
         <ng-template #type_template let-data="data">
-            <span class="p-2 bg-gray-200 rounded capitalize">{{ data }}</span>
+            <span class="p-2 bg-gray-200 dark:bg-neutral-500 rounded capitalize">{{ data }}</span>
         </ng-template>
         <ng-template #price_template let-data="data">
             <span class="text-xs"> {{ data / 100 | currency:code }} per hour </span>

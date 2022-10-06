@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
     selector: '[app-reports]',
     template: `
         <sidebar class="h-full"></sidebar>
-        <main class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full">
+        <main class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-gray-300 dark:bg-neutral-600">
             <router-outlet></router-outlet>
             <div reports-menu *ngIf="path === 'reports'" class="absolute inset-0"></div>
         </main>
@@ -16,7 +16,6 @@ import { Router } from '@angular/router';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
 
             main > *:not(router-outlet) {

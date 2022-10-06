@@ -9,71 +9,72 @@ import { ReportsStateService } from './reports-state.service';
 @Component({
     selector: 'reports-options',
     template: `
-        <mat-form-field appearance="outline" class="w-48">
-            <mat-select
-                multiple
-                [ngModel]="(options | async)?.zones"
-                (ngModelChange)="setZones($event)"
-                placeholder="Select Levels..."
-            >
-                <mat-option value="All">All Levels</mat-option>
-                <mat-option
-                    *ngFor="let level of levels | async"
-                    [value]="level.id"
+        <div
+            class="bg-white dark:bg-neutral-700 h-20 w-full flex items-center px-2"
+        >
+            <mat-form-field appearance="outline" class="w-48">
+                <mat-select
+                    multiple
+                    [ngModel]="(options | async)?.zones"
+                    (ngModelChange)="setZones($event)"
+                    placeholder="Select Levels..."
                 >
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="w-64">
-            <mat-date-range-input [rangePicker]="picker">
-                <input
-                    matStartDate
-                    [ngModel]="(options | async)?.start"
-                    (ngModelChange)="$event ? setStartDate($event) : ''"
-                    placeholder="Start date"
-                />
-                <input
-                    matEndDate
-                    [ngModel]="(options | async)?.end"
-                    (ngModelChange)="$event ? setEndDate($event) : ''"
-                    placeholder="End date"
-                />
-            </mat-date-range-input>
-            <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-        <button
-            mat-button
-            class="ml-4"
-            [disabled]="!!(loading | async) || !(options | async)?.zones?.length"
-            (click)="generateReport()"
-        >
-            <mat-spinner *ngIf="loading | async" [diameter]="32"></mat-spinner>
-            <p *ngIf="!(loading | async)">Generate Report</p>
-        </button>
-        <button
-            mat-button
-            class="ml-4"
-            [disabled]="!(bookings | async)?.length"
-            (click)="downloadReport()"
-        >
-            <p>Download Report</p>
-        </button>
+                    <mat-option value="All">All Levels</mat-option>
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-64">
+                <mat-date-range-input [rangePicker]="picker">
+                    <input
+                        matStartDate
+                        [ngModel]="(options | async)?.start"
+                        (ngModelChange)="$event ? setStartDate($event) : ''"
+                        placeholder="Start date"
+                    />
+                    <input
+                        matEndDate
+                        [ngModel]="(options | async)?.end"
+                        (ngModelChange)="$event ? setEndDate($event) : ''"
+                        placeholder="End date"
+                    />
+                </mat-date-range-input>
+                <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+            <button
+                mat-button
+                class="ml-4"
+                [disabled]="
+                    !!(loading | async) || !(options | async)?.zones?.length
+                "
+                (click)="generateReport()"
+            >
+                <mat-spinner
+                    *ngIf="loading | async"
+                    [diameter]="32"
+                ></mat-spinner>
+                <p *ngIf="!(loading | async)">Generate Report</p>
+            </button>
+            <button
+                mat-button
+                class="ml-4"
+                [disabled]="!(bookings | async)?.length"
+                (click)="downloadReport()"
+            >
+                <p>Download Report</p>
+            </button>
+        </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-            }
-
             button {
                 min-width: 0;
                 padding: 0 0.85rem;
@@ -138,9 +139,12 @@ export class ReportsOptionsComponent extends BaseClass {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.page = this._router.url;
-        this.subscription('routing', this._router.events.subscribe(() => {
-            this.page = this._router.url;
-        }));
+        this.subscription(
+            'routing',
+            this._router.events.subscribe(() => {
+                this.page = this._router.url;
+            })
+        );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

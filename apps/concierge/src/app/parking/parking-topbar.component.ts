@@ -11,34 +11,31 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <mat-form-field appearance="outline">
-            <mat-select
-                [ngModel]="zones[0]"
-                (ngModelChange)="updateZones([$event]);zones = [$event]"
-                placeholder="All Levels"
-            >
-                <mat-option
-                    *ngFor="let level of levels | async"
-                    [value]="level.id"
+        <div class="flex items-center bg-white dark:bg-neutral-700 px-2 h-20">
+            <mat-form-field appearance="outline">
+                <mat-select
+                    [ngModel]="zones[0]"
+                    (ngModelChange)="updateZones([$event]); zones = [$event]"
+                    placeholder="All Levels"
                 >
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <div class="flex-1 w-0"></div>
-        <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
-        <date-options (dateChange)="setDate($event)"></date-options>
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div class="flex-1 w-0"></div>
+            <searchbar
+                class="mr-2"
+                (modelChange)="setSearch($event)"
+            ></searchbar>
+            <date-options (dateChange)="setDate($event)"></date-options>
+        </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-            }
-
             button {
                 min-width: 0;
                 padding: 0 0.85rem;
@@ -61,7 +58,8 @@ export class ParkingTopbarComponent extends BaseClass implements OnInit {
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set filter string */
-    public readonly setSearch = (str) => this._state.setOptions({ search: str });
+    public readonly setSearch = (str) =>
+        this._state.setOptions({ search: str });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {

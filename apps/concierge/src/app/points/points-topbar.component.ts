@@ -3,31 +3,21 @@ import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
-
 @Component({
     selector: 'points-topbar',
     template: `
-        <div class="flex-1 w-2">
-            <ng-content></ng-content>
+        <div
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
+        >
+            <div class="flex-1 w-2">
+                <ng-content></ng-content>
+            </div>
+            <!-- <searchbar class="mr-2"></searchbar> -->
+            <date-options></date-options>
         </div>
-        <!-- <searchbar class="mr-2"></searchbar> -->
-        <date-options></date-options>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-                border-bottom: 1px solid #ccc;
-            }
-
-            :host > * + * {
-                margin-left: .5rem;
-            }
-
             mat-form-field {
                 height: 3.25em;
                 width: 8em;
@@ -36,10 +26,7 @@ import { first } from 'rxjs/operators';
     ],
 })
 export class PointsTopbarComponent extends BaseClass {
-
-    constructor(
-        private _org: OrganisationService,
-    ) {
+    constructor(private _org: OrganisationService) {
         super();
     }
 
