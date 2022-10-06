@@ -73,7 +73,6 @@ const EMPTY = [];
             :host {
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
             }
 
             [zones] {
