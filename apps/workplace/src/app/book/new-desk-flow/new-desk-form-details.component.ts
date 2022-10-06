@@ -52,7 +52,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative" *ngIf="can_book_lockers">
+                    <div class="flex-1 w-1/3 relative">
                         <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
@@ -72,7 +72,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                         </mat-checkbox>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2" *ngIf="can_book_lockers">
                     <div class="flex-1 w-1/3">
                         <mat-checkbox
                             [ngModel]="!!form.value.secondary_resource"

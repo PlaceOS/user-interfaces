@@ -27,7 +27,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),
         booked_by_email: new FormControl(booking.booked_by_email),
-        secondary_resource: new FormControl(!!booking.extension_data?.other_asset_type),
+        secondary_resource: new FormControl(booking.extension_data?.other_asset_type || booking.extension_data?.secondary_resource),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;

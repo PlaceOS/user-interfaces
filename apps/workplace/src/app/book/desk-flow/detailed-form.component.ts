@@ -230,6 +230,22 @@ import { addDays, endOfDay, format } from 'date-fns';
                     </mat-select>
                 </mat-form-field>
             </div>
+            <div
+                class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+                *ngIf="can_book_lockers"
+            >
+                <mat-checkbox
+                    [ngModel]="!!form.value.secondary_resource"
+                    (ngModelChange)="
+                        form.patchValue({
+                            secondary_resource: $event ? 'locker' : ''
+                        })
+                    "
+                    [ngModelOptions]="{ standalone: true }"
+                >
+                    Require locker
+                </mat-checkbox>
+            </div>
         </form>
     `,
     styles: [``],
@@ -256,9 +272,14 @@ export class DeskFlowDetailedFormComponent {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
+    public get can_book_lockers() {
+        return this._settings.get('app.desks.can_book_lockers');
+    }
+
     public get can_book_for_others() {
         return this._settings.get('app.desks.can_book_for_others');
     }
+
     public get can_recurr() {
         return this._settings.get('app.desks.recurrence_allowed');
     }
@@ -271,7 +292,7 @@ export class DeskFlowDetailedFormComponent {
         return this._settings.get('app.desks.needs_reason') === true;
     }
 
-    public get allow_time_changes() { 
+    public get allow_time_changes() {
         return !!this._settings.get('app.desks.allow_time_changes');
     }
 

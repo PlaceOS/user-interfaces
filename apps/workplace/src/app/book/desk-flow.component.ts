@@ -21,6 +21,11 @@ import { first } from 'rxjs/operators';
                         type="desk"
                         route="desks"
                         [calendar]="last_success?.user_email"
+                        [extra]="
+                            last_success?.extension_data?.secondary_resource
+                                ? 'Locker E-093 has been allocated for this booking.'
+                                : ''
+                        "
                     ></flow-success>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
