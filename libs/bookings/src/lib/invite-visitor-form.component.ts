@@ -13,10 +13,10 @@ import { Booking } from './booking.class';
     template: `
         <ng-container *ngIf="!sent; else send_state">
             <div
-                class="relative flex flex-col bg-white rounded overflow-auto"
+                class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto"
                 *ngIf="!(loading | async); else load_state"
             >
-                <div class="w-full border-b border-gray-200 px-4 py-2">
+                <div class="w-full border-b border-gray-200 dark:border-neutral-500 px-4 py-2">
                     <h2 class="text-2xl">Invite Visitor</h2>
                 </div>
                 <form *ngIf="form" [formGroup]="form" class="p-4">
@@ -106,7 +106,7 @@ import { Booking } from './booking.class';
                         </mat-form-field>
                     </div>
                 </form>
-                <div class="sticky p-4 border-t border-gray-200 bottom-0">
+                <div class="sticky p-4 border-t border-gray-200 dark:border-neutral-500 bottom-0">
                     <button
                         mat-button
                         send
@@ -136,7 +136,7 @@ import { Booking } from './booking.class';
                     </p>
                 </div>
                 <div
-                    class="w-full p-2 border-t border-gray-200 flex items-center justify-center"
+                    class="w-full p-2 border-t border-gray-200 dark:border-neutral-500 flex items-center justify-center"
                 >
                     <button
                         mat-button
