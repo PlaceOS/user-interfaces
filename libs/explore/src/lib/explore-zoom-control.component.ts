@@ -19,11 +19,10 @@ import { ExploreStateService } from './explore-state.service';
             :host {
                 display: flex;
                 flex-direction: column;
-                padding: 0.5rem;
             }
 
             button {
-                border: 1px solid #ccc;
+                border: 1px solid #9998;
                 border-radius: 0;
             }
 

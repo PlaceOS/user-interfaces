@@ -36,22 +36,19 @@ const EMPTY = [];
             [labels]="labels | async"
         ></i-map>
         <explore-zoom-controls
-            class="absolute bottom-0 right-0"
+            class="absolute bottom-2 right-2"
         ></explore-zoom-controls>
-        <explore-map-controls
-            class="absolute top-0 left-0"
-        ></explore-map-controls>
-        <!-- <explore-search class="absolute top-0 right-0"></explore-search> -->
-        <div
-            zones
-            class="p-2 bg-white dark:bg-neutral-800 border border-gray-400 absolute left-0 m-2 rounded flex items-center"
-        >
-            Zones
-            <mat-slide-toggle
-                class="ml-2"
-                [ngModel]="!(options | async)?.disable?.includes('zones')"
-                (ngModelChange)="toggleZones($event)"
-            ></mat-slide-toggle>
+        <div controls class="absolute top-2 left-2 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2">
+            <explore-map-controls></explore-map-controls>
+            <div class="flex items-center space-x-2">
+                <mat-slide-toggle
+                    name="zones"
+                    class="ml-2"
+                    [ngModel]="!(options | async)?.disable?.includes('zones')"
+                    (ngModelChange)="toggleZones($event)"
+                ></mat-slide-toggle>
+                <label for="zones" class="mb-0">Zones</label>
+            </div>
         </div>
         <div
             legend
@@ -84,7 +81,12 @@ const EMPTY = [];
             }
         `,
     ],
-    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService, SpacePipe],
+    providers: [
+        ExploreSpacesService,
+        ExploreDesksService,
+        ExploreZonesService,
+        SpacePipe,
+    ],
 })
 export class ExploreMapViewComponent extends BaseClass implements OnInit {
     /** Observable for the active map */
@@ -110,8 +112,9 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
         const options = await this.options.pipe(take(1)).toPromise();
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
-            : options.disable?.filter((_) => _ !== 'zones' && _ !== 'devices') ||
-              [];
+            : options.disable?.filter(
+                  (_) => _ !== 'zones' && _ !== 'devices'
+              ) || [];
         this.setOptions({ disable });
     }
 

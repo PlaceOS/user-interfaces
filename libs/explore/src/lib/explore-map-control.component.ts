@@ -56,12 +56,9 @@ import { ExploreStateService } from './explore-state.service';
     `,
     styles: [
         `
-            :host {
-                padding: 0.5rem;
-            }
-
             mat-form-field {
-                min-width: 10rem;
+                min-width: 12rem;
+                height: 3.5rem;
             }
 
             mat-form-field[has-bld='true'] {
