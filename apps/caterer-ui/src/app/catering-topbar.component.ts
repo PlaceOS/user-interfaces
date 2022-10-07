@@ -9,55 +9,46 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 @Component({
     selector: 'catering-topbar',
     template: `
-        <a
-            matRipple
-            *ngIf="page"
-            class="flex items-center space-x-2 pl-4 py-2 pr-8 rounded"
-            [routerLink]="['/']"
+        <div
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
         >
-            <app-icon>arrow_back</app-icon>
-            <p class="underline">Back</p>
-        </a>
-        <mat-form-field appearance="outline">
-            <mat-select
-                multiple
-                [(ngModel)]="zones"
-                (ngModelChange)="updateZones($event)"
-                placeholder="All Levels"
+            <a
+                matRipple
+                *ngIf="page"
+                class="flex items-center space-x-2 pl-4 py-2 pr-8 rounded"
+                [routerLink]="['/']"
             >
-                <mat-option
-                    *ngFor="let level of levels | async"
-                    [value]="level.id"
+                <app-icon>arrow_back</app-icon>
+                <p class="underline">Back</p>
+            </a>
+            <mat-form-field appearance="outline">
+                <mat-select
+                    multiple
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
+                    placeholder="All Levels"
                 >
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <button *ngIf="page === 'menu'" mat-button (click)="addItem()">
-            Add Item
-        </button>
-        <button *ngIf="page === 'menu'" mat-button (click)="editConfig()">
-            Edit Config
-        </button>
-        <div class="flex-1 w-2"></div>
-        <!-- <searchbar class="mr-2"></searchbar> -->
-        <!-- <date-options (dateChange)="setDate($event)"></date-options> -->
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button *ngIf="page === 'menu'" mat-button (click)="addItem()">
+                Add Item
+            </button>
+            <button *ngIf="page === 'menu'" mat-button (click)="editConfig()">
+                Edit Config
+            </button>
+            <div class="flex-1 w-2"></div>
+            <!-- <searchbar class="mr-2"></searchbar> -->
+            <!-- <date-options (dateChange)="setDate($event)"></date-options> -->
+        </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                align-items: center;
-                background-color: #fff;
-                height: 5em;
-                padding: 0 1em;
-                border-bottom: 1px solid #ccc;
-            }
-
-            :host > * + * {
-                margin-left: 0.5rem;
-            }
-
             mat-form-field {
                 height: 3.25em;
                 width: 8em;

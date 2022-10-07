@@ -6,7 +6,7 @@ import { BaseClass } from '@placeos/common';
 @Component({
     selector: 'app-catering',
     template: `
-        <main class="relative w-full flex flex-col bg-gray-200">
+        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
             <catering-topbar
                 *ngIf="page"
                 class="relative z-10"
@@ -26,7 +26,7 @@ import { BaseClass } from '@placeos/common';
                 >
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-white shadow text-black overflow-hidden"
+                        class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white overflow-hidden"
                         [routerLink]="['/menu']"
                     >
                         <div
@@ -46,7 +46,7 @@ import { BaseClass } from '@placeos/common';
                     </a>
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-white shadow text-black overflow-hidden"
+                        class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white overflow-hidden"
                         [routerLink]="['/orders']"
                     >
                         <div
