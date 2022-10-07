@@ -211,13 +211,6 @@ export class CheckboxQuestionComponent implements OnInit {
     }
 
     protected deleteOption() {
-        // if (
-        //     this.surveyCreatorService.selected_questions[0].choices?.length == 1
-        // )
-        //     return;
-
-        // const current_question = this._findQuestion();
-        // current_question.choices?.pop();
         if (this.surveyCreatorService.choices.length > 1) {
             this.surveyCreatorService.choices.pop();
         }
