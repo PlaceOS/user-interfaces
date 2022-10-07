@@ -43,8 +43,7 @@ const routes: Routes = [
         component: UpcomingBookingsComponent,
     },
     { path: '404', component: NotFoundComponent },
-    { path: '', pathMatch: 'full', redirectTo: '/book/spaces' },
-    { path: '**', pathMatch: 'full', component: NotFoundComponent },
+    { path: '**', pathMatch: 'full', redirectTo: '/book/spaces' },
 ];
 
 @NgModule({

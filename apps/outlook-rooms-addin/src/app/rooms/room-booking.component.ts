@@ -13,15 +13,6 @@ import { currentUser } from '@placeos/common';
             .button-text {
                 color: var(--secondary);
             }
-
-            ::ng-deep.mat-form-field-appearance-outline
-                .mat-form-field-outline-start,
-            ::ng-deep.mat-form-field-appearance-outline
-                .mat-form-field-outline-gap,
-            ::ng-deep.mat-form-field-appearance-outline
-                .mat-form-field-outline-end {
-                background-color: white;
-            }
         `,
     ],
 })
