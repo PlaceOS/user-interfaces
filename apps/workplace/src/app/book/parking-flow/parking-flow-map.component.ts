@@ -64,7 +64,7 @@ class SpacePingComponent extends BaseClass {
             </div>
             <div class="flex w-full h-1/2 flex-1 z-0">
                 <div
-                    class="p-2 sm:w-[18rem] w-full h-full bg-gray-50 dark:bg-neutral-600 shadow z-10 overflow-auto space-y-2"
+                    class="p-2 sm:w-[18rem] w-full h-full bg-gray-50 dark:bg-neutral-600 shadow border-r border-gray-200 dark:border-neutral-500 z-10 overflow-auto space-y-2"
                 >
                     <div
                         class="bg-white dark:bg-neutral-700 sticky top-0 w-full z-10"
@@ -102,7 +102,7 @@ class SpacePingComponent extends BaseClass {
                     </button>
                 </div>
                 <div
-                    class="bg-gray-200 flex-1 w-1/2 h-full z-0 relative hidden sm:block"
+                    class="bg-gray-200 dark:bg-neutral-600 flex-1 w-1/2 h-full z-0 relative hidden sm:block"
                 >
                     <i-map
                         [src]="url | async"

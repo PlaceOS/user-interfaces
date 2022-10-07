@@ -9,7 +9,7 @@ import { queryEvents } from 'libs/events/src/lib/events.fn';
 @Component({
     selector: 'user-availability-list',
     template: `
-        <div class="overflow-hidden relative border-b border-gray-300 h-full pointer-events-none" [style.width]="width + 'px'">
+        <div class="overflow-hidden relative border-b border-gray-300 dark:border-neutral-500 h-full pointer-events-none" [style.width]="width + 'px'">
             <div class="w-[120rem] h-px"></div>
             <div
                 event

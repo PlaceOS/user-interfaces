@@ -47,20 +47,20 @@ export interface FindAvailabilityData {
             </div>
             <div
                 #container
-                class="flex flex-1 h-1/2 w-full border-t border-gray-300 relative overflow-auto divide-x divide-gray-300 max-w-[100vw] sm:max-w-[80vw]"
+                class="flex flex-1 h-1/2 w-full border-t border-gray-300 dark:border-neutral-500 relative overflow-auto divide-x divide-gray-300 dark:divide-neutral-500 max-w-[100vw] sm:max-w-[80vw]"
                 (scroll)="updateScroll()"
             >
                 <div
                     users
-                    class="sticky left-0 min-h-full bg-white border-r border-gray-300 z-30"
+                    class="sticky left-0 min-h-full bg-white dark:bg-neutral-700 border-r border-gray-300 dark:border-neutral-500 z-30"
                 >
                     <div
                         header
-                        class="h-10 w-[6rem] border-b border-gray-300"
+                        class="h-10 w-[6rem] border-b border-gray-300 dark:border-neutral-500"
                     ></div>
                     <div
                         host
-                        class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 py-2"
+                        class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 dark:border-neutral-500 py-2"
                     >
                         <a-user-avatar
                             class="text-2xl"
@@ -81,7 +81,7 @@ export interface FindAvailabilityData {
                     </div>
                     <div
                         person
-                        class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 py-2"
+                        class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 dark:border-neutral-500 py-2"
                         *ngFor="let user of users"
                     >
                         <a-user-avatar
@@ -107,11 +107,11 @@ export interface FindAvailabilityData {
                 </div>
                 <div
                     [attr.hour]="i"
-                    class="min-w-[5rem] bg-gray-50 min-h-full pointer-events-none"
+                    class="min-w-[5rem] bg-gray-50 dark:bg-neutral-600 min-h-full pointer-events-none"
                     [attr.disabled]="today && i < current_hour"
                     *ngFor="let h of hours; let i = index"
                 >
-                    <div header class="h-10 border-b border-gray-300 p-2">
+                    <div header class="h-10 border-b border-gray-300 dark:border-neutral-500 p-2">
                         {{ i % 12 ? i % 12 : '12' }}{{ i >= 12 ? 'pm' : 'am' }}
                     </div>
                 </div>
@@ -134,13 +134,13 @@ export interface FindAvailabilityData {
                         (touchstart)="startMoveDuration($event)"
                     ></div>
                     <div
-                        class="bg-white dark:bg-neutral-600 border border-gray-300 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                        class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
                     >
                         {{ duration | duration }}
                     </div>
                     <div
                         *ngIf="move_time"
-                        class="bg-white dark:bg-neutral-600 border border-gray-300 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                        class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
                     >
                         {{ date | date: 'shortTime' }}
                     </div>
