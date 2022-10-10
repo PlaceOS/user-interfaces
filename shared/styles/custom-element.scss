@@ -682,6 +682,21 @@ custom-table[header-dark] {
 
 #placeos {
     .dark {
+        .mat-menu-item {
+            color: inherit;
+            &:hover {
+                background-color: #fff2;
+            }
+        }
+
+        custom-table[asset-requests] {
+            cdk-row {
+                background: none;
+                [cdk-cell]:not(:first-child) {
+                    border-left: 1px solid #737373;
+                }
+            }
+        }
         mat-dialog-container {
             background-color: #404040;
             color: #fff;
@@ -761,4 +776,5 @@ custom-table[header-dark] {
     mat-bottom-sheet-container {
         padding: 0;
     }
+
 }

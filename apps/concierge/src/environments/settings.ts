@@ -10,11 +10,11 @@ const general = {
             name: 'Facilities',
             icon: { class: 'material-icons', content: 'meeting_room' },
         },
-        // {
-        //     route: 'asset-manager',
-        //     name: 'Asset Manager',
-        //     icon: { class: 'material-icons', content: 'inventory' },
-        // },
+        {
+            route: 'asset-manager',
+            name: 'Asset Manager',
+            icon: { class: 'material-icons', content: 'inventory' },
+        },
         {
             route: 'catering',
             name: 'Catering',

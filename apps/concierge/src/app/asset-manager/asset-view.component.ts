@@ -40,14 +40,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </div>
             <div class="flex items-center">
-                <div class="bg-white flex-1 w-1/2 h-[360px]">
+                <div class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[360px]">
                     <image-carousel
                         [images]="(asset | async)?.images || []"
                     ></image-carousel>
                 </div>
                 <div class="w-[512px] h-[360px] px-4 flex flex-col">
                     <div
-                        class="w-full flex items-center justify-between border-b border-gray-300"
+                        class="w-full flex items-center justify-between border-b border-gray-300 dark:border-neutral-500"
                     >
                         <div class="font-medium">
                             {{ (asset | async)?.name }}
@@ -85,7 +85,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         {{ (asset | async)?.description || '~No Description~' }}
                     </div>
                     <div
-                        class="rounded bg-white shadow border border-gray-300 w-full divide-y divide-gray-200"
+                        class="rounded bg-white dark:bg-neutral-700 shadow border border-gray-300 dark:border-neutral-500 w-full divide-y divide-gray-200 dark:divide-neutral-500"
                     >
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">
@@ -116,7 +116,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <h3 class="p-2">General</h3>
                         <div
                             data-table
-                            class="bg-white  border border-gray-300"
+                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                         >
                             <div class="flex items-center p-2">
                                 <label>Barcode</label>
@@ -139,7 +139,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </h3>
                         <div
                             data-table
-                            class="bg-white  border border-gray-300"
+                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                             *ngIf="(asset | async)?.general_details?.length"
                         >
                             <div
@@ -160,7 +160,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <h3 class="p-2">Timeline</h3>
                         <div
                             data-table
-                            class="bg-white  border border-gray-300"
+                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                         >
                             <div class="flex items-center p-2">
                                 <label>Purchase Date</label>
@@ -184,7 +184,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <h3 class="p-2">Invoices</h3>
                         <div
                             data-table
-                            class="bg-white  border border-gray-300"
+                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                             *ngIf="
                                 (asset | async)?.invoices?.length;
                                 else empty_invoices
@@ -215,7 +215,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <h3 class="p-2">Items</h3>
                         <div
                             data-table
-                            class="bg-white  border border-gray-300"
+                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                             *ngIf="
                                 (asset | async)?.consumables?.length;
                                 else empty_items
@@ -246,7 +246,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </ng-template>
         <ng-template #delete_tooltip>
             <div
-                class="p-4 bg-white rounded my-2 w-64 h-36 text-center"
+                class="p-4 bg-white dark:bg-neutral-700 rounded my-2 w-64 h-36 text-center"
                 *ngIf="!deleting; else delete_loading"
             >
                 <p>Are you sure you want to permanently delete this asset?</p>
@@ -269,7 +269,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </div>
             <ng-template #delete_loading>
                 <div
-                    class="p-4 bg-white rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2"
+                    class="p-4 bg-white dark:bg-neutral-700 rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>Deleting asset details...</p>

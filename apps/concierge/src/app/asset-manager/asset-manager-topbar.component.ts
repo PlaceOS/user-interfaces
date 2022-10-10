@@ -4,7 +4,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'asset-manager-topbar',
     template: `
-        <div class="w-full px-4 py-2 bg-white flex items-center space-x-4">
+        <div class="w-full px-4 py-2 bg-white dark:bg-neutral-700 flex items-center space-x-4">
             <a
                 button
                 mat-button

@@ -20,7 +20,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <ng-container [ngSwitch]="(options | async).view">
                     <ng-container *ngSwitchCase="'list'">
                         <div
-                            class="rounded overflow-hidden bg-white border border-gray-300 divide-y divide-gray-200"
+                            class="rounded overflow-hidden bg-white dark:bg-neutral-700 border border-gray-300 divide-y divide-gray-200 dark:border-neutral-500"
                         >
                             <a
                                 matRipple
@@ -33,7 +33,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 ]"
                             >
                                 <div
-                                    class="h-12 w-12 flex items-center justify-center border border-gray-200 p-2"
+                                    class="h-12 w-12 flex items-center justify-center border border-gray-200 dark:border-neutral-500 p-2"
                                 >
                                     <img
                                         [src]="
@@ -65,7 +65,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         >
                             <a
                                 matRipple
-                                class="bg-white rounded shadow w-40 h-44 text-left"
+                                class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left"
                                 *ngFor="let asset of (assets | async)[group]"
                                 [routerLink]="[
                                     '/asset-manager',
@@ -86,7 +86,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     />
                                 </div>
                                 <div
-                                    class="border-t border-gray-200 w-full px-3 py-1"
+                                    class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1"
                                 >
                                     <div class="truncate">
                                         {{ asset.name }}

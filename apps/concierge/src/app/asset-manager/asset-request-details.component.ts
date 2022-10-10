@@ -13,7 +13,7 @@ import {
             (click)="request = null; requestChange.emit(request)"
         >
             <div
-                class="absolute inset-y-0 right-0 bg-white w-[480px]"
+                class="absolute inset-y-0 right-0 bg-white dark:bg-neutral-700 w-[480px]"
                 (click)="$event.stopPropagation()"
             >
                 <button
@@ -23,7 +23,7 @@ import {
                 >
                     <app-icon>close</app-icon>
                 </button>
-                <div class="border-b border-gray-200 px-2 py-4 flex space-x-4">
+                <div class="border-b border-gray-200 dark:border-neutral-500 px-2 py-4 flex space-x-4">
                     <a-user-avatar
                         [user]="{ name: request.user_name }"
                         class="text-xl"
@@ -57,7 +57,7 @@ import {
                 <div class="px-3 py-4 relative">
                     <div class="flex items-center space-x-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 flex items-center justify-center"
+                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 dark:bg-neutral-600 flex items-center justify-center"
                         >
                             <app-icon class="text-sm">send</app-icon>
                         </div>
@@ -75,7 +75,7 @@ import {
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 flex items-center justify-center"
+                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 dark:bg-neutral-600 flex items-center justify-center"
                         >
                             <app-icon class="text-sm">event</app-icon>
                         </div>
@@ -86,7 +86,7 @@ import {
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 flex items-center justify-center"
+                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 dark:bg-neutral-600 flex items-center justify-center"
                         >
                             <app-icon class="text-sm">schedule</app-icon>
                         </div>
@@ -102,7 +102,7 @@ import {
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 flex items-center justify-center"
+                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 dark:bg-neutral-600 flex items-center justify-center"
                         >
                             <app-icon class="text-sm">place</app-icon>
                         </div>
@@ -117,7 +117,7 @@ import {
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 flex items-center justify-center"
+                            class="h-6 w-6 rounded-full text-secondary bg-gray-200 dark:bg-neutral-600 flex items-center justify-center"
                         >
                             <app-icon class="text-sm">meeting_room</app-icon>
                         </div>
@@ -182,7 +182,7 @@ import {
                         </mat-menu>
                         <button
                             matRipple
-                            class="bg-none w-full flex items-center px-2 py-1 text-left border border-gray-200 rounded-none"
+                            class="bg-none w-full flex items-center px-2 py-1 text-left border border-gray-200 dark:border-neutral-700 rounded-none"
                             [matMenuTriggerFor]="tracking_menu"
                             [disabled]="loading"
                         >
