@@ -37,7 +37,7 @@ import { Question } from '../survey-types';
             </div>
         </ng-template>
         <ng-template #draft>
-            <div class="draft-question-container">
+            <div class="question-container">
                 <div class="wrapper">
                     <div class="draft-question">
                         <input-title
@@ -68,21 +68,9 @@ import { Question } from '../survey-types';
                 max-width: 800px;
                 color: #808080;
                 background-color: #fff;
-                margin: 5px 20px;
+                margin: 10px 20px;
                 border: 1px solid rgba(0, 0, 0, 0.12);
                 border-radius: 4px;
-            }
-            .draft-question-container {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                position: relative;
-                font-size: 12px;
-                max-width: 800px;
-                color: #808080;
-                background-color: #fff;
-                margin: 5px 20px;
             }
             .wrapper {
                 display: flex;
