@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
@@ -60,6 +60,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            (newTitleEvent)="
+                                updateTitle($event, question.title)
+                            "
                         ></text-question>
                     </ng-template>
                     <ng-template #Comment>
@@ -94,7 +97,12 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 >
                     Cancel
                 </button>
-                <button mat-button class="update-button" color="primary">
+                <button
+                    mat-button
+                    class="update-button"
+                    color="primary"
+                    (click)="updateQuestions()"
+                >
                     Update
                 </button>
             </footer>
@@ -190,6 +198,9 @@ export class EditQuestionBankComponent implements OnInit {
     question_bank$: Observable<Question[]> =
         this._surveyCreatorService.question_bank$;
 
+    updated_question_bank: Question[] = [];
+    bank_sub: Subscription;
+
     public QuestionType = QuestionType;
 
     constructor(
@@ -197,7 +208,11 @@ export class EditQuestionBankComponent implements OnInit {
         private _surveyCreatorService: SurveyCreatorService
     ) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.bank_sub = this._surveyCreatorService.question_bank$.subscribe(
+            (questions) => (this.updated_question_bank = questions)
+        );
+    }
 
     updateSelectedTag() {
         this.question_type = this.selected_tag;
@@ -209,5 +224,20 @@ export class EditQuestionBankComponent implements OnInit {
     }
     private _resetChoices() {
         this._surveyCreatorService.choices = ['Type a choice here...'];
+    }
+
+    updateTitle(event, title) {
+        let found_question = this.updated_question_bank.find(
+            (question) => question.title === title
+        );
+        found_question.title = event;
+    }
+
+    updateQuestions() {
+        //Post updated_question_bank
+    }
+
+    ngOnDestroy(): void {
+        this.bank_sub?.unsubscribe();
     }
 }
