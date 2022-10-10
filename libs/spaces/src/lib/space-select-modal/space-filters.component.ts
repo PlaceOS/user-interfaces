@@ -1,8 +1,9 @@
 import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { SettingsService } from '@placeos/common';
+import { flatten, SettingsService, unique } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { SpacesService } from '../spaces.service';
 
@@ -148,7 +149,14 @@ export class SpaceFiltersComponent {
             return l;
         })
     );
-    public readonly features = this._spaces.features;
+    public readonly features = combineLatest([
+        this._spaces.features,
+        this._event_form.available_spaces,
+    ]).pipe(
+        map(([features, spaces]) =>
+            unique(features.concat(flatten(spaces.map((_) => _.features))))
+        )
+    );
 
     public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._event_form.setOptions(o);
@@ -178,7 +186,7 @@ export class SpaceFiltersComponent {
 
     public async toggleFeature(feat: string, state: boolean) {
         const { features } = await this.options.pipe(take(1)).toPromise();
-        const new_list = (features || []).filter(_ => feat !== _);
+        const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
         this.setOptions({ features: new_list });
     }
