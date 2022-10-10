@@ -1,4 +1,11 @@
-import { Component, OnInit, Input, ElementRef } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    Input,
+    ElementRef,
+    Output,
+    EventEmitter,
+} from '@angular/core';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
@@ -77,6 +84,7 @@ import { InputTitleComponent } from './input-title.component';
                                 [placeholder]="
                                     choice || 'Type a choice here...'
                                 "
+                                (change)="updateTitle($event)"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -185,6 +193,7 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view = 'nonDraft';
+    @Output() newTitleEvent = new EventEmitter<string>();
 
     new_choices: string[] = this.surveyCreatorService.choices;
 
@@ -226,9 +235,7 @@ export class CheckboxQuestionComponent implements OnInit {
         }, 800);
     }
 
-    // private _findQuestion() {
-    //     return this.surveyCreatorService.selected_questions.find(
-    //         (item) => item.name == this.question.name
-    //     );
-    // }
+    updateTitle(event) {
+        this.newTitleEvent.emit(event.target.value);
+    }
 }

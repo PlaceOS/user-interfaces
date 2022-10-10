@@ -70,6 +70,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            (newTitleEvent)="
+                                updateTitle($event, question.title)
+                            "
                         ></comment-box-question>
                     </ng-template>
                     <ng-template #Checkbox>
@@ -77,6 +80,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            (newTitleEvent)="
+                                updateTitle($event, question.title)
+                            "
                         ></checkbox-question>
                     </ng-template>
                     <ng-template #Dropdown>
@@ -225,7 +231,6 @@ export class EditQuestionBankComponent implements OnInit {
     closeDialog() {
         this._resetChoices();
         this.dialogRef.close();
-        this._update_flag.next(false);
     }
     private _resetChoices() {
         this._surveyCreatorService.choices = ['Type a choice here...'];
@@ -236,16 +241,17 @@ export class EditQuestionBankComponent implements OnInit {
             (question) => question.title === title
         );
         this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
-            console.log(flag, 'flag');
             if (flag) {
                 found_question.title = event;
             }
         });
         this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this._update_flag.next(false);
     }
 
     updateQuestions() {
         this._update_flag.next(true);
+        this.closeDialog();
     }
 
     ngOnDestroy(): void {
