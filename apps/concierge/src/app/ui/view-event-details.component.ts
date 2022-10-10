@@ -16,27 +16,27 @@ import { SettingsService } from '@placeos/common';
         ></div>
         <div
             name="panel"
-            class="absolute rounded shadow flex flex-col"
+            class="absolute rounded shadow flex flex-col bg-white dark:bg-neutral-700"
             (click)="$event.stopPropagation()"
         >
             <div class="p-4 overflow-auto flex-1">
                 <h3 class="mb-0 pl-6 mb-1">
                     {{ event.organiser?.name || event.host }}
                 </h3>
-                <div class="text-bold mb-4 pl-6 text-dark-fade">
+                <div class="text-bold mb-4 pl-6 opacity-60">
                     {{ event.date | date: 'fullDate' }}
                 </div>
                 <div class="flex items-center mb-2">
                     <app-icon class="mr-1">title</app-icon>
-                    <span class="text-dark-fade">{{ event.title }}</span>
+                    <span class="opacity-60">{{ event.title }}</span>
                 </div>
                 <div class="flex items-center mb-2">
                     <app-icon class="mr-1">schedule</app-icon>
-                    <span class="text-dark-fade">{{ time }}</span>
+                    <span class="opacity-60">{{ time }}</span>
                 </div>
                 <div class="flex items-center mb-2">
                     <app-icon class="mr-1">people</app-icon>
-                    <span class="text-dark-fade"
+                    <span class="opacity-60"
                         >{{ event.attendees.length }} Attendee{{
                             event.attendees.length === 1 ? '' : 's'
                         }}</span
@@ -66,7 +66,7 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div class="flex items-center mb-2">
                     <app-icon class="mr-1">place</app-icon>
-                    <span class="text-dark-fade"
+                    <span class="opacity-60"
                         >{{ building.display_name || building.name }},
                         {{
                             (event.system.id | space | async)?.display_name ||
@@ -76,11 +76,11 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div class="flex items-center">
                     <app-icon class="mr-1">format_align_left</app-icon>
-                    <span class="text-dark-fade">Notes</span>
+                    <span class="opacity-60">Notes</span>
                 </div>
                 <div class="flex items-center pl-6 mb-2">
                     <span
-                        class="text-dark-fade"
+                        class="opacity-60"
                         [innerHTML]="
                             event.body || '&lt; No notes &gt;' | sanitize
                         "
@@ -116,7 +116,6 @@ import { SettingsService } from '@placeos/common';
                 left: 50%;
                 top: 6.5em;
                 transform: translateX(-50%);
-                background-color: #fff;
                 max-height: 80vh;
             }
 

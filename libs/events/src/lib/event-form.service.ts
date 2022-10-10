@@ -162,8 +162,7 @@ export class EventFormService extends BaseClass {
                       ).pipe(
                           map((_) =>
                               _.map((id) => spaces.find((s) => id === s.id))
-                          ),
-                          catchError((_) => [])
+                          )
                       )
                     : querySpaceAvailability(
                           {
