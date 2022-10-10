@@ -121,7 +121,6 @@ export class TextQuestionComponent implements OnInit {
     ngOnInit(): void {}
 
     updateTitle(event) {
-        console.log(event.target.value, 'value to update question title');
         this.newTitleEvent.emit(event.target.value);
     }
 }

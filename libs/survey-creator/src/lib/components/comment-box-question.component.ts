@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { Question } from '../survey-types';
 
@@ -45,6 +45,7 @@ import { Question } from '../survey-types';
                             [placeholder]="
                                 question?.title || 'Type question here...'
                             "
+                            (change)="updateTitle($event)"
                         ></input-title>
                     </div>
                     <div class="input-field-container">
@@ -114,8 +115,13 @@ export class CommentBoxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
+    @Output() newTitleEvent = new EventEmitter<string>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
+
+    updateTitle(event) {
+        this.newTitleEvent.emit(event.target.value);
+    }
 }

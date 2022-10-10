@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, BehaviorSubject, of } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
@@ -195,11 +195,15 @@ export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
+
     question_bank$: Observable<Question[]> =
         this._surveyCreatorService.question_bank$;
 
     updated_question_bank: Question[] = [];
     bank_sub: Subscription;
+    flag_sub: Subscription;
+    private _update_flag: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
 
     public QuestionType = QuestionType;
 
@@ -210,7 +214,7 @@ export class EditQuestionBankComponent implements OnInit {
 
     ngOnInit(): void {
         this.bank_sub = this._surveyCreatorService.question_bank$.subscribe(
-            (questions) => (this.updated_question_bank = questions)
+            (questions: Question[]) => (this.updated_question_bank = questions)
         );
     }
 
@@ -221,6 +225,7 @@ export class EditQuestionBankComponent implements OnInit {
     closeDialog() {
         this._resetChoices();
         this.dialogRef.close();
+        this._update_flag.next(false);
     }
     private _resetChoices() {
         this._surveyCreatorService.choices = ['Type a choice here...'];
@@ -230,14 +235,21 @@ export class EditQuestionBankComponent implements OnInit {
         let found_question = this.updated_question_bank.find(
             (question) => question.title === title
         );
-        found_question.title = event;
+        this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
+            console.log(flag, 'flag');
+            if (flag) {
+                found_question.title = event;
+            }
+        });
+        this._surveyCreatorService.question_bank = this.updated_question_bank;
     }
 
     updateQuestions() {
-        //Post updated_question_bank
+        this._update_flag.next(true);
     }
 
     ngOnDestroy(): void {
         this.bank_sub?.unsubscribe();
+        this.flag_sub?.unsubscribe();
     }
 }
