@@ -47,7 +47,9 @@ import { Question } from '../survey-types';
                 <div class="wrapper">
                     <div class="draft-question">
                         <input-title
-                            [placeholder]="'Type question here...'"
+                            [placeholder]="
+                                question?.title || 'Type question here...'
+                            "
                         ></input-title>
                     </div>
                     <div class="rating-numbers-container">
@@ -59,7 +61,9 @@ import { Question } from '../survey-types';
                         </div>
 
                         <div
-                            *ngFor="let number of rateValues"
+                            *ngFor="
+                                let number of question?.rateValues || rateValues
+                            "
                             class="rating-number"
                         >
                             <span>{{ number }}</span>

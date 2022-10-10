@@ -51,7 +51,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 <div class="wrapper">
                     <div class="draft-question">
                         <input-title
-                            [placeholder]="'Type question here...'"
+                            [placeholder]="
+                                question?.title || 'Type question here...'
+                            "
                         ></input-title>
                     </div>
                     <div class="dropdown-container">
@@ -68,7 +70,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     </div>
                     <div class="draft-checkbox-container">
                         <div
-                            *ngFor="let choice of new_choices"
+                            *ngFor="
+                                let choice of question?.choices || new_choices
+                            "
                             class="checkbox"
                         >
                             <input
@@ -77,7 +81,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 class="choices_box"
                                 [id]="choices_counter"
                                 [style.fontSize.px]="12"
-                                [placeholder]="'Type a choice here...'"
+                                [placeholder]="
+                                    choice || 'Type a choice here...'
+                                "
                             />
                         </div>
                         <div class="plus-minus-buttons">

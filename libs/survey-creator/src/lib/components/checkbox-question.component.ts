@@ -62,7 +62,9 @@ import { InputTitleComponent } from './input-title.component';
                     </div>
                     <div class="draft-checkbox-container">
                         <div
-                            *ngFor="let choice of new_choices"
+                            *ngFor="
+                                let choice of question?.choices || new_choices
+                            "
                             class="checkbox"
                         >
                             <mat-checkbox></mat-checkbox>
@@ -72,7 +74,9 @@ import { InputTitleComponent } from './input-title.component';
                                 class="choices_box"
                                 [id]="choices_counter"
                                 [style.fontSize.px]="12"
-                                [placeholder]="'Type a choice here...'"
+                                [placeholder]="
+                                    choice || 'Type a choice here...'
+                                "
                             />
                         </div>
                         <div class="plus-minus-buttons">
