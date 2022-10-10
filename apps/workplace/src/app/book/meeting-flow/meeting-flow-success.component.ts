@@ -4,7 +4,7 @@ import { EventFormService } from '@placeos/events';
 @Component({
     selector: 'meeting-flow-success',
     template: `
-        <div class="absolute inset-0 bg-white flex flex-col z-50">
+        <div class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col z-50">
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
@@ -25,7 +25,7 @@ import { EventFormService } from '@placeos/events';
                     }}.
                 </p>
             </main>
-            <footer class="p-2 w-full border-t border-gray-200 mt-4 flex items-center justify-center">
+            <footer class="p-2 w-full border-t border-gray-200 dark:bg-neutral-500 mt-4 flex items-center justify-center">
                 <a button mat-button class="w-full max-w-[512px]" [routerLink]="['/']">
                     Great, thanks!
                 </a>

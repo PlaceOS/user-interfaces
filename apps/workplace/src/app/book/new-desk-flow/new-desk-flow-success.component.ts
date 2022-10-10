@@ -5,7 +5,7 @@ import { BookingFormService } from '@placeos/bookings';
     selector: 'new-desk-flow-success',
     styles: [],
     template: `
-        <div class="absolute inset-0 bg-white flex flex-col z-50">
+        <div class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col z-50">
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
@@ -29,7 +29,7 @@ import { BookingFormService } from '@placeos/bookings';
                     }}.
                 </p>
             </main>
-            <footer class="p-2 w-full border-t border-gray-200 mt-4">
+            <footer class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4">
                 <a button mat-button class="w-full" [routerLink]="['/']">
                     Great, thanks!
                 </a>
