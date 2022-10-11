@@ -148,11 +148,13 @@ export class RatingQuestionComponent implements OnInit {
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
 
-    rateValues = [1, 2, 3, 4, 5];
+    rateValues: number[];
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.rateValues = this.question?.rateValues || [1, 2, 3, 4, 5];
+    }
 
     protected addRating() {
         if (this.rateValues.length > 9) return;
