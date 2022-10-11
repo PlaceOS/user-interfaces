@@ -33,12 +33,14 @@ export function generateCalendarFileLink(event: CalEvent): string {
     chunks.push(['SUMMARY', `${event.title}`]);
     chunks.push(['DESCRIPTION', description]);
     chunks.push(['LOCATION', location]);
-    const host = event.organiser?.name || event.host?.split('@') || event.user_name || 'User';
+    const host =
+        event.organiser?.name ||
+        event.host?.split('@') ||
+        event.user_name ||
+        'User';
     chunks.push([
         'ORGANIZER',
-        `CN=${event.organiser?.name || event.host.split('@')[0]}:MAILTO:${
-            event.host || event.user_email
-        }`,
+        `CN=${host}:MAILTO:${event.host || event.user_email}`,
     ]);
     const url_data = chunks
         .map(([key, value]) => `${key}:${encodeURIComponent(value)}`)
