@@ -90,6 +90,12 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            (newTitleEvent)="
+                                updateTitle($event, question.title)
+                            "
+                            (newChoiceEvent)="
+                                updateChoice($event, question.title, choice)
+                            "
                         ></dropdown-question>
                     </ng-template>
                 </div>
@@ -235,6 +241,22 @@ export class EditQuestionBankComponent implements OnInit {
         this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
             if (flag) {
                 found_question.title = event;
+            }
+        });
+        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this._update_flag.next(false);
+    }
+
+    updateChoice(event, title) {
+        let found_question = this.updated_question_bank.find(
+            (question) => question.title === title
+        );
+        this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
+            if (flag) {
+                let choice_index = found_question.choices.findIndex(
+                    (item) => item == event[1]
+                );
+                found_question.choices[choice_index] = event[0];
             }
         });
         this._surveyCreatorService.question_bank = this.updated_question_bank;

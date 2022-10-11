@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { Question } from '../survey-types';
 
@@ -50,6 +50,7 @@ import { Question } from '../survey-types';
                             [placeholder]="
                                 question?.title || 'Type question here...'
                             "
+                            (change)="updateTitle($event)"
                         ></input-title>
                     </div>
                     <div class="rating-numbers-container">
@@ -147,6 +148,7 @@ export class RatingQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
+    @Output() newTitleEvent = new EventEmitter<string>();
 
     rateValues: number[];
 
@@ -164,5 +166,9 @@ export class RatingQuestionComponent implements OnInit {
     protected minusRating() {
         if (this.rateValues.length < 4) return;
         this.rateValues.pop();
+    }
+
+    updateTitle(event) {
+        this.newTitleEvent.emit(event.target.value);
     }
 }

@@ -53,6 +53,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [placeholder]="
                                 question?.title || 'Type question here...'
                             "
+                            (change)="updateTitle($event)"
                         ></input-title>
                     </div>
                     <div class="dropdown-container">
@@ -81,7 +82,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [placeholder]="
                                     choice || 'Type a choice here...'
                                 "
-                                (change)="updateTitle($event)"
+                                (change)="updateChoice($event, choice)"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -186,6 +187,7 @@ export class DropdownQuestionComponent implements OnInit {
     @Input() preview?: boolean = false;
     @Input() view = 'nonDraft';
     @Output() newTitleEvent = new EventEmitter<string>();
+    @Output() newChoiceEvent = new EventEmitter<any>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -225,5 +227,10 @@ export class DropdownQuestionComponent implements OnInit {
     }
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
+    }
+    updateChoice(event, choice) {
+        console.log(choice, 'choice');
+        console.log(event.target.value, 'choice event');
+        this.newChoiceEvent.emit([event.target.value, choice]);
     }
 }
