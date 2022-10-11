@@ -34,6 +34,7 @@ import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
+import { BookingLinkModalComponent } from './booking-link-modal.component';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -315,6 +316,14 @@ export class BookingFormService extends BaseClass {
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}'
             ),
         });
+    }
+
+    public openBookingLinkModal(force: boolean = false) {
+        const form = this._form.getValue();
+        form.markAllAsTouched();
+        if (!form.valid && !force) return;
+        const event = new Booking({ ...this.booking, ...form.getRawValue() });
+        this._dialog.open(BookingLinkModalComponent, { data: event })
     }
 
     public async confirmPost() {

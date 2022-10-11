@@ -35,6 +35,7 @@ import { ParkingSpaceSelectMapComponent } from './parking-select-modal/parking-m
 import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 import { ParkingSpaceListFieldComponent } from './parking-space-list-field.component';
 import { DeskListFieldComponent } from './desk-list-field.component';
+import { BookingLinkModalComponent } from './booking-link-modal.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -42,6 +43,7 @@ const COMPONENTS = [
     InviteVisitorFormComponent,
     BookingDetailsModalComponent,
     BookingCardComponent,
+    BookingLinkModalComponent,
 
     ParkingSpaceSelectModalComponent,
     ParkingSpaceFiltersComponent,
