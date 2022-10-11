@@ -71,7 +71,6 @@ export class NewDeskFlowFormComponent implements OnInit {
                     ', '
                 )}]`
             );
-        if (this._settings.get('app.events.booking_unavailable')) return this._state.openBookingLinkModal();
         this.sheet_ref = this._bottom_sheet.open(NewDeskFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {

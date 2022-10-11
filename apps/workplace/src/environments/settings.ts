@@ -171,6 +171,7 @@ const app: any = {
         can_book_for_others: true,
         allow_groups: true,
         auto_allocation: false,
+        show_calendar_links: true,
         hide_map: false,
     },
     analytics: {
