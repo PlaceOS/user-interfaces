@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, of, zip } from 'rxjs';
 import {
+    catchError,
     debounceTime,
     map,
     shareReplay,
@@ -8,12 +9,7 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import {
-    startOfDay,
-    getUnixTime,
-    addDays,
-    format,
-} from 'date-fns';
+import { startOfDay, getUnixTime, addDays, format } from 'date-fns';
 
 import {
     BaseClass,
@@ -25,9 +21,15 @@ import {
     openConfirmModal,
     unique,
 } from '@placeos/common';
-import { CalendarEvent, checkinEventGuest, queryEvents } from '@placeos/events';
+import {
+    CalendarEvent,
+    checkinEventGuest,
+    newCalendarEventFromBooking,
+    queryEvents,
+} from '@placeos/events';
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
+import { queryBookings } from '@placeos/bookings';
 
 export interface VisitorFilters {
     date?: number;
@@ -76,13 +78,34 @@ export class VisitorsStateService extends BaseClass {
             const date = filters.date ? new Date(filters.date) : new Date();
             const start = startOfDay(date);
             const end = addDays(start, filters.period || 1);
-            return queryEvents({
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-                zone_ids: (filters.zones || []).join(','),
-            });
+            return zip(
+                queryEvents({
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                    zone_ids: (filters.zones || []).join(','),
+                }).pipe(catchError((_) => of([]))),
+                queryBookings({
+                    type: 'visitor',
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                    zones: (filters.zones || []).join(','),
+                }).pipe(
+                    map((_) => _.map((i) => newCalendarEventFromBooking(i))),
+                    catchError((_) => of([]))
+                ),
+                queryBookings({
+                    type: 'room',
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                    zones: (filters.zones || []).join(','),
+                }).pipe(
+                    map((_) => _.map((i) => newCalendarEventFromBooking(i))),
+                    catchError((_) => of([]))
+                )
+            );
         }),
-        map((list) => {
+        map(([e_list, v_list, r_list]) => {
+            const list = [...e_list, ...v_list, ...r_list];
             this._loading.next(false);
             return this._filters.getValue().all_bookings
                 ? list
