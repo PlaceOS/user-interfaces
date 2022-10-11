@@ -11,6 +11,8 @@ export interface CalEvent {
     location: string;
     host: string;
     organiser: User;
+    user_name?: string;
+    user_email?: string;
     attendees: string[];
     meeting_url?: string;
 }
@@ -31,10 +33,11 @@ export function generateCalendarFileLink(event: CalEvent): string {
     chunks.push(['SUMMARY', `${event.title}`]);
     chunks.push(['DESCRIPTION', description]);
     chunks.push(['LOCATION', location]);
+    const host = event.organiser?.name || event.host?.split('@') || event.user_name || 'User';
     chunks.push([
         'ORGANIZER',
         `CN=${event.organiser?.name || event.host.split('@')[0]}:MAILTO:${
-            event.host
+            event.host || event.user_email
         }`,
     ]);
     const url_data = chunks
