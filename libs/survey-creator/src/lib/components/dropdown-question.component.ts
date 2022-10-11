@@ -186,8 +186,8 @@ export class DropdownQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view = 'nonDraft';
-    @Output() newTitleEvent = new EventEmitter<string>();
-    @Output() newChoiceEvent = new EventEmitter<any>();
+    @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
+    @Output() newChoiceEvent: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 

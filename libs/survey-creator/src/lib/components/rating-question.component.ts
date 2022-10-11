@@ -148,7 +148,10 @@ export class RatingQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
-    @Output() newTitleEvent = new EventEmitter<string>();
+    @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
+    @Output() newRatingEvent: EventEmitter<number[]> = new EventEmitter<
+        number[]
+    >();
 
     rateValues: number[];
 
@@ -161,6 +164,7 @@ export class RatingQuestionComponent implements OnInit {
     protected addRating() {
         if (this.rateValues.length > 9) return;
         this.rateValues.push(this.rateValues.length + 1);
+        this.updateRating();
     }
 
     protected minusRating() {
@@ -170,5 +174,9 @@ export class RatingQuestionComponent implements OnInit {
 
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
+    }
+
+    updateRating() {
+        this.newRatingEvent.emit(this.rateValues);
     }
 }

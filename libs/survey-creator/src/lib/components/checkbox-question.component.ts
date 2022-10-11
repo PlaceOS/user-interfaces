@@ -65,6 +65,7 @@ import { InputTitleComponent } from './input-title.component';
                             [placeholder]="
                                 question?.title || 'Type question here...'
                             "
+                            (change)="updateTitle($event)"
                         ></input-title>
                     </div>
                     <div class="draft-checkbox-container">
@@ -82,7 +83,7 @@ import { InputTitleComponent } from './input-title.component';
                                 [placeholder]="
                                     choice || 'Type a choice here...'
                                 "
-                                (change)="updateTitle($event)"
+                                (change)="updateChoice($event, choice)"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -191,7 +192,8 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view = 'nonDraft';
-    @Output() newTitleEvent = new EventEmitter<string>();
+    @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
+    @Output() newChoiceEvent: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -237,5 +239,9 @@ export class CheckboxQuestionComponent implements OnInit {
 
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
+    }
+
+    updateChoice(event, choice) {
+        this.newChoiceEvent.emit([event.target.value, choice]);
     }
 }

@@ -53,6 +53,12 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            (newTitleEvent)="
+                                updateTitle($event, question.title)
+                            "
+                            (newRatingEvent)="
+                                updateRating($event, question.title)
+                            "
                         ></rating-question>
                     </ng-template>
                     <ng-template #Text>
@@ -82,6 +88,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [preview]="true"
                             (newTitleEvent)="
                                 updateTitle($event, question.title)
+                            "
+                            (newChoiceEvent)="
+                                updateChoice($event, question.title, choice)
                             "
                         ></checkbox-question>
                     </ng-template>
@@ -247,7 +256,7 @@ export class EditQuestionBankComponent implements OnInit {
         this._update_flag.next(false);
     }
 
-    updateChoice(event, title) {
+    updateChoice(event, title, choice) {
         let found_question = this.updated_question_bank.find(
             (question) => question.title === title
         );
@@ -257,6 +266,19 @@ export class EditQuestionBankComponent implements OnInit {
                     (item) => item == event[1]
                 );
                 found_question.choices[choice_index] = event[0];
+            }
+        });
+        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this._update_flag.next(false);
+    }
+
+    updateRating(event, title) {
+        let found_question = this.updated_question_bank.find(
+            (question) => question.title === title
+        );
+        this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
+            if (flag) {
+                found_question.rateValues = event;
             }
         });
         this._surveyCreatorService.question_bank = this.updated_question_bank;
