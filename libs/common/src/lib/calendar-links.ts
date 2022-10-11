@@ -1,5 +1,5 @@
 import { User } from 'libs/users/src/lib/user.class';
-import { addMinutes } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 import { toQueryString } from './api';
 
 export interface CalEvent {
@@ -15,6 +15,14 @@ export interface CalEvent {
     user_email?: string;
     attendees: string[];
     meeting_url?: string;
+}
+
+function formatUTC(date: Date | number) {
+    return `${format(date, 'yyyyMMdd')}T${format(date, 'HHmmss')}Z`;
+}
+
+function formatAllDay(date: Date | number) {
+    return `${format(date, 'yyyyMMdd')}`;
 }
 
 export function generateCalendarFileLink(event: CalEvent): string {
@@ -49,16 +57,16 @@ export function generateCalendarFileLink(event: CalEvent): string {
 }
 
 export function generateGoogleCalendarLink(event: CalEvent): string {
+    const fmt = event.all_day ? formatAllDay : formatUTC;
     const details: any = {
         action: 'TEMPLATE',
         text: event.title,
         details: event.body,
         location: event.location,
         trp: false,
-        dates: `${new Date(event.date).toISOString()}/${addMinutes(
-            event.date,
-            event.duration ?? 60
-        ).toISOString()}`,
+        dates: `${fmt(event.date)}/${fmt(
+            addMinutes(event.date, event.duration ?? 60)
+        )}`,
     };
     if (event.attendees && event.attendees.length) {
         details.add = event.attendees.join();
