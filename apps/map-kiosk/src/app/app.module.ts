@@ -29,6 +29,7 @@ import * as Sentry from '@sentry/angular';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 @NgModule({
     declarations: [
@@ -56,6 +57,7 @@ import { AssetsModule } from '@placeos/assets';
         ComponentsModule,
         FormFieldsModule,
         SharedExploreModule,
+        SharedBookingsModule,
         PaymentsModule,
         AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {

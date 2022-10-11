@@ -21,6 +21,7 @@ import { SharedOverlaysModule } from './overlays/overlays.module';
 import * as Sentry from '@sentry/angular';
 
 import { SharedComponentModule } from './components/shared.module';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
@@ -37,6 +38,7 @@ import { SharedComponentModule } from './components/shared.module';
         SharedComponentModule,
         MatNativeDateModule,
         MatSnackBarModule,
+        SharedBookingsModule,
     ],
     providers: [
         {

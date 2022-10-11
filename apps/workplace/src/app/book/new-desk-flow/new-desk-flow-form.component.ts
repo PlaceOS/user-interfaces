@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
-    notifyError
+    notifyError,
+    SettingsService
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -85,7 +86,8 @@ export class NewDeskFlowFormComponent implements OnInit {
         private _state: BookingFormService,
         private _router: Router,
         private _org: OrganisationService,
-        private _bottom_sheet: MatBottomSheet
+        private _bottom_sheet: MatBottomSheet,
+        private _settings: SettingsService
     ) {}
 
     public async ngOnInit() {

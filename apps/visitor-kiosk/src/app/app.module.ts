@@ -19,6 +19,8 @@ import { ComponentsModule } from '@placeos/components';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedBookingsModule } from '@placeos/bookings';
+
 @NgModule({
     declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
     imports: [
@@ -33,6 +35,7 @@ import { AssetsModule } from '@placeos/assets';
         ComponentsModule,
         SharedSpacesModule,
         SharedComponentsModule,
+        SharedBookingsModule,
         PaymentsModule,
         AssetsModule,
     ],
