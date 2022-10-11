@@ -39,7 +39,19 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                     >
                         <div
                             class="relative w-20 h-20 rounded-xl bg-black/20 mr-4"
-                        ></div>
+                        >
+                            <div
+                                class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                *ngIf="selected.includes(desk.id)"
+                            >
+                                <app-icon>done</app-icon>
+                            </div>
+                            <img
+                                *ngIf="desk.images?.length"
+                                class="object-cover h-full"
+                                [src]="desk.images[0]"
+                            />
+                        </div>
                         <div class="space-y-2 pt-2 flex-1 text-left">
                             <span class="font-medium">
                                 {{ desk.name || desk.id || 'Desk' }}
@@ -98,7 +110,6 @@ export class DeskListComponent {
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
-
 
     public readonly desks = combineLatest([
         this._state.options,
