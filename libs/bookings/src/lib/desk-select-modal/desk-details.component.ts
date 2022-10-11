@@ -77,31 +77,16 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </section>
                 <section
-                    type
+                    facilities
                     *ngIf="desk.features?.length"
                     class="space-y-2 pb-2 border-b"
                 >
-                    <h2 class="text-xl font-medium">Type</h2>
+                    <h2 class="text-xl font-medium">Facilities</h2>
                     <div
                         *ngFor="let feat of desk.features || []"
                         class="flex items-center flex-wrap space-x-2"
                     >
                         <div for="feat" class="flex-1 w-1/2">{{ feat }}</div>
-                    </div>
-                </section>
-                <section facilities class="space-y-2">
-                    <h2 class="text-xl font-medium">Facilities</h2>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>people</app-icon>
-                        <p>WiFi Available</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>restaurant</app-icon>
-                        <p>Catering Available</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>edit</app-icon>
-                        <p>Whiteboard</p>
                     </div>
                 </section>
                 <section
