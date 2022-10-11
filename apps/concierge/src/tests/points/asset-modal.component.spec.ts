@@ -10,7 +10,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { CounterComponent, TimeFieldComponent } from '@placeos/form-fields';
 import { SpacesService } from '@placeos/spaces';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { PointsAssetModalComponent } from '../../app/points/asset-modal.component';
@@ -20,14 +21,12 @@ describe('PointsAssetModalComponent', () => {
     const createComponent = createComponentFactory({
         component: PointsAssetModalComponent,
         providers: [
-            { provide: SpacesService, useValue: {} },
-            {
-                provide: DesksStateService,
-                useValue: {
-                    setFilters: jest.fn(),
-                },
-            },
-            { provide: MAT_DIALOG_DATA, useValue: {} },
+            MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
+            MockProvider(DesksStateService, {
+                setFilters: jest.fn(),
+                desks: new BehaviorSubject([]),
+            }),
+            MockProvider(MAT_DIALOG_DATA, {}),
         ],
         declarations: [
             MockComponent(CounterComponent),

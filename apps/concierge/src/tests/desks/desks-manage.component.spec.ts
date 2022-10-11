@@ -79,7 +79,6 @@ describe('DesksManageComponent', () => {
         (common_mod.unique as any) = jest.fn((_) => _);
         spectator.component.changes['1'] = { name: 'another' };
         spectator.detectChanges();
-        console.log(spectator.component.changed);
         spectator.click('button[save]');
         await timer(5).toPromise();
         expect(ts_client.updateMetadata).toBeCalledWith('lvl-1', {

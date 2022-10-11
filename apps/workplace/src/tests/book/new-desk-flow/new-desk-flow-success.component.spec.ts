@@ -1,7 +1,9 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Booking, BookingFormService } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 import { NewDeskFlowSuccessComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-success.component';
+import { MockProvider } from 'ng-mocks';
 
 describe('NewDeskFlowSuccessComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowSuccessComponent>;
@@ -15,6 +17,7 @@ describe('NewDeskFlowSuccessComponent', () => {
                 },
             },
             { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(SettingsService, { get: jest.fn() })
         ],
         declarations: [],
     });

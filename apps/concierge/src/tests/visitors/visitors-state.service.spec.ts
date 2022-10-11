@@ -1,23 +1,27 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { MatDialog } from '@angular/material/dialog';
 import { of, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
+import { MockProvider } from 'ng-mocks';
+
+import { User } from '@placeos/users';
 
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
 
 jest.mock('@placeos/events');
+jest.mock('@placeos/bookings');
 jest.mock('@placeos/common');
 
 import * as event_mod from '@placeos/events';
+import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
-import { User } from '@placeos/users';
 
 describe('VisitorStateService', () => {
     let spectator: SpectatorService<VisitorsStateService>;
     const createService = createServiceFactory({
         service: VisitorsStateService,
         providers: [
-            { provide: MatDialog, useValue: { open: jest.fn() } }
+            MockProvider(MatDialog, { open: jest.fn() })
         ]
     });
 
@@ -30,6 +34,9 @@ describe('VisitorStateService', () => {
     it('should list visitor events', async () => {
         (event_mod as any).queryEvents = jest.fn(() =>
             of([{ guests: [{}], attendees: [{}, {}] }])
+        );
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            of([{ extension_data: {} }])
         );
         expect(event_mod.queryEvents).not.toBeCalled();
         const events = await spectator.service.events.pipe(take(1)).toPromise();

@@ -1,4 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
@@ -16,7 +17,8 @@ describe('LandingComponent', () => {
             MockComponent(LandingAvailabilityComponent),
             MockComponent(LandingUpcomingComponent),
             MockComponent(TopbarComponent),
-            MockComponent(FooterMenuComponent)
+            MockComponent(FooterMenuComponent),
+            MockComponent(IconComponent)
         ]
     });
 

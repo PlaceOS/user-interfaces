@@ -18,8 +18,8 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent, MockModule } from 'ng-mocks';
-import { of } from 'rxjs';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpacesService } from '../../lib/spaces.service';
 
@@ -28,38 +28,25 @@ describe('SpaceFiltersComponent', () => {
     const createComponent = createComponentFactory({
         component: SpaceFiltersComponent,
         providers: [
-            {
-                provide: MatBottomSheetRef,
-                useValue: { dismiss: jest.fn() },
-            },
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn() },
-            },
-            {
-                provide: OrganisationService,
-                useValue: { level_list: of([]) },
-            },
-            {
-                provide: SpacesService,
-                useValue: { features: of(['Whiteboard']) },
-            },
-            {
-                provide: EventFormService,
-                useValue: {
-                    form: new FormGroup({
-                        date: new FormControl(),
-                        duration: new FormControl(),
-                        location: new FormControl(),
-                    }),
-                },
-            },
+            MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, { level_list: of([]) }),
+            MockProvider(SpacesService, { features: of(['Whiteboard']) }),
+            MockProvider(EventFormService, {
+                available_spaces: new BehaviorSubject([]),
+                options: new BehaviorSubject({}),
+                form: new FormGroup({
+                    date: new FormControl(),
+                    duration: new FormControl(),
+                    location: new FormControl(),
+                }),
+            } as any),
         ],
         declarations: [
             MockComponent(DateFieldComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
-            MockComponent(IconComponent)
+            MockComponent(IconComponent),
         ],
         imports: [
             MockModule(MatCheckboxModule),
@@ -72,7 +59,8 @@ describe('SpaceFiltersComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => expect(spectator.component).toBeTruthy());
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
 
     it('should allow changing location', () =>
         expect('[name="location"]').toExist());

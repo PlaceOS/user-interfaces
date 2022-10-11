@@ -10,7 +10,8 @@ import * as ts_client from '@placeos/ts-client';
 import { SpacesService } from '../lib/spaces.service';
 import { generateMockSpace } from '../lib/space.utilities';
 import { first } from 'rxjs/operators';
-import { randomInt } from '@placeos/common';
+import { randomInt, SettingsService } from '@placeos/common';
+import { MockProvider } from 'ng-mocks';
 
 describe('SpacesService', () => {
     let spectator: SpectatorService<SpacesService>;
@@ -18,14 +19,12 @@ describe('SpacesService', () => {
     const createService = createServiceFactory({
         service: SpacesService,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    organisation: { id: 'zone-1' },
-                    levelWithID: jest.fn(),
-                },
-            },
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                organisation: { id: 'zone-1' },
+                levelWithID: jest.fn(),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() })
         ],
     });
 

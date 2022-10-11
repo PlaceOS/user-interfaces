@@ -1,11 +1,12 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CustomTableComponent, IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
 import { Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 
 describe('CateringReportOrdersComponent', () => {
     let spectator: Spectator<CateringReportOrdersComponent>;
@@ -16,14 +17,12 @@ describe('CateringReportOrdersComponent', () => {
             MockComponent(IconComponent),
         ],
         providers: [
-            {
-                provide: CateringReportStateService,
-                useValue: {
-                    catering_orders: new BehaviorSubject({}),
-                    downloadOrders: jest.fn(),
-                },
-            },
-            { provide: Router, useValue: {} },
+            MockProvider(CateringReportStateService, {
+                catering_orders: new BehaviorSubject({}),
+                downloadOrders: jest.fn(),
+            } as any),
+            MockProvider(Router, {}),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
     });
 

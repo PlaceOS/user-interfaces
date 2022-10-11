@@ -1,5 +1,7 @@
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
+import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ScheduleFiltersComponent } from '../../app/new-schedule/schedule-filters.component';
 import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
@@ -19,6 +21,9 @@ describe('ScheduleFiltersComponent', () => {
             },
             { provide: MatBottomSheet, useValue: { open: jest.fn() } },
         ],
+        declarations: [
+            MockComponent(IconComponent)
+        ]
     });
 
     beforeEach(() => (spectator = createComponent()));
