@@ -79,7 +79,7 @@ export class Booking {
     constructor(data: Partial<Booking> = {}) {
         this.id = data.id || '';
         this.asset_id = data.asset_id || '';
-        this.asset_name = data.asset_name || data.extension_data?.asset_name || '';
+        this.asset_name = data.asset_name || data.extension_data?.asset_name || data.description || '';
         this.zones = data.zones || [];
         this.booking_start =
             data.date / 1000 ||
