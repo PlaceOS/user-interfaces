@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 
@@ -8,7 +8,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
         <ng-container
             [ngTemplateOutlet]="view === 'nonDraft' ? nonDraft : draft"
         ></ng-container>
-
         <ng-template #nonDraft>
             <div class="question-container">
                 <div class="wrapper">
@@ -70,9 +69,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     </div>
                     <div class="draft-checkbox-container">
                         <div
-                            *ngFor="
-                                let choice of question?.choices || new_choices
-                            "
+                            *ngFor="let choice of question?.choices"
                             class="checkbox"
                         >
                             <input
@@ -84,6 +81,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [placeholder]="
                                     choice || 'Type a choice here...'
                                 "
+                                (change)="updateTitle($event)"
                             />
                         </div>
                         <div class="plus-minus-buttons">
@@ -187,20 +185,27 @@ export class DropdownQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view = 'nonDraft';
-
-    new_choices: string[] = this.surveyCreatorService.choices;
+    @Output() newTitleEvent = new EventEmitter<string>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
 
     protected addOption() {
-        this.surveyCreatorService.choices.push('Type a choice here...');
+        let found_question = this._findQuestion(this.question);
+        found_question.choices.push('Type a choice here...');
     }
     protected deleteOption() {
-        if (this.surveyCreatorService.choices.length > 1) {
-            this.surveyCreatorService.choices.pop();
+        let found_question = this._findQuestion(this.question);
+        if (found_question.choices.length > 1) {
+            found_question.choices.pop();
         }
+    }
+
+    private _findQuestion(question) {
+        return this.surveyCreatorService.question_bank.find(
+            (item) => item.title === question.title
+        );
     }
     protected saveChoice() {
         //refactor this method to be saved when 'Add New' or 'Add' is pressed
@@ -214,9 +219,11 @@ export class DropdownQuestionComponent implements OnInit {
             for (let i = 0; i < choices.length; i++) {
                 updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
             }
-            this.surveyCreatorService.choices = updated_choices;
-
-            console.log(this.surveyCreatorService.choices, 'choices');
+            let found_question = this._findQuestion(this.question);
+            found_question.choices = updated_choices;
         }, 800);
+    }
+    updateTitle(event) {
+        this.newTitleEvent.emit(event.target.value);
     }
 }

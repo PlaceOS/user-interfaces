@@ -52,19 +52,20 @@ export class SurveyCreatorService {
     }
 
     //Store of new answer choices for checkbox & dropdown questions
-    private _choices: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(
-        ['Type a choice here...']
-    );
 
-    choices$: Observable<string[]> = this._choices.asObservable();
+    // private _choices: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(
+    //     ['Type a choice here...']
+    // );
 
-    set choices(choices: string[]) {
-        this._choices.next(choices);
-    }
+    // choices$: Observable<string[]> = this._choices.asObservable();
 
-    get choices() {
-        return this._choices.getValue();
-    }
+    // set choices(choices: string[]) {
+    //     this._choices.next(choices);
+    // }
+
+    // get choices() {
+    //     return this._choices.getValue();
+    // }
 
     //Store of JSON generated from survey questions
     private _surveyJSON: BehaviorSubject<any> = new BehaviorSubject<any>({});

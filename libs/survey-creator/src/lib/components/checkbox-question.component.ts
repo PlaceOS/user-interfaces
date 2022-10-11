@@ -69,9 +69,7 @@ import { InputTitleComponent } from './input-title.component';
                     </div>
                     <div class="draft-checkbox-container">
                         <div
-                            *ngFor="
-                                let choice of question?.choices || new_choices
-                            "
+                            *ngFor="let choice of question?.choices"
                             class="checkbox"
                         >
                             <mat-checkbox></mat-checkbox>
@@ -195,26 +193,28 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() view = 'nonDraft';
     @Output() newTitleEvent = new EventEmitter<string>();
 
-    new_choices: string[] = this.surveyCreatorService.choices;
-
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
-    ngOnInit(): void {
-        console.log(this.new_choices, 'new choices');
-    }
+    ngOnInit(): void {}
 
     ngAfterViewInit() {}
 
     protected addOption() {
-        // const current_question = this._findQuestion();
-
-        this.surveyCreatorService.choices.push('Type a choice here...');
+        let found_question = this._findQuestion(this.question);
+        found_question.choices.push('Type a choice here...');
     }
 
     protected deleteOption() {
-        if (this.surveyCreatorService.choices.length > 1) {
-            this.surveyCreatorService.choices.pop();
+        let found_question = this._findQuestion(this.question);
+        if (found_question.choices.length > 1) {
+            found_question.choices.pop();
         }
+    }
+
+    private _findQuestion(question) {
+        return this.surveyCreatorService.question_bank.find(
+            (item) => item.title === question.title
+        );
     }
 
     protected saveChoice() {
@@ -229,9 +229,9 @@ export class CheckboxQuestionComponent implements OnInit {
             for (let i = 0; i < choices.length; i++) {
                 updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
             }
-            this.surveyCreatorService.choices = updated_choices;
 
-            console.log(this.surveyCreatorService.choices, 'choices');
+            let found_question = this._findQuestion(this.question);
+            found_question.choices = updated_choices;
         }, 800);
     }
 

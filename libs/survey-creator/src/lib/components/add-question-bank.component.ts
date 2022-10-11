@@ -243,16 +243,10 @@ export class AddQuestionBankComponent implements OnInit {
 
     updateSelectedTag() {
         this.question_type = this.selected_tag;
-        this._resetChoices();
     }
 
     closeDialog() {
-        this._resetChoices();
         this.dialogRef.close();
-    }
-
-    private _resetChoices() {
-        this._surveyCreatorService.choices = ['Type a choice here...'];
     }
 
     addQuestion() {

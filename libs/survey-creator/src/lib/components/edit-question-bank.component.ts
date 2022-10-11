@@ -199,7 +199,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 })
 export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
-    selected_tag: any = QuestionType.rating;
+    // selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
 
     question_bank$: Observable<Question[]> =
@@ -224,16 +224,8 @@ export class EditQuestionBankComponent implements OnInit {
         );
     }
 
-    updateSelectedTag() {
-        this.question_type = this.selected_tag;
-        this._resetChoices();
-    }
     closeDialog() {
-        this._resetChoices();
         this.dialogRef.close();
-    }
-    private _resetChoices() {
-        this._surveyCreatorService.choices = ['Type a choice here...'];
     }
 
     updateTitle(event, title) {
