@@ -1,6 +1,7 @@
 import { User } from 'libs/users/src/lib/user.class';
 import { addMinutes, format } from 'date-fns';
 import { toQueryString } from './api';
+import { localToTimezone } from './timezone-helpers';
 
 export interface CalEvent {
     title: string;
@@ -18,7 +19,8 @@ export interface CalEvent {
 }
 
 function formatUTC(date: Date | number) {
-    return `${format(date, 'yyyyMMdd')}T${format(date, 'HHmmss')}Z`;
+    const utc_date = localToTimezone(date, 'UTC');
+    return `${format(utc_date, 'yyyyMMdd')}T${format(utc_date, 'HHmmss')}Z`;
 }
 
 function formatAllDay(date: Date | number) {
