@@ -2,6 +2,7 @@ import { User } from 'libs/users/src/lib/user.class';
 import { addMinutes, format } from 'date-fns';
 import { toQueryString } from './api';
 import { localToTimezone } from './timezone-helpers';
+import { unique } from './general';
 
 export interface CalEvent {
     title: string;
@@ -15,6 +16,7 @@ export interface CalEvent {
     user_name?: string;
     user_email?: string;
     attendees: string[];
+    resources?: string[];
     meeting_url?: string;
 }
 
@@ -71,7 +73,9 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
         )}`,
     };
     if (event.attendees && event.attendees.length) {
-        details.add = event.attendees.join();
+        const emails = event.attendees.map((_: any) => _.email || _);
+        const resources = (event.resources || []).map((_: any) => _.email || _)
+        details.add = unique([...emails, ...resources]).join();
     }
     return `https://calendar.google.com/calendar/render?${toQueryString(
         details
@@ -82,6 +86,7 @@ export function generateMicrosoftCalendarLink(
     event: CalEvent,
     type: 'outlook' | 'office' = 'outlook'
 ): string {
+    if (!event.date) event.date = Date.now();
     const data = {
         path: '/calendar/action/compose',
         rru: 'addevent',
