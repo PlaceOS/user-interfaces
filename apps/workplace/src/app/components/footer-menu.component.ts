@@ -202,9 +202,8 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 color: var(--primary) !important;
             }
 
-            [dark="true"] a.active app-icon,
-            [dark="true"] a.active {
-                color: var(--secondary) !important;
+            a.active {
+                font-weight: 500;
             }
 
             a:not(.active) [filled],

@@ -252,8 +252,7 @@ mat-dialog-container.mat-dialog-container {
         align-items: center;
         padding: 0.5em 1em;
         width: 100%;
-        background-color: var(--primary);
-        color: var(--font-light);
+        @apply border-b border-gray-200 dark:border-neutral-500;
 
         h1,
         h2,

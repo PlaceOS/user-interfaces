@@ -6,7 +6,7 @@
     --primary-dark: #3A4174;
     --secondary: #1565c0;
     --secondary-dark: #003c8f;
-    --ternary: #ff6090;
+    --ternary: #F8C9DA;
     --ternary-dark: #8c0032;
     --font-light: #fff;
     --font-dark: #000;
@@ -17,6 +17,11 @@
     --bg-dark: #212121;
     --font: 'Helvetica Neue', 'Roboto', Helvetica, sans-serif;
     --heading-font: Georgia, 'Times New Roman', Times, serif;
+    --dark-primary: #d81b60;
+
+    .dark {
+        --primary: var(--dark-primary);
+    }
 }
 
 @media screen {

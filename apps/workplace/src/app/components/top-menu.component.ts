@@ -14,7 +14,7 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 [routerLink]="[default_page]"
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Home"
                 matTooltipPosition="below"
             >
@@ -25,7 +25,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
             <a
@@ -35,7 +35,7 @@ import { OrganisationService } from '@placeos/organisation';
                 [routerLink]="
                     new_features ? ['/book', 'meeting'] : ['/book', 'spaces']
                 "
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Book Room"
                 matTooltipPosition="below"
             >
@@ -46,7 +46,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
             <a
@@ -56,7 +56,7 @@ import { OrganisationService } from '@placeos/organisation';
                 [routerLink]="
                     new_features ? ['/book', 'newdesk'] : ['/book', 'desks']
                 "
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Book Desk"
                 matTooltipPosition="below"
             >
@@ -80,7 +80,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
             <a
@@ -88,7 +88,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
                 [routerLink]="['/book', 'parking']"
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Book Car Space"
                 matTooltipPosition="below"
             >
@@ -99,7 +99,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
             <a
@@ -107,7 +107,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('visitor-invite')"
                 [routerLink]="['/book', 'visitor']"
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Invite Visitor"
                 matTooltipPosition="below"
             >
@@ -118,7 +118,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
             <a
@@ -126,7 +126,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('explore')"
                 [routerLink]="['/explore']"
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Spaces"
                 matTooltipPosition="below"
             >
@@ -137,7 +137,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
             <a
@@ -145,7 +145,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('schedule')"
                 [routerLink]="new_features ? ['/your-bookings'] : ['/schedule']"
-                routerLinkActive="text-primary active dark:text-secondary"
+                routerLinkActive="text-primary active"
                 matTooltip="Your Bookings"
                 matTooltipPosition="below"
             >
@@ -156,7 +156,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                 <div
                     bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary dark:bg-secondary"
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
                 ></div>
             </a>
         </div>

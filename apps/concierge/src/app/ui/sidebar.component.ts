@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'sidebar',
     template: `
-        <div class="flex flex-col bg-primary w-48 text-white h-full">
+        <div class="flex flex-col bg-primary dark:bg-slate-800 w-48 text-white h-full">
             <div class="logo w-full flex items-center justify-center p-3 mb-4">
                 <img class="w-full" [src]="logo.src" />
             </div>
@@ -57,8 +57,8 @@ import { OrganisationService } from '@placeos/organisation';
     styles: [
         `
             a.active {
-                background-color: #fff3 !important;
-                color: var(--ternary) !important;
+                background-color: var(--ternary) !important;
+                color: #000E !important;
             }
         `,
     ],
