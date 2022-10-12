@@ -279,7 +279,8 @@ export class EventFormService extends BaseClass {
         form.markAllAsTouched();
         if (!form.valid && !force) return;
         const event = new CalendarEvent({ ...this.event, ...form.getRawValue() });
-        this._dialog.open(EventLinkModalComponent, { data: event })
+        const ref = this._dialog.open(EventLinkModalComponent, { data: event });
+        ref.afterClosed().subscribe(() => this._router.navigate(['/']));
     }
 
     public postForm(force: boolean = false) {
