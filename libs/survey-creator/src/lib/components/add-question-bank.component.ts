@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 
@@ -50,6 +51,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
+                                (newTitleEvent)="addQuestion($event, 'Rating')"
                             ></rating-question>
                         </ng-template>
                         <ng-template #Text>
@@ -57,6 +59,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
+                                (newTitleEvent)="addQuestion($event, 'Text')"
                             ></text-question>
                         </ng-template>
                         <ng-template #Comment>
@@ -64,6 +67,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
+                                (newTitleEvent)="addQuestion($event, 'Comment')"
                             ></comment-box-question>
                         </ng-template>
                         <ng-template #Checkbox>
@@ -71,6 +75,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
+                                (newTitleEvent)="
+                                    addQuestion($event, 'Checkbox')
+                                "
                             ></checkbox-question>
                         </ng-template>
                         <ng-template #Dropdown>
@@ -78,6 +85,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
+                                (newTitleEvent)="
+                                    addQuestion($event, 'Dropdown')
+                                "
                             ></dropdown-question>
                         </ng-template>
                     </div>
@@ -110,12 +120,30 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     <button
                         mat-button
                         class="add-another-question"
-                        (click)="addQuestion()"
+                        (click)="addAnotherQuestion()"
                     >
                         Add another
                     </button>
                 </div>
             </main>
+            <footer>
+                <button
+                    mat-button
+                    class="cancel-button"
+                    color="basic"
+                    (click)="closeDialog()"
+                >
+                    Cancel
+                </button>
+                <button
+                    mat-button
+                    class="add-button"
+                    color="primary"
+                    (click)="storeQuestions()"
+                >
+                    Add
+                </button>
+            </footer>
         </section>
     `,
     styles: [
@@ -207,6 +235,26 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 border: none;
                 margin-top: 30px;
             }
+            .cancel-button {
+                display: flex;
+                color: #292f5b;
+                background-color: #fff;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
+            }
+            .add-button {
+                display: flex;
+                color: #fff;
+                background-color: #292f5b;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
+            }
+            footer {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                margin-right: 20px;
+            }
             .close {
                 display: flex;
                 z-index: 99;
@@ -222,6 +270,10 @@ export class AddQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
+    new_questions: Question[] = [];
+    private _update_flag: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
+    flag_sub: Subscription;
 
     placeholder_question: Question = {
         type: '' as QuestionType,
@@ -249,7 +301,34 @@ export class AddQuestionBankComponent implements OnInit {
         this.dialogRef.close();
     }
 
-    addQuestion() {
+    addAnotherQuestion() {
         console.log('add');
+    }
+
+    addQuestion(event, question_type) {
+        console.log(event, 'event', question_type);
+        const new_question: Question = {
+            title: event,
+            type: question_type,
+            name: '',
+        };
+        this.new_questions.push(new_question);
+    }
+
+    storeQuestions() {
+        this._update_flag.next(true);
+        this.closeDialog();
+        this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
+            if (flag) {
+                this._surveyCreatorService.question_bank.push(
+                    ...this.new_questions
+                );
+            }
+        });
+        this._update_flag.next(false);
+    }
+
+    ngOnDestroy(): void {
+        this.flag_sub?.unsubscribe();
     }
 }
