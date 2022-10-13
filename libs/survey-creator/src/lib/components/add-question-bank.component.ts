@@ -34,13 +34,13 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     <div class="new-question">
                         <ng-container
                             [ngTemplateOutlet]="
-                                question_type == 'Text'
+                                question_type == QuestionType.text
                                     ? Text
-                                    : question_type == 'Checkbox'
+                                    : question_type == QuestionType.checkbox
                                     ? Checkbox
-                                    : question_type == 'Comment'
+                                    : question_type == QuestionType.comment
                                     ? Comment
-                                    : question_type == 'Dropdown'
+                                    : question_type == QuestionType.dropdown
                                     ? Dropdown
                                     : Rating
                             "
@@ -48,48 +48,51 @@ import { SurveyCreatorService } from '../survey-creator.service';
                         </ng-container>
                         <ng-template #Rating>
                             <rating-question
-                                [question]="placeholder_question"
+                                [question]="placeholder_question_text"
                                 [view]="'draft'"
                                 [preview]="true"
-                                (newUpdateEvent)="addQuestion($event, 'Rating')"
+                                (newTitleEvent)="
+                                    updateTitle($event, QuestionType.rating)
+                                "
+                                (newRatingEvent)="updateRating($event)"
                             ></rating-question>
                         </ng-template>
                         <ng-template #Text>
                             <text-question
-                                [question]="placeholder_question"
+                                [question]="placeholder_question_text"
                                 [view]="'draft'"
                                 [preview]="true"
-                                (newTitleEvent)="addQuestion($event, 'Text')"
+                                (newTitleEvent)="
+                                    updateTitle($event, QuestionType.text)
+                                "
                             ></text-question>
                         </ng-template>
                         <ng-template #Comment>
                             <comment-box-question
-                                [question]="placeholder_question"
+                                [question]="placeholder_question_text"
                                 [view]="'draft'"
                                 [preview]="true"
                                 (newTitleEvent)="
-                                    addQuestion($event, 'Comment', question)
+                                    updateTitle($event, QuestionType.comment)
                                 "
                             ></comment-box-question>
                         </ng-template>
                         <ng-template #Checkbox>
                             <checkbox-question
-                                [question]="placeholder_question"
+                                [question]="placeholder_question_select"
                                 [view]="'draft'"
                                 [preview]="true"
                                 (newTitleEvent)="
-                                    addQuestion($event, 'Checkbox')
+                                    updateTitle($event, QuestionType.checkbox)
                                 "
+                                (allChoicesEvent)="updateAllChoices($event)"
                             ></checkbox-question>
                         </ng-template>
                         <ng-template #Dropdown>
                             <dropdown-question
-                                [question]="placeholder_question"
+                                [question]="placeholder_question_select"
                                 [view]="'draft'"
                                 [preview]="true"
-                                (newTitleEvent)="
-                                    addQuestion($event, 'Dropdown')
-                                "
                             ></dropdown-question>
                         </ng-template>
                     </div>
@@ -141,7 +144,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     mat-button
                     class="add-button"
                     color="primary"
-                    (click)="storeQuestions()"
+                    (click)="addQuestion()"
                 >
                     Add
                 </button>
@@ -272,15 +275,22 @@ export class AddQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
     selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
+    new_question: Question;
     new_questions: Question[] = [];
     private _update_flag: BehaviorSubject<boolean> =
         new BehaviorSubject<boolean>(false);
     flag_sub: Subscription;
-
-    placeholder_question: Question = {
-        type: '' as QuestionType,
+    placeholder_choice: string = 'Type a choice here...';
+    placeholder_question_text: Question = {
+        type: QuestionType.text || QuestionType.comment || QuestionType.rating,
         title: 'Type a question...',
         name: '',
+    };
+    placeholder_question_select: Question = {
+        type: QuestionType.checkbox || QuestionType.dropdown,
+        title: 'Type a question...',
+        name: '',
+        choices: [this.placeholder_choice],
     };
 
     public QuestionType = QuestionType;
@@ -293,6 +303,12 @@ export class AddQuestionBankComponent implements OnInit {
     ngOnInit(): void {
         console.log(this.question_type, 'question type');
         console.log(this.selected_tag, 'selected_tag');
+
+        this.new_question = {
+            title: '',
+            type: '' as any,
+            name: '',
+        };
     }
 
     updateSelectedTag() {
@@ -303,33 +319,49 @@ export class AddQuestionBankComponent implements OnInit {
         this.dialogRef.close();
     }
 
+    updateTitle(event, question_type) {
+        this.new_question.title = event;
+        this.new_question.type = question_type;
+    }
+
+    updateChoice(event) {
+        let choice_index = this.new_question.choices.findIndex(
+            (item) => item == event[1]
+        );
+        if (choice_index) {
+            this.new_question.choices[choice_index] = event[0];
+        }
+    }
+
+    updateAllChoices(event: string[]) {
+        this.new_question.choices = event;
+    }
+    updateRating(event) {
+        this.new_question.rateValues = event || [1, 2, 3, 4, 5];
+    }
+
     addAnotherQuestion() {
         console.log('add');
     }
 
-    addQuestion(event, question_type) {
-        const new_question: Question = {
-            title: event,
-            type: question_type,
-            name: '',
-        };
+    addQuestion() {
+        // switch (this.new_question.type) {
+        //     case QuestionType.rating:
+        //         this.new_question.title = event[0];
+        //         this.new_question.rateValues = event[1];
 
-        switch (question_type) {
-            case QuestionType.rating:
-                new_question.title = event[0];
-                new_question.rateValues = event[1];
-        }
-
-        this.new_questions = [new_question];
-    }
-
-    storeQuestions() {
+        //     case QuestionType.checkbox || QuestionType.dropdown:
+        //         console.log(event, 'event in Add modal');
+        //         this.new_question.title = event[0];
+        //         this.new_question.choices = event[1];
+        // }
         this._update_flag.next(true);
         this.closeDialog();
+        console.log(this.new_question, 'q to be added');
         this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
             if (flag) {
                 this._surveyCreatorService.question_bank.push(
-                    ...this.new_questions
+                    this.new_question
                 );
             }
         });

@@ -175,18 +175,11 @@ export class RatingQuestionComponent implements OnInit {
         this.updateRating();
     }
 
-    updateToAddModal() {
-        this.newUpdateEvent.emit([this.title, this.rateValues]);
-    }
-
     updateTitle(event) {
-        this.title = event.target.value;
-        this.newTitleEvent.emit(this.title);
-        this.updateToAddModal();
+        this.newTitleEvent.emit(event.target.value);
     }
 
     updateRating() {
         this.newRatingEvent.emit(this.rateValues);
-        this.updateToAddModal();
     }
 }

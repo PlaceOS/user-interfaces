@@ -90,7 +90,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 updateTitle($event, question.title)
                             "
                             (newChoiceEvent)="
-                                updateChoice($event, question.title, choice)
+                                updateChoice($event, question.title)
                             "
                         ></checkbox-question>
                     </ng-template>
