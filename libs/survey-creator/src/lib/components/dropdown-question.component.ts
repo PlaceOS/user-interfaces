@@ -70,7 +70,10 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     </div>
                     <div class="draft-checkbox-container">
                         <div
-                            *ngFor="let choice of question?.choices"
+                            *ngFor="
+                                let choice of question?.choices ||
+                                    'Type a choice here...'
+                            "
                             class="checkbox"
                         >
                             <input
@@ -188,6 +191,10 @@ export class DropdownQuestionComponent implements OnInit {
     @Input() view = 'nonDraft';
     @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
     @Output() newChoiceEvent: EventEmitter<any> = new EventEmitter<any>();
+    @Output() allChoicesEvent: EventEmitter<any> = new EventEmitter<any>();
+
+    title: string;
+    placeholder_choice: string = 'Type a choice here...';
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -195,12 +202,21 @@ export class DropdownQuestionComponent implements OnInit {
 
     protected addOption() {
         let found_question = this._findQuestion(this.question);
-        found_question.choices.push('Type a choice here...');
+
+        if (found_question) {
+            found_question.choices.push(this.placeholder_choice);
+        } else {
+            this.question.choices.push(this.placeholder_choice);
+            this.updateAllChoices(this.question.choices);
+        }
     }
     protected deleteOption() {
         let found_question = this._findQuestion(this.question);
-        if (found_question.choices.length > 1) {
+        if (found_question?.choices?.length > 1) {
             found_question.choices.pop();
+        } else {
+            this.question.choices.pop();
+            this.updateAllChoices(this.question.choices);
         }
     }
 
@@ -209,28 +225,24 @@ export class DropdownQuestionComponent implements OnInit {
             (item) => item.title === question.title
         );
     }
-    protected saveChoice() {
-        //refactor this method to be saved when 'Add New' or 'Add' is pressed
-        setTimeout(() => {
-            let updated_choices: string[] = [];
 
-            const choices = document.getElementsByClassName('choices_box');
-
-            console.log(choices.length, 'choices length');
-
-            for (let i = 0; i < choices.length; i++) {
-                updated_choices[i] = (choices[i] as HTMLInputElement)?.value;
-            }
-            let found_question = this._findQuestion(this.question);
-            found_question.choices = updated_choices;
-        }, 800);
-    }
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
     }
     updateChoice(event, choice) {
-        console.log(choice, 'choice');
-        console.log(event.target.value, 'choice event');
-        this.newChoiceEvent.emit([event.target.value, choice]);
+        let found_index = this.question.choices.findIndex(
+            (item) => item == choice
+        );
+        if ([found_index].length > 0) {
+            //Update 'Add' Modal
+            this.question.choices[found_index] = event.target.value;
+            this.updateAllChoices(this.question.choices);
+        } else {
+            //Update 'Edit' modal
+            this.newChoiceEvent.emit([event.target.value, choice]);
+        }
+    }
+    updateAllChoices(event) {
+        this.allChoicesEvent.emit(event);
     }
 }

@@ -93,6 +93,10 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question_select"
                                 [view]="'draft'"
                                 [preview]="true"
+                                (newTitleEvent)="
+                                    updateTitle($event, QuestionType.dropdown)
+                                "
+                                (allChoicesEvent)="updateAllChoices($event)"
                             ></dropdown-question>
                         </ng-template>
                     </div>

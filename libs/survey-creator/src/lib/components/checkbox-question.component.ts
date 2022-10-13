@@ -198,7 +198,6 @@ export class CheckboxQuestionComponent implements OnInit {
     @Output() allChoicesEvent: EventEmitter<any> = new EventEmitter<any>();
 
     title: string;
-
     placeholder_choice: string = 'Type a choice here...';
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
