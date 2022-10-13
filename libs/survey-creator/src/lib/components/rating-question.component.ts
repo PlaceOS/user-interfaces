@@ -152,8 +152,10 @@ export class RatingQuestionComponent implements OnInit {
     @Output() newRatingEvent: EventEmitter<number[]> = new EventEmitter<
         number[]
     >();
+    @Output() newUpdateEvent: EventEmitter<any> = new EventEmitter<any>();
 
     rateValues: number[];
+    title: string = '';
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
@@ -170,13 +172,21 @@ export class RatingQuestionComponent implements OnInit {
     protected minusRating() {
         if (this.rateValues.length < 4) return;
         this.rateValues.pop();
+        this.updateRating();
+    }
+
+    updateToAddModal() {
+        this.newUpdateEvent.emit([this.title, this.rateValues]);
     }
 
     updateTitle(event) {
-        this.newTitleEvent.emit(event.target.value);
+        this.title = event.target.value;
+        this.newTitleEvent.emit(this.title);
+        this.updateToAddModal();
     }
 
     updateRating() {
         this.newRatingEvent.emit(this.rateValues);
+        this.updateToAddModal();
     }
 }

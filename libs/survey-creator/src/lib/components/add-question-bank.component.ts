@@ -51,7 +51,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
-                                (newTitleEvent)="addQuestion($event, 'Rating')"
+                                (newUpdateEvent)="addQuestion($event, 'Rating')"
                             ></rating-question>
                         </ng-template>
                         <ng-template #Text>
@@ -67,7 +67,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 [question]="placeholder_question"
                                 [view]="'draft'"
                                 [preview]="true"
-                                (newTitleEvent)="addQuestion($event, 'Comment')"
+                                (newTitleEvent)="
+                                    addQuestion($event, 'Comment', question)
+                                "
                             ></comment-box-question>
                         </ng-template>
                         <ng-template #Checkbox>
@@ -306,13 +308,19 @@ export class AddQuestionBankComponent implements OnInit {
     }
 
     addQuestion(event, question_type) {
-        console.log(event, 'event', question_type);
         const new_question: Question = {
             title: event,
             type: question_type,
             name: '',
         };
-        this.new_questions.push(new_question);
+
+        switch (question_type) {
+            case QuestionType.rating:
+                new_question.title = event[0];
+                new_question.rateValues = event[1];
+        }
+
+        this.new_questions = [new_question];
     }
 
     storeQuestions() {
