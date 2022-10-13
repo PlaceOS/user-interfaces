@@ -1,15 +1,7 @@
-import {
-    Component,
-    OnInit,
-    Input,
-    ElementRef,
-    Output,
-    EventEmitter,
-} from '@angular/core';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
-import { InputTitleComponent } from './input-title.component';
+import { QuestionCreatorService } from '../question-creator.service';
 
 @Component({
     selector: 'checkbox-question',
@@ -200,39 +192,25 @@ export class CheckboxQuestionComponent implements OnInit {
     title: string;
     placeholder_choice: string = 'Type a choice here...';
 
-    constructor(public surveyCreatorService: SurveyCreatorService) {}
+    constructor(
+        public surveyCreatorService: SurveyCreatorService,
+        public questionCreatorService: QuestionCreatorService
+    ) {}
 
     ngOnInit(): void {}
 
     ngAfterViewInit() {}
 
     protected addOption() {
-        let found_question = this._findQuestion(this.question);
-
-        if (found_question) {
-            found_question.choices.push(this.placeholder_choice);
-        } else {
-            this.question.choices.push(this.placeholder_choice);
-            this.updateAllChoices(this.question.choices);
-        }
+        this.question = this.questionCreatorService.addOption(this.question);
+        this.updateAllChoices(this.question.choices);
     }
 
     protected deleteOption() {
-        let found_question = this._findQuestion(this.question);
-
-        if (found_question?.choices?.length > 1) {
-            found_question.choices.pop();
-        } else {
-            this.question.choices.pop();
-            this.updateAllChoices(this.question.choices);
-        }
+        this.question = this.questionCreatorService.deleteOption(this.question);
+        this.updateAllChoices(this.question.choices);
     }
 
-    private _findQuestion(question) {
-        return this.surveyCreatorService.question_bank.find(
-            (item) => item.title === question.title
-        );
-    }
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
     }

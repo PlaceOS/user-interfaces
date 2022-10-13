@@ -345,23 +345,12 @@ export class AddQuestionBankComponent implements OnInit {
     }
 
     addAnotherQuestion() {
-        console.log('add');
+        // console.log('add');
     }
 
     addQuestion() {
-        // switch (this.new_question.type) {
-        //     case QuestionType.rating:
-        //         this.new_question.title = event[0];
-        //         this.new_question.rateValues = event[1];
-
-        //     case QuestionType.checkbox || QuestionType.dropdown:
-        //         console.log(event, 'event in Add modal');
-        //         this.new_question.title = event[0];
-        //         this.new_question.choices = event[1];
-        // }
         this._update_flag.next(true);
         this.closeDialog();
-        console.log(this.new_question, 'q to be added');
         this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
             if (flag) {
                 this._surveyCreatorService.question_bank.push(

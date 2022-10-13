@@ -214,18 +214,14 @@ import { SurveyCreatorService } from '../survey-creator.service';
 })
 export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
-    // selected_tag: any = QuestionType.rating;
     question_type: string = QuestionType.rating;
-
     question_bank$: Observable<Question[]> =
         this._surveyCreatorService.question_bank$;
-
     updated_question_bank: Question[] = [];
     bank_sub: Subscription;
     flag_sub: Subscription;
     private _update_flag: BehaviorSubject<boolean> =
         new BehaviorSubject<boolean>(false);
-
     public QuestionType = QuestionType;
 
     constructor(
@@ -256,7 +252,7 @@ export class EditQuestionBankComponent implements OnInit {
         this._update_flag.next(false);
     }
 
-    updateChoice(event, title, choice) {
+    updateChoice(event, title) {
         let found_question = this.updated_question_bank.find(
             (question) => question.title === title
         );
