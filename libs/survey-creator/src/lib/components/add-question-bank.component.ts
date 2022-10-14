@@ -105,7 +105,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             ></dropdown-question>
                         </ng-template>
                     </div>
-                    <!-- <section class="options-container">
+                    <section class="options-container">
                         <div class="dropdown-container">
                             <mat-form-field appearance="none" class="dropdown">
                                 <mat-select
@@ -128,7 +128,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             <mat-slide-toggle> </mat-slide-toggle>
                             <span>Required</span>
                         </div>
-                    </section> -->
+                    </section>
                 </div>
                 <div>
                     <button

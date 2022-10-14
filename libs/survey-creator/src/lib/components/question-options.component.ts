@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { QuestionCreatorService } from '../question-creator.service';
-import { QuestionType } from '../survey-types';
+import { SurveyCreatorService } from '../survey-creator.service';
+import { Question, QuestionType } from '../survey-types';
 
 @Component({
     selector: 'question-options',
@@ -38,6 +39,7 @@ import { QuestionType } from '../survey-types';
                         [icon_color]="'red'"
                         [text_color]="'black'"
                         class="delete_button"
+                        (click)="deleteQuestion()"
                     ></button-borderless>
                 </div>
             </ng-template>
@@ -99,10 +101,14 @@ import { QuestionType } from '../survey-types';
 })
 export class QuestionOptionsComponent implements OnInit {
     @Input() view = '';
+    @Input() question: Question;
     public QuestionType = QuestionType;
     selected_tag: string;
 
-    constructor(public questionCreatorService: QuestionCreatorService) {}
+    constructor(
+        public questionCreatorService: QuestionCreatorService,
+        public surveyCreatorService: SurveyCreatorService
+    ) {}
 
     ngOnInit(): void {
         this.selected_tag = this.questionCreatorService.selected_tag;
@@ -110,5 +116,12 @@ export class QuestionOptionsComponent implements OnInit {
 
     updateSelectedTag() {
         this.questionCreatorService.selected_tag = this.selected_tag;
+    }
+
+    deleteQuestion() {
+        const found_index = this.surveyCreatorService.question_bank.findIndex(
+            (item) => item.title === this.question.title
+        );
+        this.surveyCreatorService.question_bank.splice(found_index, 1);
     }
 }

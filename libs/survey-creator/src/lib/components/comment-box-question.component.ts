@@ -52,7 +52,10 @@ import { Question } from '../survey-types';
                         <textarea class="input-field" disabled></textarea>
                     </div>
                     <div class="options-container">
-                        <question-options [view]="modal"></question-options>
+                        <question-options
+                            [view]="modal"
+                            [question]="question"
+                        ></question-options>
                     </div>
                 </div>
             </div>

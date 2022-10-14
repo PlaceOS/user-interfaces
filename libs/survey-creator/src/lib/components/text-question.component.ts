@@ -52,7 +52,10 @@ import { Question } from '../survey-types';
                     </div>
                 </div>
                 <div class="options-container">
-                    <question-options [view]="modal"></question-options>
+                    <question-options
+                        [view]="modal"
+                        [question]="question"
+                    ></question-options>
                 </div>
             </div>
         </ng-template>
