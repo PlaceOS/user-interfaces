@@ -15,7 +15,7 @@ import { Component, OnInit, Input } from '@angular/core';
             </span>
             <span
                 class="button-title"
-                [ngClass]="text_color == 'grey' ? 'grey' : 'blue'"
+                [ngClass]="text_color == 'black' ? 'black' : 'blue'"
             >
                 {{ button_title }}
             </span>
@@ -28,12 +28,12 @@ import { Component, OnInit, Input } from '@angular/core';
                 border: none;
                 font-size: 12px;
                 background-color: #fff;
-                margin: 10px;
+                margin: 10px 0px 10px 10px;
                 display: inline-flex;
                 align-items: center;
                 flex-direction: row;
                 text-decoration: none;
-                padding: 0px;
+                padding: 0px 10px 0px 0px;
             }
 
             .button-with-icon:hover {
@@ -63,9 +63,11 @@ import { Component, OnInit, Input } from '@angular/core';
             .grey {
                 color: #808080;
             }
+            .black {
+                color: #000000;
+            }
             .button-title {
                 display: inline-flex;
-
                 vertical-align: middle;
             }
         `,

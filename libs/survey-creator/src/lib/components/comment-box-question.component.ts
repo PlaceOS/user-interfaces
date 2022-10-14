@@ -51,6 +51,9 @@ import { Question } from '../survey-types';
                     <div class="input-field-container">
                         <textarea class="input-field" disabled></textarea>
                     </div>
+                    <div class="options-container">
+                        <question-options [view]="modal"></question-options>
+                    </div>
                 </div>
             </div>
         </ng-template>
@@ -78,7 +81,7 @@ import { Question } from '../survey-types';
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px;
+                margin: 20px 20px 50px 20px;
             }
             .question {
                 display: flex;
@@ -100,6 +103,12 @@ import { Question } from '../survey-types';
                 height: 50px;
                 margin-bottom: 10px;
             }
+            .options-container {
+                display: block;
+                position: absolute;
+                right: 10px;
+                bottom: 0;
+            }
             .close {
                 position: absolute;
                 right: 0;
@@ -115,6 +124,7 @@ export class CommentBoxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
+    @Input() modal: string = '';
     @Output() newTitleEvent = new EventEmitter<string>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}

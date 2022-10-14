@@ -52,6 +52,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            [modal]="'edit'"
                             (newTitleEvent)="
                                 updateTitle($event, question.title)
                             "
@@ -65,6 +66,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            [modal]="'edit'"
                             (newTitleEvent)="
                                 updateTitle($event, question.title)
                             "
@@ -75,6 +77,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            [modal]="'edit'"
                             (newTitleEvent)="
                                 updateTitle($event, question.title)
                             "
@@ -85,6 +88,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            [modal]="'edit'"
                             (newTitleEvent)="
                                 updateTitle($event, question.title)
                             "
@@ -98,6 +102,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             [question]="question"
                             [view]="'draft'"
                             [preview]="true"
+                            [modal]="'edit'"
                             (newTitleEvent)="
                                 updateTitle($event, question.title)
                             "

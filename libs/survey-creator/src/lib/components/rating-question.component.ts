@@ -70,6 +70,9 @@ import { Question } from '../survey-types';
                             <span>{{ number }}</span>
                         </div>
                     </div>
+                    <div class="options-container">
+                        <question-options [view]="modal"></question-options>
+                    </div>
                 </div>
             </div>
         </ng-template>
@@ -97,7 +100,7 @@ import { Question } from '../survey-types';
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px;
+                margin: 20px 20px 50px 20px;
             }
             .question {
                 display: flex;
@@ -133,6 +136,12 @@ import { Question } from '../survey-types';
                 flex-direction: row;
                 margin: 0px 5px 0px -5px;
             }
+            .options-container {
+                display: block;
+                position: absolute;
+                right: 10px;
+                bottom: 0;
+            }
             .close {
                 position: absolute;
                 right: 0;
@@ -148,6 +157,7 @@ export class RatingQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
+    @Input() modal: string = '';
     @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
     @Output() newRatingEvent: EventEmitter<number[]> = new EventEmitter<
         number[]

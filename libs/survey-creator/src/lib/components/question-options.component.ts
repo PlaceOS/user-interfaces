@@ -23,17 +23,25 @@ import { QuestionType } from '../survey-types';
             </div>
             <div class="required-container">
                 <mat-slide-toggle> </mat-slide-toggle>
-                <span>Required</span>
+                <span class="required-text">Required</span>
             </div>
-            <div>
-                <button-borderless
-                    [button_title]="'Delete'"
-                    [icon]="'delete_forever'"
-                    [icon_color]="'red'"
-                    [text_color]="'grey'"
-                    class="delete_button"
-                ></button-borderless>
-            </div>
+
+            <ng-container
+                [ngTemplateOutlet]="view === 'edit' ? editModal : addModal"
+            >
+            </ng-container>
+            <ng-template #editModal>
+                <div class="delete-container">
+                    <button-borderless
+                        [button_title]="'Delete'"
+                        [icon]="'delete_forever'"
+                        [icon_color]="'red'"
+                        [text_color]="'black'"
+                        class="delete_button"
+                    ></button-borderless>
+                </div>
+            </ng-template>
+            <ng-template #addModal></ng-template>
         </section>
     `,
     styles: [
@@ -47,7 +55,7 @@ import { QuestionType } from '../survey-types';
             .dropdown-container {
                 display: inline-flex;
                 position: relative;
-                width: 100px;
+                width: 80px;
                 margin-bottom: -10px;
             }
             .dropdown {
@@ -65,15 +73,32 @@ import { QuestionType } from '../survey-types';
                 align-items: center;
                 margin: 0px 15px 5px 0px;
             }
+            .required-text {
+                color: black;
+            }
+            .mat-slide-toggle {
+                transform: scale(0.6, 0.5);
+            }
+            .delete-container {
+                display: inline-flex;
+                font-size: 12px;
+                justify-content: space-between;
+                align-items: center;
+                margin: 0px 15px 5px 0px;
+            }
             .delete-button {
                 display: inline-flex;
                 color: ##9a2d2d;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                background-color: red;
             }
         `,
     ],
 })
 export class QuestionOptionsComponent implements OnInit {
-    @Input() view = 'edit';
+    @Input() view = '';
     public QuestionType = QuestionType;
     selected_tag: string;
 

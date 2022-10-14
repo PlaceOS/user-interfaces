@@ -52,7 +52,7 @@ import { Question } from '../survey-types';
                     </div>
                 </div>
                 <div class="options-container">
-                    <question-options [view]="'edit'"></question-options>
+                    <question-options [view]="modal"></question-options>
                 </div>
             </div>
         </ng-template>
@@ -123,6 +123,7 @@ export class TextQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
+    @Input() modal: string = '';
     @Output() newTitleEvent = new EventEmitter<string>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
