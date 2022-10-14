@@ -8,8 +8,8 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-user-listing',
     template: `
-        <div class="m-4 rounded bg-white shadow overflow-hidden">
-            <div class="border-b border-gray-300 px-4 py-2 flex items-center">
+        <div class="m-4 rounded bg-white dark:bg-neutral-700 shadow overflow-hidden">
+            <div class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Staff Utilisation</h3>
                 <button mat-icon-button (click)="download()">
                     <app-icon>download</app-icon>

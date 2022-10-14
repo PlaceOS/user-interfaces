@@ -7,7 +7,7 @@ import { ReportsStateService } from '../reports-state.service';
     selector: 'report-spaces-overall',
     template: `
     <div
-            class="m-4 p-4 rounded bg-white shadow flex justify-center items-center space-x-2"
+            class="m-4 p-4 rounded bg-white dark:bg-neutral-700 shadow flex justify-center items-center space-x-2"
         >
             <div class="flex flex-col items-center flex-1">
                 <h3>Total Bookings</h3>
@@ -19,7 +19,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
         <div
-            class="m-4 p-4 rounded bg-white shadow flex justify-center items-center space-x-2"
+            class="m-4 p-4 rounded bg-white dark:bg-neutral-700 shadow flex justify-center items-center space-x-2"
         >
             <div class="flex-1 flex flex-col items-center justify-center">
                 <h3>Overall Efficiency</h3>

@@ -6,10 +6,10 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-orders',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-white shadow mx-auto my-2"
+            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-white dark:bg-neutral-700 shadow mx-auto my-2"
         >
             <div
-                class="border-b border-gray-200 flex items-center justify-between px-4"
+                class="border-b border-gray-200 dark:border-neutral-500 flex items-center justify-between px-4"
             >
                 <h2 class="py-2 text-xl font-medium">Orders</h2>
                 <button

@@ -11,8 +11,8 @@ import { combineLatest } from 'rxjs';
     selector: 'report-desks-charts',
     template: `
         <div class="flex items-center space-x-4 w-full px-4">
-            <div class="bg-white rounded shadow flex-1">
-                <div class="border-b border-gray-300 p-4 text-xl font-bold">
+            <div class="bg-white dark:bg-neutral-700 rounded shadow flex-1">
+                <div class="border-b border-gray-300 dark:border-neutral-500 p-4 text-xl font-bold">
                     Daily Utilisation
                 </div>
                 <div
@@ -21,8 +21,8 @@ import { combineLatest } from 'rxjs';
                     class="ct-chart ct-octave"
                 ></div>
             </div>
-            <div class="bg-white rounded shadow flex-1">
-                <div class="border-b border-gray-300 p-4 text-xl font-bold">
+            <div class="bg-white dark:bg-neutral-700 rounded shadow flex-1">
+                <div class="border-b border-gray-300 dark:border-neutral-500 p-4 text-xl font-bold">
                     Level Utilisation
                 </div>
                 <div
