@@ -46,9 +46,9 @@ export class ReportSpacesUserListing {
             for (const booking of stats.events) {
                 const attendees: User[] = booking.attendees || [];
                 const capacity =
-                    booking.resources.reduce((c, s) => c + s.capacity, 0) || 1;
+                    Math.max(booking.resources.reduce((c, s) => c + s.capacity, 0) || 1, 1);
                 for (const user of attendees) {
-                    if (!list.find((_) => _.email === user.email)) {
+                    if (!list.find((_) => _.email.toLowerCase() === user.email.toLowerCase())) {
                         list.push({
                             id: user.email,
                             name: user.name,
