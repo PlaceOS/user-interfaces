@@ -60,12 +60,12 @@ export class ReportSpacesSpaceListing {
                         !list.find(
                             (_) =>
                                 _.id === space.id ||
-                                _.email.toLowerCase() ===
+                                _.id?.toLowerCase() ===
                                     space.email.toLowerCase()
                         )
                     ) {
                         list.push({
-                            id: space.id,
+                            id: space.id || space.email,
                             name: space.display_name || space.name,
                             capacity: space.capacity || 1,
                             count: 0,
@@ -79,7 +79,7 @@ export class ReportSpacesSpaceListing {
                     const details = list.find(
                         (_) =>
                             _.id === space.id ||
-                            _.email.toLowerCase() === space.email.toLowerCase()
+                            _.id?.toLowerCase() === space.email.toLowerCase()
                     );
                     details.count += 1;
                     details.usage += booking.duration;

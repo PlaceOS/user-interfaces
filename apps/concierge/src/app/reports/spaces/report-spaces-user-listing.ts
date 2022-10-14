@@ -48,7 +48,7 @@ export class ReportSpacesUserListing {
                 const capacity =
                     Math.max(booking.resources.reduce((c, s) => c + s.capacity, 0) || 1, 1);
                 for (const user of attendees) {
-                    if (!list.find((_) => _.email.toLowerCase() === user.email.toLowerCase())) {
+                    if (!list.find((_) => _.id?.toLowerCase() === user.email.toLowerCase())) {
                         list.push({
                             id: user.email,
                             name: user.name,
@@ -59,7 +59,7 @@ export class ReportSpacesUserListing {
                             occupancy: 0,
                         });
                     }
-                    const details = list.find((_) => _.id === user.email);
+                    const details = list.find((_) => _?.id === user.email);
                     details.count += 1;
                     details.attendees += booking.attendees.length;
                 }
