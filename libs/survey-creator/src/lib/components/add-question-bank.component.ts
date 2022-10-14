@@ -30,7 +30,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 <div class="category-tags" *ngFor="let tag of tags">
                     <mat-checkbox color="primary">{{ tag }}</mat-checkbox>
                 </div>
-                <div class="question-box">
+                <!-- <div class="question-box">
                     <div class="new-question">
                         <ng-container
                             [ngTemplateOutlet]="
@@ -104,8 +104,8 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 (allChoicesEvent)="updateAllChoices($event)"
                             ></dropdown-question>
                         </ng-template>
-                    </div>
-                    <section class="options-container">
+                    </div> -->
+                <!-- <section class="options-container">
                         <div class="dropdown-container">
                             <mat-form-field appearance="none" class="dropdown">
                                 <mat-select
@@ -128,8 +128,14 @@ import { SurveyCreatorService } from '../survey-creator.service';
                             <mat-slide-toggle> </mat-slide-toggle>
                             <span>Required</span>
                         </div>
-                    </section>
-                </div>
+                    </section> -->
+                <!-- </div> -->
+                <question-container
+                    (newTitleEvent)="updateTitle($event)"
+                    (newRatingEvent)="updateRating($event)"
+                    (newChoiceEvent)="updateChoice($event)"
+                    (allChoicesEvent)="updateAllChoices($event)"
+                ></question-container>
                 <div>
                     <button
                         mat-button
@@ -198,11 +204,10 @@ import { SurveyCreatorService } from '../survey-creator.service';
             .category-tags {
                 display: inline-flex;
             }
-
             .category-tags mat-checkbox {
                 margin: 10px 40px 10px 0px;
             }
-            .question-box {
+            /* .question-box {
                 border: 1px solid #3b82f6;
                 box-shadow: 0px 0px 1px rgba(15, 23, 42, 0.06),
                     0px 20px 25px -5px rgba(15, 23, 42, 0.1),
@@ -210,37 +215,37 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 border-radius: 4px;
                 margin-top: 20px;
                 padding: 10px;
-            }
-            .new-question {
+            } */
+            /* .new-question {
                 margin-left: -10px;
-            }
-            .dropdown-container {
+            } */
+            /* .dropdown-container {
                 display: inline-flex;
                 position: relative;
                 width: 100px;
                 margin-bottom: -10px;
-            }
-            .dropdown {
+            } */
+            /* .dropdown {
                 display: absolute;
                 font-size: 12px;
                 width: 100%;
                 height: 30px;
                 margin-bottom: 10px;
-            }
-            .options-container {
+            } */
+            /* .options-container {
                 display: inline-flex;
                 width: 100%;
                 justify-content: flex-end;
                 align-items: center;
-            }
-            .required-container {
+            } */
+            /* .required-container {
                 display: inline-flex;
                 font-size: 12px;
                 justify-content: space-between;
                 width: 90px;
                 align-items: center;
                 margin: 0px 15px 5px 0px;
-            }
+            } */
             .add-another-question {
                 background-color: #eeeeeeee;
                 width: 100%;
@@ -282,25 +287,25 @@ import { SurveyCreatorService } from '../survey-creator.service';
 })
 export class AddQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
-    selected_tag: any = QuestionType.rating;
-    question_type: string = QuestionType.rating;
+    // selected_tag: any = QuestionType.rating;
+    // question_type: string = QuestionType.rating;
     new_question: Question;
     new_questions: Question[] = [];
     private _update_flag: BehaviorSubject<boolean> =
         new BehaviorSubject<boolean>(false);
     flag_sub: Subscription;
-    placeholder_choice: string = 'Type a choice here...';
-    placeholder_question_text: Question = {
-        type: QuestionType.text || QuestionType.comment || QuestionType.rating,
-        title: 'Type a question...',
-        name: '',
-    };
-    placeholder_question_select: Question = {
-        type: QuestionType.checkbox || QuestionType.dropdown,
-        title: 'Type a question...',
-        name: '',
-        choices: [this.placeholder_choice],
-    };
+    // placeholder_choice: string = 'Type a choice here...';
+    // placeholder_question_text: Question = {
+    //     type: QuestionType.text || QuestionType.comment || QuestionType.rating,
+    //     title: 'Type a question...',
+    //     name: '',
+    // };
+    // placeholder_question_select: Question = {
+    //     type: QuestionType.checkbox || QuestionType.dropdown,
+    //     title: 'Type a question...',
+    //     name: '',
+    //     choices: [this.placeholder_choice],
+    // };
 
     public QuestionType = QuestionType;
 
@@ -310,9 +315,6 @@ export class AddQuestionBankComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        console.log(this.question_type, 'question type');
-        console.log(this.selected_tag, 'selected_tag');
-
         this.new_question = {
             title: '',
             type: '' as any,
@@ -320,17 +322,17 @@ export class AddQuestionBankComponent implements OnInit {
         };
     }
 
-    updateSelectedTag() {
-        this.question_type = this.selected_tag;
-    }
+    // updateSelectedTag() {
+    //     this.question_type = this.selected_tag;
+    // }
 
     closeDialog() {
         this.dialogRef.close();
     }
 
-    updateTitle(event, question_type) {
-        this.new_question.title = event;
-        this.new_question.type = question_type;
+    updateTitle(event) {
+        this.new_question.title = event[0];
+        this.new_question.type = event[1];
     }
 
     updateChoice(event) {

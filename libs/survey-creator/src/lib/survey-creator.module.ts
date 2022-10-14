@@ -29,6 +29,7 @@ import { DropdownQuestionComponent } from './components/dropdown-question.compon
 import { CompleteSurveyComponent } from './complete-survey.component';
 import { EditQuestionBankComponent } from './components/edit-question-bank.component';
 import { QuestionOptionsComponent } from './components/question-options.component';
+import { QuestionContainerComponent } from './components/question-container.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -50,6 +51,7 @@ const COMPONENTS: Type<any>[] = [
     CompleteSurveyComponent,
     EditQuestionBankComponent,
     QuestionOptionsComponent,
+    QuestionContainerComponent,
 ];
 
 @NgModule({

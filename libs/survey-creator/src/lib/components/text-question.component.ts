@@ -51,12 +51,12 @@ import { Question } from '../survey-types';
                         <input class="input-field" disabled type="text" />
                     </div>
                 </div>
-                <div class="options-container">
+                <!-- <div class="options-container">
                     <question-options
                         [view]="modal"
                         [question]="question"
                     ></question-options>
-                </div>
+                </div> -->
             </div>
         </ng-template>
     `,
@@ -105,12 +105,12 @@ import { Question } from '../survey-types';
                 height: 30px;
                 margin-bottom: 10px;
             }
-            .options-container {
+            /* .options-container {
                 display: block;
                 position: absolute;
                 right: 10px;
                 bottom: 0;
-            }
+            } */
             .close {
                 position: absolute;
                 right: 0;
@@ -126,7 +126,6 @@ export class TextQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view: string = 'nonDraft';
-    @Input() modal: string = '';
     @Output() newTitleEvent = new EventEmitter<string>();
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}

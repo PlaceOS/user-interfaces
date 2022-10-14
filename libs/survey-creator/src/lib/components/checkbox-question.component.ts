@@ -85,12 +85,12 @@ import { QuestionCreatorService } from '../question-creator.service';
                             ></minus-button>
                             <plus-button (click)="addOption()"></plus-button>
                         </div>
-                        <div class="options-container">
+                        <!-- <div class="options-container">
                             <question-options
                                 [view]="modal"
                                 [question]="question"
                             ></question-options>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -157,12 +157,12 @@ import { QuestionCreatorService } from '../question-creator.service';
                 display: flex;
                 margin: 0px 0px 5px 5px;
             }
-            .options-container {
+            /* .options-container {
                 display: block;
                 position: absolute;
                 right: 10px;
                 bottom: 0;
-            }
+            } */
             .close {
                 position: absolute;
                 right: 0;
@@ -197,7 +197,6 @@ export class CheckboxQuestionComponent implements OnInit {
     @Input() question: Question;
     @Input() preview?: boolean = false;
     @Input() view = 'nonDraft';
-    @Input() modal: string = '';
     @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
     @Output() newChoiceEvent: EventEmitter<any> = new EventEmitter<any>();
     @Output() allChoicesEvent: EventEmitter<any> = new EventEmitter<any>();

@@ -20,3 +20,4 @@ export * from './lib/components/comment-box-question.component';
 export * from './lib/components/dropdown-question.component';
 export * from './lib/complete-survey.component';
 export * from './lib/components/question-options.component';
+export * from './lib/components/question-container.component';
