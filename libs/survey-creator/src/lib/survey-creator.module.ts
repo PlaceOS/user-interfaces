@@ -19,7 +19,7 @@ import { QuestionListItemComponent } from './components/question-list-item.compo
 import { SearchBarComponent } from './components/search-bar.component';
 import { RatingQuestionComponent } from './components/rating-question.component';
 import { TextQuestionComponent } from './components/text-question.component';
-import { ButtonsBorderlessComponent } from './components/buttons-borderless.component';
+import { ButtonBorderlessComponent } from './components/button-borderless.component';
 import { AddQuestionBankComponent } from './components/add-question-bank.component';
 import { CheckboxQuestionComponent } from './components/checkbox-question.component';
 import { PlusButtonComponent } from './components/plus-button.component';
@@ -28,6 +28,7 @@ import { CommentBoxQuestionComponent } from './components/comment-box-question.c
 import { DropdownQuestionComponent } from './components/dropdown-question.component';
 import { CompleteSurveyComponent } from './complete-survey.component';
 import { EditQuestionBankComponent } from './components/edit-question-bank.component';
+import { QuestionOptionsComponent } from './components/question-options.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -39,7 +40,7 @@ const COMPONENTS: Type<any>[] = [
     SearchBarComponent,
     RatingQuestionComponent,
     TextQuestionComponent,
-    ButtonsBorderlessComponent,
+    ButtonBorderlessComponent,
     AddQuestionBankComponent,
     CheckboxQuestionComponent,
     PlusButtonComponent,
@@ -47,10 +48,12 @@ const COMPONENTS: Type<any>[] = [
     CommentBoxQuestionComponent,
     DropdownQuestionComponent,
     CompleteSurveyComponent,
+    EditQuestionBankComponent,
+    QuestionOptionsComponent,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS, EditQuestionBankComponent],
+    declarations: [...COMPONENTS],
     imports: [
         CommonModule,
         MatDialogModule,

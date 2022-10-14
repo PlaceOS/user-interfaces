@@ -47,7 +47,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                         "
                     >
                     </ng-container>
-
                     <ng-template #Rating>
                         <rating-question
                             [question]="question"
@@ -214,7 +213,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 })
 export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
-    question_type: string = QuestionType.rating;
+
     question_bank$: Observable<Question[]> =
         this._surveyCreatorService.question_bank$;
     updated_question_bank: Question[] = [];

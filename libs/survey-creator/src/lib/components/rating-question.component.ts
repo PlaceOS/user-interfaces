@@ -155,7 +155,6 @@ export class RatingQuestionComponent implements OnInit {
     @Output() newUpdateEvent: EventEmitter<any> = new EventEmitter<any>();
 
     rateValues: number[];
-    title: string = '';
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 

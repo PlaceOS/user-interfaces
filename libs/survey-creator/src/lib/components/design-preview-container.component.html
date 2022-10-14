@@ -152,16 +152,20 @@
         <header class="header">
             <span class="title">Question Bank</span>
             <div class="edit-add-buttons">
-                <buttons-borderless
+                <button-borderless
                     [button_title]="'Edit'"
                     [icon]="'edit'"
+                    [icon_color]="'blue'"
+                    [text_color]="'blue'"
                     (click)="openEditQuestionBankDialog()"
-                ></buttons-borderless>
-                <buttons-borderless
+                ></button-borderless>
+                <button-borderless
                     [button_title]="'Add'"
                     [icon]="'add'"
+                    [icon_color]="'blue'"
+                    [text_color]="'blue'"
                     (click)="openAddQuestionBankDialog()"
-                ></buttons-borderless>
+                ></button-borderless>
             </div>
         </header>
         <search-bar></search-bar>

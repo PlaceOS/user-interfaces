@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-    selector: 'buttons-borderless',
+    selector: 'button-borderless',
     template: `
         <button class="button-with-icon">
             <span class="">
@@ -9,10 +9,14 @@ import { Component, OnInit, Input } from '@angular/core';
                     aria-hidden="false"
                     aria-label="Material icon for button"
                     class="icon"
+                    [ngClass]="icon_color == 'red' ? 'red' : 'blue'"
                     >{{ icon }}</mat-icon
                 >
             </span>
-            <span class="button-title">
+            <span
+                class="button-title"
+                [ngClass]="text_color == 'grey' ? 'grey' : 'blue'"
+            >
                 {{ button_title }}
             </span>
         </button>
@@ -39,34 +43,42 @@ import { Component, OnInit, Input } from '@angular/core';
             .button-with-icon:active {
                 background-color: #f5f5f5;
             }
-
             .button-with-icon span {
-                color: #3e69cf;
                 display: inline-flex;
                 align-items: center;
                 vertical-align: middle;
             }
-
             .icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin-right: 5px;
+            }
+            .blue {
                 color: #3e69cf;
             }
-
+            .red {
+                color: #9a2d2d;
+            }
+            .grey {
+                color: #808080;
+            }
             .button-title {
                 display: inline-flex;
-                color: #808080;
+
                 vertical-align: middle;
             }
         `,
     ],
 })
-export class ButtonsBorderlessComponent implements OnInit {
+export class ButtonBorderlessComponent implements OnInit {
     @Input() button_title: string = '';
     @Input() icon?: string = '';
+    @Input() icon_color: string = '';
+    @Input() text_color: string = '';
     constructor() {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log(this.icon_color, 'icon color');
+    }
 }

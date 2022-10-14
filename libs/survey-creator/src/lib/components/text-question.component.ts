@@ -21,7 +21,6 @@ import { Question } from '../survey-types';
                         <input class="input-field" disabled type="text" />
                     </div>
                 </div>
-
                 <div
                     *ngIf="!preview"
                     class="close"
@@ -47,9 +46,13 @@ import { Question } from '../survey-types';
                             (change)="updateTitle($event)"
                         ></input-title>
                     </div>
+
                     <div class="input-field-container">
                         <input class="input-field" disabled type="text" />
                     </div>
+                </div>
+                <div class="options-container">
+                    <question-options [view]="'edit'"></question-options>
                 </div>
             </div>
         </ng-template>
@@ -77,7 +80,7 @@ import { Question } from '../survey-types';
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px;
+                margin: 20px 20px 50px 20px;
             }
             .question {
                 display: flex;
@@ -98,6 +101,12 @@ import { Question } from '../survey-types';
                 width: 500px;
                 height: 30px;
                 margin-bottom: 10px;
+            }
+            .options-container {
+                display: block;
+                position: absolute;
+                right: 10px;
+                bottom: 0;
             }
             .close {
                 position: absolute;

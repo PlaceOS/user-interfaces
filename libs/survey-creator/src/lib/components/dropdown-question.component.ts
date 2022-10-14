@@ -194,9 +194,6 @@ export class DropdownQuestionComponent implements OnInit {
     @Output() newChoiceEvent: EventEmitter<any> = new EventEmitter<any>();
     @Output() allChoicesEvent: EventEmitter<any> = new EventEmitter<any>();
 
-    title: string;
-    placeholder_choice: string = 'Type a choice here...';
-
     constructor(
         public surveyCreatorService: SurveyCreatorService,
         public questionCreatorService: QuestionCreatorService
