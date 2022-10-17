@@ -28,7 +28,6 @@ import { CommentBoxQuestionComponent } from './components/comment-box-question.c
 import { DropdownQuestionComponent } from './components/dropdown-question.component';
 import { CompleteSurveyComponent } from './complete-survey.component';
 import { EditQuestionBankComponent } from './components/edit-question-bank.component';
-import { QuestionOptionsComponent } from './components/question-options.component';
 import { QuestionContainerComponent } from './components/question-container.component';
 
 const COMPONENTS: Type<any>[] = [
@@ -50,7 +49,6 @@ const COMPONENTS: Type<any>[] = [
     DropdownQuestionComponent,
     CompleteSurveyComponent,
     EditQuestionBankComponent,
-    QuestionOptionsComponent,
     QuestionContainerComponent,
 ];
 

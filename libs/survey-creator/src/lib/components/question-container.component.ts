@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Question, QuestionType } from '../survey-types';
+import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
     selector: 'question-container',
@@ -83,14 +84,16 @@ import { Question, QuestionType } from '../survey-types';
 
                 <div class="required-container">
                     <mat-slide-toggle> </mat-slide-toggle>
-                    <span>Required</span>
+                    <span class="required-text">Required</span>
                 </div>
-                <div *ngIf="canDelete">
+                <div *ngIf="canDelete" class="delete-container">
                     <button-borderless
                         [button_title]="'Delete'"
                         [icon]="'delete_forever'"
                         [icon_color]="'red'"
                         [text_color]="'black'"
+                        class="delete_button"
+                        (click)="deleteQuestion()"
                     ></button-borderless>
                 </div>
             </section>
@@ -143,6 +146,27 @@ import { Question, QuestionType } from '../survey-types';
                 align-items: center;
                 margin: 0px 15px 5px 0px;
             }
+            .required-text {
+                color: black;
+            }
+            .required-container .mat-slide-toggle {
+                transform: scale(0.6, 0.5);
+            }
+            .delete-container {
+                display: inline-flex;
+                font-size: 12px;
+                justify-content: space-between;
+                align-items: center;
+                margin: 0px 15px 5px 0px;
+            }
+            .delete-button {
+                display: inline-flex;
+                color: ##9a2d2d;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                background-color: red;
+            }
         `,
     ],
 })
@@ -171,7 +195,7 @@ export class QuestionContainerComponent implements OnInit {
         choices: [this.placeholder_choice],
     };
 
-    constructor() {}
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {
         this.question_type = this.question?.type || QuestionType.rating;
@@ -192,5 +216,11 @@ export class QuestionContainerComponent implements OnInit {
     }
     updateAllChoices(event) {
         this.allChoicesEvent.emit(event);
+    }
+    deleteQuestion() {
+        const found_index = this.surveyCreatorService.question_bank.findIndex(
+            (item) => item.title === this.question.title
+        );
+        this.surveyCreatorService.question_bank.splice(found_index, 1);
     }
 }
