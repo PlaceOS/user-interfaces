@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model, SurveyNG } from 'survey-angular';
-import { Question, QuestionType } from './survey-types';
+import { Question, QuestionType, Tag } from './survey-types';
 import {
     DragDropModule,
     CdkDragDrop,
@@ -70,34 +70,41 @@ export class SurveyCreatorService {
                 type: QuestionType.text,
                 name: '',
                 title: 'What feature did you like most?',
-                tags: [],
+                tags: [Tag.desk, Tag.room],
             },
             {
                 type: QuestionType.rating,
                 name: '',
                 title: 'On a scale of 1-10, how likely would you recommend this space?',
                 rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                tags: [],
+                tags: [Tag.desk, Tag.room, Tag.parking],
             },
             {
                 type: QuestionType.dropdown,
                 name: '',
                 title: 'What was this meeting booked for?',
                 choices: ['External calls', 'Internal calls', 'Rather not say'],
-                tags: [],
+                tags: [Tag.room],
             },
             {
                 type: QuestionType.comment,
                 name: '',
                 title: 'Any additional feedback?',
-                tags: [],
+                tags: [Tag.desk, Tag.room, Tag.parking],
             },
             {
                 type: QuestionType.checkbox,
                 name: '',
                 title: 'Which features were available?',
                 choices: ['whiteboard', 'jamboard'],
-                tags: [],
+                tags: [Tag.room],
+            },
+            {
+                type: QuestionType.dropdown,
+                name: '',
+                title: 'Was the parking space easy to find?',
+                choices: ['Yes', 'No'],
+                tags: [Tag.parking],
             },
         ];
 

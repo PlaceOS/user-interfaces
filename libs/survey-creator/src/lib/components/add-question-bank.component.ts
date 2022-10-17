@@ -188,12 +188,10 @@ export class AddQuestionBankComponent implements OnInit {
     closeDialog() {
         this.dialogRef.close();
     }
-
     updateTitle(event) {
         this.new_question.title = event[0];
         this.new_question.type = event[1];
     }
-
     updateChoice(event) {
         let choice_index = this.new_question.choices.findIndex(
             (item) => item == event[1]
@@ -202,18 +200,15 @@ export class AddQuestionBankComponent implements OnInit {
             this.new_question.choices[choice_index] = event[0];
         }
     }
-
     updateAllChoices(event: string[]) {
         this.new_question.choices = event;
     }
     updateRating(event) {
         this.new_question.rateValues = event || [1, 2, 3, 4, 5];
     }
-
     addAnotherQuestion() {
         // console.log('add');
     }
-
     addQuestion() {
         this._update_flag.next(true);
         this.closeDialog();

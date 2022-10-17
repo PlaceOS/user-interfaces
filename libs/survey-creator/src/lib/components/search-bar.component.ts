@@ -1,7 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SurveyCreatorService } from '../survey-creator.service';
-import { Question } from '../survey-types';
+import { SearchService } from '../search.service';
+import { Question, Tag } from '../survey-types';
 
 @Component({
     selector: 'search-bar',
@@ -24,18 +25,14 @@ import { Question } from '../survey-types';
                 </span>
             </div>
             <div class="button-selection">
-                <button-with-icon
-                    [button_title]="'Desk'"
-                    [icon]="'desk'"
-                ></button-with-icon>
-                <button-with-icon
-                    [button_title]="'Room'"
-                    [icon]="'meeting_room'"
-                ></button-with-icon>
-                <button-with-icon
-                    [button_title]="'Parking'"
-                    [icon]="'directions_car'"
-                ></button-with-icon>
+                <div *ngFor="let tag of searchService.tags">
+                    <button-with-icon
+                        [button_title]="tag.name"
+                        [icon]="tag.icon"
+                        (click)="applyTag(tag.name)"
+                        [clicked]="tag.apply"
+                    ></button-with-icon>
+                </div>
             </div>
         </section>
     `,
@@ -47,7 +44,6 @@ import { Question } from '../survey-types';
                 background-color: #fff;
                 border: 1px solid rgba(0, 0, 0, 0.12);
             }
-
             .search-input-box {
                 display: flex;
                 border: 1px solid rgba(0, 0, 0, 0.12);
@@ -58,31 +54,43 @@ import { Question } from '../survey-types';
                 align-items: center;
                 justify-content: space-between;
             }
-
             .search-input-box span {
                 display: inline-flex;
                 align-items: center;
                 vertical-align: middle;
             }
-
             .icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin: 10px;
             }
-
             .button-selection {
                 display: flex;
+                flex-direction: row;
+                width: 100%;
                 margin-left: 10px;
+            }
+            .clicked {
+                display: flex;
+                background-color: pink;
             }
         `,
     ],
 })
 export class SearchBarComponent implements OnInit {
     // @Input() query: string;
-
-    constructor(public surveyCreatorService: SurveyCreatorService) {}
+    public Tag: Tag;
+    clicked: boolean;
+    constructor(
+        public surveyCreatorService: SurveyCreatorService,
+        public searchService: SearchService
+    ) {}
 
     ngOnInit(): void {}
+
+    applyTag(tag: string): void {
+        this.searchService.searchTags(tag);
+        this.clicked = !this.clicked;
+    }
 }

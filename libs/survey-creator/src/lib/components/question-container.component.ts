@@ -113,7 +113,8 @@ import { SurveyCreatorService } from '../survey-creator.service';
             }
             .question-box:active,
             .question-box:hover,
-            .question-box:focus {
+            .question-box:focus,
+            .question-box:target {
                 border-color: #3b82f6;
             }
             .new-question {

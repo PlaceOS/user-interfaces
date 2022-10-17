@@ -6,6 +6,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from './add-question-bank.component';
 import { EditQuestionBankComponent } from './edit-question-bank.component';
+import { SearchService } from '../search.service';
 
 @Component({
     selector: 'design-preview-container',
@@ -122,7 +123,7 @@ import { EditQuestionBankComponent } from './edit-question-bank.component';
 export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     @ViewChild('tabGroup') tabGroup;
 
-    question_bank: Question[] = this.surveyCreatorService.question_bank;
+    question_bank: Question[] = this.searchService.question_bank;
     // survey_title: string = this.surveyCreatorService.survey_title || '';
 
     selected_questions: Question[] =
@@ -135,6 +136,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
 
     constructor(
         public surveyCreatorService: SurveyCreatorService,
+        public searchService: SearchService,
         public addDialog: MatDialog
     ) {}
 
