@@ -145,7 +145,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
             data: { spaces: this.spaces, options: { capacity: this.room_size } },
         });
         ref.afterClosed().subscribe((spaces?: Space[]) => {
-            if (!spaces) return;
+            if (!spaces) spaces = ref.componentInstance.selected;
             this.setValue(spaces);
         });
     }
