@@ -1,6 +1,7 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import {
     IconComponent,
     ImageCarouselComponent,
@@ -8,7 +9,7 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
@@ -19,11 +20,9 @@ describe('EventDetailsModalComponent', () => {
     const createComponent = createComponentFactory({
         component: EventDetailsModalComponent,
         providers: [
-            { provide: MAT_DIALOG_DATA, useValue: new CalendarEvent() },
-            {
-                provide: OrganisationService,
-                useValue: { levelWithID: jest.fn(), buildings: [] },
-            },
+            MockProvider(MAT_DIALOG_DATA, new CalendarEvent()),
+            MockProvider(OrganisationService, { levelWithID: jest.fn(), buildings: [] }),
+            MockProvider(SettingsService, { get: jest.fn() })
         ],
         declarations: [
             MockComponent(ImageCarouselComponent),

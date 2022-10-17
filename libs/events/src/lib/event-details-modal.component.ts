@@ -8,6 +8,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'event-details-modal',
@@ -97,6 +98,7 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
                             mat-icon-button
                             [matMenuTriggerFor]="menu"
                             class="bg-primary rounded text-white h-10 w-10"
+                            *ngIf="allow_edit"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
@@ -302,10 +304,15 @@ export class EventDetailsModalComponent {
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
 
+    public get allow_edit() {
+        return !this._settings.get('app.events.booking_unavailable');
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
+        private _settings: SettingsService
     ) {
         this._load().then();
     }
