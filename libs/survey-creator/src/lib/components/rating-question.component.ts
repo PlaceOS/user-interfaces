@@ -70,12 +70,6 @@ import { Question } from '../survey-types';
                             <span>{{ number }}</span>
                         </div>
                     </div>
-                    <!-- <div class="options-container">
-                        <question-options
-                            [view]="modal"
-                            [question]="question"
-                        ></question-options>
-                    </div> -->
                 </div>
             </div>
         </ng-template>
@@ -93,17 +87,14 @@ import { Question } from '../survey-types';
                 position: relative;
                 font-size: 12px;
                 max-width: 800px;
-                color: #808080;
                 background-color: #fff;
-                margin: 10px 20px;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                border-radius: 4px;
+                margin: 10px 20px 0px 10px;
             }
             .wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px 20px 50px 20px;
+                margin: 20px 20px 0px 20px;
             }
             .question {
                 display: flex;
@@ -139,12 +130,6 @@ import { Question } from '../survey-types';
                 flex-direction: row;
                 margin: 0px 5px 0px -5px;
             }
-            /* .options-container {
-                display: block;
-                position: absolute;
-                right: 10px;
-                bottom: 0;
-            } */
             .close {
                 position: absolute;
                 right: 0;

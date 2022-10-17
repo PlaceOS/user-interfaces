@@ -42,6 +42,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                         "
                         (updateTypeEvent)="updateType($event, question.title)"
                         [question]="question"
+                        [canDelete]="true"
                     ></question-container>
                 </div>
             </main>

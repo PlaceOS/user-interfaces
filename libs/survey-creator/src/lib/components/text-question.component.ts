@@ -51,12 +51,6 @@ import { Question } from '../survey-types';
                         <input class="input-field" disabled type="text" />
                     </div>
                 </div>
-                <!-- <div class="options-container">
-                    <question-options
-                        [view]="modal"
-                        [question]="question"
-                    ></question-options>
-                </div> -->
             </div>
         </ng-template>
     `,
@@ -73,17 +67,14 @@ import { Question } from '../survey-types';
                 position: relative;
                 font-size: 12px;
                 max-width: 800px;
-                color: #808080;
                 background-color: #fff;
-                margin: 10px 20px;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                border-radius: 4px;
+                margin: 10px 20px 0px 10px;
             }
             .wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px 20px 50px 20px;
+                margin: 20px 20px 0px 20px;
             }
             .question {
                 display: flex;
@@ -105,12 +96,6 @@ import { Question } from '../survey-types';
                 height: 30px;
                 margin-bottom: 10px;
             }
-            /* .options-container {
-                display: block;
-                position: absolute;
-                right: 10px;
-                bottom: 0;
-            } */
             .close {
                 position: absolute;
                 right: 0;

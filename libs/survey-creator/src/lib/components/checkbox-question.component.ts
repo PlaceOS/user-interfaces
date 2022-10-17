@@ -85,12 +85,6 @@ import { QuestionCreatorService } from '../question-creator.service';
                             ></minus-button>
                             <plus-button (click)="addOption()"></plus-button>
                         </div>
-                        <!-- <div class="options-container">
-                            <question-options
-                                [view]="modal"
-                                [question]="question"
-                            ></question-options>
-                        </div> -->
                     </div>
                 </div>
             </div>
@@ -111,15 +105,13 @@ import { QuestionCreatorService } from '../question-creator.service';
                 max-width: 800px;
                 color: #808080;
                 background-color: #fff;
-                margin: 10px 20px;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-                border-radius: 4px;
+                margin: 10px 20px 0px 10px;
             }
             .wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px 20px 50px 20px;
+                margin: 20px 20px 0px 20px;
             }
             .question {
                 display: flex;
@@ -157,12 +149,6 @@ import { QuestionCreatorService } from '../question-creator.service';
                 display: flex;
                 margin: 0px 0px 5px 5px;
             }
-            /* .options-container {
-                display: block;
-                position: absolute;
-                right: 10px;
-                bottom: 0;
-            } */
             .close {
                 position: absolute;
                 right: 0;

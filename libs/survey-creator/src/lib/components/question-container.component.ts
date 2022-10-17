@@ -85,19 +85,33 @@ import { Question, QuestionType } from '../survey-types';
                     <mat-slide-toggle> </mat-slide-toggle>
                     <span>Required</span>
                 </div>
+                <div *ngIf="canDelete">
+                    <button-borderless
+                        [button_title]="'Delete'"
+                        [icon]="'delete_forever'"
+                        [icon_color]="'red'"
+                        [text_color]="'black'"
+                    ></button-borderless>
+                </div>
             </section>
         </div>
     `,
     styles: [
         `
             .question-box {
-                border: 1px solid #3b82f6;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                background-color: white;
                 box-shadow: 0px 0px 1px rgba(15, 23, 42, 0.06),
                     0px 20px 25px -5px rgba(15, 23, 42, 0.1),
                     0px 10px 10px -5px rgba(15, 23, 42, 0.04);
                 border-radius: 4px;
                 margin-top: 20px;
                 padding: 10px;
+            }
+            .question-box:active,
+            .question-box:hover,
+            .question-box:focus {
+                border-color: #3b82f6;
             }
             .new-question {
                 margin-left: -10px;
@@ -134,6 +148,7 @@ import { Question, QuestionType } from '../survey-types';
 })
 export class QuestionContainerComponent implements OnInit {
     @Input() question?: Question;
+    @Input() canDelete: boolean = false;
     @Output() newTitleEvent = new EventEmitter<any>();
     @Output() newRatingEvent = new EventEmitter<any>();
     @Output() newChoiceEvent = new EventEmitter<any>();
