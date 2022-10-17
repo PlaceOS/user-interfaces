@@ -61,6 +61,7 @@ export function generateCalendarFileLink(event: CalEvent): string {
 }
 
 export function generateGoogleCalendarLink(event: CalEvent): string {
+    console.log('Event:', event);
     const fmt = event.all_day ? formatAllDay : formatUTC;
     const details: any = {
         action: 'TEMPLATE',
