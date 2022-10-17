@@ -1,6 +1,7 @@
 import { Pipe } from "@angular/core";
-import { OrganisationService } from "@placeos/organisation";
 import { querySystems, showSystem } from "@placeos/ts-client";
+
+import { OrganisationService } from "libs/organisation/src/lib/organisation.service";
 import { Space } from "./space.class";
 
 const SPACE_LIST: Space[] = [];

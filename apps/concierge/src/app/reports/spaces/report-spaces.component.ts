@@ -30,7 +30,12 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </ng-template>
     `,
-    styles: [``],
+    styles: [`
+        :host {
+            display: flex;
+            flex-direction: column;
+        }
+    `],
 })
 export class ReportSpacesComponent {
     public readonly total_count = this._state.stats.pipe(

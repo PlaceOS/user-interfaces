@@ -31,6 +31,8 @@ import {
     generateReportForBookings,
     generateReportForDeskBookings,
 } from './reports.utilities';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 export interface ReportOptions {
     type?: 'desks' | 'events';
@@ -43,6 +45,7 @@ export interface ReportOptions {
     providedIn: 'root',
 })
 export class ReportsStateService {
+    private _space_pipe: SpacePipe = new SpacePipe(this._org);
     private _generate = new Subject<number>();
     private _loading = new BehaviorSubject<string>('');
     private _active_bookings = new BehaviorSubject<(CalendarEvent | Booking)[]>(
@@ -127,13 +130,18 @@ export class ReportsStateService {
         this.counts,
         this.bookings,
     ]).pipe(
-        map(([counts, list]) => {
-            return list[0] instanceof CalendarEvent
-                ? generateReportForBookings(
-                      list as CalendarEvent[],
-                      this.duration * 8
-                  )
-                : generateReportForDeskBookings(
+        switchMap(async ([counts, list]) => {
+            if (list[0] instanceof CalendarEvent) {
+            list = await Promise.all(list.map(async (_: CalendarEvent) => new CalendarEvent({ 
+                ..._, 
+                system: (await this._space_pipe.transform(_.system.id || _.system.email)) 
+            } as any)));
+            return generateReportForBookings(
+                list as CalendarEvent[],
+                this.duration * 8
+            )
+        } 
+        return generateReportForDeskBookings(
                       (list as Booking[]) || [],
                       this.duration,
                       counts
