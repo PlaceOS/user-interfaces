@@ -138,8 +138,9 @@ export class QuestionContainerComponent implements OnInit {
     @Output() newRatingEvent = new EventEmitter<any>();
     @Output() newChoiceEvent = new EventEmitter<any>();
     @Output() allChoicesEvent = new EventEmitter<any>();
+    @Output() updateTypeEvent = new EventEmitter<any>();
 
-    selected_type: string = QuestionType.rating;
+    selected_type: string;
     question_type: string;
     public QuestionType = QuestionType;
     placeholder_choice: string = 'Type a choice here...';
@@ -159,9 +160,11 @@ export class QuestionContainerComponent implements OnInit {
 
     ngOnInit(): void {
         this.question_type = this.question?.type || QuestionType.rating;
+        this.selected_type = this.question_type;
     }
     updateSelectedTag() {
         this.question_type = this.selected_type;
+        this.updateTypeEvent.emit(this.selected_type);
     }
     updateTitle(event) {
         this.newTitleEvent.emit([event, this.question_type]);

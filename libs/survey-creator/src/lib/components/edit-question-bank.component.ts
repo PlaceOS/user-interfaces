@@ -40,6 +40,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
                         (allChoicesEvent)="
                             updateAllChoices($event, question.title)
                         "
+                        (updateTypeEvent)="updateType($event, question.title)"
                         [question]="question"
                     ></question-container>
                 </div>
@@ -206,6 +207,18 @@ export class EditQuestionBankComponent implements OnInit {
         this._update_flag.next(false);
     }
 
+    updateAllChoices(event, title) {
+        let found_question = this.updated_question_bank.find(
+            (question) => question.title === title
+        );
+        this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
+            if (flag) {
+                found_question.choices = event;
+            }
+        });
+        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this._update_flag.next(false);
+    }
     updateRating(event, title) {
         let found_question = this.updated_question_bank.find(
             (question) => question.title === title
@@ -217,6 +230,24 @@ export class EditQuestionBankComponent implements OnInit {
         });
         this._surveyCreatorService.question_bank = this.updated_question_bank;
         this._update_flag.next(false);
+    }
+
+    updateType(event, title) {
+        let found_question = this.updated_question_bank.find(
+            (question) => question.title === title
+        );
+
+        found_question.type = event;
+
+        if (event == QuestionType.checkbox || QuestionType.dropdown) {
+            found_question.choices = ['Type a choice here...'];
+        }
+
+        console.log(event, 'new type');
+        console.log(title, 'current title');
+        console.log(found_question.type, 'new type q');
+
+        this._surveyCreatorService.question_bank = this.updated_question_bank;
     }
 
     updateQuestions() {

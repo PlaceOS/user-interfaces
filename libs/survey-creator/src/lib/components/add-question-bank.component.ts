@@ -166,12 +166,10 @@ export class AddQuestionBankComponent implements OnInit {
             title: '',
             type: '' as any,
             name: '',
+            rateValues: [],
+            choices: [],
         };
     }
-
-    // updateSelectedTag() {
-    //     this.question_type = this.selected_tag;
-    // }
 
     closeDialog() {
         this.dialogRef.close();
