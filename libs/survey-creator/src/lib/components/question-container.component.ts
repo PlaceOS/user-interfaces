@@ -159,7 +159,6 @@ export class QuestionContainerComponent implements OnInit {
 
     ngOnInit(): void {
         this.question_type = this.question?.type || QuestionType.rating;
-        // console.log(this.question_type, 'type in q-container');
     }
     updateSelectedTag() {
         this.question_type = this.selected_type;
