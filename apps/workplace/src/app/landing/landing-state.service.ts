@@ -37,6 +37,7 @@ export interface LandingOptions {
 export class LandingStateService extends BaseClass {
     private _options = new BehaviorSubject<LandingOptions>({});
     private _loading = new BehaviorSubject<string>('');
+    private _loading_spaces = new BehaviorSubject<boolean>(false);
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
@@ -57,6 +58,8 @@ export class LandingStateService extends BaseClass {
     public options = this._options.asObservable();
     /**  */
     public loading = this._loading.asObservable();
+    /**  */
+    public loading_spaces = this._loading_spaces.asObservable();
 
     public readonly search_results = this._options.pipe(
         debounceTime(500),
@@ -101,6 +104,7 @@ export class LandingStateService extends BaseClass {
     }
 
     public pollFreeSpaces(delay: number = 10 * 1000) {
+        this._loading_spaces.next(true);
         this.updateFreeSpaces();
         this.interval('free_spaces', () => this.updateFreeSpaces(), delay);
     }
@@ -162,6 +166,7 @@ export class LandingStateService extends BaseClass {
 
     private async updateFreeSpaces() {
         if (!this._org.building) return;
+        this._loading_spaces.next(true);
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
         const list = await this._calendar
@@ -177,11 +182,13 @@ export class LandingStateService extends BaseClass {
                             !space.availability.length ||
                             space.availability.find((_) => _.status !== 'busy')
                     )
-                )
+                ),
+                catchError(_ => of([]))
             )
             .toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
+        this._loading_spaces.next(false);
     }
 
     private async updateBuildingMetadata() {

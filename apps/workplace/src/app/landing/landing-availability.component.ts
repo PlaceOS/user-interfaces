@@ -5,8 +5,12 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-availability',
     template: `
         <div class="py-2">
-            <div class="sm:text-lg font-medium mb-2 sm:mb-4 px-4">Available Now</div>
-            <div class="text-sm sm:text-base px-4">Spaces</div>
+            <div class="sm:text-lg font-medium mb-2 sm:mb-4 px-4">
+                Available Now
+            </div>
+            <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
+                <div>Spaces</div>
+            </div>
             <div class="w-full overflow-auto flex items-center space-x-4 px-4 py-2">
                 <button
                     matRipple
@@ -30,12 +34,15 @@ import { LandingStateService } from './landing-state.service';
                 </button>
                 <span
                     *ngIf="!(levels_free | async).length"
-                    class="text-dark-fade text-sm mb-2"
+                    class="opacity-60 text-sm mb-2"
                 >
                     No free spaces
                 </span>
             </div>
-            <div class="text-sm sm:text-base my-2 px-4">Rooms</div>
+            <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
+                <div>Rooms</div>
+                <mat-spinner diameter="24" *ngIf="loading_spaces | async"></mat-spinner>
+            </div>
             <div class="w-full overflow-auto flex items-center space-x-4 px-4 py-2">
                 <button
                     matRipple
@@ -61,7 +68,7 @@ import { LandingStateService } from './landing-state.service';
                 </button>
                 <span
                     *ngIf="!(space_list | async).length"
-                    class="text-dark-fade text-sm mb-2"
+                    class="opacity-60 text-sm mb-2"
                 >
                     No free rooms
                 </span>
@@ -76,6 +83,7 @@ import { LandingStateService } from './landing-state.service';
 })
 export class LandingAvailabilityComponent {
     public readonly space_list = this._state.free_spaces;
+    public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
 
     constructor(private _state: LandingStateService) {}
