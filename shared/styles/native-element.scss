@@ -24,4 +24,15 @@ label {
     .svg-viewer__label {
         min-width: 12rem;
     }
+
+    .dark {
+        ::placeholder,
+        .mat-form-field-label {
+            color: #fff8;
+        }
+
+        input {
+            caret-color: #fff;
+        }
+    }
 }

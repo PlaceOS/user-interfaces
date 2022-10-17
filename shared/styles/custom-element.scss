@@ -4,8 +4,13 @@
     }
 }
 
-.dark {
+#placeos .dark {
     color: #fff;
+    
+    bootstrap,
+    [app-bootstrap] {
+        @apply bg-neutral-600;
+    }
 }
 
 button.mat-button,
