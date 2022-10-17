@@ -36,12 +36,6 @@ import { Component, OnInit, Input } from '@angular/core';
                 padding: 5px 10px;
                 border-radius: 20px;
             }
-            .button-with-icon:hover {
-                background-color: #efeff5;
-            }
-            /* .button-with-icon:active {
-                background-color: #efeff5;
-            } */
             .button-with-icon span {
                 display: inline-flex;
                 align-items: center;

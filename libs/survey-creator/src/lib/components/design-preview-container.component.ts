@@ -124,6 +124,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     @ViewChild('tabGroup') tabGroup;
 
     question_bank: Question[] = this.searchService.question_bank;
+    // question_bank: Question[] = this.surveyCreatorService.question_bank;
     // survey_title: string = this.surveyCreatorService.survey_title || '';
 
     selected_questions: Question[] =
@@ -140,7 +141,9 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         public addDialog: MatDialog
     ) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log(this.searchService.question_bank, 'q bank');
+    }
 
     ngAfterViewInit(): void {
         console.log(this.tabGroup.selectedIndex);
