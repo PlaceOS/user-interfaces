@@ -40,7 +40,14 @@ import { ReportsStateService } from '../reports-state.service';
                     'Occupancy'
                 ]"
                 [column_size]="['flex']"
+                [template]="{ name: space_name, capacity: space_capacity }"
             ></custom-table>
+            <ng-template #space_name let-row="row">
+                {{ (row.id | space)?.display_name || (row.id | space)?.name }}
+            </ng-template>
+            <ng-template #space_capacity>
+                {{ (row.id | space)?.capacity || 2 }}
+            </ng-template>
         </div>
     `,
     styles: [``],
