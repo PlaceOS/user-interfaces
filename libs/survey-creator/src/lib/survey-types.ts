@@ -12,4 +12,11 @@ export interface Question {
     title: string;
     choices?: string[];
     rateValues?: number[];
+    tags: string[];
+}
+
+export enum Tag {
+    desk = 'Desk',
+    room = 'Room',
+    parking = 'Parking',
 }

@@ -187,12 +187,14 @@ export class QuestionContainerComponent implements OnInit {
         type: QuestionType.text || QuestionType.comment || QuestionType.rating,
         title: 'Type a question...',
         name: '',
+        tags: [],
     };
     placeholder_question_select: Question = {
         type: QuestionType.checkbox || QuestionType.dropdown,
         title: 'Type a question...',
         name: '',
         choices: [this.placeholder_choice],
+        tags: [],
     };
 
     constructor(public surveyCreatorService: SurveyCreatorService) {}

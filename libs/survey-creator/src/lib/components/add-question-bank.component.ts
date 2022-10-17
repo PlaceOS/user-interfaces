@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { Question, QuestionType } from '../survey-types';
+import { Question, QuestionType, Tag } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 
 @Component({
@@ -28,7 +28,12 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     </p>
                 </div>
                 <div class="category-tags" *ngFor="let tag of tags">
-                    <mat-checkbox color="primary">{{ tag }}</mat-checkbox>
+                    <mat-checkbox
+                        color="primary"
+                        [checked]="tag.apply"
+                        (change)="tag.apply = !tag.apply"
+                        >{{ tag.name }}</mat-checkbox
+                    >
                 </div>
                 <question-container
                     (newTitleEvent)="updateTitle($event)"
@@ -147,7 +152,15 @@ import { SurveyCreatorService } from '../survey-creator.service';
     ],
 })
 export class AddQuestionBankComponent implements OnInit {
-    tags: string[] = ['Desk', 'Room', 'Parking'];
+    tags: any = [
+        {
+            name: Tag.desk,
+            apply: false,
+        },
+        { name: Tag.room, apply: false },
+        { name: Tag.parking, apply: false },
+    ];
+    selected_tags: Tag[] = [];
     new_question: Question;
     new_questions: Question[] = [];
     private _update_flag: BehaviorSubject<boolean> =
@@ -168,6 +181,7 @@ export class AddQuestionBankComponent implements OnInit {
             name: '',
             rateValues: [],
             choices: [],
+            tags: [],
         };
     }
 
@@ -203,6 +217,9 @@ export class AddQuestionBankComponent implements OnInit {
     addQuestion() {
         this._update_flag.next(true);
         this.closeDialog();
+        this.tags.forEach((tag) => {
+            if (tag.apply) this.new_question.tags.push(tag.name);
+        });
         this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
             if (flag) {
                 this._surveyCreatorService.question_bank.push(

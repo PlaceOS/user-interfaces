@@ -70,29 +70,34 @@ export class SurveyCreatorService {
                 type: QuestionType.text,
                 name: '',
                 title: 'What feature did you like most?',
+                tags: [],
             },
             {
                 type: QuestionType.rating,
                 name: '',
                 title: 'On a scale of 1-10, how likely would you recommend this space?',
                 rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                tags: [],
             },
             {
                 type: QuestionType.dropdown,
                 name: '',
                 title: 'What was this meeting booked for?',
                 choices: ['External calls', 'Internal calls', 'Rather not say'],
+                tags: [],
             },
             {
                 type: QuestionType.comment,
                 name: '',
                 title: 'Any additional feedback?',
+                tags: [],
             },
             {
                 type: QuestionType.checkbox,
                 name: '',
                 title: 'Which features were available?',
                 choices: ['whiteboard', 'jamboard'],
+                tags: [],
             },
         ];
 
