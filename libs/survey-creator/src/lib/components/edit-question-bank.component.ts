@@ -33,7 +33,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
             </div>
             <main>
                 <div *ngFor="let question of this.question_bank$ | async">
-                    <ng-container
+                    <!-- <ng-container
                         [ngTemplateOutlet]="
                             question.type == 'Text'
                                 ? Text
@@ -110,7 +110,16 @@ import { SurveyCreatorService } from '../survey-creator.service';
                                 updateChoice($event, question.title)
                             "
                         ></dropdown-question>
-                    </ng-template>
+                    </ng-template> -->
+                    <question-container
+                        (newTitleEvent)="updateTitle($event, question.title)"
+                        (newRatingEvent)="updateRating($event, question.title)"
+                        (newChoiceEvent)="updateChoice($event, question.title)"
+                        (allChoicesEvent)="
+                            updateAllChoices($event, question.title)
+                        "
+                        [question]="question"
+                    ></question-container>
                 </div>
             </main>
             <footer>
@@ -226,6 +235,7 @@ export class EditQuestionBankComponent implements OnInit {
     flag_sub: Subscription;
     private _update_flag: BehaviorSubject<boolean> =
         new BehaviorSubject<boolean>(false);
+
     public QuestionType = QuestionType;
 
     constructor(
@@ -244,12 +254,14 @@ export class EditQuestionBankComponent implements OnInit {
     }
 
     updateTitle(event, title) {
+        console.log(event, 'event[0] new title, event[1] type');
         let found_question = this.updated_question_bank.find(
             (question) => question.title === title
         );
         this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
             if (flag) {
-                found_question.title = event;
+                found_question.title = event[0];
+                found_question.type = event[1];
             }
         });
         this._surveyCreatorService.question_bank = this.updated_question_bank;

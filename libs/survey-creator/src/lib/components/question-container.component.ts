@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Question, QuestionType } from '../survey-types';
 
 @Component({
@@ -22,7 +22,7 @@ import { Question, QuestionType } from '../survey-types';
                 </ng-container>
                 <ng-template #Rating>
                     <rating-question
-                        [question]="placeholder_question_text"
+                        [question]="question || placeholder_question_text"
                         [view]="'draft'"
                         [preview]="true"
                         (newTitleEvent)="updateTitle($event)"
@@ -31,7 +31,7 @@ import { Question, QuestionType } from '../survey-types';
                 </ng-template>
                 <ng-template #Text>
                     <text-question
-                        [question]="placeholder_question_text"
+                        [question]="question || placeholder_question_text"
                         [view]="'draft'"
                         [preview]="true"
                         (newTitleEvent)="updateTitle($event)"
@@ -39,7 +39,7 @@ import { Question, QuestionType } from '../survey-types';
                 </ng-template>
                 <ng-template #Comment>
                     <comment-box-question
-                        [question]="placeholder_question_text"
+                        [question]="question || placeholder_question_text"
                         [view]="'draft'"
                         [preview]="true"
                         (newTitleEvent)="updateTitle($event)"
@@ -47,7 +47,7 @@ import { Question, QuestionType } from '../survey-types';
                 </ng-template>
                 <ng-template #Checkbox>
                     <checkbox-question
-                        [question]="placeholder_question_select"
+                        [question]="question || placeholder_question_select"
                         [view]="'draft'"
                         [preview]="true"
                         (newTitleEvent)="updateTitle($event)"
@@ -56,7 +56,7 @@ import { Question, QuestionType } from '../survey-types';
                 </ng-template>
                 <ng-template #Dropdown>
                     <dropdown-question
-                        [question]="placeholder_question_select"
+                        [question]="question || placeholder_question_select"
                         [view]="'draft'"
                         [preview]="true"
                         (newTitleEvent)="updateTitle($event)"
@@ -133,13 +133,14 @@ import { Question, QuestionType } from '../survey-types';
     ],
 })
 export class QuestionContainerComponent implements OnInit {
+    @Input() question?: Question;
     @Output() newTitleEvent = new EventEmitter<any>();
     @Output() newRatingEvent = new EventEmitter<any>();
     @Output() newChoiceEvent = new EventEmitter<any>();
     @Output() allChoicesEvent = new EventEmitter<any>();
 
     selected_type: string = QuestionType.rating;
-    question_type: string = QuestionType.rating;
+    question_type: string;
     public QuestionType = QuestionType;
     placeholder_choice: string = 'Type a choice here...';
     placeholder_question_text: Question = {
@@ -156,7 +157,10 @@ export class QuestionContainerComponent implements OnInit {
 
     constructor() {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.question_type = this.question?.type || QuestionType.rating;
+        // console.log(this.question_type, 'type in q-container');
+    }
     updateSelectedTag() {
         this.question_type = this.selected_type;
     }
