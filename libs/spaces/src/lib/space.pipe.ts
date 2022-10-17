@@ -22,7 +22,7 @@ export class SpacePipe {
         if (!space_id) return EMPTY_SPACE;
         let space = SPACE_LIST.find(({ id, email }) => id === space_id || email === space_id);
         if (space) return space;
-        const system = await showSystem(space_id).toPromise();
+        const system = await showSystem(space_id).toPromise().catch(_ => null);
         if (system) {
             space = new Space({
                 ...system as any,
