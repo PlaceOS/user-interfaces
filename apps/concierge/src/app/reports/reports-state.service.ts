@@ -132,20 +132,31 @@ export class ReportsStateService {
     ]).pipe(
         switchMap(async ([counts, list]) => {
             if (list[0] instanceof CalendarEvent) {
-            list = await Promise.all(list.map(async (_: CalendarEvent) => new CalendarEvent({ 
-                ..._, 
-                system: (await this._space_pipe.transform(_.system.id || _.system.email)) 
-            } as any)));
-            return generateReportForBookings(
-                list as CalendarEvent[],
-                this.duration * 8
-            )
-        } 
-        return generateReportForDeskBookings(
-                      (list as Booking[]) || [],
-                      this.duration,
-                      counts
-                  );
+                list = await Promise.all(
+                    list.map(
+                        async (_: CalendarEvent) =>
+                            new CalendarEvent({
+                                ..._,
+                                resources: await Promise.all(
+                                    _.resources.map((r) =>
+                                        this._space_pipe.transform(
+                                            r.id || r.email
+                                        )
+                                    )
+                                ),
+                            } as any)
+                    )
+                );
+                return generateReportForBookings(
+                    list as CalendarEvent[],
+                    this.duration * 8
+                );
+            }
+            return generateReportForDeskBookings(
+                (list as Booking[]) || [],
+                this.duration,
+                counts
+            );
         })
     );
 

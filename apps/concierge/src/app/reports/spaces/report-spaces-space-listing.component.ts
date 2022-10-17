@@ -61,7 +61,7 @@ export class ReportSpacesSpaceListing {
         map(([stats, { start, end }]) => {
             let list = [];
             for (const booking of stats.events) {
-                const resources: Space[] = booking.resources || [];
+                const resources: Space[] = booking.resources || [booking.system];
                 for (const space of resources) {
                     if (
                         !list.find(
