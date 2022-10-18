@@ -32,7 +32,9 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 </div>
             </div>
             <main>
-                <div *ngFor="let question of this.question_bank$ | async">
+                <div
+                    *ngFor="let question of surveyCreatorService.question_bank"
+                >
                     <question-container
                         (newTitleEvent)="updateTitle($event, question.title)"
                         (newRatingEvent)="updateRating($event, question.title)"
@@ -152,8 +154,8 @@ import { SurveyCreatorService } from '../survey-creator.service';
 export class EditQuestionBankComponent implements OnInit {
     tags: string[] = ['Desk', 'Room', 'Parking'];
 
-    question_bank$: Observable<Question[]> =
-        this._surveyCreatorService.question_bank$;
+    // question_bank$: Observable<Question[]> =
+    //     this.surveyCreatorService.question_bank$;
     updated_question_bank: Question[] = [];
     bank_sub: Subscription;
     flag_sub: Subscription;
@@ -164,11 +166,11 @@ export class EditQuestionBankComponent implements OnInit {
 
     constructor(
         public dialogRef: MatDialogRef<EditQuestionBankComponent>,
-        private _surveyCreatorService: SurveyCreatorService
+        public surveyCreatorService: SurveyCreatorService
     ) {}
 
     ngOnInit(): void {
-        this.bank_sub = this._surveyCreatorService.question_bank$.subscribe(
+        this.bank_sub = this.surveyCreatorService.question_bank$.subscribe(
             (questions: Question[]) => (this.updated_question_bank = questions)
         );
     }
@@ -188,7 +190,7 @@ export class EditQuestionBankComponent implements OnInit {
                 found_question.type = event[1];
             }
         });
-        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this.surveyCreatorService.question_bank = this.updated_question_bank;
         this._update_flag.next(false);
     }
 
@@ -204,7 +206,7 @@ export class EditQuestionBankComponent implements OnInit {
                 found_question.choices[choice_index] = event[0];
             }
         });
-        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this.surveyCreatorService.question_bank = this.updated_question_bank;
         this._update_flag.next(false);
     }
 
@@ -217,7 +219,7 @@ export class EditQuestionBankComponent implements OnInit {
                 found_question.choices = event;
             }
         });
-        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this.surveyCreatorService.question_bank = this.updated_question_bank;
         this._update_flag.next(false);
     }
     updateRating(event, title) {
@@ -229,7 +231,7 @@ export class EditQuestionBankComponent implements OnInit {
                 found_question.rateValues = event;
             }
         });
-        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this.surveyCreatorService.question_bank = this.updated_question_bank;
         this._update_flag.next(false);
     }
 
@@ -248,7 +250,7 @@ export class EditQuestionBankComponent implements OnInit {
         console.log(title, 'current title');
         console.log(found_question.type, 'new type q');
 
-        this._surveyCreatorService.question_bank = this.updated_question_bank;
+        this.surveyCreatorService.question_bank = this.updated_question_bank;
     }
 
     updateQuestions() {
