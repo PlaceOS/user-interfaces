@@ -35,7 +35,7 @@ export class SearchService {
         this.question_bank = this.surveyCreatorService.question_bank;
     }
 
-    searchTags(tag: string) {
+    filterByTags(tag: string) {
         const tag_index = this.tags.findIndex((item) => item.name == tag);
         this.tags[tag_index].apply = !this.tags[tag_index].apply;
         this.selected_tags = this.tags
@@ -51,6 +51,16 @@ export class SearchService {
                     return question;
             }
         );
+    }
+
+    searchQuestions(query: string) {
+        if (query) {
+            this.question_bank = this.question_bank.filter((question) => {
+                return question.title.includes(query);
+            });
+        } else {
+            this.question_bank = this.surveyCreatorService.question_bank;
+        }
     }
 
     private _checkQuestionTags(question: Question, tags): boolean {

@@ -13,6 +13,7 @@ import { Question, Tag } from '../survey-types';
                     <input-title
                         [placeholder]="'Search here'"
                         [fontSize]="12"
+                        (change)="updateQuery($event)"
                     ></input-title>
                 </span>
                 <span>
@@ -20,6 +21,7 @@ import { Question, Tag } from '../survey-types';
                         aria-hidden="false"
                         aria-label="Material icon for search field"
                         class="icon"
+                        (click)="search()"
                         >search</mat-icon
                     >
                 </span>
@@ -79,7 +81,7 @@ import { Question, Tag } from '../survey-types';
     ],
 })
 export class SearchBarComponent implements OnInit {
-    // @Input() query: string;
+    query: string = '';
     public Tag: Tag;
     clicked: boolean;
     constructor(
@@ -90,7 +92,15 @@ export class SearchBarComponent implements OnInit {
     ngOnInit(): void {}
 
     applyTag(tag: string): void {
-        this.searchService.searchTags(tag);
+        this.searchService.filterByTags(tag);
         this.clicked = !this.clicked;
+    }
+
+    search() {
+        this.searchService.searchQuestions(this.query);
+    }
+
+    updateQuery(event) {
+        this.query = event.target.value;
     }
 }
