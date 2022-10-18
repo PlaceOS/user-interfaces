@@ -6,11 +6,6 @@
 
 #placeos .dark {
     color: #fff;
-    
-    bootstrap,
-    [app-bootstrap] {
-        @apply bg-neutral-600;
-    }
 }
 
 button.mat-button,
@@ -55,81 +50,6 @@ a[button],
 
 .mat-tab-body-wrapper {
     flex-grow: 1;
-}
-
-#placeos {
-    .mat-button-toggle {
-        background: inherit;
-        color: currentColor;
-    }
-}
-
-#placeos .dark,
-#placeos [dark] {
-    mat-tab-group {
-        .mat-tab-label-container {
-            @apply bg-gray-900;
-        }
-        .mat-tab-label-content {
-            @apply text-white;
-        }
-    }
-
-    nav {
-        .mat-tab-links {
-            @apply bg-gray-900;
-        }
-        .mat-tab-link {
-            @apply text-white;
-        }
-    }
-
-    .mat-select-value-text,
-    .mat-select-arrow {
-        color: #fff;
-    }    
-
-    .mat-form-field-outline > div {
-        color: #fff8;
-    }
-
-    .mat-form-field {
-        ::placeholder,
-        .mat-select-placeholder {
-            color: #fff8;
-        }
-    }
-
-    button.mat-button,
-    a[button] {
-        color: #fff;
-        
-        &.inverse {
-            background: none;
-            --color: #fffa;
-        }
-
-        &.error {
-            --color: var(--error)
-        }
-
-        &[disabled] {
-            opacity: 0.3;
-        }
-    }
-
-    .mat-slide-toggle-bar {
-        background-color: rgba(255,255,255, 0.2);
-    }
-
-    .mat-checked .mat-slide-toggle-bar {
-        background-color: rgba(255,255,255, 0.4);
-    }
-}
-#placeos {
-    .mat-ink-bar {
-        background-color: var(--primary);
-    }
 }
 
 .mat-icon-button {
@@ -186,63 +106,8 @@ a[button],
     }
 }
 
-.dropdown[widget] {
-    &.default {
-        width: 9.5em;
-    }
-}
-
-.dynamic-field[widget] {
-    .details {
-        min-width: 100%;
-    }
-
-    label {
-        margin-left: 0;
-    }
-
-    .control {
-        min-width: 10em;
-    }
-}
-
 .overlay-backdrop {
     background-color: rgba(#000, 0.6);
-}
-
-mat-slide-toggle {
-    .mat-slide-toggle-bar {
-        height: 24px;
-        border-radius: 12px;
-    }
-
-    .mat-slide-toggle-thumb-container {
-        top: 2px;
-        left: 2px;
-    }
-
-    &.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
-        transform: translate3d(12px, 0, 0);
-    }
-}
-
-#placeos {
-    mat-pseudo-checkbox.mat-pseudo-checkbox-checked {
-        background: var(--primary);
-    }
-
-    mat-checkbox {
-        .mat-checkbox-inner-container {
-            margin-left: 8px;
-        }
-        &.mat-checkbox-checked .mat-checkbox-background {
-            background-color: var(--primary);
-        }
-    }
-
-    .mat-checkbox-label {
-        font-weight: normal;
-    }
 }
 
 [bg='white'] .mat-form-field-outline {
@@ -505,19 +370,6 @@ mat-form-field {
     }
 }
 
-#placeos {
-    mat-chip {
-        &[color='internal'] {
-            color: var(--font-light);
-            background-color: var(--primary);
-        }
-        &[color='external'] {
-            color: var(--font-light);
-            background-color: var(--pending);
-        }
-    }
-}
-
 .mat-spinner {
     circle {
         stroke: var(--primary);
@@ -616,14 +468,6 @@ form {
     }
 }
 
-#placeos .mat-datepicker-toggle {
-    button {
-        position: relative;
-        margin-top: -1rem;
-        top: 0.25rem;
-    }
-}
-
 [qr-code] {
     font-size: 6vmin;
 
@@ -682,10 +526,133 @@ custom-table[header-dark] {
         left: -200%;
         line-height: 1.1;
     }
-}
+    
+    .mat-datepicker-toggle {
+        button {
+            position: relative;
+            margin-top: -1rem;
+            top: 0.25rem;
+        }
+    }
 
-#placeos {
-    .dark {
+    mat-slide-toggle {
+        .mat-slide-toggle-bar {
+            height: 24px;
+            border-radius: 12px;
+        }
+    
+        .mat-slide-toggle-thumb-container {
+            top: 2px;
+            left: 2px;
+        }
+    
+        &.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb-container {
+            transform: translate3d(12px, 0, 0);
+        }
+    }
+
+    mat-pseudo-checkbox.mat-pseudo-checkbox-checked {
+        background: var(--primary);
+    }
+
+    mat-checkbox {
+        .mat-checkbox-inner-container {
+            margin-left: 8px;
+        }
+        &.mat-checkbox-checked .mat-checkbox-background {
+            background-color: var(--primary);
+        }
+    }
+
+    .mat-checkbox-label {
+        font-weight: normal;
+    }
+
+    .mat-ink-bar {
+        background-color: var(--primary);
+    }
+
+    mat-chip {
+        &[color='internal'] {
+            color: var(--font-light);
+            background-color: var(--primary);
+        }
+        &[color='external'] {
+            color: var(--font-light);
+            background-color: var(--pending);
+        }
+    }
+
+    .mat-button-toggle {
+        background: inherit;
+        color: currentColor;
+    }
+
+    mat-bottom-sheet-container {
+        padding: 0;
+    }
+    
+    .dark,
+    [dark] {
+        mat-tab-group {
+            .mat-tab-label-container {
+                @apply bg-gray-900;
+            }
+            .mat-tab-label-content {
+                @apply text-white;
+            }
+        }
+    
+        nav {
+            .mat-tab-links {
+                @apply bg-gray-900;
+            }
+            .mat-tab-link {
+                @apply text-white;
+            }
+        }
+    
+        .mat-select-value-text,
+        .mat-select-arrow {
+            color: #fff;
+        }    
+    
+        .mat-form-field-outline > div {
+            color: #fff8;
+        }
+    
+        .mat-form-field {
+            ::placeholder,
+            .mat-select-placeholder {
+                color: #fff8;
+            }
+        }
+    
+        button.mat-button,
+        a[button] {
+            color: #fff;
+            
+            &.inverse {
+                background: none;
+                --color: #fffa;
+            }
+    
+            &.error {
+                --color: var(--error)
+            }
+    
+            &[disabled] {
+                opacity: 0.3;
+            }
+        }
+    
+        .mat-slide-toggle-bar {
+            background-color: rgba(255,255,255, 0.2);
+        }
+    
+        .mat-checked .mat-slide-toggle-bar {
+            background-color: rgba(255,255,255, 0.4);
+        }
         .mat-menu-item {
             color: inherit;
             &:hover {
@@ -776,9 +743,10 @@ custom-table[header-dark] {
         .mat-option:hover {
             @apply bg-white/10;
         }
+    
+        bootstrap,
+        [app-bootstrap] {
+            @apply bg-neutral-600;
+        }
     }
-    mat-bottom-sheet-container {
-        padding: 0;
-    }
-
 }

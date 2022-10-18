@@ -48,10 +48,9 @@ body {
 
 body {
     background-color: #525252;
-}
-
-body.dark {
-    background-color: #525252;
+    &.dark {
+        background-color: #525252;
+    }
 }
 
 * {
@@ -130,25 +129,6 @@ body.dark {
 
 span.highlight {
     color: var(--primary);
-}
-
-/*=======================*\
-||    Font size styles   ||
-\*=======================*/
-
-.fs {
-    &-small {
-        font-size: 0.8rem;
-    }
-    &-normal {
-        font-size: 1rem;
-    }
-    &-big {
-        font-size: 1.2rem;
-    }
-    &-large {
-        font-size: 1.5rem;
-    }
 }
 
 /*========================*\
