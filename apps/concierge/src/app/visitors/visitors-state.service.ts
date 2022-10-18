@@ -30,6 +30,7 @@ import {
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 import { queryBookings } from '@placeos/bookings';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface VisitorFilters {
     date?: number;
@@ -88,7 +89,7 @@ export class VisitorsStateService extends BaseClass {
                     type: 'visitor',
                     period_start: getUnixTime(start),
                     period_end: getUnixTime(end),
-                    zones: (filters.zones || []).join(','),
+                    zones: this._org.building?.id,
                 }).pipe(
                     map((_) => _.map((i) => newCalendarEventFromBooking(i))),
                     catchError((_) => of([]))
@@ -174,7 +175,7 @@ export class VisitorsStateService extends BaseClass {
         return this._search.getValue();
     }
 
-    constructor(private _dialog: MatDialog) {
+    constructor(private _dialog: MatDialog, private _org: OrganisationService) {
         super();
     }
 

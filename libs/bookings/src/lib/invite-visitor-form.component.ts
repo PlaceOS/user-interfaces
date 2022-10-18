@@ -16,7 +16,9 @@ import { Booking } from './booking.class';
                 class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto"
                 *ngIf="!(loading | async); else load_state"
             >
-                <div class="w-full border-b border-gray-200 dark:border-neutral-500 px-4 py-2">
+                <div
+                    class="w-full border-b border-gray-200 dark:border-neutral-500 px-4 py-2"
+                >
                     <h2 class="text-2xl">Invite Visitor</h2>
                 </div>
                 <form *ngIf="form" [formGroup]="form" class="p-4">
@@ -107,7 +109,9 @@ import { Booking } from './booking.class';
                         </mat-form-field>
                     </div>
                 </form>
-                <div class="sticky p-4 border-t border-gray-200 dark:border-neutral-500 bottom-0">
+                <div
+                    class="sticky p-4 border-t border-gray-200 dark:border-neutral-500 bottom-0"
+                >
                     <button
                         mat-button
                         send
@@ -126,26 +130,38 @@ import { Booking } from './booking.class';
             >
                 <div class="w-full max-w-[512px] flex-1 h-1/2 space-y-2 m-8">
                     <h2 class="text-3xl">
-                        Visitor invite sent to {{ last_success?.asset_name || last_success?.asset_id }}
+                        Visitor invite sent to
+                        {{ last_success?.asset_name || last_success?.asset_id }}
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
-                        Invite has been sent so <i>{{ last_success?.asset_name || last_success?.asset_id }}</i> to attend
-                        {{ building?.display_name || building?.name }} from 
+                        Invite has been sent so
+                        <i>{{
+                            last_success?.asset_name || last_success?.asset_id
+                        }}</i>
+                        to attend
+                        {{ building?.display_name || building?.name }} from
                         {{ last_success?.date | date: 'mediumDate' }} at
                         {{ last_success?.date | date: 'shortTime' }}
                     </p>
                 </div>
                 <div
-                    class="w-full p-2 border-t border-gray-200 dark:border-neutral-500 flex items-center justify-center"
+                    class="w-full p-2 border-t border-gray-200 dark:border-neutral-500"
                 >
-                    <button
-                        mat-button
-                        class="w-full max-w-[512px]"
-                        (click)="onDone()"
+                    <div
+                        class="mx-auto flex items-center space-x-2 w-full max-w-[512px]"
                     >
-                        Great, thanks
-                    </button>
+                        <button mat-button class="flex-1" (click)="onDone()">
+                            Great, thanks
+                        </button>
+                        <button
+                            mat-button
+                            class="flex-1"
+                            (click)="sent = false"
+                        >
+                            Book Another Visitor
+                        </button>
+                    </div>
                 </div>
             </div>
         </ng-template>
@@ -168,7 +184,7 @@ export class InviteVisitorFormComponent {
     public booking?: Booking;
     public readonly loading = this._service.loading;
     public readonly buildings = this._org.building_list;
-    public readonly last_success =  this._service.last_success;
+    public readonly last_success = this._service.last_success;
 
     public get building() {
         return this._org.building;
@@ -184,7 +200,8 @@ export class InviteVisitorFormComponent {
     ) {}
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first(_ => _)).toPromise();
+        this.sent = false;
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._service.setOptions({ type: 'visitor' });
         this.form.patchValue({ zones: [this._org.building?.id] });
         this.form
