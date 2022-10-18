@@ -531,7 +531,7 @@ export class BookingFormService extends BaseClass {
             const current = user_email === currentUser()?.email;
             throw `${current ? 'You' : user_email} already ${
                 current ? 'have' : 'has'
-            } a desk booked`;
+            } a ${type} booked`;
         }
         return true;
     }

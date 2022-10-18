@@ -221,7 +221,10 @@ export class InviteVisitorFormComponent {
                 `Some fields are invalid. [${getInvalidFields(this.form)}]`
             );
         }
-        this.booking = await this._service.postForm();
+        this.booking = await this._service.postForm().catch((e) => {
+            notifyError(e);
+            throw e;
+        });
         this.sent = true;
     }
 }
