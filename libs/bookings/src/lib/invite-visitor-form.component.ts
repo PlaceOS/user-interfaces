@@ -11,7 +11,7 @@ import { Booking } from './booking.class';
 @Component({
     selector: `invite-visitor-form`,
     template: `
-        <ng-container *ngIf="!sent; else send_state">
+        <ng-container *ngIf="sent; else send_state">
             <div
                 class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto"
                 *ngIf="!(loading | async); else load_state"
@@ -122,18 +122,18 @@ import { Booking } from './booking.class';
         <ng-template #send_state>
             <div
                 sent
-                class="absolute inset-0 bg-white flex flex-col items-center justify-center"
+                class="absolute inset-0 bg-white dark:bg-neutral-700 flex flex-col items-center justify-center text-center"
             >
-                <div class="w-full max-w-[512px] flex-1 h-1/2 space-y-2">
-                    <h2 class="text-4xl">
-                        Visitor invite sent to {{ 'Test' }}
+                <div class="w-full max-w-[512px] flex-1 h-1/2 space-y-2 m-8">
+                    <h2 class="text-3xl">
+                        Visitor invite sent to {{ last_success?.asset_name || last_success?.asset_id }}
                     </h2>
-                    <img src="asset/icons/sent.svg" />
+                    <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
-                        Invite has been sent so {{ 'Test' }} to attend
-                        {{ 'Building' }}
-                        {{ booking?.date | date: 'mediumDate' }} at
-                        {{ booking?.date | date: 'shortTime' }}
+                        Invite has been sent so <i>{{ last_success?.asset_name || last_success?.asset_id }}</i> to attend
+                        {{ building?.display_name || building?.name }}
+                        {{ last_success?.date | date: 'mediumDate' }} at
+                        {{ last_success?.date | date: 'shortTime' }}
                     </p>
                 </div>
                 <div
@@ -168,6 +168,11 @@ export class InviteVisitorFormComponent {
     public booking?: Booking;
     public readonly loading = this._service.loading;
     public readonly buildings = this._org.building_list;
+    public readonly last_success =  this._service.last_success;
+
+    public get building() {
+        return this._org.building;
+    }
 
     public get form() {
         return this._service.form;

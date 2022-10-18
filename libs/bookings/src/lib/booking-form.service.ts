@@ -378,6 +378,11 @@ export class BookingFormService extends BaseClass {
             throw `Some form fields are invalid. [${getInvalidFields(form).join(
                 ', '
             )}]`;
+        form.patchValue({
+            booking_type:
+                form.getRawValue().booking_type ||
+                this._options.getValue().type,
+        });
         const value = form.getRawValue();
         if (!ignore_check) {
             await this.checkResourceAvailable(
@@ -416,9 +421,7 @@ export class BookingFormService extends BaseClass {
         this._loading.next('');
         const { booking_type } = value;
         this.clearForm();
-        form?.patchValue({
-            booking_type: booking_type || this._options.getValue().type,
-        });
+        form?.patchValue({ booking_type });
         this.last_success = result;
         sessionStorage.setItem(
             'PLACEOS.last_booked_booking',
