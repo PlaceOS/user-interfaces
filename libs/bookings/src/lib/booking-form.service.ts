@@ -38,11 +38,16 @@ import { BookingLinkModalComponent } from './booking-link-modal.component';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
-const BOOKING_URLS = ['book/desks', 'book/parking', 'book/newdesk', 'book/new-parking'];
+const BOOKING_URLS = [
+    'book/desks',
+    'book/parking',
+    'book/newdesk',
+    'book/new-parking',
+];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
-    type: 'desk' | 'parking' | 'visitor' | 'locker';
+    type: BookingType;
     /** Zone to check available */
     zone_id?: string;
     /** List of features that the asset should associate */
@@ -323,7 +328,7 @@ export class BookingFormService extends BaseClass {
         form.markAllAsTouched();
         if (!form.valid && !force) return;
         const event = new Booking({ ...this.booking, ...form.getRawValue() });
-        this._dialog.open(BookingLinkModalComponent, { data: event })
+        this._dialog.open(BookingLinkModalComponent, { data: event });
     }
 
     public async confirmPost() {
@@ -395,7 +400,10 @@ export class BookingFormService extends BaseClass {
                 all_day: value.all_day,
             });
             if (!receipt?.success) return;
-            (value as any).extension_data = { invoice: receipt, invoice_id: receipt.invoice_id };
+            (value as any).extension_data = {
+                invoice: receipt,
+                invoice_id: receipt.invoice_id,
+            };
         }
         this._loading.next('Saving booking');
         const result = await saveBooking(
@@ -408,7 +416,9 @@ export class BookingFormService extends BaseClass {
         this._loading.next('');
         const { booking_type } = value;
         this.clearForm();
-        form?.patchValue({ booking_type });
+        form?.patchValue({
+            booking_type: booking_type || this._options.getValue().type,
+        });
         this.last_success = result;
         sessionStorage.setItem(
             'PLACEOS.last_booked_booking',

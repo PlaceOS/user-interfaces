@@ -92,6 +92,7 @@ import { Booking } from './booking.class';
                                 formControlName="asset_id"
                                 placeholder="Email of the visitor"
                             />
+                            <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col">
