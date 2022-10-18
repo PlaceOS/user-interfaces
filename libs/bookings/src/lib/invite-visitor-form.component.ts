@@ -11,7 +11,7 @@ import { Booking } from './booking.class';
 @Component({
     selector: `invite-visitor-form`,
     template: `
-        <ng-container *ngIf="sent; else send_state">
+        <ng-container *ngIf="!sent; else send_state">
             <div
                 class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto"
                 *ngIf="!(loading | async); else load_state"
@@ -131,7 +131,7 @@ import { Booking } from './booking.class';
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
                         Invite has been sent so <i>{{ last_success?.asset_name || last_success?.asset_id }}</i> to attend
-                        {{ building?.display_name || building?.name }}
+                        {{ building?.display_name || building?.name }} from 
                         {{ last_success?.date | date: 'mediumDate' }} at
                         {{ last_success?.date | date: 'shortTime' }}
                     </p>
