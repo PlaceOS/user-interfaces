@@ -64,11 +64,11 @@
                     <SourceLocation resid="Taskpane.Url" />
                   </Action>
                 </Control>
-                <Control xsi:type="Button" id="BookingsButton">
-                  <Label resid="BookingsButton.Label" />
+                <Control xsi:type="Button" id="RoomsButton">
+                  <Label resid="RoomsButton.Label" />
                   <Supertip>
-                    <Title resid="BookingsButton.Label" />
-                    <Description resid="BookingsButton.Tooltip" />
+                    <Title resid="RoomsButton.Label" />
+                    <Description resid="RoomsButton.Tooltip" />
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16x16" />
@@ -76,7 +76,22 @@
                     <bt:Image size="80" resid="Icon.80x80" />
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="BookingsButton.Url" />
+                    <SourceLocation resid="RoomsButton.Url" />
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="DesksButton">
+                  <Label resid="DesksButton.Label" />
+                  <Supertip>
+                    <Title resid="DesksButton.Label" />
+                    <Description resid="DesksButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16" />
+                    <bt:Image size="32" resid="Icon.32x32" />
+                    <bt:Image size="80" resid="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="DesksButton.Url" />
                   </Action>
                 </Control>
               </Group>
@@ -94,16 +109,19 @@
       <bt:Urls>
         <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html" />
         <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/" />
-        <bt:Url id="BookingsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/upcoming" />
+        <bt:Url id="RoomsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/upcoming" />
+        <bt:Url id="DesksButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/desks" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="PlaceOS | Book Meeting" />
         <bt:String id="TaskpaneButton.Label" DefaultValue="Book a meeting" />
-        <bt:String id="BookingsButton.Label" DefaultValue="Upcoming meetings" />
+        <bt:String id="DesksButton.Label" DefaultValue="Book a Desk" />
+        <bt:String id="RoomsButton.Label" DefaultValue="Upcoming meetings" />
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
-        <bt:String id="BookingsButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
+        <bt:String id="DesksButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
+        <bt:String id="RoomsButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
       </bt:LongStrings>
     </Resources>
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">

@@ -9,6 +9,7 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { DeskBookingComponent } from './desks/desk-booking.component';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -23,6 +24,12 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         component: RoomBookingComponent,
+    },
+    {
+        path: 'book/desks',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        component: DeskBookingComponent,
     },
     {
         path: 'schedule/view',

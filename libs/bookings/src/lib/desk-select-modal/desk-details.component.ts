@@ -27,7 +27,7 @@ import { BookingAsset } from '../booking-form.service';
     ],
     template: `
         <ng-container *ngIf="desk; else emptyState">
-            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
+            <div image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
                     [images]="desk.images"
                     class="absolute inset-0"
@@ -52,14 +52,14 @@ import { BookingAsset } from '../booking-form.service';
                         fav ? 'favorite' : 'favorite_border'
                     }}</app-icon>
                 </button>
-            </section>
-            <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
+            </div>
+            <div class="p-2 space-y-2 flex-1 h-[calc(100%-19.75rem)] overflow-auto">
                 <section actions class="z-0 pb-2 border-b">
                     <h2 class="text-xl font-medium mb-2 mt-4">
                         {{ desk.display_name || desk.name || desk.id }}
                     </h2>
                 </section>
-                <section details class="space-y-2 pb-2 border-b">
+                <section details class="space-y-2 pb-2 border-b dark:border-neutral-500">
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
@@ -79,7 +79,7 @@ import { BookingAsset } from '../booking-form.service';
                 <section
                     facilities
                     *ngIf="desk.features?.length"
-                    class="space-y-2 pb-2 border-b"
+                    class="space-y-2 pb-2 border-b dark:border-neutral-500"
                 >
                     <h2 class="text-xl font-medium">Facilities</h2>
                     <div
@@ -91,7 +91,7 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <section
                     map
-                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
+                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -101,12 +101,12 @@ import { BookingAsset } from '../booking-form.service';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
+            <div class="p-2 border-t border-gray-200 dark:border-neutral-500 shadow sm:hidden">
                 <button
                     mat-button
                     [class.inverse]="active"
                     class="w-full"
-                    (click)="onSelect.emit()"
+                    (click)="active = !active; activeChange.emit(active);"
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-2xl">{{
@@ -142,7 +142,7 @@ export class DeskDetailsComponent {
 
     @Output() public close = new EventEmitter<void>();
     @Output() public toggleFav = new EventEmitter<void>();
-    @Output() public onSelect = new EventEmitter<void>();
+    @Output() public activeChange = new EventEmitter<void>();
 
     public map_url = '';
     public features: ViewerFeature[] = [];

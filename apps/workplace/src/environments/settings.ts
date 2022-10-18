@@ -166,6 +166,9 @@ const app: any = {
     bookings: {
         no_approval: false
     },
+    booking: {
+        allowed_daily_visitor_count: 100,
+    },
     desks: {
         can_book_lockers: true,
         can_book_for_others: true,

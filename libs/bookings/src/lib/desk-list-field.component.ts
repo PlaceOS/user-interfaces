@@ -150,7 +150,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
             },
         });
         ref.afterClosed().subscribe((items?: BookingAsset[]) => {
-            if (!items) return;
+            if (!items) items = ref.componentInstance.selected;
             this.setValue(items);
         });
     }
