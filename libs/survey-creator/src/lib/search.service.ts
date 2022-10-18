@@ -7,6 +7,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
     providedIn: 'root',
 })
 export class SearchService {
+    selected_tags: string[] = [];
     private _question_bank: BehaviorSubject<Question[]> = new BehaviorSubject<
         Question[]
     >([]);
@@ -20,7 +21,6 @@ export class SearchService {
         this._question_bank.next(questions);
     }
 
-    // question_bank: Question[] = this.surveyCreatorService.question_bank;
     tags: any = [
         {
             name: Tag.desk,
@@ -38,21 +38,26 @@ export class SearchService {
     searchTags(tag: string) {
         const tag_index = this.tags.findIndex((item) => item.name == tag);
         this.tags[tag_index].apply = !this.tags[tag_index].apply;
-
-        let selected_tags: string[] = [];
-        this.tags.map((item) => {
-            if (item.apply) {
-                selected_tags.push(item.name);
-            }
-        });
+        this.selected_tags = this.tags
+            .filter((tag) => {
+                return tag.apply === true;
+            })
+            .map((tag) => {
+                return tag.name;
+            });
         this.question_bank = this.surveyCreatorService.question_bank.filter(
             (question) => {
-                return question.tags
-                    .sort()
-                    .toString()
-                    .includes(selected_tags.sort().toString());
+                if (this._checkQuestionTags(question, this.selected_tags))
+                    return question;
             }
         );
-        console.log(this.question_bank, 'filtered questions');
+    }
+
+    private _checkQuestionTags(question: Question, tags): boolean {
+        let count: number = 0;
+        tags.forEach((tag) => {
+            if (question.tags.includes(tag)) count++;
+        });
+        return count === this.selected_tags.length ? true : false;
     }
 }
