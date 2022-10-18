@@ -142,7 +142,7 @@ import { Booking } from './booking.class';
                     <button
                         mat-button
                         class="w-full max-w-[512px]"
-                        (click)="done.emit()"
+                        (click)="onDone()"
                     >
                         Great, thanks
                     </button>
@@ -190,6 +190,11 @@ export class InviteVisitorFormComponent {
         this.form
             .get('asset_id')
             .setValidators([Validators.required, Validators.email]);
+    }
+
+    public onDone() {
+        this.done.emit();
+        this.sent = false;
     }
 
     public async sendInvite() {
