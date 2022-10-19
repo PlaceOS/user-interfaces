@@ -82,11 +82,10 @@ import { SearchService } from '../search.service';
                 width: 100%;
                 min-height: 600px;
             }
-
             .selected-questions-list {
                 display: inline-block;
                 width: 100%;
-                min-height: 300px;
+                min-height: 600px;
             }
             .preview-questions-container {
                 display: flex;
