@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 
 @Component({
@@ -29,9 +30,11 @@ export class DeskBookingComponent {
         return this._service.form;
     }
 
-    constructor(private _service: BookingFormService) {}
+    constructor(private _service: BookingFormService, private _router: Router) {}
 
-    public makeBooking() {
-        this._service.confirmPost();
+    public async makeBooking() {
+        await this._service.confirmPost();
+        this._router.navigate(['/book', 'desks', 'success'])
+
     }
 }

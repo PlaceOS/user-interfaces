@@ -10,46 +10,43 @@ import {
 } from '@placeos/components';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { DeskBookingComponent } from './desks/desk-booking.component';
+import { DeskBookingSuccessComponent } from './desks/desk-success.component';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
-    {
-        path: 'ms-auth',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        component: RoomBookingComponent,
-    },
-    {
-        path: 'book/spaces',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        component: RoomBookingComponent,
-    },
-    {
-        path: 'book/desks',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        component: DeskBookingComponent,
-    },
-    {
-        path: 'schedule/view',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        component: FindSpaceComponent,
-    },
-    {
-        path: 'confirm/success',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        component: BookingConfirmedComponent,
-    },
-    {
-        path: 'upcoming',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        component: UpcomingBookingsComponent,
-    },
     { path: '404', component: NotFoundComponent },
+    {
+        path: '',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        children: [
+            {
+                path: 'ms-auth',
+                component: RoomBookingComponent,
+            },
+            {
+                path: 'book',
+                children: [
+                    { path: 'spaces', component: RoomBookingComponent },
+                    { path: 'spaces/success', component: BookingConfirmedComponent },
+                    { path: 'desks', component: DeskBookingComponent },
+                    { path: 'desks/success', component: DeskBookingSuccessComponent },
+                ],
+            },
+            {
+                path: 'schedule/view',
+                component: FindSpaceComponent,
+            },
+            {
+                path: 'confirm/success',
+                component: BookingConfirmedComponent,
+            },
+            {
+                path: 'upcoming',
+                component: UpcomingBookingsComponent,
+            },
+        ],
+    },
     { path: '**', pathMatch: 'full', redirectTo: '/book/spaces' },
 ];
 
