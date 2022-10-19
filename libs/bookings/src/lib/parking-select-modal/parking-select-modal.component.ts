@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { BookingAsset, BookingFlowOptions, BookingFormService } from '../booking-form.service';
 
@@ -137,10 +137,11 @@ export class ParkingSpaceSelectModalComponent {
     }
 
     constructor(
+        private _dialog_ref: MatDialogRef<ParkingSpaceSelectModalComponent>,
         private _settings: SettingsService,
         private _event_form: BookingFormService,
         @Inject(MAT_DIALOG_DATA)
-        _data: { spaces: BookingAsset[]; options: Partial<BookingFlowOptions> }
+        private _data: { spaces: BookingAsset[]; options: Partial<BookingFlowOptions> }
     ) {
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
@@ -150,24 +151,25 @@ export class ParkingSpaceSelectModalComponent {
         return id && this.selected_ids.includes(id);
     }
 
-    public setSelected(space: BookingAsset, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== space.id);
-        if (state) list.push(space);
+    public setSelected(item: BookingAsset, state: boolean) {
+        const list = this.selected.filter((_) => _.id !== item.id);
+        if (state) list.push(item);
         this.selected = list;
+        if (!this._data.options.group && state) this._dialog_ref.close([item]);
     }
 
-    public toggleFavourite(space: BookingAsset) {
+    public toggleFavourite(item: BookingAsset) {
         const fav_list = this.favorites;
-        const new_state = !fav_list.includes(space.id);
+        const new_state = !fav_list.includes(item.id);
         if (new_state) {
             this._settings.saveUserSetting(FAV_PARKING_KEY, [
                 ...fav_list,
-                space.id,
+                item.id,
             ]);
         } else {
             this._settings.saveUserSetting(
                 FAV_PARKING_KEY,
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== item.id)
             );
         }
     }

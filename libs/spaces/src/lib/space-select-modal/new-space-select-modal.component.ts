@@ -1,7 +1,10 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { EventFlowOptions, EventFormService } from 'libs/events/src/lib/event-form.service';
+import {
+    EventFlowOptions,
+    EventFormService,
+} from 'libs/events/src/lib/event-form.service';
 import { Space } from '../space.class';
 
 @Component({
@@ -136,6 +139,7 @@ export class NewSpaceSelectModalComponent {
     }
 
     constructor(
+        private _dialog_ref: MatDialogRef<NewSpaceSelectModalComponent>,
         private _settings: SettingsService,
         private _event_form: EventFormService,
         @Inject(MAT_DIALOG_DATA)
@@ -149,24 +153,27 @@ export class NewSpaceSelectModalComponent {
         return id && this.selected_ids.includes(id);
     }
 
-    public setSelected(space: Space, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== space.id);
-        if (state) list.push(space);
+    public setSelected(item: Space, state: boolean) {
+        const list = this.selected.filter((_) => _.id !== item.id);
+        if (state) list.push(item);
         this.selected = list;
+        if (!this._settings.get('app.events.allow_multiple_spaces') && state) {
+            this._dialog_ref.close([item]);
+        }
     }
 
-    public toggleFavourite(space: Space) {
+    public toggleFavourite(item: Space) {
         const fav_list = this.favorites;
-        const new_state = !fav_list.includes(space.id);
+        const new_state = !fav_list.includes(item.id);
         if (new_state) {
             this._settings.saveUserSetting('favourite_spaces', [
                 ...fav_list,
-                space.id,
+                item.id,
             ]);
         } else {
             this._settings.saveUserSetting(
                 'favourite_spaces',
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== item.id)
             );
         }
     }
