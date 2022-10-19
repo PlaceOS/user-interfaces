@@ -41,7 +41,7 @@ declare let OfficeRuntime: any;
     styles: [``],
 })
 export class AppComponent extends BaseClass implements OnInit {
-    title = 'outlook-rooms-addin';
+    title = 'outlook-addin';
 
     constructor(
         private _settings: SettingsService,

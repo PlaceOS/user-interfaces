@@ -17,7 +17,7 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BookModule } from './rooms/book.module';
-import { SharedComponentModule } from '../app/components/shared.module';
+import { SharedComponentModule } from './components/shared.module';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { DeskBookingComponent } from './desks/desk-booking.component';
 import { DeskBookingFormComponent } from './desks/desk-form.component';

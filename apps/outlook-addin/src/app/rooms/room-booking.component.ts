@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { EventFormService } from '@placeos/events';
-import { FeaturesFilterService } from '../rooms/features-filter.service';
+import { FeaturesFilterService } from './features-filter.service';
 import { currentUser } from '@placeos/common';
 
 @Component({

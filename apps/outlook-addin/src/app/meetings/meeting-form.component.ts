@@ -8,7 +8,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     selector: 'meeting-booking-form',
     template: `
         <div
-            class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 dark:divide-neutral-500 space-y-2"
+            class="divide-y divide-gray-300 dark:divide-neutral-500 space-y-2"
             *ngIf="form"
             [formGroup]="form"
         >

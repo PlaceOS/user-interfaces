@@ -5,9 +5,9 @@ import { Route, RouterModule } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
 
-import { RoomBookingComponent } from '../rooms/room-booking.component';
-import { RoomConfirmComponent } from '../rooms/room-confirm/room-confirm.component';
-import { FindSpaceComponent } from '../rooms/find-space/find-space.component';
+import { RoomBookingComponent } from './room-booking.component';
+import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { FindSpaceComponent } from './find-space/find-space.component';
 import { FindSpaceItemComponent } from './find-space-item/find-space-item.component';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedComponentModule } from '../components/shared.module';

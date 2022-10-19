@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-    displayName: 'outlook-rooms-addin',
+    displayName: 'outlook-addin',
     preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
     globals: {
@@ -9,7 +9,7 @@ export default {
             stringifyContentPathRegex: '\\.(html|svg)$',
         },
     },
-    coverageDirectory: '../../coverage/apps/outlook-rooms-addin',
+    coverageDirectory: '../../coverage/apps/outlook-addin',
     transform: {
         '^.+\\.(ts|mjs|js|html)$': 'jest-preset-angular',
     },

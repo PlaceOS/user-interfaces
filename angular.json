@@ -1375,31 +1375,31 @@
             },
             "tags": []
         },
-        "outlook-rooms-addin": {
+        "outlook-addin": {
             "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
-            "root": "apps/outlook-rooms-addin",
-            "sourceRoot": "apps/outlook-rooms-addin/src",
+            "root": "apps/outlook-addin",
+            "sourceRoot": "apps/outlook-addin/src",
             "prefix": "placeos",
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
                         "baseHref": ".",
-                        "outputPath": "dist/apps/outlook-rooms-addin",
-                        "index": "apps/outlook-rooms-addin/src/index.html",
-                        "main": "apps/outlook-rooms-addin/src/main.ts",
-                        "polyfills": "apps/outlook-rooms-addin/src/polyfills.ts",
-                        "tsConfig": "apps/outlook-rooms-addin/tsconfig.app.json",
+                        "outputPath": "dist/apps/outlook-addin",
+                        "index": "apps/outlook-addin/src/index.html",
+                        "main": "apps/outlook-addin/src/main.ts",
+                        "polyfills": "apps/outlook-addin/src/polyfills.ts",
+                        "tsConfig": "apps/outlook-addin/tsconfig.app.json",
                         "fileReplacements": [
                             {
                                 "replace": "libs/common/src/lib/settings.ts",
-                                "with": "apps/outlook-rooms-addin/src/environments/settings.ts"
+                                "with": "apps/outlook-addin/src/environments/settings.ts"
                             }
                         ],
                         "assets": [
-                            "apps/outlook-rooms-addin/src/favicon.ico",
-                            "apps/outlook-rooms-addin/src/assets",
+                            "apps/outlook-addin/src/favicon.ico",
+                            "apps/outlook-addin/src/assets",
                             {
                                 "glob": "**",
                                 "input": "shared/assets",
@@ -1410,26 +1410,26 @@
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
                             },
-                            "apps/outlook-rooms-addin/src/manifest.webmanifest",
+                            "apps/outlook-addin/src/manifest.webmanifest",
                             {
                                 "glob": "manifest.xml",
-                                "input": "apps/outlook-rooms-addin/",
+                                "input": "apps/outlook-addin/",
                                 "output": "/"
                             },
                             {
                                 "glob": "function-file.html",
-                                "input": "apps/outlook-rooms-addin/src/function-file/",
+                                "input": "apps/outlook-addin/src/function-file/",
                                 "output": "/function-file"
                             },
                             {
                                 "glob": "function-file.ts",
-                                "input": "apps/outlook-rooms-addin/src/function-file/",
+                                "input": "apps/outlook-addin/src/function-file/",
                                 "output": "/function-file"
                             }
                         ],
                         "styles": [
                             "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-                            "apps/outlook-rooms-addin/src/styles.css",
+                            "apps/outlook-addin/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
                             "shared/styles/native-element.scss",
@@ -1449,16 +1449,16 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/outlook-rooms-addin/src/environments/environment.ts",
-                                    "with": "apps/outlook-rooms-addin/src/environments/environment.prod.ts"
+                                    "replace": "apps/outlook-addin/src/environments/environment.ts",
+                                    "with": "apps/outlook-addin/src/environments/environment.prod.ts"
                                 },
                                 {
                                     "replace": "libs/common/src/lib/settings.ts",
-                                    "with": "apps/outlook-rooms-addin/src/environments/settings.ts"
+                                    "with": "apps/outlook-addin/src/environments/settings.ts"
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/outlook-rooms-addin/ngsw-config.json"
+                            "ngswConfigPath": "apps/outlook-addin/ngsw-config.json"
                         },
                         "production": {
                             "fileReplacements": [
@@ -1467,12 +1467,12 @@
                                     "with": "libs/mocks/src/empty.ts"
                                 },
                                 {
-                                    "replace": "apps/outlook-rooms-addin/src/environments/environment.ts",
-                                    "with": "apps/outlook-rooms-addin/src/environments/environment.prod.ts"
+                                    "replace": "apps/outlook-addin/src/environments/environment.ts",
+                                    "with": "apps/outlook-addin/src/environments/environment.prod.ts"
                                 },
                                 {
                                     "replace": "libs/common/src/lib/settings.ts",
-                                    "with": "apps/outlook-rooms-addin/src/environments/settings.ts"
+                                    "with": "apps/outlook-addin/src/environments/settings.ts"
                                 }
                             ],
                             "optimization": true,
@@ -1495,7 +1495,7 @@
                                 }
                             ],
                             "serviceWorker": true,
-                            "ngswConfigPath": "apps/outlook-rooms-addin/ngsw-config.json"
+                            "ngswConfigPath": "apps/outlook-addin/ngsw-config.json"
                         }
                     }
                 },
@@ -1503,61 +1503,61 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
                         "proxyConfig": "config/proxy.conf.js",
-                        "browserTarget": "outlook-rooms-addin:build",
+                        "browserTarget": "outlook-addin:build",
                         "ssl": true
                     },
                     "configurations": {
                         "production": {
-                            "browserTarget": "outlook-rooms-addin:build:production"
+                            "browserTarget": "outlook-addin:build:production"
                         },
                         "development": {
-                            "browserTarget": "outlook-rooms-addin:build:development"
+                            "browserTarget": "outlook-addin:build:development"
                         }
                     }
                 },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "browserTarget": "outlook-rooms-addin:build"
+                        "browserTarget": "outlook-addin:build"
                     }
                 },
                 "lint": {
                     "builder": "@nrwl/linter:eslint",
                     "options": {
                         "lintFilePatterns": [
-                            "apps/outlook-rooms-addin/src/**/*.ts",
-                            "apps/outlook-rooms-addin/src/**/*.html"
+                            "apps/outlook-addin/src/**/*.ts",
+                            "apps/outlook-addin/src/**/*.html"
                         ]
                     },
                     "outputs": ["{options.outputFile}"]
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/outlook-rooms-addin"],
+                    "outputs": ["coverage/apps/outlook-addin"],
                     "options": {
-                        "jestConfig": "apps/outlook-rooms-addin/jest.config.ts",
+                        "jestConfig": "apps/outlook-addin/jest.config.ts",
                         "passWithNoTests": true
                     }
                 }
             },
             "tags": []
         },
-        "outlook-rooms-addin-e2e": {
+        "outlook-addin-e2e": {
             "$schema": "../../node_modules/nx/schemas/project-schema.json",
-            "root": "apps/outlook-rooms-addin-e2e",
-            "sourceRoot": "apps/outlook-rooms-addin-e2e/src",
+            "root": "apps/outlook-addin-e2e",
+            "sourceRoot": "apps/outlook-addin-e2e/src",
             "projectType": "application",
             "architect": {
                 "e2e": {
                     "builder": "@nrwl/cypress:cypress",
                     "options": {
-                        "cypressConfig": "apps/outlook-rooms-addin-e2e/cypress.json",
-                        "devServerTarget": "outlook-rooms-addin:serve",
-                        "tsConfig": "apps/outlook-rooms-addin-e2e/tsconfig.json"
+                        "cypressConfig": "apps/outlook-addin-e2e/cypress.json",
+                        "devServerTarget": "outlook-addin:serve",
+                        "tsConfig": "apps/outlook-addin-e2e/tsconfig.json"
                     },
                     "configurations": {
                         "production": {
-                            "devServerTarget": "outlook-rooms-addin:serve:production"
+                            "devServerTarget": "outlook-addin:serve:production"
                         }
                     }
                 },
@@ -1565,14 +1565,14 @@
                     "builder": "@nrwl/linter:eslint",
                     "options": {
                         "lintFilePatterns": [
-                            "apps/outlook-rooms-addin-e2e/**/*.{js,ts}"
+                            "apps/outlook-addin-e2e/**/*.{js,ts}"
                         ]
                     },
                     "outputs": ["{options.outputFile}"]
                 }
             },
             "tags": [],
-            "implicitDependencies": ["outlook-rooms-addin"]
+            "implicitDependencies": ["outlook-addin"]
         },
         "payments": {
             "projectType": "library",
