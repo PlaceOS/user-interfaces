@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1666147218057,
+  "timestamp": 1666154115889,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -150,11 +150,11 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1e012c15573c6a42cb7ecee3a593420c07da9b66",
-    "./main.js": "235ecfcd8ab64be47e803ab38206fc07fd0894b4",
+    "./main.js": "ccd09816aab2dd64b5eb0d56c23e394a8ed75b6e",
     "./manifest.webmanifest": "b77d510a22ab8c2bbb2bd38f11b3b266666784f3",
     "./polyfills.js": "d3c20eadace4bdfb9f04bc9a53c33ed91ff38cf1",
     "./runtime.js": "0848b84d6864b60f032539f0b297643742c3445e",
-    "./styles.css": "eb7a0880860d0e6007f3be95ff8234bbe8d37dc9",
+    "./styles.css": "01e300c852890ef214cbbe122f37c4644fa01376",
     "./vendor.js": "c6b688c9ebc2a2317b97c26377138f083d4951bb"
   },
   "navigationUrls": [
