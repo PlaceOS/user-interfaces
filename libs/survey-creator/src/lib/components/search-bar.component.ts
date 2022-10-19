@@ -14,6 +14,7 @@ import { Question, Tag } from '../survey-types';
                         [placeholder]="'Search here'"
                         [fontSize]="12"
                         (change)="updateQuery($event)"
+                        (keyup)="search()"
                     ></input-title>
                 </span>
                 <span>
@@ -21,7 +22,6 @@ import { Question, Tag } from '../survey-types';
                         aria-hidden="false"
                         aria-label="Material icon for search field"
                         class="icon"
-                        (click)="search()"
                         >search</mat-icon
                     >
                 </span>
@@ -97,6 +97,7 @@ export class SearchBarComponent implements OnInit {
     }
 
     search() {
+        console.log(this.query, 'key up');
         this.searchService.searchQuestions(this.query);
     }
 

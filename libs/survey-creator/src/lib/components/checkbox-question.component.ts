@@ -105,13 +105,13 @@ import { QuestionCreatorService } from '../question-creator.service';
                 max-width: 800px;
                 color: #808080;
                 background-color: #fff;
-                margin: 10px 20px 0px 10px;
+                margin: 20px;
             }
             .wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                margin: 20px 20px 0px 20px;
+                margin: 20px 30px;
             }
             .question {
                 display: flex;

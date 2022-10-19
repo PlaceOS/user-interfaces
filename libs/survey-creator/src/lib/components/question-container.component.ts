@@ -66,35 +66,38 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 </ng-template>
             </div>
             <section class="options-container">
-                <div class="dropdown-container">
-                    <mat-form-field appearance="none" class="dropdown">
-                        <mat-select
-                            [(value)]="selected_type"
-                            (selectionChange)="updateSelectedTag()"
-                        >
-                            <mat-option
-                                *ngFor="let enum of QuestionType | keyvalue"
-                                [value]="enum.value"
+                <div class="options-wrapper">
+                    <div class="dropdown-container">
+                        <mat-form-field appearance="none" class="dropdown">
+                            <mat-select
+                                [(value)]="selected_type"
+                                (selectionChange)="updateSelectedTag()"
                             >
-                                {{ enum.value }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+                                <mat-option
+                                    *ngFor="let enum of QuestionType | keyvalue"
+                                    [value]="enum.value"
+                                >
+                                    {{ enum.value }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
 
-                <div class="required-container">
-                    <mat-slide-toggle> </mat-slide-toggle>
-                    <span class="required-text">Required</span>
-                </div>
-                <div *ngIf="canDelete" class="delete-container">
-                    <button-borderless
-                        [button_title]="'Delete'"
-                        [icon]="'delete_forever'"
-                        [icon_color]="'red'"
-                        [text_color]="'black'"
-                        class="delete_button"
-                        (click)="deleteQuestion()"
-                    ></button-borderless>
+                    <div class="required-container">
+                        <mat-slide-toggle> </mat-slide-toggle>
+                        <span class="required-text">Required</span>
+                    </div>
+
+                    <div *ngIf="canDelete" class="delete-container">
+                        <button-borderless
+                            [button_title]="'Delete'"
+                            [icon]="'delete_forever'"
+                            [icon_color]="'red'"
+                            [text_color]="'black'"
+                            class="delete_button"
+                            (click)="deleteQuestion()"
+                        ></button-borderless>
+                    </div>
                 </div>
             </section>
         </div>
@@ -102,14 +105,15 @@ import { SurveyCreatorService } from '../survey-creator.service';
     styles: [
         `
             .question-box {
+                position: relative;
                 border: 1px solid rgba(0, 0, 0, 0.12);
-                background-color: white;
+                background-color: #fff;
                 box-shadow: 0px 0px 1px rgba(15, 23, 42, 0.06),
                     0px 20px 25px -5px rgba(15, 23, 42, 0.1),
                     0px 10px 10px -5px rgba(15, 23, 42, 0.04);
                 border-radius: 4px;
                 margin-top: 20px;
-                padding: 10px;
+                padding: 0px 0px 20px 0px;
             }
             .question-box:active,
             .question-box:hover,
@@ -118,12 +122,20 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 border-color: #3b82f6;
             }
             .new-question {
-                margin-left: -10px;
+                margin: -15px 0px 0px -10px;
             }
             .options-container {
+                display: flex;
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
+                z-index: 3;
+                min-height: 60px;
+                justify-content: center;
+            }
+            .options-wrapper {
                 display: inline-flex;
-                width: 100%;
-                justify-content: flex-end;
+                justify-content: space-between;
                 align-items: center;
             }
             .dropdown-container {
