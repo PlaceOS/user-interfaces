@@ -23,22 +23,8 @@ import { ReportsStateService } from '../reports-state.service';
             <custom-table
                 [dataSource]="space_list"
                 [pagination]="true"
-                [columns]="[
-                    'name',
-                    'capacity',
-                    'count',
-                    'utilisation',
-                    'avg_attendees',
-                    'occupancy'
-                ]"
-                [display_column]="[
-                    'Name',
-                    'Capacity',
-                    'Meeting Count',
-                    'Utilisation',
-                    'Avg. Attendees',
-                    'Occupancy'
-                ]"
+                [columns]="column_list | async"
+                [display_column]="column_name_list | async"
                 [column_size]="['flex']"
                 [template]="{ name: space_name, capacity: space_capacity }"
             ></custom-table>
@@ -61,7 +47,9 @@ export class ReportSpacesSpaceListing {
         map(([stats, { start, end }]) => {
             let list = [];
             for (const booking of stats.events) {
-                const resources: Space[] = booking.resources || [booking.system];
+                const resources: Space[] = booking.resources || [
+                    booking.system,
+                ];
                 for (const space of resources) {
                     if (
                         !list.find(
@@ -76,6 +64,8 @@ export class ReportSpacesSpaceListing {
                             name: space.display_name || space.name,
                             capacity: space.capacity || 1,
                             count: 0,
+                            attendance: 0,
+                            avg_attendance: 0,
                             attendees: 0,
                             avg_attendees: 0,
                             usage: 0,
@@ -89,6 +79,8 @@ export class ReportSpacesSpaceListing {
                             _.id?.toLowerCase() === space.email.toLowerCase()
                     );
                     details.count += 1;
+                    details.attendance +=
+                        booking.extension_data?.people_count?.average ?? 0;
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
                 }
@@ -97,15 +89,78 @@ export class ReportSpacesSpaceListing {
             for (const space of list) {
                 space.avg_attendees =
                     Math.floor((space.attendees / space.count) * 100) / 100;
+                space.avg_attendance =
+                    Math.floor((space.attendance / space.count) * 100) / 100;
                 space.utilisation =
                     Math.floor((space.usage / 60 / 8 / period_in_days) * 100) /
                     100;
                 space.occupancy =
                     Math.floor((space.avg_attendees / space.capacity) * 100) /
                     100;
+                if (space.attendance <= 0) {
+                    space.attendance = '?';
+                    space.avg_attendance = '?';
+                }
             }
             return list;
         })
+    );
+
+    public readonly has_attendance = this.space_list.pipe(
+        map(
+            (_) =>
+                !!_.find(
+                    ({ attendance: atten }) =>
+                        typeof atten === 'number' && atten > 0
+                )
+        )
+    );
+
+    public readonly column_list = this.has_attendance.pipe(
+        map((_) =>
+            _
+                ? [
+                      'name',
+                      'capacity',
+                      'count',
+                      'utilisation',
+                      'avg_attendees',
+                      'occupancy',
+                  ]
+                : [
+                      'name',
+                      'capacity',
+                      'count',
+                      'utilisation',
+                      'avg_attendees',
+                      'occupancy',
+                      'attendance',
+                      'avg_attendance',
+                  ]
+        )
+    );
+    public readonly column_name_list = this.has_attendance.pipe(
+        map((_) =>
+            _
+                ? [
+                      'Name',
+                      'Capacity',
+                      'Meeting Count',
+                      'Utilisation',
+                      'Avg. Attendees',
+                      'Occupancy',
+                  ]
+                : [
+                      'Name',
+                      'Capacity',
+                      'Meeting Count',
+                      'Utilisation',
+                      'Avg. Attendees',
+                      'Occupancy',
+                      'Attendance',
+                      'Avg. Attendance',
+                  ]
+        )
     );
 
     public readonly download = async () => {
