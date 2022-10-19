@@ -80,7 +80,5 @@ export class ButtonBorderlessComponent implements OnInit {
     @Input() text_color: string = '';
     constructor() {}
 
-    ngOnInit(): void {
-        console.log(this.icon_color, 'icon color');
-    }
+    ngOnInit(): void {}
 }
