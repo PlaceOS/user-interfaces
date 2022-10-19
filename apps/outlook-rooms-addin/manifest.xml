@@ -108,7 +108,7 @@
       </bt:Images>
       <bt:Urls>
         <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html" />
-        <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/meeting" />
         <bt:Url id="RoomsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/upcoming" />
         <bt:Url id="DesksButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/desks" />
       </bt:Urls>

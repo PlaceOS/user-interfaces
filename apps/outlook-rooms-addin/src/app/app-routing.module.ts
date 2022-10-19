@@ -11,6 +11,8 @@ import {
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { DeskBookingComponent } from './desks/desk-booking.component';
 import { DeskBookingSuccessComponent } from './desks/desk-success.component';
+import { MeetingBookingComponent } from './meetings/meeting-booking.component';
+import { MeetingBookingSuccessComponent } from './meetings/meeting-success.component';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
@@ -29,6 +31,8 @@ const routes: Routes = [
                 children: [
                     { path: 'spaces', component: RoomBookingComponent },
                     { path: 'spaces/success', component: BookingConfirmedComponent },
+                    { path: 'meeting', component: MeetingBookingComponent },
+                    { path: 'meeting/success', component: MeetingBookingSuccessComponent },
                     { path: 'desks', component: DeskBookingComponent },
                     { path: 'desks/success', component: DeskBookingSuccessComponent },
                 ],

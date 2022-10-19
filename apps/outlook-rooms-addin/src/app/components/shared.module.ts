@@ -1,9 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterModule } from '@angular/router';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -28,6 +25,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedEventsModule } from '@placeos/events';
 import { ComponentsModule } from '@placeos/components';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const COMPONENTS: Type<any>[] = [NotFoundComponent];
 
@@ -57,13 +55,18 @@ const MATERIAL_MODULES: any[] = [
 
 @NgModule({
     declarations: [...COMPONENTS],
-    imports: [SharedBookingsModule, SharedEventsModule, ComponentsModule],
+    imports: [
+        BrowserAnimationsModule,
+        SharedBookingsModule,
+        SharedEventsModule,
+        ComponentsModule,
+    ],
     exports: [
         ...COMPONENTS,
         ...MATERIAL_MODULES,
         SharedBookingsModule,
         SharedEventsModule,
-        ComponentsModule
+        ComponentsModule,
     ],
 })
 export class SharedComponentModule {}
