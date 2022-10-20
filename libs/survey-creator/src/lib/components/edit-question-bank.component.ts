@@ -20,17 +20,21 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     >
                 </span>
             </div>
-            <div class="category-container">
-                <div><span class="section-heading">Category</span></div>
-                <div>
+            <!-- <div class="category-container"> -->
+            <!-- <div><span class="section-heading">Category</span></div> -->
+            <div class="search-bar-container">
+                <search-bar [view]="'checkbox'"></search-bar>
+            </div>
+
+            <!-- <div>
                     <p class="small-text">
                         Please select tags that apply to the below question.
                     </p>
                 </div>
                 <div class="category-tags" *ngFor="let tag of tags">
                     <mat-checkbox color="primary">{{ tag }}</mat-checkbox>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
             <main>
                 <div
                     *ngFor="let question of surveyCreatorService.question_bank"
@@ -88,9 +92,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 background-color: #f8f8fa;
                 border: 1px solid #d4d4d4;
             }
-            .category-container {
-                margin: 20px 20px 10px 20px;
-            }
             .dialog-title {
                 display: flex;
                 font-size: 20px;
@@ -109,12 +110,8 @@ import { SurveyCreatorService } from '../survey-creator.service';
                 margin-top: 3px;
                 color: #808080;
             }
-            .category-tags {
-                display: inline-flex;
-            }
-
-            .category-tags mat-checkbox {
-                margin: 10px 40px 10px 0px;
+            .search-bar-container {
+                padding-top: 20px;
             }
 
             .new-question {
@@ -152,10 +149,6 @@ import { SurveyCreatorService } from '../survey-creator.service';
     ],
 })
 export class EditQuestionBankComponent implements OnInit {
-    tags: string[] = ['Desk', 'Room', 'Parking'];
-
-    // question_bank$: Observable<Question[]> =
-    //     this.surveyCreatorService.question_bank$;
     updated_question_bank: Question[] = [];
     bank_sub: Subscription;
     flag_sub: Subscription;
@@ -180,7 +173,6 @@ export class EditQuestionBankComponent implements OnInit {
     }
 
     updateTitle(event, title) {
-        console.log(event, 'event[0] new title, event[1] type');
         let found_question = this.updated_question_bank.find(
             (question) => question.title === title
         );
@@ -245,10 +237,6 @@ export class EditQuestionBankComponent implements OnInit {
         if (event == QuestionType.checkbox || QuestionType.dropdown) {
             found_question.choices = ['Type a choice here...'];
         }
-
-        console.log(event, 'new type');
-        console.log(title, 'current title');
-        console.log(found_question.type, 'new type q');
 
         this.surveyCreatorService.question_bank = this.updated_question_bank;
     }

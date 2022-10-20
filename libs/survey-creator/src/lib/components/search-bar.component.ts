@@ -43,16 +43,30 @@ import { isThisSecond } from 'date-fns/esm';
                     </button>
                 </span>
             </div>
-            <div class="button-selection">
-                <div *ngFor="let tag of searchService.tags">
-                    <button-with-icon
-                        [button_title]="tag.name"
-                        [icon]="tag.icon"
-                        (click)="applyTag(tag.name)"
-                        [clicked]="tag.apply"
-                    ></button-with-icon>
+            <ng-container
+                [ngTemplateOutlet]="view === 'button' ? button : checkbox"
+            ></ng-container>
+            <ng-template #button>
+                <div class="tag-selection">
+                    <div *ngFor="let tag of searchService.tags">
+                        <button-with-icon
+                            [button_title]="tag.name"
+                            [icon]="tag.icon"
+                            (click)="applyTag(tag.name)"
+                            [clicked]="tag.apply"
+                        ></button-with-icon>
+                    </div>
                 </div>
-            </div>
+            </ng-template>
+            <ng-template #checkbox>
+                <div class="tag-selection">
+                    <div *ngFor="let tag of searchService.tags">
+                        <mat-checkbox color="primary">{{
+                            tag.name
+                        }}</mat-checkbox>
+                    </div>
+                </div>
+            </ng-template>
         </section>
     `,
     styles: [
@@ -62,6 +76,7 @@ import { isThisSecond } from 'date-fns/esm';
                 flex-direction: column;
                 background-color: #fff;
                 border: 1px solid rgba(0, 0, 0, 0.12);
+                border-top: none;
             }
             .search-input-box {
                 display: flex;
@@ -89,11 +104,14 @@ import { isThisSecond } from 'date-fns/esm';
                 position: absolute;
                 right: 50px;
             }
-            .button-selection {
+            .tag-selection {
                 display: flex;
                 flex-direction: row;
                 width: 100%;
                 margin-left: 10px;
+            }
+            .tag-selection mat-checkbox {
+                margin: 10px 40px 10px 10px;
             }
             .search-input {
                 width: 300px;
@@ -106,6 +124,7 @@ import { isThisSecond } from 'date-fns/esm';
     ],
 })
 export class SearchBarComponent implements OnInit {
+    @Input() view: string = '';
     query: string = '';
 
     public Tag: Tag;

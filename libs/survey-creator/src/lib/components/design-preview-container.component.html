@@ -168,7 +168,7 @@
                 ></button-borderless>
             </div>
         </header>
-        <search-bar></search-bar>
+        <search-bar [view]="'button'"></search-bar>
         <ng-container #outlet [ngTemplateOutlet]="content"> </ng-container>
 
         <ng-template #content class="question-bank-container">
