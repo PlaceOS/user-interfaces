@@ -69,19 +69,15 @@ export class SearchService {
     }
 
     private _updateQuestionBank() {
-        console.log(this.query, 'query received');
         this.question_bank = this.surveyCreatorService.question_bank;
         if (this.query) {
             this.question_bank = this.question_bank.filter((question) => {
                 return question.title.includes(this.query);
             });
-            console.log(this.question_bank, 'q filter by keyword');
         } else {
             this.question_bank = this.surveyCreatorService.question_bank;
         }
-        console.log(this.tags, 'selected tags');
         if (this.selected_tags.length) {
-            console.log(this.question_bank, 'q bank seen by tags');
             this.question_bank = this.question_bank.filter((question) => {
                 if (this._checkQuestionTags(question, this.selected_tags))
                     return question;
