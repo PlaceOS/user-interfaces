@@ -41,6 +41,18 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>close</app-icon>
                     </button>
                 </div>
+                <div
+                    class="flex items-center rounded-3xl border border-gray-300"
+                    *ngIf="(filters | async)?.shown_types?.includes('visitor')"
+                >
+                    <div class=" px-2">Visitors</div>
+                    <button
+                        mat-icon-button
+                        (click)="toggleType('visitor', true)"
+                    >
+                        <app-icon>close</app-icon>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="sm:hidden flex items-center space-x-2">

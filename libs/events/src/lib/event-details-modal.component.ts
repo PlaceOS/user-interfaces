@@ -86,7 +86,7 @@ import { SettingsService } from '@placeos/common';
                         class="flex items-center space-x-2 px-2"
                         *ngIf="event.state !== 'done'"
                     >
-                        <button mat-button class="flex-1 h-10">
+                        <button mat-button class="flex-1 h-10" *ngIf="event.can_check_in">
                             <div
                                 class="flex items-center space-x-2 justify-center"
                             >

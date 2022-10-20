@@ -77,6 +77,26 @@ import { ScheduleStateService } from './schedule-state.service';
                     "
                 ></mat-checkbox>
             </button>
+            <button
+                matRipple
+                class="flex items-center space-x-2 w-full text-left pr-2"
+                (click)="toggleType('visitor')"
+            >
+                <div
+                    class="h-10 w-10 rounded-full flex items-center justify-center text-2xl"
+                >
+                    <app-icon>people</app-icon>
+                </div>
+                <div class="flex-1">
+                    <div class="">Visitor</div>
+                    <div class="text-sm opacity-60">Visitor bookings</div>
+                </div>
+                <mat-checkbox
+                    [ngModel]="
+                        (filters | async)?.shown_types?.includes('visitor')
+                    "
+                ></mat-checkbox>
+            </button>
         </div>
         <div class="px-2 pb-2">
             <button mat-button class="w-full" (click)="dismiss()">
