@@ -72,7 +72,9 @@ export class SearchService {
         this.question_bank = this.surveyCreatorService.question_bank;
         if (this.query) {
             this.question_bank = this.question_bank.filter((question) => {
-                return question.title.includes(this.query);
+                return question.title
+                    .toLowerCase()
+                    .includes(this.query.toLowerCase());
             });
         } else {
             this.question_bank = this.surveyCreatorService.question_bank;
