@@ -122,8 +122,8 @@ import { SearchService } from '../search.service';
 export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     @ViewChild('tabGroup') tabGroup;
 
-    question_bank: Question[] = this.searchService.question_bank;
-    // question_bank: Question[] = this.surveyCreatorService.question_bank;
+    question_bank$: Observable<Question[]>;
+
     // survey_title: string = this.surveyCreatorService.survey_title || '';
 
     selected_questions: Question[] =
@@ -142,6 +142,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
 
     ngOnInit(): void {
         console.log(this.searchService.question_bank, 'q bank');
+        this.question_bank$ = this.searchService.question_bank$;
     }
 
     ngAfterViewInit(): void {

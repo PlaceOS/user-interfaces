@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
+import { SearchService } from '../search.service';
 
 @Component({
     selector: 'edit-question-bank',
@@ -20,25 +21,14 @@ import { SurveyCreatorService } from '../survey-creator.service';
                     >
                 </span>
             </div>
-            <!-- <div class="category-container"> -->
-            <!-- <div><span class="section-heading">Category</span></div> -->
             <div class="search-bar-container">
                 <search-bar [view]="'checkbox'"></search-bar>
             </div>
-
-            <!-- <div>
-                    <p class="small-text">
-                        Please select tags that apply to the below question.
-                    </p>
-                </div>
-                <div class="category-tags" *ngFor="let tag of tags">
-                    <mat-checkbox color="primary">{{ tag }}</mat-checkbox>
-                </div> -->
-            <!-- </div> -->
             <main>
-                <div
-                    *ngFor="let question of surveyCreatorService.question_bank"
-                >
+                <span class="question-counter">
+                    {{ (this.question_bank$ | async).length }} questions
+                </span>
+                <div *ngFor="let question of this.question_bank$ | async">
                     <question-container
                         (newTitleEvent)="updateTitle($event, question.title)"
                         (newRatingEvent)="updateRating($event, question.title)"
@@ -113,7 +103,11 @@ import { SurveyCreatorService } from '../survey-creator.service';
             .search-bar-container {
                 padding-top: 20px;
             }
-
+            .question-counte {
+                font-size: 20px;
+                line-height: 24px;
+                weight: 400;
+            }
             .new-question {
                 margin-left: -10px;
             }
@@ -150,6 +144,7 @@ import { SurveyCreatorService } from '../survey-creator.service';
 })
 export class EditQuestionBankComponent implements OnInit {
     updated_question_bank: Question[] = [];
+    question_bank$: Observable<Question[]>;
     bank_sub: Subscription;
     flag_sub: Subscription;
     private _update_flag: BehaviorSubject<boolean> =
@@ -159,13 +154,15 @@ export class EditQuestionBankComponent implements OnInit {
 
     constructor(
         public dialogRef: MatDialogRef<EditQuestionBankComponent>,
-        public surveyCreatorService: SurveyCreatorService
+        public surveyCreatorService: SurveyCreatorService,
+        public searchService: SearchService
     ) {}
 
     ngOnInit(): void {
         this.bank_sub = this.surveyCreatorService.question_bank$.subscribe(
             (questions: Question[]) => (this.updated_question_bank = questions)
         );
+        this.question_bank$ = this.searchService.question_bank$;
     }
 
     closeDialog() {

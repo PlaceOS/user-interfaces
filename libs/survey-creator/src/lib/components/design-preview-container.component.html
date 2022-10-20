@@ -176,16 +176,11 @@
                 id="selected_questions"
                 cdkDropList
                 cdkDropListConnectedTo="selected_questions"
-                [cdkDropListData]="this.searchService.question_bank$ | async"
+                [cdkDropListData]="this.question_bank$ | async"
                 (cdkDropListDropped)="surveyCreatorService.drop($event)"
                 [cdkDropListEnterPredicate]="noReturnPredicate"
             >
-                <div
-                    *ngFor="
-                        let item of this.searchService.question_bank$ | async
-                    "
-                    cdkDrag
-                >
+                <div *ngFor="let item of this.question_bank$ | async" cdkDrag>
                     <question-list-item [question]="item"> </question-list-item>
                 </div>
             </div>

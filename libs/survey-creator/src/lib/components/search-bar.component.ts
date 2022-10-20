@@ -61,9 +61,12 @@ import { isThisSecond } from 'date-fns/esm';
             <ng-template #checkbox>
                 <div class="tag-selection">
                     <div *ngFor="let tag of searchService.tags">
-                        <mat-checkbox color="primary">{{
-                            tag.name
-                        }}</mat-checkbox>
+                        <mat-checkbox
+                            color="primary"
+                            [checked]="tag.apply"
+                            (change)="applyTag(tag.name)"
+                            >{{ tag.name }}</mat-checkbox
+                        >
                     </div>
                 </div>
             </ng-template>
