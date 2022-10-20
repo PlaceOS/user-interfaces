@@ -26,14 +26,7 @@ import { ReportsStateService } from '../reports-state.service';
                 [columns]="column_list | async"
                 [display_column]="column_name_list | async"
                 [column_size]="['flex']"
-                [template]="{ name: space_name, capacity: space_capacity }"
             ></custom-table>
-            <ng-template #space_name let-row="row">
-                {{ (row?.id | space)?.display_name || (row?.id | space)?.name }}
-            </ng-template>
-            <ng-template #space_capacity let-row="row">
-                {{ (row?.id | space)?.capacity || 2 }}
-            </ng-template>
         </div>
     `,
     styles: [``],
@@ -85,18 +78,18 @@ export class ReportSpacesSpaceListing {
                     details.attendees += booking.attendees.length;
                 }
             }
-            const period_in_days = differenceInDays(end, start);
+            const period_in_days = Math.max(1, differenceInDays(end, start) + 1);
             for (const space of list) {
                 space.avg_attendees =
                     Math.floor((space.attendees / space.count) * 100) / 100;
                 space.avg_attendance =
                     Math.floor((space.attendance / space.count) * 100) / 100;
                 space.utilisation =
-                    Math.floor((space.usage / 60 / 8 / period_in_days) * 100) /
-                    100;
+                    `${Math.floor((space.usage / 60 / 8 / period_in_days) * 10000) /
+                    100}%`;
                 space.occupancy =
-                    Math.floor((space.avg_attendees / space.capacity) * 100) /
-                    100;
+                    `${Math.floor((space.avg_attendees / space.capacity) * 10000) /
+                    100}%`;
                 if (space.attendance <= 0) {
                     space.attendance = '?';
                     space.avg_attendance = '?';
@@ -109,16 +102,13 @@ export class ReportSpacesSpaceListing {
     public readonly has_attendance = this.space_list.pipe(
         map(
             (_) =>
-                !!_.find(
-                    ({ attendance: atten }) =>
-                        typeof atten === 'number' && atten > 0
-                )
+                !!_.find(({ attendance }) => attendance !== '?' && attendance > 0)
         )
     );
 
     public readonly column_list = this.has_attendance.pipe(
         map((_) =>
-            _
+            !_
                 ? [
                       'name',
                       'capacity',
@@ -141,7 +131,7 @@ export class ReportSpacesSpaceListing {
     );
     public readonly column_name_list = this.has_attendance.pipe(
         map((_) =>
-            _
+            !_
                 ? [
                       'Name',
                       'Capacity',

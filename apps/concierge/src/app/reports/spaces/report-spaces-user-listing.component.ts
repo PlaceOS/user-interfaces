@@ -38,7 +38,7 @@ import { ReportsStateService } from '../reports-state.service';
     `,
     styles: [``],
 })
-export class ReportSpacesUserListing {
+export class ReportSpacesUserListingComponent {
     public readonly user_list = combineLatest([this._reports.stats]).pipe(
         debounceTime(300),
         map(([stats]) => {

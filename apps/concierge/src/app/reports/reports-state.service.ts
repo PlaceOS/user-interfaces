@@ -82,7 +82,25 @@ export class ReportsStateService {
                       zones: zones,
                       type: 'desk',
                   })
-                : queryEvents({ ...query, zone_ids: zones });
+                : queryEvents({ ...query, zone_ids: zones }).pipe(
+                      switchMap(async (l) =>
+                          Promise.all(
+                              l.map(
+                                  async (_: CalendarEvent) =>
+                                      new CalendarEvent({
+                                          ..._,
+                                          resources: await Promise.all(
+                                              _.resources.map((r) =>
+                                                  this._space_pipe.transform(
+                                                      r.id || r.email
+                                                  )
+                                              )
+                                          ),
+                                      } as any)
+                              )
+                          )
+                      )
+                  );
         }),
         catchError((_) => []),
         map((_) => {
@@ -132,21 +150,6 @@ export class ReportsStateService {
     ]).pipe(
         switchMap(async ([counts, list]) => {
             if (list[0] instanceof CalendarEvent) {
-                list = await Promise.all(
-                    list.map(
-                        async (_: CalendarEvent) =>
-                            new CalendarEvent({
-                                ..._,
-                                resources: await Promise.all(
-                                    _.resources.map((r) =>
-                                        this._space_pipe.transform(
-                                            r.id || r.email
-                                        )
-                                    )
-                                ),
-                            } as any)
-                    )
-                );
                 return generateReportForBookings(
                     list as CalendarEvent[],
                     this.duration * 8
@@ -199,10 +202,13 @@ export class ReportsStateService {
 
     public get duration() {
         const opts = this._options.getValue();
-        return Math.abs(
-            differenceInDays(
-                startOfDay(opts.start),
-                addMinutes(endOfDay(opts.end), 1)
+        return Math.max(
+            1,
+            Math.abs(
+                differenceInDays(
+                    startOfDay(opts.start),
+                    addMinutes(endOfDay(opts.end), 1)
+                )
             )
         );
     }

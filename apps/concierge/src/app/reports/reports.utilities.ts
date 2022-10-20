@@ -23,6 +23,7 @@ export function generateReportForBookings(
     bookings: CalendarEvent[],
     util_period: number = 8
 ) {
+    util_period = Math.max(1, util_period);
     const total_users = bookings.reduce((c, i) => c + i.attendees.length, 0);
     const total_capacity = bookings.reduce((c, i) => c + i.system?.capacity, 0);
     const utilisation =
