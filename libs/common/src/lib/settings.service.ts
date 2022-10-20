@@ -204,7 +204,7 @@ export class SettingsService extends BaseClass {
     }
 
     private _setDarkMode() {
-        const os_dark = window?.matchMedia ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches : false;
+        const os_dark = false; // window?.matchMedia ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches : false;
         if (this.get('dark_mode') ?? os_dark) {
             document.body.classList.add('dark');
         } else {
