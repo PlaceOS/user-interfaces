@@ -243,7 +243,7 @@ import { SettingsService } from '@placeos/common';
                     </h3>
                     <div
                         notes
-                        class="mx-4"
+                        class="mx-4 overflow-hidden max-w-full"
                         *ngIf="event.body"
                         [innerHTML]="event.body | sanitize"
                     ></div>
