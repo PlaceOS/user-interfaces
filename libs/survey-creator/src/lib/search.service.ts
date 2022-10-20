@@ -8,6 +8,21 @@ import { Observable, BehaviorSubject } from 'rxjs';
 })
 export class SearchService {
     selected_tags: string[] = [];
+
+    //Search query keyword store
+    private _query: BehaviorSubject<string> = new BehaviorSubject<string>('');
+
+    query$: Observable<string> = this._query.asObservable();
+
+    get query() {
+        return this._query.getValue();
+    }
+
+    set query(query: string) {
+        this._query.next(query);
+    }
+
+    //Filtered question bank store
     private _question_bank: BehaviorSubject<Question[]> = new BehaviorSubject<
         Question[]
     >([]);
@@ -35,7 +50,7 @@ export class SearchService {
         this.question_bank = this.surveyCreatorService.question_bank;
     }
 
-    filterByTags(tag: string) {
+    updateTags(tag: string) {
         const tag_index = this.tags.findIndex((item) => item.name == tag);
         this.tags[tag_index].apply = !this.tags[tag_index].apply;
         this.selected_tags = this.tags
@@ -45,21 +60,32 @@ export class SearchService {
             .map((tag) => {
                 return tag.name;
             });
-        this.question_bank = this.surveyCreatorService.question_bank.filter(
-            (question) => {
-                if (this._checkQuestionTags(question, this.selected_tags))
-                    return question;
-            }
-        );
+        this._updateQuestionBank();
     }
 
-    searchQuestions(query: string) {
-        if (query) {
+    updateSearchKeyword(query: string) {
+        this.query = query;
+        this._updateQuestionBank();
+    }
+
+    private _updateQuestionBank() {
+        console.log(this.query, 'query received');
+        this.question_bank = this.surveyCreatorService.question_bank;
+        if (this.query) {
             this.question_bank = this.question_bank.filter((question) => {
-                return question.title.includes(query);
+                return question.title.includes(this.query);
             });
+            console.log(this.question_bank, 'q filter by keyword');
         } else {
             this.question_bank = this.surveyCreatorService.question_bank;
+        }
+        console.log(this.tags, 'selected tags');
+        if (this.selected_tags.length) {
+            console.log(this.question_bank, 'q bank seen by tags');
+            this.question_bank = this.question_bank.filter((question) => {
+                if (this._checkQuestionTags(question, this.selected_tags))
+                    return question;
+            });
         }
     }
 

@@ -118,20 +118,20 @@ export class SearchBarComponent implements OnInit {
     ngOnInit(): void {}
 
     applyTag(tag: string): void {
-        this.searchService.filterByTags(tag);
+        this.searchService.updateTags(tag);
         this.clicked = !this.clicked;
     }
     search() {
-        this.searchService.searchQuestions(this.query);
+        this.searchService.updateSearchKeyword(this.query);
     }
     updateQuery(event) {
         this.query = event.target.value;
         if (this.query?.length == 0) {
-            this.searchService.searchQuestions(this.query);
+            this.searchService.updateSearchKeyword(this.query);
         }
     }
     clearQuery() {
         this.query = null;
-        this.searchService.searchQuestions('');
+        this.searchService.updateSearchKeyword(null);
     }
 }

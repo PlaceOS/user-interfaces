@@ -90,7 +90,7 @@ export class SurveyCreatorService {
                 type: QuestionType.comment,
                 name: '',
                 title: 'Any additional feedback?',
-                tags: [Tag.desk, Tag.room, Tag.parking],
+                tags: [Tag.desk, Tag.room],
             },
             {
                 type: QuestionType.checkbox,
