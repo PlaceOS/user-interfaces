@@ -4,8 +4,8 @@ import { debounceTime, map } from 'rxjs/operators';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { AddQuestionBankComponent } from './add-question-bank.component';
-import { EditQuestionBankComponent } from './edit-question-bank.component';
+import { AddQuestionBankComponent } from '../components/add-question-bank.component';
+import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
 import { SearchService } from '../search.service';
 
 @Component({

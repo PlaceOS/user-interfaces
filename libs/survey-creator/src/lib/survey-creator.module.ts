@@ -14,7 +14,7 @@ import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title.component';
 import { ButtonWithIconComponent } from './components/button-with-icon.component';
 import { QuestionBoxComponent } from './components/question-box.component';
-import { DesignPreviewContainerComponent } from './components/design-preview-container.component';
+import { DesignPreviewContainerComponent } from './pages/design-preview-container.component';
 import { QuestionListItemComponent } from './components/question-list-item.component';
 import { SearchBarComponent } from './components/search-bar.component';
 import { RatingQuestionComponent } from './components/rating-question.component';
@@ -29,6 +29,7 @@ import { DropdownQuestionComponent } from './components/dropdown-question.compon
 import { CompleteSurveyComponent } from './complete-survey.component';
 import { EditQuestionBankComponent } from './components/edit-question-bank.component';
 import { QuestionContainerComponent } from './components/question-container.component';
+import { SurveyListComponent } from './pages/survey-list.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -50,6 +51,7 @@ const COMPONENTS: Type<any>[] = [
     CompleteSurveyComponent,
     EditQuestionBankComponent,
     QuestionContainerComponent,
+    SurveyListComponent,
 ];
 
 @NgModule({
