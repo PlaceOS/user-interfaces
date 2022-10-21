@@ -98,6 +98,19 @@ import { Booking } from './booking.class';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col">
+                        <label for="visitor-name"
+                            >Company</label
+                        >
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="company"
+                                formControlName="company"
+                                placeholder="Company of the visitor"
+                            />
+                        </mat-form-field>
+                    </div>
+                    <div class="flex flex-col">
                         <label for="reason">Reason for visit</label>
                         <mat-form-field appearance="outline">
                             <input

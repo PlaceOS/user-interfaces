@@ -10,6 +10,7 @@ import {
 } from 'date-fns';
 
 export type BookingType = 'desk' | 'parking' | 'locker' | 'room' | 'visitor' | 'asset-request' | 'staff' | 'wfh-setting' | '';
+const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets']; 
 
 /** General purpose booking class */
 export class Booking {
@@ -133,7 +134,7 @@ export class Booking {
             ? 'approved'
             : 'tentative';
         for (const key in data) {
-            if (!(key in this)) {
+            if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
                 this.extension_data[key] =
                     data[key] || this.extension_data[key];
             }
