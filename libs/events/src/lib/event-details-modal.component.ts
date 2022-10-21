@@ -17,7 +17,7 @@ import { SettingsService } from '@placeos/common';
             class="absolute inset-0 sm:relative sm:inset-auto sm:w-[51rem] sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300"
+                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
             >
                 <div
                     class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
@@ -107,7 +107,7 @@ import { SettingsService } from '@placeos/common';
             </div>
             <div class="sm:flex flex-wrap sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 flex-grow-[4] min-w-1/3 sm:w-[16rem] space-y-2"
+                    class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[4] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
                     <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
                     <div class="flex items-center px-2 space-x-2">
@@ -137,7 +137,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </div>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                 >
                     <div
                         class="mx-3 border-t border-gray-300 sm:border-none dark:border-neutral-500 flex items-center justify-between"
@@ -187,7 +187,7 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <ng-container *ngIf="has_catering">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3
                             class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"

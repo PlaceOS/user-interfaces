@@ -84,7 +84,7 @@ const EMPTY = [];
                     <button
                         mat-icon-button
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-gray-200 rounded !m-0"
+                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
