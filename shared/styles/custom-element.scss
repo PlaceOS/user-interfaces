@@ -555,17 +555,24 @@ custom-table[header-dark] {
         background: var(--primary);
     }
 
-    mat-checkbox {
-        .mat-checkbox-inner-container {
-            margin-left: 8px;
-        }
-        &.mat-checkbox-checked .mat-checkbox-background {
-            background-color: var(--primary);
-        }
+    .mat-checkbox-inner-container {
+        margin-left: 8px;
+    }
+    .mat-checkbox-checked .mat-checkbox-background {
+        background-color: var(--primary);
     }
 
     .mat-checkbox-label {
         font-weight: normal;
+    }
+
+    .mat-radio-checked {
+        .mat-radio-outer-circle {
+            border-color: var(--primary);
+        }
+        .mat-radio-inner-circle {
+            background-color: var(--primary);
+        }
     }
 
     .mat-ink-bar {
@@ -653,6 +660,7 @@ custom-table[header-dark] {
         .mat-checked .mat-slide-toggle-bar {
             background-color: rgba(255,255,255, 0.4);
         }
+
         .mat-menu-item {
             color: inherit;
             &:hover {
@@ -695,20 +703,47 @@ custom-table[header-dark] {
         mat-pseudo-checkbox.mat-pseudo-checkbox-checked {
             background: var(--secondary);
         }
-
-        mat-checkbox {
-
-            .mat-checkbox-frame {
-                border-color: #fff6
+        
+        .mat-checkbox-checkmark {
+            fill: #000A;
+        }
+        .mat-checkbox-checked {
+            .mat-checkbox-background {
+                background-color: #fff;
             }
+        
+            .mat-checkbox-mixedmark {
+                background-color: #000A;
+            }
+    
+            .mat-checkbox-checkmark-path {
+                stroke: #000A !important;
+            }
+        }
 
-            &.mat-checkbox-checked .mat-checkbox-background {
-                background-color: var(--secondary);
+        .mat-checkbox-frame {
+            border-color: #fff6
+        }
+
+        .mat-radio-outer-circle {
+            border-color: #fff4;
+        }
+
+        .mat-radio-checked {
+            .mat-radio-outer-circle {
+                border-color: #fff;
+            }
+            .mat-radio-inner-circle {
+                background-color: #fff;
             }
         }
 
         .mat-autocomplete-panel {
             @apply bg-neutral-700;
+        }
+
+        .mat-ink-bar {
+            background-color: #fff;
         }
 
         .ql-toolbar {
