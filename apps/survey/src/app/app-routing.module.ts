@@ -8,7 +8,7 @@ import { SurveyListComponent } from '../../../../libs/survey-creator/src/lib/pag
 const routes: Routes = [
     { path: '', component: CreateSurveyFormComponent },
     { path: 'complete-survey', component: CompleteSurveyComponent },
-    { path: 'surveys', component: SurveyListComponent },
+    { path: 'list', component: SurveyListComponent },
 ];
 
 @NgModule({

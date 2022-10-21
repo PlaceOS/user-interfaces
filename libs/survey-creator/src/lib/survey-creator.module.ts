@@ -9,6 +9,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { ComponentsModule } from '@placeos/components';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title.component';
@@ -68,6 +70,8 @@ const COMPONENTS: Type<any>[] = [
         MatButtonModule,
         MatSelectModule,
         MatSlideToggleModule,
+        ComponentsModule,
+        MatTableModule,
     ],
     exports: [...COMPONENTS],
 })
