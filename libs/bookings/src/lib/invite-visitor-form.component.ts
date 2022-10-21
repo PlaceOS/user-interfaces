@@ -7,6 +7,7 @@ import { getInvalidFields } from 'libs/common/src/lib/general';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -79,8 +80,19 @@ import { Booking } from './booking.class';
                                 name="visitor-name"
                                 formControlName="asset_name"
                                 placeholder="Name of the visitor"
+                                [matAutocomplete]="name_auto"
                             />
                         </mat-form-field>
+                        <mat-autocomplete #name_auto="matAutocomplete">
+                            <mat-option *ngFor="let item of visitors" [value]="item.name" (click)="setVisitor(item)">
+                                <div class="flex flex-col leading-tight">
+                                    <div>{{ item.name }}</div>
+                                    <div class="text-xs opacity-60">
+                                        {{ item.email }} {{ item.company ? '| ' + item.company : '' }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        </mat-autocomplete>
                     </div>
                     <div class="flex flex-col">
                         <label for="visitor-email">
@@ -93,14 +105,23 @@ import { Booking } from './booking.class';
                                 type="email"
                                 formControlName="asset_id"
                                 placeholder="Email of the visitor"
+                                [matAutocomplete]="email_auto"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
+                        <mat-autocomplete #email_auto="matAutocomplete">
+                            <mat-option *ngFor="let item of visitors" [value]="item.email" (click)="setVisitor(item)">
+                                <div class="flex flex-col leading-tight">
+                                    <div>{{ item.name }}</div>
+                                    <div class="text-xs opacity-60">
+                                        {{ item.email }} {{ item.company ? '| ' + item.company : '' }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        </mat-autocomplete>
                     </div>
                     <div class="flex flex-col">
-                        <label for="visitor-name"
-                            >Company</label
-                        >
+                        <label for="visitor-name">Company</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -198,6 +219,7 @@ export class InviteVisitorFormComponent {
     public readonly loading = this._service.loading;
     public readonly buildings = this._org.building_list;
     public readonly last_success = this._service.last_success;
+    public visitors = [];
 
     public get building() {
         return this._org.building;
@@ -209,6 +231,7 @@ export class InviteVisitorFormComponent {
 
     constructor(
         private _service: BookingFormService,
+        private _settings: SettingsService,
         private _org: OrganisationService
     ) {}
 
@@ -220,6 +243,19 @@ export class InviteVisitorFormComponent {
         this.form
             .get('asset_id')
             .setValidators([Validators.required, Validators.email]);
+        const visitors = this._settings.get('visitor-invitees') || [];
+        for (const item of visitors) {
+            const [email, name, company] = item.split('|');
+            this.visitors.push({ email, name, company });
+        }
+    }
+
+    public setVisitor(item) {
+        this.form.patchValue({
+            asset_id: item.email,
+            asset_name: item.name,
+            company: item.company
+        });
     }
 
     public onDone() {
@@ -234,6 +270,13 @@ export class InviteVisitorFormComponent {
                 `Some fields are invalid. [${getInvalidFields(this.form)}]`
             );
         }
+        const { asset_id, asset_name, company } = this.form.value;
+        const visitor_details = `${asset_id}|${asset_name}|${company}`;
+        const old_visitors = this._settings.get('visitor-invitees') || [];
+        this._settings.saveUserSetting('visitor-invitees', [
+            ...old_visitors.filter((_) => !_.includes(asset_id)),
+            visitor_details,
+        ]);
         this.booking = await this._service.postForm().catch((e) => {
             notifyError(e);
             throw e;

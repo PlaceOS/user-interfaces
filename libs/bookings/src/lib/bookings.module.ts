@@ -36,6 +36,7 @@ import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking
 import { ParkingSpaceListFieldComponent } from './parking-space-list-field.component';
 import { DeskListFieldComponent } from './desk-list-field.component';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -76,6 +77,7 @@ const COMPONENTS = [
         MatDialogModule,
         MatProgressSpinnerModule,
         MatCheckboxModule,
+        MatAutocompleteModule,
         FormFieldsModule,
         ComponentsModule
     ],
