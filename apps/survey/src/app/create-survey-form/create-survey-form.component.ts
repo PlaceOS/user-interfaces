@@ -18,29 +18,4 @@ export class CreateSurveyFormComponent implements OnInit {
     constructor(private _createSurveyService: SurveyCreatorService) {}
 
     ngOnInit(): void {}
-
-    // addTextQuestion(): void {
-    //     this._createSurveyService.newQuestionForm(QuestionType.text);
-    // }
-
-    // addCheckboxQuestion(): void {
-    //     this._createSurveyService.newQuestionForm(QuestionType.checkbox);
-    // }
-
-    // addDropdownQuestion(): void {
-    //     this._createSurveyService.newQuestionForm(QuestionType.dropdown);
-    // }
-
-    // addRatingQuestion(): void {
-    //     this._createSurveyService.newQuestionForm(QuestionType.rating);
-    // }
-
-    // submitSurvey(): void {
-    //     this._createSurveyService.submitSurvey();
-    // }
-    // reset(): void {
-    //     document.getElementById('questionForm').textContent = '';
-    //     this._createSurveyService.question_counter = 0;
-    //     this._createSurveyService.createNewJSON();
-    // }
 }
