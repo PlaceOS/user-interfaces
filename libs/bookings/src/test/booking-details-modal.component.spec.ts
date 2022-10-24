@@ -36,7 +36,12 @@ describe('BookingDetailsModalComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should show images', () => expect('image-carousel').toExist());
+    it('should show images', () => {
+        expect('image-carousel').not.toExist();
+        (spectator.component as any).booking = new Booking({ extension_data: { images: [''] } });
+        spectator.detectChanges();
+        expect('image-carousel').toExist();
+    });
 
     it('should show title', () => expect('[title]').toExist());
 

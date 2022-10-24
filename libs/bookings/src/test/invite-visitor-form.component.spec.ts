@@ -9,35 +9,32 @@ import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.componen
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
 import { Booking } from '../lib/booking.class';
 import { generateBookingForm } from '../lib/booking.utilities';
 
 import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { SettingsService } from '@placeos/common';
 
 describe('InviteVisitorFormComponent', () => {
     let spectator: SpectatorRouting<InviteVisitorFormComponent>;
     const createComponent = createRoutingFactory({
         component: InviteVisitorFormComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    form: generateBookingForm(),
-                    loading: new BehaviorSubject(''),
-                    setOptions: jest.fn(),
-                    postForm: jest.fn(async () => new Booking()),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    building_list: new BehaviorSubject([]),
-                },
-            },
+            MockProvider(BookingFormService, {
+                form: generateBookingForm(),
+                loading: new BehaviorSubject(''),
+                setOptions: jest.fn(),
+                postForm: jest.fn(async () => new Booking()),
+            }),
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                building_list: new BehaviorSubject([]),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() })
         ],
         declarations: [
             MockComponent(DateFieldComponent),
@@ -49,6 +46,7 @@ describe('InviteVisitorFormComponent', () => {
             MockModule(MatSelectModule),
             MockModule(MatInputModule),
             MockModule(MatProgressSpinnerModule),
+            MockModule(MatAutocompleteModule),
             ReactiveFormsModule,
             FormsModule,
         ],

@@ -11,6 +11,7 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../../lib/booking-form.service';
 import { DeskDetailsComponent } from '../../lib/desk-select-modal/desk-details.component';
 import { DeskFiltersDisplayComponent } from '../../lib/desk-select-modal/desk-filters-display.component';
+import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
 import { DeskListComponent } from '../../lib/desk-select-modal/desk-list.component';
 import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
 import {
@@ -28,12 +29,13 @@ describe('DeskSelectModalComponent', () => {
                 get: jest.fn(),
                 saveUserSetting: jest.fn(),
             }),
-            MockProvider(MatDialogRef),
             MockProvider(MAT_DIALOG_DATA, {}),
+            MockProvider(MatDialogRef, { close: jest.fn() }),
         ],
         declarations: [
             MockComponent(IconComponent),
             MockComponent(DeskFiltersDisplayComponent),
+            MockComponent(DeskFiltersComponent),
             MockComponent(DeskListComponent),
             MockComponent(DeskDetailsComponent),
             MockComponent(DeskMapComponent),

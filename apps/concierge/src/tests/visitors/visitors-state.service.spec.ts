@@ -15,13 +15,15 @@ jest.mock('@placeos/common');
 import * as event_mod from '@placeos/events';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('VisitorStateService', () => {
     let spectator: SpectatorService<VisitorsStateService>;
     const createService = createServiceFactory({
         service: VisitorsStateService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() })
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(OrganisationService, {  })
         ]
     });
 

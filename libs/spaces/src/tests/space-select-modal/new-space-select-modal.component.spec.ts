@@ -1,8 +1,8 @@
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { NewSpaceSelectModalComponent } from '../../lib/space-select-modal/new-space-select-modal.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
@@ -15,14 +15,12 @@ describe('NewSpaceSelectModalComponent', () => {
     const createComponent = createRoutingFactory({
         component: NewSpaceSelectModalComponent,
         providers: [
-            {
-                provide: SettingsService,
-                useValue: {
-                    get: jest.fn(),
-                    saveUserSetting: jest.fn(),
-                },
-            },
-            { provide: MAT_DIALOG_DATA, useValue: [] },
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                saveUserSetting: jest.fn(),
+            }),
+            MockProvider(MAT_DIALOG_DATA, []),
+            MockProvider(MatDialogRef, { close: jest.fn() }),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -31,7 +29,7 @@ describe('NewSpaceSelectModalComponent', () => {
             MockComponent(SpaceFiltersComponent),
             MockComponent(SpaceFiltersDisplayComponent),
         ],
-        imports: [MockModule(MatDialogModule)]
+        imports: [MockModule(MatDialogModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));
