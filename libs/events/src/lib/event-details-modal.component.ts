@@ -9,6 +9,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { SettingsService } from '@placeos/common';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 @Component({
     selector: 'event-details-modal',
@@ -86,7 +87,11 @@ import { SettingsService } from '@placeos/common';
                         class="flex items-center space-x-2 px-2"
                         *ngIf="event.state !== 'done'"
                     >
-                        <button mat-button class="flex-1 h-10" *ngIf="event.can_check_in">
+                        <button
+                            mat-button
+                            class="flex-1 h-10"
+                            *ngIf="event.can_check_in"
+                        >
                             <div
                                 class="flex items-center space-x-2 justify-center"
                             >
@@ -268,7 +273,7 @@ import { SettingsService } from '@placeos/common';
                     mat-menu-item
                     mat-dialog-close
                     class="flex items-center space-x-2 text-base"
-                    (click)="edit.emit()"
+                    (click)="edit.emit(space)"
                 >
                     <app-icon>edit</app-icon>
                     <div>Edit event</div>
@@ -292,7 +297,7 @@ export class EventDetailsModalComponent {
     @Output() public remove = new EventEmitter();
     public show_attendees: boolean = false;
     public readonly event = this._event;
-    public readonly features = [
+    public features = [
         {
             location: this.event?.system?.map_id,
             content: MapPinComponent,
@@ -303,6 +308,7 @@ export class EventDetailsModalComponent {
 
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
+    public space: Space = new Space();
 
     public get allow_edit() {
         return !this._settings.get('app.events.booking_unavailable');
@@ -332,22 +338,19 @@ export class EventDetailsModalComponent {
 
     private async _load() {
         console.log('Event:', this._event);
-        this.level = (await this._getLevel()) || this.level;
-        this.building = (await this._getBuilding()) || this.building;
-        console.log('Details:', this.level, this.building);
-    }
-
-    private async _getLevel() {
-        const space = await this._space_pipe.transform(
+        this.space = await this._space_pipe.transform(
             this._event.system?.id || this._event.system?.email
         );
-        return this._org.levelWithID(space.zones);
-    }
-
-    private async _getBuilding() {
-        const space = await this._space_pipe.transform(
-            this._event.system?.id || this._event.system?.email
+        this.level = this._org.levelWithID(this.space.zones);
+        this.building = this._org.buildings.find((bld) =>
+            this.space.zones.includes(bld.id)
         );
-        return this._org.buildings.find((bld) => space.zones.includes(bld.id));
+        this.features = [
+            {
+                location: this.space.map_id,
+                content: MapPinComponent,
+            },
+        ];
+        console.log('Details:', this.space, this.level, this.building);
     }
 }
