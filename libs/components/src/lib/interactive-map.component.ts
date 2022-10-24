@@ -93,7 +93,7 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
         </div>
         <ng-template #empty_state>
             <div class="absolute inset-0 flex items-center justify-center">
-                <div class="text-black/30">No map</div>
+                <div class="opacity-30">No map</div>
             </div>
         </ng-template>
     `,

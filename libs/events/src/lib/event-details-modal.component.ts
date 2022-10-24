@@ -228,7 +228,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                 </ng-container>
                 <div
                     map
-                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded sm:bg-white m-2 flex-grow-[3] min-w-1/3 p-2 sm:w-[16rem]"
+                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 sm:w-[16rem]"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -238,7 +238,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     ></interactive-map>
                 </div>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                 >
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-gray-300 dark:border-neutral-500"
