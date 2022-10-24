@@ -25,7 +25,12 @@ import { of } from 'rxjs';
                             {{ column.header }}
                         </th>
                         <td mat-cell *matCellDef="let row">
-                            {{ column.cell(row) }}
+                            <div *ngIf="column.cell(row) == 'open'">
+                                <mat-icon class="ellipse">more_horiz</mat-icon>
+                            </div>
+                            <div *ngIf="column.cell(row) !== 'open'">
+                                {{ column.cell(row) }}
+                            </div>
                         </td>
                     </ng-container>
 
@@ -66,6 +71,13 @@ import { of } from 'rxjs';
                 font-size: 16px;
                 line-height: 20px;
                 font-weight: 400;
+            }
+            .columns {
+                background-color: red;
+            }
+            .ellipse {
+                font-size: 20px;
+                margin-top: 10px;
             }
         `,
     ],
