@@ -8,18 +8,14 @@ import { of } from 'rxjs';
             <span>{{ buildingName }}</span>
         </header>
         <main>
-            <div class="table-container mat-elevation-z8">
+            <div class="table-container ">
                 <div class="loading" *ngIf="isLoading">
                     <mat-spinner *ngIf="isLoading"></mat-spinner>
                 </div>
             </div>
 
             <div class="table-container">
-                <table
-                    mat-table
-                    [dataSource]="dataSource"
-                    class="mat-elevation-z8"
-                >
+                <table mat-table [dataSource]="dataSource" class=" table">
                     <ng-container
                         *ngFor="let column of columns"
                         [matColumnDef]="column.columnDef"
@@ -42,7 +38,15 @@ import { of } from 'rxjs';
             </div>
         </main>
     `,
-    styles: [``],
+    styles: [
+        `
+            .table {
+                width: 90%;
+                margin: 2rem;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+            }
+        `,
+    ],
 })
 export class SurveyListComponent implements OnInit {
     @Input() buildingName: string = 'Building 1';
