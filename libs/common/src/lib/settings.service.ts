@@ -150,7 +150,6 @@ export class SettingsService extends BaseClass {
     }
 
     public saveUserSetting<T>(name: string, value: T) {
-        console.log('Save user setting:', name, value);
         this._pending_settings[name] = value;
         if (name === 'dark_mode') this._setDarkMode();
         if (name === 'font_size') this._setFontSize();
@@ -175,9 +174,7 @@ export class SettingsService extends BaseClass {
 
     private async _savePendingChanges() {
         const user = currentUser();
-        console.log('Save User Settings:', user?.id, Object.keys(this._pending_settings).length);
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
-        console.log('Save User Settings', this._pending_settings);
         await updateMetadata(user.id, {
             name: 'settings',
             description: '',

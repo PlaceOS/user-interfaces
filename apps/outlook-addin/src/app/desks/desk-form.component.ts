@@ -143,7 +143,6 @@ export class DeskBookingFormComponent extends BaseClass {
     }
 
     private setBookingAsset(desk: Desk) {
-        console.log('Desk:', desk);
         if (!desk) return;
         this._service.form.patchValue({
             asset_id: desk?.id,

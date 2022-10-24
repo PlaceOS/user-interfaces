@@ -192,7 +192,6 @@ export class NewDeskFormDetailsComponent extends BaseClass {
     }
 
     private setBookingAsset(desk: Desk) {
-        console.log('Desk:', desk);
         if (!desk) return;
         this.selectedDesk = desk;
         this._state.form.patchValue({

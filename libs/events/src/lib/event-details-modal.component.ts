@@ -337,7 +337,6 @@ export class EventDetailsModalComponent {
     }
 
     private async _load() {
-        console.log('Event:', this._event);
         this.space = await this._space_pipe.transform(
             this._event.system?.id || this._event.system?.email
         );
@@ -351,6 +350,5 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
-        console.log('Details:', this.space, this.level, this.building);
     }
 }

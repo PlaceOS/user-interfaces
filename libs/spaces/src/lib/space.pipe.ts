@@ -18,7 +18,7 @@ export class SpacePipe {
      * @param space_id ID or Email of the space
      */
     public async transform(space_id: string): Promise<Space> {
-        const is_email = space_id.includes('@');
+        const is_email = space_id?.includes('@');
         if (!space_id) return EMPTY_SPACE;
         let space = SPACE_LIST.find(
             ({ id, email }) => id === space_id || email === space_id

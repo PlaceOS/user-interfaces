@@ -276,6 +276,5 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
         private _dialog_ref: MatDialogRef<MeetingFlowConfirmModalComponent>
     ) {
         super();
-        console.log('Order:', this.catering_order);
     }
 }
