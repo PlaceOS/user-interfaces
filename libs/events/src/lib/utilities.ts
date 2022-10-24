@@ -159,9 +159,9 @@ export function newCalendarEventFromBooking(booking: Booking) {
     }
     attendees = attendees.concat(booking.attendees);
     return new CalendarEvent({
-        attendees,
         ...booking,
         ...booking.extension_data,
+        attendees,
         id: booking.id || booking.extension_data.id,
         host: booking.user_email,
     } as any);
