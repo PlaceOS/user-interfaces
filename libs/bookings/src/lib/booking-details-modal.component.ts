@@ -18,6 +18,7 @@ import { checkinBooking } from './bookings.fn';
             >
                 <div
                     class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
+                    *ngIf="booking?.extension_data?.images?.length"
                 >
                     <image-carousel
                         [images]="booking?.extension_data?.images"
