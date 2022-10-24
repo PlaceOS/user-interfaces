@@ -5,7 +5,7 @@ import { of } from 'rxjs';
     selector: 'survey-list',
     template: `
         <header>
-            <span>{{ buildingName }}</span>
+            <span class="building-heading">{{ buildingName }}</span>
         </header>
         <main>
             <div class="table-container ">
@@ -29,10 +29,15 @@ import { of } from 'rxjs';
                         </td>
                     </ng-container>
 
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr
+                        mat-header-row
+                        *matHeaderRowDef="displayedColumns"
+                        class="header-row"
+                    ></tr>
                     <tr
                         mat-row
                         *matRowDef="let row; columns: displayedColumns"
+                        class="rows"
                     ></tr>
                 </table>
             </div>
@@ -40,10 +45,27 @@ import { of } from 'rxjs';
     `,
     styles: [
         `
+            .building-heading {
+                height: 34px;
+                font-size: 28px;
+                font-weight: 500;
+            }
             .table {
                 width: 90%;
                 margin: 2rem;
                 border: 1px solid rgba(0, 0, 0, 0.12);
+            }
+            .rows {
+                height: 95px;
+                font-size: 16px;
+                line-height: 20px;
+                font-weight: 400;
+            }
+            .header-row {
+                background-color: #e0e0e0;
+                font-size: 16px;
+                line-height: 20px;
+                font-weight: 400;
             }
         `,
     ],
