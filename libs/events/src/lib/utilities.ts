@@ -153,10 +153,11 @@ export function replaceBookings(
 }
 
 export function newCalendarEventFromBooking(booking: Booking) {
-    let attendees = [new User({ id: booking.user_id, name: booking.user_name, email: booking.user_email })];
+    let attendees = [{ id: booking.user_id, name: booking.user_name, email: booking.user_email, organizer: true }];
     if (booking.booking_type === 'visitor') {
         attendees.push(new User({ name: booking.asset_name || booking.description, email: booking.asset_id }));
-    } 
+    }
+    attendees = attendees.concat(booking.attendees);
     return new CalendarEvent({
         attendees,
         ...booking,

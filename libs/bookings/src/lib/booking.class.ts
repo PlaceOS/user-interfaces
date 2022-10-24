@@ -1,4 +1,5 @@
 import { capitalizeFirstLetter, removeEmptyFields } from '@placeos/common';
+import { User } from 'libs/users/src/lib/user.class';
 import {
     addHours,
     addMinutes,
@@ -76,6 +77,8 @@ export class Booking {
     public readonly status: 'declined' | 'approved' | 'tentative';
     /** New deleted field */
     public readonly deleted: boolean;
+    /** List of attendees for the booking */
+    public readonly attendees: User[];
 
     constructor(data: Partial<Booking> = {}) {
         this.id = data.id || '';
@@ -127,6 +130,7 @@ export class Booking {
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
+        this.attendees = data.attendees || [];
         this.all_day = data.all_day ?? this.duration > 12 * 60;
         this.status = this.rejected
             ? 'declined'

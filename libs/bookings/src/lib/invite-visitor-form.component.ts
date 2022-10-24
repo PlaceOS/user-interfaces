@@ -8,6 +8,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
 import { BaseClass, SettingsService } from '@placeos/common';
+import { User } from '@placeos/users';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -272,8 +273,18 @@ export class InviteVisitorFormComponent extends BaseClass {
             this.visitors.push({ email, name, company });
         }
         this.filterVisitors('');
-        this.subscription('email', this.form.get('asset_id').valueChanges.subscribe((_) => this.filterVisitors(_)));
-        this.subscription('name', this.form.get('asset_name').valueChanges.subscribe((_) => this.filterVisitors(_)));
+        this.subscription(
+            'email',
+            this.form
+                .get('asset_id')
+                .valueChanges.subscribe((_) => this.filterVisitors(_))
+        );
+        this.subscription(
+            'name',
+            this.form
+                .get('asset_name')
+                .valueChanges.subscribe((_) => this.filterVisitors(_))
+        );
     }
 
     public setVisitor(item) {
@@ -313,6 +324,16 @@ export class InviteVisitorFormComponent extends BaseClass {
             ...old_visitors.filter((_) => !_.includes(asset_id)),
             visitor_details,
         ]);
+        const value = this.form.value;
+        this.form.patchValue({
+            attendees: [
+                new User({
+                    name: value.asset_name,
+                    email: value.asset_id,
+                    organisation: value.company,
+                }),
+            ],
+        });
         this.booking = await this._service.postForm().catch((e) => {
             notifyError(e);
             throw e;
