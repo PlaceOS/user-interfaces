@@ -25,7 +25,6 @@ import { ReportsStateService } from '../reports-state.service';
                 [pagination]="true"
                 [columns]="column_list | async"
                 [display_column]="column_name_list | async"
-                [column_size]="['flex']"
             ></custom-table>
         </div>
     `,
@@ -45,15 +44,14 @@ export class ReportSpacesSpaceListing {
                     booking.system,
                 ];
                 for (const space of resources) {
-                    if (
-                        !list.find(
-                            (_) =>
-                                _.id === space.id ||
-                                _.id?.toLowerCase() ===
-                                    space.email.toLowerCase()
-                        )
-                    ) {
-                        list.push({
+                    let details = list.find(
+                        (_) =>
+                            _.id === space.id ||
+                            _.id?.toLowerCase() ===
+                                space.email.toLowerCase()
+                    )
+                    if (!details) {
+                        details = {
                             id: space.id || space.email,
                             name: space.display_name || space.name,
                             capacity: space.capacity || 1,
@@ -65,13 +63,10 @@ export class ReportSpacesSpaceListing {
                             usage: 0,
                             utilisation: 0,
                             occupancy: 0,
-                        });
+                        }
+                        if (!details.id || !details.name) continue;
+                        list.push(details);
                     }
-                    const details = list.find(
-                        (_) =>
-                            _.id === space.id ||
-                            _.id?.toLowerCase() === space.email.toLowerCase()
-                    );
                     details.count += 1;
                     details.attendance +=
                         booking.extension_data?.people_count?.average ?? 0;
