@@ -92,7 +92,7 @@ export class SurveyListComponent implements OnInit {
     //Mock data
     data = [
         {
-            building_name: 'Building 1',
+            building_name: 'Building 7',
             level: '01',
             type: 'Desk',
             survey_name: 'Satisfaction survey',
@@ -101,7 +101,7 @@ export class SurveyListComponent implements OnInit {
             options: ['open'],
         },
         {
-            building_name: 'Building 1',
+            building_name: 'Building 3',
             level: '02',
             type: 'Room',
             survey_name: 'Satisfaction survey',
@@ -168,6 +168,7 @@ export class SurveyListComponent implements OnInit {
 
     isLoading = false; //refactor to read from service
     displayedColumns: string[] = this.columns.map((item) => item.columnDef);
+    ascending: boolean;
 
     dataSource = this.data;
 
@@ -177,6 +178,22 @@ export class SurveyListComponent implements OnInit {
 
     sort(header: string): void {
         if (header == 'Link' || header == 'Options') return;
+        if (this.ascending == null || this.ascending == undefined) {
+            this.ascending = false;
+        }
+
         console.log(header, 'header');
+        if (!this.ascending) {
+            this.data.sort((a, b) =>
+                a.building_name.localeCompare(b.building_name)
+            );
+            this.ascending = true;
+        } else {
+            this.data.sort((a, b) =>
+                b.building_name.localeCompare(a.building_name)
+            );
+            this.ascending = !this.ascending;
+        }
+        console.log(this.data, 'data');
     }
 }
