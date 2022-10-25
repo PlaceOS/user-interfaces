@@ -35,14 +35,38 @@ import { MatSort, Sort } from '@angular/material/sort';
                             *matHeaderCellDef
                             (click)="sortByHeader(column.header)"
                         >
-                            {{ column.header }}
+                            <div class="header-wrapper">
+                                <span>
+                                    {{ column.header }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        column.header != 'Link' &&
+                                        column.header != 'Options' &&
+                                        !this.ascending
+                                    "
+                                >
+                                    <mat-icon>filter_list</mat-icon>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        column.header != 'Link' &&
+                                        column.header != 'Options' &&
+                                        this.ascending
+                                    "
+                                >
+                                    <mat-icon class="descending-icon"
+                                        >filter_list</mat-icon
+                                    >
+                                </span>
+                            </div>
                         </th>
                         <td mat-cell *matCellDef="let row">
-                            <div *ngIf="column.cell(row) == 'open'">
-                                <mat-icon class="ellipse">more_horiz</mat-icon>
-                            </div>
                             <div *ngIf="column.cell(row) !== 'open'">
                                 {{ column.cell(row) }}
+                            </div>
+                            <div *ngIf="column.cell(row) == 'open'">
+                                <mat-icon class="ellipse">more_horiz</mat-icon>
                             </div>
                         </td>
                     </ng-container>
@@ -91,6 +115,23 @@ import { MatSort, Sort } from '@angular/material/sort';
             .ellipse {
                 font-size: 20px;
                 margin-top: 10px;
+            }
+            .header-wrapper {
+                display: flex;
+                justify-content: left;
+                align-items: center;
+                height: 30px;
+            }
+            .header-wrapper span:nth-of-type(2) {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                margin: 7px 0px 0px 5px;
+            }
+            .descending-icon {
+                transform: rotate(180deg);
+                margin-bottom: 12px;
             }
         `,
     ],
