@@ -21,7 +21,11 @@ import { of } from 'rxjs';
                         [matColumnDef]="column.columnDef"
                         ]
                     >
-                        <th mat-header-cell *matHeaderCellDef>
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            (click)="sort(column.header)"
+                        >
                             {{ column.header }}
                         </th>
                         <td mat-cell *matCellDef="let row">
@@ -170,4 +174,9 @@ export class SurveyListComponent implements OnInit {
     constructor() {}
 
     ngOnInit(): void {}
+
+    sort(header: string): void {
+        if (header == 'Link' || header == 'Options') return;
+        console.log(header, 'header');
+    }
 }
