@@ -1,5 +1,14 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { of } from 'rxjs';
+import {
+    Component,
+    OnInit,
+    Input,
+    ViewChild,
+    AfterViewInit,
+    OnDestroy,
+} from '@angular/core';
+import { of, Observable, Subscription } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, Sort } from '@angular/material/sort';
 
 @Component({
     selector: 'survey-list',
@@ -24,7 +33,7 @@ import { of } from 'rxjs';
                         <th
                             mat-header-cell
                             *matHeaderCellDef
-                            (click)="sort(column.header)"
+                            (click)="sortByHeader(column.header)"
                         >
                             {{ column.header }}
                         </th>
@@ -88,9 +97,10 @@ import { of } from 'rxjs';
 })
 export class SurveyListComponent implements OnInit {
     @Input() buildingName: string = 'Building 1';
+    // @ViewChild(MatSort) sort: MatSort;
 
     //Mock data
-    data = [
+    data = of([
         {
             building_name: 'Building 7',
             level: '01',
@@ -127,7 +137,7 @@ export class SurveyListComponent implements OnInit {
             link: '12345',
             options: ['open'],
         },
-    ];
+    ]);
     columns = [
         {
             columnDef: 'building_name',
@@ -170,30 +180,45 @@ export class SurveyListComponent implements OnInit {
     displayedColumns: string[] = this.columns.map((item) => item.columnDef);
     ascending: boolean;
 
-    dataSource = this.data;
-
+    dataSource = new MatTableDataSource<any>();
+    dataSubscription: Subscription = new Subscription();
     constructor() {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.data.subscribe((data) => {
+            this.dataSource.data = data;
+            // this.dataSource.sort = this.sort;
+        });
+    }
 
-    sort(header: string): void {
+    sortByHeader(header: string): void {
         if (header == 'Link' || header == 'Options') return;
         if (this.ascending == null || this.ascending == undefined) {
             this.ascending = false;
         }
 
         console.log(header, 'header');
-        if (!this.ascending) {
-            this.data.sort((a, b) =>
-                a.building_name.localeCompare(b.building_name)
-            );
-            this.ascending = true;
-        } else {
-            this.data.sort((a, b) =>
-                b.building_name.localeCompare(a.building_name)
-            );
-            this.ascending = !this.ascending;
-        }
+
+        this.dataSubscription = this.data.subscribe((array) => {
+            if (!this.ascending) {
+                array = array.sort((a, b) =>
+                    b.building_name.localeCompare(a.building_name)
+                );
+                this.dataSource.data = array;
+                this.ascending = true;
+            } else {
+                array = array.sort((a, b) =>
+                    a.building_name.localeCompare(b.building_name)
+                );
+                this.dataSource.data = array;
+                this.ascending = !this.ascending;
+            }
+        });
+
         console.log(this.data, 'data');
+    }
+
+    ngOnDestroy(): void {
+        this.dataSubscription?.unsubscribe();
     }
 }
