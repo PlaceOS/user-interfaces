@@ -42,20 +42,13 @@ import { MatSort, Sort } from '@angular/material/sort';
                                 <span
                                     *ngIf="
                                         column.header != 'Link' &&
-                                        column.header != 'Options' &&
-                                        !this.ascending
+                                        column.header != 'Options'
                                     "
                                 >
-                                    <mat-icon>filter_list</mat-icon>
-                                </span>
-                                <span
-                                    *ngIf="
-                                        column.header != 'Link' &&
-                                        column.header != 'Options' &&
-                                        this.ascending
-                                    "
-                                >
-                                    <mat-icon class="descending-icon"
+                                    <mat-icon
+                                        [ngClass]="{
+                                            'descending-icon': !this.ascending
+                                        }"
                                         >filter_list</mat-icon
                                     >
                                 </span>
