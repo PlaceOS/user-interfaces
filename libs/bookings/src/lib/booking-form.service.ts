@@ -516,7 +516,11 @@ export class BookingFormService extends BaseClass {
             type,
         }).toPromise();
         if (bookings.find((_) => _.asset_id === asset_id)) {
-            throw `${asset_id} is not available at the selected time`;
+            if (asset_id.includes('@')) {
+                throw `${asset_id} already has an invite for the selected time`;
+            } else {
+                throw `${asset_id} is not available at the selected time`;
+            }
         }
         const allowed_bookings =
             this._settings.get(`app.booking.allowed_daily_${type}_count`) ?? 1;
