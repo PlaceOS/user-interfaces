@@ -1,6 +1,6 @@
 import { Pipe } from "@angular/core";
 
-import * as marked from 'marked';
+import { marked } from 'marked';
 
 @Pipe({
     name: 'markdown'

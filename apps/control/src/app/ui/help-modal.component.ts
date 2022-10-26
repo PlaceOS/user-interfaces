@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
-import * as marked from 'marked';
+import { marked } from 'marked';
 
 @Component({
     selector: 'help-modal',
