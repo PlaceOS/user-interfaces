@@ -47,7 +47,7 @@ import { MatSort, Sort } from '@angular/material/sort';
                                 >
                                     <mat-icon
                                         [ngClass]="{
-                                            'descending-icon': !this.ascending
+                                            'descending-icon': column.ascending
                                         }"
                                         >filter_list</mat-icon
                                     >
@@ -156,7 +156,7 @@ export class SurveyListComponent implements OnInit {
         {
             building_name: 'Building 2',
             level: '01',
-            type: 'Visitors',
+            type: 'Desk',
             survey_name: 'Satisfaction survey',
             date: '30/09/2022',
             link: '12345',
@@ -165,7 +165,7 @@ export class SurveyListComponent implements OnInit {
         {
             building_name: 'Building 5',
             level: '03',
-            type: 'Desk',
+            type: 'Visitors',
             survey_name: 'Satisfaction survey',
             date: '30/10/2022',
             link: '12345',
@@ -177,26 +177,31 @@ export class SurveyListComponent implements OnInit {
             columnDef: 'building_name',
             header: 'Building',
             cell: (element) => `${element.building_name}`,
+            ascending: null,
         },
         {
             columnDef: 'level',
             header: 'Level',
             cell: (element) => `${element.level}`,
+            ascending: null,
         },
         {
             columnDef: 'type',
             header: 'Type',
             cell: (element) => `${element.type}`,
+            ascending: null,
         },
         {
             columnDef: 'name',
             header: 'Name',
             cell: (element) => `${element.survey_name}`,
+            ascending: null,
         },
         {
             columnDef: 'date',
             header: 'Date',
             cell: (element) => `${element.date}`,
+            ascending: null,
         },
         {
             columnDef: 'link',
@@ -226,26 +231,32 @@ export class SurveyListComponent implements OnInit {
     }
 
     sortByHeader(header: string): void {
-        if (header == 'Link' || header == 'Options') return;
-        if (this.ascending == null || this.ascending == undefined) {
-            this.ascending = false;
+        const found_column = this.columns.find(
+            (column) => column.header == header
+        );
+
+        if (
+            found_column.ascending == null ||
+            found_column.ascending == undefined
+        ) {
+            found_column.ascending = false;
         }
 
         console.log(header, 'header');
 
         this.dataSubscription = this.data.subscribe((array) => {
-            if (!this.ascending) {
+            if (!found_column.ascending) {
                 array = array.sort((a, b) =>
                     b.building_name.localeCompare(a.building_name)
                 );
                 this.dataSource.data = array;
-                this.ascending = true;
+                found_column.ascending = !found_column.ascending;
             } else {
                 array = array.sort((a, b) =>
                     a.building_name.localeCompare(b.building_name)
                 );
                 this.dataSource.data = array;
-                this.ascending = !this.ascending;
+                found_column.ascending = !found_column.ascending;
             }
         });
 
