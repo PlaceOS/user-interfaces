@@ -10,7 +10,7 @@ class PaymentsModule {
 
     }
 
-    $get_product_price(id: string, period) {
+    $get_product_prices(id: string, period) {
         return [12000, 60];
     }
 

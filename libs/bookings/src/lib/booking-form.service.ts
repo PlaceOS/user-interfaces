@@ -398,7 +398,7 @@ export class BookingFormService extends BaseClass {
         }
         if (this._payments.payment_module) {
             const receipt = await this._payments.makePayment({
-                type: 'space',
+                type: this._options.getValue().type,
                 resource_name: value.asset_name,
                 date: value.date,
                 duration: value.duration,
