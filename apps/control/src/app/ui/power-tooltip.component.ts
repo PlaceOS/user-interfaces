@@ -15,16 +15,31 @@ import { ControlStateService } from '../control-state.service';
             <button mat-button class="w-64" (click)="shutdown()">
                 Yes, I'm sure
             </button>
-            <button mat-button class="w-64 inverse" (click)="close()">No, go back</button>
+            <button
+                mat-button
+                class="w-64"
+                *ngIf="(joined | async)?.room_ids?.length > 1"
+                (click)="shutdown(true)"
+            >
+                Yes, also unlink joined rooms
+            </button>
+            <button mat-button class="w-64 inverse" (click)="close()">
+                No, go back
+            </button>
         </div>
     `,
     styles: [``],
 })
 export class PowerTooltipComponent {
     /** Shutdown the system */
-    public readonly shutdown = () => this._state.powerOff();
+    public readonly shutdown = (t = false) => this._state.powerOff(t);
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
-    constructor(private _state: ControlStateService, private _tooltip: CustomTooltipData) {}
+    public readonly joined = this._state.joined;
+
+    constructor(
+        private _state: ControlStateService,
+        private _tooltip: CustomTooltipData
+    ) {}
 }

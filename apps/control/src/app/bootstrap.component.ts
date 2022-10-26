@@ -122,7 +122,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         debounceTime(300),
         switchMap((search) => {
             this.loading = 'search';
-            return search?.length < 2
+            return search.length < 2
                 ? of({ data: [] })
                 : querySystems({ q: search, limit: 20 });
         }),
@@ -167,7 +167,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             if (system_id) {
-                this._router.navigate(['panel', system_id], {
+                this._router.navigate(['tabbed', system_id], {
                     queryParamsHandling: 'preserve',
                 });
                 return;
@@ -187,7 +187,7 @@ export class BootstrapComponent extends BaseClass implements OnInit {
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
-        this._router.navigate(['panel', system_id], {
+        this._router.navigate(['tabbed', system_id], {
             queryParamsHandling: 'preserve',
         });
         this.loading = '';

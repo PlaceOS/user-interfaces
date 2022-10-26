@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BaseClass } from '@placeos/common';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 
 @Component({
@@ -103,18 +103,18 @@ import { ControlStateService } from './control-state.service';
         </div>
         <div class="flex-1"></div>
         <div class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4">
-            <button mat-icon-button (click)="mute = !mute">
+            <button mat-icon-button (click)="toggleMute()">
                 <app-icon>{{
-                    mute
+                    (system | async).mute
                         ? 'volume_off'
-                        : (volume | async) > 0
+                        : (system | async).volume > 0
                         ? 'volume_up'
                         : 'volume_mute'
                 }}</app-icon>
             </button>
             <mat-slider
                 white
-                [ngModel]="!mute ? (volume | async) : 0"
+                [ngModel]="!mute ? (system | async).volume : 0"
                 (ngModelChange)="setVolume($event); mute = false"
                 class="flex-1"
             ></mat-slider>
@@ -133,8 +133,6 @@ import { ControlStateService } from './control-state.service';
     ],
 })
 export class ControlStatusBarComponent extends BaseClass {
-    /** Current global volume for system */
-    public readonly volume = this._state.volume;
     /** Details of the active system */
     public readonly system = this._state.system;
 
@@ -147,6 +145,10 @@ export class ControlStatusBarComponent extends BaseClass {
     public rec_title: string;
 
     public readonly setVolume = (v) => this._state.setVolume(v);
+    public readonly toggleMute = async () => {
+        const sys = await this.system.pipe(take(1)).toPromise();
+        this._state.setMute(!sys.mute);
+    };
 
     public get id() {
         return this._state.id;
@@ -154,5 +156,6 @@ export class ControlStatusBarComponent extends BaseClass {
 
     constructor(private _state: ControlStateService) {
         super();
+        
     }
 }

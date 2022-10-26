@@ -7,10 +7,10 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2 max-h-[65vh] overflow-auto"
         >
             <h3 class="mb-2 text-xl font-medium">Microphones</h3>
-            <ng-container *ngIf="(mic_list | async)?.length; else empty_state">
+            <ng-container *ngIf="(mic_list | async)?.length || (microphones | async)?.length; else empty_state">
                 <div *ngFor="let mic of mic_list | async">
                     <label [for]="mic.id">{{ mic.name }}</label>
                     <div
@@ -57,6 +57,58 @@ import { ControlStateService } from '../control-state.service';
                         ></i>
                     </div>
                 </div>
+                <div *ngFor="let mic of microphones | async; let i = index">
+                    <label [for]="mic.name">{{ mic.name }}</label>
+                    <div
+                        class="flex items-center space-x-2 w-64"
+                        [attr.name]="mic.name"
+                    >
+                        <button
+                            mute
+                            mat-icon-button
+                            [disabled]="!mic.mute_id?.length"
+                            (click)="mute[i] = !mute[i]"
+                        >
+                            <app-icon>{{
+                                mute[i]
+                                    ? 'volume_off'
+                                    : volume[i] > 0
+                                    ? 'volume_up'
+                                    : 'volume_mute'
+                            }}</app-icon>
+                        </button>
+                        <mat-slider
+                            [ngModel]="!mute[i] ? volume[i] : 0"
+                            (ngModelChange)="
+                                volume[i] = $event; mute[i] = false
+                            "
+                            [disabled]="!mic.level_id?.length"
+                            [min]="mic.min_level || 0"
+                            [max]="mic.max_level || 100"
+                            class="flex-1"
+                        ></mat-slider>
+                    </div>
+                    <div hidden *ngIf="mic.module_id">
+                        <i
+                            binding
+                            [sys]="id"
+                            [mod]="mic.module_id"
+                            [bind]="mic.level_feedback"
+                            exec="fader"
+                            [params]="[mic.level_id, volume[i]]"
+                            [(model)]="volume[i]"
+                        ></i>
+                        <i
+                            binding
+                            [sys]="id"
+                            [mod]="mic.module_id"
+                            [bind]="mic.mute_feedback"
+                            exec="mute"
+                            [params]="[mic.mute_id, mute[i]]"
+                            [(model)]="mute[i]"
+                        ></i>
+                    </div>
+                </div>
             </ng-container>
         </div>
         <ng-template #empty_state>
@@ -68,8 +120,10 @@ import { ControlStateService } from '../control-state.service';
     styles: [``],
 })
 export class MicrophoneTooltipComponent {
-    /** List of microphones */
+    /** List of microphone inputs */
     public readonly mic_list = this._state.mic_list;
+    /** List of microphones */
+    public readonly microphones = this._state.microphones;
     /** Mapping of microphones to their volume */
     public readonly volume = {};
     /** Mapping of microphones to their mute state */

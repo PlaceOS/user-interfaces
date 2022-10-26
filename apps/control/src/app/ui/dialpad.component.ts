@@ -17,8 +17,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 digit
                 matRipple
                 *ngIf="backspace"
-                class="absolute bottom-0 -right-4 active:-bottom-1 translate-x-full bg-white h-16 flex-1 flex rounded-lg items-center justify-center m-2 w-60"
-                (click)="pressed.emit('')"
+                class="active:-bottom-1 bg-white h-16 flex-1 flex rounded-lg items-center justify-center m-2 w-60"
+                [class.absolute]="!inline"
+                [class.bottom-0]="!inline"
+                [class.-right-4]="!inline"
+                [class.translate-x-full]="!inline"
+                (click)="pressed.emit('\b')"
             >
                 Backspace
             </button>
@@ -41,6 +45,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class DialpadComponent {
     @Input() public backspace = true;
+    @Input() public inline = false;
     @Output() public pressed = new EventEmitter<string>();
 
     // prettier-ignore

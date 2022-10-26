@@ -14,7 +14,7 @@ import * as marked from 'marked';
                 sidebar
                 class="bg-[#212121] text-white sm:h-full w-full sm:w-64"
             >
-                <img [src]="logo?.src" class="w-48 mx-auto mt-2 sm:mb-8" />
+                <img [src]="logo?.src" class="w-24 mx-auto mt-6 sm:mb-8" />
                 <ul class="list-none p-0 pl-4 space-y-2 hidden sm:block">
                     <li
                         class="flex items-center rounded-l-3xl pl-4 py-2 relative"
@@ -60,7 +60,7 @@ import * as marked from 'marked';
             <div
                 content
                 class="overflow-auto flex-1 h-1/2 w-full sm:w-1/2 sm:h-full p-4 sm:p-8"
-                [innerHTML]="content | sanitize"
+                [innerHTML]="content | safe"
             ></div>
             <button
                 mat-icon-button

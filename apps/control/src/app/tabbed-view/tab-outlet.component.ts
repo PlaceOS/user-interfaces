@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
@@ -28,7 +28,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 class="flex-1 h-1/2 w-full bg-white rounded shadow flex items-center divide-x divide-gray-200 text-black"
             >
                 <div
-                    class="flex-1 h-full space-y-2 px-4 pt-2 pb-4 overflow-auto"
+                    class="w-64 h-full space-y-2 px-4 pt-2 pb-4 overflow-auto"
                     *ngIf="(inputs | async)?.length > 1"
                 >
                     <h3 class="text-center p-2 font-medium text-lg">
@@ -38,6 +38,10 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         mat-button
                         class="w-full"
                         *ngFor="let input of inputs | async"
+                        [class.inverse]="
+                            (system$ | async)?.selected_input !==
+                            (input.id || input.name)
+                        "
                         (click)="setInput(input)"
                     >
                         {{ input?.name }}
@@ -56,13 +60,25 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <ng-container [ngSwitch]="(tab | async)?.controls">
                         <ng-container *ngSwitchCase="'vidconf-controls'">
                             <ng-template #no_call_state>
-                                <video-call-dial-view class="mt-4 block"></video-call-dial-view>
+                                <div class="flex justify-center space-x-8">
+                                <camera-controls *ngIf="!(speaker_track | async)"></camera-controls>
+                                <video-call-dial-view
+                                    class="mt-4 block"
+                                    [redirect]="false"
+                                ></video-call-dial-view>
+</div>
                             </ng-template>
                             <div
                                 *ngIf="call | async; else no_call_state"
                                 video-call-page
+                                [present_output]="
+                                    (tab | async)?.presentation_source
+                                "
                                 [redirect]="false"
                             ></div>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'tv-channels'">
+                            <tv-controls [mod]="(tab | async)?.mod"></tv-controls>
                         </ng-container>
                         <ng-container *ngSwitchDefault>
                             <div
@@ -112,8 +128,10 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
 })
 export class TabOutletComponent extends BaseClass {
     public readonly active_tab = new BehaviorSubject('');
+    public readonly system$ = this._service.system;
     public readonly tabs = this._service.tabs;
     public readonly call = this._vc_state.call;
+    public readonly speaker_track = this._vc_state.speaker_track;
     public readonly tab = combineLatest([
         this._service.tabs,
         this.active_tab,
@@ -130,9 +148,7 @@ export class TabOutletComponent extends BaseClass {
             return inputs.filter(
                 (_) =>
                     (!tab.inputs && (!tab.type || _.type === tab.type)) ||
-                    (tab.inputs &&
-                        (tab.inputs.includes(_.id) ||
-                            tab.inputs.includes(_.mod)))
+                    (tab.inputs && tab.inputs.includes(_.id))
             );
         })
     );
@@ -170,26 +186,22 @@ export class TabOutletComponent extends BaseClass {
         );
         this.subscription(
             'tab',
-            this._service.system.subscribe((_) =>{
+            this._service.system.subscribe((_) => {
                 if (_.selected_tab) {
                     this.active_tab.next(_.selected_tab);
-                    this._router.navigate(['/tabbed', this.id, _.selected_tab])
+                    this._router.navigate(['/tabbed', this.id, _.selected_tab]);
                 }
             })
         );
         this.subscription(
             'inputs',
-            combineLatest([
-                this.inputs,
-                this._service.active_output,
-                this.tab
-            ]).subscribe(([_]) =>
-                _.length === 1
-                    ? this.setInput(_[0])
-                    : _.length > 0
-                    ? this._service.setSelectedInput(_[0].id)
-                    : ''
-            )
+            combineLatest([this.inputs, this.system$, this.tab])
+                .pipe(debounceTime(100))
+                .subscribe(([_, { selected_input }, tab]) => {
+                    if (_.find((i) => (i.id || i.name) === selected_input))
+                        return;
+                    _.length ? this._service.setSelectedInput(_[0].id) : '';
+                })
         );
     }
 }

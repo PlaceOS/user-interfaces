@@ -1,7 +1,7 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 import { ICON_MAP } from '../ui/output-display.component';
 
@@ -16,7 +16,7 @@ import { ICON_MAP } from '../ui/output-display.component';
             (click)="setActiveOutput()"
         >
             <div
-                class="bg-secondary bg-opacity/90 rounded w-full h-[6.5rem] relative flex flex-col items-center justify-center"
+                class="bg-secondary/90 rounded w-full h-full relative flex flex-col items-center justify-center"
                 [class.!bg-gray-400]="!(input | async)"
             >
                 <div
@@ -26,7 +26,11 @@ import { ICON_MAP } from '../ui/output-display.component';
                     {{ item?.name || 'Display' }}
                 </div>
                 <app-icon class="text-5xl">
-                    {{ (input | async)?.icon || icons[(input | async)?.type] || 'add_to_queue' }}
+                    {{
+                        (input | async)?.icon ||
+                            icons[(input | async)?.type] ||
+                            'add_to_queue'
+                    }}
                 </app-icon>
                 <span
                     class="text-white text-sm"
@@ -34,22 +38,6 @@ import { ICON_MAP } from '../ui/output-display.component';
                 >
                     {{ (input | async)?.name || 'No input source' }}
                 </span>
-            </div>
-            <div class="flex items-center space-x-2 w-full text-black">
-                <button mat-icon-button (click)="setMute(!item?.mute)">
-                    <app-icon>{{
-                        item?.mute
-                            ? 'volume_off'
-                            : item?.volume > 0
-                            ? 'volume_up'
-                            : 'volume_mute'
-                    }}</app-icon>
-                </button>
-                <mat-slider
-                    [ngModel]="!mute ? item?.volume : 0"
-                    (ngModelChange)="setVolume($event)"
-                    class="flex-1"
-                ></mat-slider>
             </div>
         </button>
     `,
@@ -81,8 +69,12 @@ export class DeviceOutputListItemComponent extends BaseClass {
     public readonly setVolume = (v) =>
         this.timeout('volume', () => this._state.setVolume(v, this.item?.id));
     public readonly setMute = (s) => this._state.setMute(s, this.item?.id);
-    public readonly setActiveOutput = () =>
-        this._state.setOutput(this.item?.id);
+    public readonly setActiveOutput = async () =>{
+        const { selected_input } = await this._state.system.pipe(take(1)).toPromise() || {};
+        this.item?.source === selected_input
+            ? this._state.unroute(this.item.id)
+            : this._state.setOutput(this.item?.id);
+    }
 
     constructor(private _state: ControlStateService) {
         super();

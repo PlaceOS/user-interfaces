@@ -63,7 +63,7 @@ export enum ZoomDirection {
                         </div>
                     </ng-container>
                     <ng-template #no_presets>
-                        <p preset>No presets for this camera</p>
+                        <p>No presets for this camera</p>
                     </ng-template>
                     <button
                         mat-icon-button
@@ -142,7 +142,7 @@ export enum ZoomDirection {
                     class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center"
                     *ngIf="!active_camera"
                 >
-                    <p no-cam>Select a camera to control.</p>
+                    <p>Select a camera to control.</p>
                 </div>
             </div>
         </div>
@@ -151,8 +151,8 @@ export enum ZoomDirection {
                 binding
                 (modelChange)="
                     presets = active_camera.index
-                        ? $events[active_camera.index]
-                        : $events
+                        ? ($event || [])[active_camera.index]
+                        : $event
                 "
                 [sys]="id"
                 [mod]="active_camera.mod"
@@ -163,7 +163,7 @@ export enum ZoomDirection {
             <div
                 class="my-2 bg-white shadow rounded flex flex-col p-8 text-center"
             >
-                <p empty>No cameras available for this system</p>
+                <p>No cameras available for this system</p>
             </div>
         </ng-template>
     `,
@@ -213,18 +213,16 @@ export class CameraTooltipComponent extends BaseClass {
         );
     }
 
-    public async selectCamera(camera: RoomInput) {
-        const mod = getModule(this.id, this.active_camera.mod);
+    public selectCamera(camera: RoomInput) {
+        const mod = getModule(this.id, 'System');
         if (!mod) return;
-        await mod.execute('selected_camera', [camera.id]);
-        this.active_camera = camera;
+        mod.execute('selected_camera', [camera.id]);
     }
 
-    public async recallPreset(preset: string) {
+    public recallPreset(preset: string) {
         const mod = getModule(this.id, this.active_camera.mod);
         if (!mod) return;
-        await mod.execute('recall', [preset]);
-        this.preset = preset;
+        mod.execute('recall', [preset]);
     }
 
     public addPreset(preset: string) {

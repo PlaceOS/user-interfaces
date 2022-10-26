@@ -5,7 +5,7 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'device-output-list',
     template: `
-    <ng-container *ngIf="(outputs | async)?.length > 1">
+    <ng-container *ngIf="(outputs | async)?.length > 1 || (preview_outputs | async)">
         <device-output-list-item
             *ngFor="let output of outputs | async"
             [item]="output"
@@ -21,6 +21,7 @@ import { ControlStateService } from '../control-state.service';
                 height: 100%;
                 overflow: auto;
                 align-items: center;
+                margin-bottom: -.5rem;
             }
 
             :host > * {
@@ -33,6 +34,9 @@ export class DeviceOutputListComponent {
 
     public readonly outputs = this._state.output_list.pipe(map((_) => _ || []));
     public readonly active_output = this._state.active_output;
+    public readonly preview_outputs = this._state.preview_outputs;
 
-    constructor(private _state: ControlStateService) {}
+    constructor(private _state: ControlStateService) {
+        this.outputs.subscribe((_) => console.log('Outputs:', _))
+    }
 }

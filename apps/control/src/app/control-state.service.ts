@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import {
+    debounceTime,
     distinct,
     filter,
     map,
@@ -25,6 +26,25 @@ export interface EnvironmentSource {
     name: string;
     states: string[];
     state: string;
+}
+
+export interface RoomAccessory {
+    name: string;
+    module: string;
+    controls: RoomAccessoryAction[];
+}
+
+export interface RoomAccessoryAction {
+    name: string;
+    icon: string;
+    function_name: string;
+    arguments: any[];
+}
+export interface LightScene {
+    id: number;
+    name: string;
+    icon: string;
+    opacity: number;
 }
 
 export interface TabDetails {
@@ -73,6 +93,8 @@ export interface SystemState {
     connected?: boolean;
     selected_tab?: string;
     selected_input?: string;
+    mute?: boolean;
+    volume?: number;
 }
 
 @Injectable({
@@ -98,17 +120,22 @@ export class ControlStateService extends BaseClass {
     public readonly system = this._system.asObservable();
     /** List of available input sources */
     public readonly input_list = this._input_data.pipe(
-        map((_) => _.filter((_) => !_.hidden)),
+        map((l) => l.filter((_) => !_.hidden)),
         shareReplay(1)
     );
-    /** List of inputs that are available as presentation sources */
     public readonly presentables$ = this._input_data.pipe(
-        map((_) => _.filter((_) => _.presentable !== false)),
+        map((l) => l.filter((_) => _.presentable !== false)),
+        tap(l => console.log('Presentable Inputs:', l)),
         shareReplay(1)
     );
     /** List of available output sources */
-    public readonly output_list = this._output_data.pipe(
-        map((_) => _.filter((_) => !_.hidden)),
+    public readonly output_list = combineLatest([
+        this._output_data,
+        this._outputs,
+    ]).pipe(
+        map(([l, a]) =>
+            l.filter((_) => !_.hidden && (!_.id || (a || []).includes(_.id)))
+        ),
         shareReplay(1)
     );
     public readonly system_id = this._id.asObservable();
@@ -147,11 +174,47 @@ export class ControlStateService extends BaseClass {
         switchMap((id) => this._listenToSystemBinding(id, 'selected_camera')),
         shareReplay(1)
     );
+    public readonly microphones: Observable<string[]> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'microphones')),
+        shareReplay(1)
+    );
+    public readonly join_modes: Observable<
+        HashMap<{ name: string; room_ids: string[] }>
+    > = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'join_modes')),
+        shareReplay(1)
+    );
+    public readonly joined_id: Observable<string> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'joined')),
+        shareReplay(1)
+    );
+    public readonly lighting_scenes: Observable<LightScene[]> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'lighting_scenes')),
+        shareReplay(1)
+    );
+    public readonly lighting_scene: Observable<string> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'lighting_scene')),
+        shareReplay(1)
+    );
+    public readonly room_accessories: Observable<RoomAccessory[]> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'room_accessories')),
+        shareReplay(1)
+    );
+    public readonly joined = combineLatest([
+        this.join_modes,
+        this.joined_id,
+    ]).pipe(map(([modes, id]) => (modes ? modes[id] : null)));
+    /** List of help items */
     public readonly help_items = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'help')),
         map((_) =>
             !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] }))
         ),
+        shareReplay(1)
+    );
+    public readonly preview_outputs = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'preview_outputs')),
+        map((_) => _?.length > 0),
         shareReplay(1)
     );
     public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
@@ -194,8 +257,15 @@ export class ControlStateService extends BaseClass {
     }
 
     public setID(id: string) {
-        this._id.next(id);
-        this._spaces.loadSpace(id);
+        if (id !== this._id.getValue()) {
+            this._id.next(id);
+            this._spaces.loadSpace(id);
+        }
+    }
+
+    /** Power on the active system */
+    public join(id: string) {
+        return this._execute('join_mode', [id]);
     }
 
     /** Power on the active system */
@@ -204,8 +274,8 @@ export class ControlStateService extends BaseClass {
     }
 
     /** Power off the active system */
-    public powerOff() {
-        return this._execute('power', [false]);
+    public powerOff(unlink: boolean = false) {
+        return this._execute('power', [false, unlink]);
     }
 
     /** Set the active calendar */
@@ -226,6 +296,11 @@ export class ControlStateService extends BaseClass {
     public setRoute(input: string, output: string, set_input = true) {
         if (set_input) this.setSelectedInput(input);
         return this._execute('route', [input, output]);
+    }
+
+    /** Clear the route on the output source */
+    public unroute(output: string) {
+        return this._execute('unroute', [output]);
     }
 
     /** Set the route of the active output */
@@ -356,6 +431,8 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'has_zoom');
         this.bindTo(id, 'selected_tab');
         this.bindTo(id, 'selected_input');
+        this.bindTo(id, 'mute');
+        this.bindTo(id, 'volume');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'available_outputs', undefined, (l) =>
             this._outputs.next(l)
@@ -363,6 +440,14 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
         this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
         this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));
+        this.bindTo(id, 'qsc_dial_number', undefined, (v) => this.updateProperty('phone', v));
+        this.bindTo(id, 'qsc_dial_bindings', undefined, (v) => {
+            if (v) {
+                this.bindTo(id, v.offhook_id, 'Mixer', (l) => this.updateProperty('offhook', l));
+                this.bindTo(id, v.ringing_id, 'Mixer', (l) => this.updateProperty('ringing', l));
+            }
+            this.updateProperty('dial_bindings', v)
+        });
     }
 
     /** Bind to changes on input or output sources */
@@ -410,7 +495,8 @@ export class ControlStateService extends BaseClass {
             `listen:${name}`,
             module.listen().subscribe(on_change)
         );
-        this.subscription(`bind:${name}`, module.bind());
+        const unbind = module.bind();
+        // setTimeout(() => this.subscription(`bind:${name}`, unbind), 300);
     }
 
     /** Update properties of the system data */
@@ -423,7 +509,8 @@ export class ControlStateService extends BaseClass {
     private _listenToSystemBinding(id: string, name: string) {
         const mod = getModule(id, 'System');
         const binding = mod.binding(name);
-        this.subscription(`binding:${name}`, binding.bind());
+        const unbind = binding.bind();
+        this.subscription(`binding:${name}`, unbind);
         return binding.listen();
     }
 }

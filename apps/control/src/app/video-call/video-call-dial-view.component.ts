@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
-import { ControlStateService } from '../control-state.service';
+import { take } from 'rxjs/operators';
+import { ControlStateService, RoomInput } from '../control-state.service';
 import { VideoCallStateService } from './video-call-state.service';
 
 @Component({
@@ -10,7 +11,7 @@ import { VideoCallStateService } from './video-call-state.service';
         <div class="flex justify-center">
             <ng-container *ngIf="!loading; else load_state" class="">
                 <dialpad (pressed)="addDigit($event)"></dialpad>
-                <div class="flex flex-col">
+                <div class="flex flex-col" [class.pt-8]="!redirect">
                     <p class="px-2 pt-4">Enter your video conference code</p>
                     <div class="p-2 w-full">
                         <mat-form-field
@@ -34,6 +35,27 @@ import { VideoCallStateService } from './video-call-state.service';
                             Join
                         </button>
                     </div>
+                    <div class="px-2 w-full">
+                    <button
+                        mat-button
+                        class="w-full"
+                        (click)="toggleCamera()"
+                        [class.inverse]="(show_camera_pip | async)"
+                    >
+                        <div class="flex items-center space-x-4">
+                            <app-icon>{{
+                                !(show_camera_pip | async)
+                                    ? 'visibility_off'
+                                    : 'visibility'
+                            }}</app-icon>
+                            <span>{{
+                                (show_camera_pip | async)
+                                    ? 'Hide Camera PIP'
+                                    : 'Show Camera PIP'
+                            }}</span>
+                        </div>
+                    </button>
+                        </div>
                 </div>
             </ng-container>
         </div>
@@ -49,11 +71,17 @@ import { VideoCallStateService } from './video-call-state.service';
     styles: [``],
 })
 export class VideoCallDialViewComponent {
+    @Input() public redirect = true;
     @Output() public close = new EventEmitter<void>();
 
     public dial_number = '';
     public loading = false;
     public readonly call = this._call.call;
+    public readonly show_camera_pip = this._call.show_camera_pip;
+
+    public readonly toggleCamera = async () =>
+        this._call.showCameraPIP(
+            !(await this.show_camera_pip.pipe(take(1)).toPromise()));
 
     public get id() {
         return this._control.id;
@@ -67,7 +95,7 @@ export class VideoCallDialViewComponent {
     ) {}
 
     public addDigit(digit: string) {
-        digit
+        digit && digit !== '\b'
             ? (this.dial_number += digit)
             : (this.dial_number = this.dial_number.substr(
                   0,
@@ -82,7 +110,9 @@ export class VideoCallDialViewComponent {
         this.loading = true;
         await mod.execute('dial', [this.dial_number]);
         this.loading = false;
-        this._router.navigate(['call'], { relativeTo: this._route });
+        if (this.redirect) {
+            this._router.navigate(['call'], { relativeTo: this._route });
+        }
         this.close.emit();
     }
 }

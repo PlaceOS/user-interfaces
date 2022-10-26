@@ -31,6 +31,7 @@ import { DeviceOutputListItemComponent } from './tabbed-view/output-list-item.co
 import * as Sentry from '@sentry/angular';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { TVControlsComponent } from './tabbed-view/tv-controls.component';
 
 @NgModule({
     declarations: [
@@ -46,7 +47,8 @@ import { AssetsModule } from '@placeos/assets';
         ControlTabbedViewComponent,
         DeviceOutputListComponent,
         DeviceOutputListItemComponent,
-        TabOutletComponent
+        TabOutletComponent,
+        TVControlsComponent
     ],
     imports: [
         BrowserModule,

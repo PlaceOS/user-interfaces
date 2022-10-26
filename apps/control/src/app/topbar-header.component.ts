@@ -3,14 +3,30 @@ import { BaseClass, SettingsService } from '@placeos/common';
 import { isTrusted } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 import { ControlStateService } from './control-state.service';
-import { BlindsTooltipComponent } from './ui/blinds-tooltip.component';
+import { RoomAccessoryTooltipComponent } from './ui/room-accessory-tooltip.component';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
-import { HelpTooltipComponent } from './ui/help-tooltip.component';
+import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
+import { LightingSceneTooltipComponent } from './ui/lighting-scene-tooltip.component';
 import { LightingTooltipComponent } from './ui/lighting-tooltip.component';
 import { MicrophoneTooltipComponent } from './ui/microphone-tooltip.component';
+import { PhoneDiallingTooltipComponent } from './ui/phone-dialling-tooltip.component';
 import { PowerTooltipComponent } from './ui/power-tooltip.component';
 import { VideoConferenceTooltipComponent } from './ui/video-conf-tooltip.component';
 import { VideoCallStateService } from './video-call/video-call-state.service';
+
+enum TOOLTIP {
+    PHONE,
+    VC,
+    MEET,
+    LIGHT_SCENES,
+    LIGHTS,
+    ACCESSORIES,
+    MICS,
+    CAMERA,
+    JOIN,
+    HELP,
+    POWER,
+}
 
 @Component({
     selector: 'topbar-header',
@@ -90,15 +106,24 @@ export class TopbarHeaderComponent extends BaseClass {
     public readonly blinds_list = this._state.blinds;
 
     public readonly cmp = {
+        phone: PhoneDiallingTooltipComponent,
         video_conf: VideoConferenceTooltipComponent,
         lighting: LightingTooltipComponent,
+        lighting_scenes: LightingSceneTooltipComponent,
         power: PowerTooltipComponent,
-        blinds: BlindsTooltipComponent,
+        blinds: RoomAccessoryTooltipComponent,
         camera: CameraTooltipComponent,
         mics: MicrophoneTooltipComponent,
+        join: JoinRoomTooltipComponent,
     };
 
     public action_list = [
+        {
+            id: 'phone',
+            name: 'Phone',
+            icon: 'call',
+            show: true,
+        },
         {
             id: 'video_conf',
             name: 'Video Conference',
@@ -113,15 +138,28 @@ export class TopbarHeaderComponent extends BaseClass {
             action: () => this.selectMeeting(),
         },
         {
-            id: 'lights',
+            id: 'lighting_scenes',
+            name: 'Lighting Scenes',
+            icon: 'emoji_objects',
+            show: true,
+        },
+        {
+            id: 'lighting',
             name: 'Lighting',
             icon: 'brightness_high',
             show: true,
         },
-        { id: 'blinds', name: 'Blinds', icon: 'unfold_more', show: true },
+        { id: 'blinds', name: 'Accessories', icon: 'unfold_more', show: true },
         { id: 'mics', name: 'Microphones', icon: 'mic', show: true },
         { id: 'camera', name: 'Cameras', icon: 'photo_camera', show: true },
-        { id: 'help', name: 'Help', icon: 'help', show: true, action: () => this.viewHelp(), },
+        { id: 'join', name: 'Join Rooms', icon: 'link', show: true },
+        {
+            id: 'help',
+            name: 'Help',
+            icon: 'help',
+            show: true,
+            action: () => this.viewHelp(),
+        },
         { id: 'power', name: 'Power', icon: 'power_settings_new', show: true },
     ];
 
@@ -152,21 +190,57 @@ export class TopbarHeaderComponent extends BaseClass {
                 this.mic_list,
                 this.camera_list,
                 this.lights_list,
-                this.blinds_list,
+                this._state.room_accessories,
                 this.system,
                 this._call.connected,
                 this._call.call,
-            ]).subscribe(([mics, cams, lights, blinds, system, has_vc, call]) => {
-                (this.action_list as any)[0].show = has_vc; 
-                (this.action_list as any)[0].enabled = !!call; 
-                this.action_list[1].show =
-                    !this.is_trusted && (system as any).meeting_url;
-                this.action_list[2].show = (lights as any)?.length > 0;
-                this.action_list[3].show = (blinds as any)?.length > 0;
-                this.action_list[4].show = (mics as any)?.length > 0;
-                this.action_list[5].show = (cams as any)?.length > 0;
-                this.action_list = [...this.action_list];
-            })
+                this._state.microphones,
+                this._state.join_modes,
+                this._state.joined,
+                this._call.speaker_track,
+                this._state.lighting_scenes
+            ]).subscribe(
+                ([
+                    mics,
+                    cams,
+                    lights,
+                    accessories,
+                    system,
+                    has_vc,
+                    call,
+                    microphones,
+                    join_modes,
+                    joined,
+                    speaker_track,
+                    l_scenes
+                ]) => {
+                    (this.action_list as any)[
+                        TOOLTIP.PHONE
+                    ].show = !!(system as any).dial_bindings;
+                    (this.action_list as any)[TOOLTIP.PHONE].enabled =
+                        (system as any).offhook || (system as any).ringing;
+                    (this.action_list as any)[TOOLTIP.VC].show =
+                        has_vc && false;
+                    (this.action_list as any)[TOOLTIP.VC].enabled = !!call;
+                    this.action_list[TOOLTIP.MEET].show =
+                        !this.is_trusted && (system as any).meeting_url;
+                    this.action_list[TOOLTIP.LIGHTS].show =
+                        (lights as any)?.length > 0;
+                    this.action_list[TOOLTIP.ACCESSORIES].show =
+                        (accessories as any)?.length > 0;
+                    this.action_list[TOOLTIP.MICS].show =
+                        (mics as any)?.length > 0 ||
+                        (microphones as any)?.length > 0;
+                    this.action_list[TOOLTIP.JOIN].show =
+                        Object.keys((join_modes as any) || {}).length > 1;
+                    (this.action_list[TOOLTIP.JOIN] as any).enabled =
+                        (joined as any)?.room_ids?.length > 1;
+                    this.action_list[TOOLTIP.CAMERA].show =
+                        (cams as any)?.length > 0 && !speaker_track;
+                    this.action_list = [...this.action_list];
+                    this.action_list[TOOLTIP.LIGHT_SCENES].show = l_scenes != null;
+                }
+            )
         );
     }
 }

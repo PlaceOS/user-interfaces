@@ -6,7 +6,7 @@ import {
     VideoLayout,
 } from 'libs/mocks/src/lib/realtime/video-conference';
 import { Observable } from 'rxjs';
-import { map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { distinctUntilChanged, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 
 @Injectable({
@@ -14,22 +14,15 @@ import { ControlStateService } from '../control-state.service';
 })
 export class VideoCallStateService extends BaseClass {
     public readonly connected: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'VidConf');
-            const binding = mod.binding('connected');
-            this.subscription('binding', binding.bind());
-            return binding.listen();
-        }),
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'connected')),
         shareReplay(1)
     );
     public readonly call: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'VidConf');
-            const binding = mod.binding('calls');
-            this.subscription('binding', binding.bind());
-            return binding.listen();
-        }),
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'calls')),
         map((_) => {
+            console.log('Call:', _);
             for (const key in _) {
                 if (_[key].Status) return _[key];
             }
@@ -38,39 +31,29 @@ export class VideoCallStateService extends BaseClass {
         shareReplay(1)
     );
     public readonly mic_mute: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'VidConf');
-            const binding = mod.binding('mic_mute');
-            this.subscription('binding', binding.bind());
-            return binding.listen();
-        }),
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'mic_mute')),
         shareReplay(1)
     );
     public readonly presentation_mode: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'VidConf');
-            const binding = mod.binding('presentation_mode');
-            this.subscription('binding', binding.bind());
-            return binding.listen();
-        }),
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'presentation_mode')),
         shareReplay(1)
     );
     public readonly video_layout: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'VidConf');
-            const binding = mod.binding('video_layout');
-            this.subscription('binding', binding.bind());
-            return binding.listen();
-        }),
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'video_layout')),
         shareReplay(1)
     );
     public readonly show_camera_pip: Observable<VideoCallDetails | null> = this._control.system_id.pipe(
-        switchMap((id) => {
-            const mod = getModule(id, 'VidConf');
-            const binding = mod.binding('selfview');
-            this.subscription('binding', binding.bind());
-            return binding.listen();
-        }),
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'selfview')),
+        shareReplay(1)
+    );
+    public readonly speaker_track: Observable<boolean> = this._control.system_id.pipe(
+        distinctUntilChanged(),
+        switchMap((id) => this.bindTo(id, 'speaker_track')),
+        map(_ => (_ || {})['Status/Cameras/SpeakerTrack/Availability']),
         shareReplay(1)
     );
 
@@ -123,5 +106,13 @@ export class VideoCallStateService extends BaseClass {
             call.Status === 'OnHold' ? 'call_resume' : 'call_place_on_hold',
             []
         );
+    }
+
+    private bindTo(id: string, name: string, mod_name: string = 'VidConf') {
+        const mod = getModule(id, mod_name);
+        const binding = mod.binding(name);
+        const unbind = binding.bind()
+        this.subscription(`binding:${name}`, unbind);
+        return binding.listen();
     }
 }

@@ -15,7 +15,7 @@ import { ComponentsModule } from '@placeos/components';
 import { LightingTooltipComponent } from './lighting-tooltip.component';
 import { PowerTooltipComponent } from './power-tooltip.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
-import { BlindsTooltipComponent } from './blinds-tooltip.component';
+import { RoomAccessoryTooltipComponent } from './room-accessory-tooltip.component';
 import { CameraTooltipComponent } from './camera-tooltip.component';
 import { MicrophoneTooltipComponent } from './microphone-tooltip.component';
 import { SourceSelectComponent } from './source-select.component';
@@ -29,12 +29,16 @@ import { DialpadComponent } from './dialpad.component';
 import { HelpModalComponent } from './help-modal.component';
 import { MarkdownPipe } from './markdown.pipe';
 import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
-
+import { CameraControlsComponent } from './camera-controls.component';
+import { PhoneDiallingTooltipComponent } from './phone-dialling-tooltip.component';
+import { JoinRoomTooltipComponent } from './join-room-tooltip.component';
+import { LightingSceneTooltipComponent } from './lighting-scene-tooltip.component';
+ 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
     PowerTooltipComponent,
     HelpTooltipComponent,
-    BlindsTooltipComponent,
+    RoomAccessoryTooltipComponent,
     CameraTooltipComponent,
     MicrophoneTooltipComponent,
     SourceSelectComponent,
@@ -46,6 +50,10 @@ const COMPONENTS: Type<any>[] = [
     DialpadComponent,
     HelpModalComponent,
     VideoCallDialViewComponent,
+    CameraControlsComponent,
+    PhoneDiallingTooltipComponent,
+    JoinRoomTooltipComponent,
+    LightingSceneTooltipComponent,
 
     DurationPipe,
     MarkdownPipe
