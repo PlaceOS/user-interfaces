@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { first, shareReplay, tap } from 'rxjs/operators';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
@@ -22,7 +22,10 @@ export class CalendarService extends BaseClass {
     private readonly _calendars = new BehaviorSubject<Calendar[]>([]);
 
     /** Observable for the list of calendars */
-    public readonly calendar_list = this._calendars.asObservable();
+    public readonly calendar_list = queryCalendars().pipe(
+        tap((l) => this._calendars.next(l)),
+        shareReplay(1)
+    );
 
     /* istanbul ignore next */
     public readonly query = () => queryCalendars();
@@ -45,9 +48,6 @@ export class CalendarService extends BaseClass {
 
     public async init() {
         if (this._settings.get('app.no_user_calendar')) return;
-        await this.load().catch((err) =>
-            notifyError('Error loading calendars data')
-        );
         this._initialised.next(true);
     }
 
@@ -100,9 +100,5 @@ export class CalendarService extends BaseClass {
             return !availability.length;
         });
         return !!available;
-    }
-
-    public async load(): Promise<void> {
-        this._calendars.next(await queryCalendars().toPromise());
     }
 }
