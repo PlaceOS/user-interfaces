@@ -190,7 +190,7 @@ import { User } from '@placeos/users';
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
-                        Invite has been sent so
+                        Invite has been sent to
                         <i>{{
                             last_success?.asset_name || last_success?.asset_id
                         }}</i>
@@ -326,6 +326,7 @@ export class InviteVisitorFormComponent extends BaseClass {
         ]);
         const value = this.form.value;
         this.form.patchValue({
+            name: value.asset_name,
             attendees: [
                 new User({
                     name: value.asset_name,

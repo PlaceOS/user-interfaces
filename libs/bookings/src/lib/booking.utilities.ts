@@ -10,6 +10,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         id: new FormControl(booking.id || ''),
         date: new FormControl(booking.date, [Validators.required]),
         all_day: new FormControl(booking.all_day ?? false),
+        name: new FormControl(booking.extension_data.name || booking.asset_name || ''),
         duration: new FormControl(booking.duration, [endInFuture]),
         booking_type: new FormControl(booking.booking_type),
         zones: new FormControl(booking.zones),
