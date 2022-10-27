@@ -7,7 +7,17 @@ import {
     ElementRef,
     OnDestroy,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BookingType, checkinBooking, queryBookings } from '@placeos/bookings';
+import {
+    BaseClass,
+    currentUser,
+    notifyError,
+    notifyInfo,
+    notifySuccess,
+} from '@placeos/common';
+import { checkinEventGuest, queryEvents } from '@placeos/events';
+import { getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
 @Component({
@@ -15,6 +25,7 @@ import QrScanner from 'qr-scanner';
     template: `
         <div
             class="flex-1 overflow-hidden flex items-center justify-center bg-black relative"
+            *ngIf="!loading; else load_state"
         >
             <video
                 class="min-w-full min-h-full object-cover"
@@ -71,8 +82,8 @@ import QrScanner from 'qr-scanner';
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (is_scanning
-                                ? 'bg-white'
-                                : 'bg-transparent hover:bg-white bg-opacity-50')
+                                ? 'bg-white dark:bg-neutral-600'
+                                : 'bg-transparent hover:bg-white hover:dark:bg-neutral-600 bg-opacity-50')
                         "
                         (click)="is_scanning = true"
                     >
@@ -83,8 +94,8 @@ import QrScanner from 'qr-scanner';
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (!is_scanning
-                                ? 'bg-white'
-                                : 'bg-transparent hover:bg-white bg-opacity-50')
+                                ? 'bg-white dark:bg-neutral-600'
+                                : 'bg-transparent hover:bg-white hover:dark:bg-neutral-600 bg-opacity-50')
                         "
                         (click)="is_scanning = false"
                     >
@@ -93,6 +104,12 @@ import QrScanner from 'qr-scanner';
                 </div>
             </div>
         </div>
+        <ng-template #load_state>
+            <div class="absolute inset-0 flex flex-col items-center justify-center space-y-2">
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p>Checking in booking...</p>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -135,20 +152,26 @@ import QrScanner from 'qr-scanner';
         `,
     ],
 })
-export class BookCodeFlowComponent implements OnInit, OnDestroy {
+export class BookCodeFlowComponent
+    extends BaseClass
+    implements OnInit, OnDestroy
+{
+    /** Menu event */
+    @Output() public menu = new EventEmitter(false);
     /** Boolean to toggle scan/code */
     public is_scanning = true;
     /** Room Code input value */
     public room_code: string;
-    /** Menu event */
-    @Output() public menu = new EventEmitter(false);
-    /** Video element to emit camera feed */
-    @ViewChild('video', { static: true })
-    private _video_el: ElementRef<HTMLVideoElement>;
+    public loading = false;
 
     private _qr_scanner;
+    /** Video element to emit camera feed */
+    @ViewChild('video')
+    private _video_el: ElementRef<HTMLVideoElement>;
 
-    constructor(private _router: Router) {}
+    constructor(private _router: Router, private _route: ActivatedRoute) {
+        super();
+    }
 
     public ngOnDestroy() {
         if (this._video_el.nativeElement.srcObject) {
@@ -160,6 +183,18 @@ export class BookCodeFlowComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit(): void {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('asset_id'))
+                    this._checkinBooking(params.get('asset_id'));
+                if (params.has('space_id'))
+                    this._checkinEvent(params.get('space_id'), params.get('email'));
+            })
+        );
+    }
+
+    public ngAfterViewInit() {
         if (!navigator.mediaDevices?.getUserMedia) return;
         navigator.mediaDevices
             .getUserMedia({ video: true })
@@ -184,5 +219,64 @@ export class BookCodeFlowComponent implements OnInit, OnDestroy {
             }
             this._router.navigate([url.split('/#')[1].split('?')[0]], params);
         }
+    }
+
+    private async _checkinBooking(asset_id: string) {
+        this.loading = true;
+        const types: BookingType[] = ['desk', 'parking', 'visitor'];
+        for (const type of types) {
+            const bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+                type,
+            })
+                .toPromise()
+                .catch((_) => []);
+            const item = bookings.find((_) => _.asset_id === asset_id);
+            if (item) {
+                await checkinBooking(item.id, true)
+                    .toPromise()
+                    .catch((_) => {
+                        notifyError(
+                            `Unable to checkin booking with resource "${asset_id}"`
+                        );
+                        this.loading = false;
+                    });
+                notifySuccess(`Successfully checked in booking.`);
+                this.loading = false;
+                return;
+            }
+        }
+        notifyError(`Unable to find booking with resource "${asset_id}"`);
+        this.loading = false;
+    }
+
+    private async _checkinEvent(space_id: string, email?: string) {
+        if (!email) email = currentUser().email;
+        this.loading = true;
+        const bookings = await queryEvents({
+            period_start: getUnixTime(Date.now()),
+            period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+        })
+            .toPromise()
+            .catch((_) => []);
+        const item = bookings.find((_) =>
+            _.resources.find((s) => s.id === space_id || s.email === space_id)
+        );
+        if (item) {
+            await checkinEventGuest(item.id, email, true)
+                .toPromise()
+                .catch((_) => {
+                    notifyError(
+                        `Unable to checkin event with resource "${space_id}"`
+                    );
+                    this.loading = false;
+                });
+            notifySuccess(`Successfully checked in booking.`);
+            this.loading = false;
+            return;
+        }
+        notifyError(`Unable to find event with resource "${space_id}"`);
+        this.loading = false;
     }
 }
