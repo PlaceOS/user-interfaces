@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { downloadFile, jsonToCsv, unique } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -40,7 +40,7 @@ export class ReportSpacesSpaceListing {
             let list = [];
             let has_attendance = false;
             for (const booking of stats.events) {
-                const resources: Space[] = booking.resources || [
+                const resources: Space[] = unique(booking.resources, 'email') || [
                     booking.system,
                 ];
                 for (const space of resources) {
