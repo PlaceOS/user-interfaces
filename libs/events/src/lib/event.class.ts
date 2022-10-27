@@ -89,6 +89,8 @@ export class CalendarEvent {
     public readonly organiser: User;
     /** Type of event */
     public readonly type: 'cancelled' | 'external' | 'internal';
+    /** Whether this event was from a PlaceOS booking instead of a user calendar */
+    public readonly from_bookings: boolean;
     /** Master event */
     public master?: CalendarEvent;
 
@@ -153,6 +155,7 @@ export class CalendarEvent {
         this.organiser = this.attendees.find(
             (user) => user.email === this.host
         );
+        this.from_bookings = data.from_bookings ?? false;
         this.master = data.master ? new CalendarEvent(data.master) : null;
         if (data.recurring) {
             this.recurrence = {

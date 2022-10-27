@@ -62,6 +62,8 @@ export class User {
     public readonly is_external: boolean;
     /** Whether user needs assistance when attending an event */
     public readonly assistance_required: boolean;
+    /** Whether user is a resource */
+    public readonly resource: boolean;
 
     constructor(data: Partial<UserComplete> = {}) {
         this.id = data.id || '';
@@ -77,6 +79,7 @@ export class User {
         this.organizer = !!data.organizer;
         this.checked_in = !!data.checked_in;
         this.required = data.required ?? true;
+        this.resource = data.resource ?? false;
         this.response_status = data.response_status || '';
         const groups = data.groups || [];
         if (data.sys_admin) groups.push('placeos_admin');

@@ -4,6 +4,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { toQueryString } from 'libs/common/src/lib/api';
 import { Booking, BookingType } from './booking.class';
+import { GuestUser } from 'libs/users/src/lib/user.class';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -126,6 +127,19 @@ export function checkinBooking(id: string, state: boolean) {
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
         ''
     ).pipe(map((item) => new Booking(item)));
+}
+
+/**
+ * Set the checkin state of a booking
+ * @param id ID of the booking to grab
+ * @param state New checkin state of the booking
+ */
+export function checkinBookingAttendee(id: string, email: string, state: boolean) {
+    const query = toQueryString({ state });
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests/${encodeURIComponent(email)}/check_in?${query}`,
+        ''
+    ).pipe(map((item) => new GuestUser(item)));
 }
 
 /**

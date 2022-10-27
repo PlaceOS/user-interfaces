@@ -164,5 +164,6 @@ export function newCalendarEventFromBooking(booking: Booking) {
         attendees,
         id: booking.id || booking.extension_data.id,
         host: booking.user_email,
+        from_booking: true
     } as any);
 }
