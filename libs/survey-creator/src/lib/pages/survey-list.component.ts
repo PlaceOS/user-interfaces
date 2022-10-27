@@ -317,6 +317,11 @@ export class SurveyListComponent implements OnInit {
                 }))
                 .sort(),
         ];
+        this.building_levels = [
+            ...new Map(
+                this.building_levels.map((item) => [item.level, item])
+            ).values(),
+        ];
     }
 
     sortByHeader(header: string): void {
