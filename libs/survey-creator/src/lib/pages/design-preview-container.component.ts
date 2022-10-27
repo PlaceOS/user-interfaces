@@ -13,12 +13,45 @@ import { SearchService } from '../search.service';
     templateUrl: './design-preview-container.component.html',
     styles: [
         `
+            .page-wrapper {
+                background-color: #fff;
+                padding: 20px;
+            }
+            .heading-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .left-wrapper {
+                display: flex;
+                align-items: center;
+            }
+            .right-wrapper {
+                display: flex;
+                align-items: center;
+            }
+            .back-arrow {
+                display: flex;
+                margin-right: 10px;
+            }
+            .page-heading {
+                line-height: 34px;
+                font-size: 26px;
+                font-weight: 400;
+            }
+            .add-button {
+                display: flex;
+                color: #fff;
+                background-color: #292f5b;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
+                padding: 0px 20px;
+            }
             .section-wrapper {
                 display: flex;
+                flex: auto;
                 flex-direction: row;
                 border: 1px solid gray;
-                border-radius: 5px;
-                margin: 10px;
                 background-color: #f5f5f5;
             }
             .survey-title {
@@ -38,12 +71,12 @@ import { SearchService } from '../search.service';
             }
             .design-preview-section {
                 display: flex;
-                flex: 3;
+                flex: auto;
                 flex-direction: column;
                 background-color: #f5f5f5;
                 color: #808080;
                 border-right: 1px solid #808080;
-                width: 800px;
+                min-width: 800px;
             }
             .design-content {
                 margin: 0;
