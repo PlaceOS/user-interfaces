@@ -237,7 +237,7 @@ export class CalendarEvent {
                 ? obj.recurrence
                 : null
             : null;
-        obj.attendees = unique(attendees, 'email');
+        obj.attendees = unique([...attendees, ...this.resources.map(_ => ({ ..._, resource: true }))], 'email');
         if (!this.all_day) {
             obj.extension_data.breakdown = 15;
         }

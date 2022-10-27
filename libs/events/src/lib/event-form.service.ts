@@ -389,7 +389,7 @@ export class EventFormService extends BaseClass {
                               : 'tentative',
                       } as any)
                   ).pipe(map((_) => newCalendarEventFromBooking(_)))
-                : saveEvent(event, query)
+                : saveEvent(event.toJSON(), query)
         ).toPromise();
     }
 
