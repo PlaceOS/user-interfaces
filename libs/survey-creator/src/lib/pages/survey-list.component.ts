@@ -47,7 +47,7 @@ import { MatSort, Sort } from '@angular/material/sort';
                                 >
                                     <mat-icon
                                         [ngClass]="{
-                                            'descending-icon': column.ascending
+                                            'descending-icon': !column.ascending
                                         }"
                                         >filter_list</mat-icon
                                     >
@@ -242,18 +242,22 @@ export class SurveyListComponent implements OnInit {
             found_column.ascending = false;
         }
 
-        console.log(header, 'header');
+        console.log(header, 'header to sort by');
 
         this.dataSubscription = this.data.subscribe((array) => {
             if (!found_column.ascending) {
                 array = array.sort((a, b) =>
-                    b.building_name.localeCompare(a.building_name)
+                    b[found_column.columnDef].localeCompare(
+                        a[found_column.columnDef]
+                    )
                 );
                 this.dataSource.data = array;
                 found_column.ascending = !found_column.ascending;
             } else {
                 array = array.sort((a, b) =>
-                    a.building_name.localeCompare(b.building_name)
+                    a[found_column.columnDef].localeCompare(
+                        b[found_column.columnDef]
+                    )
                 );
                 this.dataSource.data = array;
                 found_column.ascending = !found_column.ascending;
