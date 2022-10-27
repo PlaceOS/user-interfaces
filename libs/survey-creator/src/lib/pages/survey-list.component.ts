@@ -26,6 +26,23 @@ import { Router } from '@angular/router';
                 </div>
 
                 <div class="right-wrapper">
+                    <div class="dropdown-container">
+                        <mat-form-field appearance="outline" class="dropdown">
+                            <mat-label>Select...</mat-label>
+                            <mat-select
+                                [(value)]="selected_level"
+                                (selectionChange)="updateListView()"
+                            >
+                                <mat-option
+                                    *ngFor="let level of building_levels"
+                                    [value]="level.level"
+                                >
+                                    {{ level.display }}</mat-option
+                                >
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
                     <button
                         mat-button
                         class="add-button"
@@ -133,9 +150,12 @@ import { Router } from '@angular/router';
                 font-size: 26px;
                 font-weight: 400;
             }
+            .dropdown-container {
+                display: flex;
+                height: 53px;
+            }
             .add-button {
                 display: flex;
-
                 color: #fff;
                 background-color: #292f5b;
                 border-radius: 2px;
@@ -189,6 +209,9 @@ import { Router } from '@angular/router';
 export class SurveyListComponent implements OnInit {
     @Input() buildingName: string = 'Building 1';
     // @ViewChild(MatSort) sort: MatSort;
+
+    building_levels: any[];
+    selected_level: string = '';
 
     //Mock data
     data = of([
@@ -285,6 +308,15 @@ export class SurveyListComponent implements OnInit {
             this.dataSource.data = data;
             // this.dataSource.sort = this.sort;
         });
+        this.building_levels = [
+            { display: 'All Levels', level: 'all' },
+            ...this.dataSource.data
+                .map((item) => ({
+                    display: `Level ${item.level}`,
+                    level: item.level,
+                }))
+                .sort(),
+        ];
     }
 
     sortByHeader(header: string): void {
@@ -326,6 +358,20 @@ export class SurveyListComponent implements OnInit {
 
     addSurvey(): void {
         //routes to be added in app
+    }
+
+    updateListView() {
+        console.log(this.selected_level, 'sel level');
+        this.data.subscribe((data) => {
+            this.dataSource.data = data;
+        });
+        const updated_view = this.dataSource.data.filter(
+            (item) => item.level == this.selected_level
+        );
+        console.log(updated_view, 'updated view');
+        if (updated_view.length) {
+            this.dataSource.data = updated_view;
+        }
     }
     ngOnDestroy(): void {
         this.dataSubscription?.unsubscribe();
