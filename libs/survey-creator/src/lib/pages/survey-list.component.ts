@@ -10,6 +10,8 @@ import { of, Observable, Subscription } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.component';
 
 @Component({
     selector: 'survey-list',
@@ -103,22 +105,37 @@ import { Router } from '@angular/router';
                                         [matMenuTriggerFor]="optionsMenu"
                                         aria-label="button to see more options"
                                         class="options-button"
-                                        (click)="openOptionsModal()"
                                     >
                                         <mat-icon class="ellipse"
                                             >more_horiz</mat-icon
                                         >
                                     </button>
                                     <mat-menu #optionsMenu="matMenu">
-                                        <button mat-menu-item>
-                                            <span>View</span>
-                                        </button>
-                                        <button mat-menu-item>
-                                            <span>Edit</span>
-                                        </button>
-                                        <button mat-menu-item>
-                                            <span>Delete</span>
-                                        </button>
+                                        <div class="menu-wrapper">
+                                            <button
+                                                mat-menu-item
+                                                (click)="viewSurvey(row)"
+                                            >
+                                                <mat-icon>visibility</mat-icon>
+                                                <span>View</span>
+                                            </button>
+                                            <button
+                                                mat-menu-item
+                                                (click)="editSurvey(row)"
+                                            >
+                                                <mat-icon>edit</mat-icon>
+                                                <span>Edit</span>
+                                            </button>
+                                            <button
+                                                mat-menu-item
+                                                (click)="deleteSurvey(row)"
+                                            >
+                                                <mat-icon
+                                                    >delete_forever</mat-icon
+                                                >
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
                                     </mat-menu>
                                 </div>
                             </td>
@@ -201,6 +218,12 @@ import { Router } from '@angular/router';
             .columns {
                 background-color: red;
             }
+            .menu-wrapper {
+                display: flex;
+                flex-direction: column;
+                height: 140px;
+                width: 135px;
+            }
             .options-button {
                 display: flex;
                 background-color: #fff;
@@ -210,7 +233,6 @@ import { Router } from '@angular/router';
                 height: 40px;
                 width: 40px;
             }
-
             .ellipse {
                 display: flex;
                 font-size: 20px;
@@ -262,7 +284,7 @@ export class SurveyListComponent implements OnInit {
             type: 'Room',
             survey_name: 'Satisfaction survey',
             date: '30/08/2022',
-            link: '12345',
+            link: '2345',
             options: ['open'],
         },
         {
@@ -271,7 +293,7 @@ export class SurveyListComponent implements OnInit {
             type: 'Desk',
             survey_name: 'Satisfaction survey',
             date: '30/09/2022',
-            link: '12345',
+            link: '7777',
             options: ['open'],
         },
         {
@@ -280,7 +302,7 @@ export class SurveyListComponent implements OnInit {
             type: 'Visitors',
             survey_name: 'Satisfaction survey',
             date: '30/10/2022',
-            link: '12345',
+            link: '15838',
             options: ['open'],
         },
     ]);
@@ -333,7 +355,7 @@ export class SurveyListComponent implements OnInit {
 
     dataSource = new MatTableDataSource<any>();
     dataSubscription: Subscription = new Subscription();
-    constructor(private router: Router) {}
+    constructor(private router: Router, public dialog: MatDialog) {}
 
     ngOnInit(): void {
         this.data.subscribe((data) => {
@@ -411,7 +433,32 @@ export class SurveyListComponent implements OnInit {
         }
     }
 
-    openOptionsModal() {}
+    viewSurvey(survey) {
+        console.log(survey, 'to open');
+    }
+
+    editSurvey(survey) {
+        //duplicate of view action?
+    }
+
+    deleteSurvey(survey) {
+        const dialogRef = this.dialog.open(ConfirmDeleteModalComponent, {
+            width: '230px',
+            height: '170px',
+            data: { survey },
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+            console.log(result, 'selected option');
+            if (!result) return;
+            this.dataSource.data.splice(
+                this.dataSource.data.findIndex(
+                    (item) => item.link == survey.link
+                ),
+                1
+            );
+        });
+    }
+
     ngOnDestroy(): void {
         this.dataSubscription?.unsubscribe();
     }
