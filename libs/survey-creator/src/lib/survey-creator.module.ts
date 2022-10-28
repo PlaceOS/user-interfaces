@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
 import { ComponentsModule } from '@placeos/components';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
@@ -72,6 +73,7 @@ const COMPONENTS: Type<any>[] = [
         MatSlideToggleModule,
         ComponentsModule,
         MatTableModule,
+        MatMenuModule,
     ],
     exports: [...COMPONENTS],
 })

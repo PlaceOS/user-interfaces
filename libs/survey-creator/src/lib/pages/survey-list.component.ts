@@ -98,9 +98,28 @@ import { Router } from '@angular/router';
                                     {{ column.cell(row) }}
                                 </div>
                                 <div *ngIf="column.cell(row) == 'open'">
-                                    <mat-icon class="ellipse"
-                                        >more_horiz</mat-icon
+                                    <button
+                                        mat-icon-button
+                                        [matMenuTriggerFor]="optionsMenu"
+                                        aria-label="button to see more options"
+                                        class="options-button"
+                                        (click)="openOptionsModal()"
                                     >
+                                        <mat-icon class="ellipse"
+                                            >more_horiz</mat-icon
+                                        >
+                                    </button>
+                                    <mat-menu #optionsMenu="matMenu">
+                                        <button mat-menu-item>
+                                            <span>View</span>
+                                        </button>
+                                        <button mat-menu-item>
+                                            <span>Edit</span>
+                                        </button>
+                                        <button mat-menu-item>
+                                            <span>Delete</span>
+                                        </button>
+                                    </mat-menu>
                                 </div>
                             </td>
                         </ng-container>
@@ -182,9 +201,21 @@ import { Router } from '@angular/router';
             .columns {
                 background-color: red;
             }
+            .options-button {
+                display: flex;
+                background-color: #fff;
+                border: none;
+                align-items: center;
+                justify-content: center;
+                height: 40px;
+                width: 40px;
+            }
+
             .ellipse {
+                display: flex;
                 font-size: 20px;
-                margin-top: 10px;
+                align-items: center;
+                justify-content: center;
             }
             .header-wrapper {
                 display: flex;
@@ -208,6 +239,7 @@ import { Router } from '@angular/router';
 })
 export class SurveyListComponent implements OnInit {
     @Input() buildingName: string = 'Building 1';
+
     // @ViewChild(MatSort) sort: MatSort;
 
     building_levels: any[];
@@ -378,6 +410,8 @@ export class SurveyListComponent implements OnInit {
             this.dataSource.data = updated_view;
         }
     }
+
+    openOptionsModal() {}
     ngOnDestroy(): void {
         this.dataSubscription?.unsubscribe();
     }
