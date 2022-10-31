@@ -50,6 +50,21 @@ export class SurveyCreatorService {
         return this._selected_questions.getValue();
     }
 
+    //Store of saved questions
+    private _saved_questions: BehaviorSubject<Question[]> = new BehaviorSubject<
+        Question[]
+    >([]);
+
+    saved_questions$: Observable<any[]> = this._saved_questions.asObservable();
+
+    set saved_questions(questions: any[]) {
+        this._saved_questions.next(questions);
+    }
+
+    get saved_questions() {
+        return this._saved_questions.getValue();
+    }
+
     //Store of JSON generated from survey questions
     private _surveyJSON: BehaviorSubject<any> = new BehaviorSubject<any>({});
 
@@ -109,6 +124,46 @@ export class SurveyCreatorService {
         ];
 
         this.survey_title.pipe(debounceTime(700), distinctUntilChanged());
+
+        //Mock saved questions
+        this.saved_questions = [
+            {
+                building_name: 'Building 7',
+                level: '01',
+                type: 'Desk',
+                survey_name: 'Satisfaction survey',
+                date: '25/08/2022',
+                link: '12345',
+                options: ['open'],
+            },
+            {
+                building_name: 'Building 3',
+                level: '02',
+                type: 'Room',
+                survey_name: 'Satisfaction survey',
+                date: '30/08/2022',
+                link: '2345',
+                options: ['open'],
+            },
+            {
+                building_name: 'Building 2',
+                level: '01',
+                type: 'Desk',
+                survey_name: 'Satisfaction survey',
+                date: '30/09/2022',
+                link: '7777',
+                options: ['open'],
+            },
+            {
+                building_name: 'Building 5',
+                level: '03',
+                type: 'Visitors',
+                survey_name: 'Satisfaction survey',
+                date: '30/10/2022',
+                link: '15838',
+                options: ['open'],
+            },
+        ];
     }
 
     drop(event: any) {
