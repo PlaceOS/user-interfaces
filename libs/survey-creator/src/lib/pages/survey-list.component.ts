@@ -30,7 +30,6 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 <div class="right-wrapper">
                     <div class="dropdown-container">
                         <mat-form-field appearance="outline" class="dropdown">
-                            <mat-label>Select...</mat-label>
                             <mat-select
                                 [(value)]="selected_level"
                                 (selectionChange)="updateListView()"
@@ -376,6 +375,7 @@ export class SurveyListComponent implements OnInit {
                 this.building_levels.map((item) => [item.level, item])
             ).values(),
         ];
+        this.selected_level = this.building_levels[0].level;
     }
 
     sortByHeader(header: string): void {
@@ -450,12 +450,13 @@ export class SurveyListComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result) => {
             console.log(result, 'selected option');
             if (!result) return;
-            this.dataSource.data.splice(
-                this.dataSource.data.findIndex(
-                    (item) => item.link == survey.link
-                ),
-                1
+            console.log(survey.link);
+            const found_index = this.dataSource.data.findIndex(
+                (item) => item == survey
             );
+            this.dataSource.data = this.dataSource.data.splice(found_index, 1);
+
+            console.log(this.dataSource.data);
         });
     }
 
