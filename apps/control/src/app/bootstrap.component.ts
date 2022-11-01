@@ -1,19 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import {
+    debounceTime,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
 import { BaseClass } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { BehaviorSubject, of } from 'rxjs';
 import { querySystems } from '@placeos/ts-client';
 
+const STORE_KEY = 'PLACEOS.CONTROL.system';
+
 @Component({
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="rounded shadow m-4 bg-white overflow-hidden mx-auto text-center flex flex-col items-center"
+            class="rounded shadow m-4 bg-white dark:bg-neutral-700 border border-gray-200 dark:border-neutral-500 overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-primary text-white py-2 px-4 m-0 w-full text-2xl">
+            <h2 class="bg-red-700 text-white py-2 px-4 m-0 w-full text-2xl">
                 Control Panel Setup
             </h2>
             <ng-container
@@ -84,7 +93,7 @@ import { querySystems } from '@placeos/ts-client';
                 right: 0;
                 bottom: 0;
                 background-color: #f0f0f0;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%23ddd' fill-opacity='1' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%230002' fill-opacity='1' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             }
 
             :host > div {
@@ -165,9 +174,9 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     private checkBootstrapped(): void {
         this.loading = 'Checks';
         if (localStorage) {
-            const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
+            const system_id = localStorage.getItem(STORE_KEY);
             if (system_id) {
-                this._router.navigate(['tabbed', system_id], {
+                this._router.navigate(['/tabbed', system_id], {
                     queryParamsHandling: 'preserve',
                 });
                 return;
@@ -183,11 +192,11 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     private configure(system_id: string): void {
         this.loading = 'Setup';
         if (localStorage) {
-            localStorage.setItem('PLACEOS.BOOKINGS.system', system_id);
+            localStorage.setItem(STORE_KEY, system_id);
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
-        this._router.navigate(['tabbed', system_id], {
+        this._router.navigate(['/tabbed', system_id], {
             queryParamsHandling: 'preserve',
         });
         this.loading = '';
@@ -197,5 +206,5 @@ export class BootstrapComponent extends BaseClass implements OnInit {
      * Remove any previously set bootstrapping details
      */
     private readonly clearBootstrap = () =>
-        localStorage.removeItem('PLACEOS.BOOKINGS.system');
+        localStorage.removeItem(STORE_KEY);
 }

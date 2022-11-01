@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseClass } from '@placeos/common';
-import { take } from 'rxjs/operators';
 
 import { ControlStateService } from '../control-state.service';
 

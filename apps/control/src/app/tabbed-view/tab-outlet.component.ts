@@ -18,6 +18,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
                     [routerLink]="['/tabbed', id, tab.id || tab.name]"
                     routerLinkActive="border-primary bg-white text-primary"
+                    queryParamsHandling="merge"
                     *ngFor="let tab of tabs | async"
                 >
                     <app-icon class="text-5xl">{{ tab.icon }}</app-icon>
@@ -189,7 +190,7 @@ export class TabOutletComponent extends BaseClass {
             this._service.system.subscribe((_) => {
                 if (_.selected_tab) {
                     this.active_tab.next(_.selected_tab);
-                    this._router.navigate(['/tabbed', this.id, _.selected_tab]);
+                    this._router.navigate(['/tabbed', this.id, _.selected_tab], { queryParamsHandling: 'merge' });
                 }
             })
         );
