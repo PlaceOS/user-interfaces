@@ -1,14 +1,6 @@
-import {
-    Component,
-    OnInit,
-    Input,
-    ViewChild,
-    AfterViewInit,
-    OnDestroy,
-} from '@angular/core';
-import { of, Observable, Subscription } from 'rxjs';
+import { Component, OnInit, Input } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSort, Sort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { SurveyCreatorService } from '../survey-creator.service';
@@ -262,8 +254,6 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
 export class SurveyListComponent implements OnInit {
     @Input() buildingName: string = 'Building 1';
 
-    // @ViewChild(MatSort) sort: MatSort;
-
     building_levels: any[];
     selected_level: string = '';
 
@@ -356,8 +346,6 @@ export class SurveyListComponent implements OnInit {
             found_column.ascending = false;
         }
 
-        console.log(header, 'header to sort by');
-
         this.dataSubscription =
             this.surveyCreatorService.saved_questions$.subscribe((array) => {
                 if (!found_column.ascending) {
@@ -385,7 +373,6 @@ export class SurveyListComponent implements OnInit {
     }
 
     updateListView() {
-        console.log(this.selected_level, 'sel level');
         this.dataSubscription =
             this.surveyCreatorService.saved_questions$.subscribe((data) => {
                 this.dataSource.data = data;
@@ -393,7 +380,6 @@ export class SurveyListComponent implements OnInit {
         const updated_view = this.dataSource.data.filter(
             (item) => item.level == this.selected_level
         );
-        console.log(updated_view, 'updated view');
         if (updated_view.length) {
             this.dataSource.data = updated_view;
         }
