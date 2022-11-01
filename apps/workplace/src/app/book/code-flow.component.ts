@@ -8,7 +8,13 @@ import {
     OnDestroy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingType, checkinBooking, queryBookings } from '@placeos/bookings';
+import {
+    Booking,
+    BookingFormService,
+    BookingType,
+    checkinBooking,
+    queryBookings,
+} from '@placeos/bookings';
 import {
     BaseClass,
     currentUser,
@@ -16,7 +22,13 @@ import {
     notifyInfo,
     notifySuccess,
 } from '@placeos/common';
-import { checkinEventGuest, queryEvents } from '@placeos/events';
+import {
+    CalendarEvent,
+    checkinEventGuest,
+    EventFormService,
+    queryEvents,
+} from '@placeos/events';
+import { showSystem } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
@@ -105,7 +117,9 @@ import QrScanner from 'qr-scanner';
             </div>
         </div>
         <ng-template #load_state>
-            <div class="absolute inset-0 flex flex-col items-center justify-center space-y-2">
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
+            >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Checking in booking...</p>
             </div>
@@ -169,7 +183,12 @@ export class BookCodeFlowComponent
     @ViewChild('video')
     private _video_el: ElementRef<HTMLVideoElement>;
 
-    constructor(private _router: Router, private _route: ActivatedRoute) {
+    constructor(
+        private _router: Router,
+        private _route: ActivatedRoute,
+        private _event_form: EventFormService,
+        private _booking_form: BookingFormService
+    ) {
         super();
     }
 
@@ -189,7 +208,10 @@ export class BookCodeFlowComponent
                 if (params.has('asset_id'))
                     this._checkinBooking(params.get('asset_id'));
                 if (params.has('space_id'))
-                    this._checkinEvent(params.get('space_id'), params.get('email'));
+                    this._checkinEvent(
+                        params.get('space_id'),
+                        params.get('email')
+                    );
             })
         );
     }
@@ -221,33 +243,33 @@ export class BookCodeFlowComponent
         }
     }
 
-    private async _checkinBooking(asset_id: string) {
+    private async _checkinBooking(asset_id: string, type: BookingType = 'desk') {
         this.loading = true;
-        const types: BookingType[] = ['desk', 'parking', 'visitor'];
-        for (const type of types) {
-            const bookings = await queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
-                type,
-            })
+        const bookings = await queryBookings({
+            period_start: getUnixTime(Date.now()),
+            period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+            type,
+        })
+            .toPromise()
+            .catch((_) => []);
+        const item = bookings.find((_) => _.asset_id === asset_id);
+        if (item) {
+            await checkinBooking(item.id, true)
                 .toPromise()
-                .catch((_) => []);
-            const item = bookings.find((_) => _.asset_id === asset_id);
-            if (item) {
-                await checkinBooking(item.id, true)
-                    .toPromise()
-                    .catch((_) => {
-                        notifyError(
-                            `Unable to checkin booking with resource "${asset_id}"`
-                        );
-                        this.loading = false;
-                    });
-                notifySuccess(`Successfully checked in booking.`);
-                this.loading = false;
-                return;
-            }
+                .catch((_) => {
+                    notifyError(
+                        `Unable to checkin booking with resource "${asset_id}"`
+                    );
+                    this.loading = false;
+                    throw _;
+                });
+            notifySuccess(`Successfully checked in booking.`);
+            this.loading = false;
+        } else {
+            this._booking_form.newForm(new Booking({ asset_id, type }));
+            this._booking_form.setOptions({ type });
+            this._router.navigate(['/book', 'newdesk']);
         }
-        notifyError(`Unable to find booking with resource "${asset_id}"`);
         this.loading = false;
     }
 
@@ -271,12 +293,16 @@ export class BookCodeFlowComponent
                         `Unable to checkin event with resource "${space_id}"`
                     );
                     this.loading = false;
+                    throw _;
                 });
             notifySuccess(`Successfully checked in booking.`);
-            this.loading = false;
-            return;
+        } else {
+            const space = await showSystem(space_id).toPromise();
+            if (space) {
+                this._event_form.newForm(new CalendarEvent({ system: space }));
+            }
+            this._router.navigate(['/book', 'meeting']);
         }
-        notifyError(`Unable to find event with resource "${space_id}"`);
         this.loading = false;
     }
 }
