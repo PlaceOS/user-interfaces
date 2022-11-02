@@ -22,6 +22,7 @@ import { SearchService } from '../search.service';
                 align-items: center;
                 justify-content: space-between;
             }
+
             .left-wrapper {
                 display: flex;
                 align-items: center;
@@ -149,6 +150,21 @@ import { SearchService } from '../search.service';
                 border-radius: 2px;
                 margin: 20px 0px 20px 20px;
             }
+            .dropdown-options {
+                display: flex;
+                flex-direction: row;
+            }
+            .dropdown-container {
+                display: flex;
+                flex-direction: column;
+                margin-right: 20px;
+            }
+            .dropdown-container mat-label {
+                font-size: 14px;
+                line-height: 24px;
+                font-weight: 700;
+                margin-left: 2px;
+            }
         `,
     ],
 })
@@ -156,6 +172,19 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     @ViewChild('tabGroup') tabGroup;
 
     question_bank$: Observable<Question[]>;
+    selected_building: any = '';
+    buildings = [
+        {
+            name: 'Building 1',
+            levels: ['Level 1', 'Level 2', 'Level 3'],
+        },
+        {
+            name: 'Building 5',
+            levels: ['LG', 'Ground', 'Level 1'],
+        },
+    ];
+    selected_location: any = '';
+    locations = [{ name: 'Sydney' }, { name: 'Melbourne' }];
 
     // survey_title: string = this.surveyCreatorService.survey_title || '';
 
@@ -176,6 +205,9 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         console.log(this.searchService.question_bank, 'q bank');
         this.question_bank$ = this.searchService.question_bank$;
+        this.selected_building = this.buildings[0].name;
+        this.selected_location = this.locations[0].name;
+        console.log(this.buildings, 'buildings');
     }
 
     ngAfterViewInit(): void {
@@ -200,5 +232,12 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     tabChanged(event: any) {
         console.log(this.tabGroup.selectedIndex);
         console.log(event.index, 'index');
+    }
+
+    updateBuilding() {
+        return;
+    }
+    updateLocation() {
+        return;
     }
 }
