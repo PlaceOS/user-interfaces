@@ -46,6 +46,48 @@
                 </mat-select>
             </mat-form-field>
         </div>
+        <div class="dropdown-container">
+            <mat-label>Level</mat-label>
+            <mat-form-field appearance="outline" class="dropdown">
+                <mat-select
+                    [(value)]="selected_level"
+                    (selectionChange)="updateLevel()"
+                >
+                    <mat-option *ngFor="let level of levels" [value]="level">
+                        {{ level }}</mat-option
+                    >
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="dropdown-container">
+            <mat-label>Zone</mat-label>
+            <mat-form-field appearance="outline" class="dropdown">
+                <mat-select
+                    [(value)]="selected_zone"
+                    (selectionChange)="updateZone()"
+                >
+                    <mat-option *ngFor="let zone of zones" [value]="zone">
+                        {{ zone }}</mat-option
+                    >
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="dropdown-container">
+            <mat-label>Trigger</mat-label>
+            <mat-form-field appearance="outline" class="dropdown">
+                <mat-select
+                    [(value)]="selected_trigger"
+                    (selectionChange)="updateTrigger()"
+                >
+                    <mat-option
+                        *ngFor="let trigger of triggers"
+                        [value]="trigger.name"
+                    >
+                        {{ trigger.name }}</mat-option
+                    >
+                </mat-select>
+            </mat-form-field>
+        </div>
     </div>
 
     <div class="section-wrapper" cdkDropListGroup>

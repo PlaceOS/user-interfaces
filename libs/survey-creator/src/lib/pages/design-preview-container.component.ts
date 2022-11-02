@@ -173,18 +173,31 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
 
     question_bank$: Observable<Question[]>;
     selected_building: any = '';
+    selected_location: any = '';
+    selected_level: any = '';
+    selected_zone: any = '';
+    selected_trigger: any = '';
+    levels: any[] = [];
+    zones: any[] = [];
     buildings = [
         {
             name: 'Building 1',
             levels: ['Level 1', 'Level 2', 'Level 3'],
+            zone: 'ABC',
         },
         {
             name: 'Building 5',
             levels: ['LG', 'Ground', 'Level 1'],
+            zone: 'CDE',
         },
     ];
-    selected_location: any = '';
+
     locations = [{ name: 'Sydney' }, { name: 'Melbourne' }];
+
+    triggers = [
+        { name: 'Meetings in Zone 1', metadata: '' },
+        { name: 'All Monday meetings', metadata: '' },
+    ];
 
     // survey_title: string = this.surveyCreatorService.survey_title || '';
 
@@ -207,7 +220,18 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         this.question_bank$ = this.searchService.question_bank$;
         this.selected_building = this.buildings[0].name;
         this.selected_location = this.locations[0].name;
-        console.log(this.buildings, 'buildings');
+
+        const current_building = this.buildings.find(
+            (building) => (building.name = this.selected_building)
+        );
+        this.levels = current_building?.levels;
+        this.selected_level = this.levels[0];
+        this.zones = this.buildings.map((building) =>
+            this.zones.push(building.zone)
+        );
+        console.log(this.zones, 'zones');
+        this.selected_zone = this.zones[0];
+        this.selected_trigger = this.triggers[0];
     }
 
     ngAfterViewInit(): void {
@@ -235,9 +259,19 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     updateBuilding() {
+        //TODO: update Levels
         return;
     }
     updateLocation() {
+        return;
+    }
+    updateLevel() {
+        return;
+    }
+    updateZone() {
+        return;
+    }
+    updateTrigger() {
         return;
     }
 }
