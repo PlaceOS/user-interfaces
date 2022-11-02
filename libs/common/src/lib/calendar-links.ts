@@ -3,6 +3,7 @@ import { addMinutes, format } from 'date-fns';
 import { toQueryString } from './api';
 import { localToTimezone } from './timezone-helpers';
 import { unique } from './general';
+import { PlaceSystem } from '@placeos/ts-client';
 
 export interface CalEvent {
     title: string;
@@ -18,6 +19,7 @@ export interface CalEvent {
     attendees: string[];
     resources?: string[];
     meeting_url?: string;
+    system?: PlaceSystem;
 }
 
 function formatUTC(date: Date | number) {
@@ -74,7 +76,7 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
     };
     if (event.attendees && event.attendees.length) {
         const emails = event.attendees.map((_: any) => _.email || _);
-        const resources = (event.resources || []).map((_: any) => _.email || _)
+        const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_: any) => _.email || _)
         details.add = unique([...emails, ...resources]).join();
     }
     return `https://calendar.google.com/calendar/render?${toQueryString(
