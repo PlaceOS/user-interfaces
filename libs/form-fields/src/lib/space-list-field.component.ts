@@ -47,7 +47,7 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
-                        {{ space.name || 'Meeting Space' }}
+                        {{ space.display_name || space.name || 'Meeting Space' }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>

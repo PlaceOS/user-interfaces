@@ -39,7 +39,7 @@ import { Space } from '../space.class';
                         </div>
                         <div class="space-y-2">
                             <div class="font-medium truncate mr-10">
-                                {{ space.name || 'Meeting Space' }}
+                                {{ space.display_name || space.name || 'Meeting Space' }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
