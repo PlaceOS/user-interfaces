@@ -161,19 +161,19 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
-                            <div class="text-lg">{{ 0 }}</div>
+                            <div class="text-lg">{{ accept_count || 0 }}</div>
                             <div class="text-sm uppercase">Yes</div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
-                            <div class="text-lg">{{ 0 }}</div>
+                            <div class="text-lg">{{ declined_count || 0 }}</div>
                             <div class="text-sm uppercase">No</div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
-                            <div class="text-lg">{{ 0 }}</div>
+                            <div class="text-lg">{{ pending_count || 0 }}</div>
                             <div class="text-sm uppercase">Pending</div>
                         </div>
                     </div>
@@ -309,6 +309,10 @@ export class EventDetailsModalComponent {
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
     public space: Space = new Space();
+
+    public accept_count = this._event.attendees.reduce((c, i) => c += i.response_status === 'accepted' ? 1 : 0, 0);
+    public declined_count = this._event.attendees.reduce((c, i) => c += i.response_status === 'declined' ? 1 : 0, 0);
+    public pending_count = this._event.attendees.reduce((c, i) => c += i.response_status === 'tentative' || i.response_status === 'needsAction' ? 1 : 0, 0);
 
     public get allow_edit() {
         return !this._settings.get('app.events.booking_unavailable');
