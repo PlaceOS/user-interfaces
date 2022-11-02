@@ -74,11 +74,10 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
             addMinutes(event.date, event.duration ?? 60)
         )}`,
     };
-    if (event.attendees && event.attendees.length) {
-        const emails = event.attendees.map((_: any) => _.email || _);
-        const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_: any) => _.email || _)
-        details.add = unique([...emails, ...resources]).join();
-    }
+    const emails = (event.attendees || []).map((_: any) => _.email || _);
+    const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_: any) => _.email || _)
+    if (emails.length || resources.length) details.add = unique([...emails, ...resources]).join();
+    console.log('Details:', details);
     return `https://calendar.google.com/calendar/render?${toQueryString(
         details
     )}`;
