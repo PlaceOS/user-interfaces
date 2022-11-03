@@ -54,7 +54,7 @@ import { startOfMinute } from 'date-fns';
                         <div date class="text-sm sm:text-base">
                             {{ date | date: 'fullDate' }}
                         </div>
-                        <div class="text-sm sm:text-base">Sydney Australia</div>
+                        <!-- <div class="text-sm sm:text-base">Sydney Australia</div> -->
                     </div>
                     <div class="h-32 pt-4">
                         <img src="assets/img/landing.svg" />

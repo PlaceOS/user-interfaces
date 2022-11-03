@@ -310,9 +310,23 @@ export class EventDetailsModalComponent {
     public building: Building = new Building();
     public space: Space = new Space();
 
-    public accept_count = this._event.attendees.reduce((c, i) => c += i.response_status === 'accepted' ? 1 : 0, 0);
-    public declined_count = this._event.attendees.reduce((c, i) => c += i.response_status === 'declined' ? 1 : 0, 0);
-    public pending_count = this._event.attendees.reduce((c, i) => c += i.response_status === 'tentative' || i.response_status === 'needsAction' ? 1 : 0, 0);
+    public accept_count = this._event.attendees.reduce(
+        (c, i) => (c += i.response_status === 'accepted' ? 1 : 0),
+        0
+    );
+    public declined_count = this._event.attendees.reduce(
+        (c, i) => (c += i.response_status === 'declined' ? 1 : 0),
+        0
+    );
+    public pending_count = this._event.attendees.reduce(
+        (c, i) =>
+            (c +=
+                i.response_status === 'tentative' ||
+                i.response_status === 'needsAction'
+                    ? 1
+                    : 0),
+        0
+    );
 
     public get allow_edit() {
         return !this._settings.get('app.events.booking_unavailable');
