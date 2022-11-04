@@ -35,6 +35,7 @@ import { QuestionContainerComponent } from './components/question-container.comp
 import { SurveyListComponent } from './pages/survey-list.component';
 import { ConfirmDeleteModalComponent } from './components/confirm-delete-modal.component';
 import { BuildingListComponent } from './pages/building-list.component';
+import { BuildingListItemComponent } from './components/building-list-item.component';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -59,6 +60,7 @@ const COMPONENTS: Type<any>[] = [
     SurveyListComponent,
     ConfirmDeleteModalComponent,
     BuildingListComponent,
+    BuildingListItemComponent,
 ];
 
 @NgModule({
