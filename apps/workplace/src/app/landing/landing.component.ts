@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { currentUser } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
 
 @Component({
@@ -54,7 +55,9 @@ import { startOfMinute } from 'date-fns';
                         <div date class="text-sm sm:text-base">
                             {{ date | date: 'fullDate' }}
                         </div>
-                        <!-- <div class="text-sm sm:text-base">Sydney Australia</div> -->
+                        <div class="text-sm sm:text-base" *ngIf="building?.address || building?.name">
+                            {{ building.address || building.display_name || building.name}}
+                        </div>
                     </div>
                     <div class="h-32 pt-4">
                         <img src="assets/img/landing.svg" />
@@ -103,4 +106,11 @@ export class LandingComponent {
     public get user() {
         return currentUser();
     }
+
+    public get building() {
+        return this._org.building;
+    }
+
+    constructor(private _org: OrganisationService) {}
+
 }

@@ -1,11 +1,10 @@
-
 import { BookingRulesmap } from 'libs/events/src/lib/event.interfaces';
 
 import { BuildingLevel } from './level.class';
 
 interface Identity {
-    id: string,
-    name: string
+    id: string;
+    name: string;
 }
 interface RoomConfiguration {
     id: string;
@@ -105,6 +104,8 @@ export class Building {
 
     public readonly orientations: Record<string, number>;
     public readonly attributes: readonly Identity[];
+    /** Globe coordiates for the build */
+    public location: string;
     /** Map of roles and list of the associated users */
     private _roles: Record<string, IBuildingRoleUser[]>;
     /** Map of the locker ID arrays */
@@ -113,8 +114,6 @@ export class Building {
     private _systems: Record<string, string>;
     /** Map of important phone numbers for the building */
     private _phone_numbers: Record<string, string>;
-    /** Globe coordiates for the build */
-    private _location: ICoordinates;
 
     constructor(raw_data: Partial<BuildingComplete> = {}) {
         this.id = raw_data.id || '';
@@ -147,8 +146,7 @@ export class Building {
         this._systems = raw_data.systems || disc_info.systems || {};
         this._phone_numbers =
             raw_data.phone_numbers || disc_info.phone_numbers || {};
-        this._location = raw_data.location ||
-            disc_info.location || { longitude: null, latitude: null };
+        this.location = raw_data.location || disc_info.location || '0,0';
         this.room_configurations =
             raw_data.room_configurations || disc_info.room_configurations || [];
         this.attributes = raw_data.attributes || disc_info.attributes || [];

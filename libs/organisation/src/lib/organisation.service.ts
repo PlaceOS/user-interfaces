@@ -90,13 +90,17 @@ export class OrganisationService {
         ];
     }
 
-    public get currency_code() : string {
-        return this._service.get('app.currency') || this.building.currency || 'USD';
+    public get currency_code(): string {
+        return (
+            this._service.get('app.currency') || this.building.currency || 'USD'
+        );
     }
 
     /** Get binding value from the building/organisation */
     public binding(name: string) {
-        return this.building?.bindings[name] || this._organisation?.bindings[name];
+        return (
+            this.building?.bindings[name] || this._organisation?.bindings[name]
+        );
     }
 
     /** Get building by id */
@@ -210,16 +214,6 @@ export class OrganisationService {
             buildings.push(new Building({ ...bld, bindings }));
         }
         this._buildings.next(buildings);
-        const id = localStorage.getItem(`PLACEOS.building`);
-        if (id && this.buildings.find((bld) => bld.id === id)) {
-            this._active_building.next(
-                this.buildings.find((bld) => bld.id === id)
-            );
-        }
-        if (!this.building?.id && buildings?.length > 0) {
-            const bld_id = this._service.get('app.default_building');
-            this.building = buildings.find(({ id }) => id === bld_id) || buildings[0];
-        }
     }
 
     /**
@@ -252,13 +246,24 @@ export class OrganisationService {
         const app_name = `${(
             this._service.app_name || 'workplace'
         ).toLowerCase()}_app`;
-        const app_settings = await showMetadata(this._organisation.id, app_name).toPromise();
-        const global_settings = await showMetadata(this._organisation.id, 'settings').toPromise();
+        const app_settings = await showMetadata(
+            this._organisation.id,
+            app_name
+        ).toPromise();
+        const global_settings = await showMetadata(
+            this._organisation.id,
+            'settings'
+        ).toPromise();
         this._settings = [global_settings.details, app_settings.details];
         const buildings = this.buildings;
         for (const bld of buildings) {
-            this._building_settings[bld.id] = await showMetadata(bld.id, app_name).toPromise();
+            this._building_settings[bld.id] = await showMetadata(
+                bld.id,
+                app_name
+            ).toPromise();
         }
+        this._service.overrides = [...this._settings];
+        await this._initialiseActiveBuilding();
         this._service.overrides = [
             ...this._settings,
             this.buildingSettings(this.building.id).details,
@@ -268,5 +273,65 @@ export class OrganisationService {
     /** Save building selection */
     public saveBuilding(id: string) {
         localStorage.setItem(`PLACEOS.building`, id);
+    }
+
+    private _initialiseActiveBuilding() {
+        return new Promise<void>((resolve) => {
+            const id = localStorage.getItem(`PLACEOS.building`);
+            if (id && this.buildings.find((bld) => bld.id === id)) {
+                this._active_building.next(
+                    this.buildings.find((bld) => bld.id === id)
+                );
+                return;
+            }
+            const use_location = !!this._service.get('app.use_geolocation');
+            console.log(
+                'Use Geolocation:',
+                use_location,
+                'geolocation' in navigator
+            );
+            if (use_location && 'geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.log('Location:', +latitude, +longitude);
+                    let closest_bld = null;
+                    for (const bld of this.buildings) {
+                        if (!closest_bld) closest_bld = bld;
+                        else {
+                            const [c_lat, c_long] = (
+                                closest_bld.location || '0,0'
+                            ).split(',');
+                            const [b_lat, b_long] = (
+                                bld.location || '0,0'
+                            ).split(',');
+                            const b_dist = Math.sqrt(
+                                Math.pow(latitude - +b_lat, 2) +
+                                    Math.pow(longitude - +b_long, 2)
+                            );
+                            const c_dist = Math.sqrt(
+                                Math.pow(latitude - +c_lat, 2) +
+                                    Math.pow(longitude - +c_long, 2)
+                            );
+                            if (b_dist < c_dist) closest_bld = bld;
+                            console.log('Building Location:', +b_lat, +b_long);
+                        }
+                    }
+                    if (closest_bld) this.building = closest_bld;
+                    console.log('Closest:', closest_bld);
+                    if (!this.building?.id) this._setDefaultBuilding();
+                    resolve();
+                });
+            } else if (!this.building?.id) {
+                this._setDefaultBuilding();
+                resolve();
+            }
+        });
+    }
+
+    private _setDefaultBuilding() {
+        if (!this.buildings.length) return;
+        const bld_id = this._service.get('app.default_building');
+        this.building =
+            this.buildings.find(({ id }) => id === bld_id) || this.buildings[0];
     }
 }
