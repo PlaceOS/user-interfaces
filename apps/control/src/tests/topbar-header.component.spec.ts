@@ -51,43 +51,4 @@ describe('TopbarHeaderComponent', () => {
         expect('[logo]').toExist();
     });
 
-    it('should show the lights action', async () => {
-        expect('button[type="lights"]').not.toExist();
-        const service = spectator.inject(ControlStateService);
-        (service as any).lights.next([{}]);
-        spectator.detectChanges();
-        expect('button[type="lights"]').toExist();
-    });
-
-    it('should show the blinds action', async () => {
-        expect('button[type="blinds"]').not.toExist();
-        const service = spectator.inject(ControlStateService);
-        (service as any).blinds.next([{}]);
-        spectator.detectChanges();
-        expect('button[type="blinds"]').toExist();
-    });
-
-    it('should show the mics action', async () => {
-        expect('button[type="mics"]').not.toExist();
-        const service = spectator.inject(ControlStateService);
-        (service as any).mic_list.next([{}]);
-        spectator.detectChanges();
-        expect('button[type="mics"]').toExist();
-    });
-
-    it('should show the camera action', async () => {
-        expect('button[type="camera"]').not.toExist();
-        const service = spectator.inject(ControlStateService);
-        (service as any).camera_list.next([{}]);
-        spectator.detectChanges();
-        expect('button[type="camera"]').toExist();
-    });
-
-    it('should show help action', () => {
-        expect('button[type="help"]').toExist();
-    });
-
-    it('should show power action', () => {
-        expect('button[type="power"]').toExist();
-    });
 });

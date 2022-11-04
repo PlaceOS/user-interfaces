@@ -67,14 +67,14 @@ describe('BootstrapComponent', () => {
         expect(button.disabled).toBeFalsy();
     });
 
-    it('should route to the panel on submit', () => {
+    it('should route to the /tabbed on submit', () => {
         spectator.component.system_id$.next('sys-B0');
         spectator.detectChanges();
         expect(spectator.query('button[disabled]')).toBeFalsy();
         spectator.click('button');
         spectator.detectChanges();
         const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], { queryParamsHandling: "preserve" });
+        expect(router.navigate).toHaveBeenCalledWith(['/tabbed', 'sys-B0'], { queryParamsHandling: "preserve" });
     });
 
     it('should auto bootstrap if there is a system query parameter', () => {
@@ -82,14 +82,14 @@ describe('BootstrapComponent', () => {
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
         const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], { queryParamsHandling: "preserve" });
+        expect(router.navigate).toHaveBeenCalledWith(['/tabbed', 'sys-B0'], { queryParamsHandling: "preserve" });
     });
 
     it('should clear bootstrap if there is a clear query parameter', () => {
-        localStorage.setItem('PLACEOS.BOOKINGS.system', 'sys-B0');
+        localStorage.setItem('PLACEOS.CONTROL.system', 'sys-B0');
         spectator.setRouteQueryParam('clear', 'true');
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
-        expect(localStorage.getItem('PLACEOS.BOOKINGS.system')).toBeFalsy();
+        expect(localStorage.getItem('PLACEOS.CONTROL.system')).toBeFalsy();
     });
 });
