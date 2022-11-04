@@ -5,7 +5,13 @@ import { Building } from '@placeos/organisation';
     selector: 'building-list-item',
     template: `
         <section class="building-wrapper">
-            <div class="image-container"><img />Placeholder Image</div>
+            <div *ngIf="building.image" class="image-container">
+                <img src="building.image" alt="image of building" />Placeholder
+                Image
+            </div>
+            <div *ngIf="!building.image" class="image-container">
+                <span> <mat-icon class="domain-icon">domain</mat-icon></span>
+            </div>
             <div class="details-container">
                 <div class="location-wrapper">
                     <mat-icon
@@ -26,7 +32,12 @@ import { Building } from '@placeos/organisation';
                     <li>responses</li>
                 </ul>
             </div>
-            <div class="button-container"><button>View</button></div>
+            <div class="button-container">
+                <button mat-button class="view-button" color="basic">
+                    <span>View</span>
+                    <span> <mat-icon>chevron_right</mat-icon></span>
+                </button>
+            </div>
         </section>
     `,
     styles: [
@@ -40,6 +51,7 @@ import { Building } from '@placeos/organisation';
                 min-width: 1100px;
                 width: 80%;
                 margin: 25px 200px;
+
                 border: 1px solid #e6e6e6;
                 box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
                 border-radius: 6px;
@@ -48,12 +60,13 @@ import { Building } from '@placeos/organisation';
                 display: flex;
                 height: 100%;
                 width: 380px;
-                background-color: gray;
+                background-color: rgba(0, 0, 0, 0.12);
+                align-items: center;
+                justify-content: center;
             }
             .details-container {
                 display: flex;
                 flex-direction: column;
-
                 min-width: 600px;
                 margin: 30px;
             }
@@ -66,6 +79,12 @@ import { Building } from '@placeos/organisation';
             .location-icon {
                 color: #5295f7;
                 margin-right: 10px;
+            }
+            .domain-icon {
+                display: flex;
+                color: #fff;
+                height: 100%;
+                width: 100%;
             }
             .building-title {
                 font-size: 18px;
@@ -87,11 +106,28 @@ import { Building } from '@placeos/organisation';
                 bottom: 20px;
                 right: 20px;
             }
+            .view-button {
+                display: inline-flex;
+                color: #292f5b;
+                background-color: #fff;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
+                justify-content: center;
+                padding-left: 20px;
+            }
+            .view-button span {
+                display: inline-flex;
+            }
+            .view-button mat-icon {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
         `,
     ],
 })
 export class BuildingListItemComponent implements OnInit {
-    @Input() building: Building;
+    @Input() building: Building | any;
     constructor() {}
 
     ngOnInit(): void {}

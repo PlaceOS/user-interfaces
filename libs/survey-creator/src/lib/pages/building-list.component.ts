@@ -80,6 +80,9 @@ export const MOCK_BUILDINGS = [
             section {
                 background-color: #fff;
             }
+            main {
+                padding-bottom: 30px;
+            }
             .heading-wrapper {
                 display: flex;
                 align-items: center;
