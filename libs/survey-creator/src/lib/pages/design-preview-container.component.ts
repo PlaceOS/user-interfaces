@@ -90,18 +90,16 @@ import { SearchService } from '../search.service';
             }
             .question-bank-section {
                 display: flex;
-                flex: 0.5;
-                flex-shrink: 3;
                 flex-direction: column;
                 background-color: #f5f5f5;
-                width: 400px;
             }
+
             .header {
                 display: flex;
                 justify-content: space-between;
                 height: 49px;
                 border-bottom: 1px solid rgb(0, 0, 0, 0.12);
-                width: 400px;
+                padding-right: 5px;
                 align-items: center;
                 background-color: #fff;
             }

@@ -35,7 +35,6 @@ import { Question } from '../survey-types';
                 align-items: center;
                 margin: 10px;
                 padding: 10px;
-                max-width: 500px;
                 border-radius: 5px;
                 border: 1px solid #f5f5f5;
                 font-size: 12px;
