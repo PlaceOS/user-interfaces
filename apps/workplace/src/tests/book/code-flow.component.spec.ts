@@ -1,14 +1,21 @@
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { BookingFormService } from '@placeos/bookings';
+import { EventFormService } from '@placeos/events';
+import { MockProvider } from 'ng-mocks';
 
 import { BookCodeFlowComponent } from '../../app/book/code-flow.component';
 
 describe('BookCodeFlowComponent', () => {
-    let spectator: Spectator<BookCodeFlowComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<BookCodeFlowComponent>;
+    const createComponent = createRoutingFactory({
         component: BookCodeFlowComponent,
-        providers: [{ provide: Router, useValue: { navigate: jest.fn() } }],
+        providers: [
+            MockProvider(Router, { navigate: jest.fn() } ),
+            MockProvider(EventFormService),
+            MockProvider(BookingFormService),
+        ],
         imports: [FormsModule],
     });
 
