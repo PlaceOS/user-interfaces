@@ -9,7 +9,7 @@ import { Building } from '@placeos/organisation';
             <div class="details-container">
                 <div class="location-wrapper">
                     <mat-icon
-                        class="material-symbols-outlined"
+                        class="location-icon"
                         aria-hidden="false"
                         aria-label="Material icon of location pointer"
                         >location_on</mat-icon
@@ -17,10 +17,10 @@ import { Building } from '@placeos/organisation';
                     <span> Location </span>
                 </div>
 
-                <span>
+                <span class="building-title">
                     {{ building.name }}
                 </span>
-                <ul>
+                <ul class="details-text">
                     <li>surveys live</li>
                     <li>draft</li>
                     <li>responses</li>
@@ -56,6 +56,30 @@ import { Building } from '@placeos/organisation';
 
                 min-width: 600px;
                 margin: 30px;
+            }
+            .location-wrapper {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .location-icon {
+                color: #5295f7;
+                margin-right: 10px;
+            }
+            .building-title {
+                font-size: 18px;
+                font-weight: 500;
+            }
+            .details-text {
+                display: flex;
+                flex-direction: column;
+                font-size: 14px;
+                font-weight: 400;
+                color: #020202;
+                margin-bottom: 10px;
+                justify-content: space-between;
+                height: 70px;
             }
             .button-container {
                 display: flex;
