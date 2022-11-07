@@ -105,18 +105,24 @@
                                 matInput
                                 type="text"
                                 class="survey-title"
-                                [placeholder]="'Survey Title'"
                                 [formControl]="survey_title"
+                                [placeholder]="'Survey Title'"
                                 (keyup)="onKey($event)"
                             />
                         </div>
+                        <mat-error
+                            class="input-error"
+                            *ngIf="survey_title.hasError('required')"
+                            >Please enter a survey title</mat-error
+                        >
                         <div class="selected-questions-container">
                             <div
                                 id="question_bank"
                                 cdkDropList
                                 cdkDropListConnectedTo="question_bank"
                                 (cdkDropListDropped)="
-                                    surveyCreatorService.drop($event)
+                                    surveyCreatorService.drop($event);
+                                    checkTitle()
                                 "
                                 class="selected-questions-list"
                             >
@@ -165,7 +171,11 @@
                         </div>
                     </ng-template>
                 </mat-tab>
-                <mat-tab label="Preview">
+                <mat-tab
+                    label="Preview"
+                    #preview
+                    [disabled]="!(enable_preview$ | async)"
+                >
                     <ng-template matTabContent class="preview-content">
                         <div class="preview-survey-title">
                             <span>

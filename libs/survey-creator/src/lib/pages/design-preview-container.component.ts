@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { Observable, fromEvent } from 'rxjs';
+import { Observable, fromEvent, BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
@@ -7,7 +7,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from '../components/add-question-bank.component';
 import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
 import { SearchService } from '../search.service';
-import { FormControl } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
     selector: 'design-preview-container',
@@ -66,8 +66,20 @@ import { FormControl } from '@angular/forms';
                 padding: 10px 10px;
                 margin: 5px;
                 font-weight: 500;
-                width: 100%;
+                width: 500px;
                 font-size: 16px;
+            }
+
+            input.ng-invalid {
+                border: 1px solid #3b82f6;
+                box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
+                border-radius: 4px;
+            }
+            .input-error {
+                font-size: 14px;
+                color: #3b82f6;
+                border: none;
+                margin-left: 30px;
             }
             .preview-survey-title {
                 padding: 10px 10px;
@@ -207,8 +219,17 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         { name: 'All Monday meetings', metadata: '' },
     ];
 
-    survey_title: FormControl = new FormControl('');
+    survey_title: FormControl = new FormControl('Survey Title', [
+        Validators.required,
+        Validators.minLength(1),
+    ]);
 
+    enable_preview: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+        false
+    );
+
+    enable_preview$: Observable<boolean> = this.enable_preview.asObservable();
+    // enable_preview: Observable<boolean> = of(false);
     selected_questions: Question[] =
         this.surveyCreatorService.selected_questions;
 
@@ -243,7 +264,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        console.log(this.tabGroup.selectedIndex);
+        // console.log(this.tabGroup.selectedIndex);
     }
 
     openAddQuestionBankDialog(): void {
@@ -261,11 +282,26 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         this.survey_title.patchValue(event.target.value);
 
         this.surveyCreatorService.survey_title.next(event.target.value);
+        this.checkTitle();
     }
 
     tabChanged(event: any) {
         console.log(this.tabGroup.selectedIndex);
         console.log(event.index, 'index');
+    }
+
+    checkTitle() {
+        if (
+            this.survey_title.value === 'Survey Title' ||
+            !this.survey_title.valid ||
+            !this.survey_title
+        ) {
+            this.survey_title.patchValue('');
+            this.enable_preview.next(false);
+        }
+        if (this.survey_title.valid) {
+            this.enable_preview.next(true);
+        }
     }
 
     updateBuilding() {
