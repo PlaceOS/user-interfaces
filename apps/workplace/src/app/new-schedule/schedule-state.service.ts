@@ -130,6 +130,10 @@ export class ScheduleStateService extends BaseClass {
         this._date.next(date);
     }
 
+    public removeItem(item) {
+        this._poll.next(Date.now());
+    }
+
     public async toggleType(name: string, clear: boolean = false) {
         const filters = this._filters.getValue() || { shown_types: [] };
         const { shown_types } = filters;

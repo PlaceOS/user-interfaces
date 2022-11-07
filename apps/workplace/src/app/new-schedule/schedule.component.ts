@@ -143,6 +143,7 @@ export class ScheduleComponent {
                 throw e;
             });
         notifySuccess('Successfully deleted booking.');
-        resp.close();
+        this._state.removeItem(item);
+        this._dialog.closeAll();
     }
 }
