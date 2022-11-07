@@ -6,7 +6,7 @@ import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { Calendar } from './calendar.class';
 
 import { BaseClass, notifyError, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CalendarEvent } from '../../../events/src/lib/event.class';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 import {

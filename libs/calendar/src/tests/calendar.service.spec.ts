@@ -60,6 +60,7 @@ describe('CalendarService', () => {
 
     it('should allow checking space availability', async () => {
         (cal_fn as any).queryCalendarAvailability = jest.fn(() => of([]));
+        (cal_fn as any).queryCalendars = jest.fn(() => of([]));
         const is_free = await spectator.service.checkSpacesAvailability(
             ['sys-1'],
             1,

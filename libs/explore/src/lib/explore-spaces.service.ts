@@ -4,7 +4,7 @@ import { getModule } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import { map } from 'rxjs/operators';
 
-import { BaseClass, HashMap, SettingsService } from '@placeos/common';
+import { BaseClass, currentUser, HashMap, SettingsService } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -13,6 +13,7 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -66,6 +67,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
     constructor(
         private _state: ExploreStateService,
         private _settings: SettingsService,
+        private _event_form: EventFormService,
         private _dialog: MatDialog
     ) {
         super();
@@ -79,6 +81,14 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                     space.display_name || space.name
                 } is unavailable at the current time`
             );
+        }
+        this._event_form.newForm();
+        this._event_form.form.patchValue({ 
+            host: currentUser()?.email,
+            resources: [space]
+        });
+        if (this._settings.get('app.events.booking_unavailable')) {
+            return this._event_form.openEventLinkModal();
         }
         this._dialog.open(
             (this._settings.get('app.explore.show_booking_qr')
