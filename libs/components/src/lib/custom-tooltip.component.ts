@@ -110,6 +110,9 @@ export class CustomTooltipComponent<T = any>
             this._updateType();
             if (this._overlay_ref) this.close();
             if (!this._portal) return;
+            const pos = this._element.nativeElement.getBoundingClientRect();
+            const default_x = pos.x > document.body.clientWidth / 2 ? 'start' : 'end';
+            const default_y = pos.y > document.body.clientHeight / 2 ? 'top' : 'bottom';
             this._overlay_ref = this._overlay.create({
                 hasBackdrop: !!this.backdrop,
                 positionStrategy: this._overlay
@@ -117,15 +120,15 @@ export class CustomTooltipComponent<T = any>
                     .flexibleConnectedTo(this._element)
                     .withPositions([
                         {
-                            originX: this.x_pos || 'end',
+                            originX: this.x_pos || default_x,
                             originY:
                                 (this.y_pos === 'top'
                                     ? 'bottom'
                                     : this.y_pos == 'bottom'
                                     ? 'top'
-                                    : this.y_pos) || 'bottom',
-                            overlayX: this.x_pos || 'end',
-                            overlayY: this.y_pos || 'top',
+                                    : this.y_pos) || default_y,
+                            overlayX: this.x_pos || default_x,
+                            overlayY: this.y_pos || default_y,
                         },
                     ]),
             });

@@ -21,6 +21,7 @@ export interface SpaceInfoData {
     selector: 'explore-space-info',
     template: `
         <div
+            #tooltip
             customTooltip
             [content]="space_tooltip"
             [backdrop]="false"
@@ -28,7 +29,7 @@ export interface SpaceInfoData {
             [yPosition]="'center'"
             [hover]="true"
             [attr.id]="space?.map_id || space?.id"
-            *ngIf="space"
+            (mouseenter)="updateOffset()"
             class="h-full w-full pointer-events-auto relative"
         ></div>
         <ng-template #space_tooltip>
@@ -142,19 +143,14 @@ export class ExploreSpaceInfoComponent implements OnInit {
         private _element: ElementRef<HTMLElement>
     ) {}
 
-    public ngOnInit(tries: number = 0) {
-        if (tries > 10) return;
-        setTimeout(() => {
-            const parent =
-                this._element.nativeElement.parentElement?.parentElement;
-            if (!parent) return this.ngOnInit(++tries);
-            const position = {
-                y: parseInt(parent.style.top, 10) / 100,
-                x: parseInt(parent.style.left, 10) / 100,
-            };
-            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
-            this.x_pos = position.x >= 0.5 ? 'end' : 'start';
-        }, 200);
+    public ngOnInit() {
+        setTimeout(() => this.updateOffset(), 200);
+    }
+
+    public updateOffset() {
+        const pos = this._element.nativeElement.getBoundingClientRect();
+        this.x_pos = pos.x < document.body.clientWidth / 2 ? 'start' : 'end';
+        this.y_pos = pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom';
     }
 
     public get available_until() {
