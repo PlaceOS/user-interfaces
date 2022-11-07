@@ -15,6 +15,7 @@ import {
     downloadFile,
     notifyError,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import {
     catchError,
@@ -26,7 +27,7 @@ import {
 } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { BehaviorSubject, of, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, of, zip } from 'rxjs';
 
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
@@ -200,16 +201,48 @@ export class UserListFieldComponent
         debounceTime(300),
         switchMap((_) => {
             this.loading = true;
-            return _
-                ? this.guests
-                    ? zip([searchStaff(_), searchGuests(_)]).pipe(
-                          map(([staff, guests]) =>
-                              (staff as any).concat(guests)
-                          ),
-                          catchError((_) => [])
-                      )
-                    : searchStaff(_).pipe(catchError((_) => []))
-                : of([]);
+            console.log('Search:', _);
+            return (
+                _
+                    ? this.guests
+                        ? combineLatest([searchStaff(_), searchGuests(_)]).pipe(
+                                map(([staff, guests]) => {
+                                    console.log('Users:', staff, guests);
+                                    const visitors_list = [];
+                                    const visitors =
+                                        this._settings.get('visitor-invitees') ||
+                                        [];
+                                    for (const item of visitors) {
+                                        const [email, name, company] =
+                                            item.split('|');
+                                        visitors_list.push({
+                                            email,
+                                            name,
+                                            company,
+                                        });
+                                    }
+                                    console.log(
+                                        'Users:',
+                                        staff,
+                                        guests,
+                                        visitors_list
+                                    );
+                                    return unique(
+                                        (staff as any)
+                                            .concat(guests)
+                                            .concat(visitors_list),
+                                        'email'
+                                    );
+                                })
+                            )
+                        : searchStaff(_)
+                    : of([])
+            ).pipe(
+                catchError((_) => {
+                    console.log(_);
+                    return of([]);
+                })
+            );
         }),
         tap((_) => (this.loading = false))
     );
@@ -242,7 +275,15 @@ export class UserListFieldComponent
     public addUserFromEmail(email: string = '') {
         if (!email) email = this.search$.getValue();
         if (!validateEmail(email)) return;
-        this.addUser(new User({ id: email, email, name: email.split('@')[0] }));
+        const user = new User({ id: email, email, name: email.split('@')[0] });
+        this.addUser(user);
+        const { name, organisation } = user;
+        const visitor_details = `${email}|${name}|${organisation}`;
+        const old_visitors = this._settings.get('visitor-invitees') || [];
+        this._settings.saveUserSetting('visitor-invitees', [
+            ...old_visitors.filter((_) => !_.includes(email)),
+            visitor_details,
+        ]);
         this.timeout(
             'clear_search',
             () => {

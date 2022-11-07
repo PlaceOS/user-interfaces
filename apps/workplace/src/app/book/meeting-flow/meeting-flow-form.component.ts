@@ -100,6 +100,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <a-user-list-field
                                 class="mt-4"
                                 formControlName="attendees"
+                                [guests]="allow_externals"
                             ></a-user-list-field>
                         </div>
                     </section>
@@ -261,6 +262,10 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     public get hide_attendees() {
         return !!this._settings.get('app.events.hide_attendees');
+    }
+
+    public get allow_externals() {
+        return this._settings.get('app.events.allow_externals');
     }
 
     public readonly clearForm = () => this._state.resetForm();
