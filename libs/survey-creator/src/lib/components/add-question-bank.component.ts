@@ -191,6 +191,13 @@ export class AddQuestionBankComponent implements OnInit {
     updateTitle(event) {
         this.new_question.title = event[0];
         this.new_question.type = event[1];
+        this._surveyCreatorService.new_question_form.patchValue({
+            title: event[0],
+        });
+        this._surveyCreatorService.new_question_form.patchValue({
+            type: event[1],
+        });
+        console.log(this._surveyCreatorService.new_question_form);
     }
     updateChoice(event) {
         let choice_index = this.new_question.choices.findIndex(

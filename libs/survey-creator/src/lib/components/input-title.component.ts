@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
     selector: 'input-title',
@@ -12,6 +13,9 @@ import { Component, OnInit, Input } from '@angular/core';
             [style.fontSize.px]="fontSize"
             [value]="value"
         />
+        <mat-error class="input-error" *ngIf="title.hasError('required')"
+            >Please enter a question</mat-error
+        >
     `,
     styles: [
         `
@@ -30,6 +34,13 @@ import { Component, OnInit, Input } from '@angular/core';
             input[type='text']:active {
                 border: none;
             }
+
+            .input-error {
+                font-size: 14px;
+                color: #3b82f6;
+                border: none;
+                margin-left: 30px;
+            }
         `,
     ],
 })
@@ -38,6 +49,8 @@ export class InputTitleComponent implements OnInit {
     @Input() fontSize: string = '';
     @Input() id: string = '';
     @Input() value?: string = '';
+
+    title: FormControl = new FormControl('');
 
     constructor() {}
 

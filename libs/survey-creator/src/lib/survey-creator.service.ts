@@ -10,6 +10,7 @@ import {
     copyArrayItem,
     transferArrayItem,
 } from '@angular/cdk/drag-drop';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Injectable({
     providedIn: 'root',
@@ -21,6 +22,13 @@ export class SurveyCreatorService {
     );
     survey_title$: Observable<string> = this.survey_title.asObservable();
 
+    new_question_form: FormGroup = new FormGroup({
+        title: new FormControl(''),
+        type: new FormControl(''),
+        name: new FormControl(''),
+        rateValues: new FormControl(''),
+        choices: new FormControl(''),
+    });
     //Store of survey question bank
     private _question_bank: BehaviorSubject<Question[]> = new BehaviorSubject<
         Question[]
@@ -193,6 +201,10 @@ export class SurveyCreatorService {
         this.selected_questions[index_to_delete].selected = false;
 
         this.selected_questions.splice(index_to_delete, 1);
+    }
+
+    newForm() {
+        let new_question = this.new_question_form;
     }
 
     submitSurvey() {
