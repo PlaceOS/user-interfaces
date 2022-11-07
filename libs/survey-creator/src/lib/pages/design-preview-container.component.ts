@@ -7,6 +7,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from '../components/add-question-bank.component';
 import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
 import { SearchService } from '../search.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
     selector: 'design-preview-container',
@@ -31,6 +32,7 @@ import { SearchService } from '../search.service';
                 display: flex;
                 align-items: center;
             }
+
             .back-arrow {
                 display: flex;
                 margin-right: 10px;
@@ -55,9 +57,17 @@ import { SearchService } from '../search.service';
                 border: 1px solid gray;
                 background-color: #f5f5f5;
             }
-            .survey-title {
+            .survey-title-container {
                 border-bottom: 2px solid #808080;
                 margin: 10px 25px;
+            }
+            .survey-title {
+                border: none;
+                padding: 10px 10px;
+                margin: 5px;
+                font-weight: 500;
+                width: 100%;
+                font-size: 16px;
             }
             .preview-survey-title {
                 padding: 10px 10px;
@@ -197,7 +207,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         { name: 'All Monday meetings', metadata: '' },
     ];
 
-    // survey_title: string = this.surveyCreatorService.survey_title || '';
+    survey_title: FormControl = new FormControl('');
 
     selected_questions: Question[] =
         this.surveyCreatorService.selected_questions;
@@ -248,6 +258,8 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     onKey(event: any) {
+        this.survey_title.patchValue(event.target.value);
+
         this.surveyCreatorService.survey_title.next(event.target.value);
     }
 

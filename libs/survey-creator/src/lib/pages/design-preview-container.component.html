@@ -100,13 +100,15 @@
             >
                 <mat-tab label="Design">
                     <ng-template matTabContent class="design-content">
-                        <div class="survey-title">
-                            <input-title
+                        <div class="survey-title-container">
+                            <input
+                                matInput
+                                type="text"
+                                class="survey-title"
                                 [placeholder]="'Survey Title'"
-                                [fontSize]="16"
-                                [id]="'survey-title-design'"
+                                [formControl]="survey_title"
                                 (keyup)="onKey($event)"
-                            ></input-title>
+                            />
                         </div>
                         <div class="selected-questions-container">
                             <div
