@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Question } from '../survey-types';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { QuestionCreatorService } from '../question-creator.service';
+import { FormGroup, FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'checkbox-question',
@@ -52,14 +54,19 @@ import { QuestionCreatorService } from '../question-creator.service';
         <ng-template #draft>
             <div class="question-container">
                 <div class="wrapper">
+                    <mat-error *ngIf="title_error$ | async"
+                        >Please enter a title</mat-error
+                    >
                     <div class="draft-question">
                         <input-title
+                            [ngClass]="{ 'error-style': title_error$ | async }"
                             [placeholder]="
                                 question?.title || 'Type question here...'
                             "
                             (change)="updateTitle($event)"
                         ></input-title>
                     </div>
+
                     <div class="draft-checkbox-container">
                         <div
                             *ngFor="
@@ -94,6 +101,16 @@ import { QuestionCreatorService } from '../question-creator.service';
         `
             input-title {
                 width: 500px;
+            }
+            mat-error {
+                color: #3b82f6;
+                margin: 0px 0px 3px -12px;
+            }
+            .error-style {
+                border: 1px solid #3b82f6;
+                box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
+                border-radius: 4px;
+                padding-right: 10px;
             }
             .question-container {
                 display: flex;
@@ -186,6 +203,9 @@ export class CheckboxQuestionComponent implements OnInit {
     @Output() newTitleEvent: EventEmitter<string> = new EventEmitter<string>();
     @Output() newChoiceEvent: EventEmitter<any> = new EventEmitter<any>();
     @Output() allChoicesEvent: EventEmitter<any> = new EventEmitter<any>();
+    title_error$: Observable<boolean> = this.surveyCreatorService.title_error$;
+    choice_error$: Observable<boolean> =
+        this.surveyCreatorService.choice_error$;
 
     constructor(
         public surveyCreatorService: SurveyCreatorService,

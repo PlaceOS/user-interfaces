@@ -222,7 +222,7 @@ export class AddQuestionBankComponent implements OnInit {
         this._update_flag.next(true);
 
         this._surveyCreatorService.checkForm();
-        console.log(this._surveyCreatorService.new_question_form);
+
         if (this._surveyCreatorService.new_question_form.valid) {
             this.closeDialog();
             this.tags.forEach((tag) => {

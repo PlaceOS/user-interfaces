@@ -80,6 +80,14 @@ export class SurveyCreatorService {
         return this._surveyJSON.getValue();
     }
 
+    //Form error
+    _title_error: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
+    title_error$: Observable<boolean> = this._title_error.asObservable();
+    _choice_error: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+        null
+    );
+    choice_error$: Observable<boolean> = this._choice_error.asObservable();
+
     constructor() {
         //Mock question bank
         this.question_bank = [
@@ -208,9 +216,15 @@ export class SurveyCreatorService {
     }
 
     checkForm() {
-        //
+        !this.new_question_form.controls['title'].valid
+            ? this._title_error.next(true)
+            : this._title_error.next(false);
 
-        console.log(this.new_question_form.valid);
+        !this.new_question_form.controls['choices'].valid
+            ? this._choice_error.next(true)
+            : this._choice_error.next(false);
+
+        console.log(this.new_question_form);
     }
     updateValidators() {
         this.new_question_form.controls['choices'].setValidators(
