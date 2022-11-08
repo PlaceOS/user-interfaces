@@ -197,7 +197,6 @@ export class AddQuestionBankComponent implements OnInit {
         this._surveyCreatorService.new_question_form.patchValue({
             type: event[1],
         });
-        console.log(this._surveyCreatorService.new_question_form);
     }
     updateChoice(event) {
         let choice_index = this.new_question.choices.findIndex(
@@ -209,6 +208,9 @@ export class AddQuestionBankComponent implements OnInit {
     }
     updateAllChoices(event: string[]) {
         this.new_question.choices = event;
+        this._surveyCreatorService.new_question_form.patchValue({
+            choices: event[0],
+        });
     }
     updateRating(event) {
         this.new_question.rateValues = event || [1, 2, 3, 4, 5];
