@@ -68,7 +68,15 @@ import { Observable } from 'rxjs';
                     </div>
 
                     <div class="draft-checkbox-container">
+                        <mat-error
+                            class="choice-error"
+                            *ngIf="choice_error$ | async"
+                            >Please enter a choice</mat-error
+                        >
                         <div
+                            [ngClass]="{
+                                'error-style': choice_error$ | async
+                            }"
                             *ngFor="
                                 let choice of question?.choices ||
                                     'Type a choice here...'
@@ -79,13 +87,13 @@ import { Observable } from 'rxjs';
                             <input
                                 matInput
                                 type="text"
-                                class="choices_box"
                                 [id]="choices_counter"
                                 [style.fontSize.px]="12"
                                 [placeholder]="choice"
                                 (change)="updateChoice($event, choice)"
                             />
                         </div>
+
                         <div class="plus-minus-buttons">
                             <minus-button
                                 (click)="deleteOption()"
@@ -105,6 +113,10 @@ import { Observable } from 'rxjs';
             mat-error {
                 color: #3b82f6;
                 margin: 0px 0px 3px -12px;
+            }
+            .choice-error {
+                color: #3b82f6;
+                margin: 10px 0px 3px -15px;
             }
             .error-style {
                 border: 1px solid #3b82f6;
@@ -228,6 +240,7 @@ export class CheckboxQuestionComponent implements OnInit {
 
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
+        this.surveyCreatorService.checkForm();
     }
     updateChoice(event, choice) {
         let found_index = this.question.choices.findIndex(
@@ -241,8 +254,10 @@ export class CheckboxQuestionComponent implements OnInit {
             //Update 'Edit' modal
             this.newChoiceEvent.emit([event.target.value, choice]);
         }
+        this.surveyCreatorService.checkForm();
     }
     updateAllChoices(event) {
         this.allChoicesEvent.emit(event);
+        this.surveyCreatorService.checkForm();
     }
 }

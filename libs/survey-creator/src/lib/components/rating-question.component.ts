@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { SurveyCreatorService } from '../survey-creator.service';
 import { Question } from '../survey-types';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'rating-question',
@@ -45,8 +46,12 @@ import { Question } from '../survey-types';
         <ng-template #draft>
             <div class="rating-question-container">
                 <div class="wrapper">
+                    <mat-error *ngIf="title_error$ | async"
+                        >Please enter a title</mat-error
+                    >
                     <div class="draft-question">
                         <input-title
+                            [ngClass]="{ 'error-style': title_error$ | async }"
                             [placeholder]="
                                 question?.title || 'Type question here...'
                             "
@@ -78,6 +83,16 @@ import { Question } from '../survey-types';
         `
             input-title {
                 width: 500px;
+            }
+            mat-error {
+                color: #3b82f6;
+                margin: 0px 0px 3px -12px;
+            }
+            .error-style {
+                border: 1px solid #3b82f6;
+                box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
+                border-radius: 4px;
+                padding-right: 10px;
             }
             .rating-question-container {
                 display: flex;
@@ -150,6 +165,7 @@ export class RatingQuestionComponent implements OnInit {
         number[]
     >();
     @Output() newUpdateEvent: EventEmitter<any> = new EventEmitter<any>();
+    title_error$: Observable<boolean> = this.surveyCreatorService.title_error$;
 
     rateValues: number[];
 
@@ -173,9 +189,13 @@ export class RatingQuestionComponent implements OnInit {
 
     updateTitle(event) {
         this.newTitleEvent.emit(event.target.value);
+        this.surveyCreatorService.checkForm();
     }
 
     updateRating() {
         this.newRatingEvent.emit(this.rateValues);
+        this.surveyCreatorService.new_question_form.patchValue({
+            rateValues: this.rateValues,
+        });
     }
 }

@@ -226,6 +226,7 @@ export class SurveyCreatorService {
 
         console.log(this.new_question_form);
     }
+
     updateValidators() {
         this.new_question_form.controls['choices'].setValidators(
             Validators.required
@@ -233,6 +234,10 @@ export class SurveyCreatorService {
         this.new_question_form.controls['choices'].updateValueAndValidity();
 
         console.log('validator set');
+    }
+    clearChoicesValidators() {
+        this.new_question_form.controls['choices'].clearValidators();
+        this.new_question_form.controls['choices'].updateValueAndValidity();
     }
 
     submitSurvey() {
