@@ -13,10 +13,42 @@ import { Desk, OrganisationService } from '@placeos/organisation';
             *ngIf="form"
             [formGroup]="form"
         >
-            <section class="p-2">
+            <section class="flex items-center" *ngIf="allow_groups">
+                <button
+                    matRipple
+                    class="relative h-16 flex items-center justify-center flex-1 space-x-2"
+                    [class.text-primary]="!(options | async)?.group"
+                    [class.opacity-60]="(options | async)?.group"
+                    (click)="setOptions({ group: false, members: [] })"
+                >
+                    <app-icon class="text-2xl">person</app-icon>
+                    <div class="">Single</div>
+                    <div
+                        class="absolute h-2 inset-x-0 bottom-0 !m-0"
+                        [class.bg-gray-200]="(options | async)?.group"
+                        [class.bg-primary]="!(options | async)?.group"
+                    ></div>
+                </button>
+                <button
+                    matRipple
+                    class="relative h-16 flex items-center justify-center flex-1 space-x-2"
+                    [class.text-primary]="(options | async)?.group"
+                    [class.opacity-60]="!(options | async)?.group"
+                    (click)="setOptions({ group: true })"
+                >
+                    <app-icon class="text-2xl">group_add</app-icon>
+                    <div class="">Group</div>
+                    <div
+                        class="absolute h-2 inset-x-0 bottom-0 !m-0"
+                        [class.bg-gray-200]="!(options | async)?.group"
+                        [class.bg-primary]="(options | async)?.group"
+                    ></div>
+                </button>
+            </section>
+            <section class="p-2" [class.!border-none]="allow_groups">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="border border-black rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         1
                     </div>
@@ -72,7 +104,10 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                         </mat-checkbox>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2" *ngIf="can_book_lockers">
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="can_book_lockers"
+                >
                     <div class="flex-1 w-1/3">
                         <mat-checkbox
                             [ngModel]="!!form.value.secondary_resource"
@@ -88,13 +123,33 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     </div>
                 </div>
             </section>
-
+            <section class="p-2" *ngIf="(options | async)?.group">
+                <h3 class="space-x-2 flex items-center">
+                    <div
+                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                    >
+                        2
+                    </div>
+                    <div class="text-xl">Group Members</div>
+                    <div class="flex-1 w-px"></div>
+                </h3>
+                <div
+                    class="overflow-hidden"
+                >
+                    <a-user-list-field
+                        class="mt-4"
+                            [ngModel]="(options | async)?.members || []"
+                            (ngModelChange)="setOptions({ members: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                    ></a-user-list-field>
+                </div>
+            </section>
             <section class="p-2">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="border border-black rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                     >
-                        2
+                        {{ (options | async)?.group ? 3 : 2 }}
                     </div>
                     <div class="text-xl">Desk</div>
                 </h3>
@@ -103,9 +158,9 @@ import { Desk, OrganisationService } from '@placeos/organisation';
             <section class="p-2">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="border border-black rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                     >
-                        3
+                        {{ (options | async)?.group ? 4 : 3 }}
                     </div>
                     <div class="text-xl">Request Asset</div>
                 </h3>
