@@ -22,13 +22,7 @@ export class SurveyCreatorService {
     );
     survey_title$: Observable<string> = this.survey_title.asObservable();
 
-    new_question_form: FormGroup = new FormGroup({
-        title: new FormControl(''),
-        type: new FormControl(''),
-        name: new FormControl(''),
-        rateValues: new FormControl(''),
-        choices: new FormControl(''),
-    });
+    new_question_form: FormGroup;
     //Store of survey question bank
     private _question_bank: BehaviorSubject<Question[]> = new BehaviorSubject<
         Question[]
@@ -204,7 +198,27 @@ export class SurveyCreatorService {
     }
 
     newForm() {
-        let new_question = this.new_question_form;
+        this.new_question_form = new FormGroup({
+            title: new FormControl('', Validators.required),
+            type: new FormControl('', Validators.required),
+            name: new FormControl(''),
+            rateValues: new FormControl(''),
+            choices: new FormControl(''),
+        });
+    }
+
+    checkForm() {
+        //
+
+        console.log(this.new_question_form.valid);
+    }
+    updateValidators() {
+        this.new_question_form.controls['choices'].setValidators(
+            Validators.required
+        );
+        this.new_question_form.controls['choices'].updateValueAndValidity();
+
+        console.log('validator set');
     }
 
     submitSurvey() {

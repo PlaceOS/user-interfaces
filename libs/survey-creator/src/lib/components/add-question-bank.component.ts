@@ -218,17 +218,25 @@ export class AddQuestionBankComponent implements OnInit {
     }
     addQuestion() {
         this._update_flag.next(true);
-        this.closeDialog();
-        this.tags.forEach((tag) => {
-            if (tag.apply) this.new_question.tags.push(tag.name);
-        });
-        this.flag_sub = this._update_flag.asObservable().subscribe((flag) => {
-            if (flag) {
-                this._surveyCreatorService.question_bank.push(
-                    this.new_question
-                );
-            }
-        });
+
+        this._surveyCreatorService.checkForm();
+        console.log(this._surveyCreatorService.new_question_form);
+        if (this._surveyCreatorService.new_question_form.valid) {
+            this.closeDialog();
+            this.tags.forEach((tag) => {
+                if (tag.apply) this.new_question.tags.push(tag.name);
+            });
+            this.flag_sub = this._update_flag
+                .asObservable()
+                .subscribe((flag) => {
+                    if (flag) {
+                        this._surveyCreatorService.question_bank.push(
+                            this.new_question
+                        );
+                    }
+                });
+        }
+
         this._update_flag.next(false);
     }
 

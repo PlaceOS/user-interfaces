@@ -219,6 +219,13 @@ export class QuestionContainerComponent implements OnInit {
     updateSelectedTag() {
         this.question_type = this.selected_type;
         this.updateTypeEvent.emit(this.selected_type);
+
+        if (
+            this.selected_type == QuestionType.checkbox ||
+            QuestionType.dropdown
+        ) {
+            this.surveyCreatorService.updateValidators();
+        }
     }
     updateTitle(event) {
         this.newTitleEvent.emit([event, this.question_type]);

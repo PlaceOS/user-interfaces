@@ -269,6 +269,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
 
     openAddQuestionBankDialog(): void {
         this.addDialog.open(AddQuestionBankComponent, this.dialogConfig);
+        this.surveyCreatorService.newForm();
     }
 
     openEditQuestionBankDialog(): void {
