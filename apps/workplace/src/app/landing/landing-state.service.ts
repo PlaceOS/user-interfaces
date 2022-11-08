@@ -103,7 +103,7 @@ export class LandingStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public pollFreeSpaces(delay: number = 10 * 1000) {
+    public pollFreeSpaces(delay: number = 60 * 1000) {
         this._loading_spaces.next(true);
         this.updateFreeSpaces();
         this.interval('free_spaces', () => this.updateFreeSpaces(), delay);
