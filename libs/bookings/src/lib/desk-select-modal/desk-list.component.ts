@@ -47,10 +47,16 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                                 <app-icon>done</app-icon>
                             </div>
                             <img
-                                *ngIf="desk.images?.length"
+                                *ngIf="desk.images?.length; else placeholder"
                                 class="object-cover h-full"
                                 [src]="desk.images[0]"
                             />
+                            <ng-template #placeholder>
+                                <img
+                                    class="m-auto"
+                                    src="assets/icons/desk-placeholder.svg"
+                                />
+                            </ng-template>
                         </div>
                         <div class="space-y-2 pt-2 flex-1 text-left">
                             <span class="font-medium">
