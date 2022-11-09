@@ -785,3 +785,16 @@ custom-table[header-dark] {
         }
     }
 }
+
+.markdown {
+    h1 {
+        @apply text-2xl mt-2 mb-4 font-medium;
+    }
+    h2,h3 {
+        @apply text-xl mb-2;
+    }
+    ul {
+        list-style: initial;
+        @apply pl-6 mb-2;
+    }
+}

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
+import { ChangelogModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
@@ -82,7 +83,11 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                     </div>
                 </button>
             </div>
-            <div customTooltip [content]="accessibility_tooltip" class="!border-b">
+            <div
+                customTooltip
+                [content]="accessibility_tooltip"
+                class="!border-b"
+            >
                 <button mat-button class="clear w-full text-left h-[3.5rem]">
                     <div class="flex items-center space-x-2 dark:text-white">
                         <div
@@ -116,7 +121,13 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                     Sign Out
                 </button>
                 <div class="text-xs opacity-60 w-full">
-                    Version: {{ version.hash }}
+                    Version:
+                    <button
+                        class="underline p-0 m-0 bg-none border-none text-xs"
+                        (click)="viewChangelog()"
+                    >
+                        {{ version.hash }}
+                    </button>
                 </div>
                 <div class="text-xs opacity-60 w-full">
                     {{ version.time | date: 'longDate' }}
@@ -167,5 +178,10 @@ export class UserControlsComponent {
 
     public openWfhModal() {
         this._dialog.open(WFHSettingsModalComponent);
+    }
+
+    public async viewChangelog() {
+        const changelog = await (await fetch('https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md')).text();
+        this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 }

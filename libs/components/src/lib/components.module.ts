@@ -48,6 +48,7 @@ import { RedirectComponent } from './redirect.component';
 import { DebugConsoleComponent } from './debug-console.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { JsonDisplayComponent } from './json-display.component';
+import { ChangelogModalComponent } from './changelog-modal.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -92,6 +93,7 @@ const COMPONENTS: Type<any>[] = [
     RedirectComponent,
     DebugConsoleComponent,
     JsonDisplayComponent,
+    ChangelogModalComponent,
 
     FixedPipe,
     SafePipe,
