@@ -16,11 +16,11 @@ import { ICON_MAP } from '../ui/output-display.component';
             (click)="setActiveOutput()"
         >
             <div
-                class="bg-secondary rounded w-full h-full relative flex flex-col items-center justify-center"
+                class="bg-blue-900 rounded w-full h-full relative flex flex-col items-center justify-center"
                 [class.!bg-gray-400]="!(input | async)"
             >
                 <div
-                    class="absolute top-1 left-1 p-1 text-sm rounded bg-white/20"
+                    class="absolute top-1 left-1 p-1 text-sm rounded bg-gray-700 text-white"
                     [class.!bg-primary]="active"
                 >
                     {{ item?.name || 'Display' }}
