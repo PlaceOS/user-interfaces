@@ -111,8 +111,8 @@ export class CustomTooltipComponent<T = any>
             if (this._overlay_ref) this.close();
             if (!this._portal) return;
             const pos = this._element.nativeElement.getBoundingClientRect();
-            const default_x = pos.x > document.body.clientWidth / 2 ? 'start' : 'end';
-            const default_y = pos.y > document.body.clientHeight / 2 ? 'top' : 'bottom';
+            const default_x = 'end';
+            const default_y = 'top';
             this._overlay_ref = this._overlay.create({
                 hasBackdrop: !!this.backdrop,
                 positionStrategy: this._overlay

@@ -16,7 +16,7 @@ import { ICON_MAP } from '../ui/output-display.component';
             (click)="setActiveOutput()"
         >
             <div
-                class="bg-secondary/90 rounded w-full h-full relative flex flex-col items-center justify-center"
+                class="bg-secondary rounded w-full h-full relative flex flex-col items-center justify-center"
                 [class.!bg-gray-400]="!(input | async)"
             >
                 <div
