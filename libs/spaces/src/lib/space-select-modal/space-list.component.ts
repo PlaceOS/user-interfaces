@@ -27,7 +27,7 @@ import { Space } from '../space.class';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden"
+                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
@@ -35,15 +35,38 @@ import { Space } from '../space.class';
                             >
                                 <app-icon>done</app-icon>
                             </div>
-                            <img *ngIf="space.images?.length" class="object-cover h-full" [src]="space.images[0]" />
+                            <img
+                                *ngIf="
+                                    space.images?.length;
+                                    else space_placeholder
+                                "
+                                class="object-cover h-full"
+                                [src]="space.images[0]"
+                            />
+                            <ng-template #space_placeholder>
+                                <img
+                                    class="m-auto"
+                                    src="assets/icons/room-placeholder.svg"
+                                />
+                            </ng-template>
                         </div>
                         <div class="space-y-2">
                             <div class="font-medium truncate mr-10">
-                                {{ space.display_name || space.name || 'Meeting Space' }}
+                                {{
+                                    space.display_name ||
+                                        space.name ||
+                                        'Meeting Space'
+                                }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <p>{{ space.location || space.level?.display_name || space.level?.name }}</p>
+                                <p>
+                                    {{
+                                        space.location ||
+                                            space.level?.display_name ||
+                                            space.level?.name
+                                    }}
+                                </p>
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500"
@@ -65,13 +88,18 @@ import { Space } from '../space.class';
                         [class.text-blue-400]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
-                        <app-icon>{{ isFavourite(space.id) ? 'favorite' : 'favorite_border' }}</app-icon>
+                        <app-icon>{{
+                            isFavourite(space.id)
+                                ? 'favorite'
+                                : 'favorite_border'
+                        }}</app-icon>
                     </button>
                 </li>
             </ul>
         </ng-container>
         <ng-template #empty_state>
-            <div empty
+            <div
+                empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
@@ -80,7 +108,8 @@ import { Space } from '../space.class';
             </div>
         </ng-template>
         <ng-template #load_state>
-            <div loading
+            <div
+                loading
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
@@ -109,9 +138,7 @@ export class SpaceListComponent {
     public readonly available_spaces = this._event_form.available_spaces;
     public readonly loading = this._event_form.loading;
 
-    constructor(
-        private _event_form: EventFormService
-    ) {}
+    constructor(private _event_form: EventFormService) {}
 
     public ngOnInit() {
         this._event_form.setView('find');

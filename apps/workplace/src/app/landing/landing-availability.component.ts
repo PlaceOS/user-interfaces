@@ -11,7 +11,9 @@ import { LandingStateService } from './landing-state.service';
             <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
                 <div>Spaces</div>
             </div>
-            <div class="w-full overflow-auto flex items-center space-x-4 px-4 py-2">
+            <div
+                class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+            >
                 <button
                     matRipple
                     *ngFor="let lvl of levels_free | async"
@@ -20,14 +22,20 @@ import { LandingStateService } from './landing-state.service';
                     [queryParams]="{ level: lvl.id }"
                 >
                     <div
-                        class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700"
-                    ></div>
+                        class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 flex items-center justify-center"
+                    >
+                        <img class="m-auto" src="assets/icons/desk-placeholder.svg" />
+                    </div>
                     <div class="text-left">
                         <div class="max-w-full truncate px-1.5">
-                        {{ lvl.display_name || lvl.name }}
+                            {{ lvl.display_name || lvl.name }}
                         </div>
-                        <div class="max-w-full truncate text-sm opacity-60 flex items-center">
-                            <app-icon class="text-blue-500 text-lg">place</app-icon>
+                        <div
+                            class="max-w-full truncate text-sm opacity-60 flex items-center"
+                        >
+                            <app-icon class="text-blue-500 text-lg"
+                                >place</app-icon
+                            >
                             <span>Unknown Building</span>
                         </div>
                     </div>
@@ -41,9 +49,14 @@ import { LandingStateService } from './landing-state.service';
             </div>
             <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
                 <div>Rooms</div>
-                <mat-spinner diameter="24" *ngIf="loading_spaces | async"></mat-spinner>
+                <mat-spinner
+                    diameter="24"
+                    *ngIf="loading_spaces | async"
+                ></mat-spinner>
             </div>
-            <div class="w-full overflow-auto flex items-center space-x-4 px-4 py-2">
+            <div
+                class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+            >
                 <button
                     matRipple
                     *ngFor="let space of space_list | async"
@@ -52,17 +65,30 @@ import { LandingStateService } from './landing-state.service';
                     [queryParams]="{ space: space.email }"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 overflow-hidden"
+                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 overflow-hidden flex items-center justify-center"
                     >
-                        <img *ngIf="(space.id | space | async)?.images?.length" [src]="(space.id | space | async)?.images[0]" class="min-h-full object-cover"/>
+                        <img
+                            *ngIf="
+                                (space.id | space | async)?.images?.length;
+                                else space_placeholder
+                            "
+                            [src]="(space.id | space | async)?.images[0]"
+                            class="min-h-full object-cover"
+                        />
                     </div>
                     <div class="text-left">
                         <div class="max-w-full truncate px-1.5">
                             {{ space.display_name || space.name }}
                         </div>
-                        <div class="max-w-full truncate text-sm opacity-60 flex items-center">
-                            <app-icon class="text-blue-500 text-lg">place</app-icon>
-                            <span>{{ space.level.display_name || space.level.name }}</span>
+                        <div
+                            class="max-w-full truncate text-sm opacity-60 flex items-center"
+                        >
+                            <app-icon class="text-blue-500 text-lg"
+                                >place</app-icon
+                            >
+                            <span>{{
+                                space.level.display_name || space.level.name
+                            }}</span>
                         </div>
                     </div>
                 </button>
@@ -74,12 +100,17 @@ import { LandingStateService } from './landing-state.service';
                 </span>
             </div>
         </div>
+        <ng-template #space_placeholder>
+            <img class="m-auto" src="assets/icons/room-placeholder.svg" />
+        </ng-template>
     `,
-    styles: [`
-        * {
-            flex-shrink: 0;
-        }
-    `],
+    styles: [
+        `
+            * {
+                flex-shrink: 0;
+            }
+        `,
+    ],
 })
 export class LandingAvailabilityComponent {
     public readonly space_list = this._state.free_spaces;

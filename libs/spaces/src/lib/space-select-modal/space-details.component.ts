@@ -14,9 +14,18 @@ import { Space } from '../space.class';
     selector: `space-details`,
     template: `
         <ng-container *ngIf="space; else empty_state">
-            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
+            <section
+                image
+                class="relative w-full bg-black/20"
+                [class.sm:h-40]="space.images?.length"
+                [class.h-64]="space.images?.length"
+                [class.sm:h-0]="!space.images?.length"
+                [class.h-12]="!space.images?.length"
+                [class.!bg-transparent]="!space.images?.length"
+            >
                 <image-carousel
                     [images]="space.images"
+                    *ngIf="space.images?.length"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -61,7 +70,13 @@ import { Space } from '../space.class';
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>place</app-icon>
-                        <p>{{ building?.address || building?.display_name || building?.name }}</p>
+                        <p>
+                            {{
+                                building?.address ||
+                                    building?.display_name ||
+                                    building?.name
+                            }}
+                        </p>
                     </div>
                 </section>
                 <hr />
@@ -100,7 +115,9 @@ import { Space } from '../space.class';
                     (click)="active = !active; activeChange.emit(active)"
                 >
                     <div class="flex items-center justify-center">
-                        <app-icon class="text-2xl">{{ active ? 'remove' : 'add' }}</app-icon>
+                        <app-icon class="text-2xl">{{
+                            active ? 'remove' : 'add'
+                        }}</app-icon>
                         <p>
                             {{ active ? 'Remove this room' : 'Add this room' }}
                         </p>
@@ -122,6 +139,7 @@ import { Space } from '../space.class';
     styles: [
         `
             :host {
+                position: relative;
                 display: flex;
                 flex-direction: column;
                 width: 30%;
@@ -149,7 +167,9 @@ export class SpaceDetailsComponent {
     }
 
     public get building() {
-        return this._org.buildings.find(_ => this.space?.zones.includes(_.id));
+        return this._org.buildings.find((_) =>
+            this.space?.zones.includes(_.id)
+        );
     }
 
     constructor(private _org: OrganisationService) {}

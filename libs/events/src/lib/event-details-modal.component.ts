@@ -22,13 +22,14 @@ import { Space } from 'libs/spaces/src/lib/space.class';
             >
                 <div
                     class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
+                    *ngIf="event?.system?.images?.length"
                 >
                     <image-carousel
                         [images]="event?.system?.images"
                         class="w-full h-64"
                     ></image-carousel>
                 </div>
-                <h3 title class="px-3 mt-2 text-xl font-medium w-full">
+                <h3 title class="px-3 mt-2 text-xl font-medium w-full" [class.pt-4]="!event?.system?.images?.length">
                     {{ event.title }}
                 </h3>
                 <div class="sm:flex items-center justify-between w-full">

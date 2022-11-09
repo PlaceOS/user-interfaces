@@ -25,7 +25,7 @@ import { checkinBooking } from './bookings.fn';
                         class="w-full h-64"
                     ></image-carousel>
                 </div>
-                <h3 title class="px-3 mt-2 text-xl font-medium w-full">
+                <h3 title class="px-3 mt-2 text-xl font-medium w-full" [class.pt-4]="!booking?.extension_data?.images">
                     {{ booking.title }}
                 </h3>
                 <div class="sm:flex items-center justify-between w-full">
