@@ -53,7 +53,12 @@ export const MOCK_BUILDINGS = [
             <header class="heading-wrapper">
                 <div class="left-wrapper">
                     <span class="heading">{{ building_count }} </span>
-                    <span class="heading"> Buildings</span>
+                    <span *ngIf="building_count == 1" class="heading"
+                        >Building</span
+                    >
+                    <span *ngIf="building_count != 1" class="heading">
+                        Buildings</span
+                    >
                 </div>
 
                 <button
@@ -119,7 +124,9 @@ export class BuildingListComponent implements OnInit {
     ngOnInit(): void {
         this._buildings.next(this.mock_buildings);
         console.log(MOCKS, 'mocks');
-        this.buildings$.subscribe((buildings) => console.log(buildings));
+        this.buildings$.subscribe(
+            (buildings) => (this.building_count = buildings?.length)
+        );
     }
 
     addBuilding(): void {}
