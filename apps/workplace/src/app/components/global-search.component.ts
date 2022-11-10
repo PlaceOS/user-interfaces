@@ -9,7 +9,7 @@ import { ExploreSearchService } from '@placeos/explore';
         <div class="h-full w-12 relative">
             <button
                 mat-icon-button
-                class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-700 dark:text-white"
+                class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-800 dark:text-white"
                 (click)="showInput()"
             >
                 <app-icon class="text-2xl">search</app-icon>

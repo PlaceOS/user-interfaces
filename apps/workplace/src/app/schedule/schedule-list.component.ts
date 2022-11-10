@@ -9,7 +9,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-list',
     template: `
         <div
-            class="w-full h-16 flex items-center justify-between bg-white dark:bg-neutral-700 border-b border-gray-300 dark:border-neutral-500 shadow p-2"
+            class="w-full h-16 flex items-center justify-between bg-white dark:bg-neutral-700 border-b border-gray-300 dark:border-neutral-900 shadow p-2"
         >
             <mat-form-field appearance="outline" class="h-[3.25rem]">
                 <mat-select

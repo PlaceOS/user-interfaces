@@ -5,10 +5,10 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-neutral-700 border-r border-gray-300 dark:border-neutral-500"
+            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-300 dark:border-neutral-800"
         >
             <schedule-calendar
-                class="border-b border-gray-200 dark:border-neutral-500"
+                class="border-b border-gray-200 dark:border-neutral-800"
                 [ngModel]="date | async"
                 (ngModelChange)="setDate($event)"
             ></schedule-calendar>

@@ -13,11 +13,11 @@ import { ScheduleStateService } from './schedule-state.service';
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
         <div
-            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-600 relative"
+            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-900 relative"
         >
             <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
             <div
-                class="w-full bg-white dark:bg-neutral-700 border-b border-gray-300 sm:hidden"
+                class="w-full bg-white dark:bg-[#1F2021] border-b border-gray-300 sm:hidden"
             >
                 <schedule-mobile-calendar
                     [ngModel]="date | async"

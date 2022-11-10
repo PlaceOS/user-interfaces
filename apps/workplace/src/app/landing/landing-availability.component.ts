@@ -17,12 +17,12 @@ import { LandingStateService } from './landing-state.service';
                 <button
                     matRipple
                     *ngFor="let lvl of levels_free | async"
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-neutral-700 shadow p-4 space-x-2"
+                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
                     <div
-                        class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 flex items-center justify-center"
+                        class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"
                     >
                         <img class="m-auto" src="assets/icons/desk-placeholder.svg" />
                     </div>
@@ -60,12 +60,12 @@ import { LandingStateService } from './landing-state.service';
                 <button
                     matRipple
                     *ngFor="let space of space_list | async"
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-neutral-700 shadow p-4 space-x-2"
+                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.email }"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-700 overflow-hidden flex items-center justify-center"
+                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
                     >
                         <img
                             *ngIf="

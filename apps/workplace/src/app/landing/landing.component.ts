@@ -7,9 +7,9 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-dashboard',
     template: `
         <topbar class="z-10" *ngIf="!hide_nav"></topbar>
-        <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-600">
+        <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-900">
             <div
-                class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-neutral-700 border-r border-gray-200 dark:border-neutral-500"
+                class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-200 dark:border-neutral-700"
             >
                 <div
                     class="flex items-center divide-x divide-gray-300"
