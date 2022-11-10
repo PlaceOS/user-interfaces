@@ -5,6 +5,9 @@ import { Building } from '@placeos/organisation';
     selector: 'building-list-item',
     template: `
         <section class="building-wrapper">
+            <div class="options">
+                <mat-icon>more_horiz</mat-icon>
+            </div>
             <div *ngIf="building.image" class="image-container">
                 <img src="building.image" alt="image of building" />Placeholder
                 Image
@@ -44,6 +47,7 @@ import { Building } from '@placeos/organisation';
         `
             .building-wrapper {
                 display: flex;
+                position: relative;
                 flex-direction: row;
                 position: relative;
                 justify-content: flex-start;
@@ -51,10 +55,19 @@ import { Building } from '@placeos/organisation';
                 min-width: 1100px;
                 width: 80%;
                 margin: 25px 200px;
-
                 border: 1px solid #e6e6e6;
                 box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
                 border-radius: 6px;
+            }
+            .options {
+                background-color: #fff;
+                position: absolute;
+                height: 48px;
+                width: 48px;
+                top: 10px;
+                left: 10px;
+                border: 1px solid #e6e6e6;
+                border-radius: 3px;
             }
             .image-container {
                 display: flex;

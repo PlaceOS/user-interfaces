@@ -212,6 +212,7 @@ export class SurveyCreatorService {
             name: new FormControl(''),
             rateValues: new FormControl(''),
             choices: new FormControl(''),
+            tags: new FormControl(''),
         });
     }
 

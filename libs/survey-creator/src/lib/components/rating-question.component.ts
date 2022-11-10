@@ -193,7 +193,7 @@ export class RatingQuestionComponent implements OnInit {
     }
 
     updateRating() {
-        this.newRatingEvent.emit(this.rateValues);
+        // this.newRatingEvent.emit(this.rateValues);
         this.surveyCreatorService.new_question_form.patchValue({
             rateValues: this.rateValues,
         });
