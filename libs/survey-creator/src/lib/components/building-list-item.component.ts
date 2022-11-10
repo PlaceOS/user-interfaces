@@ -5,9 +5,25 @@ import { Building } from '@placeos/organisation';
     selector: 'building-list-item',
     template: `
         <section class="building-wrapper">
-            <div class="options">
+            <div
+                class="options"
+                [matMenuTriggerFor]="optionsMenu"
+                aria-label="more options"
+            >
                 <mat-icon>more_horiz</mat-icon>
             </div>
+            <mat-menu #optionsMenu="matMenu">
+                <div class="menu-wrapper">
+                    <button mat-menu-item (click)="editBuilding()">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="deleteBuilding()">
+                        <mat-icon>delete_forever</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </mat-menu>
             <div *ngIf="building.image" class="image-container">
                 <img src="building.image" alt="image of building" />Placeholder
                 Image
@@ -60,6 +76,9 @@ import { Building } from '@placeos/organisation';
                 border-radius: 6px;
             }
             .options {
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 background-color: #fff;
                 position: absolute;
                 height: 48px;
@@ -68,6 +87,13 @@ import { Building } from '@placeos/organisation';
                 left: 10px;
                 border: 1px solid #e6e6e6;
                 border-radius: 3px;
+            }
+            .menu-wrapper {
+                display: flex;
+                flex-direction: column;
+                height: 90px;
+                width: 135px;
+                justify-content: center;
             }
             .image-container {
                 display: flex;
@@ -144,4 +170,8 @@ export class BuildingListItemComponent implements OnInit {
     constructor() {}
 
     ngOnInit(): void {}
+
+    editBuilding() {}
+
+    deleteBuilding() {}
 }
