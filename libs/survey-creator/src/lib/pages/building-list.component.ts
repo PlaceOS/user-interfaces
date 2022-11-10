@@ -70,6 +70,7 @@ export const MOCK_BUILDINGS = [
                 <div *ngFor="let building of buildings$ | async">
                     <building-list-item
                         [building]="building"
+                        (deleteBuildingEvent)="deleteBuilding($event)"
                     ></building-list-item>
                 </div>
             </main>
@@ -122,4 +123,11 @@ export class BuildingListComponent implements OnInit {
     }
 
     addBuilding(): void {}
+    deleteBuilding(event) {
+        const currentBuildings = this._buildings.getValue();
+        const updatedBuildings = currentBuildings.filter(
+            (building) => building !== event
+        );
+        this._buildings.next(updatedBuildings);
+    }
 }

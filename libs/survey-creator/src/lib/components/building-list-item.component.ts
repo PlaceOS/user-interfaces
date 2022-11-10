@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Building } from '@placeos/organisation';
 
 @Component({
@@ -167,11 +167,16 @@ import { Building } from '@placeos/organisation';
 })
 export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
+    @Output() deleteBuildingEvent = new EventEmitter<any>();
+
     constructor() {}
 
     ngOnInit(): void {}
 
     editBuilding() {}
 
-    deleteBuilding() {}
+    deleteBuilding() {
+        console.log(this.building);
+        this.deleteBuildingEvent.emit(this.building);
+    }
 }
