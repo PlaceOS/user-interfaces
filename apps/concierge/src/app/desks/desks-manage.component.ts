@@ -252,7 +252,8 @@ export class DesksManageComponent extends BaseClass {
             .toPromise()
             .catch((e) => {
                 this.loading = '';
-                notifyError(`Error saving desk data. Error: ${e.message || e}`);
+                const msg = e?.status === 403 ? 'You do not have the required permissions to save desk changes.' : e.message || e;
+                notifyError(`Error saving desk data. Error: ${msg}`);
                 throw e;
             });
         notifySuccess('Successfully updated desks');
