@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1667978106420,
+  "timestamp": 1668116681250,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -169,9 +169,9 @@
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "846cb5b4eaa4a9b13b02620923784bda2b1769a8",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "0c2085ac2b048ce29e01d0eb4b6cc9de1874527a",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "62274f9299a3dced4b6463d476c9bd78403e80ab",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "7155c1529539a10d983007adb868457ab77f4bc5",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "4983501bb988db288f65c6743ec1e7f61bfe8997",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "0d80b4bf46f8dac65785cd8e77ead1dabf32a867",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "a6b5d67a7ab58ed990e53572aa5856309692dfb0",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "ee0b2c80bc18e438a45d944c87e42839b1e8eac2",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "33cc46ca3ecd4a3563afd8a88442d68022b7dd1a",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "4418ce8a0ec429b9a2c6f1d0e64128b2e9a5570a",
     "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
@@ -289,12 +289,12 @@
     "./common.js": "5ca08652477e7cdaa6da3a907d44cb7731fcd80b",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "adf9b425775bd90bed54c997056a486d2f0bf883",
-    "./main.js": "b306558ca9e386cc69261ba40b8ca4a8ea1ac7fe",
+    "./main.js": "c47fed3614cc67f5f845ec66efd1d0f100573ec5",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "b834ea14ae6dd9819f7306a06ce0eda8693fcae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "59940557fbea46540e59e018b44023dcde630ca5",
+    "./styles.css": "4ef8ab1fb9754e030feb83cfffc31a32e112c530",
     "./vendor.js": "f1fb04229a0ccdd60725e678468d6284bb30d7b6"
   },
   "navigationUrls": [
