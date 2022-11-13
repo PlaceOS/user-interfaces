@@ -38,7 +38,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                         (click)="selectDesk(desk)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 mr-4"
+                            class="relative w-20 h-20 rounded-xl bg-black/20 mr-4 flex items-center justify-center"
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"

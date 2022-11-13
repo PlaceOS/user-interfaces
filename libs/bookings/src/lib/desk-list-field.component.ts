@@ -34,13 +34,19 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <div
-                    class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden"
+                    class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
-                        *ngIf="space.images?.length"
+                        *ngIf="space.images?.length; else placeholder"
                         [src]="space.images[0]"
                         class="min-h-full object-cover"
                     />
+                    <ng-template #placeholder>
+                        <img
+                            class="m-auto"
+                            src="assets/icons/desk-placeholder.svg"
+                        />
+                    </ng-template>
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
