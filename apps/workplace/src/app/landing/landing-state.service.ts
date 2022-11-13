@@ -192,6 +192,7 @@ export class LandingStateService extends BaseClass {
     }
 
     private async updateBuildingMetadata() {
+        this._level_occupancy.next([]);
         const building = this._org.building;
         const metadata = await showMetadata(
             building.id,
