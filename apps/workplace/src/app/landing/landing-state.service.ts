@@ -193,19 +193,15 @@ export class LandingStateService extends BaseClass {
 
     private async updateBuildingMetadata() {
         this._level_occupancy.next([]);
-        const building = this._org.building;
-        const metadata = await showMetadata(
-            building.id,
-            'bindings'
-        ).toPromise();
-        if (!(metadata.details as HashMap).occupancy) return;
-        const details = (metadata.details as HashMap).occupancy;
-        const module = getModule(details.sys, details.module, details.index);
-        if (!module) return;
+        const occupancy: any = this._org.binding('occupancy');
+        if (!occupancy) return;
+        const { sys, module, index } = occupancy;
+        const mod = getModule(sys, module, index);
+        if (!mod) return;
         if (this._occupancy_binding) {
             this._occupancy_binding.unbind();
         }
-        this._occupancy_binding = module.binding('occupancy');
+        this._occupancy_binding = mod.binding('occupancy');
         this._occupancy_binding.bind();
         this.subscription(
             'occupancy_binding',

@@ -226,10 +226,16 @@ export class OrganisationService {
         } as any)
             .pipe(map((i) => i.data))
             .toPromise();
+
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
         }
-        const levels = level_list.map((lvl) => new BuildingLevel(lvl));
+        const levels = level_list
+            .filter(
+                (lvl) =>
+                    !!this.buildings.find((bld) => bld.id === lvl.parent_id)
+            )
+            .map((lvl) => new BuildingLevel(lvl));
         levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         this._levels.next(levels);
     }
