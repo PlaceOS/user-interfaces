@@ -94,7 +94,7 @@ export class BookingFormService extends BaseClass {
     public readonly options = this._options.pipe(shareReplay(1));
 
     public readonly assets: Observable<BookingAsset[]> = this.options.pipe(
-        distinctUntilKeyChanged('zone_id'),
+        debounceTime(300),
         switchMap(({ type }) => {
             if (!this._org.building) return of([]);
             switch (type) {
