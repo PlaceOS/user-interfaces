@@ -114,6 +114,24 @@ export class BookingFormService extends BaseClass {
                             )
                         )
                     );
+                    break;
+                case 'parking':
+                    this._loading.next(`Loading parking spaces...`);
+                    return listChildMetadata(this._org.building.id, {
+                        name: 'parking_spaces',
+                    }).pipe(
+                        map((data) =>
+                            flatten(
+                                data.map((_) =>
+                                    (_.metadata.desks?.details instanceof Array
+                                        ? _.metadata.desks?.details
+                                        : []
+                                    ).map((d) => ({ ...d, zone: _.zone }))
+                                )
+                            )
+                        )
+                    );
+                    break;
             }
             return of([]);
         }),
