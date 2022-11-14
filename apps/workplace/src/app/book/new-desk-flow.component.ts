@@ -8,7 +8,7 @@ import { first } from 'rxjs/operators';
 @Component({
     selector: 'placeos-new-book-desk-flow',
     template: `
-        <div class="bg-white dark:bg-neutral-700 h-full w-full z-50">
+        <div class="bg-white dark:bg-neutral-900 h-full w-full z-50">
             <ng-container [ngSwitch]="view">
                 <ng-container *ngSwitchCase="'success'">
                     <new-desk-flow-success></new-desk-flow-success>

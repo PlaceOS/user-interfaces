@@ -16,23 +16,24 @@ jest.mock('libs/common/src/lib/notifications');
 import * as ts_client from '@placeos/ts-client';
 import * as notify from 'libs/common/src/lib/notifications';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { MockProvider } from 'ng-mocks';
+import { EventFormService } from '@placeos/events';
+import { FormGroup, UntypedFormGroup } from '@angular/forms';
 
 describe('ExploreSpacesService', () => {
     let spectator: SpectatorService<ExploreSpacesService>;
     const createService = createServiceFactory({
         service: ExploreSpacesService,
         providers: [
-            {
-                provide: ExploreStateService,
-                useValue: {
-                    spaces: new BehaviorSubject([]),
-                    setStyles: jest.fn(),
-                    setFeatures: jest.fn(),
-                    setActions: jest.fn(),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(ExploreStateService, {
+                spaces: new BehaviorSubject([]),
+                setStyles: jest.fn(),
+                setFeatures: jest.fn(),
+                setActions: jest.fn(),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(EventFormService, { form: new UntypedFormGroup({}) }),
         ],
     });
 
@@ -55,7 +56,7 @@ describe('ExploreSpacesService', () => {
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
         expect(bind).toHaveBeenCalledTimes(2);
-        
+
         expect(state.setActions).toHaveBeenCalled();
     }));
 

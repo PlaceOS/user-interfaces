@@ -24,7 +24,7 @@ export const mockBuilding = {
     zone_id: 'zone-1',
 };
 
-export const mockUser = {
+export const mockUser: any = {
     id: '123',
     name: 'testUser',
     email: 'user@test.com',
@@ -46,7 +46,7 @@ export const mockUser = {
     assistance_required: false,
 };
 
-export const mockStaffUser = {
+export const mockStaffUser: any = {
     id: '123',
     name: 'PlaceOS - Mock User',
     email: 'user@test.com',
@@ -72,7 +72,7 @@ export const mockStaffUser = {
     location: {} as any,
 };
 
-export const mockExternalUser = {
+export const mockExternalUser: any = {
     id: '123',
     name: 'ExternalUser',
     email: 'external-user@test.com',
@@ -166,7 +166,7 @@ export const mockSpaceWithViews: Space = {
     ],
 };
 
-export const mockCalendarEvent: CalendarEvent = {
+export const mockCalendarEvent: any = {
     id: '123',
     status: 'approved',
     host: 'host@test.com',
@@ -207,7 +207,7 @@ export const mockCalendarEvent: CalendarEvent = {
     can_check_in: true,
 };
 
-export const mockExternalCalendarEvent: CalendarEvent = {
+export const mockExternalCalendarEvent: any = {
     id: '123',
     status: 'approved',
     host: 'host@test.com',

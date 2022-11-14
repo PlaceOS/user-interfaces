@@ -1,6 +1,5 @@
 import { of } from 'rxjs';
 
-import { Space } from '@placeos/spaces';
 import {
     queryCalendarAvailability,
     queryCalendars,

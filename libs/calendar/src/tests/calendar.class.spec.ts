@@ -1,4 +1,3 @@
-import { Space } from '@placeos/spaces';
 import { Calendar } from '../lib/calendar.class';
 
 describe('Calendar', () => {

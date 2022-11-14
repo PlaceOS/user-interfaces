@@ -17,6 +17,8 @@ export class Desk {
     public readonly qr_code: string;
     /** List of features associated with the desk */
     public readonly features: string[];
+    /** List of URLs to images */
+    public readonly images: string[];
 
     constructor(data: Partial<Desk> = {}) {
         this.id = data.id || '';
@@ -27,6 +29,7 @@ export class Desk {
         this.groups = data.groups || [];
         this.qr_code = data.qr_code || '';
         this.features = data.features || [];
+        this.images = data.images || [];
     }
 
     public format() {

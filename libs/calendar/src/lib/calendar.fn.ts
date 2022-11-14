@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { toQueryString } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { Calendar } from './calendar.class';

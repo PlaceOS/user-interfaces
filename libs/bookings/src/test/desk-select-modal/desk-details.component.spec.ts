@@ -43,7 +43,7 @@ describe('DeskDetailsComponent', () => {
 
     it('should show image carousel', () => {
         expect('image-carousel').not.toExist();
-        spectator.setInput('desk', new Desk());
+        spectator.setInput('desk', new Desk({ images: ['test.png'] }));
         spectator.detectChanges();
         expect('image-carousel').toExist();
     });

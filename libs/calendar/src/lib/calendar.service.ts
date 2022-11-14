@@ -5,9 +5,10 @@ import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
 
-import { BaseClass, notifyError, SettingsService } from '@placeos/common';
+import { BaseClass } from 'libs/common/src/lib/base.class';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { CalendarEvent } from '../../../events/src/lib/event.class';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 import {
     queryCalendarAvailability,

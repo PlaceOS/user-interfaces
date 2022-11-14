@@ -23,12 +23,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto">
+        <div class="h-full w-full bg-gray-100 dark:bg-neutral-900 overflow-auto">
             <div
-                class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
+                class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-[#1F2021] border border-gray-300 dark:border-neutral-700"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"
+                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-700"
                 >
                     {{ form.value.id ? 'Edit' : 'Book'}} Meeting
                 </h2>

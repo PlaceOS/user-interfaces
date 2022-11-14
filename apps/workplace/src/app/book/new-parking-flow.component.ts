@@ -7,7 +7,7 @@ import { BaseClass } from '@placeos/common';
     selector: 'placeos-new-parking-flow',
     template: `
         <div
-            class="bg-white dark:bg-neutral-700 h-full w-full z-50"
+            class="bg-white dark:bg-neutral-900 h-full w-full z-50"
             [ngSwitch]="view"
         >
             <parking-flow-success *ngSwitchCase="'success'">

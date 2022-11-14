@@ -61,7 +61,7 @@ export class OrganisationService {
     /** Mapping building settings overrides */
     public buildingSettings(bld_id: string = ''): Record<string, any> {
         if (!bld_id && this.building) {
-            bld_id = this.building.id;
+            bld_id = this.building?.id;
         }
         return this._building_settings
             ? this._building_settings[bld_id] || {}
@@ -195,13 +195,10 @@ export class OrganisationService {
     public async loadBuildings(): Promise<void> {
         const building_list = await queryZones({
             tags: 'building',
+            parent_id: this._organisation?.id || '',
             limit: 500,
         } as any)
-            .pipe(
-                map((i) =>
-                    i.data.filter((_) => _.parent_id === this._organisation?.id)
-                )
-            )
+            .pipe(map((i) => i.data))
             .toPromise();
         if (!building_list?.length) {
             this._router.navigate(['/misconfigured']);
@@ -248,6 +245,7 @@ export class OrganisationService {
     }
 
     public async loadSettings() {
+        console.log('Settings Here')
         if (!this._organisation) return;
         const app_name = `${(
             this._service.app_name || 'workplace'
@@ -256,10 +254,12 @@ export class OrganisationService {
             this._organisation.id,
             app_name
         ).toPromise();
+        console.log('Settings Here - APP')
         const global_settings = await showMetadata(
             this._organisation.id,
             'settings'
         ).toPromise();
+        console.log('Settings Here - GLOBAL')
         this._settings = [global_settings.details, app_settings.details];
         const buildings = this.buildings;
         for (const bld of buildings) {
@@ -268,11 +268,13 @@ export class OrganisationService {
                 app_name
             ).toPromise();
         }
+        console.log('Settings Here - BUILDINGS')
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
+        console.log('Settings Here - SAVE')
         this._service.overrides = [
             ...this._settings,
-            this.buildingSettings(this.building.id).details,
+            this.buildingSettings(this.building?.id).details,
         ];
     }
 
@@ -288,14 +290,9 @@ export class OrganisationService {
                 this._active_building.next(
                     this.buildings.find((bld) => bld.id === id)
                 );
-                return;
+                return resolve();
             }
             const use_location = !!this._service.get('app.use_geolocation');
-            console.log(
-                'Use Geolocation:',
-                use_location,
-                'geolocation' in navigator
-            );
             if (use_location && 'geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;

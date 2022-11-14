@@ -2,6 +2,8 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 let _service: MatSnackBar;
 
+declare let jest: any;
+
 export function setNotifyOutlet(snackbar: MatSnackBar) {
     _service = snackbar;
 }
@@ -22,7 +24,7 @@ export function notify(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     if (!_service) {
-        return console.warn("Snackbar service hasn't been initialised");
+        return !jest && console.warn("Snackbar service hasn't been initialised");
     }
     const snackbar_ref = _service.open(message, action, {
         panelClass: [type],
@@ -48,7 +50,7 @@ export function notifySuccess(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    console.debug(msg);
+    !jest && console.debug(msg);
     notify('success', msg, action, on_action, config);
 }
 
@@ -65,7 +67,7 @@ export function notifyError(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    console.error(msg);
+    !jest && console.error(msg);
     notify('error', msg, action, on_action, config);
 }
 
@@ -82,7 +84,7 @@ export function notifyWarn(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    console.warn(msg);
+    !jest && console.warn(msg);
     notify('warn', msg, action, on_action, config);
 }
 
@@ -99,6 +101,6 @@ export function notifyInfo(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    console.info(msg);
+    !jest && console.info(msg);
     notify('info', msg, action, on_action, config);
 }

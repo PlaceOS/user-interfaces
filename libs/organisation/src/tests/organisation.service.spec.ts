@@ -3,7 +3,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { SettingsService } from '@placeos/common';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/organisation.service';
 import { Organisation } from '../lib/organisation.class';
 import { BuildingLevel } from '../lib/level.class';
@@ -63,13 +63,17 @@ describe('OrganisationService', () => {
         (ts_client as any).queryZones = jest.fn(() => of({ data: [] }));
         expect(spectator.service.buildings).toHaveLength(0);
         expect(spectator.service.building).toBeNull();
+        (spectator.service as any)._organisation = new Organisation({
+            id: 'org-1',
+        });
         (ts_client as any).queryZones = jest.fn(() => of({ data: blds }));
         await spectator.service.loadBuildings();
+        await spectator.service.loadSettings();
         expect(spectator.service.buildings).toHaveLength(2);
         expect(spectator.service.buildings[0]).toBeInstanceOf(Building);
         expect(spectator.service.building.id).toBe('bld-1');
         localStorage.setItem('PLACEOS.building', 'bld-2');
-        await spectator.service.loadBuildings();
+        await spectator.service.loadSettings();
         expect(spectator.service.buildings).toHaveLength(2);
         expect(spectator.service.building.id).toBe('bld-2');
         for (const { id } of blds) {
@@ -80,15 +84,18 @@ describe('OrganisationService', () => {
     it('should load levels', async () => {
         const router = spectator.inject(Router);
         router.navigate.mockReset();
-        const lvls = [{ id: 'lvl-1' }, { id: 'lvl-2' }];
+        const blds = [{ id: 'bld-1' }]
+        const lvls = [{ id: 'lvl-1', parent_id: 'bld-2' }, { id: 'lvl-2', parent_id: 'bld-1' }];
         (ts_client as any).showMetadata = jest.fn(() => of({ details: {} }));
+        (ts_client as any).queryZones = jest.fn(() => of({ data: blds }));
+        await spectator.service.loadBuildings();
         (ts_client as any).queryZones = jest.fn(() => of({ data: [] }));
         expect(router.navigate).not.toHaveBeenCalledWith(['/misconfigured']);
         await spectator.service.loadLevels();
         expect(router.navigate).toHaveBeenCalledWith(['/misconfigured']);
         (ts_client as any).queryZones = jest.fn(() => of({ data: lvls }));
         await spectator.service.loadLevels();
-        expect(spectator.service.levels).toHaveLength(2);
+        expect(spectator.service.levels).toHaveLength(1);
         expect(spectator.service.levels[0]).toBeInstanceOf(BuildingLevel);
         const levels = await spectator.service.level_list
             .pipe(take(1))

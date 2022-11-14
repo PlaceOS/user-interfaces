@@ -9,6 +9,7 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 
@@ -39,7 +40,12 @@ describe('EventDetailsModalComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should show images', () => expect('image-carousel').toExist());
+    it('should show images', () => {
+        expect('image-carousel').not.toExist();
+        (spectator.component as any).event = new CalendarEvent({ system: { images: ['test.png'] }} as any);
+        spectator.detectChanges();
+        expect('image-carousel').toExist();
+    });
 
     it('should show title', () => expect('[title]').toExist());
 

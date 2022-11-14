@@ -6,7 +6,7 @@ import { EventFormService } from '@placeos/events';
 @Component({
     selector: 'placeos-book-meeting-flow',
     template: `
-        <div class="bg-white dark:bg-neutral-700 h-full w-full z-50" [ngSwitch]="view">
+        <div class="bg-white dark:bg-neutral-900 h-full w-full z-50" [ngSwitch]="view">
             <meeting-flow-success *ngSwitchCase="'success'">
             </meeting-flow-success>
             <meeting-flow-confirm *ngSwitchCase="'confirm'">
