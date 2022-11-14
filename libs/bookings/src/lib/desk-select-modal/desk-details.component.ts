@@ -27,9 +27,18 @@ import { BookingAsset } from '../booking-form.service';
     ],
     template: `
         <ng-container *ngIf="desk; else emptyState">
-            <div image class="relative w-full h-64 sm:h-40 bg-black/20">
+            <section
+                image
+                class="relative w-full bg-black/20"
+                [class.sm:h-40]="desk.images?.length"
+                [class.h-64]="desk.images?.length"
+                [class.sm:h-0]="!desk.images?.length"
+                [class.h-12]="!desk.images?.length"
+                [class.!bg-transparent]="!desk.images?.length"
+            >
                 <image-carousel
                     [images]="desk.images"
+                    *ngIf="desk.images?.length"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -52,7 +61,7 @@ import { BookingAsset } from '../booking-form.service';
                         fav ? 'favorite' : 'favorite_border'
                     }}</app-icon>
                 </button>
-            </div>
+            </section>
             <div class="p-2 space-y-2 flex-1 h-[calc(100%-19.75rem)] overflow-auto">
                 <section actions class="z-0 pb-2 border-b">
                     <h2 class="text-xl font-medium mb-2 mt-4">
