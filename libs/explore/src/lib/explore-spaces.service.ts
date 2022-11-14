@@ -148,9 +148,9 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
     private updateHoverElements(spaces: Space[]) {
         const features: ViewerFeature[] = [];
         for (const space of spaces) {
+            if (!space.map_id) continue;
             features.push({
                 location: space.map_id,
-                track_id: `${space.map_id}-info-hover`,
                 full_size: true,
                 no_scale: true,
                 content: ExploreSpaceInfoComponent,

@@ -141,7 +141,8 @@ export class ExploreSpaceInfoComponent implements OnInit {
         @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
         private _settings: SettingsService,
         private _element: ElementRef<HTMLElement>
-    ) {}
+    ) {
+    }
 
     public ngOnInit() {
         setTimeout(() => this.updateOffset(), 200);
