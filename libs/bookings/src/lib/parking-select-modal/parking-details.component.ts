@@ -14,9 +14,18 @@ import { BookingAsset } from '../booking-form.service';
     selector: `parking-space-details`,
     template: `
         <ng-container *ngIf="space; else empty_state">
-            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
+            <section
+                image
+                class="relative w-full bg-black/20"
+                [class.sm:h-40]="space.images?.length"
+                [class.h-64]="space.images?.length"
+                [class.sm:h-0]="!space.images?.length"
+                [class.h-12]="!space.images?.length"
+                [class.!bg-transparent]="!space.images?.length"
+            >
                 <image-carousel
                     [images]="space.images"
+                    *ngIf="space.images?.length"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button

@@ -29,7 +29,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden"
+                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
@@ -38,10 +38,16 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 <app-icon>done</app-icon>
                             </div>
                             <img
-                                *ngIf="space.images?.length"
+                                *ngIf="space.images?.length; else placeholder"
                                 class="object-cover h-full"
                                 [src]="space.images[0]"
                             />
+                            <ng-template #placeholder>
+                                <img
+                                    class="m-auto"
+                                    src="assets/icons/car-placeholder.svg"
+                                />
+                            </ng-template>
                         </div>
                         <div class="space-y-2">
                             <div class="font-medium truncate mr-10">

@@ -87,7 +87,8 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
-                [routerLink]="['/book', 'parking']"
+                [routerLink]="
+                    new_features ? ['/book', 'new-parking'] : ['/book', 'parking']"
                 routerLinkActive="text-primary active"
                 matTooltip="Book Car Space"
                 matTooltipPosition="below"
