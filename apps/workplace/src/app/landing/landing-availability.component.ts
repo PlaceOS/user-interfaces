@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { OrganisationService } from '@placeos/organisation';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
@@ -24,7 +25,10 @@ import { LandingStateService } from './landing-state.service';
                     <div
                         class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"
                     >
-                        <img class="m-auto" src="assets/icons/desk-placeholder.svg" />
+                        <img
+                            class="m-auto"
+                            src="assets/icons/desk-placeholder.svg"
+                        />
                     </div>
                     <div class="text-left">
                         <div class="max-w-full truncate px-1.5">
@@ -36,7 +40,10 @@ import { LandingStateService } from './landing-state.service';
                             <app-icon class="text-blue-500 text-lg"
                                 >place</app-icon
                             >
-                            <span>Unknown Building</span>
+                            <span>{{
+                                building(lvl.parent_id)?.display_name ||
+                                    building(lvl.parent_id)?.name
+                            }}</span>
                         </div>
                     </div>
                 </button>
@@ -117,7 +124,14 @@ export class LandingAvailabilityComponent {
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
 
-    constructor(private _state: LandingStateService) {}
+    public building(id: string) {
+        return this._org.buildings.find((bld) => bld.id === id);
+    }
+
+    constructor(
+        private _state: LandingStateService,
+        private _org: OrganisationService
+    ) {}
 
     public async ngOnInit() {
         this._state.pollFreeSpaces();
