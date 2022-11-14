@@ -24,7 +24,7 @@ export function notify(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     if (!_service) {
-        return !jest && console.warn("Snackbar service hasn't been initialised");
+        return !window.jest && console.warn("Snackbar service hasn't been initialised");
     }
     const snackbar_ref = _service.open(message, action, {
         panelClass: [type],
@@ -50,7 +50,7 @@ export function notifySuccess(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !jest && console.debug(msg);
+    !window.jest && console.debug(msg);
     notify('success', msg, action, on_action, config);
 }
 
@@ -67,7 +67,7 @@ export function notifyError(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !jest && console.error(msg);
+    !window.jest && console.error(msg);
     notify('error', msg, action, on_action, config);
 }
 
@@ -84,7 +84,7 @@ export function notifyWarn(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !jest && console.warn(msg);
+    !window.jest && console.warn(msg);
     notify('warn', msg, action, on_action, config);
 }
 
@@ -101,6 +101,6 @@ export function notifyInfo(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !jest && console.info(msg);
+    !window.jest && console.info(msg);
     notify('info', msg, action, on_action, config);
 }

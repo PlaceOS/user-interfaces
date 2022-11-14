@@ -2,7 +2,7 @@ import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { SpacesService } from '../spaces.service';
@@ -32,20 +32,35 @@ import { SpacesService } from '../spaces.service';
                 <h2 class="text-lg font-medium">Details</h2>
                 <div class="flex-1 min-w-[256px] flex flex-col">
                     <label for="location">Location</label>
+                    <mat-form-field appearance="outline" class="w-full" *ngIf="(buildings | async)?.length > 1">
+                        <mat-select
+                            name="building"
+                            [ngModel]="building | async"
+                            (ngModelChange)="setBuilding($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="(building | async)?.display_name || (building | async)?.name"
+                        >
+                            <mat-option
+                                *ngFor="let bld of buildings | async"
+                                [value]="bld"
+                            >
+                                {{ bld.display_name || bld.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             name="location"
                             [ngModel]="(options | async)?.zone_ids"
                             (ngModelChange)="setOptions({ zone_ids: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="bld?.display_name || bld?.name"
+                            placeholder="Any Level"
                             [multiple]="true"
                         >
                             <mat-option
                                 *ngFor="let lvl of levels | async"
                                 [value]="lvl.id"
                             >
-                                {{ lvl.bld }},
                                 {{ lvl.display_name || lvl.name }}
                             </mat-option>
                         </mat-select>
@@ -138,17 +153,9 @@ export class SpaceFiltersComponent {
     public can_close = false;
     public readonly options = this._event_form.options;
 
-    public readonly levels = this._org.level_list.pipe(
-        map((l) => {
-            for (const lvl of l) {
-                const bld = this._org.buildings.find(
-                    (_) => _.id === lvl.parent_id
-                );
-                (lvl as any).bld = bld?.display_name || bld?.name || '';
-            }
-            return l;
-        })
-    );
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.building_list;
+    public readonly levels = this._org.active_levels
     public readonly features = combineLatest([
         this._spaces.features,
         this._event_form.available_spaces,
@@ -182,6 +189,10 @@ export class SpaceFiltersComponent {
         private _spaces: SpacesService
     ) {
         this.can_close = !!this._bsheet_ref;
+    }
+
+    public setBuilding(bld: Building) {
+        this._org.building = bld;
     }
 
     public async toggleFeature(feat: string, state: boolean) {
