@@ -144,8 +144,8 @@ import { checkinBooking } from './bookings.fn';
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>place</app-icon>
                         <div>
-                            {{ building?.display_name || building?.name }},
-                            {{ building?.address }}
+                            {{ building?.display_name || building?.name }}
+                            {{ building?.address ? ', ' + building.address : '' }}
                         </div>
                     </div>
                 </div>
