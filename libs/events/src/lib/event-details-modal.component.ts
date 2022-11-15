@@ -97,7 +97,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                                 class="flex items-center space-x-2 justify-center"
                             >
                                 <app-icon>arrow_back</app-icon>
-                                <div class="mr-4">Checked in</div>
+                                <div class="mr-4" i18n>Checked in</div>
                             </div>
                         </button>
                         <button
@@ -115,7 +115,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                 <div
                     class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>Details</h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div>{{ event.date | date: 'EEEE, dd LLLL y' }}</div>
@@ -148,12 +148,13 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     <div
                         class="mx-3 border-t border-gray-300 sm:border-none dark:border-neutral-500 flex items-center justify-between"
                     >
-                        <h3 class="text-lg font-medium">Attendees</h3>
+                        <h3 class="text-lg font-medium" i18n>Attendees</h3>
                         <button
                             mat-button
                             show-attendees
                             class="clear text-xs underline"
                             (click)="show_attendees = true"
+                            i18n
                         >
                             See All
                         </button>
@@ -163,23 +164,24 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ accept_count || 0 }}</div>
-                            <div class="text-sm uppercase">Yes</div>
+                            <div class="text-sm uppercase" i18n>Yes</div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ declined_count || 0 }}</div>
-                            <div class="text-sm uppercase">No</div>
+                            <div class="text-sm uppercase" i18n>No</div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ pending_count || 0 }}</div>
-                            <div class="text-sm uppercase">Pending</div>
+                            <div class="text-sm uppercase" i18n>Pending</div>
                         </div>
                     </div>
                     <h3
                         class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"
+                        i18n
                     >
                         Host
                     </h3>
@@ -197,6 +199,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     >
                         <h3
                             class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"
+                            i18n
                         >
                             Catering
                         </h3>
@@ -244,6 +247,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-gray-300 dark:border-neutral-500"
                         *ngIf="event.body"
+                        i18n
                     >
                         Notes
                     </h3>
@@ -277,7 +281,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     (click)="edit.emit(space)"
                 >
                     <app-icon>edit</app-icon>
-                    <div>Edit event</div>
+                    <div i18n>Edit event</div>
                 </button>
                 <button
                     mat-menu-item
@@ -285,7 +289,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                     (click)="remove.emit()"
                 >
                     <app-icon>delete</app-icon>
-                    <div>Delete event</div>
+                    <div i18n>Delete event</div>
                 </button>
             </mat-menu>
         </div>

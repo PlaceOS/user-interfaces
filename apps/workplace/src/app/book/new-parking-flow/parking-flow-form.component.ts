@@ -21,6 +21,7 @@ import {
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"
+                    i18n
                 >
                     {{ form.value.id ? 'Edit' : 'Book' }} Parking Reservation
                 </h2>
@@ -35,7 +36,7 @@ import {
                             >
                                 1
                             </div>
-                            <div class="text-xl">Details</div>
+                            <div class="text-xl" i18n>Details</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -67,7 +68,7 @@ import {
                             >
                                 2
                             </div>
-                            <div class="text-xl">Space</div>
+                            <div class="text-xl" i18n>Space</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -86,7 +87,7 @@ import {
                             class="overflow-hidden"
                             [@show]="hide_block.space ? 'hide' : 'show'"
                         >
-                            <parking-space-list-field></parking-space-list-field>
+                            <parking-space-list-field formControlName="resources"></parking-space-list-field>
                         </div>
                     </section>
                     <section
@@ -97,6 +98,7 @@ import {
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
+                            i18n
                         >
                             Confirm Reservation
                         </button>
@@ -105,6 +107,7 @@ import {
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
+                            i18n
                         >
                             {{ form.value.id ? 'Reset' : 'Clear' }} Form
                         </button>

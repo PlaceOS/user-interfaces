@@ -11,7 +11,7 @@ import { CalendarEvent } from './event.class';
 @Component({
     selector: 'event-link-modal',
     template: `
-        <div class="p-4 w-full pb-2">
+        <div class="p-4 w-full pb-2" i18n>
             Add event to your calendar
         </div>
         <div class="flex flex-col items-center space-y-4 p-4 relative">
@@ -24,7 +24,7 @@ import { CalendarEvent } from './event.class';
                 rel="noopener noreferer"
             >
                 <img src="assets/icons/outlook.svg" class="w-6" />
-                <span>Create in Outlook</span>
+                <span i18n>Create in Outlook</span>
             </a>
             <a
                 button
@@ -35,7 +35,7 @@ import { CalendarEvent } from './event.class';
                 rel="noopener noreferer"
             >
                 <img src="assets/icons/gcal.svg" class="w-6" />
-                <span>Create in Google Calendar</span>
+                <span i18n>Create in Google Calendar</span>
             </a>
             <a
                 button
@@ -46,9 +46,9 @@ import { CalendarEvent } from './event.class';
                 rel="noopener noreferer"
             >
                 <app-icon class="text-xl">download</app-icon>
-                <span>Download iCal File</span>
+                <span i18n>Download iCal File</span>
             </a>
-            <button class="w-64" mat-button [mat-dialog-close]="true">
+            <button class="w-64" mat-button [mat-dialog-close]="true" i18n>
                 Done
             </button>
         </div>

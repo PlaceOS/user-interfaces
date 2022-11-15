@@ -40,6 +40,7 @@ import { BookingFormService } from '../booking-form.service';
                 filters
                 class="flex-1 w-1/2"
                 (click)="editFilter()"
+                i18n
             >
                 Filters
             </button>
@@ -50,6 +51,7 @@ import { BookingFormService } from '../booking-form.service';
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
+                    i18n
                 >
                     Map
                 </button>
@@ -59,6 +61,7 @@ import { BookingFormService } from '../booking-form.service';
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
+                    i18n
                 >
                     List
                 </button>
@@ -85,7 +88,7 @@ import { BookingFormService } from '../booking-form.service';
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_fav">
-                <span>Favourites Only</span>
+                <span i18n>Favourites Only</span>
                 <button
                     mat-icon-button
                     class="-mr-4"

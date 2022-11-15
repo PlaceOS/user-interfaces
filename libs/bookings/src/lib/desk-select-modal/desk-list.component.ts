@@ -17,8 +17,8 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
         `,
     ],
     template: `
-        <h3 class="font-bold">Results</h3>
-        <p count class="text-sm opacity-60 mb-4">
+        <h3 class="font-bold" i18n>Results</h3>
+        <p count class="text-sm opacity-60 mb-4" i18n>
             {{ (desks | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">

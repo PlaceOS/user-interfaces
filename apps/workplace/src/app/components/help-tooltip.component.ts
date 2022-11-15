@@ -11,7 +11,7 @@ import { CustomTooltipData } from '@placeos/components';
         >
             <div class="flex items-center space-x-2 p-2 border-b dark:border-neutral-500">
                 <app-icon class="text-2xl">arrow_back</app-icon>
-                <div class="">Help & Support</div>
+                <div class="" i18n>Help & Support</div>
             </div>
             <a
                 button

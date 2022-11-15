@@ -19,7 +19,7 @@ import { BookingFormService } from '../booking-form.service';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center">Space Filters</h3>
+            <h3 class="font-medium flex-2 text-center" i18n>Space Filters</h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -27,9 +27,9 @@ import { BookingFormService } from '../booking-form.service';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium">Details</h2>
+                <h2 class="text-lg font-medium" i18n>Details</h2>
                 <div class="flex-1 min-w-[256px] flex flex-col">
-                    <label for="location">Location</label>
+                    <label for="location" i18n>Location</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             name="location"
@@ -50,14 +50,14 @@ import { BookingFormService } from '../booking-form.service';
                     </mat-form-field>
                 </div>
                 <div class="flex-1 min-w-[256px]">
-                    <label for="date">Date<span>*</span></label>
-                    <a-date-field name="date" formControlName="date">
+                    <label for="date" i18n>Date<span>*</span></label>
+                    <a-date-field name="date" formControlName="date" i18n>
                         Date and time must be in the future
                     </a-date-field>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time">Start Time<span>*</span></label>
+                        <label for="start-time" i18n>Start Time<span>*</span></label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -66,7 +66,7 @@ import { BookingFormService } from '../booking-form.service';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time">End Time<span>*</span></label>
+                        <label for="end-time" i18n>End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -78,9 +78,9 @@ import { BookingFormService } from '../booking-form.service';
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium">Favourites</h2>
+                <h2 class="text-lg font-medium" i18n>Favourites</h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2">
+                    <div for="fav" class="flex-1 w-1/2" i18n>
                         Only show favourite spaces
                     </div>
                     <mat-checkbox
@@ -97,7 +97,7 @@ import { BookingFormService } from '../booking-form.service';
                 class="space-y-2"
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium">Facilities</h2>
+                <h2 class="text-lg font-medium" i18n>Facilities</h2>
                 <div
                     class="flex items-center"
                     *ngFor="let feat of features | async"
@@ -116,7 +116,7 @@ import { BookingFormService } from '../booking-form.service';
             class="px-2 pt-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button mat-button close class="w-full" (click)="close()">
+            <button mat-button close class="w-full" (click)="close()" i18n>
                 Apply Filters
             </button>
         </div>

@@ -24,7 +24,7 @@ import { Booking } from './booking.class';
                 rel="noopener noreferer"
             >
                 <img src="assets/icons/outlook.svg" class="w-6" />
-                <span>Create in Outlook</span>
+                <span i18n>Create in Outlook</span>
             </a>
             <a
                 button
@@ -35,7 +35,7 @@ import { Booking } from './booking.class';
                 rel="noopener noreferer"
             >
                 <img src="assets/icons/gcal.svg" class="w-6" />
-                <span>Create in Google Calendar</span>
+                <span i18n>Create in Google Calendar</span>
             </a>
             <a
                 button
@@ -46,7 +46,7 @@ import { Booking } from './booking.class';
                 rel="noopener noreferer"
             >
                 <app-icon class="text-xl">download</app-icon>
-                <span>Download iCal File</span>
+                <span i18n>Download iCal File</span>
             </a>
         </div>
         <button mat-icon-button mat-dialog-close class="absolute top-2 right-0">

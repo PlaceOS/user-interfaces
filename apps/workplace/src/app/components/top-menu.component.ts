@@ -19,7 +19,12 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltipPosition="below"
             >
                 <app-icon filled class="text-xl">home</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">home</app-icon>
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >home</app-icon
+                >
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Home</span
                 >
@@ -40,7 +45,12 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltipPosition="below"
             >
                 <app-icon filled class="text-xl">meeting_room</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">meeting_room</app-icon>
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >meeting_room</app-icon
+                >
                 <span *ngIf="show_text" class="truncate hidden xl:block"
                     >Book Room</span
                 >
@@ -75,7 +85,7 @@ import { OrganisationService } from '@placeos/organisation';
                         />
                     </svg>
                 </div>
-                <span *ngIf="show_text" class="truncate hidden xl:block"
+                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
                     >Book Desk</span
                 >
                 <div
@@ -88,14 +98,22 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
                 [routerLink]="
-                    new_features ? ['/book', 'new-parking'] : ['/book', 'parking']"
+                    new_features
+                        ? ['/book', 'new-parking']
+                        : ['/book', 'parking']
+                "
                 routerLinkActive="text-primary active"
                 matTooltip="Book Car Space"
                 matTooltipPosition="below"
             >
                 <app-icon filled class="text-xl">directions_car</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">directions_car</app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block"
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >directions_car</app-icon
+                >
+                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
                     >Book Car Space</span
                 >
                 <div
@@ -113,8 +131,13 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltipPosition="below"
             >
                 <app-icon filled class="text-xl">person_add</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">person_add</app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block"
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >person_add</app-icon
+                >
+                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
                     >Invite Visitor</span
                 >
                 <div
@@ -132,8 +155,13 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltipPosition="below"
             >
                 <app-icon filled class="text-xl">place</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">place</app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block"
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >place</app-icon
+                >
+                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
                     >Spaces</span
                 >
                 <div
@@ -151,8 +179,13 @@ import { OrganisationService } from '@placeos/organisation';
                 matTooltipPosition="below"
             >
                 <app-icon filled class="text-xl">event</app-icon>
-                <app-icon outline className="material-icons-outlined" class="text-xl !m-0">event</app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block"
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >event</app-icon
+                >
+                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
                     >Your Bookings</span
                 >
                 <div
@@ -180,7 +213,7 @@ import { OrganisationService } from '@placeos/organisation';
             a:not(.active) > [filled],
             a.active > [outline] {
                 display: none;
-            } 
+            }
         `,
     ],
 })

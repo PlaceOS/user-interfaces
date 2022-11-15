@@ -11,7 +11,7 @@ import { OrganisationService } from '@placeos/organisation';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2>Confirm Meeting booking</h2>
+            <h2 i18n>Confirm Meeting booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 px-2">
@@ -44,7 +44,7 @@ import { OrganisationService } from '@placeos/organisation';
         >
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3>
+                <h3 i18n>
                     {{ event.attendees.length }} { event.attendees.length,
                     plural, =1 { attendee } other { attendees } }
                 </h3>
@@ -61,7 +61,7 @@ import { OrganisationService } from '@placeos/organisation';
         <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3>Booked Room</h3>
+                <h3 i18n>Booked Room</h3>
                 <ng-container *ngFor="let s of event.resources">
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
@@ -83,6 +83,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
+                i18n
             >
                 Confirm
             </button>
@@ -91,6 +92,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="inverse w-full"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
+                i18n
             >
                 Undo
             </button>

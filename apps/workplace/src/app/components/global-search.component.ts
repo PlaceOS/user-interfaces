@@ -58,6 +58,7 @@ import { ExploreSearchService } from '@placeos/explore';
                         !(results | async)?.length && filter_str;
                         else empty_state
                     "
+                    i18n
                 >
                     No matches found.
                 </div>
@@ -95,6 +96,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 empty
                 *ngIf="!(results | async)?.length"
                 class="p-4 w-full text-center opacity-60"
+                i18n
             >
                 Start typing to search...
             </div>

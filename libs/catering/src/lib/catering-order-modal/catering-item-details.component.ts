@@ -85,7 +85,7 @@ interface CateringOptionGroup {
                                         "
                                     >
                                         <mat-radio-button class="m-0" value="">
-                                            <span class="font-medium p-2"
+                                            <span class="font-medium p-2" i18n
                                                 >None</span
                                             >
                                         </mat-radio-button>
@@ -169,7 +169,7 @@ interface CateringOptionGroup {
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center">
+                <p class="opacity-30 text-center" i18n>
                     Select an item to view it's details
                 </p>
             </div>

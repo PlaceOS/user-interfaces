@@ -15,7 +15,7 @@ import { OrganisationService } from '@placeos/organisation';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2">Confirm Parking Reservation</h2>
+            <h2 class="text-2xl font-medium mb-2" i18n>Confirm Parking Reservation</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
@@ -53,7 +53,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span>Car Park</span>
+                    <span i18n>Car Park</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
@@ -74,7 +74,7 @@ import { OrganisationService } from '@placeos/organisation';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3>{{ assets_count }} Asset(s)</h3>
+                <h3 i18n>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
                     <div class="h-5 w-5 bg-gray-100 rounded-full">
                         {{ asset.amount }}
@@ -90,6 +90,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
+                i18n
             >
                 Confirm
             </button>

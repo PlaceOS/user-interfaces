@@ -14,7 +14,7 @@ const EMPTY_FAVS: string[] = [];
         <div>
             <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
                 <div class="flex-1 min-w-[256px] space-y-2">
-                    <label>Select Room Size<span>*</span></label>
+                    <label i18n>Select Room Size<span>*</span></label>
                     <div class="flex items-center">
                         <mat-radio-group
                             aria-label="Select Room Size"
@@ -22,13 +22,13 @@ const EMPTY_FAVS: string[] = [];
                             [(ngModel)]="room_size"
                             [ngModelOptions]="{ standalone: true }"
                         >
-                            <mat-radio-button [value]="1">
+                            <mat-radio-button [value]="1" i18n>
                                 1-2 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="3">
+                            <mat-radio-button [value]="3" i18n>
                                 3-9 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="10">
+                            <mat-radio-button [value]="10" i18n>
                                 10+ People
                             </mat-radio-button>
                         </mat-radio-group>
@@ -61,8 +61,8 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
-                        <p>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} People
+                        <p i18n>
+                            {{ space.capacity < 1 ? 2 : space.capacity }} { space.capacity, plural, =1 { Person } other { People } }
                         </p>
                     </div>
                     <div
@@ -74,7 +74,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeSpaces(space)"
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2" i18n>
                                 <app-icon>edit</app-icon>
                                 Change
                             </div>
@@ -85,7 +85,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeSpace(space)"
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2" i18n>
                                 <app-icon>close</app-icon>
                                 Remove
                             </div>
@@ -115,7 +115,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Space</span>
+                <span i18n>Add Space</span>
             </div>
         </button>
     `,

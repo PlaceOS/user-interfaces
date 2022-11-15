@@ -20,7 +20,7 @@ export const FAV_DESK_KEY = 'favourite_desks'
                 <button mat-icon-button mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
-                <h3>Find Desk</h3>
+                <h3 i18n>Find Desk</h3>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -66,6 +66,7 @@ export const FAV_DESK_KEY = 'favourite_desks'
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
+                    i18n
                 >
                     Back
                 </button>
@@ -75,6 +76,7 @@ export const FAV_DESK_KEY = 'favourite_desks'
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
+                    i18n
                 >
                     View List
                 </button>
@@ -89,10 +91,10 @@ export const FAV_DESK_KEY = 'favourite_desks'
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <div class="mr-1 underline" i18n>Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">
+                <p class="opacity-60 text-sm" i18n>
                     {{ selected.length }} desk(s) added
                 </p>
                 <button
@@ -105,12 +107,8 @@ export const FAV_DESK_KEY = 'favourite_desks'
                         <app-icon class="text-xl">{{
                             isSelected(displayed?.id) ? 'remove' : 'add'
                         }}</app-icon>
-                        <div class="mr-1">
-                            {{
-                                isSelected(displayed?.id)
-                                    ? 'Remove from Booking'
-                                    : 'Add to booking'
-                            }}
+                        <div class="mr-1" i18n>
+                            {isSelected(displayed?.id), select, true { Remove from Booking } false { Add to booking }}
                         </div>
                     </div>
                 </button>

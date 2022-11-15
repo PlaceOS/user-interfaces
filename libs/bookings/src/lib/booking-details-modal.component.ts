@@ -125,7 +125,7 @@ import { checkinBooking } from './bookings.fn';
                 <div
                     class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>Details</h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
@@ -172,7 +172,7 @@ import { checkinBooking } from './bookings.fn';
         <mat-menu #menu="matMenu" xPosition="before">
             <!-- <button mat-menu-item mat-dialog-close class="flex items-center space-x-2 text-base" (click)="edit.emit()">
                 <app-icon>edit</app-icon>
-                <div>Edit booking</div>
+                <div i18n>Edit booking</div>
             </button> -->
             <button
                 mat-menu-item
@@ -180,7 +180,7 @@ import { checkinBooking } from './bookings.fn';
                 (click)="remove.emit()"
             >
                 <app-icon>delete</app-icon>
-                <div>Delete booking</div>
+                <div i18n>Delete booking</div>
             </button>
         </mat-menu>
     `,

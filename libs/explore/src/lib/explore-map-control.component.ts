@@ -20,6 +20,7 @@ import { ExploreStateService } from './explore-state.service';
             >
                 <mat-select
                     placeholder="Select Building..."
+                    i18n-placeholder
                     [ngModel]="building | async"
                     (ngModelChange)="setBuilding($event)"
                 >
@@ -41,6 +42,7 @@ import { ExploreStateService } from './explore-state.service';
             >
                 <mat-select
                     placeholder="Select Level..."
+                    i18n-placeholder
                     [ngModel]="level | async"
                     (ngModelChange)="setLevel($event)"
                 >

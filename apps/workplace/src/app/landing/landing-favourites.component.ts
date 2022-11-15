@@ -12,7 +12,7 @@ const EMPTY = [];
         <div
             class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
         >
-            <h2 class="mx-2">{{ spaces?.length || 0 }} Resources</h2>
+            <h2 class="mx-2" i18n>{{ spaces?.length || 0 }} { spaces?.length, plural, =1 { Resource } other { Resources } }</h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button
                     mat-icon-button
@@ -67,9 +67,9 @@ const EMPTY = [];
                                 <app-icon class="text-blue-500"
                                     >people</app-icon
                                 >
-                                <div>
+                                <div i18n>
                                     {{ (item | space | async)?.capacity || 2 }}
-                                    People
+                                    { (item | space | async)?.capacity || 2, plural, =1 { Person } other { People } }
                                 </div>
                             </div>
                         </div>
@@ -78,6 +78,7 @@ const EMPTY = [];
                         mat-button
                         class="w-full inverse"
                         (click)="newSpaceMeeting(item)"
+                        i18n
                     >
                         Book
                     </button>
@@ -94,7 +95,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
-                            <div>View Details</div>
+                            <div i18n>View Details</div>
                         </button>
                         <button
                             mat-menu-item
@@ -102,7 +103,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>Remove Favourite</div>
+                            <div i18n>Remove Favourite</div>
                         </button>
                     </mat-menu>
                 </div>
@@ -113,7 +114,7 @@ const EMPTY = [];
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-favourites.svg" />
-                <p class="opacity-60 text-sm text-center">
+                <p class="opacity-60 text-sm text-center" i18n>
                     You have no favourites hearted. To add a favourites heart a
                     room, desk or parking space.
                 </p>

@@ -11,7 +11,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
     selector: 'explore-book-qr',
     template: `
         <header>
-            <h2 class="truncate">Book - {{ space?.name }}</h2>
+            <h2 class="truncate" i18n>Book - {{ space?.name }}</h2>
             <div class="flex-1"></div>
             <button mat-icon-button mat-dialog-close>
                 <app-icon>close</app-icon>

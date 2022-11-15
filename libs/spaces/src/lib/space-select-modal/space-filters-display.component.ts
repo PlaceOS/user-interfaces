@@ -15,6 +15,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 filters
                 class="flex-1 w-1/2"
                 (click)="editFilters()"
+                i18n
             >
                 Filters
             </button>
@@ -25,6 +26,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
+                    i18n
                 >
                     Map
                 </button>
@@ -34,6 +36,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
+                    i18n
                 >
                     List
                 </button>
@@ -55,7 +58,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 {{ start | date: 'shortTime' }} &mdash;
                 {{ end | date: 'shortTime' }}
             </div>
-            <div filter-item count class="dark:border-neutral-500">
+            <div filter-item count class="dark:border-neutral-500" i18n>
                 Min. {{ (options | async)?.capcaity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">

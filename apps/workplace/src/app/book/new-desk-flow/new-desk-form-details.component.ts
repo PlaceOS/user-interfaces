@@ -22,7 +22,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     (click)="setOptions({ group: false, members: [] })"
                 >
                     <app-icon class="text-2xl">person</app-icon>
-                    <div class="">Single</div>
+                    <div class="" i18n>Single</div>
                     <div
                         class="absolute h-2 inset-x-0 bottom-0 !m-0"
                         [class.bg-gray-200]="(options | async)?.group"
@@ -37,7 +37,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     (click)="setOptions({ group: true })"
                 >
                     <app-icon class="text-2xl">group_add</app-icon>
-                    <div class="">Group</div>
+                    <div class="" i18n>Group</div>
                     <div
                         class="absolute h-2 inset-x-0 bottom-0 !m-0"
                         [class.bg-gray-200]="!(options | async)?.group"
@@ -52,7 +52,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     >
                         1
                     </div>
-                    <div class="text-xl">Details</div>
+                    <div class="text-xl" i18n>Details</div>
                 </h3>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[256px]">
@@ -64,19 +64,19 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                                 formControlName="title"
                                 placeholder="e.g. Focus Time"
                             />
-                            <mat-error>Booking title is required.</mat-error>
+                            <mat-error i18n>Booking title is required.</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[256px]">
-                        <label for="date">Date<span>*</span></label>
-                        <a-date-field name="date" formControlName="date">
+                        <label for="date" i18n>Date<span>*</span></label>
+                        <a-date-field name="date" formControlName="date" i18n>
                             Date and time must be in the future
                         </a-date-field>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time">Start Time<span>*</span></label>
+                        <label for="start-time" i18n>Start Time<span>*</span></label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -85,7 +85,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time">End Time<span>*</span></label>
+                        <label for="end-time" i18n>End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -99,6 +99,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                             formControlName="all_day"
                             *ngIf="allow_all_day"
                             class="absolute top-0 right-0"
+                            i18n
                         >
                             All Day
                         </mat-checkbox>
@@ -117,6 +118,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                                 })
                             "
                             [ngModelOptions]="{ standalone: true }"
+                            i18n
                         >
                             Require locker
                         </mat-checkbox>
@@ -130,7 +132,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     >
                         2
                     </div>
-                    <div class="text-xl">Group Members</div>
+                    <div class="text-xl" i18n>Group Members</div>
                     <div class="flex-1 w-px"></div>
                 </h3>
                 <div
@@ -151,7 +153,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
-                    <div class="text-xl">Desk</div>
+                    <div class="text-xl" i18n>Desk</div>
                 </h3>
                 <desk-list-field formControlName="resources"></desk-list-field>
             </section>
@@ -162,7 +164,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     >
                         {{ (options | async)?.group ? 4 : 3 }}
                     </div>
-                    <div class="text-xl">Request Asset</div>
+                    <div class="text-xl" i18n>Request Asset</div>
                 </h3>
                 <asset-list-field formControlName="assets"></asset-list-field>
             </section>

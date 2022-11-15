@@ -23,14 +23,18 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="h-full w-full bg-gray-100 dark:bg-neutral-900 overflow-auto">
+        <div
+            class="h-full w-full bg-gray-100 dark:bg-neutral-900 overflow-auto"
+        >
             <div
                 class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-[#1F2021] border border-gray-300 dark:border-neutral-700"
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-700"
+                    i18n
                 >
-                    {{ form.value.id ? 'Edit' : 'Book'}} Meeting
+                    { !!form.value.id, select, true { Edit } false { Book } }
+                    Meeting
                 </h2>
                 <form
                     class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
@@ -43,7 +47,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 1
                             </div>
-                            <div class="text-xl">Details</div>
+                            <div class="text-xl" i18n>Details</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -75,9 +79,14 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 2
                             </div>
-                            <div class="text-xl">Attendees</div>
+                            <div class="text-xl" i18n>Attendees</div>
                             <div class="flex-1 w-px"></div>
-                            <button matRipple class="bg-none underline text-xs text-blue-500" (click)="findAvailableTime()">
+                            <button
+                                matRipple
+                                class="bg-none underline text-xs text-blue-500"
+                                (click)="findAvailableTime()"
+                                i18n
+                            >
                                 Availability
                             </button>
                             <button
@@ -111,7 +120,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 3
                             </div>
-                            <div class="text-xl">Room</div>
+                            <div class="text-xl" i18n>Room</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -143,7 +152,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 4
                             </div>
-                            <div class="text-xl">Catering</div>
+                            <div class="text-xl" i18n>Catering</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -172,9 +181,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering ? '4' : '5'}}
+                                {{ !has_catering ? '4' : '5' }}
                             </div>
-                            <div class="text-xl">Assets</div>
+                            <div class="text-xl" i18n>Assets</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -201,12 +210,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering ? '5' : '6'}}
+                                {{ !has_catering ? '5' : '6' }}
                             </div>
-                            <div class="text-xl">Notes</div>
+                            <div class="text-xl" i18n>Notes</div>
                         </h3>
                         <div class="w-full flex flex-col">
-                            <label for="notes"
+                            <label for="notes" i18n
                                 >General information for attendees</label
                             >
                             <rich-text-input
@@ -224,6 +233,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
+                            i18n
                         >
                             Confirm Meeting
                         </button>
@@ -232,8 +242,10 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
+                            i18n
                         >
-                            {{ form.value.id ? 'Reset' : 'Clear' }} Form
+                            { !!form.value.id, select, true { Reset } false {
+                            Clear } } Form
                         </button>
                     </section>
                 </form>
@@ -253,7 +265,10 @@ export class MeetingFlowFormComponent extends BaseClass {
     }
 
     public get has_catering() {
-        return !!this._settings.get('app.events.catering_enabled') || !!this._settings.get('app.events.has_catering');
+        return (
+            !!this._settings.get('app.events.catering_enabled') ||
+            !!this._settings.get('app.events.has_catering')
+        );
     }
 
     public get hide_notes() {
@@ -271,16 +286,20 @@ export class MeetingFlowFormComponent extends BaseClass {
     public readonly clearForm = () => this._state.resetForm();
 
     public readonly viewConfirm = () => {
-        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
+        if (!this.form.value.host)
+            this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
                     ', '
                 )}]`
             );
-        if (this._settings.get('app.events.booking_unavailable')) return this._state.openEventLinkModal();
+        if (this._settings.get('app.events.booking_unavailable'))
+            return this._state.openEventLinkModal();
         if (window.innerWidth >= 768) {
-            this.dialog_ref = this._dialog.open(MeetingFlowConfirmModalComponent);
+            this.dialog_ref = this._dialog.open(
+                MeetingFlowConfirmModalComponent
+            );
             this.dialog_ref.componentInstance.show_close = true;
             this.dialog_ref.afterClosed().subscribe((value) => {
                 if (value) {
@@ -289,7 +308,9 @@ export class MeetingFlowFormComponent extends BaseClass {
                 }
             });
         } else {
-            this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
+            this.sheet_ref = this._bottom_sheet.open(
+                MeetingFlowConfirmComponent
+            );
             this.sheet_ref.instance.show_close = true;
             this.sheet_ref.afterDismissed().subscribe((value) => {
                 if (value) {
@@ -313,9 +334,12 @@ export class MeetingFlowFormComponent extends BaseClass {
     }
 
     public ngOnInit() {
-        this.subscription('space_changes', this.form.controls.resources.valueChanges.subscribe((l) => 
-            this._checkCateringEligibility(l)
-        ));
+        this.subscription(
+            'space_changes',
+            this.form.controls.resources.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(l)
+            )
+        );
         this._checkCateringEligibility(this.form.value.resources || []);
     }
 
@@ -326,27 +350,29 @@ export class MeetingFlowFormComponent extends BaseClass {
                 users: attendees,
                 host: organiser || currentUser(),
                 date,
-                duration
-            }
+                duration,
+            },
         });
-        ref.afterClosed().subscribe(d => {
+        ref.afterClosed().subscribe((d) => {
             if (!d) return;
             this.form.patchValue({
                 date: ref.componentInstance.date,
                 attendees: ref.componentInstance.users,
-                duration: ref.componentInstance.duration
+                duration: ref.componentInstance.duration,
             });
-        })
+        });
     }
 
     private _checkCateringEligibility(list: Space[]) {
         const zone = this._settings.get('app.events.catering_enabled');
         if (zone && list?.length) {
-            const can_cater = list.every(s => s.zones.includes(zone));
+            const can_cater = list.every((s) => s.zones.includes(zone));
             if (!can_cater) {
                 this.form.patchValue({ catering: [] });
                 this.form.controls.catering.disable();
-                notifyWarn(`Catering is unavailable for some of the selected spaces.`);
+                notifyWarn(
+                    `Catering is unavailable for some of the selected spaces.`
+                );
             } else {
                 this.form.controls.catering.enable();
             }

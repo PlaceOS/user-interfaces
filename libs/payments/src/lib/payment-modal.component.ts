@@ -28,9 +28,9 @@ export interface PaymentData {
                 <main
                     class="px-4 pt-8 w-[24rem] space-y-2 flex flex-col items-center relative"
                 >
-                    <h2 class="text-2xl font-medium">Booking Payment</h2>
+                    <h2 class="text-2xl font-medium" i18n>Booking Payment</h2>
                     <img src="assets/icons/cost.svg" class="w-1/2" />
-                    <p class="text-sm text-center pb-2">
+                    <p class="text-sm text-center pb-2" i18n>
                         You are requesting a {{ details.type }} booking in
                         {{ details.resource_name }} for
                         {{ details.date | date: 'mediumDate' }}
@@ -42,7 +42,7 @@ export interface PaymentData {
                             }}
                         </ng-container>
                     </p>
-                    <p class="text-sm">You booking will cost:</p>
+                    <p class="text-sm" i18n>You booking will cost:</p>
                     <p class="text-lg font-medium text-center">
                         <strong>{{ details.amount / 100 | currency:code }}</strong>
                     </p>
@@ -56,6 +56,7 @@ export interface PaymentData {
                         mat-button
                         class="w-full"
                         (click)="processPayment()"
+                        i18n
                     >
                         Make Payment
                     </button>
@@ -81,12 +82,12 @@ export interface PaymentData {
             <main
                 class="px-8 pt-8 w-[24rem] flex flex-col relative"
             >
-                <h2 class="text-2xl font-medium">Payment Successful</h2>
+                <h2 class="text-2xl font-medium" i18n>Payment Successful</h2>
                 <h3 class="text-xl font-medium mb-2">Ref #{{ transaction_id }}</h3>
-                <p>{{ details.amount / 100 | currency:code }} paid.</p>
-                <p>{{ details.resource_name }} booked.</p>
+                <p i18n>{{ details.amount / 100 | currency:code }} paid.</p>
+                <p i18n>{{ details.resource_name }} booked.</p>
                 <p>{{ details.date | date: 'mediumDate' }}</p>
-                <p>
+                <p i18n>
                     {{ details.date | date: 'shortTime' }} and
                     {{
                         details.date + details.duration * 60 * 1000
@@ -96,12 +97,11 @@ export interface PaymentData {
             </main>
             <img src="assets/icons/payment-confirmed.svg" class="w-full" />
             <footer class="p-4 border-t border-gray-200">
-                <button mat-button mat-dialog-close class="w-full">
+                <button mat-button mat-dialog-close class="w-full" i18n>
                     Great, thanks.
                 </button>
             </footer>
-            <ng-template></ng-template
-        ></ng-template>
+        </ng-template>
     `,
     styles: [``],
 })

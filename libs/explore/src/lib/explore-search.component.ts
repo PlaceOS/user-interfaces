@@ -28,6 +28,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 [(ngModel)]="search_str"
                 (ngModelChange)="setItem($event)"
                 placeholder="Search for..."
+                i18n-placeholder
                 (blur)="show = !!search_str"
                 [matAutocomplete]="auto"
                 [matAutocompleteConnectedTo]="origin"
@@ -50,6 +51,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 <mat-option
                     *ngIf="!(results | async)?.length"
                     class="pointer-events-none"
+                    i18n
                 >
                     No matches found
                 </mat-option>

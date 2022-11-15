@@ -47,7 +47,7 @@ const EMPTY = [];
                     [ngModel]="!(options | async)?.disable?.includes('zones')"
                     (ngModelChange)="toggleZones($event)"
                 ></mat-slide-toggle>
-                <label for="zones" class="mb-0">Zones</label>
+                <label for="zones" class="mb-0" i18n>Zones</label>
             </div>
         </div>
         <div
@@ -55,7 +55,7 @@ const EMPTY = [];
             *ngIf="show_legend && legend.length"
             class="absolute bottom-2 left-2 p-2 rounded bg-white dark:bg-neutral-800 border border-gray-300"
         >
-            <h3 class="mb-2 font-medium">Legend</h3>
+            <h3 class="mb-2 font-medium" i18n>Legend</h3>
             <div
                 class="flex items-center space-x-2"
                 *ngFor="let pair of legend"

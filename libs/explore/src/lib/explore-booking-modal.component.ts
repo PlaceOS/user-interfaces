@@ -14,7 +14,7 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header>
-            <h2>New Booking</h2>
+            <h2 i18n>New Booking</h2>
             <div class="flex-1"></div>
             <button *ngIf="!(loading | async)" mat-icon-button mat-dialog-close>
                 <app-icon>close</app-icon>
@@ -30,12 +30,13 @@ export interface ExploreBookingModalData {
                             name="title"
                             formControlName="title"
                             placeholder="Booking Title"
+                            i18n-placeholder
                         />
-                        <mat-error>Booking title is required</mat-error>
+                        <mat-error i18n>Booking title is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label>Space:</label>
+                    <label i18n>Space:</label>
                     <div name="space" class="sm:mt-4 mb-4">
                         {{
                             form.controls.resources?.value[0]?.display_name ||
@@ -45,13 +46,13 @@ export interface ExploreBookingModalData {
                 </div>
                 <div class="flex sm:space-x-4 flex-wrap">
                     <div class="flex flex-col" *ngIf="form.controls.date">
-                        <label>Date:</label>
+                        <label i18n>Date:</label>
                         <div class="sm:mt-4 mb-4">
                             {{ form.controls.date?.value | date: 'medium' }}
                         </div>
                     </div>
                     <div class="flex flex-col" *ngIf="form.controls.duration">
-                        <label>Duration:</label>
+                        <label i18n>Duration:</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.value.date"
@@ -61,7 +62,7 @@ export interface ExploreBookingModalData {
                 </div>
             </main>
             <footer class="flex justify-center p-2 border-t border-gray-200">
-                <button mat-button (click)="save()">Save</button>
+                <button mat-button (click)="save()" i18n>Save</button>
             </footer>
         </ng-container>
         <ng-template #load_state>

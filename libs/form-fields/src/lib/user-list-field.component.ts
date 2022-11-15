@@ -70,7 +70,8 @@ function validateEmail(email) {
                         </mat-chip>
                         <input
                             #search_field
-                            placeholder="Type a name or email"
+                            placeholder="Type a name or email" 
+                            i18n-placeholder
                             name="user_email"
                             [ngModel]="search$ | async"
                             (ngModelChange)="updateSearch($event)"
@@ -91,7 +92,7 @@ function validateEmail(email) {
                 <mat-autocomplete #auto="matAutocomplete">
                     <mat-option
                         *ngIf="search_valid_email"
-                        (click)="addUserFromEmail()"
+                        (click)="addUserFromEmail()" i18n
                     >
                         Add external user with email "{{ search$.getValue() }}"
                     </mat-option>

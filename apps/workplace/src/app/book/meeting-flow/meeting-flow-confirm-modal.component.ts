@@ -20,7 +20,7 @@ import { OrganisationService } from '@placeos/organisation';
             >
                 <app-icon>close</app-icon>
             </button>
-            <h2 class="text-xl font-medium">Confirm Meeting booking</h2>
+            <h2 class="text-xl font-medium" i18n>Confirm Meeting booking</h2>
             <mat-spinner
                 diameter="32"
                 class="absolute right-0 top-1/2 -translate-y-1/2"
@@ -63,7 +63,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">Booked Room</h3>
+                    <h3 class="text-xl !mt-0" i18n>Booked Room</h3>
                     <ng-container *ngFor="let s of event.resources">
                         <div class="flex items-center space-x-2">
                             <app-icon>meeting_room</app-icon>
@@ -88,7 +88,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0">
+                <h3 class="text-xl !mt-0" i18n>
                     {{ event.attendees.length }} { event.attendees.length,
                     plural, =1 { Attendee } other { Attendees } }
                 </h3>
@@ -114,7 +114,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">Catering</h3>
+                    <h3 class="text-xl !mt-0" i18n>Catering</h3>
                     <div class="space-y-2">
                         <div
                             class="flex items-center space-x-2"
@@ -179,7 +179,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">Assets</h3>
+                    <h3 class="text-xl !mt-0" i18n>Assets</h3>
                     <div
                         class="flex items-center"
                         *ngFor="let item of event.assets"
@@ -200,7 +200,7 @@ import { OrganisationService } from '@placeos/organisation';
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0">Notes</h3>
+                <h3 class="text-xl !mt-0" i18n>Notes</h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
         </main>
@@ -212,6 +212,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="w-32"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
+                i18n
             >
                 Confirm
             </button>
@@ -220,6 +221,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="inverse w-32"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
+                i18n
             >
                 Undo
             </button>

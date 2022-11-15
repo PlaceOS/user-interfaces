@@ -4,13 +4,34 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: `explore-zoom-controls`,
     template: `
-        <button z-in mat-icon-button class="bg-white dark:bg-neutral-800" (click)="zoomIn()">
+        <button
+            z-in
+            mat-icon-button
+            class="bg-white dark:bg-neutral-800"
+            (click)="zoomIn()"
+            matTooltip="Zoom In"
+            i18n-matTooltip
+        >
             <app-icon>add</app-icon>
         </button>
-        <button z-out mat-icon-button class="bg-white dark:bg-neutral-800" (click)="zoomOut()">
+        <button
+            z-out
+            mat-icon-button
+            class="bg-white dark:bg-neutral-800"
+            (click)="zoomOut()"
+            matTooltip="Zoom Out"
+            i18n-matTooltip
+        >
             <app-icon>remove</app-icon>
         </button>
-        <button reset mat-icon-button class="bg-white dark:bg-neutral-800" (click)="reset()">
+        <button
+            reset
+            mat-icon-button
+            class="bg-white dark:bg-neutral-800"
+            (click)="reset()"
+            matTooltip="Reset Zoom & Center"
+            i18n-matTooltip
+        >
             <app-icon>autorenew</app-icon>
         </button>
     `,

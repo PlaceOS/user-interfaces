@@ -15,9 +15,9 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                 class="w-52 h-48 relative border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded hover:bg-black/5 cursor-pointer"
             >
                 <app-icon class="text-3xl mb-2">upload_file</app-icon>
-                <p class="text-center">Drop files</p>
-                <p class="text-center text-xs my-1">or</p>
-                <button mat-button class="w-28">Browse</button>
+                <p class="text-center" i18n>Drop files</p>
+                <p class="text-center text-xs my-1" i18n>or</p>
+                <button mat-button class="w-28" i18n>Browse</button>
                 <input
                     multiple="true"
                     type="file"
@@ -80,7 +80,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             <div
                 class="h-full w-full flex flex-col justify-center items-center"
             >
-                <p class="opacity-30">No uploaded files</p>
+                <p class="opacity-30" i18n>No uploaded files</p>
             </div>
         </ng-template>
     `,

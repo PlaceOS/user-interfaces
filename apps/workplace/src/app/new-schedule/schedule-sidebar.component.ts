@@ -12,7 +12,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 [ngModel]="date | async"
                 (ngModelChange)="setDate($event)"
             ></schedule-calendar>
-            <h3 class="mx-4 mt-4 font-medium">Filters</h3>
+            <h3 class="mx-4 mt-4 font-medium" i18n>Filters</h3>
             <div class="p-4 space-y-4">
                 <button
                     matRipple
@@ -26,7 +26,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                     <div class="flex-1">
                         <div class="">Room</div>
-                        <div class="text-sm opacity-60">
+                        <div class="text-sm opacity-60" i18n>
                             Room and meeting invites
                         </div>
                     </div>
@@ -47,8 +47,8 @@ import { ScheduleStateService } from './schedule-state.service';
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
                     <div class="flex-1">
-                        <div class="">Desk</div>
-                        <div class="text-sm opacity-60">Desk bookings</div>
+                        <div class="" i18n>Desk</div>
+                        <div class="text-sm opacity-60" i18n>Desk bookings</div>
                     </div>
                     <mat-checkbox
                         [ngModel]="
@@ -67,8 +67,8 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>drive_eta</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="">Parking</div>
-                        <div class="text-sm opacity-60">Car, Bike, Van and ACC bookings</div>
+                        <div class="" i18n>Parking</div>
+                        <div class="text-sm opacity-60" i18n>Car, Bike, Van and ACC bookings</div>
                     </div>
                     <mat-checkbox
                         [ngModel]="
@@ -87,8 +87,8 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>people</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="">Visitors</div>
-                        <div class="text-sm opacity-60">Visitor invites</div>
+                        <div class="" i18n>Visitors</div>
+                        <div class="text-sm opacity-60" i18n>Visitor invites</div>
                     </div>
                     <mat-checkbox
                         [ngModel]="

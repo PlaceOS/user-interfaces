@@ -6,10 +6,10 @@ import { DialogEvent, notifyError } from '@placeos/common';
     selector: 'desk-question-modal',
     template: `
         <div *ngIf="!failure; else fail_state" class="relative">
-            <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
+            <h2 class="p-4 text-xl" i18n>COVID-19 Questionnaire</h2>
             <main class="p-4" [formGroup]="form">
                 <div class="flex flex-col mb-4">
-                    <label>
+                    <label i18n>
                         Have you travelled overseas within the last 14
                         days?<span>*</span>
                     </label>
@@ -22,7 +22,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     </mat-radio-group>
                 </div>
                 <div class="flex flex-col mb-4">
-                    <label>
+                    <label i18n>
                         Are you unwell or experiencing any cold or flu-like
                         symptoms?<span>*</span>
                     </label>
@@ -32,7 +32,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     </mat-radio-group>
                 </div>
                 <div class="flex flex-col">
-                    <label>
+                    <label i18n>
                         Have you had contact with anyone with suspected
                         COVID-19?<span>*</span>
                     </label>
@@ -46,7 +46,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                 </div>
             </main>
             <footer class="flex justify-center items-center p-2">
-                <button mat-button (click)="submit()">Submit</button>
+                <button mat-button (click)="submit()" i18n>Submit</button>
             </footer>
             <button close mat-icon-button mat-dialog-close>
                 <i class="material-icons">close</i>
@@ -54,7 +54,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
         </div>
         <ng-template #fail_state>
             <main failure class="pt-8 relative">
-                <p class="p-4">
+                <p class="p-4" i18n>
                     Your request to work from the office has been rejected based
                     on your response to the compulsory Covid-19 questions.
                     Please feel free to submit a new request when circumstances

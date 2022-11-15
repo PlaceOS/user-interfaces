@@ -9,7 +9,7 @@ import { BaseClass } from '@placeos/common';
         <div class="booking-form" [formGroup]="form">
             <div *ngIf="first_form">
                 <div>
-                    <label>
+                    <label i18n>
                         <strong>Meeting Subject:<span>*</span></strong>
                     </label>
                     <mat-form-field appearance="outline">
@@ -22,7 +22,7 @@ import { BaseClass } from '@placeos/common';
                     </mat-form-field>
                 </div>
                 <div *ngIf="form.controls.organiser">
-                    <label for="organiser">
+                    <label for="organiser" i18n>
                         <strong>Host:<span>*</span></strong>
                     </label>
                     <a-user-search-field
@@ -31,7 +31,7 @@ import { BaseClass } from '@placeos/common';
                     ></a-user-search-field>
                 </div>
                 <div>
-                    <label for="start-time">
+                    <label for="start-time" i18n>
                         <strong>Time:<span>*</span></strong>
                     </label>
                     <a-time-field
@@ -40,7 +40,7 @@ import { BaseClass } from '@placeos/common';
                     ></a-time-field>
                 </div>
                 <div style="margin-top: 1.5em;">
-                    <label for="duration">
+                    <label for="duration" i18n>
                         <strong>Duration:<span>*</span></strong>
                     </label>
                     <a-duration-field
@@ -59,7 +59,7 @@ import { BaseClass } from '@placeos/common';
                     formControlName="notes"
                 />
                 <div *ngIf="form.controls.head_count">
-                    <label for="organiser">
+                    <label for="organiser" i18n>
                         <strong>Estimated Headcount:<span>*</span></strong>
                     </label>
                     <mat-form-field appearance="outline">

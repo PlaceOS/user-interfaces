@@ -12,8 +12,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 <button close mat-icon-button (click)="close.emit()">
                     <app-icon>arrow_back</app-icon>
                 </button>
-                <div class="flex-1 text-center pr-12 font-medium">
-                    {{ list.length }} Attendee(s)
+                <div class="flex-1 text-center pr-12 font-medium" i18n>
+                    {{ list.length }} { list.length, plural, =1 { Attendee } other { Attendees } }
                 </div>
             </div>
             <div class="flex-1 w-full overflow-auto">
@@ -26,7 +26,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                     <div class="">
                         <div>{{ user.name }}</div>
                         <div class="opacity-60">
-                            <span *ngIf="host === user.email">Host</span>
+                            <span *ngIf="host === user.email" i18n>Host</span>
                         </div>
                     </div>
                 </div>

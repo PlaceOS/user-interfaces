@@ -33,7 +33,7 @@ import { BookingFormService } from '../booking-form.service';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center">Desk Filters</h3>
+            <h3 class="font-medium flex-2 text-center" i18n>Desk Filters</h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -41,13 +41,13 @@ import { BookingFormService } from '../booking-form.service';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium">Details</h2>
+                <h2 class="text-lg font-medium" i18n>Details</h2>
                 <!-- Building -->
                 <div
                     *ngIf="(buildings | async)?.length"
                     class="flex-1 min-w-[256px] flex flex-col"
                 >
-                    <label>Building</label>
+                    <label i18n>Building</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             name="building"
@@ -97,15 +97,15 @@ import { BookingFormService } from '../booking-form.service';
 
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
-                    <label>Date</label>
-                    <a-date-field [to]="book_until" formControlName="date">
+                    <label i18n>Date</label>
+                    <a-date-field [to]="book_until" formControlName="date" i18n>
                         Date and time must be in the future
                     </a-date-field>
                 </div>
                 <!-- Start End -->
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label>Start Time</label>
+                        <label i18n>Start Time</label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -114,7 +114,7 @@ import { BookingFormService } from '../booking-form.service';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label>End Time</label>
+                        <label i18n>End Time</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
@@ -128,15 +128,15 @@ import { BookingFormService } from '../booking-form.service';
                 </div>
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day">
+                    <mat-checkbox formControlName="all_day" i18n>
                         All Day
                     </mat-checkbox>
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium">Favourites</h2>
+                <h2 class="text-lg font-medium" i18n>Favourites</h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2">
+                    <div for="fav" class="flex-1 w-1/2" i18n>
                         Only show favourite desks
                     </div>
                     <mat-checkbox
@@ -153,7 +153,7 @@ import { BookingFormService } from '../booking-form.service';
                 features
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium">Type</h2>
+                <h2 class="text-lg font-medium" i18n>Type</h2>
                 <div
                     *ngFor="let feat of features | async"
                     class="flex items-center flex-wrap space-x-2"
@@ -173,7 +173,7 @@ import { BookingFormService } from '../booking-form.service';
             class="px-2 py-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button mat-button close class="w-full" (click)="close()">
+            <button mat-button close class="w-full" (click)="close()" i18n>
                 Apply Filters
             </button>
         </div>

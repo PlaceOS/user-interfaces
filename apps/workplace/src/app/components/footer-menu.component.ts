@@ -34,7 +34,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >meeting_room</app-icon
                         >
                     </div>
-                    <div class="text-xs">Book Meeting</div>
+                    <div class="text-xs" i18n>Book Meeting</div>
                 </a>
                 <a
                     matRipple
@@ -70,7 +70,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             </svg>
                         </app-icon>
                     </div>
-                    <div class="text-xs">Book Desk</div>
+                    <div class="text-xs" i18n>Book Desk</div>
                 </a>
                 <a
                     matRipple
@@ -89,7 +89,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >directions_car</app-icon
                         >
                     </div>
-                    <div class="text-xs">Book Car Space</div>
+                    <div class="text-xs" i18n>Book Car Space</div>
                 </a>
                 <a
                     matRipple
@@ -108,7 +108,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >person_add</app-icon
                         >
                     </div>
-                    <div class="text-xs">Invite Visitor</div>
+                    <div class="text-xs" i18n>Invite Visitor</div>
                 </a>
                 <a
                     matRipple
@@ -129,7 +129,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >today</app-icon
                         >
                     </div>
-                    <div class="text-xs">Your Bookings</div>
+                    <div class="text-xs" i18n>Your Bookings</div>
                 </a>
             </div>
         </div>
@@ -151,7 +151,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="text-2xl !m-0"
                     >home</app-icon
                 >
-                <span class="text-sm">Home</span>
+                <span class="text-sm" i18n>Home</span>
             </a>
             <button
                 matRipple
@@ -178,7 +178,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="text-2xl !m-0"
                     >place</app-icon
                 >
-                <span class="text-sm">Spaces</span>
+                <span class="text-sm" i18n>Spaces</span>
             </a>
             <div
                 class="overflow-hidden absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-24 h-2"

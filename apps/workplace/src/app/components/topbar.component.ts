@@ -57,7 +57,7 @@ const EMPTY = [];
             >
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-xl">event</app-icon>
-                    <div>My Day</div>
+                    <div i18n>My Day</div>
                 </div>
             </button>
         </mat-menu>

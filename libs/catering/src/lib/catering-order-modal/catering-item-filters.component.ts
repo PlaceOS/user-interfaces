@@ -66,7 +66,7 @@ const ICONS = {
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 mt-2" *ngIf="!search">
+        <h3 class="hidden sm:block font-medium px-2 mt-2" *ngIf="!search" i18n>
             Catergories
         </h3>
         <div
@@ -88,7 +88,7 @@ const ICONS = {
                     (click)="toggleTag('coffee')"
                     [innerHTML]="icons.coffee | safe"
                 ></button>
-                <p>Coffee</p>
+                <p i18n>Coffee</p>
             </div>
             <div class="flex flex-col items-center m-1">
                 <button
@@ -104,7 +104,7 @@ const ICONS = {
                     (click)="toggleTag('drinks')"
                     [innerHTML]="icons.drinks | safe"
                 ></button>
-                <p>Drinks</p>
+                <p i18n>Drinks</p>
             </div>
             <div class="flex flex-col items-center m-1">
                 <button
@@ -120,7 +120,7 @@ const ICONS = {
                     (click)="toggleTag('snacks')"
                     [innerHTML]="icons.snacks | safe"
                 ></button>
-                <p>Snacks</p>
+                <p i18n>Snacks</p>
             </div>
             <div class="flex flex-col items-center m-1">
                 <button
@@ -136,7 +136,7 @@ const ICONS = {
                     (click)="toggleTag('meals')"
                     [innerHTML]="icons.meals | safe"
                 ></button>
-                <p>Meals</p>
+                <p i18n>Meals</p>
             </div>
         </div>
     `,

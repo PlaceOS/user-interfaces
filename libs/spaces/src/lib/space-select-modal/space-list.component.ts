@@ -6,7 +6,7 @@ import { Space } from '../space.class';
     selector: `space-list`,
     template: `
         <h3 class="font-bold">Results</h3>
-        <p count class="text-sm opacity-60 mb-4">
+        <p count class="text-sm opacity-60 mb-4" i18n>
             {{ (available_spaces | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async); else load_state">
@@ -72,7 +72,7 @@ import { Space } from '../space.class';
                                 <app-icon class="text-blue-500"
                                     >people</app-icon
                                 >
-                                <p>
+                                <p i18n>
                                     {{
                                         space.capacity < 1 ? 2 : space.capacity
                                     }}
@@ -102,7 +102,7 @@ import { Space } from '../space.class';
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center">
+                <p class="opacity-30 text-center" i18n>
                     No available spaces for selected time and/or filters
                 </p>
             </div>
@@ -113,7 +113,7 @@ import { Space } from '../space.class';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available spaces...</p>
+                <p class="opacity-30" i18n>Finding available spaces...</p>
             </div>
         </ng-template>
     `,

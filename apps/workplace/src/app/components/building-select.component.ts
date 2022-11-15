@@ -18,7 +18,7 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2">
+            <div class="text-xs opacity-60 mb-4 px-2" i18n>
                 Select a building location
             </div>
             <mat-radio-group

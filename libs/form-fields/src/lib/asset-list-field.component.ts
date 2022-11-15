@@ -22,7 +22,7 @@ const EMPTY_FAVS: string[] = [];
                     <div class="font-medium">
                         {{ asset.name || 'Asset' }}
                     </div>
-                    <div>{{ asset.amount }} requested</div>
+                    <div i18n>{{ asset.amount }} requested</div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
@@ -32,7 +32,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="addAssets(asset)"
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2" i18n>
                                 <app-icon>edit</app-icon>
                                 Change
                             </div>
@@ -43,7 +43,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeAsset(asset)"
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2" i18n>
                                 <app-icon>close</app-icon>
                                 Remove
                             </div>

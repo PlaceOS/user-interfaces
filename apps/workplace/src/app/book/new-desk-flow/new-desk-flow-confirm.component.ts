@@ -25,7 +25,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2">Confirm Desk Booking</h2>
+            <h2 class="text-2xl font-medium mb-2" i18n>Confirm Desk Booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
@@ -61,7 +61,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                 <h3 name>{{ booking_asset?.name || booking_asset?.id || '' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span>Single desk</span>
+                    <span i18n>Single desk</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
@@ -82,7 +82,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3>{{ assets_count }} Asset(s)</h3>
+                <h3 i18n>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
                     <div class="h-5 w-5 bg-gray-100 dark:bg-neutral-600 rounded-full">
                         {{ asset.amount }}
@@ -98,7 +98,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3>Requested Locker</h3>
+                <h3 i18n>Requested Locker</h3>
                 <div class="flex space-x-2">
                     <span>Locker E-043</span>
                 </div>
@@ -111,6 +111,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
+                i18n
             >
                 Confirm
             </button>

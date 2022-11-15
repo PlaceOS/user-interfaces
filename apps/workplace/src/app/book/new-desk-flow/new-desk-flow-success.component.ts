@@ -17,12 +17,12 @@ import {
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium text-center">
+                <h2 class="text-2xl font-medium text-center" i18n>
                     {{ last_event.asset_name || last_event.asset_id
                     }}{{ location }} Booked!
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center">
+                <p class="text-center" i18n>
                     Your desk has been successfully booked
                     <span
                         assets
@@ -52,7 +52,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span>Add to Outlook</span>
+                        <span i18n>Add to Outlook</span>
                     </a>
                     <a
                         button
@@ -63,7 +63,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span>Add to Google Calendar</span>
+                        <span i18n>Add to Google Calendar</span>
                     </a>
                     <a
                         button
@@ -74,14 +74,14 @@ import {
                         rel="noopener noreferer"
                     >
                         <app-icon class="text-xl">download</app-icon>
-                        <span>Download iCal File</span>
+                        <span i18n>Download iCal File</span>
                     </a>
                 </div>
             </main>
             <footer
                 class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4 flex items-center justify-center"
             >
-                <a button mat-button class="w-full max-w-[32rem] mx-auto" [routerLink]="['/']">
+                <a button mat-button class="w-full max-w-[32rem] mx-auto" [routerLink]="['/']" i18n>
                     Great, thanks!
                 </a>
             </footer>

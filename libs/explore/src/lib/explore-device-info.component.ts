@@ -59,9 +59,9 @@ const EMPTY = [];
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <p class="break-words"><label>MAC:</label> {{ mac }}</p>
-                    <p><label>Accuracy:</label> {{ variance }}m</p>
-                    <p><label>Last Seen:</label> {{ last_seen }}</p>
+                    <p class="break-words"><label i18n>MAC:</label> {{ mac }}</p>
+                    <p><label i18n>Accuracy:</label> {{ variance }}m</p>
+                    <p><label i18n>Last Seen:</label> {{ last_seen }}</p>
                     <p
                         type
                         *ngIf="
@@ -69,23 +69,23 @@ const EMPTY = [];
                             !hide_fields.includes('manufacturer')
                         "
                     >
-                        <label>Manufacturer:</label> {{ manufacturer }}
+                        <label i18n>Manufacturer:</label> {{ manufacturer }}
                     </p>
                     <p os *ngIf="os && !hide_fields.includes('os')">
-                        <label>OS:</label> {{ os }}
+                        <label i18n>OS:</label> {{ os }}
                     </p>
                     <p ssid *ngIf="ssid && !hide_fields.includes('ssid')">
-                        <label>SSID:</label> {{ ssid }}
+                        <label i18n>SSID:</label> {{ ssid }}
                     </p>
                     <p
                         username
                         *ngIf="username && !hide_fields.includes('username')"
                     >
-                        <label>Username:</label>
+                        <label i18n>Username:</label>
                         {{ user?.name || user?.username || username }}
                     </p>
                     <p user *ngIf="user && !hide_fields.includes('user')">
-                        <label>Type:</label> {{ user.type }}
+                        <label i18n>Type:</label> {{ user.type }}
                     </p>
                 </div>
             </div>

@@ -57,7 +57,7 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                         >
                             <app-icon>help</app-icon>
                         </div>
-                        <div class="flex-1">Help & Support</div>
+                        <div class="flex-1" i18n>Help & Support</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -76,7 +76,7 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                         >
                             <app-icon>share_location</app-icon>
                         </div>
-                        <div class="flex-1">Work Location Settings</div>
+                        <div class="flex-1" i18n>Work Location Settings</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -95,7 +95,7 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1">Display & Accessibility</div>
+                        <div class="flex-1" i18n>Display & Accessibility</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -113,15 +113,15 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                     >
                         <app-icon>support_agent</app-icon>
                     </div>
-                    <div class="flex-1">Raise a support ticket</div>
+                    <div class="flex-1" i18n>Raise a support ticket</div>
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
-                <button mat-button class="inverse mb-4" (click)="logout()">
+                <button mat-button i18n class="inverse mb-4" (click)="logout()">
                     Sign Out
                 </button>
                 <div class="text-xs opacity-60 w-full">
-                    Version:
+                    <ng-container i18n>Version:</ng-container>
                     <button
                         class="underline p-0 m-0 bg-none border-none text-xs"
                         (click)="viewChangelog()"

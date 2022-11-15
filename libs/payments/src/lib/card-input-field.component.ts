@@ -26,7 +26,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
     template: `
         <form [formGroup]="details" (window:keyup)="onInput($event)">
             <div class="flex flex-col">
-                <label for="card-number">Card Number</label>
+                <label for="card-number" i18n>Card Number</label>
                 <div
                     tabindex="0"
                     class="border border-gray-200 p-2 h-12 mb-4 focus-within:shadow focus-within:border-black flex items-center font-mono w-full rounded relative"
@@ -49,7 +49,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 </div>
             </div>
             <div class="flex flex-col flex-1">
-                <label for="cardholder">Name on Card</label>
+                <label for="cardholder" i18n>Name on Card</label>
                 <mat-form-field appearance="outline">
                     <input
                         name="cardholder"
@@ -57,12 +57,12 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         placeholder="Mr John Smith"
                         formControlName="cardholder"
                     />
-                    <mat-error>Cardholder name is required</mat-error>
+                    <mat-error i18n>Cardholder name is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex items-center space-x-2">
                 <div class="flex flex-col flex-1 w-1/4">
-                    <label for="cardholder">Expiry Month</label>
+                    <label for="cardholder" i18n>Expiry Month</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             placeholder="MM"
@@ -75,7 +75,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                                 {{ item[1] }} ({{ item[0] }})
                             </mat-option>
                         </mat-select>
-                        <mat-error>Expiry month is required</mat-error>
+                        <mat-error i18n>Expiry month is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col flex-1 w-1/4">
@@ -91,7 +91,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                                 >{{ item }}</mat-option
                             >
                         </mat-select>
-                        <mat-error>Expiry year is required</mat-error>
+                        <mat-error i18n>Expiry year is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
@@ -103,7 +103,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                             formControlName="cvv"
                             maxlength="4"
                         />
-                        <mat-error>Invalid security code</mat-error>
+                        <mat-error i18n>Invalid security code</mat-error>
                     </mat-form-field>
                 </div>
             </div>

@@ -8,9 +8,9 @@ import { EventFormService } from '@placeos/events';
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium">Booking Confirmed!</h2>
+                <h2 class="text-2xl font-medium" i18n>Booking Confirmed!</h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center max-w-[512px]">
+                <p class="text-center max-w-[512px]" i18n>
                     Your
                     <span *ngIf="space">
                         room booking for
@@ -26,7 +26,7 @@ import { EventFormService } from '@placeos/events';
                 </p>
             </main>
             <footer class="p-2 w-full border-t border-gray-200 dark:bg-neutral-500 mt-4 flex items-center justify-center">
-                <a button mat-button class="w-full max-w-[512px]" [routerLink]="['/']">
+                <a button mat-button class="w-full max-w-[512px]" [routerLink]="['/']" i18n>
                     Great, thanks!
                 </a>
             </footer>

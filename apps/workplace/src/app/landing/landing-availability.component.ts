@@ -6,11 +6,11 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-availability',
     template: `
         <div class="py-2">
-            <div class="sm:text-lg font-medium mb-2 sm:mb-4 px-4">
+            <div class="sm:text-lg font-medium mb-2 sm:mb-4 px-4" i18n>
                 Available Now
             </div>
             <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
-                <div>Spaces</div>
+                <div i18n>Spaces</div>
             </div>
             <div
                 class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
@@ -49,13 +49,13 @@ import { LandingStateService } from './landing-state.service';
                 </button>
                 <span
                     *ngIf="!(levels_free | async).length"
-                    class="opacity-60 text-sm mb-2"
+                    class="opacity-60 text-sm mb-2" i18n
                 >
                     No free spaces
                 </span>
             </div>
             <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
-                <div>Rooms</div>
+                <div i18n>Rooms</div>
                 <mat-spinner
                     diameter="24"
                     *ngIf="loading_spaces | async"
@@ -102,6 +102,7 @@ import { LandingStateService } from './landing-state.service';
                 <span
                     *ngIf="!(space_list | async).length"
                     class="opacity-60 text-sm mb-2"
+                    i18n
                 >
                     No free rooms
                 </span>

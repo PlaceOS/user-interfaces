@@ -83,7 +83,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             $event.preventDefault()
                         "
                     >
-                        <div class="pointer-events-none">
+                        <div class="pointer-events-none" i18n>
                             Add external attendee "{{ search_str }}"
                         </div>
                     </div>

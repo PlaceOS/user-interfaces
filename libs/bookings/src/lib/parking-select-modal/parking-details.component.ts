@@ -57,10 +57,10 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <hr />
                 <section details class="space-y-2">
-                    <h2 class="text-xl font-medium">Details</h2>
+                    <h2 class="text-xl font-medium" i18n>Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>people</app-icon>
-                        <p>{{ space.capacity }} People</p>
+                        <p i18n>{{ space.capacity }} People</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
@@ -81,18 +81,18 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <hr />
                 <section facilities class="space-y-2">
-                    <h2 class="text-xl font-medium">Room Facilities</h2>
+                    <h2 class="text-xl font-medium" i18n>Room Facilities</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>people</app-icon>
-                        <p>WiFi Available</p>
+                        <p i18n>WiFi Available</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>restaurant</app-icon>
-                        <p>Catering Available</p>
+                        <p i18n>Catering Available</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>edit</app-icon>
-                        <p>Whiteboard</p>
+                        <p i18n>Whiteboard</p>
                     </div>
                 </section>
                 <section
@@ -130,7 +130,7 @@ import { BookingAsset } from '../booking-form.service';
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center">
+                <p class="opacity-30 text-center" i18n>
                     Select a space to view it's details
                 </p>
             </div>

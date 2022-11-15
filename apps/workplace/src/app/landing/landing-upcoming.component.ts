@@ -12,18 +12,18 @@ import { LandingStateService } from './landing-state.service';
     template: `
         <div class="py-2">
             <div class="flex items-center justify-between mb-2 sm:mb-4 px-4">
-                <div class="sm:text-lg font-medium">Your Bookings</div>
+                <div class="sm:text-lg font-medium" i18n>Your Bookings</div>
                 <a
                     button
                     mat-button
                     class="inverse hidden sm:block"
-                    [routerLink]="['/your-bookings']"
+                    [routerLink]="['/your-bookings']" i18n
                 >
                     View All
                 </a>
                 <a
                     class="inverse block sm:hidden text-blue-500 underline relative top-8"
-                    [routerLink]="['/your-bookings']"
+                    [routerLink]="['/your-bookings']" i18n
                 >
                     View All
                 </a>
@@ -62,7 +62,7 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full p-8 flex flex-col items-center justify-center space-y-4"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
-                <p class="opacity-30">You have no upcoming bookings</p>
+                <p class="opacity-30" i18n>You have no upcoming bookings</p>
             </div>
         </ng-template>
     `,

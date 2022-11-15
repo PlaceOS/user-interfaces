@@ -17,6 +17,7 @@ import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
                 (ngModelChange)="setValue($event)"
                 [disabled]="disabled"
                 placeholder="Select host"
+                i18n-placeholder
             >
                 <mat-option
                     *ngFor="let user of users | async"
@@ -30,7 +31,7 @@ import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
                     </div>
                 </mat-option>
             </mat-select>
-            <mat-error>Host is required</mat-error>
+            <mat-error i18n>Host is required</mat-error>
         </mat-form-field>
         <ng-container *ngIf="users | async"></ng-container>
     `,

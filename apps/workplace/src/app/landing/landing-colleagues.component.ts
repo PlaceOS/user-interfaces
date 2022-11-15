@@ -13,7 +13,7 @@ import { LandingStateService } from './landing-state.service';
         <div
             class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
         >
-            <h2 class="mx-2">{{ (contacts | async)?.length || 0 }} People</h2>
+            <h2 class="mx-2" i18n>{{ (contacts | async)?.length || 0 }} { (contacts | async)?.length, plural, =1 { Person } other { People } }</h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button
                     mat-icon-button
@@ -71,7 +71,7 @@ import { LandingStateService } from './landing-state.service';
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">today</app-icon>
-                            <div>Create Meeting</div>
+                            <div i18n>Create Meeting</div>
                         </button>
                         <button
                             mat-menu-item
@@ -79,7 +79,7 @@ import { LandingStateService } from './landing-state.service';
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>Remove Colleague</div>
+                            <div i18n>Remove Colleague</div>
                         </button>
                         <!-- <button mat-menu-item (click)="viewUser(user)" class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">report</app-icon>
@@ -151,7 +151,7 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-contacts.svg" />
-                <p class="opacity-60 text-sm text-center">
+                <p class="opacity-60 text-sm text-center" i18n>
                     You have no colleagues added. Please select the "Add" button
                     to get started.
                 </p>
@@ -177,7 +177,7 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="opacity-60 text-sm text-center">Searching users...</p>
+                <p class="opacity-60 text-sm text-center" i18n>Searching users...</p>
             </div>
         </ng-template>
     `,

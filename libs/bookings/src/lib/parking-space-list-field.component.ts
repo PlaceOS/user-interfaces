@@ -40,8 +40,8 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
-                        <p>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} People
+                        <p i18n>
+                            {{ space.capacity < 1 ? 2 : space.capacity }} { space.capacity, plural, =1 { Person } other { People } }
                         </p>
                     </div>
                     <div
@@ -53,7 +53,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeResources(space)"
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2" i18n>
                                 <app-icon>edit</app-icon>
                                 Change
                             </div>
@@ -64,7 +64,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeResource(space)"
                         >
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2" i18n>
                                 <app-icon>close</app-icon>
                                 Remove
                             </div>
@@ -94,7 +94,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Parking Resource</span>
+                <span i18n>Add Parking Resource</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">

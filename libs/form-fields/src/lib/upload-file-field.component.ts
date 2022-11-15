@@ -59,7 +59,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             <div
                 class="h-full w-full flex flex-col justify-center items-center z-0"
             >
-                <p class="opacity-30">Drop file or click to upload file</p>
+                <p class="opacity-30" i18n>Drop file or click to upload file</p>
             </div>
         </ng-template>
     `,

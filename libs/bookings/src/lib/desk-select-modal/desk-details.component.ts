@@ -72,7 +72,7 @@ import { BookingAsset } from '../booking-form.service';
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
-                        <p>Single desk</p>
+                        <p i18n>Single desk</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>desk</app-icon>
@@ -90,7 +90,7 @@ import { BookingAsset } from '../booking-form.service';
                     *ngIf="desk.features?.length"
                     class="space-y-2 pb-2 border-b dark:border-neutral-500"
                 >
-                    <h2 class="text-xl font-medium">Facilities</h2>
+                    <h2 class="text-xl font-medium" i18n>Facilities</h2>
                     <div
                         *ngFor="let feat of desk.features || []"
                         class="flex items-center flex-wrap space-x-2"
@@ -121,12 +121,8 @@ import { BookingAsset } from '../booking-form.service';
                         <app-icon class="text-2xl">{{
                             active ? 'remove' : 'add'
                         }}</app-icon>
-                        <p>
-                            {{
-                                active
-                                    ? 'Remove from booking'
-                                    : 'Add to booking'
-                            }}
+                        <p i18n>
+                            { active, select, true { Remove from booking } false { Add to booking } }
                         </p>
                     </div>
                 </button>
@@ -137,7 +133,7 @@ import { BookingAsset } from '../booking-form.service';
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center">
+                <p class="opacity-30 text-center" i18n>
                     Select a desk to view it's details
                 </p>
             </div>

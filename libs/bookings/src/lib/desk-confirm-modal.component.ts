@@ -18,7 +18,7 @@ export interface DeskConfirmModalData {
     selector: 'desk-flow-confirm-modal-component',
     template: `
         <header>
-            <h2>Confirm Booking</h2>
+            <h2 i18n>Confirm Booking</h2>
             <div class="flex-1"></div>
             <button mat-icon-button mat-dialog-close *ngIf="!loading">
                 <i class="material-icons">close</i>
@@ -27,13 +27,13 @@ export interface DeskConfirmModalData {
         <ng-container *ngIf="!loading; else load_state">
             <main class="p-4">
                 <div host class="flex flex-col" *ngIf="can_set_host">
-                    <label>Host</label>
+                    <label i18n>Host</label>
                     <a-user-search-field
                         [(ngModel)]="host"
                     ></a-user-search-field>
                 </div>
                 <div date class="mb-4">
-                    <label>Date</label>
+                    <label i18n>Date</label>
                     <div *ngIf="!can_set_date">
                         {{ date | date: 'mediumDate' }}
                     </div>
@@ -43,7 +43,7 @@ export interface DeskConfirmModalData {
                     ></a-date-field>
                 </div>
                 <div reason class="flex flex-col mb-4" *ngIf="!hide_reason">
-                    <label>Reason</label>
+                    <label i18n>Reason</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -52,14 +52,14 @@ export interface DeskConfirmModalData {
                         />
                     </mat-form-field>
                 </div>
-                <p>
+                <p i18n>
                     Your desk{{ desks.length === 1 ? '' : 's' }} will be
                     {{ desk_list }} on
                     {{ level?.display_name || level?.name }}
                 </p>
             </main>
             <footer class="flex items-center justify-center p-2">
-                <button mat-button (click)="confirm()">Confirm</button>
+                <button mat-button (click)="confirm()" i18n>Confirm</button>
             </footer>
         </ng-container>
         <ng-template #load_state>
