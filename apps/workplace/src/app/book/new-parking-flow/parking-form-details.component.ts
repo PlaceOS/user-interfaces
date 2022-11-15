@@ -112,7 +112,7 @@ export class ParkingFormDetailsComponent extends BaseClass {
             asset_name: item.name,
             map_id: item?.map_id || item?.id,
             description: item.name,
-            booking_type: 'desk',
+            booking_type: 'parking',
             zones: item.zone ? [item.zone?.parent_id, item.zone?.id] : [],
             booking_asset: item,
         });
