@@ -123,8 +123,8 @@ export class BookingFormService extends BaseClass {
                         map((data) =>
                             flatten(
                                 data.map((_) =>
-                                    (_.metadata.desks?.details instanceof Array
-                                        ? _.metadata.desks?.details
+                                    (_.metadata.parking_spaces?.details instanceof Array
+                                        ? _.metadata.parking_spaces?.details
                                         : []
                                     ).map((d) => ({ ...d, zone: _.zone }))
                                 )
