@@ -9,6 +9,7 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
+import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
 
 @Component({
     selector: 'parking-flow-form',
@@ -121,6 +122,7 @@ import {
 })
 export class ParkingFlowFormComponent extends BaseClass {
     public hide_block: Record<string, boolean> = {};
+    public sheet_ref: any;
 
     public readonly clearForm = () => this._state.resetForm();
 
@@ -142,19 +144,19 @@ export class ParkingFlowFormComponent extends BaseClass {
     }
 
     public readonly viewConfirm = () => {
-        if (!this.form.valid)
-            return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
-            );
-        // this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
-        // this.sheet_ref.instance.show_close = true;
-        // this.sheet_ref.afterDismissed().subscribe((value) => {
-        //     if (value) {
-        //         this._router.navigate(['/book', 'meeting', 'success']);
-        //         this._state.setView('success');
-        //     }
-        // });
+        // if (!this.form.valid)
+        //     return notifyError(
+        //         `Some fields are invalid. [${getInvalidFields(this.form).join(
+        //             ', '
+        //         )}]`
+        //     );
+        this.sheet_ref = this._bottom_sheet.open(NewParkingFlowConfirmComponent);
+        this.sheet_ref.instance.show_close = true;
+        this.sheet_ref.afterDismissed().subscribe((value) => {
+            if (value) {
+                this._router.navigate(['/book', 'new-parking', 'success']);
+                this._state.setView('success');
+            }
+        });
     };
 }

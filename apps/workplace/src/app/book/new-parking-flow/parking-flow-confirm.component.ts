@@ -5,7 +5,7 @@ import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
-    selector: 'parking-flow-confirm',
+    selector: 'new-parking-flow-confirm',
     template: ` <button
             close
             mat-icon-button
@@ -110,7 +110,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class ParkingFlowConfirmComponent extends BaseClass {
+export class NewParkingFlowConfirmComponent extends BaseClass {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._state.loading;

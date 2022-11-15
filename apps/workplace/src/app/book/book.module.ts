@@ -44,6 +44,7 @@ import { ParkingFlowFormComponent } from './new-parking-flow/parking-flow-form.c
 import { ParkingFlowSuccessComponent } from './new-parking-flow/parking-flow-success.component';
 import { ParkingFormDetailsComponent } from './new-parking-flow/parking-form-details.component';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow/meeting-flow-confirm-modal.component';
+import { NewParkingFlowConfirmComponent } from './new-parking-flow/parking-flow-confirm.component';
 
 const ROUTES: Route[] = [
     {
@@ -105,7 +106,7 @@ const ROUTES: Route[] = [
 
         NewParkingFlowComponent,
         ParkingFlowFormComponent,
-        ParkingFlowConfirmComponent,
+        NewParkingFlowConfirmComponent,
         ParkingFlowSuccessComponent,
         ParkingFormDetailsComponent
     ],
