@@ -144,12 +144,12 @@ export class ParkingFlowFormComponent extends BaseClass {
     }
 
     public readonly viewConfirm = () => {
-        // if (!this.form.valid)
-        //     return notifyError(
-        //         `Some fields are invalid. [${getInvalidFields(this.form).join(
-        //             ', '
-        //         )}]`
-        //     );
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
         this.sheet_ref = this._bottom_sheet.open(NewParkingFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {
