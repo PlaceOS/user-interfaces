@@ -15,6 +15,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
 import { endOfDay } from 'date-fns';
@@ -90,7 +91,10 @@ export class LandingStateService extends BaseClass {
             'building',
             this._org.active_building
                 .pipe(filter((bld) => !!bld))
-                .subscribe(() => this.updateBuildingMetadata())
+                .subscribe(() => {
+                    this.updateBuildingMetadata();
+                    this.updateOccupancy({});
+                })
         );
         let sys_id = this._org.binding('area_management');
         if (!sys_id) return;
@@ -157,7 +161,9 @@ export class LandingStateService extends BaseClass {
     }
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
-        const levels = [...this._org.levels];
+        const levels = [
+            ...(await this._org.active_levels.pipe(take(1)).toPromise()),
+        ];
         levels.sort(
             (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation
         );
@@ -183,7 +189,7 @@ export class LandingStateService extends BaseClass {
                             space.availability.find((_) => _.status !== 'busy')
                     )
                 ),
-                catchError(_ => of([]))
+                catchError((_) => of([]))
             )
             .toPromise();
         list.sort((a, b) => a.capacity - b.capacity);
