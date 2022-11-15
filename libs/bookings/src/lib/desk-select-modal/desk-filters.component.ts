@@ -70,7 +70,7 @@ import { BookingFormService } from '../booking-form.service';
                     </mat-form-field>
                 </div>
                 <!-- level -->
-                <!-- <div *ngIf="(levels | async)?.length > 1"
+                <div *ngIf="(levels | async)?.length > 1"
                     class="flex-1 min-w-[256px] flex flex-col">
                     <label>Level</label>
                     <mat-form-field appearance="outline">
@@ -93,7 +93,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div> -->
+                </div>
 
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
