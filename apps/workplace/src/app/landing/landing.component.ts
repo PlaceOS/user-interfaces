@@ -24,7 +24,7 @@ import { startOfMinute } from 'date-fns';
                         (click)="tab = 'people'"
                     >
                         <app-icon>people</app-icon>
-                        <div i18n>Colleages</div>
+                        <div i18n>Colleagues</div>
                     </button>
                     <button
                         matRipple
