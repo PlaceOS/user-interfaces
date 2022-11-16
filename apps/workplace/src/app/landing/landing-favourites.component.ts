@@ -54,12 +54,18 @@ const EMPTY = [];
                     *ngFor="let item of spaces"
                 >
                     <div class="flex w-full items-center space-x-2 relative">
-                        <div class="w-24 h-20 overflow-hidden rounded relative">
+                        <div class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5">
                             <img
-                                *ngIf="(item | space | async)?.images?.length"
+                                *ngIf="(item | space | async)?.images?.length else space_placeholder"
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
                                 [src]="(item | space | async)?.images[0]"
                             />
+                            <ng-template #space_placeholder>
+                                <img
+                                    class="m-auto"
+                                    src="assets/icons/room-placeholder.svg"
+                                />
+                            </ng-template>
                         </div>
                         <div class="h-20">
                             <div class="truncate mb-4">
@@ -132,12 +138,18 @@ const EMPTY = [];
                     *ngFor="let item of assets | async"
                 >
                     <div class="flex w-full items-center space-x-2 relative">
-                        <div class="w-24 h-20 overflow-hidden rounded relative">
+                        <div class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5">
                             <img
-                                *ngIf="item?.images?.length"
+                                *ngIf="item?.images?.length; else asset_placeholder"
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
                                 [src]="item?.images[0]"
                             />
+                            <ng-template #asset_placeholder>
+                                <img
+                                    class="m-auto"
+                                    [src]="'assets/icons/' + (item.type === 'desk' ? 'desk' : 'car') + '-placeholder.svg'"
+                                />
+                            </ng-template>
                         </div>
                         <div class="h-20">
                             <div class="truncate mb-4">
