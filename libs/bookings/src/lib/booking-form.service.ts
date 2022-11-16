@@ -100,38 +100,10 @@ export class BookingFormService extends BaseClass {
             switch (type) {
                 case 'desk':
                     this._loading.next(`Loading desks...`);
-                    return listChildMetadata(this._org.building.id, {
-                        name: 'desks',
-                    }).pipe(
-                        map((data) =>
-                            flatten(
-                                data.map((_) =>
-                                    (_.metadata.desks?.details instanceof Array
-                                        ? _.metadata.desks?.details
-                                        : []
-                                    ).map((d) => ({ ...d, zone: _.zone }))
-                                )
-                            )
-                        )
-                    );
-                    break;
+                    return this.loadAssets('desks' as any);
                 case 'parking':
                     this._loading.next(`Loading parking spaces...`);
-                    return listChildMetadata(this._org.building.id, {
-                        name: 'parking_spaces',
-                    }).pipe(
-                        map((data) =>
-                            flatten(
-                                data.map((_) =>
-                                    (_.metadata.parking_spaces?.details instanceof Array
-                                        ? _.metadata.parking_spaces?.details
-                                        : []
-                                    ).map((d) => ({ ...d, zone: _.zone }))
-                                )
-                            )
-                        )
-                    );
-                    break;
+                    return this.loadAssets('parking_spaces' as any);
             }
             return of([]);
         }),
@@ -556,6 +528,23 @@ export class BookingFormService extends BaseClass {
             } a ${type} booked`;
         }
         return true;
+    }
+
+    public loadAssets(type: BookingType) {
+        return listChildMetadata(this._org.building.id, {
+            name: type,
+        }).pipe(
+            map((data) =>
+                flatten(
+                    data.map((_) =>
+                        (_.metadata[type]?.details instanceof Array
+                            ? _.metadata[type]?.details
+                            : []
+                        ).map((d) => ({ ...d, zone: _.zone }))
+                    )
+                )
+            )
+        )
     }
 
     private async _getNearbyResources(

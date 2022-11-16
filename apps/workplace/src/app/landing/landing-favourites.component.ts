@@ -1,8 +1,16 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import {
+    BookingFormService,
+    BookingType,
+    FAV_PARKING_KEY,
+} from '@placeos/bookings';
 import { BaseClass, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { combineLatest } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 
 const EMPTY = [];
 
@@ -12,7 +20,10 @@ const EMPTY = [];
         <div
             class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
         >
-            <h2 class="mx-2" i18n>{{ spaces?.length || 0 }} { spaces?.length, plural, =1 { Resource } other { Resources } }</h2>
+            <h2 class="mx-2" i18n>
+                {{ spaces?.length || 0 }} { spaces?.length, plural, =1 {
+                Resource } other { Resources } }
+            </h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button
                     mat-icon-button
@@ -28,8 +39,15 @@ const EMPTY = [];
                 </button>
             </div> -->
         </div>
-        <div class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-gray-300">
-            <ng-container *ngIf="spaces?.length; else empty_state">
+        <div
+            class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-gray-300"
+        >
+            <ng-container
+                *ngIf="
+                    spaces?.length || (assets | async)?.length;
+                    else empty_state
+                "
+            >
                 <div
                     class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
                     item
@@ -69,7 +87,8 @@ const EMPTY = [];
                                 >
                                 <div i18n>
                                     {{ (item | space | async)?.capacity || 2 }}
-                                    { (item | space | async)?.capacity || 2, plural, =1 { Person } other { People } }
+                                    { (item | space | async)?.capacity || 2,
+                                    plural, =1 { Person } other { People } }
                                 </div>
                             </div>
                         </div>
@@ -100,6 +119,66 @@ const EMPTY = [];
                         <button
                             mat-menu-item
                             (click)="toggleFavourite('space', id)"
+                            class="flex items-center space-x-2"
+                        >
+                            <app-icon class="text-2xl">cancel</app-icon>
+                            <div i18n>Remove Favourite</div>
+                        </button>
+                    </mat-menu>
+                </div>
+                <div
+                    class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
+                    item
+                    *ngFor="let item of assets | async"
+                >
+                    <div class="flex w-full items-center space-x-2 relative">
+                        <div class="w-24 h-20 overflow-hidden rounded relative">
+                            <img
+                                *ngIf="item?.images?.length"
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
+                                [src]="item?.images[0]"
+                            />
+                        </div>
+                        <div class="h-20">
+                            <div class="truncate mb-4">
+                                {{ item?.display_name || item?.name }}
+                            </div>
+                            <div
+                                class="flex items-center text-xs opacity-60 truncate space-x-2 mb-2"
+                            >
+                                <app-icon class="text-blue-500">place</app-icon>
+                                <div>
+                                    {{ item?.zone?.display_name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        mat-button
+                        class="w-full inverse"
+                        (click)="newBooking(item.type, item)"
+                        i18n
+                    >
+                        Book
+                    </button>
+                    <button
+                        mat-icon-button
+                        [matMenuTriggerFor]="menu"
+                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 rounded !m-0"
+                    >
+                        <app-icon>more_horiz</app-icon>
+                    </button>
+                    <mat-menu #menu="matMenu" xPosition="before">
+                        <button
+                            mat-menu-item
+                            class="flex items-center space-x-2"
+                        >
+                            <app-icon class="text-2xl">info</app-icon>
+                            <div i18n>View Details</div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="toggleFavourite(item.type, item.id)"
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
@@ -138,22 +217,60 @@ const EMPTY = [];
     providers: [SpacePipe],
 })
 export class LandingFavouritesComponent extends BaseClass {
+    public readonly assets = combineLatest([
+        this._booking_form.loadAssets('desks' as any),
+        this._booking_form.loadAssets('parking_spaces' as any),
+    ]).pipe(
+        map(([desks, parking]) => {
+            return [
+                ...desks
+                    .filter(({ id }) => this.desks.includes(id))
+                    .map((_) => ({ ..._, type: 'desk' })),
+                ...parking
+                    .filter(({ id }) => this.parking_spaces.includes(id))
+                    .map((_) => ({ ..._, type: 'parking' }))
+            ];
+        }),
+        shareReplay(1)
+    );
+
     public get spaces() {
         return this._settings.get<string[]>('favourite_spaces') || EMPTY;
+    }
+
+    public get desks() {
+        return this._settings.get<string[]>(FAV_DESK_KEY) || EMPTY;
+    }
+
+    public get parking_spaces() {
+        return this._settings.get<string[]>(FAV_PARKING_KEY) || EMPTY;
     }
 
     constructor(
         private _settings: SettingsService,
         private _space_pipe: SpacePipe,
         private _event_form: EventFormService,
+        private _booking_form: BookingFormService,
         private _router: Router
     ) {
         super();
     }
 
+    public ngOnInit() {}
+
     public toggleFavourite(type: 'space' | 'desk' | 'parking', id: string) {
-        const fav_list = type === 'space' ? this.spaces : [];
-        const key = type === 'space' ? 'favourite_spaces' : '';
+        let fav_list = this.spaces;
+        let key = 'favourite_spaces';
+        switch (type) {
+            case 'desk':
+                fav_list = this.desks;
+                key = FAV_DESK_KEY;
+                break;
+            case 'parking':
+                fav_list = this.parking_spaces;
+                key = FAV_PARKING_KEY;
+                break;
+        }
         const new_state = !fav_list.includes(id);
         if (new_state) {
             this._settings.saveUserSetting(key, [...fav_list, id]);
@@ -174,6 +291,27 @@ export class LandingFavouritesComponent extends BaseClass {
             this._router.navigate(['/book', 'meeting']);
         } else {
             this._router.navigate(['/book', 'spaces']);
+        }
+    }
+
+    public async newBooking(type: BookingType, id: string) {
+        if (!id) return;
+        this._booking_form.newForm();
+        this._booking_form.setOptions({ type });
+        this._booking_form.form.patchValue({
+            asset_id: id,
+            booking_type: type,
+        });
+        if (this._settings.get('app.new_features')) {
+            this._router.navigate([
+                '/book',
+                type === 'desk' ? 'newdesk' : 'new-parking',
+            ]);
+        } else {
+            this._router.navigate([
+                '/book',
+                type === 'desk' ? 'desks' : 'parking',
+            ]);
         }
     }
 }
