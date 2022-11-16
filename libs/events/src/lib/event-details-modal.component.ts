@@ -88,7 +88,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                         class="flex items-center space-x-2 px-2"
                         *ngIf="event.state !== 'done'"
                     >
-                        <button
+                        <!-- <button
                             mat-button
                             class="flex-1 h-10"
                             *ngIf="event.can_check_in"
@@ -99,7 +99,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                                 <app-icon>arrow_back</app-icon>
                                 <div class="mr-4" i18n>Checked in</div>
                             </div>
-                        </button>
+                        </button> -->
                         <button
                             mat-icon-button
                             [matMenuTriggerFor]="menu"
