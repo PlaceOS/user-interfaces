@@ -51,14 +51,14 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                 size: file.size,
                 upload: null,
             };
-            try {
-                const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
-                const upload_list = uploadFiles([blob], { file_name: file.name });
-                const upload = upload_list[0];
-                upload_details.upload = upload;
-                upload.status
-                    .pipe(takeWhile((_) => _.status !== 'complete', true))
-                    .subscribe((state) => {
+            const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
+            const upload_list = uploadFiles([blob], { file_name: file.name });
+            const upload = upload_list[0];
+            upload_details.upload = upload;
+            upload.status
+                .pipe(takeWhile((_) => _.status !== 'complete', true))
+                .subscribe(
+                    (state) => {
                         if (upload.access_url)
                             upload_details.link = upload.access_url;
                         upload_details.progress = state.progress;
@@ -69,11 +69,10 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                                 error: state.error,
                             });
                         if (state.status === 'complete') observer.complete();
-                    }, (e) => upload_details.error = e);
-                observer.next(upload_details);
-            } catch (e) {
-                upload_details.error = e;
-            }
+                    },
+                    (e) => (upload_details.error = e)
+                );
+            observer.next(upload_details);
         });
         fileReader.readAsArrayBuffer(file);
     });

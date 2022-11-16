@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -13,6 +14,7 @@ export interface CateringOrderOptions { // Affects backend requests
 export interface CateringOrderFilters { // Affects frontend filtering
     search: string;
     tags: string[];
+    categories: string[];
 }
 
 @Injectable({
@@ -23,6 +25,7 @@ export class CateringOrderStateService {
     private _filters = new BehaviorSubject<CateringOrderFilters>({
         search: '',
         tags: [],
+        categories: []
     });
     private _loading = new BehaviorSubject('');
 
@@ -41,17 +44,18 @@ export class CateringOrderStateService {
         shareReplay(1)
     );
 
+    public readonly categories = this.available_menu.pipe(map(_ => unique(_.map(i => i.category))));
+
     public readonly filtered_menu = combineLatest([
         this._filters,
         this.available_menu,
     ]).pipe(
-        map(([{ search, tags }, l]) => {
+        map(([{ search, tags, categories }, l]) => {
             search = search.toLowerCase();
-            const ol = l.filter((_) => {
-                return _.name.toLowerCase().includes(search) &&
-                    (!tags?.length || tags.every((t) => _.tags.includes(t)));
-            });
-            return ol;
+            let list = search ? l.filter(_ => _.name.toLowerCase().includes(search)) : l;
+            list = tags.length ? l.filter(_ => tags.every((t) => _.tags.includes(t))) : list;
+            list = categories.length ? l.filter(_ => categories.includes(_.category)) : list;
+            return list;
         }),
         shareReplay(1)
     );

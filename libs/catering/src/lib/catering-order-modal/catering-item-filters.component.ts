@@ -66,81 +66,28 @@ const ICONS = {
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 mt-2" *ngIf="!search" i18n>
+        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
             Catergories
         </h3>
         <div
-            class="flex flex-wrap items-center pb-2 px-1"
+            class="flex flex-col px-2 space-y-4"
             [class.sm:hidden]="search"
             [class.sm:pt-1]="!search"
         >
-            <div class="flex flex-col items-center m-1">
-                <button
-                    matRipple
-                    coffee
-                    [class.!bg-primary]="
-                        (filters | async)?.tags?.includes('coffee')
-                    "
-                    [class.text-white]="
-                        (filters | async)?.tags?.includes('coffee')
-                    "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
-                    (click)="toggleTag('coffee')"
-                    [innerHTML]="icons.coffee | safe"
-                ></button>
-                <p i18n>Coffee</p>
-            </div>
-            <div class="flex flex-col items-center m-1">
-                <button
-                    matRipple
-                    drinks
-                    [class.!bg-primary]="
-                        (filters | async)?.tags?.includes('drinks')
-                    "
-                    [class.text-white]="
-                        (filters | async)?.tags?.includes('drinks')
-                    "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
-                    (click)="toggleTag('drinks')"
-                    [innerHTML]="icons.drinks | safe"
-                ></button>
-                <p i18n>Drinks</p>
-            </div>
-            <div class="flex flex-col items-center m-1">
-                <button
-                    matRipple
-                    snacks
-                    [class.!bg-primary]="
-                        (filters | async)?.tags?.includes('snacks')
-                    "
-                    [class.text-white]="
-                        (filters | async)?.tags?.includes('snacks')
-                    "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
-                    (click)="toggleTag('snacks')"
-                    [innerHTML]="icons.snacks | safe"
-                ></button>
-                <p i18n>Snacks</p>
-            </div>
-            <div class="flex flex-col items-center m-1">
-                <button
-                    matRipple
-                    meals
-                    [class.!bg-primary]="
-                        (filters | async)?.tags?.includes('meals')
-                    "
-                    [class.text-white]="
-                        (filters | async)?.tags?.includes('meals')
-                    "
-                    class="flex items-center justify-center w-20 h-20 rounded bg-gray-300 dark:bg-neutral-600"
-                    (click)="toggleTag('meals')"
-                    [innerHTML]="icons.meals | safe"
-                ></button>
-                <p i18n>Meals</p>
-            </div>
+            <mat-checkbox
+                *ngFor="let item of categories | async"
+                [ngModel]="(filters | async)?.categories?.includes(item)"
+                (ngModelChange)="toggleCategory(item)"
+            >
+                {{ item }}
+            </mat-checkbox>
         </div>
     `,
-    styles: [``],
+    styles: [`
+        :host {
+            min-width: 16rem;
+        }
+    `],
 })
 export class CateringItemFiltersComponent {
     @Input() public search = false;
@@ -151,7 +98,18 @@ export class CateringItemFiltersComponent {
 
     public readonly setFilters = (f) => this._state.setFilters(f);
 
+    public readonly categories = this._state.categories;
+
     constructor(private _state: CateringOrderStateService) {}
+
+    public async toggleCategory(name: string) {
+        const { categories } = await this.filters.pipe(take(1)).toPromise();
+        if (categories.includes(name))
+            this.setFilters({
+                categories: categories.filter((_) => _ !== name),
+            });
+        else this.setFilters({ categories: [...categories, name] });
+    }
 
     public async toggleTag(tag: string) {
         const { tags } = await this.filters.pipe(take(1)).toPromise();
