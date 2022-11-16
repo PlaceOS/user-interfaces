@@ -228,7 +228,7 @@ export class BookingDetailsModalComponent {
 
     public async toggleCheckedIn() {
         this.checking_in = true;
-        await checkinBooking(this.booking.id, !this.booking.checked_in);
+        await checkinBooking(this.booking.id, !this.booking.checked_in).toPromise();
         (this.booking as any).checked_in = !this.booking.checked_in;
         notifySuccess(
             `Successfully ${
