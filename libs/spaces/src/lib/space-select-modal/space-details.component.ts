@@ -17,15 +17,15 @@ import { Space } from '../space.class';
             <section
                 image
                 class="relative w-full bg-black/20"
-                [class.sm:h-40]="(space.id | space)?.images?.length"
-                [class.h-64]="(space.id | space)?.images?.length"
-                [class.sm:h-0]="!(space.id | space)?.images?.length"
-                [class.h-12]="!(space.id | space)?.images?.length"
-                [class.!bg-transparent]="!(space.id | space)?.images?.length"
+                [class.sm:h-40]="space.images?.length"
+                [class.h-64]="space.images?.length"
+                [class.sm:h-0]="!space.images?.length"
+                [class.h-12]="!space.images?.length"
+                [class.!bg-transparent]="!space.images?.length"
             >
                 <image-carousel
-                    [images]="(space.id | space)?.images"
-                    *ngIf="(space.id | space)?.images?.length"
+                    [images]="space.images"
+                    *ngIf="space.images?.length"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button

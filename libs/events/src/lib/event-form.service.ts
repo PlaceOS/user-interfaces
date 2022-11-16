@@ -125,16 +125,19 @@ export class EventFormService extends BaseClass {
                 const zone = (this._settings.get(
                     'app.events.restrict_spaces'
                 ) || {})[domain];
-                const limit_map = (this._settings.get(
-                    'app.events.limit_spaces'
-                ) || {});
+                const limit_map =
+                    this._settings.get('app.events.limit_spaces') || {};
                 const limited_zones = Object.keys(limit_map);
-                const zone_limit = s.zones.find(_ => limited_zones.includes(_)) 
-                return (!zone || s.zones.includes(zone)) &&
+                const zone_limit = s.zones.find((_) =>
+                    limited_zones.includes(_)
+                );
+                return (
+                    (!zone || s.zones.includes(zone)) &&
                     (!zone_limit || limit_map[zone_limit] === domain) &&
                     (!show_fav || this.favorite_spaces.includes(s.id)) &&
                     features.every((f) => s.features.includes(f)) &&
-                    s.capacity >= Math.max(0, capacity || 0);
+                    s.capacity >= Math.max(0, capacity || 0)
+                );
             })
         ),
         shareReplay(1)
@@ -171,7 +174,10 @@ export class EventFormService extends BaseClass {
                           },
                           this._org
                       )
-            ).pipe(catchError((_) => []));
+            ).pipe(
+                map((_) => _.map(({ id }) => spaces.find((s) => id === s.id))),
+                catchError((_) => [])
+            );
         }),
         map((_) =>
             _.filter(
@@ -280,7 +286,9 @@ export class EventFormService extends BaseClass {
         if (!form.valid && !force) return;
         const event = new CalendarEvent({ ...form.getRawValue() });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-        ref.afterClosed().subscribe((d) => d ? this._router.navigate(['/']) : '');
+        ref.afterClosed().subscribe((d) =>
+            d ? this._router.navigate(['/']) : ''
+        );
     }
 
     public postForm(force: boolean = false) {
@@ -330,7 +338,11 @@ export class EventFormService extends BaseClass {
                     : { system_id: space_id }
                 : {};
             const value = this._form.getRawValue();
-            console.log('Payments:', this._payments.payment_module, spaces.length);
+            console.log(
+                'Payments:',
+                this._payments.payment_module,
+                spaces.length
+            );
             if (this._payments.payment_module && spaces.length) {
                 console.log('Make Payment...');
                 const receipt = await this._payments.makePayment({
@@ -347,7 +359,9 @@ export class EventFormService extends BaseClass {
                 };
                 console.log('Payment success.', receipt);
             }
-            const d = value.all_day ? startOfDay(value.date).valueOf() : value.date;
+            const d = value.all_day
+                ? startOfDay(value.date).valueOf()
+                : value.date;
             if (catering.length && !('items' in catering[0])) {
                 catering = [new CateringOrder({ items: catering as any })];
             }
