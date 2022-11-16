@@ -17,15 +17,15 @@ import { Space } from '../space.class';
             <section
                 image
                 class="relative w-full bg-black/20"
-                [class.sm:h-40]="space.images?.length"
-                [class.h-64]="space.images?.length"
-                [class.sm:h-0]="!space.images?.length"
-                [class.h-12]="!space.images?.length"
-                [class.!bg-transparent]="!space.images?.length"
+                [class.sm:h-40]="(space.id | space)?.images?.length"
+                [class.h-64]="(space.id | space)?.images?.length"
+                [class.sm:h-0]="!(space.id | space)?.images?.length"
+                [class.h-12]="!(space.id | space)?.images?.length"
+                [class.!bg-transparent]="!(space.id | space)?.images?.length"
             >
                 <image-carousel
-                    [images]="space.images"
-                    *ngIf="space.images?.length"
+                    [images]="(space.id | space)?.images"
+                    *ngIf="(space.id | space)?.images?.length"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -82,7 +82,7 @@ import { Space } from '../space.class';
                 <hr />
                 <section facilities class="space-y-2">
                     <h2 class="text-xl font-medium" i18n>Room Facilities</h2>
-                    <div class="flex items-center space-x-2">
+                    <!-- <div class="flex items-center space-x-2">
                         <app-icon>people</app-icon>
                         <p i18n>WiFi Available</p>
                     </div>
@@ -93,7 +93,7 @@ import { Space } from '../space.class';
                     <div class="flex items-center space-x-2">
                         <app-icon>edit</app-icon>
                         <p i18n>Whiteboard</p>
-                    </div>
+                    </div> -->
                 </section>
                 <section
                     map

@@ -7,12 +7,12 @@ import { Component } from '@angular/core';
             class="unauthorised rounded m-4 text-center bg-white text-black border border-gray-400 p-4 shadow"
         >
             <h1 class="text-4xl">403</h1>
-            <h3 class="text-2xl" i18n="@@forbiddenLabel">Access forbidden.</h3>
-            <p class="py-4" i18n="@@invalidPermissionLabel">
+            <h3 class="text-2xl" i18n>Access forbidden.</h3>
+            <p class="py-4" i18n>
                 You do not have permission to view this page and your access
                 attempt has been recorded.
             </p>
-            <p i18n="@@contactAdminLabel">
+            <p i18n>
                 Contact your Administrator if you feel that you should have
                 access.
             </p>
