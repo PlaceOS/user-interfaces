@@ -24,3 +24,4 @@ export * from './lib/pages/survey-list.component';
 export * from './lib/components/confirm-delete-modal.component';
 export * from './lib/pages/building-list.component';
 export * from './lib/components/building-list-item.component';
+export * from './lib/components/add-building-modal.component';
