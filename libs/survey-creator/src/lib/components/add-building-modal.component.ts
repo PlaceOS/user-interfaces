@@ -47,7 +47,64 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
             </footer>
         </section>
     `,
-    styles: [``],
+    styles: [
+        `
+            .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background-color: #fff;
+                height: 70px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+            }
+            main {
+                margin: 20px;
+            }
+            .dialog-title {
+                display: flex;
+                font-size: 20px;
+                line-height: 30px;
+                font-weight: 800;
+                padding: 20px;
+            }
+            .add-another-question {
+                background-color: #eeeeeeee;
+                width: 100%;
+                border-radius: 0px;
+                color: black;
+                border: none;
+                margin-top: 30px;
+            }
+            .cancel-button {
+                display: flex;
+                color: #292f5b;
+                background-color: #fff;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
+            }
+            .add-button {
+                display: flex;
+                color: #fff;
+                background-color: #292f5b;
+                border-radius: 2px;
+                margin: 20px 0px 20px 20px;
+            }
+            footer {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                margin-right: 20px;
+            }
+            .close {
+                display: flex;
+                z-index: 99;
+                text-align: right;
+                vertical-align: middle;
+                line-height: 12px;
+                margin-right: 20px;
+            }
+        `,
+    ],
 })
 export class AddBuildingModalComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<AddBuildingModalComponent>) {}
