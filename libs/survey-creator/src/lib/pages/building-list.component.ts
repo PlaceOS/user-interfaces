@@ -5,7 +5,9 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MOCKS } from '@placeos/mocks';
+import { AddBuildingModalComponent } from '../components/add-building-modal.component';
 
 export const MOCK_BUILDINGS = [
     {
@@ -119,7 +121,12 @@ export class BuildingListComponent implements OnInit {
     >(null);
     buildings$: Observable<Building | any> = this._buildings.asObservable();
 
-    constructor() {}
+    dialogConfig = {
+        width: '900px',
+        height: '700px',
+    };
+
+    constructor(public addDialog: MatDialog) {}
 
     ngOnInit(): void {
         this._buildings.next(this.mock_buildings);
@@ -129,7 +136,9 @@ export class BuildingListComponent implements OnInit {
         );
     }
 
-    addBuilding(): void {}
+    addBuilding(): void {
+        this.addDialog.open(AddBuildingModalComponent, this.dialogConfig);
+    }
     deleteBuilding(event) {
         const currentBuildings = this._buildings.getValue();
         const updatedBuildings = currentBuildings.filter(

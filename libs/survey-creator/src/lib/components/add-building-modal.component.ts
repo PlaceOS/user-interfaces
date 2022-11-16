@@ -40,7 +40,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                     mat-button
                     class="add-button"
                     color="primary"
-                    (click)="addQuestion()"
+                    (click)="addBuilding()"
                 >
                     Add
                 </button>
@@ -59,6 +59,10 @@ export class AddBuildingModalComponent implements OnInit {
     }
 
     addAnotherBuilding(): void {
+        return;
+    }
+
+    addBuilding(): void {
         return;
     }
 }
