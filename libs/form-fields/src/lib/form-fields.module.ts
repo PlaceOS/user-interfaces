@@ -26,6 +26,9 @@ import { AssetListFieldComponent } from './asset-list-field.component';
 import { SpaceListFieldComponent } from './space-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 import { HostSelectFieldComponent } from './host-select-field.component';
+import { ImageListFieldComponent } from './image-list-field.component';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatChipsModule } from '@angular/material/chips';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -41,7 +44,8 @@ const COMPONENTS: Type<any>[] = [
     AssetListFieldComponent,
     SpaceListFieldComponent,
     RichTextInputComponent,
-    HostSelectFieldComponent
+    HostSelectFieldComponent,
+    ImageListFieldComponent
 ];
 
 @NgModule({
@@ -57,6 +61,8 @@ const COMPONENTS: Type<any>[] = [
         MatTooltipModule,
         MatCheckboxModule,
         MatRadioModule,
+        MatChipsModule,
+        ClipboardModule,
         ComponentsModule,
     ],
     exports: [...COMPONENTS],

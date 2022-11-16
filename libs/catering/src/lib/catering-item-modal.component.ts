@@ -25,45 +25,48 @@ export interface CateringItemModalData {
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
-            <div class="field" *ngIf="form.controls.name">
-                <label
-                    for="title"
-                    [class.error]="
-                        form.controls.name.invalid && form.controls.name.touched
-                    "
-                >
-                    Name<span>*</span>:
-                </label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        placeholder="Item name"
-                        formControlName="name"
-                    />
-                    <mat-error>Name is required</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="field" *ngIf="form.controls.category">
-                <label
-                    for="category"
-                    [class.error]="
-                        form.controls.category.invalid &&
-                        form.controls.category.touched
-                    "
-                >
-                    Category<span>*</span>:
-                </label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="category"
-                        placeholder="Category"
-                        formControlName="category"
-                        [matAutocomplete]="auto"
-                    />
-                    <mat-error>Category is required</mat-error>
-                </mat-form-field>
+            <div class="flex items-center space-x-2">
+                <div class="field" *ngIf="form.controls.name">
+                    <label
+                        for="title"
+                        [class.error]="
+                            form.controls.name.invalid &&
+                            form.controls.name.touched
+                        "
+                    >
+                        Name<span>*</span>:
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            placeholder="Item name"
+                            formControlName="name"
+                        />
+                        <mat-error>Name is required</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="field" *ngIf="form.controls.category">
+                    <label
+                        for="category"
+                        [class.error]="
+                            form.controls.category.invalid &&
+                            form.controls.category.touched
+                        "
+                    >
+                        Category<span>*</span>:
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="category"
+                            placeholder="Category"
+                            formControlName="category"
+                            [matAutocomplete]="auto"
+                        />
+                        <mat-error>Category is required</mat-error>
+                    </mat-form-field>
+                </div>
             </div>
             <div class="field" *ngIf="form.controls.tags">
                 <label
@@ -153,6 +156,13 @@ export interface CateringItemModalData {
                     [render_fn]="renderPercent"
                 ></a-counter>
             </div>
+            <div class="field" *ngIf="form.controls.images">
+                <label for="images" i18n="@@imagesLabel">Images:</label>
+                <image-list-field
+                    name="images"
+                    formControlName="images"
+                ></image-list-field>
+            </div>
         </form>
         <footer
             *ngIf="!loading"
@@ -199,6 +209,7 @@ export class CateringItemModalComponent {
         tags: new FormControl(this.item.tags || []),
         accept_points: new FormControl(this.item.accept_points || false),
         discount_cap: new FormControl(this.item.discount_cap || 0),
+        images: new FormControl(this.item.images || [])
     });
     /** Whether changes are being saved */
     public loading = false;
