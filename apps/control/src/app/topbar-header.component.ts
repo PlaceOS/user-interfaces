@@ -84,7 +84,6 @@ enum TOOLTIP {
             :host {
                 display: flex;
                 align-items: center;
-                border-bottom: 1px solid #ccc8;
             }
 
             img {

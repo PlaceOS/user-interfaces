@@ -11,7 +11,7 @@ import { ControlStateService } from './control-state.service';
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
                 *ngIf="(system | async).active; else power_off_state"
-                class="absolute inset-0 flex flex-col"
+                class="absolute inset-0 flex flex-col bg-slate-700 dark:bg-[#1F2021]"
             >
                 <topbar-header></topbar-header>
                 <div control-page-view></div>
@@ -46,7 +46,6 @@ import { ControlStateService } from './control-state.service';
     styles: [
         `
             :host > div {
-                background-color: var(--secondary);
                 color: #fff;
             }
 

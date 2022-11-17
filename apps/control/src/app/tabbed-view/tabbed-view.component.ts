@@ -6,15 +6,15 @@ import { BaseClass } from '@placeos/common';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
-    selector: 'app-control-main-view',
+    selector: 'app-control-tabbed-view',
     template: `
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
                 *ngIf="(system | async).active; else power_off_state"
-                class="absolute inset-0 flex flex-col"
+                class="absolute inset-0 flex flex-col bg-slate-700 dark:bg-[#1F2021] divide divide-gray-200 dark:divide-neutral-700"
             >
                 <topbar-header></topbar-header>
-                <div class="h-1/2 flex-1 bg-gray-100" tab-outlet></div>
+                <div class="h-1/2 flex-1 bg-gray-100 dark:bg-neutral-900" tab-outlet></div>
                 <control-status-bar></control-status-bar>
             </div>
         </ng-container>
@@ -46,7 +46,6 @@ import { ControlStateService } from '../control-state.service';
     styles: [
         `
             :host > div {
-                background-color: var(--secondary);
                 color: #fff;
             }
 

@@ -11,7 +11,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     template: `
         <i binding [sys]="id" mod="HearingAugmentation" bind="join_code" [(model)]="join_code"></i>
         <div
-            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2"
+            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2 dark:text-white"
         >
             <div
                 class="flex items-center w-full px-1 pt-2 overflow-hidden relative"
@@ -19,9 +19,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             >
                 <a
                     mat-button
-                    class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
+                    class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 bg-gray-300 dark:bg-neutral-800 text-black/60 dark:text-white/60 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
                     [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                    routerLinkActive="border-primary bg-white text-primary"
+                    routerLinkActive="border-primary !bg-white dark:!bg-[#1F2021] !text-primary"
                     queryParamsHandling="merge"
                     *ngFor="let tab of tabs | async"
                 >
@@ -29,7 +29,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <p>{{ tab.name }}</p>
                 </a>
                 <div
-                    class="absolute top-0 bottom-2 right-0 w-20 p-2 flex flex-col bg-white rounded shadow border-gray-200"
+                    class="absolute top-0 bottom-2 right-0 w-20 p-2 flex flex-col bg-white dark:bg-[#1F2021] rounded shadow border-gray-200"
                     *ngIf="join_code"
                 >
                     <img
@@ -40,7 +40,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 </div>
             </div>
             <div
-                class="flex-1 h-1/2 w-full bg-white rounded shadow flex items-center divide-x divide-gray-200 text-black"
+                class="flex-1 h-1/2 w-full bg-white dark:bg-[#1F2021] rounded shadow flex items-center divide-x divide-gray-200 text-black"
             >
                 <div
                     class="w-64 h-full space-y-2 px-4 pt-2 pb-4 overflow-auto"
@@ -70,7 +70,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 </div>
                 <div
                     style="flex: 2"
-                    class="h-full relative overflow-auto min-h-full"
+                    class="h-full relative overflow-auto min-h-full dark:text-white"
                 >
                     <ng-container [ngSwitch]="(tab | async)?.controls">
                         <ng-container *ngSwitchCase="'vidconf-controls'">
@@ -139,7 +139,6 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     styles: [
         `
             a {
-                background-color: #eee;
                 color: #000;
             }
         `,

@@ -125,7 +125,6 @@ import { ControlStateService } from './control-state.service';
             :host {
                 display: flex;
                 align-items: center;
-                border-bottom: 1px solid #ccc8;
                 height: 3rem;
                 overflow: hidden;
             }
