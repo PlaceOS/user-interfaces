@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
@@ -12,7 +12,11 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
         <div
             class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2"
         >
-            <div class="flex items-center w-full px-1 pt-2 overflow-hidden">
+            <i class="hidden" binding [sys]="system$ | async" mod="HearingAugmentation" bind="join_code" [(model)]="join_code"></i>
+            <div
+                class="flex items-center w-full px-1 pt-2 overflow-hidden relative"
+                [class.pr-24]="join_code"
+            >
                 <a
                     mat-button
                     class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
@@ -24,6 +28,16 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <app-icon class="text-5xl">{{ tab.icon }}</app-icon>
                     <p>{{ tab.name }}</p>
                 </a>
+                <div
+                    class="absolute top-0 bottom-2 right-0 w-20 p-2 flex flex-col bg-white rounded shadow border-gray-200"
+                    *ngIf="join_code"
+                >
+                    <img
+                        class="w-16 min-h-[4rem] rounded overflow-hidden border border-[hsl(217,62%,38%)]"
+                        src="assets/loop.png"
+                    />
+                    <p class="text-black text-center">{{ join_code }}</p>
+                </div>
             </div>
             <div
                 class="flex-1 h-1/2 w-full bg-white rounded shadow flex items-center divide-x divide-gray-200 text-black"
@@ -62,12 +76,14 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         <ng-container *ngSwitchCase="'vidconf-controls'">
                             <ng-template #no_call_state>
                                 <div class="flex justify-center space-x-8">
-                                <camera-controls *ngIf="!(speaker_track | async)"></camera-controls>
-                                <video-call-dial-view
-                                    class="mt-4 block"
-                                    [redirect]="false"
-                                ></video-call-dial-view>
-</div>
+                                    <camera-controls
+                                        *ngIf="!(speaker_track | async)"
+                                    ></camera-controls>
+                                    <video-call-dial-view
+                                        class="mt-4 block"
+                                        [redirect]="false"
+                                    ></video-call-dial-view>
+                                </div>
                             </ng-template>
                             <div
                                 *ngIf="call | async; else no_call_state"
@@ -79,7 +95,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                             ></div>
                         </ng-container>
                         <ng-container *ngSwitchCase="'tv-channels'">
-                            <tv-controls [mod]="(tab | async)?.mod"></tv-controls>
+                            <tv-controls
+                                [mod]="(tab | async)?.mod"
+                            ></tv-controls>
                         </ng-container>
                         <ng-container *ngSwitchDefault>
                             <div
@@ -159,6 +177,8 @@ export class TabOutletComponent extends BaseClass {
         this.tab,
     ]).pipe(map(([_, t]) => (_ || []).find((h: any) => h.id === t?.help)));
 
+    public join_code: string = '';
+
     public setInput = (s) => this._service.setOutputSource(s.id);
     public viewHelp = async () =>
         this._service.viewHelp((await this.tab.pipe(take(1)).toPromise()).help);
@@ -190,7 +210,10 @@ export class TabOutletComponent extends BaseClass {
             this._service.system.subscribe((_) => {
                 if (_.selected_tab) {
                     this.active_tab.next(_.selected_tab);
-                    this._router.navigate(['/tabbed', this.id, _.selected_tab], { queryParamsHandling: 'merge' });
+                    this._router.navigate(
+                        ['/tabbed', this.id, _.selected_tab],
+                        { queryParamsHandling: 'merge' }
+                    );
                 }
             })
         );
