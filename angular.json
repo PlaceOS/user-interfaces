@@ -2071,7 +2071,6 @@
                         "staging": {
                             "optimization": true,
                             "buildOptimizer": true,
-                            "localize": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -2100,7 +2099,6 @@
                                     "with": "apps/workplace/src/environments/settings.ts"
                                 }
                             ],
-                            "localize": true,
                             "optimization": true,
                             "outputHashing": "all",
                             "sourceMap": false,
