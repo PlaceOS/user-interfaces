@@ -12,7 +12,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
         <div
             class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2"
         >
-            <i class="hidden" binding [sys]="system$ | async" mod="HearingAugmentation" bind="join_code" [(model)]="join_code"></i>
+            <i binding [sys]="(system$ | async)?.id" mod="HearingAugmentation" bind="join_code" [(model)]="join_code"></i>
             <div
                 class="flex items-center w-full px-1 pt-2 overflow-hidden relative"
                 [class.pr-24]="join_code"
