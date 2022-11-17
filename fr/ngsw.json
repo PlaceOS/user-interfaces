@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1668661325878,
+  "timestamp": 1668663366582,
   "index": "./fr/index.html",
   "assetGroups": [
     {
@@ -164,13 +164,13 @@
   "hashTable": {
     "./fr/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./fr/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./fr/apps_workplace_src_app_book_book_module_ts.js": "414d15313b8f02c63def3a1d4967b57e85f8d8cd",
+    "./fr/apps_workplace_src_app_book_book_module_ts.js": "4739526cb00bcaf522f0e404e59ea2a9dbd6fa7c",
     "./fr/apps_workplace_src_app_control_control_module_ts.js": "81d94db4ffada015303f8e86afb6ef9020c0baf8",
     "./fr/apps_workplace_src_app_dashboard_dashboard_module_ts.js": "bf353740e70d16ac387718b71577701a2754aa99",
     "./fr/apps_workplace_src_app_directory_directory_module_ts.js": "c3017ffe3b2ff1ef7bce319ff65e0a799c1b4553",
     "./fr/apps_workplace_src_app_explore_explore_module_ts.js": "e508bafc064a48899ffefc5362697d6c2bd5ca70",
-    "./fr/apps_workplace_src_app_landing_landing_module_ts.js": "a7a16aecb077e055adccb08dcf917ab076f0d2fa",
-    "./fr/apps_workplace_src_app_new-schedule_schedule_module_ts.js": "8a4b342a078c331e9f6403d8580ff1adf0d9356c",
+    "./fr/apps_workplace_src_app_landing_landing_module_ts.js": "5fda000a0a27aa6c98ab95e874b1648f72100344",
+    "./fr/apps_workplace_src_app_new-schedule_schedule_module_ts.js": "2f38699850c2a08dc2bb03bf7e4046180c1ef7a3",
     "./fr/apps_workplace_src_app_schedule_schedule_module_ts.js": "3eb992be087e26ed69757a3222f83c5c5cc728db",
     "./fr/apps_workplace_src_app_whats-on_whats-on_module_ts.js": "5f4816986231eb4019f5d443c567d4ebea63093a",
     "./fr/assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
@@ -289,7 +289,7 @@
     "./fr/common.js": "44762813ebe78ea76a207b23c0ae2c4a775d56e6",
     "./fr/favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./fr/index.html": "37bec8ae606c62eba53d124b47c658ecf28529aa",
-    "./fr/main.js": "4dbadb83397425a28d89d15457377a71554d5aa2",
+    "./fr/main.js": "861de0a022ab95de03cbd20ebec2800761e8125b",
     "./fr/manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./fr/node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./fr/polyfills.js": "bd24ce0a0b3d64c9b9d16e04e5ffeb9763b8c604",
