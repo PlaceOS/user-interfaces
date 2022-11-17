@@ -2012,10 +2012,11 @@
             "sourceRoot": "apps/workplace/src",
             "prefix": "placeos",
             "i18n": {
-                "sourceLocale": "en",
+                "sourceLocale": { "code": "en", "baseHref": "" },
                 "locales": {
                     "fr": {
-                        "translation": "apps/workplace/src/locale/messages.fr.xlf"
+                        "translation": "apps/workplace/src/locale/messages.fr.xlf",
+                        "baseHref": ""
                     }
                 }
             },
