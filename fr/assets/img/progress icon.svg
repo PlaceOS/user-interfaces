@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="65.574" height="67.525" viewBox="0 0 65.574 67.525">
+  <defs>
+    <clipPath id="clip-path">
+      <path id="Path_19993" data-name="Path 19993" d="M3129.438,119.2l17.911-5.988,16-16.646-9.6-4.564v-9.7l23.789,3.427,6.063,21.478-2.281,26.645-5.963,15.974-54.277-33.223-3.052-22.659Z" transform="translate(-2518)" fill="#6a6a6a"/>
+    </clipPath>
+  </defs>
+  <g id="progress_icon" data-name="progress icon" transform="translate(-656.026 -83.308)">
+    <g id="Ellipse_1" data-name="Ellipse 1" transform="translate(669 87)" fill="none" stroke="#eee" stroke-width="4">
+      <circle cx="23.5" cy="23.5" r="23.5" stroke="none"/>
+      <circle cx="23.5" cy="23.5" r="21.5" fill="none"/>
+    </g>
+    <g id="Mask_Group_757" data-name="Mask Group 757" transform="translate(56 1)" clip-path="url(#clip-path)">
+      <g id="Ellipse_2" data-name="Ellipse 2" transform="translate(613 86)" fill="#fff" stroke="#21a453" stroke-width="4">
+        <circle cx="23.5" cy="23.5" r="23.5" stroke="none"/>
+        <circle cx="23.5" cy="23.5" r="21.5" fill="none"/>
+      </g>
+    </g>
+  </g>
+</svg>
