@@ -87,6 +87,7 @@ export class LandingStateService extends BaseClass {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.updateContacts();
         this.subscription(
             'building',
             this._org.active_building
