@@ -151,6 +151,10 @@ const app: any = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
+    locales: [
+        { id: 'en', name: 'English', flag: '🇦🇺' },
+        { id: 'fr', name: 'French', flag: '🇫🇷' }
+    ],
     features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
     currency: '',
     default_route: '/landing',

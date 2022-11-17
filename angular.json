@@ -1884,7 +1884,7 @@
                             "buildOptimizer": true,
                             "fileReplacements": [
                                 {
-                                    "replace": "apps/workplace/src/environments/environment.ts",
+                                    "replace": "apps/visitor-kiosk/src/environments/environment.ts",
                                     "with": "apps/visitor-kiosk/src/environments/environment.prod.ts"
                                 },
                                 {
@@ -2011,6 +2011,14 @@
             "root": "apps/workplace",
             "sourceRoot": "apps/workplace/src",
             "prefix": "placeos",
+            "i18n": {
+                "sourceLocale": "en",
+                "locales": {
+                    "fr": {
+                        "translation": "apps/workplace/src/locale/messages.fr.xlf"
+                    }
+                }
+            },
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
@@ -2062,6 +2070,7 @@
                         "staging": {
                             "optimization": true,
                             "buildOptimizer": true,
+                            "localize": true,
                             "fileReplacements": [
                                 {
                                     "replace": "apps/workplace/src/environments/environment.ts",
@@ -2090,6 +2099,7 @@
                                     "with": "apps/workplace/src/environments/settings.ts"
                                 }
                             ],
+                            "localize": true,
                             "optimization": true,
                             "outputHashing": "all",
                             "sourceMap": false,

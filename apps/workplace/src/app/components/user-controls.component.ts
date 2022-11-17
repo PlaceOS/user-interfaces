@@ -8,7 +8,14 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
+import { LanguageSelectComponent } from './language-tooltip.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
+
+export interface AppLocale {
+    id: string;
+    name: string;
+    flag: string;
+}
 
 @Component({
     selector: 'user-controls',
@@ -86,7 +93,7 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
             <div
                 customTooltip
                 [content]="accessibility_tooltip"
-                class="!border-b"
+                [class.!border-b]="!locales?.length"
             >
                 <button mat-button class="clear w-full text-left h-[3.5rem]">
                     <div class="flex items-center space-x-2 dark:text-white">
@@ -96,6 +103,26 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
                             <app-icon>mode_night</app-icon>
                         </div>
                         <div class="flex-1" i18n>Display & Accessibility</div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
+                    </div>
+                </button>
+            </div>
+            <div
+                customTooltip
+                [content]="language_tooltip"
+                *ngIf="locales?.length"
+                class="!border-b"
+            >
+                <button mat-button class="clear w-full text-left h-[3.5rem]">
+                    <div class="flex items-center space-x-2 dark:text-white">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                        >
+                            <app-icon>mode_night</app-icon>
+                        </div>
+                        <div class="flex-1" i18n>Language: English</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -144,6 +171,7 @@ export class UserControlsComponent {
     public readonly building_select = BuildingSelectComponent;
     public readonly help_tooltip = HelpTooltipComponent;
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
+    public readonly language_tooltip = LanguageSelectComponent;
 
     public get user() {
         return currentUser();
@@ -159,6 +187,10 @@ export class UserControlsComponent {
 
     public get features(): string[] {
         return this._settings.get('app.features') || [];
+    }
+
+    public get locales(): [] {
+        return this._settings.get('app.locales') || [];
     }
 
     constructor(
