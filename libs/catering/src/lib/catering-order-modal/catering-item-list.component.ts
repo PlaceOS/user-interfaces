@@ -37,6 +37,11 @@ import { CateringOrderStateService } from './catering-order-state.service';
                             >
                                 {{ item.quantity || '1' }}
                             </div>
+                            <img
+                                *ngIf="item.images?.length;"
+                                class="object-cover h-full"
+                                [src]="item.images[0]"
+                            />
                         </div>
                         <div class="space-y-2 text-left flex-1">
                             <div class="font-medium flex items-center justify-between">
