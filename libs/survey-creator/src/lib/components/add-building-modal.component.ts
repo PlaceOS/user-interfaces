@@ -16,7 +16,13 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                     >
                 </span>
             </div>
-            <main></main>
+            <main>
+                <span class="small-title">Building image</span>
+                <div class="upload-container"></div>
+                <span class="small-title">Building name</span>
+
+                <span class="small-title">Building location</span>
+            </main>
             <footer>
                 <button
                     mat-button
@@ -49,6 +55,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
             }
             main {
                 margin: 20px;
+                display: flex;
+                flex-direction: column;
             }
             .dialog-title {
                 display: flex;
@@ -56,6 +64,19 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                 line-height: 30px;
                 font-weight: 800;
                 padding: 20px;
+            }
+            .small-title {
+                font-size: 14px;
+                line-height: 24px;
+                font-weight: 700;
+                margin: 8px 0px 8px 0px;
+            }
+            .upload-container {
+                background-color: #f8f8fa;
+                width: 380px;
+                height: 259px;
+                border: 1px solid #d4d4d4;
+                border-radius: 6px;
             }
             .cancel-button {
                 display: flex;
