@@ -122,8 +122,8 @@ export class BuildingListComponent implements OnInit {
     buildings$: Observable<Building | any> = this._buildings.asObservable();
 
     dialogConfig = {
-        width: '900px',
-        height: '700px',
+        width: '430px',
+        height: '730px',
     };
 
     constructor(public addDialog: MatDialog) {}

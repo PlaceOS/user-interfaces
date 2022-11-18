@@ -16,17 +16,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                     >
                 </span>
             </div>
-            <main>
-                <div>
-                    <button
-                        mat-button
-                        class="add-another-question"
-                        (click)="addAnotherBuilding()"
-                    >
-                        Add another
-                    </button>
-                </div>
-            </main>
+            <main></main>
             <footer>
                 <button
                     mat-button
@@ -66,14 +56,6 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                 line-height: 30px;
                 font-weight: 800;
                 padding: 20px;
-            }
-            .add-another-question {
-                background-color: #eeeeeeee;
-                width: 100%;
-                border-radius: 0px;
-                color: black;
-                border: none;
-                margin-top: 30px;
             }
             .cancel-button {
                 display: flex;
