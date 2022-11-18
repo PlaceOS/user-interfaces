@@ -20,6 +20,7 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
+import { ExploreParkingService } from './explore-parking.service';
 
 const EMPTY = [];
 
@@ -84,6 +85,7 @@ const EMPTY = [];
         ExploreSpacesService,
         ExploreDesksService,
         ExploreZonesService,
+        ExploreParkingService,
         SpacePipe,
     ],
 })
