@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
     selector: 'add-building-modal',
@@ -21,7 +22,36 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                 <div class="upload-container"></div>
                 <span class="small-title">Building name</span>
 
+                <input
+                    matInput
+                    type="text"
+                    class="building-name-input"
+                    [formControl]="building_name"
+                    [placeholder]="'Type name here'"
+                    (keyup)="onKey($event)"
+                />
+
+                <mat-error
+                    class="input-error"
+                    *ngIf="building_name.hasError('required')"
+                    >Please enter a building title</mat-error
+                >
+
                 <span class="small-title">Building location</span>
+                <input
+                    matInput
+                    type="text"
+                    class="building-name-input"
+                    [formControl]="building_location"
+                    [placeholder]="'Type to search or add manually'"
+                    (keyup)="onKey($event)"
+                />
+
+                <mat-error
+                    class="input-error"
+                    *ngIf="building_name.hasError('required')"
+                    >Please enter a building title</mat-error
+                >
             </main>
             <footer>
                 <button
@@ -77,6 +107,18 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
                 height: 259px;
                 border: 1px solid #d4d4d4;
                 border-radius: 6px;
+                margin-bottom: 10px;
+            }
+            .building-name-input {
+                border: 1px solid #e0e0e0;
+                border-radius: 2px;
+                padding: 12px 8px 12px 8px;
+                font-weight: 400;
+                width: 380px;
+                font-size: 14px;
+                line-height: 24px;
+                color: #979797;
+                margin-bottom: 10px;
             }
             .cancel-button {
                 display: flex;
@@ -110,6 +152,15 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
     ],
 })
 export class AddBuildingModalComponent implements OnInit {
+    building_name: FormControl = new FormControl('Type name here', [
+        Validators.required,
+        Validators.minLength(1),
+    ]);
+    building_location: FormControl = new FormControl(
+        'Type to search or add manually',
+        [Validators.required]
+    );
+
     constructor(public dialogRef: MatDialogRef<AddBuildingModalComponent>) {}
 
     ngOnInit(): void {}
@@ -118,11 +169,10 @@ export class AddBuildingModalComponent implements OnInit {
         this.dialogRef.close();
     }
 
-    addAnotherBuilding(): void {
+    addBuilding(): void {
         return;
     }
-
-    addBuilding(): void {
+    onKey(event): void {
         return;
     }
 }
