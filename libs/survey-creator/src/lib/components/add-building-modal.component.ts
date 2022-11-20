@@ -19,7 +19,9 @@ import { FormControl, Validators } from '@angular/forms';
             </div>
             <main>
                 <span class="small-title">Building image</span>
-                <div class="upload-container"></div>
+                <div class="upload-container">
+                    <div class="drag-drop-container"></div>
+                </div>
                 <span class="small-title">Building name</span>
 
                 <input
@@ -102,12 +104,23 @@ import { FormControl, Validators } from '@angular/forms';
                 margin: 8px 0px 8px 0px;
             }
             .upload-container {
+                display: flex;
                 background-color: #f8f8fa;
                 width: 380px;
                 height: 259px;
                 border: 1px solid #d4d4d4;
                 border-radius: 6px;
                 margin-bottom: 10px;
+                align-items: center;
+                justify-content: center;
+            }
+            .drag-drop-container {
+                display: flex;
+                border: 1px dashed #bdbdbd;
+                margin: 20px;
+                border-radius: 6px;
+                width: 290px;
+                height: 190px;
             }
             .building-name-input {
                 border: 1px solid #e0e0e0;
@@ -138,7 +151,7 @@ import { FormControl, Validators } from '@angular/forms';
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
-                margin-right: 20px;
+                margin-right: 30px;
             }
             .close {
                 display: flex;
