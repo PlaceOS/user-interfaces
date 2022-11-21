@@ -40,16 +40,16 @@ export class ReportSpacesSpaceListing {
             let list = [];
             let has_attendance = false;
             for (const booking of stats.events) {
-                const resources: Space[] = unique(booking.resources, 'email') || [
-                    booking.system,
-                ];
+                const resources: Space[] = unique(
+                    booking.resources,
+                    'email'
+                ) || [booking.system];
                 for (const space of resources) {
                     let details = list.find(
                         (_) =>
                             _.id === space.id ||
-                            _.id?.toLowerCase() ===
-                                space.email.toLowerCase()
-                    )
+                            _.id?.toLowerCase() === space.email.toLowerCase()
+                    );
                     if (!details) {
                         details = {
                             id: space.id || space.email,
@@ -63,30 +63,37 @@ export class ReportSpacesSpaceListing {
                             usage: 0,
                             utilisation: 0,
                             occupancy: 0,
-                        }
+                        };
                         if (!details.id || !details.name) continue;
                         list.push(details);
                     }
                     details.count += 1;
                     details.attendance +=
-                        booking.extension_data?.people_count?.average ?? 0;
+                        booking.extension_data?.people_count?.max ?? 0;
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
-                    has_attendance = has_attendance || !!booking.extension_data.people_count;
+                    has_attendance =
+                        has_attendance || !!booking.extension_data.people_count;
                 }
             }
-            const period_in_days = Math.max(1, differenceInDays(end, start) + 1);
+            const period_in_days = Math.max(
+                1,
+                differenceInDays(end, start) + 1
+            );
             for (const space of list) {
                 space.avg_attendees =
                     Math.floor((space.attendees / space.count) * 100) / 100;
                 space.avg_attendance =
                     Math.floor((space.attendance / space.count) * 100) / 100;
-                space.utilisation =
-                    `${Math.floor((space.usage / 60 / 8 / period_in_days) * 10000) /
-                    100}%`;
-                space.occupancy =
-                    `${Math.floor((space.avg_attendees / space.capacity) * 10000) /
-                    100}%`;
+                space.utilisation = `${
+                    Math.floor(
+                        (space.usage / 60 / 8 / period_in_days) * 10000
+                    ) / 100
+                }%`;
+                space.occupancy = `${
+                    Math.floor((space.avg_attendees / space.capacity) * 10000) /
+                    100
+                }%`;
                 if (space.attendance < 0 || !has_attendance) {
                     space.attendance = '?';
                     space.avg_attendance = '?';
@@ -97,10 +104,7 @@ export class ReportSpacesSpaceListing {
     );
 
     public readonly has_attendance = this.space_list.pipe(
-        map(
-            (_) =>
-                !!_.find(({ attendance }) => attendance !== '?')
-        )
+        map((_) => !!_.find(({ attendance }) => attendance !== '?'))
     );
 
     public readonly column_list = this.has_attendance.pipe(
