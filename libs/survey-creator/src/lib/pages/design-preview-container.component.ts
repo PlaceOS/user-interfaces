@@ -8,6 +8,7 @@ import { AddQuestionBankComponent } from '../components/add-question-bank.compon
 import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
 import { SearchService } from '../search.service';
 import { FormControl, Validators } from '@angular/forms';
+import { getAllSurveys } from '../survey-state';
 
 @Component({
     selector: 'design-preview-container',
@@ -261,6 +262,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         console.log(this.zones, 'zones');
         this.selected_zone = this.zones[0];
         this.selected_trigger = this.triggers[0];
+        this._getSurveys();
     }
 
     ngAfterViewInit(): void {
@@ -303,6 +305,11 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         if (this.survey_title.valid) {
             this.enable_preview.next(true);
         }
+    }
+
+    async _getSurveys() {
+        const surveys = await getAllSurveys('1').toPromise();
+        console.log(surveys, 'get surveys from backend');
     }
 
     updateBuilding() {
