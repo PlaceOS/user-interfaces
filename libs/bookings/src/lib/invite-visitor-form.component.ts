@@ -264,9 +264,7 @@ export class InviteVisitorFormComponent extends BaseClass {
 
     public async ngOnInit() {
         this.sent = false;
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._service.setOptions({ type: 'visitor' });
-        this.form.patchValue({ zones: [this._org.building?.id] });
+        await this.initFormZone();
         this.form
             .get('asset_id')
             .setValidators([Validators.required, Validators.email]);
@@ -342,6 +340,13 @@ export class InviteVisitorFormComponent extends BaseClass {
             notifyError(e);
             throw e;
         });
+        await this.initFormZone();
         this.sent = true;
+    }
+
+    private async initFormZone(){
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._service.setOptions({ type: 'visitor' });
+        this.form.patchValue({ zones: [this._org.building?.id] });
     }
 }
