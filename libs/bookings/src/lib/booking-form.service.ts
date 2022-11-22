@@ -95,6 +95,7 @@ export class BookingFormService extends BaseClass {
 
     public readonly assets: Observable<BookingAsset[]> = this.options.pipe(
         debounceTime(300),
+        distinctUntilKeyChanged('type'),
         switchMap(({ type }) => {
             if (!this._org.building) return of([]);
             switch (type) {
