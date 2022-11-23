@@ -150,7 +150,10 @@ export class CheckinViewComponent extends BaseClass {
     public readonly bookings = this._state.bookings;
 
     public readonly checkInCurrent = () => this._state.startMeeting();
-    public readonly newBooking = () => this._state.newBooking();
+    public readonly newBooking = () =>
+        this._state.newBooking(Date.now(), this.has_user);
+
+    public has_user = false;
 
     public readonly event_state = combineLatest([
         this._state.current,
@@ -184,6 +187,14 @@ export class CheckinViewComponent extends BaseClass {
             this._route.paramMap.subscribe((params) => {
                 if (params.has('system_id')) {
                     this._state.system = params.get('system_id');
+                }
+            })
+        );
+        this.subscription(
+            'route.query',
+            this._route.paramMap.subscribe((params) => {
+                if (params.has('user')) {
+                    this.has_user = true;
                 }
             })
         );
