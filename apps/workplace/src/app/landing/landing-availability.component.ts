@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { LandingStateService } from './landing-state.service';
 
@@ -6,14 +7,22 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-availability',
     template: `
         <div class="py-2">
-            <div class="sm:text-lg font-medium mb-2 sm:mb-4 px-4" i18n>
+            <div
+                class="sm:text-lg font-medium mb-2 sm:mb-4 px-4"
+                i18n
+                *ngIf="!hide_rooms || !hide_spaces"
+            >
                 Available Now
             </div>
-            <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
+            <div
+                class="flex items-center text-sm sm:text-base px-4 space-x-2"
+                *ngIf="!hide_spaces"
+            >
                 <div i18n>Spaces</div>
             </div>
             <div
                 class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+                *ngIf="!hide_spaces"
             >
                 <button
                     matRipple
@@ -49,12 +58,16 @@ import { LandingStateService } from './landing-state.service';
                 </button>
                 <span
                     *ngIf="!(levels_free | async).length"
-                    class="opacity-60 text-sm mb-2" i18n
+                    class="opacity-60 text-sm mb-2"
+                    i18n
                 >
                     No free spaces
                 </span>
             </div>
-            <div class="flex items-center text-sm sm:text-base px-4 space-x-2">
+            <div
+                class="flex items-center text-sm sm:text-base px-4 space-x-2"
+                *ngIf="!hide_rooms"
+            >
                 <div i18n>Rooms</div>
                 <mat-spinner
                     diameter="24"
@@ -63,6 +76,7 @@ import { LandingStateService } from './landing-state.service';
             </div>
             <div
                 class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+                *ngIf="!hide_rooms"
             >
                 <button
                     matRipple
@@ -129,9 +143,18 @@ export class LandingAvailabilityComponent {
         return this._org.buildings.find((bld) => bld.id === id);
     }
 
+    public get hide_spaces() {
+        return this._settings.get('app.general.hide_spaces');
+    }
+
+    public get hide_rooms() {
+        return this._settings.get('app.general.hide_rooms');
+    }
+
     constructor(
         private _state: LandingStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 
     public async ngOnInit() {
