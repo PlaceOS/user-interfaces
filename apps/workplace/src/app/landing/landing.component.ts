@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { currentUser } from '@placeos/common';
+import { currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
 
@@ -11,9 +11,7 @@ import { startOfMinute } from 'date-fns';
             <div
                 class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-200 dark:border-neutral-700"
             >
-                <div
-                    class="flex items-center divide-x divide-gray-300"
-                >
+                <div class="flex items-center divide-x divide-gray-300">
                     <button
                         matRipple
                         class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
@@ -22,6 +20,7 @@ import { startOfMinute } from 'date-fns';
                         [class.bg-black]="tab !== 'people'"
                         [class.bg-opacity-5]="tab !== 'people'"
                         (click)="tab = 'people'"
+                        *ngIf="hide_colleagues"
                     >
                         <app-icon>people</app-icon>
                         <div i18n>Colleagues</div>
@@ -40,8 +39,12 @@ import { startOfMinute } from 'date-fns';
                     </button>
                 </div>
                 <div class="flex-1 w-full h-1/2">
-                    <landing-colleagues *ngIf="tab === 'people'"></landing-colleagues>
-                    <landing-favourites *ngIf="tab === 'fav'"></landing-favourites>
+                    <landing-colleagues
+                        *ngIf="tab === 'people' && !hide_colleagues"
+                    ></landing-colleagues>
+                    <landing-favourites
+                        *ngIf="tab === 'fav' || hide_colleagues"
+                    ></landing-favourites>
                 </div>
             </div>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto z-0">
@@ -55,8 +58,15 @@ import { startOfMinute } from 'date-fns';
                         <div date class="text-sm sm:text-base">
                             {{ date | date: 'fullDate' }}
                         </div>
-                        <div class="text-sm sm:text-base" *ngIf="building?.address || building?.name">
-                            {{ building.address || building.display_name || building.name}}
+                        <div
+                            class="text-sm sm:text-base"
+                            *ngIf="building?.address || building?.name"
+                        >
+                            {{
+                                building.address ||
+                                    building.display_name ||
+                                    building.name
+                            }}
                         </div>
                     </div>
                     <div class="h-32 pt-4">
@@ -111,6 +121,12 @@ export class LandingComponent {
         return this._org.building;
     }
 
-    constructor(private _org: OrganisationService) {}
+    public get hide_colleagues() {
+        return this._settings.get('app.general.hide_colleagues');
+    }
 
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {}
 }
