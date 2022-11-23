@@ -21,6 +21,7 @@ export async function openBookingModal(
 ) {
     const ref = dialog.open(BookingModalComponent, {
         data,
+        autoFocus: false
     });
     const result = await Promise.race([
         ref.componentInstance.event
@@ -134,7 +135,7 @@ export class BookingModalComponent extends BaseClass {
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
         super();
-        this.form.reset();
+        // this.form.reset();
     }
 
     /**

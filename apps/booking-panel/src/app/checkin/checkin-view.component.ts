@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
@@ -144,7 +144,7 @@ import { PanelStateService } from '../panel-state.service';
     ],
     providers: [PanelStateService],
 })
-export class CheckinViewComponent extends BaseClass {
+export class CheckinViewComponent extends BaseClass implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
@@ -192,7 +192,7 @@ export class CheckinViewComponent extends BaseClass {
         );
         this.subscription(
             'route.query',
-            this._route.paramMap.subscribe((params) => {
+            this._route.queryParamMap.subscribe((params) => {
                 if (params.has('user')) {
                     this.has_user = true;
                 }
