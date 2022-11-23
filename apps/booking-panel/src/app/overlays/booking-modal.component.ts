@@ -38,7 +38,7 @@ export async function openBookingModal(
 @Component({
     selector: 'booking-modal',
     template: `
-        <header class="bg-primary p-4">
+        <header class="bg-primary text-white p-4">
             <h3>New Booking</h3>
         </header>
         <form
