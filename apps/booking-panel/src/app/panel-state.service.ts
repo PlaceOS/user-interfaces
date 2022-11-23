@@ -8,6 +8,7 @@ import { CalendarEvent, EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import {
     BaseClass,
+    currentUser,
     notifyError,
     openConfirmModal,
     timePeriodsIntersect,
@@ -88,8 +89,8 @@ export class PanelStateService extends BaseClass {
     public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
     public readonly space = this._system.pipe(
-        switchMap(id => showSystem(id)),
-        map(_ => new Space(_ as any)),
+        switchMap((id) => showSystem(id)),
+        map((_) => new Space(_ as any)),
         shareReplay(1)
     );
     /** Active system */
@@ -150,7 +151,7 @@ export class PanelStateService extends BaseClass {
                 'offline_image',
                 'show_qr_code',
                 'presence',
-                'room_capacity'
+                'room_capacity',
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
@@ -160,11 +161,15 @@ export class PanelStateService extends BaseClass {
      * Open modal to create new booking
      * @param date Start time of the new booking
      */
-    public async newBooking(date: number = new Date().valueOf()) {
+    public async newBooking(
+        date: number = new Date().valueOf(),
+        user: boolean = false
+    ) {
         const space = this._spaces.find(this.system);
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
+                user: user ? currentUser() : null,
                 space,
                 date,
             },
@@ -172,7 +177,11 @@ export class PanelStateService extends BaseClass {
         );
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
-        this._events.form.patchValue({ ...details.metadata, resources: [space], system: space });
+        this._events.form.patchValue({
+            ...details.metadata,
+            resources: [space],
+            system: space,
+        });
         await this._events.postForm().catch((e) => {
             notifyError(`Error creating booking. ${e}`);
         });

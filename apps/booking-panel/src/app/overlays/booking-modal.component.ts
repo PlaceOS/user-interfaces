@@ -123,13 +123,13 @@ export class BookingModalComponent extends BaseClass {
     public loading: boolean;
     /** Form */
     public form: FormGroup = new FormGroup({
-        organiser: new FormControl<User>(null, [Validators.required]),
+        organiser: new FormControl<User>(this._data.user || null, [
+            Validators.required,
+        ]),
         room_ids: new FormControl<string[]>([this._data.space?.email || '']),
         date: new FormControl(this._data.date || new Date().valueOf()),
         duration: new FormControl(30),
-        title: new FormControl(this._data.title || '', [
-            Validators.required,
-        ]),
+        title: new FormControl(this._data.title || '', [Validators.required]),
     });
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {

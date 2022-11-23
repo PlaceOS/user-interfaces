@@ -102,7 +102,7 @@ export class PanelViewDetailsComponent {
                     custom_qr_color || '#fff'
                 );
             } else if (!this.qr_code) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
+                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
                 this.qr_code = generateQRCode(
                     url,
                     '#fff0',
