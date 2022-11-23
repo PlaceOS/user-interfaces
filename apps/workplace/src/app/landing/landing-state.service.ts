@@ -127,6 +127,10 @@ export class LandingStateService extends BaseClass {
         this._schedule.stopPolling();
     }
 
+    public refreshUpcomingEvents(){
+        this._schedule.triggerPoll();
+    }
+
     public async updateContacts() {
         const metadata: PlaceMetadata = (await showMetadata(
             currentUser().id,

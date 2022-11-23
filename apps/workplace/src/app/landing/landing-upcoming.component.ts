@@ -83,7 +83,8 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
     ) {}
 
     public ngOnInit() {
-        this._state.pollUpcomingEvents();
+        // this._state.pollUpcomingEvents();
+        this._state.refreshUpcomingEvents();
     }
 
     public ngOnDestroy() {

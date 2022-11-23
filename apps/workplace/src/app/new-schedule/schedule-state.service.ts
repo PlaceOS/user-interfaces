@@ -8,7 +8,7 @@ import {
 } from '@placeos/events';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -21,6 +21,7 @@ export class ScheduleStateService extends BaseClass {
     });
     private _date = new BehaviorSubject(Date.now());
     private _update = combineLatest([this._date, this._poll]).pipe(
+        debounceTime(500),
         tap((_) => this._loading.next(true))
     );
     /** List of calendar events for the selected date */
@@ -115,6 +116,10 @@ export class ScheduleStateService extends BaseClass {
 
     constructor(private _settings: SettingsService) {
         super();
+    }
+
+    public triggerPoll(){
+        this._poll.next(Date.now());
     }
 
     public startPolling(delay = 15 * 1000) {
