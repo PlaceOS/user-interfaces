@@ -169,6 +169,7 @@ export class AddBuildingModalComponent implements OnInit {
         Validators.required,
         Validators.minLength(1),
     ]);
+    fileUploaded: boolean = false;
     building_location: FormControl = new FormControl(
         'Type to search or add manually',
         [Validators.required]
@@ -183,6 +184,15 @@ export class AddBuildingModalComponent implements OnInit {
         event.preventDefault();
         event.stopPropagation();
         console.log('drag leave');
+    }
+    @HostListener('drop', ['$event']) public ondrop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.fileUploaded = false;
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            console.log(files, 'files');
+        }
     }
     constructor(public dialogRef: MatDialogRef<AddBuildingModalComponent>) {}
 
