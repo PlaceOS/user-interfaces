@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, Validators } from '@angular/forms';
 
@@ -174,6 +174,16 @@ export class AddBuildingModalComponent implements OnInit {
         [Validators.required]
     );
 
+    @HostListener('dragover', ['$event']) onDragOver(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('drag over');
+    }
+    @HostListener('dragleave', ['$event']) public onDragLeave(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('drag leave');
+    }
     constructor(public dialogRef: MatDialogRef<AddBuildingModalComponent>) {}
 
     ngOnInit(): void {}
