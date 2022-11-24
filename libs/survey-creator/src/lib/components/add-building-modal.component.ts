@@ -19,8 +19,19 @@ import { FormControl, Validators } from '@angular/forms';
             </div>
             <main>
                 <span class="small-title">Building image</span>
-                <div class="upload-container" dragDrop>
-                    <div class="drag-drop-container"></div>
+                <div
+                    class="upload-container"
+                    dragDrop
+                    (fileDropped)="onFileDropped($event)"
+                >
+                    <div class="drag-drop-container">
+                        <input
+                            type="file"
+                            #fileDropRef
+                            (change)="fileHandler($event.target.files)"
+                        />
+                        <div>{{ files[0]?.name }}</div>
+                    </div>
                 </div>
                 <span class="small-title">Building name</span>
 
@@ -169,31 +180,14 @@ export class AddBuildingModalComponent implements OnInit {
         Validators.required,
         Validators.minLength(1),
     ]);
-    fileUploaded: boolean = false;
+    fileDrag: boolean = false;
+    files: any[] = [];
+
     building_location: FormControl = new FormControl(
         'Type to search or add manually',
         [Validators.required]
     );
 
-    @HostListener('dragover', ['$event']) onDragOver(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        console.log('drag over');
-    }
-    @HostListener('dragleave', ['$event']) public onDragLeave(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        console.log('drag leave');
-    }
-    @HostListener('drop', ['$event']) public ondrop(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.fileUploaded = false;
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-            console.log(files, 'files');
-        }
-    }
     constructor(public dialogRef: MatDialogRef<AddBuildingModalComponent>) {}
 
     ngOnInit(): void {}
@@ -207,5 +201,18 @@ export class AddBuildingModalComponent implements OnInit {
     }
     onKey(event): void {
         return;
+    }
+    onFileDropped($event) {
+        this.uploadFiles($event);
+    }
+    fileHandler(files) {
+        this.uploadFiles(files);
+    }
+
+    uploadFiles(files: any[]) {
+        for (const item of files) {
+            this.files.push(item);
+            console.log(this.files, 'files');
+        }
     }
 }

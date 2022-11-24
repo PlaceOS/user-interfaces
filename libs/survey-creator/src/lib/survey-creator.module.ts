@@ -64,11 +64,10 @@ const COMPONENTS: Type<any>[] = [
     BuildingListComponent,
     BuildingListItemComponent,
     AddBuildingModalComponent,
-    DragdropDirective,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
+    declarations: [...COMPONENTS, DragdropDirective],
     imports: [
         CommonModule,
         MatDialogModule,
