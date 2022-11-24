@@ -158,7 +158,7 @@ export class LandingAvailabilityComponent {
     ) {}
 
     public async ngOnInit() {
-        this._state.pollFreeSpaces();
+        this._state.loadFreeSpaces();
     }
 
     public ngOnDestroy() {

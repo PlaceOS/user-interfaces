@@ -108,6 +108,15 @@ export class LandingStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
+    public async loadFreeSpaces(){
+        // Ignore if already loading
+        if(this._loading_spaces.getValue()) return;
+        
+        this._loading_spaces.next(true);
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.updateFreeSpaces();
+    }
+
     public pollFreeSpaces(delay: number = 60 * 1000) {
         this._loading_spaces.next(true);
         this.updateFreeSpaces();
@@ -176,6 +185,7 @@ export class LandingStateService extends BaseClass {
     }
 
     private async updateFreeSpaces() {
+        console.log("updateFreeSpaces ", this._org.building);
         if (!this._org.building) return;
         this._loading_spaces.next(true);
         const period_start = Math.floor(new Date().valueOf() / 1000);
