@@ -20,6 +20,7 @@ describe('LandingUpcomingComponent', () => {
             { provide: MatDialog, useValue: { open: jest.fn() } },
             { provide: LandingStateService, useValue: {
                 upcoming_events: new BehaviorSubject([]),
+                refreshUpcomingEvents: jest.fn(),
                 pollUpcomingEvents: jest.fn(),
                 stopPollingUpcomingEvents: jest.fn()
             } },
