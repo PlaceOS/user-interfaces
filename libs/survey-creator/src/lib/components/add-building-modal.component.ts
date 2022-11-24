@@ -19,7 +19,7 @@ import { FormControl, Validators } from '@angular/forms';
             </div>
             <main>
                 <span class="small-title">Building image</span>
-                <div class="upload-container">
+                <div class="upload-container" dragDrop>
                     <div class="drag-drop-container"></div>
                 </div>
                 <span class="small-title">Building name</span>

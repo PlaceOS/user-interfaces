@@ -37,6 +37,7 @@ import { ConfirmDeleteModalComponent } from './components/confirm-delete-modal.c
 import { BuildingListComponent } from './pages/building-list.component';
 import { BuildingListItemComponent } from './components/building-list-item.component';
 import { AddBuildingModalComponent } from './components/add-building-modal.component';
+import { DragdropDirective } from './components/dragdrop.directive';
 
 const COMPONENTS: Type<any>[] = [
     SurveyCreatorComponent,
@@ -63,6 +64,7 @@ const COMPONENTS: Type<any>[] = [
     BuildingListComponent,
     BuildingListItemComponent,
     AddBuildingModalComponent,
+    DragdropDirective,
 ];
 
 @NgModule({
