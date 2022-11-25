@@ -21,7 +21,7 @@ import {
 import { endOfDay } from 'date-fns';
 
 import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
-import { Space } from '@placeos/spaces';
+import { Space, SpacesStatusService } from '@placeos/spaces';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
@@ -48,7 +48,25 @@ export class LandingStateService extends BaseClass {
     /**  */
     private _occupancy_binding: PlaceVariableBinding;
     /**  */
-    public free_spaces = this._free_spaces.asObservable();
+    // public free_spaces = this._free_spaces.asObservable();
+
+    /** Switch to use ws real time free space subscription */
+    public free_spaces = this._spacesStatus.list_free_spaces.pipe(
+        map((list) =>
+            this._org.building
+                ? list
+                      .filter((e) => e.zones.includes(this._org.building.id))
+                      .filter(
+                          (space) =>
+                              !space.availability.length ||
+                              space.availability.find(
+                                  (_) => _.status !== 'busy'
+                              )
+                      )
+                      .sort((a, b) => a.capacity - b.capacity)
+                : []
+        )
+    );
     /**  */
     public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
         map((_) => _.filter((i) => i instanceof CalendarEvent))
@@ -79,7 +97,8 @@ export class LandingStateService extends BaseClass {
     constructor(
         private _calendar: CalendarService,
         private _schedule: ScheduleStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _spacesStatus: SpacesStatusService
     ) {
         super();
         this.init();
@@ -108,10 +127,10 @@ export class LandingStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public async loadFreeSpaces(){
+    public async loadFreeSpaces() {
         // Ignore if already loading
-        if(this._loading_spaces.getValue()) return;
-        
+        if (this._loading_spaces.getValue()) return;
+
         this._loading_spaces.next(true);
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.updateFreeSpaces();
@@ -136,7 +155,7 @@ export class LandingStateService extends BaseClass {
         this._schedule.stopPolling();
     }
 
-    public refreshUpcomingEvents(){
+    public refreshUpcomingEvents() {
         this._schedule.triggerPoll();
     }
 
@@ -185,7 +204,6 @@ export class LandingStateService extends BaseClass {
     }
 
     private async updateFreeSpaces() {
-        console.log("updateFreeSpaces ", this._org.building);
         if (!this._org.building) return;
         this._loading_spaces.next(true);
         const period_start = Math.floor(new Date().valueOf() / 1000);
