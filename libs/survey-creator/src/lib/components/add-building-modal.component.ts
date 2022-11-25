@@ -25,9 +25,19 @@ import { FormControl, Validators } from '@angular/forms';
                     (fileDropped)="onFileDropped($event)"
                 >
                     <div class="drag-drop-container">
+                        <label
+                            for="file-upload"
+                            *ngIf="files.length == 0"
+                            class="drag-text"
+                        >
+                            Click to browse or drag and drop your building photo
+                        </label>
                         <input
+                            class="file-input"
                             type="file"
+                            id="file-upload"
                             #fileDropRef
+                            accept="image/jpeg, image/png, image/jpeg"
                             (change)="fileHandler($event.target.files)"
                         />
                         <div>{{ files[0]?.name }}</div>
@@ -127,11 +137,24 @@ import { FormControl, Validators } from '@angular/forms';
             }
             .drag-drop-container {
                 display: flex;
+                align-items: center;
+                justify-content: center;
                 border: 1px dashed #bdbdbd;
                 margin: 20px;
                 border-radius: 6px;
                 width: 290px;
                 height: 190px;
+            }
+            .drag-text {
+                display: flex;
+                color: #a5a5a5;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 20px;
+                margin: 20px;
+            }
+            .file-input {
+                display: none;
             }
             .building-name-input {
                 border: 1px solid #e0e0e0;
