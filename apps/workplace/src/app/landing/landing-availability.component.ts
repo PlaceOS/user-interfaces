@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
@@ -80,7 +81,10 @@ import { LandingStateService } from './landing-state.service';
             >
                 <button
                     matRipple
-                    *ngFor="let space of space_list | async"
+                    *ngFor="
+                        let space of space_list | async;
+                        trackBy: trackBySpaceId
+                    "
                     class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.email }"
@@ -139,6 +143,10 @@ export class LandingAvailabilityComponent {
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
 
+    public trackBySpaceId(index: number, space: Space) {
+        return space.id;
+    }
+
     public building(id: string) {
         return this._org.buildings.find((bld) => bld.id === id);
     }
@@ -158,7 +166,7 @@ export class LandingAvailabilityComponent {
     ) {}
 
     public async ngOnInit() {
-        this._state.loadFreeSpaces();
+        // this._state.loadFreeSpaces();
     }
 
     public ngOnDestroy() {
