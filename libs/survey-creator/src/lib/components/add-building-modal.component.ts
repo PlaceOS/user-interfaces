@@ -30,7 +30,24 @@ import { FormControl, Validators } from '@angular/forms';
                             *ngIf="files.length == 0"
                             class="drag-text"
                         >
-                            Click to browse or drag and drop your building photo
+                            <span
+                                ><svg
+                                    width="26"
+                                    height="30"
+                                    viewBox="0 0 26 30"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M7.75 23H18.25V12.5H25.25L13 0.25L0.75 12.5H7.75V23ZM0.75 26.5H25.25V30H0.75V26.5Z"
+                                        fill="#BDBDBD"
+                                    />
+                                </svg>
+                            </span>
+                            <span>
+                                Click to browse or drag and drop your building
+                                photo
+                            </span>
                         </label>
                         <input
                             class="file-input"
@@ -144,14 +161,22 @@ import { FormControl, Validators } from '@angular/forms';
                 border-radius: 6px;
                 width: 290px;
                 height: 190px;
+                padding: 30px;
             }
             .drag-text {
                 display: flex;
+                flex-direction: column;
                 color: #a5a5a5;
                 font-size: 14px;
                 font-weight: 400;
                 line-height: 20px;
-                margin: 20px;
+                text-align: center;
+                align-items: center;
+                justify-content: center;
+            }
+            .drag-text span {
+                display: flex;
+                margin: 10px 0px 10px 0px;
             }
             .file-input {
                 display: none;
