@@ -42,13 +42,13 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
 @Component({
     selector: `i-map,interactive-map`,
     template: `
-        <div #outlet tabindex="0" role="map" class="absolute inset-0"></div>
+        <div #outlet tabindex="0" role="map" class="absolute inset-0" [class.hidden]="!src"></div>
         <ng-container *ngIf="src; else empty_state">
-        <mat-spinner
-            *ngIf="!viewer || loading"
-            class="absolute"
-            [diameter]="48"
-        ></mat-spinner>
+            <mat-spinner
+                *ngIf="!viewer || loading"
+                class="absolute"
+                [diameter]="48"
+            ></mat-spinner>
         </ng-container>
         <div hidden *ngIf="injectors?.length">
             <ng-container
