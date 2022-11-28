@@ -277,7 +277,6 @@ export class AddBuildingModalComponent implements OnInit {
             console.log(this.files, 'files');
         }
         this.previewImage(files);
-        this.building_name.setValue(files[0].name);
     }
 
     previewImage(files) {
@@ -286,6 +285,8 @@ export class AddBuildingModalComponent implements OnInit {
             this.imageURL = event.target.result;
         };
         reader.readAsDataURL(files.item(0));
+
+        this.building_name.setValue(files[0].name.split('.')[0]);
         // const file = files[0];
         // const reader = new FileReader();
         // reader.onload = () => {
