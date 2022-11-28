@@ -1,5 +1,6 @@
 import { get } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
+// import { querySurveys } from './'
 
 export function getAllSurveys(id: string) {
     return get(
