@@ -7,8 +7,8 @@ import { PanelStateService } from '../panel-state.service';
     selector: 'panel-view',
     template: `
         <div class="flex flex-col items-center h-full w-full overflow-hidden">
-            <panel-view-details class="flex-1 w-full"> </panel-view-details>
-            <panel-view-status class="flex-1 w-full"> </panel-view-status>
+            <panel-view-details class="flex-1 w-full"></panel-view-details>
+            <panel-view-status class="flex-1 w-full"></panel-view-status>
             <div
                 *ngIf="show_offline"
                 class="absolute inset-0 bg-contain bg-center bg-no-repeat z-40"
@@ -42,7 +42,7 @@ export class PanelViewComponent extends BaseClass {
     public get show_offline() {
         return (
             this._state.setting('disable_book_now') &&
-            this.offline_image
+            this._state.setting('offline_image')
         );
     }
 
