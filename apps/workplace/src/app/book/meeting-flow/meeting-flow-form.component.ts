@@ -210,7 +210,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering ? '5' : '6' }}
+                                {{ !has_catering || !has_assets ? !has_catering && !has_assets ? '4' : '5' : '6' }}
                             </div>
                             <div class="text-xl" i18n>Notes</div>
                         </h3>

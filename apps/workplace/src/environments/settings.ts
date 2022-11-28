@@ -71,6 +71,7 @@ const events: any = {
     breakdown: 15,
     can_book_for_others: false,
     has_catering: true,
+    has_assets: false,
     catering_enabled: 'bld-01',
     allow_all_day: true,
     hide_notes: false,
