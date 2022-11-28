@@ -84,7 +84,10 @@ import { PanelStateService } from '../panel-state.service';
         </div>
         <h3 class="p-4 text-xl font-medium">Schedule</h3>
         <div class="bg-white overflow-auto">
-            <checkin-timetable [events]="bookings | async"></checkin-timetable>
+            <checkin-timetable
+                [events]="bookings | async"
+                (event)="newBooking($event)"
+            ></checkin-timetable>
         </div>
         <h3 class="p-4 text-xl font-medium">Features</h3>
         <div
@@ -150,8 +153,8 @@ export class CheckinViewComponent extends BaseClass implements OnInit {
     public readonly bookings = this._state.bookings;
 
     public readonly checkInCurrent = () => this._state.startMeeting();
-    public readonly newBooking = () =>
-        this._state.newBooking(Date.now(), this.has_user);
+    public readonly newBooking = (d = Date.now()) =>
+        this._state.newBooking(d, this.has_user);
 
     public has_user = false;
 
