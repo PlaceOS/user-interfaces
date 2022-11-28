@@ -23,7 +23,6 @@ import { FormControl, Validators } from '@angular/forms';
                     class="upload-container"
                     dragDrop
                     (fileDropped)="onFileDropped($event)"
-                    (imageURL)="previewImage($event)"
                 >
                     <div class="drag-drop-container">
                         <label
@@ -50,9 +49,7 @@ import { FormControl, Validators } from '@angular/forms';
                                 photo
                             </span>
                         </label>
-                        <div *ngIf="files.length">
-                            <img [src]="imageURL" alt="preview of image" />
-                        </div>
+
                         <input
                             class="file-input"
                             type="file"
@@ -61,6 +58,14 @@ import { FormControl, Validators } from '@angular/forms';
                             accept="image/jpeg, image/png, image/jpeg"
                             (change)="fileHandler($event.target.files)"
                         />
+
+                        <img
+                            *ngIf="imageURL"
+                            [src]="imageURL"
+                            height="200"
+                            alt="preview of image"
+                        />
+
                         <div>{{ files[0]?.name }}</div>
                     </div>
                 </div>
@@ -260,12 +265,18 @@ export class AddBuildingModalComponent implements OnInit {
         this.uploadFiles($event);
         // this.showPreview($event);
     }
-    fileHandler(files) {
-        this.uploadFiles(files);
+    fileHandler(files: FileList) {
+        // this.uploadFiles(files);
         // this.showPreview(files);
+        let reader = new FileReader();
+        reader.onload = (event: any) => {
+            this.imageURL = event.target.result;
+        };
+        reader.readAsDataURL(files.item(0));
+        console.log('image should preview');
     }
 
-    uploadFiles(files: any[]) {
+    uploadFiles(files: File[]) {
         for (const item of files) {
             this.files.push(item);
             console.log(this.files, 'files');
