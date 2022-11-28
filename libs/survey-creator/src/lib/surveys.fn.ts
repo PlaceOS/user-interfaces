@@ -22,9 +22,20 @@ export function querySurveys(): Observable<any> {
 /**
  * Get a survey by id
  */
-export function showSurvey(q: any) {
-    const query = toQueryString(q);
-    return get(`${SURVEYS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
+export function showSurvey(id: any) {
+    return get(`${SURVEYS_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
+        map((item) => item),
+        catchError((err) => {
+            throw 'new error' + err;
+        })
+    );
+}
+
+/**
+ * Create a new survey and add it to the database
+ */
+export function createSurvey(data: any) {
+    return post(`${SURVEYS_ENDPOINT}`, data).pipe(
         map((item) => item),
         catchError((err) => {
             throw 'new error' + err;

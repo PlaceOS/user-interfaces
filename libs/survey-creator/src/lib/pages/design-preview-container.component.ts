@@ -8,7 +8,7 @@ import { AddQuestionBankComponent } from '../components/add-question-bank.compon
 import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
 import { SearchService } from '../search.service';
 import { FormControl, Validators } from '@angular/forms';
-import { querySurveys, showSurvey } from '../surveys.fn';
+import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
 
 @Component({
     selector: 'design-preview-container',
@@ -264,6 +264,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         this.selected_trigger = this.triggers[0];
         this._getSurveys();
         this._showSurvey();
+        this._createSurvey();
     }
 
     ngAfterViewInit(): void {
@@ -316,6 +317,17 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     async _showSurvey() {
         const survey = showSurvey('1').toPromise();
         console.log(survey, 'get survey by id');
+    }
+
+    async _createSurvey() {
+        const data = {
+            id: 0,
+            title: 'test title',
+            description: 'test description',
+            question_order: [0],
+        };
+        const confirm = createSurvey(data).toPromise();
+        console.log(confirm, 'post to backend');
     }
 
     updateBuilding() {
