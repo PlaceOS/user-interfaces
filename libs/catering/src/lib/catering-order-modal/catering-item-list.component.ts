@@ -44,7 +44,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                             />
                         </div>
                         <div class="space-y-2 text-left flex-1">
-                            <div class="font-medium flex items-center justify-between">
+                            <div class="font-medium flex flex-col">
                                 <div>{{ item.name || 'Item' }}</div>
                                 <div class="opacity-60 text-xs">{{ item.category }}</div>
                             </div>
