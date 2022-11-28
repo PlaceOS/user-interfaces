@@ -260,14 +260,11 @@ export class AddBuildingModalComponent implements OnInit {
         return;
     }
     onFileDropped($event) {
-        console.log('file dropped');
         this.uploadFiles($event);
-        // this.showPreview($event);
+        this.previewImage($event);
     }
-    fileHandler(files: FileList) {
-        // this.uploadFiles(files);
-        // this.showPreview(files);
-
+    fileHandler(files: File[]) {
+        this.uploadFiles(files);
         this.previewImage(files);
     }
 
@@ -285,13 +282,6 @@ export class AddBuildingModalComponent implements OnInit {
             this.imageURL = event.target.result;
         };
         reader.readAsDataURL(files.item(0));
-
         this.building_name.setValue(files[0].name.split('.')[0]);
-        // const file = files[0];
-        // const reader = new FileReader();
-        // reader.onload = () => {
-        //     this.imageURL = files.target.result as string;
-        // };
-        // reader.readAsDataURL(file);
     }
 }

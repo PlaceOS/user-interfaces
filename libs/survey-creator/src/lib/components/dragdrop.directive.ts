@@ -17,13 +17,10 @@ export class DragdropDirective {
     @HostListener('dragover', ['$event']) onDragOver(event) {
         event.preventDefault();
         event.stopPropagation();
-        console.log('drag over');
     }
     @HostListener('dragleave', ['$event']) public onDragLeave(event) {
         event.preventDefault();
         event.stopPropagation();
-
-        console.log('drag leave');
     }
     @HostListener('drop', ['$event']) public ondrop(event) {
         event.preventDefault();
