@@ -1,4 +1,5 @@
 import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
@@ -18,6 +19,7 @@ describe('CateringItemFiltersComponent', () => {
                 useValue: {
                     setFilters: jest.fn(),
                     filters: new BehaviorSubject({ tags: [] }),
+                    categories: new BehaviorSubject(["meals", "coffee"])
                 },
             },
         ],
@@ -25,6 +27,7 @@ describe('CateringItemFiltersComponent', () => {
         imports: [
             MockModule(MatFormFieldModule),
             MockModule(MatInputModule),
+            MockModule(MatCheckboxModule),
             FormsModule,
         ],
     });
@@ -40,11 +43,7 @@ describe('CateringItemFiltersComponent', () => {
     });
 
     it('should allow toggling tag filters', () => {
-        const service = spectator.inject(CateringOrderStateService);
-        spectator.click('button[meals]');
-        expect(service.setFilters).toBeCalledWith({ tags: ['meals'] });
-        (service.filters as any).next({ tags: ['coffee'] });
-        spectator.click('button[coffee]');
-        expect(service.setFilters).toBeCalledWith({ tags: [] });
+        expect('[name="meals"]').toExist();
+        expect('[name="coffee"]').toExist();
     });
 });

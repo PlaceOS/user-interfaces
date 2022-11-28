@@ -1,3 +1,4 @@
+import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
@@ -14,6 +15,7 @@ describe('PaymentModalComponent', () => {
             MockProvider(OrganisationService, {}),
         ],
         declarations: [MockComponent(CardInputFieldComponent)],
+        imports: [FormsModule]
     });
 
     beforeEach(() => (spectator = createComponent()));

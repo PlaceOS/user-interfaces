@@ -76,6 +76,7 @@ const ICONS = {
         >
             <mat-checkbox
                 *ngFor="let item of categories | async"
+                [attr.name]="item"
                 [ngModel]="(filters | async)?.categories?.includes(item)"
                 (ngModelChange)="toggleCategory(item)"
             >

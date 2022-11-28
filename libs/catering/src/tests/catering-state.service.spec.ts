@@ -11,6 +11,8 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 import { CateringItem } from '../lib/catering-item.class';
+import { MockProvider } from 'ng-mocks';
+import { SettingsService } from '@placeos/common';
 
 const dialog_fn = (has_delay, metadata?) => () => ({
     componentInstance: {
@@ -27,14 +29,12 @@ describe('CateringStateService', () => {
     const createService = createServiceFactory({
         service: CateringStateService,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    building: new Building({ id: 'bld-1' }),
-                    active_building: new BehaviorSubject(new Building()),
-                },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(OrganisationService, {
+                building: new Building({ id: 'bld-1' }),
+                active_building: new BehaviorSubject(new Building()),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialog, { open: jest.fn() }),
         ],
     });
 
@@ -164,11 +164,17 @@ describe('CateringStateService', () => {
         (ts_client as any).showMetadata = jest.fn(() => of({}));
         let config = await spectator.service.getCateringConfig();
         expect(config).toEqual([]);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld-1', 'catering_config');
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-1',
+            'catering_config'
+        );
         (ts_client as any).showMetadata = jest.fn(() => of([]));
         config = await spectator.service.getCateringConfig('bld-2');
         expect(config).toEqual([]);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld-2', 'catering_config');
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-2',
+            'catering_config'
+        );
     });
 
     it('should allow user to add items to order', () => {

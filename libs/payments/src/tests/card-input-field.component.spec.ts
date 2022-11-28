@@ -1,5 +1,8 @@
+import { ReactiveFormsModule } from "@angular/forms";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatSelectModule } from "@angular/material/select";
 import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { MockComponent } from "ng-mocks";
+import { MockComponent, MockModule } from "ng-mocks";
 import { CardInputFieldComponent } from '../lib/card-input-field.component';
 
 describe('CardInputFieldComponent', () => {
@@ -7,7 +10,12 @@ describe('CardInputFieldComponent', () => {
     const createComponent = createComponentFactory({
         component: CardInputFieldComponent,
         providers: [],
-        declarations: []
+        declarations: [],
+        imports: [
+            MockModule(MatFormFieldModule),
+            MockModule(MatSelectModule),
+            ReactiveFormsModule
+        ]
     });
 
     beforeEach(() => (spectator = createComponent()));
