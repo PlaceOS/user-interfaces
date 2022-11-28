@@ -23,6 +23,7 @@ import { FormControl, Validators } from '@angular/forms';
                     class="upload-container"
                     dragDrop
                     (fileDropped)="onFileDropped($event)"
+                    (imageURL)="previewImage($event)"
                 >
                     <div class="drag-drop-container">
                         <label
@@ -49,6 +50,9 @@ import { FormControl, Validators } from '@angular/forms';
                                 photo
                             </span>
                         </label>
+                        <div *ngIf="files.length">
+                            <img [src]="imageURL" alt="preview of image" />
+                        </div>
                         <input
                             class="file-input"
                             type="file"
@@ -230,6 +234,7 @@ export class AddBuildingModalComponent implements OnInit {
     ]);
     fileDrag: boolean = false;
     files: any[] = [];
+    imageURL: string = '';
 
     building_location: FormControl = new FormControl(
         'Type to search or add manually',
@@ -251,10 +256,13 @@ export class AddBuildingModalComponent implements OnInit {
         return;
     }
     onFileDropped($event) {
+        console.log('file dropped');
         this.uploadFiles($event);
+        // this.showPreview($event);
     }
     fileHandler(files) {
         this.uploadFiles(files);
+        // this.showPreview(files);
     }
 
     uploadFiles(files: any[]) {
@@ -262,5 +270,15 @@ export class AddBuildingModalComponent implements OnInit {
             this.files.push(item);
             console.log(this.files, 'files');
         }
+    }
+
+    previewImage(event) {
+        this.imageURL = event;
+        // const file = files[0];
+        // const reader = new FileReader();
+        // reader.onload = () => {
+        //     this.imageURL = files.target.result as string;
+        // };
+        // reader.readAsDataURL(file);
     }
 }

@@ -310,12 +310,12 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     async _getSurveys() {
-        const surveys = querySurveys().toPromise();
+        const surveys = await querySurveys().toPromise();
         console.log(surveys, 'surveys from backend');
     }
 
     async _showSurvey() {
-        const survey = showSurvey('1').toPromise();
+        const survey = await showSurvey('1').toPromise();
         console.log(survey, 'get survey by id');
     }
 
@@ -326,7 +326,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
             description: 'test description',
             question_order: [0],
         };
-        const confirm = createSurvey(data).toPromise();
+        const confirm = await createSurvey(data).toPromise();
         console.log(confirm, 'post to backend');
     }
 
