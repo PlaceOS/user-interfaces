@@ -61,6 +61,8 @@ export interface BuildingComplete extends Building {
 export class Building {
     /** PlaceOS zone id of the building */
     public readonly id: string;
+    /** PlaceOS zone id of the building */
+    public readonly parent_id: string;
     /** Name of the building zone */
     public readonly name: string;
     /** Name to display */
@@ -117,6 +119,7 @@ export class Building {
 
     constructor(raw_data: Partial<BuildingComplete> = {}) {
         this.id = raw_data.id || '';
+        this.parent_id = raw_data.parent_id || '';
         this.name = raw_data.name || '';
         const settings = raw_data.settings || {};
         this.display_name = raw_data.display_name;
