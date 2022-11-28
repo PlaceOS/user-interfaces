@@ -27,7 +27,7 @@ import { FormControl, Validators } from '@angular/forms';
                     <div class="drag-drop-container">
                         <label
                             for="file-upload"
-                            *ngIf="files.length == 0"
+                            *ngIf="!imageURL"
                             class="drag-text"
                         >
                             <span
@@ -62,11 +62,10 @@ import { FormControl, Validators } from '@angular/forms';
                         <img
                             *ngIf="imageURL"
                             [src]="imageURL"
-                            height="200"
+                            height="230"
+                            width="350"
                             alt="preview of image"
                         />
-
-                        <div>{{ files[0]?.name }}</div>
                     </div>
                 </div>
                 <span class="small-title">Building name</span>
@@ -268,12 +267,8 @@ export class AddBuildingModalComponent implements OnInit {
     fileHandler(files: FileList) {
         // this.uploadFiles(files);
         // this.showPreview(files);
-        let reader = new FileReader();
-        reader.onload = (event: any) => {
-            this.imageURL = event.target.result;
-        };
-        reader.readAsDataURL(files.item(0));
-        console.log('image should preview');
+
+        this.previewImage(files);
     }
 
     uploadFiles(files: File[]) {
@@ -281,10 +276,16 @@ export class AddBuildingModalComponent implements OnInit {
             this.files.push(item);
             console.log(this.files, 'files');
         }
+        this.previewImage(files);
+        this.building_name.setValue(files[0].name);
     }
 
-    previewImage(event) {
-        this.imageURL = event;
+    previewImage(files) {
+        let reader = new FileReader();
+        reader.onload = (event: any) => {
+            this.imageURL = event.target.result;
+        };
+        reader.readAsDataURL(files.item(0));
         // const file = files[0];
         // const reader = new FileReader();
         // reader.onload = () => {
