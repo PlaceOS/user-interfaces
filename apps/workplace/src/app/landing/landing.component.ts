@@ -20,7 +20,7 @@ import { startOfMinute } from 'date-fns';
                         [class.bg-black]="tab !== 'people'"
                         [class.bg-opacity-5]="tab !== 'people'"
                         (click)="tab = 'people'"
-                        *ngIf="hide_colleagues"
+                        *ngIf="!hide_colleagues"
                     >
                         <app-icon>people</app-icon>
                         <div i18n>Colleagues</div>

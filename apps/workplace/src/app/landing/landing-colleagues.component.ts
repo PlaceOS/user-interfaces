@@ -44,7 +44,7 @@ import { LandingStateService } from './landing-state.service';
                             [class.bg-success]="user.location"
                         ></div>
                     </div>
-                    <div class="leading-tight flex-1">
+                    <div class="leading-tight flex-1 w-1/2">
                         <div class="truncate">{{ user.name }}</div>
                         <div class="text-sm truncate">
                             {{ user.organisation }}
