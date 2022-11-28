@@ -163,7 +163,8 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                         !(
                             e.rejected ||
                             e.deleted ||
-                            e.extension_data.current_state === 'ended'
+                            e.extension_data.current_state === 'ended' ||
+                            e.is_done
                         )
                 );
                 this._in_use.next(actives.map((i) => i.asset_id));
