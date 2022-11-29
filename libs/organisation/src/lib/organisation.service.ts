@@ -106,6 +106,7 @@ export class OrganisationService {
         return this._active_region.getValue();
     }
     public set region(item: Region) {
+        if (!item) return;
         this._active_region.next(item);
         if (this.building.parent_id !== item.id && this.buildingsForRegion(item).length) {
             this.building = this.buildingsForRegion(item)[0];
