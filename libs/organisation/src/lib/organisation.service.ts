@@ -124,7 +124,7 @@ export class OrganisationService {
     public set building(bld: Building) {
         this._active_building.next(bld);
         this._updateSettingOverrides();
-        if (this.regions.length && this.region.id !== bld.parent_id) {
+        if (this.regions.length && this.region?.id !== bld.parent_id) {
             this.region = this.regions.find(_ => _.id === this.building.parent_id);
         }
     }
