@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Booking, queryBookings } from '@placeos/bookings';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { BaseClass, currentUser, SettingsService } from '@placeos/common';
 import {
     CalendarEvent,
     newCalendarEventFromBooking,
-    queryEvents,
+    queryEvents
 } from '@placeos/events';
+import { SpacesStatusService } from '@placeos/spaces';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { catchError, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -41,6 +42,30 @@ export class ScheduleStateService extends BaseClass {
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );
+    /** WS bindings list of calendar events for the current user */
+    public readonly myEvents = combineLatest([
+        this._spacesState.list_bookings,
+        this._date
+    ]).pipe(
+        tap(v => console.log("PRE - myevents ", v)),
+        map( ([bookingsHash, date]) => {
+            const end = getUnixTime(endOfDay(date));
+            const user = currentUser();
+            if(!user) return [];
+
+            let events = [];
+            const bookings = Object.values(bookingsHash).filter(e => !!e && e.length);
+            bookings.forEach(e => events = events.concat(e));
+            events = events.map(e => newCalendarEventFromBooking(e));
+            return events.filter((e:CalendarEvent) => {
+                const attendees = e.attendees.map(a => a.email.toLowerCase());
+                return attendees.includes(user.email.toLocaleLowerCase()) && e.event_start < end;
+            })
+
+        }),
+        tap(v => console.log("POST - myevents ", v)),
+        shareReplay(1),
+    )
     /** List of desk bookings for the selected date */
     public readonly visitors: Observable<Booking[]> = this._update.pipe(
         switchMap(([date]) =>
@@ -86,12 +111,13 @@ export class ScheduleStateService extends BaseClass {
 
     /** List of events and bookings for the selected date */
     public readonly bookings = combineLatest([
+        this.myEvents,
         this.events,
         this.visitors,
         this.desks,
         this.parking,
     ]).pipe(
-        map(([e, v, d, p]) => [...e, ...v, ...d, ...p].sort((a, b) => a.date - b.date))
+        map(([m, e, v, d, p]) => [...m, ...v, ...d, ...p].sort((a, b) => a.date - b.date))
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([
@@ -114,7 +140,11 @@ export class ScheduleStateService extends BaseClass {
     /** Whether events and bookings are loading */
     public readonly loading = this._loading.asObservable();
 
-    constructor(private _settings: SettingsService) {
+
+
+    constructor(
+        private _settings: SettingsService,
+        private _spacesState: SpacesStatusService) {
         super();
     }
 

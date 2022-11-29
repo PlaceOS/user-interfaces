@@ -4,8 +4,9 @@ import {
     PlaceMetadata,
     PlaceVariableBinding,
     showMetadata,
-    updateMetadata,
+    updateMetadata
 } from '@placeos/ts-client';
+import { endOfDay } from 'date-fns';
 import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
@@ -16,16 +17,15 @@ import {
     shareReplay,
     switchMap,
     take,
-    tap,
+    tap
 } from 'rxjs/operators';
-import { endOfDay } from 'date-fns';
 
-import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
-import { Space, SpacesStatusService } from '@placeos/spaces';
-import { CalendarEvent, queryEvents } from '@placeos/events';
-import { searchStaff, User } from '@placeos/users';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
+import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import { Space, SpacesStatusService } from '@placeos/spaces';
+import { searchStaff, User } from '@placeos/users';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
 
 export interface LandingOptions {
