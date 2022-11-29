@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1669611086337,
+  "timestamp": 1669681026242,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -102,6 +102,7 @@
         "./assets/maps/level_G.svg",
         "./assets/maps/level_P1.svg",
         "./assets/maps/test.svg",
+        "./assets/md5_worker.js",
         "./assets/menus.jpg",
         "./assets/not-supported.html",
         "./assets/orders.jpg",
@@ -181,6 +182,7 @@
     "./assets/maps/level_G.svg": "34941af9a8f84b60d820fe3230f88d2c5374b8f1",
     "./assets/maps/level_P1.svg": "d143761b1d22330cb22c6d29ac1b0eb2dc37d29e",
     "./assets/maps/test.svg": "6b8cf2e8673469599a1a6d246b5e13650477aa2e",
+    "./assets/md5_worker.js": "012ff09e01e0f16503c19bc38294e6f3ee864d1c",
     "./assets/menus.jpg": "6e6080aabfeed4acfbcb47c4ce546a6076b0edd0",
     "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
     "./assets/orders.jpg": "d444da6f6ef20ae2975da80b16fe2f751f1dcbc0",
@@ -198,12 +200,12 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "6c45b15804889df46fc03160121fbe61b9084d9a",
-    "./main.js": "408fec50ad7fd4957bfb54488a029cb2e7fc37fa",
+    "./main.js": "0b00500882870c90f5ed6c7d89faf5bf101fb949",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
     "./styles.css": "625bdb876b980cfc888c6392e4c3c8344023a54e",
-    "./vendor.js": "1f5db3e0e52cfd40e5176d2a2d50a26fb96b44d7"
+    "./vendor.js": "712952bbf437c16afaf0032afd0eabd2f40a82b1"
   },
   "navigationUrls": [
     {
