@@ -41,6 +41,8 @@ function registerMocks() {
         callback: (request) => {
             if (request.query_params.tags === 'org') {
                 return MOCK_ORGS;
+            } else if (request.query_params.tags === 'region') {
+                return [];
             } else if (request.query_params.tags === 'building') {
                 return MOCK_BUILDINGS;
             } else if (request.query_params.tags === 'level') {
