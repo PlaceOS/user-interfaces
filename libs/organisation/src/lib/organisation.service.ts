@@ -34,17 +34,21 @@ export class OrganisationService {
     private readonly _active_building = new BehaviorSubject<Building>(null);
     private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
 
+    /** Observable for the list of regions */
+    public readonly region_list = this._regions.asObservable();
     /** Observable for the list of buildings */
     public readonly building_list = this._buildings.asObservable();
     /** Observable for the list of levels */
     public readonly level_list = this._levels.asObservable();
+    /** Observable for the currently active region */
+    public readonly active_region = this._active_region.asObservable();
     /** Observable for the currently active building */
     public readonly active_building = this._active_building.asObservable();
     /** Observable for the buildings associated with the currently active region */
     public readonly active_buildings = combineLatest([
         this._buildings,
         this._active_region,
-    ]).pipe(map(([_, region]) => (region ? this.buildingsForRegion(region) : [])));
+    ]).pipe(map(([_, region]) => (region ? this.buildingsForRegion(region) : this.buildings)));
     /** Observable for the levels associated with the currently active building */
     public readonly active_levels = combineLatest([
         this._levels,

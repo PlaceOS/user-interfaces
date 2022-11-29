@@ -155,7 +155,7 @@ export class SpaceFiltersComponent {
     public readonly options = this._event_form.options;
 
     public readonly building = this._org.active_building;
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels
     public readonly features = combineLatest([
         this._spaces.features,

@@ -43,6 +43,7 @@ import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';
 import { LanguageSelectComponent } from './language-tooltip.component';
+import { RegionSelectComponent } from './region-select.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -54,6 +55,7 @@ const COMPONENTS: Type<any>[] = [
     FooterMenuComponent,
     UserControlsComponent,
     BuildingSelectComponent,
+    RegionSelectComponent,
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
     SupportTicketModalComponent,
