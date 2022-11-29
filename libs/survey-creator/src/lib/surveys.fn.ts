@@ -42,3 +42,15 @@ export function createSurvey(data: any) {
         })
     );
 }
+
+/**
+ * Delete a survey from the database
+ */
+export function deleteSurvey(data: any) {
+    return del(`${SURVEYS_ENDPOINT}`, data).pipe(
+        map((item) => item),
+        catchError((err) => {
+            throw 'new error' + err;
+        })
+    );
+}
