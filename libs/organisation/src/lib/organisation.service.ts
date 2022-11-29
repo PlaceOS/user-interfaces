@@ -7,8 +7,8 @@ import {
     queryZones,
     showMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { catchError, first, map } from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -258,7 +258,7 @@ export class OrganisationService {
             parent_id: this._organisation?.id || '',
             limit: 500,
         } as any)
-            .pipe(map((i) => i.data))
+            .pipe(map((i) => i.data), catchError(() => of([])))
             .toPromise();
         const regions = [];
         for (const item of list) {
