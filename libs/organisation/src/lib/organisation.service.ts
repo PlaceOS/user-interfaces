@@ -292,7 +292,7 @@ export class OrganisationService {
     ): Promise<Building[]> {
         const building_list = await queryZones({
             tags: 'building',
-            parent_id: this._organisation?.id || '',
+            parent_id,
             limit: 500,
         } as any)
             .pipe(map((i) => i.data))
