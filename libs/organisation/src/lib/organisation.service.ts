@@ -48,7 +48,11 @@ export class OrganisationService {
     public readonly active_buildings = combineLatest([
         this._buildings,
         this._active_region,
-    ]).pipe(map(([_, region]) => (region ? this.buildingsForRegion(region) : this.buildings)));
+    ]).pipe(
+        map(([_, region]) =>
+            region ? this.buildingsForRegion(region) : this.buildings
+        )
+    );
     /** Observable for the levels associated with the currently active building */
     public readonly active_levels = combineLatest([
         this._levels,
@@ -112,7 +116,10 @@ export class OrganisationService {
     public set region(item: Region) {
         if (!item) return;
         this._active_region.next(item);
-        if (this.building?.parent_id !== item.id && this.buildingsForRegion(item).length) {
+        if (
+            this.building?.parent_id !== item.id &&
+            this.buildingsForRegion(item).length
+        ) {
             this.building = this.buildingsForRegion(item)[0];
         } else this._updateSettingOverrides();
     }
@@ -130,7 +137,9 @@ export class OrganisationService {
         this._active_building.next(bld);
         this._updateSettingOverrides();
         if (this.regions.length && this.region?.id !== bld.parent_id) {
-            this.region = this.regions.find(_ => _.id === this.building.parent_id);
+            this.region = this.regions.find(
+                (_) => _.id === this.building.parent_id
+            );
         }
     }
 
@@ -272,7 +281,10 @@ export class OrganisationService {
             parent_id: this._organisation?.id || '',
             limit: 500,
         } as any)
-            .pipe(map((i) => i.data), catchError(() => of([])))
+            .pipe(
+                map((i) => i.data),
+                catchError(() => of([]))
+            )
             .toPromise();
         const regions = [];
         for (const item of list) {
@@ -422,11 +434,11 @@ export class OrganisationService {
         if (!this.buildings.length) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
-            this.building =
-                this.buildings.find(({ id }) => id === bld_id);
+            this.building = this.buildings.find(({ id }) => id === bld_id);
         } else {
+            const timezone = this.timezone;
             for (const bld of this.buildings) {
-                if (bld.timezone === this.timezone) {
+                if (bld.timezone === timezone) {
                     this.building = bld;
                     break;
                 }

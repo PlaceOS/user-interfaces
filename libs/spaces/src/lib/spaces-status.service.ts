@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BaseClass, HashMap } from '@placeos/common';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { filter, first, map, shareReplay } from 'rxjs/operators';
 import { SpacesService } from './spaces.service';
 
 export interface SpaceStates {
@@ -18,6 +19,17 @@ export class SpacesStatusService extends BaseClass {
     /** Observable of statuses of spaces */
     public readonly list_status = this._list_status.asObservable();
 
+    public readonly building_spaces = combineLatest([
+        this._spaces.list,
+        this._org.active_building,
+    ]).pipe(
+        filter(([_]) => !!_),
+        map(([list, bld]) =>
+            list.filter((_) => !bld || _.zones.includes(bld.id))
+        ),
+        shareReplay(1)
+    );
+
     public readonly list_free_spaces = combineLatest([
         this._spaces.list,
         this.list_status,
@@ -27,7 +39,10 @@ export class SpacesStatusService extends BaseClass {
         )
     );
 
-    constructor(private _spaces: SpacesService) {
+    constructor(
+        private _spaces: SpacesService,
+        private _org: OrganisationService
+    ) {
         super();
         this._init();
     }
@@ -35,10 +50,15 @@ export class SpacesStatusService extends BaseClass {
     private async _init() {
         await this._spaces.initialised.pipe(first()).toPromise();
         // bind property
-        this._spaces.list.pipe(filter((_) => !!_)).subscribe((list) => {
-            const list_ids = list.map((_) => _.id);
-            list_ids.forEach((e) => this.bindTo(e, 'status'));
-        });
+        this.subscription(
+            'space_list',
+            this.building_spaces.subscribe((l) => {
+                const spaces = l.map((_) => _.id);
+                this.unsubWith('listen:');
+                this.unsubWith('bind:');
+                spaces.forEach((id) => this.bindTo(id, 'status'));
+            })
+        );
         this._initialised.next(true);
     }
 
