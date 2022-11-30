@@ -241,7 +241,7 @@ export class InviteVisitorFormComponent extends BaseClass {
     public sent = false;
     public booking?: Booking;
     public readonly loading = this._service.loading;
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = this._org.active_buildings;
     public readonly last_success = this._service.last_success;
     public visitors = [];
     public filtered_visitors = [];
