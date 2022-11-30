@@ -24,7 +24,7 @@ import { getModule } from '@placeos/ts-client';
                 <i
                     binding
                     [(model)]="room_status"
-                    [sys]="event.space.id"
+                    [sys]="event.system?.id"
                     mod="Bookings"
                     bind="status"
                 ></i>
@@ -105,10 +105,11 @@ import { getModule } from '@placeos/ts-client';
                             class="flex-1 h-10"
                             *ngIf="
                                 event.can_check_in &&
-                                room_status !== 'available'
+                                room_status !== 'free'
                             "
                             [class.bg-green-600]="room_status !== 'pending'"
                             [class.border-none]="room_status !== 'pending'"
+                            [class.pointer-events-none]="room_status !== 'pending'"
                             (click)="checkin()"
                         >
                             <div
@@ -392,7 +393,7 @@ export class EventDetailsModalComponent {
     }
 
     public async checkin() {
-        const mod = getModule(this.event.space.id, 'Bookings');
+        const mod = getModule(this.space?.id, 'Bookings');
         if (!mod) return;
         await mod
             .execute('checkin', [getUnixTime(this.event.date)])
