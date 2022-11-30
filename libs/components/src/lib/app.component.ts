@@ -33,6 +33,13 @@ import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 
 import * as Sentry from '@sentry/angular';
 import { MOCKS } from '@placeos/mocks';
+import {
+    Amazon,
+    Azure,
+    Google,
+    initialiseUploadService,
+    OpenStack,
+} from '@placeos/cloud-uploads';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -142,6 +149,17 @@ export class AppComponent extends BaseClass implements OnInit {
                 `@${currentUser()?.email?.split('@')[1]}`
         );
         initSentry(this._settings.get('app.sentry_dsn'));
+        if (this._settings.get('app.has_uploads')) {
+            this.timeout('init_uploads', () => {
+                initialiseUploadService({
+                    auto_start: true,
+                    token: token(),
+                    endpoint: '/api/files/v1/uploads',
+                    worker_url: 'assets/md5_worker.js',
+                    providers: [Amazon, Azure, Google, OpenStack] as any,
+                });
+            });
+        }
     }
 
     private onInitError() {

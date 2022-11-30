@@ -183,7 +183,7 @@ export class DeskFiltersComponent {
     public can_close = false;
     public readonly options = this._state.options;
     public readonly features = this._state.features;
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
     public readonly form = this._state.form;
 

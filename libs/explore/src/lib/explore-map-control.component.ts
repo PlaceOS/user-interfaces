@@ -75,7 +75,7 @@ import { ExploreStateService } from './explore-state.service';
 })
 export class ExploreMapControlComponent extends BaseClass implements OnInit {
     /** List of available buildings */
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = this._org.active_buildings;
     /** Currently active building */
     public readonly building = this._org.active_building;
     /** List of availabel levels */

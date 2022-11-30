@@ -9,6 +9,7 @@ import { AccessibilityTooltipComponent } from './accessibility-tooltip.component
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
+import { RegionSelectComponent } from './region-select.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
 
 export interface AppLocale {
@@ -32,6 +33,31 @@ export interface AppLocale {
                 <div class="">{{ user?.name }}</div>
                 <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
             </div>
+            <div
+                customTooltip
+                *ngIf="(regions | async).length"
+                [content]="region_select"
+                class="relative"
+            >
+                <button mat-button class="clear w-full text-left h-[3.5rem]">
+                    <div class="flex items-center space-x-2 dark:text-white">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                        >
+                            <app-icon>layers</app-icon>
+                        </div>
+                        <div class="flex-1">
+                            {{
+                                (region | async)?.display_name ||
+                                    (region | async)?.name
+                            }}
+                        </div>
+                        <app-icon class="opacity-60 text-2xl">
+                            chevron_right
+                        </app-icon>
+                    </div>
+                </button>
+            </div>
             <div customTooltip [content]="building_select" class="relative">
                 <button mat-button class="clear w-full text-left h-[3.5rem]">
                     <div class="flex items-center space-x-2 dark:text-white">
@@ -46,9 +72,9 @@ export interface AppLocale {
                                     (building | async)?.name
                             }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
-                        >
+                        <app-icon class="opacity-60 text-2xl">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
@@ -167,7 +193,10 @@ export interface AppLocale {
 })
 export class UserControlsComponent {
     public readonly building = this._org.active_building;
+    public readonly region = this._org.active_region;
+    public readonly regions = this._org.region_list;
 
+    public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;
     public readonly help_tooltip = HelpTooltipComponent;
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
@@ -213,7 +242,11 @@ export class UserControlsComponent {
     }
 
     public async viewChangelog() {
-        const changelog = await (await fetch('https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md')).text();
+        const changelog = await (
+            await fetch(
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+            )
+        ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 }

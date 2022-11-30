@@ -70,6 +70,7 @@ const app = {
     general,
     guests: { vaccine_check: true },
     delegated: false,
+    has_uploads: true,
 };
 
 /**

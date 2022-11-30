@@ -3,7 +3,7 @@ import { CustomTooltipData } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
-    selector: 'building-select',
+    selector: 'region-select',
     template: `
         <div
             class="flex flex-col w-[18.5rem] rounded bg-white shadow p-2 relative -top-12 -right-1 dark:bg-neutral-700 dark:text-white"
@@ -13,36 +13,36 @@ import { OrganisationService } from '@placeos/organisation';
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="">
                     {{
-                        (building | async)?.display_name ||
-                            (building | async)?.name
+                        (region | async)?.display_name ||
+                            (region | async)?.name
                     }}
                 </div>
             </div>
             <div class="text-xs opacity-60 mb-4 px-2" i18n>
-                Select a building location
+                Select a region
             </div>
             <mat-radio-group
-                [ngModel]="(building | async)?.id"
+                [ngModel]="(region | async)?.id"
                 class="flex flex-col space-y-2 px-2"
             >
                 <mat-radio-button
-                    *ngFor="let bld of buildings | async"
-                    [value]="bld.id"
-                    (click)="setBuilding(bld)"
+                    *ngFor="let item of regions | async"
+                    [value]="item.id"
+                    (click)="setRegion(item)"
                 >
-                    {{ bld.display_name || bld.name }}
+                    {{ item.display_name || item.name }}
                 </mat-radio-button>
             </mat-radio-group>
         </div>
     `,
     styles: [``],
 })
-export class BuildingSelectComponent {
-    public readonly buildings = this._org.active_buildings;
-    public readonly building = this._org.active_building;
+export class RegionSelectComponent {
+    public readonly regions = this._org.region_list;
+    public readonly region = this._org.active_region;
 
-    public readonly setBuilding = (b) => {
-        this._org.building = b;
+    public readonly setRegion = (i) => {
+        this._org.region = i;
         this._data?.close();
     };
 

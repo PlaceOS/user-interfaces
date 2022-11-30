@@ -561,6 +561,11 @@
                                 "input": "node_modules/@placeos/ts-client/dist/",
                                 "output": "/"
                             },
+                            {
+                                "input": "node_modules/ts-md5/dist/",
+                                "output": "/assets",
+                                "glob": "*worker.js"
+                            },
                             "apps/concierge/src/manifest.webmanifest"
                         ],
                         "styles": [

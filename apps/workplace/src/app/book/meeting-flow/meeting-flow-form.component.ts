@@ -176,7 +176,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             ></catering-list-field>
                         </div>
                     </section>
-                    <section class="p-2">
+                    <section class="p-2" *ngIf="has_assets">
                         <h3 class="space-x-2 flex items-center">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -210,7 +210,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering ? '5' : '6' }}
+                                {{ !has_catering || !has_assets ? !has_catering && !has_assets ? '4' : '5' : '6' }}
                             </div>
                             <div class="text-xl" i18n>Notes</div>
                         </h3>
@@ -269,6 +269,10 @@ export class MeetingFlowFormComponent extends BaseClass {
             !!this._settings.get('app.events.catering_enabled') ||
             !!this._settings.get('app.events.has_catering')
         );
+    }
+
+    public get has_assets() {
+        return !!this._settings.get('app.events.has_assets')
     }
 
     public get hide_notes() {

@@ -10,6 +10,7 @@ import { startOfMinute } from 'date-fns';
         <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-900">
             <div
                 class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-200 dark:border-neutral-700"
+                *ngIf="!hide_landing_sidebar"
             >
                 <div class="flex items-center divide-x divide-gray-300">
                     <button
@@ -119,6 +120,10 @@ export class LandingComponent {
 
     public get building() {
         return this._org.building;
+    }
+
+    public get hide_landing_sidebar() {
+        return this._settings.get('app.general.hide_landing_sidebar');
     }
 
     public get hide_colleagues() {

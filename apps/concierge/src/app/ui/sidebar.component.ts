@@ -71,7 +71,7 @@ export class SidebarComponent {
         return this._settings.get('app.logo_dark') || {};
     }
 
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = this._org.active_buildings;
     public readonly active_building = this._org.active_building;
     public readonly setBuilding = (b) => (this._org.building = b);
 

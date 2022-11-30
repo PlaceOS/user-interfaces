@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { addMinutes, format, formatDuration } from 'date-fns';
+import { addMinutes, format, formatDuration, getUnixTime } from 'date-fns';
 
 import { CalendarEvent } from './event.class';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
@@ -8,8 +8,9 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { SettingsService } from '@placeos/common';
+import { notifyError, SettingsService } from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
+import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'event-details-modal',
@@ -20,6 +21,13 @@ import { Space } from 'libs/spaces/src/lib/space.class';
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
             >
+                <i
+                    binding
+                    [(model)]="room_status"
+                    [sys]="event.system?.id"
+                    mod="Bookings"
+                    bind="status"
+                ></i>
                 <div
                     class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
                     *ngIf="event?.system?.images?.length"
@@ -29,7 +37,11 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                         class="w-full h-64"
                     ></image-carousel>
                 </div>
-                <h3 title class="px-3 mt-2 text-xl font-medium w-full" [class.pt-4]="!event?.system?.images?.length">
+                <h3
+                    title
+                    class="px-3 mt-2 text-xl font-medium w-full"
+                    [class.pt-4]="!event?.system?.images?.length"
+                >
                     {{ event.title }}
                 </h3>
                 <div class="sm:flex items-center justify-between w-full">
@@ -88,18 +100,35 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                         class="flex items-center space-x-2 px-2"
                         *ngIf="event.state !== 'done'"
                     >
-                        <!-- <button
+                        <button
                             mat-button
                             class="flex-1 h-10"
-                            *ngIf="event.can_check_in"
+                            *ngIf="
+                                event.can_check_in &&
+                                room_status !== 'free'
+                            "
+                            [class.bg-green-600]="room_status !== 'pending'"
+                            [class.border-none]="room_status !== 'pending'"
+                            [class.pointer-events-none]="room_status !== 'pending'"
+                            (click)="checkin()"
                         >
                             <div
                                 class="flex items-center space-x-2 justify-center"
                             >
-                                <app-icon>arrow_back</app-icon>
-                                <div class="mr-4" i18n>Checked in</div>
+                                <app-icon>{{
+                                    room_status === 'pending'
+                                        ? 'arrow_back'
+                                        : 'done'
+                                }}</app-icon>
+                                <div class="mr-4" i18n>
+                                    {{
+                                        room_status === 'pending'
+                                            ? 'Check in'
+                                            : 'Checked in'
+                                    }}
+                                </div>
                             </div>
-                        </button> -->
+                        </button>
                         <button
                             mat-icon-button
                             [matMenuTriggerFor]="menu"
@@ -115,7 +144,9 @@ import { Space } from 'libs/spaces/src/lib/space.class';
                 <div
                     class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>Details</h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
+                        Details
+                    </h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div>{{ event.date | date: 'EEEE, dd LLLL y' }}</div>
@@ -300,6 +331,8 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 export class EventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
+
+    public room_status = '';
     public show_attendees: boolean = false;
     public readonly event = this._event;
     public features = [
@@ -357,6 +390,14 @@ export class EventDetailsModalComponent {
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
         return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+    }
+
+    public async checkin() {
+        const mod = getModule(this.space?.id, 'Bookings');
+        if (!mod) return;
+        await mod
+            .execute('checkin', [getUnixTime(this.event.date)])
+            .catch((e) => notifyError(`Error checking in booking. ${e}`));
     }
 
     private async _load() {
