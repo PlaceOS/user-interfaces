@@ -107,7 +107,8 @@ import { getModule } from '@placeos/ts-client';
                                 event.can_check_in &&
                                 room_status !== 'available'
                             "
-                            [class.bg-green-600]="room_status !== pending"
+                            [class.bg-green-600]="room_status !== 'pending'"
+                            [class.border-none]="room_status !== 'pending'"
                             (click)="checkin()"
                         >
                             <div

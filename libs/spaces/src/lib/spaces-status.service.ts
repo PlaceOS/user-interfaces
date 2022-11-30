@@ -6,10 +6,6 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, first, map, shareReplay } from 'rxjs/operators';
 import { SpacesService } from './spaces.service';
 
-export interface SpaceStates {
-    status: string;
-}
-
 @Injectable({
     providedIn: 'root',
 })
@@ -63,12 +59,11 @@ export class SpacesStatusService extends BaseClass {
     }
 
     /** List to binding */
-    private bindTo<K extends keyof SpaceStates>(
+    private bindTo<T>(
         id: string,
         name: string,
         mod: string = 'Bookings',
-        on_change: (v: SpaceStates[K]) => void = (v) =>
-            this.updateProperty(id, name, v)
+        on_change: (v: T) => void = (v) => this.updateProperty(id, name, v)
     ) {
         const binding = getModule(id, mod).binding(name);
         this.subscription(
@@ -79,15 +74,11 @@ export class SpacesStatusService extends BaseClass {
     }
 
     /** Update properties of the system data */
-    private updateProperty<K extends keyof SpaceStates>(
-        id: string,
-        name: string,
-        value: SpaceStates[K]
-    ) {
+    private updateProperty<T>(id: string, name: string, value: T) {
         if (!value) return;
         const lists = { ...this._list_status.getValue() };
-        let item = lists[id] || {};
-        lists[id] = item[name] = value;
+        if (!lists[id]) lists[id] = {};
+        lists[id][name] = value;
         this._list_status.next(lists);
     }
 }
