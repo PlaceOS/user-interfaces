@@ -18,7 +18,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { flatten } from '@placeos/common';
+import { flatten, log } from '@placeos/common';
 
 @Injectable({
     providedIn: 'root',
@@ -228,6 +228,10 @@ export class OrganisationService {
         } else {
             this._buildings.next(await this.loadBuildings());
         }
+        if (!this._buildings.getValue()?.length) {
+            log('ORG', 'Unable to find any building zones');
+            this._router.navigate(['/misconfigured']);
+        }
         await this.loadLevels();
         await this.loadSettings();
     }
@@ -250,6 +254,7 @@ export class OrganisationService {
             )?.details;
             this._organisation = new Organisation({ ...org, bindings });
         } else {
+            log('ORG', 'Unable to find organisation');
             this._router.navigate(['/misconfigured']);
         }
     }
@@ -288,9 +293,6 @@ export class OrganisationService {
         } as any)
             .pipe(map((i) => i.data))
             .toPromise();
-        if (!building_list?.length) {
-            this._router.navigate(['/misconfigured']);
-        }
         const buildings = [];
         for (const bld of building_list) {
             const bindings: Record<string, any> = (
