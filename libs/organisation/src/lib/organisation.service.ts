@@ -134,6 +134,10 @@ export class OrganisationService {
         }
     }
 
+    public get timezone() {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
+
     public get currency_code(): string {
         return (
             this._service.get('app.currency') || this.building.currency || 'USD'
@@ -417,8 +421,18 @@ export class OrganisationService {
     private _setDefaultBuilding() {
         if (!this.buildings.length) return;
         const bld_id = this._service.get('app.default_building');
-        this.building =
-            this.buildings.find(({ id }) => id === bld_id) || this.buildings[0];
+        if (bld_id) {
+            this.building =
+                this.buildings.find(({ id }) => id === bld_id);
+        } else {
+            for (const bld of this.buildings) {
+                if (bld.timezone === this.timezone) {
+                    this.building = bld;
+                    break;
+                }
+            }
+        }
+        if (!this.building) this.building = this.buildings[0];
     }
 
     private _updateSettingOverrides() {
