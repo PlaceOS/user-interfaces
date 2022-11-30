@@ -12,7 +12,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, getTime, getUnixTime, startOfDay } from 'date-fns';
 import {
     BaseClass,
     currentUser,
@@ -37,6 +37,8 @@ import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
+import { SpacesStatusService } from '@placeos/spaces';
+import { Booking } from '@placeos/bookings';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -111,6 +113,7 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
+
     public readonly features = this.spaces.pipe(
         map((l) => unique(flatten(l.map((_) => _.features))))
     );
@@ -143,7 +146,7 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
-    public readonly available_spaces: Observable<Space[]> = combineLatest([
+    public readonly available_spaces_old: Observable<Space[]> = combineLatest([
         this.filtered_spaces,
         this._form.valueChanges,
     ]).pipe(
@@ -190,6 +193,52 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
+    public readonly available_spaces: Observable<Space[]> = combineLatest([
+        this.filtered_spaces,
+        this._form.valueChanges,
+        this._spacesStatus.list_bookings
+    ]).pipe(
+        // filter(() => !this._loading.getValue()),
+        tap(v => console.log("PRE avail_ws", v)),
+        debounceTime(300),
+        map(([spaces,form,bookingsMap]) => {
+            if (!spaces.length) return [];
+            console.log(`booking hash `, bookingsMap);
+            const { date, duration, all_day } = form;
+            const start = all_day? getUnixTime(startOfDay(date)) : getUnixTime(date);
+            const end = all_day? getUnixTime(endOfDay(date)) : getUnixTime(date + duration * MINUTES);
+            console.log("request date",start, end, form);
+            //Filter available spaces
+            const available = spaces.filter( e => {
+                const bookings:Booking[] = bookingsMap[e.id];
+                if(bookings?.length){
+                    //Check any bookings within requested time
+                    return !bookings.find(e => {
+                        // console.log("checking booking ", e);
+                        if(e.all_day){
+                            const reqDay = startOfDay(date).getTime();
+                            const bookingDay = startOfDay(e.booking_start * 1000).getTime();
+                            console.log("all day comp", reqDay, bookingDay);
+                            return reqDay === bookingDay;
+                        }
+                        //return clashing
+                        return (start < e.booking_start && end > e.booking_start)
+                    });
+                }
+                return true;
+            });
+            console.log("Available spaces ", available, start, end);
+            return available.filter(
+                (space) =>
+                    !space.availability?.length ||
+                    space.availability?.find((_) => _.status !== 'busy')
+            );
+
+        }),
+        // tap((_) => this._loading.next('')),
+        shareReplay(1)
+    );
+
     public get view() {
         return this._view.getValue();
     }
@@ -213,6 +262,7 @@ export class EventFormService extends BaseClass {
         private _router: Router,
         private _payments: PaymentsService,
         private _settings: SettingsService,
+        private _spacesStatus: SpacesStatusService,
         private _dialog: MatDialog
     ) {
         super();

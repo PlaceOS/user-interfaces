@@ -52,11 +52,13 @@ export class SpacesStatusService extends BaseClass {
                 );
 
                 //Bookings binding
-                this.bindTo(sysId, 'bookings', 'Bookings', (v: Booking[]) => {
+                this.bindTo(sysId, 'bookings', 'Bookings', (v: any[]) => {
                     const addsys =
                         v?.map((e) => {
                             return new Booking({
                                 ...e,
+                                booking_start: e.event_start,
+                                booking_end: e.event_end,
                                 extension_data: { system: l },
                                 booking_type: 'room',
                             });
