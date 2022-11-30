@@ -4,7 +4,7 @@ import { catchError, map } from 'rxjs/operators';
 import { Asset } from './asset.class';
 import { Observable, of } from 'rxjs';
 
-const ASSET_ENDPOINT = '/api/engine/v1/assets';
+const ASSET_ENDPOINT = '/api/engine/v2/assets';
 
 /**
  * Query the list of available assets
