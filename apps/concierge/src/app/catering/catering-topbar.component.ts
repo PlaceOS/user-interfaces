@@ -14,11 +14,15 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
         >
             <mat-form-field appearance="outline">
                 <mat-select
-                    multiple
-                    [(ngModel)]="zones"
-                    (ngModelChange)="updateZones($event)"
+                    [(ngModel)]="zones[0]"
+                    (ngModelChange)="updateZones([$event])"
                     placeholder="All Levels"
                 >
+                    <mat-option
+                        [value]="building?.id"
+                    >
+                        All Levels
+                    </mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
@@ -55,6 +59,8 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
     public zones: string[] = [];
     /** Currently active page */
     public page: string;
+    /** Active Building */
+    public get building() { return this._org.building; }
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** Set filtered date */
@@ -67,6 +73,7 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
             queryParams: { zone_ids: z.join(',') },
         });
         this._orders.filters = { ...this._orders.filters, zones: [z] };
+        this._catering.zone = z[0] || this._catering.zone;
     };
 
     public readonly addItem = () => this._catering.addItem();
@@ -85,6 +92,7 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._catering.zone = (this._orders.filters?.zones || [])[0] || this._org.building?.id;
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { unique } from '@placeos/common';
 
 import { CateringItem } from './catering-item.class';
 import { CateringStateService } from './catering-state.service';
@@ -11,6 +12,11 @@ import { CateringOption } from './catering.interfaces';
             class="w-full h-full bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 overflow-hidden rounded"
         >
             <div item class="flex items-center px-2" *ngIf="item">
+                <mat-checkbox
+                    class="mr-2"
+                    matTooltip="Allow Ordering Item"
+                    [(ngModel)]="is_enabled"
+                ></mat-checkbox>
                 <div class="flex items-center p-2 flex-1">
                     <div class="flex-1">
                         <div>{{ item.name }}</div>
@@ -24,7 +30,11 @@ import { CateringOption } from './catering.interfaces';
                         {{ item.unit_price / 100 | currency: (symbol | async) }}
                     </div>
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="menu">
+                <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="menu"
+                    *ngIf="can_edit"
+                >
                     <app-icon>more_vert</app-icon>
                 </button>
                 <button
@@ -46,8 +56,10 @@ import { CateringOption } from './catering.interfaces';
                 <div
                     class="flex p-2 items-center border-t border-solid border-gray-300 dark:border-neutral-500 relative"
                     *ngFor="let option of item.options"
-                >   
-                    <div class="absolute inset-y-0 left-0 w-2 bg-gray-400 dark:bg-neutral-600"></div>
+                >
+                    <div
+                        class="absolute inset-y-0 left-0 w-2 bg-gray-400 dark:bg-neutral-600"
+                    ></div>
                     <div class="flex-1 pl-4 pr-2">
                         <div class="text">{{ option.name }}</div>
                         <div class="text-xs opacity-60">
@@ -59,6 +71,7 @@ import { CateringOption } from './catering.interfaces';
                         mat-icon-button
                         class="mx-2"
                         (click)="editOption(option)"
+                        *ngIf="can_edit"
                     >
                         <app-icon>edit</app-icon>
                     </button>
@@ -67,6 +80,7 @@ import { CateringOption } from './catering.interfaces';
                         mat-icon-button
                         class="mx-2"
                         (click)="removeOption(option)"
+                        *ngIf="can_edit"
                     >
                         <app-icon>delete</app-icon>
                     </button>
@@ -136,6 +150,23 @@ export class CateringMenuItemComponent {
     public readonly editItem = () => this._catering.addItem(this.item);
 
     public readonly removeItem = () => this._catering.deleteItem(this.item);
+
+    public get can_edit() {
+        return this._catering.is_editable;
+    }
+
+    public get is_enabled() {
+        return !this.item.hide_for_zones.includes(this._catering.zone);
+    }
+
+    public set is_enabled(state: boolean) {
+        let list = this.item.hide_for_zones;
+        if (!state) list = unique([...list, this._catering.zone]);
+        else list = list.filter((_) => _ !== this._catering.zone);
+        this._catering.updateItem(
+            new CateringItem({ ...this.item, hide_for_zones: list })
+        );
+    }
 
     /** Currency symbol for active menu */
     public get symbol() {
