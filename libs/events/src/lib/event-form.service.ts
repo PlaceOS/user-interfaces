@@ -101,6 +101,7 @@ export class EventFormService extends BaseClass {
         // switchMap(([{ zone_ids }]) => {
         //     this._loading.next('Loading space list for location...');
         //     if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+        //     console.log("spaces zone ids", zone_ids);
         //     return forkJoin(
         //         zone_ids.map(
         //             (_) =>
@@ -120,8 +121,8 @@ export class EventFormService extends BaseClass {
                         return true;
                     }
                 }
+                return false;
             })
-
         }),
         tap((_) => this._loading.next('')),
         shareReplay(1)

@@ -47,7 +47,7 @@ export class ScheduleStateService extends BaseClass {
         this._spacesState.list_status,
         this._date
     ]).pipe(
-        tap(v => console.log("PRE - myevents ", v)),
+        // tap(v => console.log("PRE - myevents ", v)),
         map( ([bookingsHash, date]) => {
             const end = getUnixTime(endOfDay(date));
             const user = currentUser();
@@ -55,7 +55,7 @@ export class ScheduleStateService extends BaseClass {
 
             let events = [];
             const bookings = Object.values(bookingsHash).filter(e => !!e?.bookings?.length);
-            bookings.forEach(e => events = events.concat(e));
+            bookings.forEach(e => events = events.concat(e.bookings));
             events = events.map(e => newCalendarEventFromBooking(e));
             return events.filter((e:CalendarEvent) => {
                 const attendees = e.attendees.map(a => a.email.toLowerCase());
@@ -63,7 +63,7 @@ export class ScheduleStateService extends BaseClass {
             })
 
         }),
-        tap(v => console.log("POST - myevents ", v)),
+        // tap(v => console.log("POST - myevents ", v)),
         shareReplay(1),
     )
     /** List of desk bookings for the selected date */
