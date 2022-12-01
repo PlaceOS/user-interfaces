@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1669785506342,
+  "timestamp": 1669871710920,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -111,6 +111,9 @@
         "./assets/img/skyline.jpg",
         "./assets/img/stairs.svg",
         "./assets/js/instascan.min.js",
+        "./assets/locale/en.json",
+        "./assets/locale/fr.json",
+        "./assets/locale/pt.json",
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_1.svg",
@@ -134,7 +137,7 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "7da12751a2af9d0a3b88f82617600d5b5b938f22",
+    "./apps_visitor-kiosk_src_app_checkin_checkin_module_ts.js": "c3730e92c5f28b3d0852ed7852501286ac509fcc",
     "./apps_visitor-kiosk_src_app_explore_explore_module_ts.js": "1e1485c6d6db78762bab8784e865e33c01b3b28b",
     "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
@@ -212,6 +215,9 @@
     "./assets/img/skyline.jpg": "4ccbd85616d840a7674ecd4d53e36d0085d574f4",
     "./assets/img/stairs.svg": "7a0c56a6be12318368aa8a174812502fecc4b247",
     "./assets/js/instascan.min.js": "8ac89054c1758a60574c5e2b2689d0da83ae6f5b",
+    "./assets/locale/en.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
+    "./assets/locale/fr.json": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+    "./assets/locale/pt.json": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -229,13 +235,13 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "7fb73b0ee52d64a03e37656079c6f9130cba09f8",
-    "./main.js": "b6541ac4c7983cc7408b36a47328c1a816ebd9af",
+    "./main.js": "f62691b43560515975d2758ba3a24fce0031ba1d",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "3603a8552aec221408b8f4094f5af662b1e68a70",
     "./polyfills.js": "c4fdd05a75382cf27e0f425306c414faabeb220e",
     "./runtime.js": "33ff0b24afb25fe8de7ec1d6c40774973ab7011a",
     "./styles.css": "625bdb876b980cfc888c6392e4c3c8344023a54e",
-    "./vendor.js": "ef1ac30273e0a193133ccdce28cc4b1b8b3a8e1c"
+    "./vendor.js": "0901a6f03f0c9a5e59b04cd7985d7ca14273276b"
   },
   "navigationUrls": [
     {
