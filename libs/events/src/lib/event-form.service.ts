@@ -91,24 +91,38 @@ export class EventFormService extends BaseClass {
 
     public readonly spaces = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
-        this._org.active_building.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id')
-        ),
+        this._spacesStatus.building_spaces
+        // this._org.active_building.pipe(
+        //     filter((_) => !!_),
+        //     distinctUntilKeyChanged('id')
+        // ),
     ]).pipe(
         debounceTime(300),
-        switchMap(([{ zone_ids }]) => {
+        // switchMap(([{ zone_ids }]) => {
+        //     this._loading.next('Loading space list for location...');
+        //     if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+        //     return forkJoin(
+        //         zone_ids.map(
+        //             (_) =>
+        //                 querySystems({ zone_id: _ }).pipe(map((_) => _.data)),
+        //             catchError((_) => of([]))
+        //         )
+        //     );
+        // }),
+        // map((l) => flatten(l).map((_) => new Space(_ as any))),
+        map(([{zone_ids},spaces]) => {
             this._loading.next('Loading space list for location...');
-            if (!zone_ids?.length) zone_ids = [this._org.building?.id];
-            return forkJoin(
-                zone_ids.map(
-                    (_) =>
-                        querySystems({ zone_id: _ }).pipe(map((_) => _.data)),
-                    catchError((_) => of([]))
-                )
-            );
+            if (!zone_ids?.length) return spaces;
+
+            return spaces.filter(e => {
+                for(let i = 0; i < zone_ids.length; i++){
+                    if((e.zones || []).includes(zone_ids[i])){
+                        return true;
+                    }
+                }
+            })
+
         }),
-        map((l) => flatten(l).map((_) => new Space(_ as any))),
         tap((_) => this._loading.next('')),
         shareReplay(1)
     );
@@ -196,29 +210,25 @@ export class EventFormService extends BaseClass {
     public readonly available_spaces: Observable<Space[]> = combineLatest([
         this.filtered_spaces,
         this._form.valueChanges,
-        this._spacesStatus.list_bookings
+        this._spacesStatus.list_status
     ]).pipe(
-        // filter(() => !this._loading.getValue()),
-        tap(v => console.log("PRE avail_ws", v)),
         debounceTime(300),
         map(([spaces,form,bookingsMap]) => {
             if (!spaces.length) return [];
-            console.log(`booking hash `, bookingsMap);
             const { date, duration, all_day } = form;
             const start = all_day? getUnixTime(startOfDay(date)) : getUnixTime(date);
             const end = all_day? getUnixTime(endOfDay(date)) : getUnixTime(date + duration * MINUTES);
-            console.log("request date",start, end, form);
+
             //Filter available spaces
             const available = spaces.filter( e => {
-                const bookings:Booking[] = bookingsMap[e.id];
+                if(!e.bookable) return false;
+                const bookings:Booking[] = bookingsMap[e.id]?.bookings || [];
                 if(bookings?.length){
                     //Check any bookings within requested time
                     return !bookings.find(e => {
-                        // console.log("checking booking ", e);
                         if(e.all_day){
                             const reqDay = startOfDay(date).getTime();
                             const bookingDay = startOfDay(e.booking_start * 1000).getTime();
-                            console.log("all day comp", reqDay, bookingDay);
                             return reqDay === bookingDay;
                         }
                         //return clashing
@@ -227,7 +237,6 @@ export class EventFormService extends BaseClass {
                 }
                 return true;
             });
-            console.log("Available spaces ", available, start, end);
             return available.filter(
                 (space) =>
                     !space.availability?.length ||

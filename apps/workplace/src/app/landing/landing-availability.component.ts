@@ -118,7 +118,7 @@ import { LandingStateService } from './landing-state.service';
                     </div>
                 </button>
                 <span
-                    *ngIf="!(space_list | async).length"
+                    *ngIf="!(space_list | async)?.length"
                     class="opacity-60 text-sm mb-2"
                     i18n
                 >

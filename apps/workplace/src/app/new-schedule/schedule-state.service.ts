@@ -44,7 +44,7 @@ export class ScheduleStateService extends BaseClass {
     );
     /** WS bindings list of calendar events for the current user */
     public readonly myEvents = combineLatest([
-        this._spacesState.list_bookings,
+        this._spacesState.list_status,
         this._date
     ]).pipe(
         tap(v => console.log("PRE - myevents ", v)),
@@ -54,7 +54,7 @@ export class ScheduleStateService extends BaseClass {
             if(!user) return [];
 
             let events = [];
-            const bookings = Object.values(bookingsHash).filter(e => !!e && e.length);
+            const bookings = Object.values(bookingsHash).filter(e => !!e?.bookings?.length);
             bookings.forEach(e => events = events.concat(e));
             events = events.map(e => newCalendarEventFromBooking(e));
             return events.filter((e:CalendarEvent) => {

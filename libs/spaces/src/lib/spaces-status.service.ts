@@ -3,8 +3,8 @@ import { Booking } from '@placeos/bookings';
 import { BaseClass, HashMap } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { getModule } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, first, map, shareReplay } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { debounceTime, filter, first, map, shareReplay, tap } from 'rxjs/operators';
 import { SpacesService } from './spaces.service';
 
 @Injectable({
@@ -14,12 +14,9 @@ export class SpacesStatusService extends BaseClass {
     /** Subject to store statuses of spaces */
     private _list_status = new BehaviorSubject<HashMap>({});
     /** Subject to store bookings of spaces */
-    private _list_bookings = new BehaviorSubject<HashMap>({});
 
     /** Observable of statuses of spaces */
-    public readonly list_status = this._list_status.asObservable();
-    /** Observable of bookings of spaces */
-    public readonly list_bookings = this._list_bookings.asObservable();
+    public readonly list_status: Observable<HashMap> = this._list_status.asObservable();
 
     public readonly building_spaces = combineLatest([
         this._spaces.list,
@@ -33,12 +30,14 @@ export class SpacesStatusService extends BaseClass {
     );
 
     public readonly list_free_spaces = combineLatest([
-        this._spaces.list,
+        this.building_spaces,
         this.list_status,
     ]).pipe(
+        debounceTime(500),
         map(([list, list_status]) =>
-            list.filter((e) => list_status[e.id] === 'free')
-        )
+            list.filter((e) => list_status[e.id]?.status === 'free')
+        ),
+        shareReplay(1)
     );
 
     constructor(
@@ -50,38 +49,6 @@ export class SpacesStatusService extends BaseClass {
     }
 
     private async _init() {
-        // await this._spaces.initialised.pipe(first()).toPromise();
-        // // bind property
-        // this._spaces.list.pipe(filter((_) => !!_)).subscribe((list) => {
-        //     const list_ids = list.map((_) => _.id);
-        //     list.forEach((l) => {
-        //         const sysId = l.id;
-        //         //Status binding
-        //         this.bindTo(sysId, 'status', 'Bookings', (v) =>
-        //             this.updateProperty(sysId, 'status', v, this._list_status)
-        //         );
-
-        //         //Bookings binding
-        //         this.bindTo(sysId, 'bookings', 'Bookings', (v: any[]) => {
-        //             const addsys =
-        //                 v?.map((e) => {
-        //                     return new Booking({
-        //                         ...e,
-        //                         booking_start: e.event_start,
-        //                         booking_end: e.event_end,
-        //                         extension_data: { system: l },
-        //                         booking_type: 'room',
-        //                     });
-        //                 }) || null;
-        //             this.updateProperty(
-        //                 sysId,
-        //                 'bookings',
-        //                 addsys,
-        //                 this._list_bookings
-        //             );
-        //         });
-        //     });
-        // });
 
         this.subscription(
             'space_list',
@@ -91,7 +58,7 @@ export class SpacesStatusService extends BaseClass {
                 this.unsubWith('bind:');
                 spaces.forEach((id) => {
                     // Status binding
-                    this.bindTo(id, 'status',(v:string) => this.updateProperty(id, 'status',v, this._list_status));
+                    this.bindTo(id, 'status');
 
                     //Bookings binding
                     this.bindTo(id, 'bookings', (v:any[]) => {
@@ -105,7 +72,7 @@ export class SpacesStatusService extends BaseClass {
                                 booking_type: 'room',
                             });
                         }) || null;
-                        this.updateProperty(id, 'bookings', addsys, this._list_bookings)
+                        this.updateProperty(id, 'bookings', addsys)
                     })
                 });
             })
@@ -117,7 +84,7 @@ export class SpacesStatusService extends BaseClass {
     private bindTo<T>(
         id: string,
         name: string,
-        on_change: (v: T) => void,
+        on_change: (v: T) => void = (v:T) => this.updateProperty(id,name,v),
         mod: string = 'Bookings'
     ) {
         const binding = getModule(id, mod).binding(name);
@@ -132,13 +99,14 @@ export class SpacesStatusService extends BaseClass {
     private updateProperty<T>(
         id: string,
         name: string,
-        value: T,
-        subject: BehaviorSubject<any>
+        value: T
     ) {
         if (!value) return;
-        const lists = { ...subject.getValue() };
+        const lists = { ...this._list_status.getValue() };
+        // let item = lists[id] || {};
+        // lists[id] = item[name] = value;
         if (!lists[id]) lists[id] = {};
         lists[id][name] = value;
-        subject.next(lists);
+        this._list_status.next(lists);
     }
 }
