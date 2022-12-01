@@ -11,7 +11,9 @@ import { ScheduleStateService } from './schedule-state.service';
             <button mat-icon-button (click)="dismiss()">
                 <app-icon>chevron_left</app-icon>
             </button>
-            <h2 class="flex-1 w-1/2 text-center font-medium" i18n>Booking Types</h2>
+            <h2 class="flex-1 w-1/2 text-center font-medium">
+                {{ 'WPA.BOOKING_TYPES' | translate }}
+            </h2>
             <app-icon></app-icon>
         </div>
         <div
@@ -28,9 +30,9 @@ import { ScheduleStateService } from './schedule-state.service';
                     <app-icon>meeting_room</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>Room</div>
-                    <div class="text-sm opacity-60" i18n>
-                        Room and meeting invites
+                    <div class="">{{ 'WPA.ROOM' | translate }}</div>
+                    <div class="text-sm opacity-60">
+                        {{ 'WPA.SCHEULD_ROOM_FILTER' | translate }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -50,8 +52,10 @@ import { ScheduleStateService } from './schedule-state.service';
                     <img src="assets/icons/desk-outline.svg" class="w-6" />
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>Desk</div>
-                    <div class="text-sm opacity-60" i18n>Desk bookings</div>
+                    <div class="">{{ 'WPA.DESK' | translate }}</div>
+                    <div class="text-sm opacity-60">
+                        {{ 'WPA.SCHEDULE_DESK_FILTER' | translate }}
+                    </div>
                 </div>
                 <mat-checkbox
                     [ngModel]="(filters | async)?.shown_types?.includes('desk')"
@@ -68,8 +72,10 @@ import { ScheduleStateService } from './schedule-state.service';
                     <app-icon>drive_eta</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>Parking</div>
-                    <div class="text-sm opacity-60" i18n>Car space bookings</div>
+                    <div class="">{{ 'WPA.PARKING' | translate }}</div>
+                    <div class="text-sm opacity-60">
+                        {{ 'WPA.SCHEDULE_PARKING_FILTER' | translate }}
+                    </div>
                 </div>
                 <mat-checkbox
                     [ngModel]="
@@ -88,8 +94,10 @@ import { ScheduleStateService } from './schedule-state.service';
                     <app-icon>people</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>Visitor</div>
-                    <div class="text-sm opacity-60" i18n>Visitor bookings</div>
+                    <div class="">{{ 'WPA.VISITORS' | translate }}</div>
+                    <div class="text-sm opacity-60">
+                        {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}s
+                    </div>
                 </div>
                 <mat-checkbox
                     [ngModel]="
@@ -99,8 +107,8 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
         </div>
         <div class="px-2 pb-2">
-            <button mat-button class="w-full" (click)="dismiss()" i18n>
-                Apply Filters
+            <button mat-button class="w-full" (click)="dismiss()">
+                {{ 'WPA.FILTERS_APPLY' | translate }}
             </button>
         </div>
     `,

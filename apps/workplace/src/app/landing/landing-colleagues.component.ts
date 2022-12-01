@@ -71,7 +71,7 @@ import { LandingStateService } from './landing-state.service';
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">today</app-icon>
-                            <div i18n>Create Meeting</div>
+                            <div>{{ "WPA.CREATE_MEETING" | translate }}</div>
                         </button>
                         <button
                             mat-menu-item
@@ -79,7 +79,7 @@ import { LandingStateService } from './landing-state.service';
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div i18n>Remove Colleague</div>
+                            <div>{{ "WPA.REMOVE_COLLEAGUE" | translate }}</div>
                         </button>
                         <!-- <button mat-menu-item (click)="viewUser(user)" class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">report</app-icon>
@@ -94,7 +94,7 @@ import { LandingStateService } from './landing-state.service';
             class="inverse w-[calc(100%-1rem)] m-2"
             (click)="openSearch()"
         >
-            Add
+        {{ "WPA.ADD" | translate }}
         </button>
         <div
             search
@@ -152,8 +152,7 @@ import { LandingStateService } from './landing-state.service';
             >
                 <img src="assets/icons/no-contacts.svg" />
                 <p class="opacity-60 text-sm text-center" i18n>
-                    You have no colleagues added. Please select the "Add" button
-                    to get started.
+                    {{ "WPA.COLLEAGUES_EMPTY" | translate }}
                 </p>
             </div>
         </ng-template>
@@ -177,7 +176,7 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="opacity-60 text-sm text-center" i18n>Searching users...</p>
+                <p class="opacity-60 text-sm text-center">{{ "WPA.COLLEAGUES_SEARCHING" | translate }}</p>
             </div>
         </ng-template>
     `,

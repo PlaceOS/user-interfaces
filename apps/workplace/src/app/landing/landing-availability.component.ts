@@ -10,16 +10,15 @@ import { LandingStateService } from './landing-state.service';
         <div class="py-2">
             <div
                 class="sm:text-lg font-medium mb-2 sm:mb-4 px-4"
-                i18n
                 *ngIf="!hide_rooms || !hide_spaces"
             >
-                Available Now
+                {{ 'WPA.AVAILABLE_NOW' | translate }}
             </div>
             <div
                 class="flex items-center text-sm sm:text-base px-4 space-x-2"
                 *ngIf="!hide_spaces"
             >
-                <div i18n>Spaces</div>
+                <div>{{ 'WPA.SPACES' | translate }}</div>
             </div>
             <div
                 class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
@@ -60,16 +59,15 @@ import { LandingStateService } from './landing-state.service';
                 <span
                     *ngIf="!(levels_free | async).length"
                     class="opacity-60 text-sm mb-2"
-                    i18n
                 >
-                    No free spaces
+                    {{ 'WPA.NO_FREE_SPACES' | translate }}
                 </span>
             </div>
             <div
                 class="flex items-center text-sm sm:text-base px-4 space-x-2"
                 *ngIf="!hide_rooms"
             >
-                <div i18n>Rooms</div>
+                <div>{{ 'WPA.ROOMS' | translate }}</div>
                 <mat-spinner
                     diameter="24"
                     *ngIf="loading_spaces | async"
@@ -120,9 +118,8 @@ import { LandingStateService } from './landing-state.service';
                 <span
                     *ngIf="!(space_list | async).length"
                     class="opacity-60 text-sm mb-2"
-                    i18n
                 >
-                    No free rooms
+                    {{ 'WPA.NO_FREE_ROOMS' | translate }}
                 </span>
             </div>
         </div>

@@ -31,10 +31,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-700"
-                    i18n
                 >
-                    { !!form.value.id, select, true { Edit } false { Book } }
-                    Meeting
+                    {{ !!form.value.id ? 'Edit' : 'Book' }}
+                    {{ 'WPA.BOOK_MEETING_HEADING' | translate }}
                 </h2>
                 <form
                     class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
@@ -47,7 +46,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 1
                             </div>
-                            <div class="text-xl" i18n>Details</div>
+                            <div class="text-xl">
+                                {{ 'WPA.DETAILS' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -79,15 +80,16 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 2
                             </div>
-                            <div class="text-xl" i18n>Attendees</div>
+                            <div class="text-xl">
+                                {{ 'FORM.ATTENDEES' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 matRipple
                                 class="bg-none underline text-xs text-blue-500"
                                 (click)="findAvailableTime()"
-                                i18n
                             >
-                                Availability
+                                {{ 'WPA.AVAILABILTY' | translate }}
                             </button>
                             <button
                                 mat-icon-button
@@ -120,7 +122,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 3
                             </div>
-                            <div class="text-xl" i18n>Room</div>
+                            <div class="text-xl">
+                                {{ 'WPA.ROOM' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -152,7 +156,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 4
                             </div>
-                            <div class="text-xl" i18n>Catering</div>
+                            <div class="text-xl">
+                                {{ 'WPA.CATERING' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -183,7 +189,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             >
                                 {{ !has_catering ? '4' : '5' }}
                             </div>
-                            <div class="text-xl" i18n>Assets</div>
+                            <div class="text-xl">
+                                {{ 'WPA.ASSETS' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 mat-icon-button
@@ -210,14 +218,22 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering || !has_assets ? !has_catering && !has_assets ? '4' : '5' : '6' }}
+                                {{
+                                    !has_catering || !has_assets
+                                        ? !has_catering && !has_assets
+                                            ? '4'
+                                            : '5'
+                                        : '6'
+                                }}
                             </div>
-                            <div class="text-xl" i18n>Notes</div>
+                            <div class="text-xl">
+                                {{ 'FORM.NOTES' | translate }}
+                            </div>
                         </h3>
                         <div class="w-full flex flex-col">
-                            <label for="notes" i18n
-                                >General information for attendees</label
-                            >
+                            <label for="notes">
+                                {{ 'WPA.NOTES_INFO' | translate }}
+                            </label>
                             <rich-text-input
                                 name="notes"
                                 formControlName="body"
@@ -233,19 +249,17 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
-                            i18n
                         >
-                            Confirm Meeting
+                            {{ 'WPA.CONFIRM_MEETING' | translate }}
                         </button>
                         <button
                             mat-button
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
-                            i18n
                         >
                             { !!form.value.id, select, true { Reset } false {
-                            Clear } } Form
+                            Clear } } {{ 'WPA.CLEAR_FORM' | translate }}
                         </button>
                     </section>
                 </form>
@@ -272,7 +286,7 @@ export class MeetingFlowFormComponent extends BaseClass {
     }
 
     public get has_assets() {
-        return !!this._settings.get('app.events.has_assets')
+        return !!this._settings.get('app.events.has_assets');
     }
 
     public get hide_notes() {

@@ -54,9 +54,14 @@ const EMPTY = [];
                     *ngFor="let item of spaces"
                 >
                     <div class="flex w-full items-center space-x-2 relative">
-                        <div class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5">
+                        <div
+                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5"
+                        >
                             <img
-                                *ngIf="(item | space | async)?.images?.length else space_placeholder"
+                                *ngIf="
+                                    (item | space | async)?.images?.length;
+                                    else space_placeholder
+                                "
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
                                 [src]="(item | space | async)?.images[0]"
                             />
@@ -103,9 +108,8 @@ const EMPTY = [];
                         mat-button
                         class="w-full inverse"
                         (click)="newSpaceMeeting(item)"
-                        i18n
                     >
-                        Book
+                        {{ 'WPA.BOOK' | translate }}
                     </button>
                     <button
                         mat-icon-button
@@ -120,7 +124,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
-                            <div i18n>View Details</div>
+                            <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
                         </button>
                         <button
                             mat-menu-item
@@ -128,7 +132,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div i18n>Remove Favourite</div>
+                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
                         </button>
                     </mat-menu>
                 </div>
@@ -138,16 +142,27 @@ const EMPTY = [];
                     *ngFor="let item of assets | async"
                 >
                     <div class="flex w-full items-center space-x-2 relative">
-                        <div class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5">
+                        <div
+                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5"
+                        >
                             <img
-                                *ngIf="item?.images?.length; else asset_placeholder"
+                                *ngIf="
+                                    item?.images?.length;
+                                    else asset_placeholder
+                                "
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
                                 [src]="item?.images[0]"
                             />
                             <ng-template #asset_placeholder>
                                 <img
                                     class="m-auto"
-                                    [src]="'assets/icons/' + (item.type === 'desk' ? 'desk' : 'car') + '-placeholder.svg'"
+                                    [src]="
+                                        'assets/icons/' +
+                                        (item.type === 'desk'
+                                            ? 'desk'
+                                            : 'car') +
+                                        '-placeholder.svg'
+                                    "
                                 />
                             </ng-template>
                         </div>
@@ -171,7 +186,7 @@ const EMPTY = [];
                         (click)="newBooking(item.type, item)"
                         i18n
                     >
-                        Book
+                        {{ 'WPA.BOOK' | translate }}
                     </button>
                     <button
                         mat-icon-button
@@ -186,7 +201,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
-                            <div i18n>View Details</div>
+                            <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
                         </button>
                         <button
                             mat-menu-item
@@ -194,7 +209,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div i18n>Remove Favourite</div>
+                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
                         </button>
                     </mat-menu>
                 </div>
@@ -205,9 +220,8 @@ const EMPTY = [];
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-favourites.svg" />
-                <p class="opacity-60 text-sm text-center" i18n>
-                    You have no favourites hearted. To add a favourites heart a
-                    room, desk or parking space.
+                <p class="opacity-60 text-sm text-center">
+                    {{ 'WPA.FAVOURITES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -240,7 +254,7 @@ export class LandingFavouritesComponent extends BaseClass {
                     .map((_) => ({ ..._, type: 'desk' })),
                 ...parking
                     .filter(({ id }) => this.parking_spaces.includes(id))
-                    .map((_) => ({ ..._, type: 'parking' }))
+                    .map((_) => ({ ..._, type: 'parking' })),
             ];
         }),
         shareReplay(1)

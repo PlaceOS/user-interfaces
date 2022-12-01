@@ -6,6 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
+import { HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,6 +39,11 @@ import { AppPanelViewModule } from './new-panel/panel-view.module';
 import { AppCheckinModule } from './checkin/checkin.module';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './assets/locale/', '.json');
+}
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -71,6 +80,14 @@ const MAT_MODULES: any[] = [
         PaymentsModule,
         AssetsModule,
         ...MAT_MODULES,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

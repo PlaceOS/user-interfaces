@@ -25,7 +25,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                         ) | safe
                     "
                 ></div>
-                <h3 class="text-4xl uppercase font-medium mt-4">Now</h3>
+                <h3 class="text-4xl uppercase font-medium mt-4">{{ "PANEL.NOW" | translate }}</h3>
                 <p class="text-2xl font-light mt-4">
                     {{ (event_state | async)?.current || 'No current event' }}
                 </p>
@@ -33,14 +33,14 @@ import { currentPeriod, nextPeriod } from './helpers';
                     class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
                     *ngIf="(state | async) === 'pending'"
                 >
-                    <p class="uppercase">Touch or scan to check-in</p>
+                    <p class="uppercase">{{ "PANEL.CHECKIN_INPUT" | translate }}</p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
                     class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
                     *ngIf="(state | async) === 'free' && can_book"
                 >
-                    <p class="uppercase">Touch or scan to book</p>
+                    <p class="uppercase">{{ "PANEL.BOOKING_INPUT" | translate }}</p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
             </div>
@@ -53,7 +53,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                             | safe
                     "
                 ></div>
-                <h3 class="text-4xl uppercase font-medium">Next</h3>
+                <h3 class="text-4xl uppercase font-medium">{{ "PANEL.NEXT" | translate }}</h3>
                 <p class="text-2xl font-light">
                     {{ (event_state | async)?.next || 'No upcoming events' }}
                 </p>

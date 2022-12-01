@@ -24,7 +24,7 @@ import { startOfMinute } from 'date-fns';
                         *ngIf="!hide_colleagues"
                     >
                         <app-icon>people</app-icon>
-                        <div i18n>Colleagues</div>
+                        <div>{{ 'WPA.COLLEAGUES' | uppercase | translate }}</div>
                     </button>
                     <button
                         matRipple
@@ -36,7 +36,7 @@ import { startOfMinute } from 'date-fns';
                         (click)="tab = 'fav'"
                     >
                         <app-icon>favorite</app-icon>
-                        <div i18n>Favourites</div>
+                        <div>{{ 'WPA.FAVOURITES' | translate }}</div>
                     </button>
                 </div>
                 <div class="flex-1 w-full h-1/2">
@@ -53,8 +53,8 @@ import { startOfMinute } from 'date-fns';
                     class="sticky top-0 z-50 bg-[#ECF0F3] dark:bg-zinc-800 px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
                 >
                     <div class="">
-                        <div class="sm:text-xl font-medium" i18n>
-                            Hello {{ user?.name }},
+                        <div class="sm:text-xl font-medium">
+                            {{ 'WPA.WELCOME_MESSAGE' | translate:{name:user?.name} }}
                         </div>
                         <div date class="text-sm sm:text-base">
                             {{ date | date: 'fullDate' }}
