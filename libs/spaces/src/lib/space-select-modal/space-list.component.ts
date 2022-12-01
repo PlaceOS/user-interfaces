@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { map } from 'rxjs/operators';
 import { Space } from '../space.class';
 
 @Component({
@@ -135,7 +136,9 @@ export class SpaceListComponent {
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
 
-    public readonly available_spaces = this._event_form.available_spaces;
+    public readonly available_spaces = this._event_form.available_spaces.pipe(
+        map(spaces => spaces.sort((a,b) => (a.capacity < b.capacity) ? -1 : (a.capacity === b.capacity) ? 0 : 1 ))
+    );
     public readonly loading = this._event_form.loading;
 
     constructor(private _event_form: EventFormService) {}
