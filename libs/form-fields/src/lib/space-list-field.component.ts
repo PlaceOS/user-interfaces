@@ -23,13 +23,13 @@ const EMPTY_FAVS: string[] = [];
                             [ngModelOptions]="{ standalone: true }"
                         >
                             <mat-radio-button [value]="1" i18n>
-                                1-2 People
+                                Min. 2 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="3" i18n>
-                                3-9 People
+                            <mat-radio-button [value]="4" i18n>
+                                Min. 4 People
                             </mat-radio-button>
                             <mat-radio-button [value]="10" i18n>
-                                10+ People
+                                Min. 10 People
                             </mat-radio-button>
                         </mat-radio-group>
                     </div>

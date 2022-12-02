@@ -116,7 +116,7 @@ function jsonToCsv(json, delimiter = '\t') {
     if (json instanceof Array && json.length > 0) {
         const keys = Object.keys(json[0]);
         const valid_keys = keys.filter((key) => key in json[0]);
-        return `${valid_keys.join(',')}\n${json
+        return `${valid_keys.join(delimiter)}\n${json
             .map((item) =>
                 valid_keys.map((key) => JSON.stringify(item[key])).join(delimiter)
             )
