@@ -48,15 +48,28 @@ export class SpacesStatusService extends BaseClass {
         this._init();
     }
 
+    /** Manual removal of a booking from store */
+    public removeBooking(system_id: string, booking_id: string){
+        if(!system_id || !booking_id) return;
+        const map = {...this._list_status.getValue()};
+        const bookings:any[] = map[system_id]?.bookings || [];
+        const idx = bookings.findIndex(e => e.id === booking_id);
+        if(idx > -1){ 
+            bookings.splice(idx,1);
+            map[system_id].bookings = bookings;
+            this._list_status.next(map);
+        }
+    }
+
     private async _init() {
 
         this.subscription(
             'space_list',
             this.building_spaces.subscribe((l) => {
-                const spaces = l.map((_) => _.id);
                 this.unsubWith('listen:');
                 this.unsubWith('bind:');
-                spaces.forEach((id) => {
+                l.forEach((space) => {
+                    const id = space.id
                     // Status binding
                     this.bindTo(id, 'status');
 
@@ -64,13 +77,21 @@ export class SpacesStatusService extends BaseClass {
                     this.bindTo(id, 'bookings', (v:any[]) => {
                         const addsys =
                         v?.map((e) => {
-                            return new Booking({
+                            return {
                                 ...e,
                                 booking_start: e.event_start,
                                 booking_end: e.event_end,
-                                extension_data: { system: l },
-                                booking_type: 'room',
-                            });
+                                extension_data: { system_id: space.id},
+                                system: space,
+                                booking_type: 'room'
+                            } as any
+                            // return new Booking({
+                            //     ...e,
+                            //     booking_start: e.event_start,
+                            //     booking_end: e.event_end,
+                            //     extension_data: { system_id: space.id, system: space },
+                            //     booking_type: 'room',
+                            // });
                         }) || null;
                         this.updateProperty(id, 'bookings', addsys)
                     })
@@ -103,8 +124,6 @@ export class SpacesStatusService extends BaseClass {
     ) {
         if (!value) return;
         const lists = { ...this._list_status.getValue() };
-        // let item = lists[id] || {};
-        // lists[id] = item[name] = value;
         if (!lists[id]) lists[id] = {};
         lists[id][name] = value;
         this._list_status.next(lists);

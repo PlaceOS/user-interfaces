@@ -56,7 +56,7 @@ export class ScheduleStateService extends BaseClass {
             let events = [];
             const bookings = Object.values(bookingsHash).filter(e => !!e?.bookings?.length);
             bookings.forEach(e => events = events.concat(e.bookings));
-            events = events.map(e => newCalendarEventFromBooking(e));
+            events = events.map(e => new CalendarEvent(e));
             return events.filter((e:CalendarEvent) => {
                 const attendees = e.attendees.map(a => a.email.toLowerCase());
                 return attendees.includes(user.email.toLocaleLowerCase()) && e.event_start < end;
@@ -112,12 +112,11 @@ export class ScheduleStateService extends BaseClass {
     /** List of events and bookings for the selected date */
     public readonly bookings = combineLatest([
         this.myEvents,
-        this.events,
         this.visitors,
         this.desks,
         this.parking,
     ]).pipe(
-        map(([m, e, v, d, p]) => [...m, ...v, ...d, ...p].sort((a, b) => a.date - b.date))
+        map(([m, v, d, p]) => [...m, ...v, ...d, ...p].sort((a, b) => a.date - b.date))
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([

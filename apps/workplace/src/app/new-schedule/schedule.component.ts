@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, removeBooking } from '@placeos/bookings';
-import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
-import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
+import { notifyError, notifyInfo, notifySuccess, openConfirmModal } from '@placeos/common';
+import { CalendarEvent, EventFormService, queryEvents, removeEvent } from '@placeos/events';
+import { SpacesStatusService } from '@placeos/spaces';
 import { isSameDay, format } from 'date-fns';
-import { map } from 'rxjs/operators';
+import { catchError, map, take } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
@@ -106,6 +107,7 @@ export class ScheduleComponent {
     constructor(
         private _state: ScheduleStateService,
         private _event_form: EventFormService,
+        private _spacestatus: SpacesStatusService,
         private _router: Router,
         private _dialog: MatDialog
     ) {}
@@ -114,9 +116,16 @@ export class ScheduleComponent {
         return item?.id;
     }
 
-    public edit(event: CalendarEvent) {
-        this._router.navigate(['/book', 'meeting', 'form']);
-        this._event_form.newForm(event);
+    public async edit(event: CalendarEvent) {
+        /** Attempt to retrieve event from users calendar */
+        notifyInfo(`Checking event on user calendar...`);
+        const userCal = await this.getEventFromUserCalendar(event);
+        if(!!userCal){
+            this._router.navigate(['/book', 'meeting', 'form']);
+            this._event_form.newForm(userCal);
+        }else{
+            notifyError(`Unable to access calendar services. Please use your calendar app to edit your event`)
+        }
     }
 
     public async remove(item: CalendarEvent | Booking) {
@@ -130,20 +139,52 @@ export class ScheduleComponent {
             { title: `Delete booking`, content, icon: { content: 'delete' } },
             this._dialog
         );
-        console;
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
-        await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-            item.id
-        )
-            .toPromise()
-            .catch((e) => {
+        /** 
+         * If modifying CalendarEvent, try to retrieve event from users calendar so it has correct calendar event id.
+         * If unable to retrieve, notify user to delete from calendar app */ 
+        if(item instanceof CalendarEvent){
+            const userCal = await this.getEventFromUserCalendar(item);
+            if(!!userCal){
+                await removeEvent(userCal.id).toPromise().catch(e => {
+                    notifyError(`Unable to delete booking. ${e}`);
+                    resp.close();
+                    throw e;
+                });
+                this._spacestatus.removeBooking(item.system?.id || '', item.id);
+            }else{
+                notifyError(`Unable access calendar services. Please use your calendar app to delete your event`)
+            }
+        }else{
+            await removeBooking(item.id).toPromise().catch(e => {
                 notifyError(`Unable to delete booking. ${e}`);
                 resp.close();
                 throw e;
             });
+        }
+        // await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
+        //     item.id
+        // )
+        //     .toPromise()
+        //     .catch((e) => {
+        //         notifyError(`Unable to delete booking. ${e}`);
+        //         resp.close();
+        //         throw e;
+        //     });
         notifySuccess('Successfully deleted booking.');
         this._state.removeItem(item);
         this._dialog.closeAll();
+    }
+
+    private async getEventFromUserCalendar(item: CalendarEvent){
+        const cal_id = (item.extension_data as any).ical_uid;
+            const cals:CalendarEvent[] = await queryEvents({
+                period_start: item.event_start,
+                period_end: item.event_end
+            }).pipe(
+                take(1),
+                catchError((_) => [])).toPromise();
+        return cals.find(e => (e.extension_data as any)?.ical_uid === cal_id);
     }
 }
