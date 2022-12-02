@@ -103,6 +103,8 @@ export class Building {
     public readonly catering_hours: { start: number; end: number };
     /** PlaceOS bindings for applications */
     public readonly bindings: Record<string, string>;
+    /** List of image URLs for the building */
+    public readonly images: string[];
 
     public readonly orientations: Record<string, number>;
     public readonly attributes: readonly Identity[];
@@ -123,6 +125,7 @@ export class Building {
         this.name = raw_data.name || '';
         const settings = raw_data.settings || {};
         this.display_name = raw_data.display_name;
+        this.images = this.images || [];
         const disc_info = settings.discovery_info || settings;
         this.zone_id = raw_data.zone_id || raw_data.zone;
         this.extras = (raw_data.extras || disc_info.extras || []).map((i) => ({

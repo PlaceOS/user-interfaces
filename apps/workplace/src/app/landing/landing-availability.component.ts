@@ -35,9 +35,16 @@ import { LandingStateService } from './landing-state.service';
                         class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"
                     >
                         <img
-                            class="m-auto"
-                            src="assets/icons/desk-placeholder.svg"
+                            *ngIf="lvl?.images?.length; else placeholder"
+                            [src]="lvl?.images[0]"
+                            class="min-h-full object-cover"
                         />
+                        <ng-template #placeholder>
+                            <img
+                                class="m-auto"
+                                src="assets/icons/desk-placeholder.svg"
+                            />
+                        </ng-template>
                     </div>
                     <div class="text-left">
                         <div class="max-w-full truncate px-1.5">

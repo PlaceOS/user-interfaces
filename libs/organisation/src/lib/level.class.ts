@@ -19,6 +19,8 @@ export class BuildingLevel {
     public readonly tags: string[];
     /** Settings overrides associated with the level */
     public readonly settings: Record<string, any> = {};
+    /** List of image URLs for the level */
+    public readonly images: string[];
     /** List of points of interest for the level */
     public readonly locations: readonly { id: string, name: string }[];
 
@@ -31,6 +33,7 @@ export class BuildingLevel {
         this.capacity = _data.capacity || 0;
         this.locations = _data.locations || [];
         this.tags = _data.tags || [];
+        this.images = _data.images || [];
         const parts = this.display_name.split(' ');
         this.number =
             (parts.length >= 2
