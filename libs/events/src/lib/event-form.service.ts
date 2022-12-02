@@ -37,6 +37,7 @@ import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
+import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -98,15 +99,9 @@ export class EventFormService extends BaseClass {
         switchMap(([{ zone_ids }]) => {
             this._loading.next('Loading space list for location...');
             if (!zone_ids?.length) zone_ids = [this._org.building?.id];
-            return forkJoin(
-                zone_ids.map(
-                    (_) =>
-                        querySystems({ zone_id: _ }).pipe(map((_) => _.data)),
-                    catchError((_) => of([]))
-                )
-            );
+            return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
-        map((l) => flatten(l).map((_) => new Space(_ as any))),
+        map((l) => flatten(l)),
         tap((_) => this._loading.next('')),
         shareReplay(1)
     );

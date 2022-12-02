@@ -23,7 +23,7 @@ import {
 import { endOfDay } from 'date-fns';
 
 import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
-import { requestSpacesForBuilding, Space, SpacesStatusService } from '@placeos/spaces';
+import { requestSpacesForZone, Space, SpacesStatusService } from '@placeos/spaces';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
@@ -52,7 +52,7 @@ export class LandingStateService extends BaseClass {
 
     private _space_list = this._org.active_building.pipe(
         filter((_) => !!_),
-        switchMap((bld) => requestSpacesForBuilding(bld.id)),
+        switchMap((bld) => requestSpacesForZone(bld.id)),
         shareReplay(1)
     );
 
