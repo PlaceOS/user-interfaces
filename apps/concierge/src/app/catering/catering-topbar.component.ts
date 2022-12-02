@@ -31,7 +31,7 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <button *ngIf="page === 'menu'" mat-button (click)="addItem()">
+            <button *ngIf="page === 'menu' && (!zones[0] || zones[0] === building?.id)" mat-button (click)="addItem()">
                 Add Item
             </button>
             <button *ngIf="page === 'menu'" mat-button (click)="editConfig()">
