@@ -28,7 +28,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
                 <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%] text-center">
                     <div class="text-8xl">{{ capacity }}</div>
-                    <div class="text-3xl">Room capacity</div>
+                    <div class="text-3xl">{{ "PANEL.ROOM_CAPACITY" | translate }}</div>
                 </div>
             </div>
         </div>

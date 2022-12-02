@@ -27,10 +27,12 @@ export class CateringItem {
     public readonly options_string: string;
     /** List of images for the catering item */
     public readonly images: string[];
-    /** List of active options for the  */
+    /** List of active options for the item */
     public readonly option_list: CateringOption[];
-    /**  */
+    /** Price per unit with selected options */
     public readonly unit_price_with_options: number;
+    /** Zones in which this item is not allow to be ordered in */
+    public readonly hide_for_zones: string[];
 
     constructor(data: Partial<CateringItem> = {}) {
         this.id = data.id || '';
@@ -45,6 +47,7 @@ export class CateringItem {
         this.tags = data.tags || [];
         this.images = data.images || [];
         this.option_list = this.options.filter((_) => _.active);
+        this.hide_for_zones = data.hide_for_zones || [];
         this.unit_price_with_options =
             this.unit_price +
             this.option_list

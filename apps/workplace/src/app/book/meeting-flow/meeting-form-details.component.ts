@@ -8,7 +8,9 @@ import { SettingsService } from '@placeos/common';
         <div *ngIf="form" [formGroup]="form">
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label for="title" i18n>Add Title<span>*</span></label>
+                    <label for="title"
+                        >{{ 'FORM.TITLE' | translate }}<span>*</span></label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
@@ -16,19 +18,26 @@ import { SettingsService } from '@placeos/common';
                             formControlName="title"
                             placeholder="e.g. Team Meeting"
                         />
-                        <mat-error i18n>Meeting title is required.</mat-error>
+                        <mat-error>{{
+                            'FORM.TITLE_ERROR' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex-1 min-w-[256px]">
-                    <label for="date" i18n>Date<span>*</span></label>
-                    <a-date-field name="date" formControlName="date" i18n>
-                        Date and time must be in the future
+                    <label for="date"
+                        >{{ 'FORM.DATE' | translate }}<span>*</span></label
+                    >
+                    <a-date-field name="date" formControlName="date">
+                        {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
                 <div class="flex-1 w-1/3">
-                    <label for="start-time" i18n>Start Time<span>*</span></label>
+                    <label for="start-time"
+                        >{{ 'FORM.START_TIME' | translate
+                        }}<span>*</span></label
+                    >
                     <a-time-field
                         name="start-time"
                         [ngModel]="form.value.date"
@@ -37,7 +46,9 @@ import { SettingsService } from '@placeos/common';
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
-                    <label for="end-time" i18n>End Time<span>*</span></label>
+                    <label for="end-time"
+                        >{{ 'FORM.END_TIME' | translate }}<span>*</span></label
+                    >
                     <a-duration-field
                         name="end-time"
                         formControlName="duration"
@@ -49,17 +60,15 @@ import { SettingsService } from '@placeos/common';
                         formControlName="all_day"
                         *ngIf="allow_all_day"
                         class="absolute top-0 right-0"
-                        i18n
                     >
-                        All Day
+                        {{ 'FORM.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
             </div>
-            <div
-                *ngIf="can_book_for_others"
-                class="w-full"
-            >
-                <label for="host" i18n>Host<span>*</span></label>
+            <div *ngIf="can_book_for_others" class="w-full">
+                <label for="host"
+                    >{{ 'FORM.HOST' | translate }}<span>*</span></label
+                >
                 <host-select-field
                     name="host"
                     formControlName="organiser"

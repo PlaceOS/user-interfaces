@@ -25,9 +25,9 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>meeting_room</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="">Room</div>
-                        <div class="text-sm opacity-60" i18n>
-                            Room and meeting invites
+                        <div class="">{{ 'WPA.ROOM' | translate }}</div>
+                        <div class="text-sm opacity-60">
+                            {{ 'WPA.SCHEDULE_ROOM_FILTER' | translate }}
                         </div>
                     </div>
                     <mat-checkbox
@@ -47,8 +47,10 @@ import { ScheduleStateService } from './schedule-state.service';
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
                     <div class="flex-1">
-                        <div class="" i18n>Desk</div>
-                        <div class="text-sm opacity-60" i18n>Desk bookings</div>
+                        <div class="">{{ 'WPA.DESK' | translate }}</div>
+                        <div class="text-sm opacity-60">
+                            {{ 'WPA.SCHEDULE_DESK_FILTER' | translate }}
+                        </div>
                     </div>
                     <mat-checkbox
                         [ngModel]="
@@ -67,8 +69,10 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>drive_eta</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="" i18n>Parking</div>
-                        <div class="text-sm opacity-60" i18n>Car, Bike, Van and ACC bookings</div>
+                        <div class="">{{ 'WPA.PARKING' | translate }}</div>
+                        <div class="text-sm opacity-60">
+                            {{ 'WPA.SCHEDULE_PARKING_FILTER' | translate }}
+                        </div>
                     </div>
                     <mat-checkbox
                         [ngModel]="
@@ -87,8 +91,12 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>people</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="" i18n>Visitors</div>
-                        <div class="text-sm opacity-60" i18n>Visitor invites</div>
+                        <div class="" i18n>
+                            {{ 'WPA.VISITORS' | translate }}
+                        </div>
+                        <div class="text-sm opacity-60" i18n>
+                            {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}
+                        </div>
                     </div>
                     <mat-checkbox
                         [ngModel]="

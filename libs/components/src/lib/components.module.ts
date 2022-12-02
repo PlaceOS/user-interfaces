@@ -17,6 +17,10 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { CdkTableModule } from '@angular/cdk/table';
 import { PortalModule } from '@angular/cdk/portal';
 
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { BindingDirective } from './binding.directive';
 import { ActionIconComponent } from './action-icon.component';
 import { IconComponent } from './icon.component';
@@ -68,7 +72,7 @@ const MAT_MODULES: any[] = [
     CdkTableModule,
     PortalModule,
     MatSortModule,
-    ScrollingModule
+    ScrollingModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -105,11 +109,16 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ...MAT_MODULES],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        ...MAT_MODULES,
+    ],
     providers: [
-        { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
         { provide: MAP_FEATURE_DATA, useValue: {} },
     ],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, TranslateModule],
 })
 export class ComponentsModule {}

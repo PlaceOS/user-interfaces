@@ -29,7 +29,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <schedule-filters></schedule-filters>
                 <h3 class="font-medium my-2">
                     {{ date | async | date: 'EEE dd LLL yyyy' }}
-                    <span *ngIf="is_today | async" i18n>(Today)</span>
+                    <span *ngIf="is_today | async">({{ "COMMON.TODAY" | translate }})</span>
                 </h3>
                 <ng-container
                     *ngIf="(bookings | async)?.length; else empty_state"
@@ -69,8 +69,8 @@ import { ScheduleStateService } from './schedule-state.service';
                 class="w-full p-8 flex flex-col items-center justify-center space-y-4"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
-                <p class="opacity-30" i18n>
-                    No events and bookings for
+                <p class="opacity-30">
+                    {{ "WPA.SCHEDULE_EMPTY" | translate }}
                     {{ date | async | date: 'EEEE, dd LLL yyyy' }}
                 </p>
             </div>

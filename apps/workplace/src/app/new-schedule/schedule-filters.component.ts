@@ -9,13 +9,13 @@ import { ScheduleStateService } from './schedule-state.service';
         <div
             class="hidden sm:block bg-white dark:bg-neutral-800 border border-gray-300 rounded p-2"
         >
-            <h3 class="font-medium mb-2" i18n>Category Filters</h3>
+            <h3 class="font-medium mb-2">{{ "WPA.SCHEDULE_CAT_FILTERS" | translate }}</h3>
             <div class="flex flex-wrap space-x-2">
                 <div
                     class="flex items-center rounded-3xl border border-gray-300"
                     *ngIf="(filters | async)?.shown_types?.includes('event')"
                 >
-                    <div class=" px-2" i18n>Rooms</div>
+                    <div class=" px-2">{{ "WPA.ROOMS" | translate }}</div>
                     <button mat-icon-button (click)="toggleType('event', true)">
                         <app-icon>close</app-icon>
                     </button>
@@ -24,7 +24,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     class="flex items-center rounded-3xl border border-gray-300"
                     *ngIf="(filters | async)?.shown_types?.includes('desk')"
                 >
-                    <div class="px-2" i18n>Desks</div>
+                    <div class="px-2">{{ "WPA.DESKS" | translate }}</div>
                     <button mat-icon-button (click)="toggleType('desk', true)">
                         <app-icon>close</app-icon>
                     </button>
@@ -33,7 +33,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     class="flex items-center rounded-3xl border border-gray-300"
                     *ngIf="(filters | async)?.shown_types?.includes('parking')"
                 >
-                    <div class=" px-2" i18n>Car Spaces</div>
+                    <div class=" px-2">{{ "WPA.PARKING" | translate }}</div>
                     <button
                         mat-icon-button
                         (click)="toggleType('parking', true)"
@@ -45,7 +45,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     class="flex items-center rounded-3xl border border-gray-300"
                     *ngIf="(filters | async)?.shown_types?.includes('visitor')"
                 >
-                    <div class=" px-2" i18n>Visitors</div>
+                    <div class=" px-2">{{ "WPA.VISITORS" | translate }}</div>
                     <button
                         mat-icon-button
                         (click)="toggleType('visitor', true)"
@@ -59,14 +59,14 @@ import { ScheduleStateService } from './schedule-state.service';
             <button mat-button class="w-24" (click)="openFilters()">
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-xl -mr-2">filter_list</app-icon>
-                    <div class="mr-2" i18n>Filters</div>
+                    <div class="mr-2">{{ "WPA.FILTERS" | translate }}</div>
                 </div>
             </button>
             <div
                 class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('event')"
             >
-                <div i18n>Rooms</div>
+                <div>{{ "WPA.ROOMS" | translate }}</div>
                 <button mat-icon-button (click)="toggleType('event', true)">
                     <app-icon>close</app-icon>
                 </button>
@@ -75,7 +75,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('desk')"
             >
-                <div i18n>Desks</div>
+                <div>{{ "WPA.DESKS" | translate }}</div>
                 <button mat-icon-button (click)="toggleType('desk', true)">
                     <app-icon>close</app-icon>
                 </button>
@@ -84,7 +84,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('parking')"
             >
-                <div i18n>Car</div>
+                <div>{{ "WPA.PARKING" | translate }}</div>
                 <button mat-icon-button (click)="toggleType('parking', true)">
                     <app-icon>close</app-icon>
                 </button>

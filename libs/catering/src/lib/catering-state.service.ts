@@ -57,12 +57,22 @@ export class CateringStateService extends BaseClass {
     /** Observable for the currency code of the active building */
     public readonly currency = this._currency.asObservable();
 
+    public zone = '';
+
+    public get is_editable() {
+        return !this.zone || this.zone === this._org.building?.id;
+    }
+
     public get categories() {
         const menu = this._menu.getValue();
         return unique(menu.map((i) => i.category));
     }
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog, private _settings: SettingsService) {
+    constructor(
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
         this.subscription(
             'building',
@@ -71,7 +81,11 @@ export class CateringStateService extends BaseClass {
                     const menu = (await this.getCateringForZone(bld.id)).map(
                         (i) => new CateringItem(i)
                     );
-                    this._currency.next(this._settings.get('app.currency') || bld.currency || 'USD');
+                    this._currency.next(
+                        this._settings.get('app.currency') ||
+                            bld.currency ||
+                            'USD'
+                    );
                     this._menu.next(menu);
                 }
             })
@@ -136,6 +150,16 @@ export class CateringStateService extends BaseClass {
                 ref.close();
             },
             () => (ref.componentInstance.loading = false)
+        );
+    }
+
+    public updateItem(item: CateringItem) {
+        const menu = this._menu.getValue();
+        const index = menu.findIndex((itm) => itm.id === item.id);
+        if (index >= 0) menu.splice(index, 1, item);
+        else menu.push(item);
+        this.updateMenu(this._org.building.id, menu).then(() =>
+            this._menu.next([...menu])
         );
     }
 
@@ -316,9 +340,8 @@ export class CateringStateService extends BaseClass {
     }
 
     private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {
-        const menu = (
-            await showMetadata(zone_id, 'catering').toPromise()
-        ).details;
+        const menu = (await showMetadata(zone_id, 'catering').toPromise())
+            .details;
         return menu instanceof Array ? menu : [];
     }
 

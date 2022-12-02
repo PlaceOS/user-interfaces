@@ -1,12 +1,15 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ErrorHandler, NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
+
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import {
     MisconfiguredComponent,
@@ -22,6 +25,11 @@ import * as Sentry from '@sentry/angular';
 
 import { SharedComponentModule } from './components/shared.module';
 import { SharedBookingsModule } from '@placeos/bookings';
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './assets/locale/', '.json');
+}
 
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
@@ -39,6 +47,14 @@ import { SharedBookingsModule } from '@placeos/bookings';
         MatNativeDateModule,
         MatSnackBarModule,
         SharedBookingsModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
     ],
     providers: [
         {

@@ -17,6 +17,8 @@ import {
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 import { addSeconds, getUnixTime } from 'date-fns';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface PanelSettings {
     /** URL for the image to display when system is not bookable */
@@ -77,8 +79,12 @@ export type CalendarEventStatus =
     | 'busy'
     | 'not-bookable';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root',
+})
 export class PanelStateService extends BaseClass {
+
+    private _space_pipe: SpacePipe = new SpacePipe(this._org);
     /** Polling observable */
     private _poll = interval(1000);
     /** Mapping of current settings for the active system */
@@ -132,7 +138,8 @@ export class PanelStateService extends BaseClass {
     constructor(
         private _spaces: SpacesService,
         private _dialog: MatDialog,
-        private _events: EventFormService
+        private _events: EventFormService,
+        private _org: OrganisationService
     ) {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
@@ -165,7 +172,8 @@ export class PanelStateService extends BaseClass {
         date: number = new Date().valueOf(),
         user: boolean = false
     ) {
-        const space = this._spaces.find(this.system);
+        const space = await this._space_pipe.transform(this.system);
+        console.log('Space:', space);
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
