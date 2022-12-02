@@ -97,7 +97,7 @@ export interface CateringItemModalData {
                         </mat-chip>
                         <input
                             name="tags"
-                            placeholder="Zone tags..."
+                            placeholder="Item tags e.g. Gluten Free, Vegan etc."
                             i18n-placeholder="@@zoneTagsPlaceholder"
                             [matChipInputFor]="chipList"
                             [matChipInputSeparatorKeyCodes]="separators"
@@ -145,6 +145,59 @@ export interface CateringItemModalData {
                     form.get('accept_points')?.value ? 'No' : 'Yes'
                 }}</mat-checkbox>
             </div>
+            <div class="flex items-center flex-wrap" list>
+                <mat-checkbox
+                    [ngModel]="hasTag('Gluten Free')"
+                    (ngModelChange)="
+                        $event
+                            ? addTag({ value: 'Gluten Free' })
+                            : removeTag('Gluten Free')
+                    "
+                    [ngModelOptions]="{ standalone: true }"
+                >
+                    Gluten Free (GF)
+                </mat-checkbox>
+                <mat-checkbox
+                    [ngModel]="hasTag('Vegan')"
+                    (ngModelChange)="
+                        $event ? addTag({ value: 'Vegan' }) : removeTag('Vegan')
+                    "
+                    [ngModelOptions]="{ standalone: true }"
+                >
+                    Vegan (VG)
+                </mat-checkbox>
+                <mat-checkbox
+                    [ngModel]="hasTag('Vegetarian')"
+                    (ngModelChange)="
+                        $event ? addTag({ value: 'Vegetarian' }) : removeTag('Vegetarian')
+                    "
+                    [ngModelOptions]="{ standalone: true }"
+                >
+                    Vegetarian (V)
+                </mat-checkbox>
+                <mat-checkbox
+                    [ngModel]="hasTag('Contains Dairy')"
+                    (ngModelChange)="
+                        $event
+                            ? addTag({ value: 'Contains Dairy' })
+                            : removeTag('Contains Dairy')
+                    "
+                    [ngModelOptions]="{ standalone: true }"
+                >
+                    Contains Dairy (D)
+                </mat-checkbox>
+                <mat-checkbox
+                    [ngModel]="hasTag('Contains Nuts')"
+                    (ngModelChange)="
+                        $event
+                            ? addTag({ value: 'Contains Nuts' })
+                            : removeTag('Contains Nuts')
+                    "
+                    [ngModelOptions]="{ standalone: true }"
+                >
+                    Contains Nuts (N)
+                </mat-checkbox>
+            </div>
             <div class="flex items-center">
                 <label class="flex-1 w-24 min-w-0">Discount Cap</label>
                 <a-counter
@@ -190,6 +243,10 @@ export interface CateringItemModalData {
                 display: flex;
                 flex-wrap: wrap;
             }
+
+            [list] mat-checkbox {
+                margin: 0.5rem;
+            }
         `,
     ],
 })
@@ -209,7 +266,7 @@ export class CateringItemModalComponent {
         tags: new FormControl(this.item.tags || []),
         accept_points: new FormControl(this.item.accept_points || false),
         discount_cap: new FormControl(this.item.discount_cap || 0),
-        images: new FormControl(this.item.images || [])
+        images: new FormControl(this.item.images || []),
     });
     /** Whether changes are being saved */
     public loading = false;
@@ -234,6 +291,10 @@ export class CateringItemModalComponent {
         return `${value}%`;
     }
 
+    public hasTag(tag: string) {
+        return this.tag_list.includes(tag);
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData
     ) {}
@@ -254,9 +315,7 @@ export class CateringItemModalComponent {
         }
 
         // Reset the input value
-        if (input) {
-            input.value = '';
-        }
+        if (input) input.value = '';
     }
 
     /**

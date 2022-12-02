@@ -6,9 +6,16 @@ import { BaseClass } from '@placeos/common';
     selector: '[app-catering]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
+        <main
+            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
+        >
             <catering-topbar class="relative z-10"></catering-topbar>
-            <div class="p-2 flex items-center justify-center bg-blue-600 text-white text-sm" *ngIf="page === 'menu'">To edit the menu select "All Levels" from the top left</div>
+            <div
+                class="p-2 flex items-center justify-center bg-blue-600 text-white text-sm"
+                *ngIf="page === 'menu'"
+            >
+                To edit the menu select "All Levels" from the top left
+            </div>
             <div class="flex flex-1 h-1/2 w-full overflow-auto">
                 <ng-container [ngSwitch]="page">
                     <catering-order-list
