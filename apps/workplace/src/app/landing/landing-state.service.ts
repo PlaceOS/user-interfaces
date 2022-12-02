@@ -57,6 +57,7 @@ export class LandingStateService extends BaseClass {
     );
 
     private _space_statuses = this._space_list.pipe(
+        tap(_ => this.unsubWith('bind:')),
         switchMap((list) =>
             combineLatest(
                 (list || []).map((_) => {
