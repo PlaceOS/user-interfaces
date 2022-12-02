@@ -135,21 +135,21 @@ export class ReportSpacesSpaceListing {
             !_
                 ? [
                       'Name',
-                      'Capacity',
-                      'Meeting Count',
-                      'Utilisation',
-                      'Avg. Attendees',
+                      'Room Capacity',
+                      'Bookings',
+                      '% Time booked during office hrs',
+                      'Avg. invitees per booking',
                       'Occupancy',
                   ]
                 : [
                       'Name',
-                      'Capacity',
-                      'Meeting Count',
-                      'Utilisation',
-                      'Avg. Attendees',
+                      'Room Capacity',
+                      'Bookings',
+                      '% Time booked during office hrs',
+                      'Avg. invitees per booking',
                       'Occupancy',
-                      'Attendance',
-                      'Avg. Attendance',
+                      'Total In-room Attendance',
+                      'Avg. In-room Attendance',
                   ]
         )
     );
