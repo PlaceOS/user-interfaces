@@ -8,6 +8,14 @@ const SPACE_LIST: Space[] = [];
 
 const EMPTY_SPACE = new Space();
 
+export function updateSpaceList(space_list: Space[]) {
+    for (const space of space_list) {
+        if (!SPACE_LIST.find(({ id }) => id === space.id)) {
+            SPACE_LIST.push(space);
+        }
+    }
+}
+
 @Pipe({
     name: 'space',
 })
@@ -50,10 +58,6 @@ export class SpacePipe {
     }
 
     public updateSpaceList(space_list: Space[]) {
-        for (const space of space_list) {
-            if (!SPACE_LIST.find(({ id }) => id === space.id)) {
-                SPACE_LIST.push(space);
-            }
-        }
+        updateSpaceList(space_list);
     }
 }

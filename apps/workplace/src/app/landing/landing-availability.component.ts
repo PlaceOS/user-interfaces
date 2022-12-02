@@ -123,7 +123,7 @@ import { LandingStateService } from './landing-state.service';
                     </div>
                 </button>
                 <span
-                    *ngIf="!(space_list | async).length"
+                    *ngIf="!(space_list | async)?.length"
                     class="opacity-60 text-sm mb-2"
                 >
                     {{ 'WPA.NO_FREE_ROOMS' | translate }}
@@ -143,7 +143,7 @@ import { LandingStateService } from './landing-state.service';
     ],
 })
 export class LandingAvailabilityComponent {
-    public readonly space_list = this._state.free_spaces;
+    public readonly space_list = this._state.free_space_list;
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
 
@@ -168,12 +168,4 @@ export class LandingAvailabilityComponent {
         private _org: OrganisationService,
         private _settings: SettingsService
     ) {}
-
-    public async ngOnInit() {
-        // this._state.loadFreeSpaces();
-    }
-
-    public ngOnDestroy() {
-        this._state.stopPollingFreeSpaces();
-    }
 }

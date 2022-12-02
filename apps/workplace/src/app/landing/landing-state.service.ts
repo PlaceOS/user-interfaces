@@ -3,12 +3,14 @@ import {
     getModule,
     PlaceMetadata,
     PlaceVariableBinding,
+    querySystems,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, of, zip } from 'rxjs';
 import {
     catchError,
+    combineAll,
     debounceTime,
     filter,
     first,
@@ -21,12 +23,13 @@ import {
 import { endOfDay } from 'date-fns';
 
 import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
-import { Space, SpacesStatusService } from '@placeos/spaces';
+import { requestSpacesForBuilding, Space, SpacesStatusService } from '@placeos/spaces';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
+import { A } from '@angular/cdk/keycodes';
 
 export interface LandingOptions {
     search?: string;
@@ -40,16 +43,46 @@ export class LandingStateService extends BaseClass {
     private _loading = new BehaviorSubject<string>('');
     private _loading_spaces = new BehaviorSubject<boolean>(false);
     /**  */
-    private _free_spaces = new BehaviorSubject<Space[]>([]);
-    /**  */
     private _contacts = new BehaviorSubject<User[]>([]);
     /**  */
     private _level_occupancy = new BehaviorSubject<BuildingLevel[]>([]);
     /**  */
     private _occupancy_binding: PlaceVariableBinding;
     /**  */
-    // public free_spaces = this._free_spaces.asObservable();
 
+    private _space_list = this._org.active_building.pipe(
+        filter((_) => !!_),
+        switchMap((bld) => requestSpacesForBuilding(bld.id)),
+        shareReplay(1)
+    );
+
+    private _space_statuses = this._space_list.pipe(
+        switchMap((list) =>
+            combineLatest(
+                (list || []).map((_) => {
+                    const binding = getModule(_.id, 'Bookings').binding(
+                        'status'
+                    );
+                    const obs = binding.listen();
+                    this.subscription(`bind:${_.id}`, binding.bind());
+                    return obs;
+                })
+            )
+        ),
+        shareReplay(1)
+    );
+
+    public readonly free_space_list = combineLatest([
+        this._space_list,
+        this._space_statuses,
+    ]).pipe(
+        map(([list, statuses]) =>
+            (list || [])
+                .filter((_, idx) => statuses[idx] === 'free')
+                .sort((a, b) => a.capacity - b.capacity)
+        ),
+        shareReplay(1)
+    );
     /** Switch to use ws real time free space subscription */
     public free_spaces = this._spacesStatus.list_free_spaces.pipe(
         map((list) =>
@@ -127,25 +160,6 @@ export class LandingStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public async loadFreeSpaces() {
-        // Ignore if already loading
-        if (this._loading_spaces.getValue()) return;
-
-        this._loading_spaces.next(true);
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this.updateFreeSpaces();
-    }
-
-    public pollFreeSpaces(delay: number = 60 * 1000) {
-        this._loading_spaces.next(true);
-        this.updateFreeSpaces();
-        this.interval('free_spaces', () => this.updateFreeSpaces(), delay);
-    }
-
-    public stopPollingFreeSpaces() {
-        this.clearInterval('free_spaces');
-    }
-
     public pollUpcomingEvents(delay: number = 10 * 1000) {
         this._schedule.setDate(Date.now());
         return this._schedule.startPolling(delay);
@@ -201,33 +215,6 @@ export class LandingStateService extends BaseClass {
             (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation
         );
         this._level_occupancy.next(levels);
-    }
-
-    private async updateFreeSpaces() {
-        if (!this._org.building) return;
-        this._loading_spaces.next(true);
-        const period_start = Math.floor(new Date().valueOf() / 1000);
-        const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const list = await this._calendar
-            .freeBusy({
-                period_start,
-                period_end,
-                zone_ids: this._org.building.id,
-            })
-            .pipe(
-                map((_) =>
-                    _.filter(
-                        (space) =>
-                            !space.availability.length ||
-                            space.availability.find((_) => _.status !== 'busy')
-                    )
-                ),
-                catchError((_) => of([]))
-            )
-            .toPromise();
-        list.sort((a, b) => a.capacity - b.capacity);
-        this._free_spaces.next(list);
-        this._loading_spaces.next(false);
     }
 
     private async updateBuildingMetadata() {

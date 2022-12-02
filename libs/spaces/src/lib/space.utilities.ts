@@ -1,5 +1,22 @@
 import { HashMap, predictableRandomInt } from '@placeos/common';
+import { querySystems } from '@placeos/ts-client';
+import { Observable } from 'rxjs';
+import { map, shareReplay, tap } from 'rxjs/operators';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
+import { Space } from './space.class';
+import { updateSpaceList } from './space.pipe';
+
+const SPACE_LIST_REQUESTS: Record<string, Observable<Space[]>> = {};
+
+export function requestSpacesForBuilding(id: string) {
+    if (SPACE_LIST_REQUESTS[id]) return SPACE_LIST_REQUESTS[id];
+    SPACE_LIST_REQUESTS[id] = querySystems({ zone_id: id, limit: 500 }).pipe(
+        map((_) => _.data.map((_) => new Space(_ as any))),
+        tap((_) => updateSpaceList(_)),
+        shareReplay(1)
+    );
+    return SPACE_LIST_REQUESTS[id];
+}
 
 let SPACE_COUNT: number = 0;
 /* istanbul ignore next */
