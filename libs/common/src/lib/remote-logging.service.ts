@@ -71,7 +71,7 @@ export class RemoteLoggingService extends BaseClass {
             'error',
         ];
         for (const key of types) {
-            hookMethod(console, key, (args) =>
+            hookMethod(console, key, (...args) =>
                 this._handleEvent(key, args)
             );
         }
