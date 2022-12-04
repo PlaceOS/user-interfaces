@@ -217,7 +217,8 @@ export class EventFormService extends BaseClass {
             this._router.events.subscribe((event: Event) => {
                 if (
                     event instanceof NavigationEnd &&
-                    !BOOKING_URLS.some((_) => event.url.includes(_))
+                    !BOOKING_URLS.some((_) => event.url.includes(_)) &&
+                    this._form.touched
                 ) {
                     this.clearForm();
                 }
