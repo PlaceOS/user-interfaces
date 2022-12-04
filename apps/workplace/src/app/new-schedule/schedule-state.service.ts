@@ -122,8 +122,12 @@ export class ScheduleStateService extends BaseClass {
         this._poll.next(Date.now());
     }
 
-    public startPolling(delay = 15 * 1000) {
-        this.interval('poll', () => this._poll.next(Date.now()), delay);
+    public startPolling(delay = 60 * 1000) {
+        this.interval('poll', () => {
+            document.visibilityState === 'visible' 
+                ? this._poll.next(Date.now()) 
+                : '';
+        }, delay);
         return () => this.stopPolling();
     }
 
