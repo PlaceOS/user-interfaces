@@ -40,6 +40,7 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { TranslateService } from '@ngx-translate/core';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -84,7 +85,8 @@ export class AppComponent extends BaseClass implements OnInit {
         private _snackbar: MatSnackBar,
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _translate: TranslateService
     ) {
         super();
     }
@@ -123,9 +125,15 @@ export class AppComponent extends BaseClass implements OnInit {
                 setTimeout(() => location.reload(), 2000);
             });
         });
+        this._initLocale();
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
+            if (params.has('lang')) {
+                const locale = params.get('lang');
+                this._translate.use(locale);
+                localStorage.setItem('PLACEOS.locale', locale);
+            }
         });
         setNotifyOutlet(this._snackbar);
         /** Wait for settings to initialise */
@@ -166,5 +174,12 @@ export class AppComponent extends BaseClass implements OnInit {
         if (isMock() || currentUser()?.is_logged_in) return;
         invalidateToken();
         location.reload();
+    }
+
+    private _initLocale() {
+        const locale = localStorage.getItem('PLACEOS.locale');
+        if (locale) {
+            this._translate.use(locale);
+        }
     }
 }

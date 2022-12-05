@@ -1,4 +1,5 @@
 import { Component, Inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SettingsService } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
@@ -12,23 +13,28 @@ import { OrganisationService } from '@placeos/organisation';
         >
             <div class="flex items-center space-x-2  p-2">
                 <app-icon class="text-2xl">arrow_back</app-icon>
-                <div class="" i18n>English</div>
+                <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2 p-4" i18n>
-                Select a language
+            <div class="text-xs opacity-60 mb-4 px-2 p-4">
+                {{ 'COMMON.LANGUAGE_SELECT' | translate }}
             </div>
-            <a
-                [href]="'/workplace/' + lang.id + '/'"
+            <button
                 *ngFor="let lang of locales"
-                class="w-full p-4 border-t border-gray-200"
+                class="w-full p-4 border-t border-gray-200 dark:border-neutral-500 text-left"
+                (click)="setLocale(lang.id)"
             >
                 {{ lang.name }} - {{ lang.flag }}
-            </a>
+            </button>
         </div>
     `,
     styles: [``],
 })
 export class LanguageSelectComponent {
+    public readonly setLocale = (code: string) => {
+        this._translation.use(code);
+        localStorage.setItem('PLACEOS.locale', code);
+    }
+
     public get locales() {
         return this._settings.get('app.locales') || [];
     }
@@ -37,6 +43,7 @@ export class LanguageSelectComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _translation: TranslateService
     ) {}
 }
