@@ -129,7 +129,7 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class SpaceListFieldComponent implements ControlValueAccessor {
-    public room_size = 3;
+    public room_size = 4;
     public spaces: Space[] = [];
     public disabled = false;
 
