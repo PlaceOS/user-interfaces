@@ -183,7 +183,7 @@ export class EventFormService extends BaseClass {
                     periodInFreeTimeSlot(
                         date,
                         date + duration * MINUTES,
-                        bookings[idx]
+                        bookings[idx] || []
                     )
                 )
                 .sort((a, b) => a.capacity - b.capacity);
