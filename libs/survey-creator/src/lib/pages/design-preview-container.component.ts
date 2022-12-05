@@ -320,12 +320,14 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     async _createSurvey() {
+        console.log('start post process');
         const data = {
             id: 0,
             title: 'test title',
             description: 'test description',
             question_order: [0],
         };
+        console.log(data, 'data');
         const confirm = await createSurvey(data).toPromise();
         console.log(confirm, 'post to backend');
     }

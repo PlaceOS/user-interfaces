@@ -1,6 +1,7 @@
 import { del, get, patch, post, put } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { Survey } from './survey-types';
 
 import { toQueryString } from '../../../common/src/lib/api';
 
@@ -12,7 +13,7 @@ const SURVEYS_ENDPOINT = `/api/staff/v1/surveys`;
 
 export function querySurveys(): Observable<any> {
     return get(`${SURVEYS_ENDPOINT}`).pipe(
-        map((list) => list),
+        map((list) => new Survey(list)),
         catchError((err) => {
             throw 'new error' + err;
         })
@@ -24,7 +25,7 @@ export function querySurveys(): Observable<any> {
  */
 export function showSurvey(id: any) {
     return get(`${SURVEYS_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
-        map((item) => item),
+        map((item) => new Survey(item)),
         catchError((err) => {
             throw 'new error' + err;
         })
@@ -36,7 +37,7 @@ export function showSurvey(id: any) {
  */
 export function createSurvey(data: any) {
     return post(`${SURVEYS_ENDPOINT}`, data).pipe(
-        map((item) => item),
+        map((item) => new Survey(item)),
         catchError((err) => {
             throw 'new error' + err;
         })
@@ -48,7 +49,7 @@ export function createSurvey(data: any) {
  */
 export function deleteSurvey(data: any) {
     return del(`${SURVEYS_ENDPOINT}`, data).pipe(
-        map((item) => item),
+        map((item) => new Survey(item)),
         catchError((err) => {
             throw 'new error' + err;
         })
