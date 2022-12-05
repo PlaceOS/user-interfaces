@@ -89,7 +89,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="bg-none underline text-xs text-blue-500"
                                 (click)="findAvailableTime()"
                             >
-                                {{ 'WPA.AVAILABILTY' | translate }}
+                                {{ 'WPA.AVAILABILITY' | translate }}
                             </button>
                             <button
                                 mat-icon-button
