@@ -159,6 +159,7 @@ const app: any = {
     features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
     currency: '',
     default_route: '/landing',
+    use_geolocation: false,
     new_features: true,
     can_deliver: true,
     no_user_calendar: false,
