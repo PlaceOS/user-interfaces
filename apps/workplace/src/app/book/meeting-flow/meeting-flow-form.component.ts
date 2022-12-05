@@ -17,6 +17,8 @@ import {
 import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
+import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
+import { map, take } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
@@ -149,7 +151,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             ></space-list-field>
                         </div>
                     </section>
-                    <section class="p-2" *ngIf="has_catering">
+                    <section class="p-2" *ngIf="(has_catering | async)">
                         <h3 class="space-x-2 flex items-center">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -187,7 +189,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering ? '4' : '5' }}
+                                {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
                             <div class="text-xl">
                                 {{ 'WPA.ASSETS' | translate }}
@@ -219,8 +221,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 {{
-                                    !has_catering || !has_assets
-                                        ? !has_catering && !has_assets
+                                    !(has_catering | async) || !has_assets
+                                        ? !(has_catering | async) && !has_assets
                                             ? '4'
                                             : '5'
                                         : '6'
@@ -273,16 +275,11 @@ export class MeetingFlowFormComponent extends BaseClass {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
+    
+    public readonly has_catering = this._catering.available_menu.pipe(map(l => l.length > 0));
 
     public get form() {
         return this._state.form;
-    }
-
-    public get has_catering() {
-        return (
-            !!this._settings.get('app.events.catering_enabled') ||
-            !!this._settings.get('app.events.has_catering')
-        );
     }
 
     public get has_assets() {
@@ -343,6 +340,7 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     constructor(
         private _state: EventFormService,
+        private _catering: CateringOrderStateService,
         private _settings: SettingsService,
         private _router: Router,
         private _dialog: MatDialog,
@@ -381,10 +379,10 @@ export class MeetingFlowFormComponent extends BaseClass {
         });
     }
 
-    private _checkCateringEligibility(list: Space[]) {
-        const zone = this._settings.get('app.events.catering_enabled');
-        if (zone && list?.length) {
-            const can_cater = list.every((s) => s.zones.includes(zone));
+    private async _checkCateringEligibility(list: Space[]) {
+        if (list?.length) {
+            const menu = await this._catering.available_menu.pipe(take(1)).toPromise();
+            const can_cater = list.every((s) => menu.filter(_ => !_.hide_for_zones.find(z => s.zones.includes(z))).length);
             if (!can_cater) {
                 this.form.patchValue({ catering: [] });
                 this.form.controls.catering.disable();
@@ -394,6 +392,8 @@ export class MeetingFlowFormComponent extends BaseClass {
             } else {
                 this.form.controls.catering.enable();
             }
+        } else {
+            this.form.controls.catering.disable();
         }
     }
 }

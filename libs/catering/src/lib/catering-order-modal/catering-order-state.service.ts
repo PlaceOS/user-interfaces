@@ -4,7 +4,7 @@ import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
 
 export interface CateringOrderOptions { // Affects backend requests
@@ -32,8 +32,9 @@ export class CateringOrderStateService {
     public readonly loading = this._loading.asObservable();
     public readonly filters = this._filters.asObservable();
 
-    public readonly available_menu: Observable<CateringItem[]> = this._options.pipe(
-        switchMap(({ zone }) =>{
+    public readonly available_menu: Observable<CateringItem[]> = combineLatest([this._options, this._org.initialised]).pipe(
+        filter(([_, init]) => init),
+        switchMap(([{ zone }]) =>{
             this._loading.next('[Menu]');
             return showMetadata(zone || this._org.building?.id, 'catering').pipe(
                 map((d) => d.details.map((_) => new CateringItem(_))),
@@ -65,7 +66,6 @@ export class CateringOrderStateService {
     }
 
     constructor(
-        private _dialog: MatDialog,
         private _org: OrganisationService
     ) {}
 
