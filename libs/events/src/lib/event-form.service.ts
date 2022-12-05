@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { querySystems } from '@placeos/ts-client';
+import { getModule, querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -38,6 +38,7 @@ import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
+import { getFreeTimeSlots, periodInFreeTimeSlot } from './helpers';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -115,26 +116,69 @@ export class EventFormService extends BaseClass {
         this.options,
     ]).pipe(
         map(([spaces, { show_fav, features, capacity }]) =>
-            spaces.filter((s) => {
-                const domain = (currentUser()?.email || '@').split('@')[1];
-                const zone = (this._settings.get(
-                    'app.events.restrict_spaces'
-                ) || {})[domain];
-                const limit_map =
-                    this._settings.get('app.events.limit_spaces') || {};
-                const limited_zones = Object.keys(limit_map);
-                const zone_limit = s.zones.find((_) =>
-                    limited_zones.includes(_)
-                );
-                return (
-                    (!zone || s.zones.includes(zone)) &&
-                    (!zone_limit || limit_map[zone_limit] === domain) &&
-                    (!show_fav || this.favorite_spaces.includes(s.id)) &&
-                    features.every((f) => s.features.includes(f)) &&
-                    s.capacity >= Math.max(0, capacity || 0)
-                );
-            })
+            spaces
+                .filter((s) => {
+                    const domain = (currentUser()?.email || '@').split('@')[1];
+                    const zone = (this._settings.get(
+                        'app.events.restrict_spaces'
+                    ) || {})[domain];
+                    const limit_map =
+                        this._settings.get('app.events.limit_spaces') || {};
+                    const limited_zones = Object.keys(limit_map);
+                    const zone_limit = s.zones.find((_) =>
+                        limited_zones.includes(_)
+                    );
+                    return (
+                        (!zone || s.zones.includes(zone)) &&
+                        (!zone_limit || limit_map[zone_limit] === domain) &&
+                        (!show_fav || this.favorite_spaces.includes(s.id)) &&
+                        features.every((f) => s.features.includes(f)) &&
+                        s.capacity >= Math.max(0, capacity || 0)
+                    );
+                })
+                .slice(0, Math.min(100, spaces.length))
         ),
+        shareReplay(1)
+    );
+
+    private _space_bookings = this.filtered_spaces.pipe(
+        tap((_) => this.unsubWith('bind:')),
+        switchMap((list) =>
+            combineLatest(
+                (list || []).map((_) => {
+                    const binding = getModule(_.id, 'Bookings').binding(
+                        'bookings'
+                    );
+                    const obs = binding
+                        .listen()
+                        .pipe(map((_) => (_ || []).map((i) => new CalendarEvent(i))));
+                    this.subscription(`bind:${_.id}`, binding.bind());
+                    return obs;
+                })
+            )
+        ),
+        shareReplay(1)
+    );
+
+    public readonly simple_available_spaces = combineLatest([
+        this.filtered_spaces,
+        this._space_bookings,
+    ]).pipe(
+        map(([list, bookings]) => {
+            const { date, duration } = this._form.getRawValue();
+            return (list || [])
+                .filter((_, idx) =>{
+                    const is_free = periodInFreeTimeSlot(
+                        date,
+                        date + duration * MINUTES,
+                        bookings[idx]
+                    );
+                    console.log(_.name, is_free, bookings[idx]);
+                    return is_free;
+                })
+                .sort((a, b) => a.capacity - b.capacity);
+            
+        }),
         shareReplay(1)
     );
 
@@ -211,7 +255,6 @@ export class EventFormService extends BaseClass {
         private _dialog: MatDialog
     ) {
         super();
-        this.available_spaces.subscribe();
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {

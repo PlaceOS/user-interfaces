@@ -1,13 +1,13 @@
 import { HashMap } from '@placeos/common';
 import {
-    addMinutes, addSeconds,
-
+    addMinutes,
+    addSeconds,
     differenceInMinutes,
     format,
     isAfter,
     isBefore,
     isSameMinute,
-    startOfMinute
+    startOfMinute,
 } from 'date-fns';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import {
@@ -17,14 +17,18 @@ import {
     BookingRulesmap,
     RecurrenceDetails,
     TimeBlock,
-    TimePeriod
+    TimePeriod,
 } from './event.interfaces';
 
 export function eventStatus(
     details: HashMap
 ): 'approved' | 'tentative' | 'declined' {
     if (details.resources?.length) {
-        if (details.resources.every((i) => i.response_status === 'accepted' || details.approved)) {
+        if (
+            details.resources.every(
+                (i) => i.response_status === 'accepted' || details.approved
+            )
+        ) {
             return 'approved';
         } else if (
             details.resources.some(
@@ -97,11 +101,33 @@ export function getFreeTimeSlots(
             start = bkn_end;
         }
     }
+    const s = start.valueOf();
     slots.push({
-        start: start.valueOf(),
-        end: start.valueOf() * 10,
+        start: s,
+        end: (s ? s : Date.now()) * 10,
     });
     return slots;
+}
+
+export function periodInFreeTimeSlot(
+    start: number,
+    end: number,
+    list: TimePeriod[],
+    min_size: number = 30
+) {
+    const blocks = getFreeTimeSlots(list, min_size);
+    console.log('Free Blocks:', start, end, blocks);
+    for (const blk of blocks) {
+        if (
+            start >= blk.start &&
+            start < blk.end &&
+            end > blk.start &&
+            end <= blk.end
+        ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**

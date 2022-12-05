@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { differenceInDays } from 'date-fns';
 import { Space } from '../space.class';
 
 @Component({
@@ -134,9 +135,13 @@ export class SpaceListComponent {
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
-
-    public readonly available_spaces = this._event_form.available_spaces;
     public readonly loading = this._event_form.loading;
+
+    public get available_spaces() {
+        const { date } = this._event_form.form.getRawValue();
+        const diff = Math.abs(differenceInDays(date, Date.now()));
+        return diff < 14 ? this._event_form.simple_available_spaces : this._event_form.available_spaces;
+    }
 
     constructor(private _event_form: EventFormService) {}
 
