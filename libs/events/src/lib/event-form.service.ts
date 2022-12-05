@@ -13,7 +13,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, getUnixTime, startOfDay } from 'date-fns';
+import { differenceInDays, getUnixTime, isBefore, startOfDay } from 'date-fns';
 import {
     BaseClass,
     currentUser,
@@ -313,10 +313,11 @@ export class EventFormService extends BaseClass {
 
     public resetForm() {
         this._form.reset();
-        const event = this._event.getValue();
+        const event = this._event.getValue() || {} as Partial<CalendarEvent>;
         this._form.patchValue({
-            ...(event || {}),
-            ...(event?.extension_data || {}),
+            ...event,
+            ...event.extension_data,
+            date: !event.id && isBefore(event.date || 0, Date.now()) ? Date.now() : event.date,
             host: event?.host || currentUser().email,
         });
         this._options.next({ features: [] });
