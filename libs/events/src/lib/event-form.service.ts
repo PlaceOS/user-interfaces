@@ -13,7 +13,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { getUnixTime, startOfDay } from 'date-fns';
+import { differenceInDays, getUnixTime, startOfDay } from 'date-fns';
 import {
     BaseClass,
     currentUser,
@@ -81,6 +81,7 @@ export class EventFormService extends BaseClass {
         features: [],
     });
     private _form = generateEventForm();
+    private _date = new BehaviorSubject(Date.now());
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
 
@@ -172,7 +173,7 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
-    public readonly simple_available_spaces = combineLatest([
+    public readonly current_available_spaces = combineLatest([
         this.filtered_spaces,
         this._space_bookings,
     ]).pipe(
@@ -191,9 +192,8 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
-    public readonly available_spaces: Observable<Space[]> = combineLatest([
+    public readonly future_available_spaces: Observable<Space[]> = combineLatest([
         this.filtered_spaces,
-        this._form.valueChanges,
     ]).pipe(
         filter(() => !this._loading.getValue()),
         debounceTime(300),
@@ -238,6 +238,11 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
+    public readonly available_spaces = this._date.pipe(switchMap((d) => {
+        const diff = Math.abs(differenceInDays(d, Date.now()));
+        return diff < 14 ? this.current_available_spaces : this.future_available_spaces;
+    }))
+
     public get view() {
         return this._view.getValue();
     }
@@ -278,14 +283,17 @@ export class EventFormService extends BaseClass {
         );
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(() => this.storeForm())
+            this._form.valueChanges.subscribe(({ date }) => {
+                if (date && date !== this._date.getValue()) this._date.next(date);
+                this.storeForm();
+            })
         );
     }
 
     public listenForStatusChanges() {
         this.subscription(
             'status:rooms',
-            this.simple_available_spaces.subscribe()
+            this.available_spaces.subscribe()
         );
     }
 
@@ -299,6 +307,7 @@ export class EventFormService extends BaseClass {
 
     public newForm(event: CalendarEvent = new CalendarEvent()) {
         this._event.next(event);
+        this._date.next(event.date);
         this.resetForm();
     }
 
