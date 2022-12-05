@@ -1,6 +1,9 @@
 {
     "COMMON": {
-        "TODAY": "Today"
+        "TODAY": "Today",
+        "LANGUAGE": "Français",
+        "LANGUAGE_SELECT": "Sélectionnez une langue",
+        "LANGUAGE_LABEL": "Langue"
     },
     "WPA": {
         "COLLEAGUES": "Colleagues",
