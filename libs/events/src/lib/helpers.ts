@@ -116,7 +116,6 @@ export function periodInFreeTimeSlot(
     min_size: number = 30
 ) {
     const blocks = getFreeTimeSlots(list, min_size);
-    console.log('Free Blocks:', start, end, blocks);
     for (const blk of blocks) {
         if (
             start >= blk.start &&

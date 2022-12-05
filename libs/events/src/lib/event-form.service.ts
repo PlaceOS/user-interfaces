@@ -151,7 +151,11 @@ export class EventFormService extends BaseClass {
                     );
                     const obs = binding
                         .listen()
-                        .pipe(map((_) => (_ || []).map((i) => new CalendarEvent(i))));
+                        .pipe(
+                            map((_) =>
+                                (_ || []).map((i) => new CalendarEvent(i))
+                            )
+                        );
                     this.subscription(`bind:${_.id}`, binding.bind());
                     return obs;
                 })
@@ -167,17 +171,14 @@ export class EventFormService extends BaseClass {
         map(([list, bookings]) => {
             const { date, duration } = this._form.getRawValue();
             return (list || [])
-                .filter((_, idx) =>{
-                    const is_free = periodInFreeTimeSlot(
+                .filter((_, idx) =>
+                    periodInFreeTimeSlot(
                         date,
                         date + duration * MINUTES,
                         bookings[idx]
-                    );
-                    console.log(_.name, is_free, bookings[idx]);
-                    return is_free;
-                })
+                    )
+                )
                 .sort((a, b) => a.capacity - b.capacity);
-            
         }),
         shareReplay(1)
     );
