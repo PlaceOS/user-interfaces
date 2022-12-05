@@ -120,6 +120,10 @@ export class BaseClass implements OnDestroy {
         this._subscriptions[name] = unsub;
     }
 
+    protected hasSubscription(name: string) {
+        return this._subscriptions[name] instanceof Subscription || !!this._subscriptions[name];
+    }
+
     /**
      * Call unsubscribe callback with the given name
      * @param name

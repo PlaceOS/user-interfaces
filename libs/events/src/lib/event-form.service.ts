@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     map,
@@ -97,6 +98,7 @@ export class EventFormService extends BaseClass {
         ),
     ]).pipe(
         debounceTime(300),
+        tap((_) => this.unsubWith('bind:')),
         switchMap(([{ zone_ids }]) => {
             this._loading.next('Loading space list for location...');
             if (!zone_ids?.length) zone_ids = [this._org.building?.id];
@@ -141,10 +143,14 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
-    private _space_bookings = this.filtered_spaces.pipe(
-        tap((_) => this.unsubWith('bind:')),
-        switchMap((list) =>
-            combineLatest(
+    private _space_bookings = combineLatest([
+        this.spaces,
+        this.filtered_spaces,
+    ]).pipe(
+        distinctUntilChanged(([s1], [s2]) => s1 !== s2),
+        switchMap(([_, list]) => {
+            console.log(_, list);
+            return combineLatest(
                 (list || []).map((_) => {
                     const binding = getModule(_.id, 'Bookings').binding(
                         'bookings'
@@ -156,11 +162,13 @@ export class EventFormService extends BaseClass {
                                 (_ || []).map((i) => new CalendarEvent(i))
                             )
                         );
-                    this.subscription(`bind:${_.id}`, binding.bind());
+                    if (!this.hasSubscription(`bind:${_.id}`)) {
+                        this.subscription(`bind:${_.id}`, binding.bind());
+                    }
                     return obs;
                 })
-            )
-        ),
+            );
+        }),
         shareReplay(1)
     );
 
@@ -274,6 +282,13 @@ export class EventFormService extends BaseClass {
         );
     }
 
+    public listenForStatusChanges() {
+        this.subscription(
+            'status:rooms',
+            this.simple_available_spaces.subscribe()
+        );
+    }
+
     public setView(value: EventFlowView) {
         this._view.next(value);
     }
@@ -301,6 +316,8 @@ export class EventFormService extends BaseClass {
 
     public clearForm() {
         sessionStorage.removeItem('PLACEOS.event_form');
+        this.unsubWith('status:');
+        this.unsubWith('bind:');
         this.newForm();
     }
 
