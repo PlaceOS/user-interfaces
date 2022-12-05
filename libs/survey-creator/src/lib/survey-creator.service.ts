@@ -255,7 +255,7 @@ export class SurveyCreatorService {
 
     async saveSurvey() {
         //post to backend (mock data)
-
+        console.log('start');
         const data = {
             id: 0,
             title: 'test title',

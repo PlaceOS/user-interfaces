@@ -37,10 +37,10 @@ export function showSurvey(id: any) {
  */
 export function createSurvey(data: any) {
     return post(`${SURVEYS_ENDPOINT}`, data).pipe(
-        map((item) => new Survey(item))
-        // catchError((err) => {
-        //     throw 'new error' + err;
-        // })
+        map((item) => new Survey(item)),
+        catchError((err) => {
+            throw 'new error' + err;
+        })
     );
 }
 

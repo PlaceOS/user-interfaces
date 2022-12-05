@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Building } from '@placeos/organisation';
+import { BuildingsService } from '../buildings.service';
 
 @Component({
     selector: 'building-list-item',
@@ -25,8 +26,12 @@ import { Building } from '@placeos/organisation';
                 </div>
             </mat-menu>
             <div *ngIf="building.image" class="image-container">
-                <img src="building.image" alt="image of building" />Placeholder
-                Image
+                <img
+                    [src]="building.image"
+                    alt="image of building"
+                    height="230"
+                    width="350"
+                />
             </div>
             <div *ngIf="!building.image" class="image-container">
                 <span> <mat-icon class="domain-icon">domain</mat-icon></span>
@@ -39,7 +44,7 @@ import { Building } from '@placeos/organisation';
                         aria-label="Material icon of location pointer"
                         >location_on</mat-icon
                     >
-                    <span> Location </span>
+                    <span> {{ building.address }} </span>
                 </div>
 
                 <span class="building-title">
@@ -53,8 +58,13 @@ import { Building } from '@placeos/organisation';
             </div>
             <div class="button-container">
                 <button mat-button class="view-button" color="basic">
-                    <span>View</span>
-                    <span> <mat-icon>chevron_right</mat-icon></span>
+                    <a href="/#/list"> <span>View</span></a>
+
+                    <span>
+                        <mat-icon class="right_arrow"
+                            >chevron_right</mat-icon
+                        ></span
+                    >
                 </button>
             </div>
         </section>
@@ -162,21 +172,25 @@ import { Building } from '@placeos/organisation';
                 justify-content: center;
                 align-items: center;
             }
+            a {
+                text-decoration: none;
+            }
         `,
     ],
 })
 export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
-    @Output() deleteBuildingEvent = new EventEmitter<any>();
+    // @Output() deleteBuildingEvent = new EventEmitter<any>();
 
-    constructor() {}
+    constructor(public buildingsService: BuildingsService) {}
 
     ngOnInit(): void {}
 
     editBuilding() {}
 
     deleteBuilding() {
-        console.log(this.building);
-        this.deleteBuildingEvent.emit(this.building);
+        this.buildingsService.deleteBuilding(this.building);
     }
+
+    viewBuilding() {}
 }

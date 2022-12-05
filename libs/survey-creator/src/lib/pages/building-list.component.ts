@@ -8,45 +8,7 @@ import {
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MOCKS } from '@placeos/mocks';
 import { AddBuildingModalComponent } from '../components/add-building-modal.component';
-
-export const MOCK_BUILDINGS = [
-    {
-        name: 'Sydney',
-        description: '',
-        tags: 'building',
-        count: 0,
-        capacity: 0,
-        parent_id: 'zone-EmWFTjuYExK',
-        triggers: [],
-        id: 'bld-01',
-        levels: ['lvl-G', 'lvl-1'],
-        image: '',
-    },
-    {
-        name: 'Brisbane',
-        description: '',
-        tags: 'building',
-        count: 0,
-        capacity: 0,
-        parent_id: 'zone-EmWFTjuYExK',
-        triggers: [],
-        id: 'bld-02',
-        levels: ['lvl-2', 'lvl-3'],
-        image: '',
-    },
-    {
-        name: 'Tasmania',
-        description: '',
-        tags: 'building',
-        count: 0,
-        capacity: 0,
-        parent_id: 'zone-EmWFTjuYExK',
-        triggers: [],
-        id: 'bld-03',
-        levels: ['lvl-G', 'lvl-1'],
-        image: '',
-    },
-];
+import { BuildingsService } from '../buildings.service';
 
 @Component({
     selector: 'building-list',
@@ -114,7 +76,6 @@ export const MOCK_BUILDINGS = [
     ],
 })
 export class BuildingListComponent implements OnInit {
-    mock_buildings = MOCK_BUILDINGS;
     building_count: number = 0;
     private _buildings: BehaviorSubject<Building | any> = new BehaviorSubject<
         Building | any
@@ -126,11 +87,14 @@ export class BuildingListComponent implements OnInit {
         height: '730px',
     };
 
-    constructor(public addDialog: MatDialog) {}
+    constructor(
+        public addDialog: MatDialog,
+        public buildingsService: BuildingsService
+    ) {}
 
     ngOnInit(): void {
-        this._buildings.next(this.mock_buildings);
-        console.log(MOCKS, 'mocks');
+        this.buildings$ = this.buildingsService.buildings$;
+
         this.buildings$.subscribe(
             (buildings) => (this.building_count = buildings?.length)
         );
@@ -138,12 +102,5 @@ export class BuildingListComponent implements OnInit {
 
     addBuilding(): void {
         this.addDialog.open(AddBuildingModalComponent, this.dialogConfig);
-    }
-    deleteBuilding(event) {
-        const currentBuildings = this._buildings.getValue();
-        const updatedBuildings = currentBuildings.filter(
-            (building) => building !== event
-        );
-        this._buildings.next(updatedBuildings);
     }
 }
