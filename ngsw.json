@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1670280940433,
+  "timestamp": 1670281996153,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -276,9 +276,9 @@
     "./assets/img/tick.svg": "d940fcfe7bffcd4785f687cf13b014ea92e2738b",
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
-    "./assets/locale/en.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
+    "./assets/locale/en.json": "3140e3f853733bc2cac9ee6619962c5c54951aa2",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
-    "./assets/locale/fr.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
+    "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
@@ -297,13 +297,13 @@
     "./common.js": "c8ef760936b8c63ba88ba237857a2c261d0d7eef",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "f2a35088d13c20a8961716d915f17f9ec9be7afa",
-    "./main.js": "a3a64062e3f288f9e484eb34a2d16f6b556e6164",
+    "./main.js": "2a4f4018c3e491670384b89778e797dad7e24198",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "b834ea14ae6dd9819f7306a06ce0eda8693fcae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
     "./styles.css": "978e64c543bdf00f26321f3ec11d1b542ed29ac1",
-    "./vendor.js": "383fa90168fd877320d227a780db923e4275e773"
+    "./vendor.js": "185e96988fb6b2f10bb40d27a54bfaa55558505c"
   },
   "navigationUrls": [
     {
