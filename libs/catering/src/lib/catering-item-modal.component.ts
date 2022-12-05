@@ -21,7 +21,7 @@ export interface CateringItemModalData {
             </button>
         </header>
         <form
-            class="p-4 overflow-auto"
+            class="p-4 overflow-auto max-h-[65vh]"
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
