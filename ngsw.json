@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1670213864596,
+  "timestamp": 1670282004916,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -178,9 +178,9 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/en.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
+    "./assets/locale/en.json": "3140e3f853733bc2cac9ee6619962c5c54951aa2",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
-    "./assets/locale/fr.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
+    "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
@@ -208,12 +208,12 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "6c45b15804889df46fc03160121fbe61b9084d9a",
-    "./main.js": "7e7f5887051889b05f74c2b4e2085815da776553",
+    "./main.js": "fb4e2af43bcdc1788c922338ac3d0199cf5ed960",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
     "./styles.css": "978e64c543bdf00f26321f3ec11d1b542ed29ac1",
-    "./vendor.js": "d6fddf52d5d5501aebddb96bade059229df92e66"
+    "./vendor.js": "968f0ef591b06b9372f5ec4cf13a423966142233"
   },
   "navigationUrls": [
     {
