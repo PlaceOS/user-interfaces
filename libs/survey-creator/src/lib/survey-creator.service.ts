@@ -11,6 +11,7 @@ import {
     transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { querySurveys, showSurvey, createSurvey } from './surveys.fn';
 
 @Injectable({
     providedIn: 'root',
@@ -241,7 +242,7 @@ export class SurveyCreatorService {
         this.new_question_form.controls['choices'].updateValueAndValidity();
     }
 
-    submitSurvey() {
+    async submitSurvey() {
         this._createNewJSON();
 
         this.surveyJSON.pages[0].elements = this.selected_questions.map(
@@ -250,6 +251,19 @@ export class SurveyCreatorService {
 
         console.log(this.surveyJSON, 'survey json');
         this._buildSurvey();
+    }
+
+    async saveSurvey() {
+        //post to backend (mock data)
+
+        const data = {
+            id: 0,
+            title: 'test title',
+            description: 'test description',
+            question_order: [0],
+        };
+        const confirm = await createSurvey(data).toPromise();
+        console.log(confirm, 'post to backend');
     }
 
     public findQuestion(question: Question) {
