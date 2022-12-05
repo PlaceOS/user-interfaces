@@ -3,7 +3,8 @@
         "TODAY": "Today",
         "LANGUAGE": "English",
         "LANGUAGE_SELECT": "Select a language",
-        "LANGUAGE_LABEL": "Language"
+        "LANGUAGE_LABEL": "Language",
+        "CONTINUE": "Continue"
     },
     "WPA": {
         "COLLEAGUES": "Colleagues",
@@ -68,7 +69,14 @@
         "CATERING": "Catering",
         "HELP": "Help",
         "CHECKIN": "Check-in",
-        "UPCOMING": "Upcoming"
+        "UPCOMING": "Upcoming",
+        "NO_CURRENT": "No current events",
+        "NO_UPCOMING": "No upcoming events",
+        "BOOTSTRAP_TITLE": "PlaceOS Booking Panel",
+        "BOOTSTRAP_DESCRIPTION": "Input the PlaceOS System ID to bootstrap",
+        "BOOTSTRAP_LABEL": "System ID",
+        "BOOTSTRAP_INPUT_PLACEHOLDER": "Start typing to search for a room",
+        "LOADING_SYSTEM": "Loading system data..."
     },
     "FORM": {
         "ALL_DAY": "All Day",
