@@ -9,6 +9,7 @@ import { EditQuestionBankComponent } from '../components/edit-question-bank.comp
 import { SearchService } from '../search.service';
 import { FormControl, Validators } from '@angular/forms';
 import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
+import { Location } from '@angular/common';
 
 @Component({
     selector: 'design-preview-container',
@@ -242,7 +243,8 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     constructor(
         public surveyCreatorService: SurveyCreatorService,
         public searchService: SearchService,
-        public addDialog: MatDialog
+        public addDialog: MatDialog,
+        private location: Location
     ) {}
 
     ngOnInit(): void {
@@ -314,6 +316,12 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     async _showSurvey() {
         const survey = await showSurvey('1').toPromise();
         console.log(survey, 'get survey by id');
+    }
+
+    back() {
+        if (window.history.length > 0) {
+            this.location.back();
+        }
     }
 
     updateBuilding() {

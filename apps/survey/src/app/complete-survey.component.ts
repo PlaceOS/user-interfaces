@@ -4,12 +4,24 @@ import { SurveyCreatorService } from '@placeos/survey';
 
 @Component({
     selector: 'placeos-complete-survey',
-    template: ` <div id="surveyContainer"></div> `,
+    template: `
+        <section>
+            <div id="surveyContainer"></div>
+
+            Survey results:
+            <div id="surveyResults"></div>
+        </section>
+    `,
     styles: [
         `
+            section {
+                background-color: #fff;
+                padding: 50px;
+            }
             #surveyContainer {
                 display: inline-block;
                 width: 100%;
+                min-height: 500px;
             }
         `,
     ],
@@ -21,6 +33,13 @@ export class CompleteSurveyComponent implements OnInit {
         const survey = new Model(this._surveyCreatorService.surveyJSON);
         SurveyNG.render('surveyContainer', {
             model: survey,
+        });
+
+        survey.onComplete.add((sender: any) => {
+            console.log('completed');
+            document.getElementById('surveyResults').innerHTML = Object.values(
+                sender.data
+            ).toString();
         });
     }
 }

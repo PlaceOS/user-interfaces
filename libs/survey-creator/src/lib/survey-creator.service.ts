@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model, SurveyNG } from 'survey-angular';
-import { Question, QuestionType, Tag } from './survey-types';
+import { Question, QuestionType, Tag, Survey } from './survey-types';
 import {
     DragDropModule,
     CdkDragDrop,
@@ -22,7 +22,7 @@ export class SurveyCreatorService {
         'Survey Title'
     );
     survey_title$: Observable<string> = this.survey_title.asObservable();
-
+    current_building: string = '';
     new_question_form: FormGroup;
     //Store of survey question bank
     private _question_bank: BehaviorSubject<Question[]> = new BehaviorSubject<
@@ -53,19 +53,19 @@ export class SurveyCreatorService {
         return this._selected_questions.getValue();
     }
 
-    //Store of saved questions
-    private _saved_questions: BehaviorSubject<Question[]> = new BehaviorSubject<
-        Question[]
-    >([]);
+    //Store of saved surveys
+    private _saved_surveys: BehaviorSubject<any[]> = new BehaviorSubject<any[]>(
+        []
+    );
 
-    saved_questions$: Observable<any[]> = this._saved_questions.asObservable();
+    saved_surveys$: Observable<any[]> = this._saved_surveys.asObservable();
 
-    set saved_questions(questions: any[]) {
-        this._saved_questions.next(questions);
+    set saved_surveys(surveys: any[]) {
+        this._saved_surveys.next(surveys);
     }
 
-    get saved_questions() {
-        return this._saved_questions.getValue();
+    get saved_surveys(): any[] {
+        return this._saved_surveys.getValue();
     }
 
     //Store of JSON generated from survey questions
@@ -136,40 +136,40 @@ export class SurveyCreatorService {
 
         this.survey_title.pipe(debounceTime(700), distinctUntilChanged());
 
-        //Mock saved questions
-        this.saved_questions = [
+        //Mock saved surveys
+        this.saved_surveys = [
             {
-                building_name: 'Building 7',
+                building_name: 'Building 1',
                 level: '01',
                 type: 'Desk',
-                survey_name: 'Satisfaction survey',
+                title: 'Satisfaction survey',
                 date: '25/08/2022',
                 link: '12345',
                 options: ['open'],
             },
             {
-                building_name: 'Building 3',
+                building_name: 'Building 1',
                 level: '02',
                 type: 'Room',
-                survey_name: 'Satisfaction survey',
+                title: 'Satisfaction survey',
                 date: '30/08/2022',
                 link: '2345',
                 options: ['open'],
             },
             {
-                building_name: 'Building 2',
+                building_name: 'Building 1',
                 level: '01',
                 type: 'Desk',
-                survey_name: 'Satisfaction survey',
+                title: 'Satisfaction survey',
                 date: '30/09/2022',
                 link: '7777',
                 options: ['open'],
             },
             {
-                building_name: 'Building 5',
+                building_name: 'Building 1',
                 level: '03',
                 type: 'Visitors',
-                survey_name: 'Satisfaction survey',
+                title: 'Satisfaction survey',
                 date: '30/10/2022',
                 link: '15838',
                 options: ['open'],
@@ -218,11 +218,11 @@ export class SurveyCreatorService {
     }
 
     checkForm() {
-        !this.new_question_form.controls['title'].valid
+        !this.new_question_form.controls['title']?.valid
             ? this._title_error.next(true)
             : this._title_error.next(false);
 
-        !this.new_question_form.controls['choices'].valid
+        !this.new_question_form.controls['choices']?.valid
             ? this._choice_error.next(true)
             : this._choice_error.next(false);
 
@@ -230,16 +230,33 @@ export class SurveyCreatorService {
     }
 
     updateValidators() {
-        this.new_question_form.controls['choices'].setValidators(
+        this.new_question_form.controls['choices']?.setValidators(
             Validators.required
         );
-        this.new_question_form.controls['choices'].updateValueAndValidity();
+        this.new_question_form.controls['choices']?.updateValueAndValidity();
 
         console.log('validator set');
     }
     clearChoicesValidators() {
-        this.new_question_form.controls['choices'].clearValidators();
-        this.new_question_form.controls['choices'].updateValueAndValidity();
+        this.new_question_form.controls['choices']?.clearValidators();
+        this.new_question_form.controls['choices']?.updateValueAndValidity();
+    }
+
+    updateSurveysList() {
+        this.survey_title;
+        const date = new Date();
+
+        this.saved_surveys$.subscribe((surveys) =>
+            surveys.push({
+                building_name: 'Building 1',
+                level: '01',
+                type: '',
+                title: this.survey_title.getValue(),
+                date: date.toLocaleDateString('en-GB'),
+                link: '111',
+                options: ['open'],
+            })
+        );
     }
 
     async submitSurvey() {
@@ -251,6 +268,7 @@ export class SurveyCreatorService {
 
         console.log(this.surveyJSON, 'survey json');
         this._buildSurvey();
+        this.updateSurveysList();
     }
 
     async saveSurvey() {

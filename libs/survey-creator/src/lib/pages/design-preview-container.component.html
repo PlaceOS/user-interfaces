@@ -2,7 +2,11 @@
 <section class="page-wrapper">
     <header class="heading-wrapper">
         <div class="left-wrapper">
-            <span><mat-icon class="back-arrow">arrow_back</mat-icon></span>
+            <span
+                ><mat-icon class="back-arrow" (click)="back()"
+                    >arrow_back</mat-icon
+                ></span
+            >
             <span class="page-heading">New Survey</span>
         </div>
 
@@ -11,7 +15,8 @@
                 mat-button
                 class="add-button"
                 color="primary"
-                (click)="surveyCreatorService.saveSurvey()"
+                (click)="surveyCreatorService.updateSurveysList()"
+                [routerLink]="'/list'"
             >
                 Save Survey
             </button>
@@ -251,6 +256,9 @@
                                     class="complete-button"
                                     (click)="
                                         surveyCreatorService.submitSurvey()
+                                    "
+                                    [routerLink]="
+                                        '/list/{{selected_building.name}}'
                                     "
                                 >
                                     Complete

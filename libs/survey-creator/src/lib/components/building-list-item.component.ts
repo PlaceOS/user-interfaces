@@ -57,8 +57,13 @@ import { BuildingsService } from '../buildings.service';
                 </ul>
             </div>
             <div class="button-container">
-                <button mat-button class="view-button" color="basic">
-                    <a href="/#/list"> <span>View</span></a>
+                <button
+                    mat-button
+                    class="view-button"
+                    color="basic"
+                    [routerLink]="'/list/{{building.name}}'"
+                >
+                    <span>View</span>
 
                     <span>
                         <mat-icon class="right_arrow"
@@ -171,9 +176,6 @@ import { BuildingsService } from '../buildings.service';
                 display: flex;
                 justify-content: center;
                 align-items: center;
-            }
-            a {
-                text-decoration: none;
             }
         `,
     ],

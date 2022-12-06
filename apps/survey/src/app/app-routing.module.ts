@@ -23,17 +23,16 @@ const routes: Routes = [
         component: CreateSurveyFormComponent,
     },
     {
-        path: 'complete-survey',
+        path: 'complete-survey/:id',
         // canActivate: [AuthorisedUserGuard],
         component: CompleteSurveyComponent,
     },
     {
-        path: 'list',
+        path: 'list/:id',
         // canActivate: [AuthorisedUserGuard],
         component: SurveyListComponent,
     },
     { path: '404', component: NotFoundComponent },
-    { path: '', pathMatch: 'full', redirectTo: '/buildings' },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
 

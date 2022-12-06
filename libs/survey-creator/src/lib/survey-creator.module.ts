@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
@@ -81,6 +82,7 @@ const COMPONENTS: Type<any>[] = [
         MatSelectModule,
         MatSlideToggleModule,
         ComponentsModule,
+        RouterModule,
         MatTableModule,
         MatMenuModule,
     ],

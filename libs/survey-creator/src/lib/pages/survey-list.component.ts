@@ -13,7 +13,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
             <header class="heading-wrapper">
                 <div class="left-wrapper">
                     <span
-                        ><mat-icon class="back-arrow"
+                        ><mat-icon class="back-arrow" [routerLink]="'/'"
                             >arrow_back</mat-icon
                         ></span
                     >
@@ -41,7 +41,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                         mat-button
                         class="add-button"
                         color="primary"
-                        (click)="addSurvey()"
+                        [routerLink]="'/create-survey'"
                     >
                         Add New Survey
                         <mat-icon>add</mat-icon>
@@ -279,7 +279,7 @@ export class SurveyListComponent implements OnInit {
         {
             columnDef: 'name',
             header: 'Name',
-            cell: (element) => `${element.survey_name}`,
+            cell: (element) => `${element.title}`,
             ascending: null,
         },
         {
@@ -304,7 +304,7 @@ export class SurveyListComponent implements OnInit {
     displayedColumns: string[] = this.columns.map((item) => item.columnDef);
     ascending: boolean;
 
-    saved_questions: any = this.surveyCreatorService.saved_questions;
+    saved_surveys: any = this.surveyCreatorService.saved_surveys;
     dataSource: any = new MatTableDataSource<any>();
 
     dataSubscription: Subscription = new Subscription();
@@ -315,7 +315,7 @@ export class SurveyListComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.dataSource.data = this.saved_questions;
+        this.dataSource.data = this.saved_surveys;
 
         this.building_levels = [
             { display: 'All Levels', level: 'all' },
@@ -347,7 +347,7 @@ export class SurveyListComponent implements OnInit {
         }
 
         this.dataSubscription =
-            this.surveyCreatorService.saved_questions$.subscribe((array) => {
+            this.surveyCreatorService.saved_surveys$.subscribe((array) => {
                 if (!found_column.ascending) {
                     array = array.sort((a, b) =>
                         b[found_column.columnDef]?.localeCompare(
@@ -368,13 +368,9 @@ export class SurveyListComponent implements OnInit {
             });
     }
 
-    addSurvey(): void {
-        //routes to be added in app
-    }
-
     updateListView() {
         this.dataSubscription =
-            this.surveyCreatorService.saved_questions$.subscribe((data) => {
+            this.surveyCreatorService.saved_surveys$.subscribe((data) => {
                 this.dataSource.data = data;
             });
         const updated_view = this.dataSource.data.filter(
@@ -402,11 +398,11 @@ export class SurveyListComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result) => {
             if (!result) return;
             console.log(survey.link);
-            const found_index = this.saved_questions.findIndex(
+            const found_index = this.saved_surveys.findIndex(
                 (item) => item == survey
             );
-            this.saved_questions.splice(found_index, 1);
-            this.dataSource.data = this.saved_questions;
+            this.saved_surveys.splice(found_index, 1);
+            this.dataSource.data = this.saved_surveys;
         });
     }
 
