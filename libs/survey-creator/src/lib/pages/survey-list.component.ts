@@ -1,9 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Location } from '@angular/common';
+import { Subscription, Observable } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { SurveyCreatorService } from '../survey-creator.service';
+import { BuildingsService } from '../buildings.service';
 import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.component';
 
 @Component({
@@ -13,11 +15,11 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
             <header class="heading-wrapper">
                 <div class="left-wrapper">
                     <span
-                        ><mat-icon class="back-arrow" [routerLink]="'/'"
+                        ><mat-icon class="back-arrow" (click)="back()"
                             >arrow_back</mat-icon
                         ></span
                     >
-                    <span class="page-heading">{{ buildingName }}</span>
+                    <span class="page-heading">{{ page_title }}</span>
                 </div>
 
                 <div class="right-wrapper">
@@ -252,7 +254,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
     ],
 })
 export class SurveyListComponent implements OnInit {
-    @Input() buildingName: string = 'Building 1';
+    page_title: string = '';
 
     building_levels: any[];
     selected_level: string = '';
@@ -304,17 +306,33 @@ export class SurveyListComponent implements OnInit {
     displayedColumns: string[] = this.columns.map((item) => item.columnDef);
     ascending: boolean;
 
-    saved_surveys: any = this.surveyCreatorService.saved_surveys;
+    saved_surveys$: Observable<any[]> =
+        this.surveyCreatorService.saved_surveys$;
+    saved_surveys: any[];
     dataSource: any = new MatTableDataSource<any>();
 
     dataSubscription: Subscription = new Subscription();
+    buildingSubscription: Subscription = new Subscription();
+    paramsSubscription: Subscription = new Subscription();
+
     constructor(
-        private router: Router,
+        private location: Location,
+        private route: ActivatedRoute,
+        public router: Router,
+
         public dialog: MatDialog,
-        public surveyCreatorService: SurveyCreatorService
+        public surveyCreatorService: SurveyCreatorService,
+        public buildingsService: BuildingsService
     ) {}
 
     ngOnInit(): void {
+        this._getParams();
+
+        this.saved_surveys$.subscribe(
+            (surveys) => (this.saved_surveys = surveys)
+        );
+
+        this._filterSurveysByBuilding(this.page_title);
         this.dataSource.data = this.saved_surveys;
 
         this.building_levels = [
@@ -335,7 +353,9 @@ export class SurveyListComponent implements OnInit {
     }
 
     sortByHeader(header: string): void {
-        const found_column = this.columns.find(
+        console.log(this.saved_surveys);
+        this._filterSurveysByBuilding(this.page_title);
+        const found_column: any = this.columns.find(
             (column) => column.header == header
         );
 
@@ -346,33 +366,29 @@ export class SurveyListComponent implements OnInit {
             found_column.ascending = false;
         }
 
-        this.dataSubscription =
-            this.surveyCreatorService.saved_surveys$.subscribe((array) => {
-                if (!found_column.ascending) {
-                    array = array.sort((a, b) =>
-                        b[found_column.columnDef]?.localeCompare(
-                            a[found_column.columnDef]
-                        )
-                    );
-                    this.dataSource.data = array;
-                    found_column.ascending = !found_column.ascending;
-                } else {
-                    array = array.sort((a, b) =>
-                        a[found_column.columnDef]?.localeCompare(
-                            b[found_column.columnDef]
-                        )
-                    );
-                    this.dataSource.data = array;
-                    found_column.ascending = !found_column.ascending;
-                }
-            });
+        if (!found_column.ascending) {
+            this.saved_surveys = this.saved_surveys.sort((a, b) =>
+                b[found_column.columnDef]?.localeCompare(
+                    a[found_column.columnDef]
+                )
+            );
+            this.dataSource.data = this.saved_surveys;
+            found_column.ascending = !found_column.ascending;
+        } else {
+            this.saved_surveys = this.saved_surveys.sort((a, b) =>
+                a[found_column.columnDef]?.localeCompare(
+                    b[found_column.columnDef]
+                )
+            );
+            this.dataSource.data = this.saved_surveys;
+            found_column.ascending = !found_column.ascending;
+        }
     }
 
     updateListView() {
-        this.dataSubscription =
-            this.surveyCreatorService.saved_surveys$.subscribe((data) => {
-                this.dataSource.data = data;
-            });
+        this.dataSubscription = this.saved_surveys$.subscribe((data) => {
+            this.dataSource.data = data;
+        });
         const updated_view = this.dataSource.data.filter(
             (item) => item.level == this.selected_level
         );
@@ -406,7 +422,52 @@ export class SurveyListComponent implements OnInit {
         });
     }
 
+    back(): void {
+        this.surveyCreatorService.updateCurrentBuilding('');
+        if (window.history.length > 0) {
+            this.location.back();
+        }
+    }
+
+    private _getParams() {
+        let id: string;
+        this.paramsSubscription = this.route.paramMap.subscribe((params) => {
+            id = params.get('id') || '';
+        });
+        if (id) {
+            this._findBuilding(id);
+        }
+    }
+
+    private _findBuilding(building_name: string) {
+        let found_building;
+        this.buildingSubscription = this.buildingsService.buildings$.subscribe(
+            (buildings) => {
+                found_building = buildings.find(
+                    (item) => item.name == building_name
+                );
+            }
+        );
+        this.surveyCreatorService.updateCurrentBuilding(found_building);
+        this.page_title = found_building.name;
+    }
+
+    private _filterSurveysByBuilding(building_name: string) {
+        this.saved_surveys$.subscribe((surveys) => {
+            this.saved_surveys = surveys.filter(
+                (survey) =>
+                    this._removeSpace(survey.building_name) ==
+                    this._removeSpace(building_name)
+            );
+        });
+    }
+
+    private _removeSpace(title: string): string {
+        return title.replace(/\s+/g, '');
+    }
+
     ngOnDestroy(): void {
-        this.dataSubscription?.unsubscribe();
+        this.buildingSubscription?.unsubscribe();
+        this.paramsSubscription?.unsubscribe();
     }
 }

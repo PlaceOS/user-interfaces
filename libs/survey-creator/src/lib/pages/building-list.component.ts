@@ -9,6 +9,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MOCKS } from '@placeos/mocks';
 import { AddBuildingModalComponent } from '../components/add-building-modal.component';
 import { BuildingsService } from '../buildings.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'building-list',

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Building } from '@placeos/organisation';
 import { BuildingsService } from '../buildings.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'building-list-item',
@@ -61,7 +62,7 @@ import { BuildingsService } from '../buildings.service';
                     mat-button
                     class="view-button"
                     color="basic"
-                    [routerLink]="'/list/{{building.name}}'"
+                    (click)="navigate()"
                 >
                     <span>View</span>
 
@@ -184,7 +185,11 @@ export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
     // @Output() deleteBuildingEvent = new EventEmitter<any>();
 
-    constructor(public buildingsService: BuildingsService) {}
+    constructor(
+        public buildingsService: BuildingsService,
+        public router: Router,
+        public route: ActivatedRoute
+    ) {}
 
     ngOnInit(): void {}
 
@@ -195,4 +200,10 @@ export class BuildingListItemComponent implements OnInit {
     }
 
     viewBuilding() {}
+
+    navigate(): void {
+        this.router.navigate(['survey-list', this.building.name], {
+            relativeTo: this.route,
+        });
+    }
 }

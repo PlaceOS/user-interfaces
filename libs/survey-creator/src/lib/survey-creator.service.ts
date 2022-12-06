@@ -148,7 +148,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
-                building_name: 'Building 1',
+                building_name: 'Building 2',
                 level: '02',
                 type: 'Room',
                 title: 'Satisfaction survey',
@@ -167,6 +167,15 @@ export class SurveyCreatorService {
             },
             {
                 building_name: 'Building 1',
+                level: '03',
+                type: 'Room',
+                title: 'Satisfaction survey',
+                date: '30/23/2022',
+                link: '7489',
+                options: ['open'],
+            },
+            {
+                building_name: 'Building 4',
                 level: '03',
                 type: 'Visitors',
                 title: 'Satisfaction survey',
@@ -199,7 +208,7 @@ export class SurveyCreatorService {
 
     deleteQuestion(question?: Question) {
         const index_to_delete = this.selected_questions.findIndex((object) => {
-            return object.title === question.title;
+            return object.title === question?.title;
         });
         this.selected_questions[index_to_delete].selected = false;
 
@@ -290,6 +299,10 @@ export class SurveyCreatorService {
         });
     }
 
+    public updateCurrentBuilding(building_name: string) {
+        this.current_building = building_name;
+    }
+
     private _generateID() {
         return Math.floor(Math.random() * 10000000).toString();
     }
@@ -310,9 +323,8 @@ export class SurveyCreatorService {
         SurveyNG.render('surveyContainer', { model: survey });
         survey.onComplete.add((sender: any) => {
             console.log('completed');
-            document.getElementById('surveyResults').innerHTML = Object.values(
-                sender.data
-            ).toString();
+            document.getElementById('surveyResults').innerHTML =
+                Object.values(sender.data).toString() || '';
         });
     }
 }
