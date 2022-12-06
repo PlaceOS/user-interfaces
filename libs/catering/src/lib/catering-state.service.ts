@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { updateMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { first, map, shareReplay, switchMap } from 'rxjs/operators';
+import { first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import {
     BaseClass,
@@ -45,6 +45,7 @@ import { query } from '@angular/animations';
     providedIn: 'root',
 })
 export class CateringStateService extends BaseClass {
+    private _updated = new BehaviorSubject(0);
     /** Active menu */
     private _menu = new BehaviorSubject<CateringItem[]>([]);
     /** Whether the menu for the active building is loading */
@@ -60,6 +61,7 @@ export class CateringStateService extends BaseClass {
 
     public readonly availability: Observable<string[]> = combineLatest([
         this._org.active_building,
+        this._updated
     ]).pipe(
         switchMap(([bld]) => showMetadata(bld.id, 'disabled-catering-rooms')),
         map((d) => (d.details instanceof Array ? d.details : []) as string[]),
@@ -354,7 +356,7 @@ export class CateringStateService extends BaseClass {
             name: 'disabled-catering-rooms',
             details: list,
             description: `Rooms with catering disabled under ${this._org.building.id}`,
-        }).toPromise();
+        }).pipe(tap(() => this._updated.next(Date.now()))).toPromise();
     }
 
     private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {

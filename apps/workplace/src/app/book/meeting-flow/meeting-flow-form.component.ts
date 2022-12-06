@@ -382,8 +382,9 @@ export class MeetingFlowFormComponent extends BaseClass {
     private async _checkCateringEligibility(list: Space[]) {
         if (list?.length) {
             const menu = await this._catering.available_menu.pipe(take(1)).toPromise();
+            const disabled_rooms = await this._catering.availability.pipe(take(1)).toPromise();
             const can_cater = list.every((s) => menu.filter(_ => !_.hide_for_zones.find(z => s.zones.includes(z))).length);
-            if (!can_cater) {
+            if (!can_cater || disabled_rooms.find(_ => list.find(i => i.id === _))) {
                 this.form.patchValue({ catering: [] });
                 this.form.controls.catering.disable();
                 notifyWarn(

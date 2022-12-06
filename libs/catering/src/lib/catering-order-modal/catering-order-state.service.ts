@@ -32,6 +32,14 @@ export class CateringOrderStateService {
     public readonly loading = this._loading.asObservable();
     public readonly filters = this._filters.asObservable();
 
+    public readonly availability: Observable<string[]> = combineLatest([
+        this._org.active_building
+    ]).pipe(
+        switchMap(([bld]) => showMetadata(bld.id, 'disabled-catering-rooms')),
+        map((d) => (d.details instanceof Array ? d.details : []) as string[]),
+        shareReplay(1)
+    );
+
     public readonly available_menu: Observable<CateringItem[]> = combineLatest([this._options, this._org.initialised]).pipe(
         filter(([_, init]) => init),
         switchMap(([{ zone }]) =>{
