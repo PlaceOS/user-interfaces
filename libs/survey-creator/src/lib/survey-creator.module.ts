@@ -13,6 +13,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
+import { LibRoutingModule } from './lib-routing.module';
 
 import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title.component';
@@ -30,7 +31,7 @@ import { PlusButtonComponent } from './components/plus-button.component';
 import { MinusButtonComponent } from './components/minus-button.component';
 import { CommentBoxQuestionComponent } from './components/comment-box-question.component';
 import { DropdownQuestionComponent } from './components/dropdown-question.component';
-import { CompleteSurveyComponent } from './complete-survey.component';
+import { CompleteSurveyComponent } from './pages/complete-survey.component';
 import { EditQuestionBankComponent } from './components/edit-question-bank.component';
 import { QuestionContainerComponent } from './components/question-container.component';
 import { SurveyListComponent } from './pages/survey-list.component';
@@ -81,10 +82,11 @@ const COMPONENTS: Type<any>[] = [
         MatButtonModule,
         MatSelectModule,
         MatSlideToggleModule,
-        ComponentsModule,
+        // ComponentsModule,
         RouterModule,
         MatTableModule,
         MatMenuModule,
+        LibRoutingModule,
     ],
     exports: [...COMPONENTS],
 })
