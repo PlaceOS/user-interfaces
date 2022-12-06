@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { updateMetadata, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import {
     BaseClass,
@@ -39,6 +39,7 @@ import {
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
+import { query } from '@angular/animations';
 
 @Injectable({
     providedIn: 'root',
@@ -56,6 +57,14 @@ export class CateringStateService extends BaseClass {
     public readonly loading = this._loading.asObservable();
     /** Observable for the currency code of the active building */
     public readonly currency = this._currency.asObservable();
+
+    public readonly availability: Observable<string[]> = combineLatest([
+        this._org.active_building,
+    ]).pipe(
+        switchMap(([bld]) => showMetadata(bld.id, 'disabled-catering-rooms')),
+        map((d) => (d.details instanceof Array ? d.details : []) as string[]),
+        shareReplay(1)
+    );
 
     public zone = '';
 
@@ -336,6 +345,15 @@ export class CateringStateService extends BaseClass {
             name: 'catering',
             details: menu,
             description: `Catering menu for ${zone_id}`,
+        }).toPromise();
+    }
+
+    public saveDisabledRooms(list: string[]) {
+        return updateMetadata(this._org.building.id, {
+            id: this._org.building.id,
+            name: 'disabled-catering-rooms',
+            details: list,
+            description: `Rooms with catering disabled under ${this._org.building.id}`,
         }).toPromise();
     }
 

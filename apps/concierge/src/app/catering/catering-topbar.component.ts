@@ -5,6 +5,8 @@ import { first } from 'rxjs/operators';
 import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringOrdersService, CateringStateService } from '@placeos/catering';
+import { CateringRoomsStateModalComponent } from 'libs/catering/src/lib/catering-rooms-state-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'catering-topbar',
@@ -39,6 +41,9 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
             </button>
             <button *ngIf="page === 'menu'" mat-button (click)="importMenu()">
                 Import Menu
+            </button>
+            <button *ngIf="page === 'menu'" mat-button (click)="setRoomAvailability()">
+                Room Availability
             </button>
             <div class="flex-1 w-2"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
@@ -85,7 +90,8 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
         private _catering: CateringStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -127,5 +133,9 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
                 this.updateZones(this.zones);
             })
         );
+    }
+
+    public setRoomAvailability() {
+        this._dialog.open(CateringRoomsStateModalComponent);
     }
 }
