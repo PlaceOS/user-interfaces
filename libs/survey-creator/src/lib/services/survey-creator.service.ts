@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model, SurveyNG } from 'survey-angular';
-import { Question, QuestionType, Tag, Survey } from './survey-types';
+import { Question, QuestionType, Tag, Survey } from '../survey-types';
 import {
     DragDropModule,
     CdkDragDrop,
@@ -11,7 +11,7 @@ import {
     transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { querySurveys, showSurvey, createSurvey } from './surveys.fn';
+import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
 
 @Injectable({
     providedIn: 'root',

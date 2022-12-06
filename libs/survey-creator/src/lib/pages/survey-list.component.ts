@@ -4,8 +4,8 @@ import { Subscription, Observable } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { SurveyCreatorService } from '../survey-creator.service';
-import { BuildingsService } from '../buildings.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
+import { BuildingsService } from '../services/buildings.service';
 import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.component';
 
 @Component({
@@ -331,8 +331,6 @@ export class SurveyListComponent implements OnInit {
         this.saved_surveys$.subscribe(
             (surveys) => (this.saved_surveys = surveys)
         );
-        console.log(this.saved_surveys, 'surveys in LIst component');
-
         this._filterSurveysByBuilding(this.selected_building);
         this.dataSource.data = this.saved_surveys;
 
@@ -358,14 +356,12 @@ export class SurveyListComponent implements OnInit {
         const found_column: any = this.columns.find(
             (column) => column.header == header
         );
-
         if (
             found_column.ascending == null ||
             found_column.ascending == undefined
         ) {
             found_column.ascending = false;
         }
-
         if (!found_column.ascending) {
             this.saved_surveys = this.saved_surveys.sort((a, b) =>
                 b[found_column.columnDef]?.localeCompare(

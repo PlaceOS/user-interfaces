@@ -2,16 +2,16 @@ import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Observable, fromEvent, BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { Question, QuestionType } from '../survey-types';
-import { SurveyCreatorService } from '../survey-creator.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from '../components/add-question-bank.component';
 import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
-import { SearchService } from '../search.service';
+import { SearchService } from '../services/search.service';
 import { FormControl, Validators } from '@angular/forms';
 import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { BuildingsService } from '../buildings.service';
+import { BuildingsService } from '../services/buildings.service';
 
 @Component({
     selector: 'design-preview-container',
@@ -283,19 +283,19 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         // return false;
     }
 
-    onKey(event: any) {
+    onKey(event: any): void {
         this.survey_title.patchValue(event.target.value);
 
         this.surveyCreatorService.survey_title.next(event.target.value);
         this.checkTitle();
     }
 
-    tabChanged(event: any) {
+    tabChanged(event: any): void {
         console.log(this.tabGroup.selectedIndex);
         console.log(event.index, 'index');
     }
 
-    checkTitle() {
+    checkTitle(): void {
         if (
             this.survey_title.value === 'Survey Title' ||
             !this.survey_title.valid ||

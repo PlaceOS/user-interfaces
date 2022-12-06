@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SurveyCreatorService } from '../survey-creator.service';
-import { SearchService } from '../search.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
+import { SearchService } from '../services/search.service';
 import { Question, Tag } from '../survey-types';
 import { isThisSecond } from 'date-fns/esm';
 

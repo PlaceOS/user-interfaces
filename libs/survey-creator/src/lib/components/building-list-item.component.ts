@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Building } from '@placeos/organisation';
-import { BuildingsService } from '../buildings.service';
+import { BuildingsService } from '../services/buildings.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -198,8 +198,6 @@ export class BuildingListItemComponent implements OnInit {
     deleteBuilding() {
         this.buildingsService.deleteBuilding(this.building);
     }
-
-    viewBuilding() {}
 
     navigate(): void {
         this.router.navigate(['survey-list', this.building.name], {

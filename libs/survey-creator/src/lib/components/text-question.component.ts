@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { SurveyCreatorService } from '../survey-creator.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
 import { Question } from '../survey-types';
 import { Observable } from 'rxjs';
 

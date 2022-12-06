@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { BuildingsService } from '../buildings.service';
+import { BuildingsService } from '../services/buildings.service';
 import { Building, BookingRuleDetails } from '@placeos/organisation';
 
 @Component({
@@ -280,16 +280,16 @@ export class AddBuildingModalComponent implements OnInit {
 
     addBuilding(): void {
         console.log(
-            this.buildingForm.get('building_name').value,
-            this.buildingForm.get('building_location').value
+            this.buildingForm.get('building_name')?.value,
+            this.buildingForm.get('building_location')?.value
         );
         const building = {
             id: 'bld-02',
-            name: this.buildingForm.get('building_name').value,
+            name: this.buildingForm.get('building_name')?.value,
             display_name: 'Brisbane',
             zone_id: '',
             code: '',
-            address: this.buildingForm.get('building_location').value,
+            address: this.buildingForm.get('building_location')?.value,
             timezone: '',
             holding_bay: '',
             visitor_space: '',
@@ -339,6 +339,6 @@ export class AddBuildingModalComponent implements OnInit {
         reader.readAsDataURL(files.item(0));
         this.buildingForm
             .get('building_name')
-            .setValue(files[0].name.split('.')[0]);
+            ?.setValue(files[0].name.split('.')[0]);
     }
 }

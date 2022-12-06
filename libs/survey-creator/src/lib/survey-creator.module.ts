@@ -15,7 +15,6 @@ import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 import { LibRoutingModule } from './lib-routing.module';
 
-import { SurveyCreatorComponent } from './survey-creator.component';
 import { InputTitleComponent } from './components/input-title.component';
 import { ButtonWithIconComponent } from './components/button-with-icon.component';
 import { QuestionBoxComponent } from './components/question-box.component';
@@ -42,7 +41,6 @@ import { AddBuildingModalComponent } from './components/add-building-modal.compo
 import { DragdropDirective } from './components/dragdrop.directive';
 
 const COMPONENTS: Type<any>[] = [
-    SurveyCreatorComponent,
     InputTitleComponent,
     ButtonWithIconComponent,
     QuestionBoxComponent,

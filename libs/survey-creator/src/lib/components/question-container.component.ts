@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Question, QuestionType } from '../survey-types';
-import { SurveyCreatorService } from '../survey-creator.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
 
 @Component({
     selector: 'question-container',

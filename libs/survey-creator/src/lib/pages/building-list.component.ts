@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MOCKS } from '@placeos/mocks';
 import { AddBuildingModalComponent } from '../components/add-building-modal.component';
-import { BuildingsService } from '../buildings.service';
-import { ActivatedRoute } from '@angular/router';
+import { BuildingsService } from '../services/buildings.service';
 
 @Component({
     selector: 'building-list',
@@ -78,6 +76,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class BuildingListComponent implements OnInit {
     building_count: number = 0;
+    buildingsSubscription: Subscription = new Subscription();
     private _buildings: BehaviorSubject<Building | any> = new BehaviorSubject<
         Building | any
     >(null);
@@ -96,12 +95,16 @@ export class BuildingListComponent implements OnInit {
     ngOnInit(): void {
         this.buildings$ = this.buildingsService.buildings$;
 
-        this.buildings$.subscribe(
+        this.buildingsSubscription = this.buildings$.subscribe(
             (buildings) => (this.building_count = buildings?.length)
         );
     }
 
     addBuilding(): void {
         this.addDialog.open(AddBuildingModalComponent, this.dialogConfig);
+    }
+
+    ngOnDestroy(): void {
+        this.buildingsSubscription?.unsubscribe();
     }
 }

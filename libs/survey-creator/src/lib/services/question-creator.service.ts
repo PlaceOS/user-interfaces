@@ -2,7 +2,7 @@ import { ConstantPool } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SurveyCreatorService } from './survey-creator.service';
-import { Question, QuestionType } from './survey-types';
+import { Question, QuestionType } from '../survey-types';
 
 @Injectable({
     providedIn: 'root',

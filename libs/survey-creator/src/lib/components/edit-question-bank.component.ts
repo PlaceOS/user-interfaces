@@ -3,8 +3,8 @@ import { Observable, Subscription, BehaviorSubject, of } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
-import { SurveyCreatorService } from '../survey-creator.service';
-import { SearchService } from '../search.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
+import { SearchService } from '../services/search.service';
 
 @Component({
     selector: 'edit-question-bank',

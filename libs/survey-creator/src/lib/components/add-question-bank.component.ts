@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Question, QuestionType, Tag } from '../survey-types';
-import { SurveyCreatorService } from '../survey-creator.service';
+import { SurveyCreatorService } from '../services/survey-creator.service';
 
 @Component({
     selector: 'add-question-bank',
