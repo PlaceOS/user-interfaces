@@ -182,6 +182,7 @@ export class AppComponent extends BaseClass implements OnInit {
         this._translate?.addLangs(locales.map(_ => _.id));
         if (locale) {
             this._translate?.use(locale);
+            
         } else {
             const list = navigator.languages;
             for (const lang of list) {
