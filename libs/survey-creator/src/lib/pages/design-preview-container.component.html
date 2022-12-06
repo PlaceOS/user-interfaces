@@ -254,12 +254,7 @@
                                     mat-button
                                     color="primary"
                                     class="complete-button"
-                                    (click)="
-                                        surveyCreatorService.submitSurvey()
-                                    "
-                                    [routerLink]="
-                                        '/list/{{selected_building.name}}'
-                                    "
+                                    (click)="complete()"
                                 >
                                     Complete
                                 </button>

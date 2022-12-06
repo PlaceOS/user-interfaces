@@ -257,7 +257,7 @@ export class SurveyCreatorService {
 
         this.saved_surveys$.subscribe((surveys) =>
             surveys.push({
-                building_name: 'Building 1',
+                building_name: this.current_building,
                 level: '01',
                 type: '',
                 title: this.survey_title.getValue(),

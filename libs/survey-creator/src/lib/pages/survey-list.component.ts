@@ -19,7 +19,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                             >arrow_back</mat-icon
                         ></span
                     >
-                    <span class="page-heading">{{ page_title }}</span>
+                    <span class="page-heading">{{ selected_building }}</span>
                 </div>
 
                 <div class="right-wrapper">
@@ -43,7 +43,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                         mat-button
                         class="add-button"
                         color="primary"
-                        [routerLink]="'/create-survey'"
+                        (click)="navigate()"
                     >
                         Add New Survey
                         <mat-icon>add</mat-icon>
@@ -254,7 +254,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
     ],
 })
 export class SurveyListComponent implements OnInit {
-    page_title: string = '';
+    selected_building: string = '';
 
     building_levels: any[];
     selected_level: string = '';
@@ -327,12 +327,13 @@ export class SurveyListComponent implements OnInit {
 
     ngOnInit(): void {
         this._getParams();
-
+        this.saved_surveys$ = this.surveyCreatorService.saved_surveys$;
         this.saved_surveys$.subscribe(
             (surveys) => (this.saved_surveys = surveys)
         );
+        console.log(this.saved_surveys, 'surveys in LIst component');
 
-        this._filterSurveysByBuilding(this.page_title);
+        this._filterSurveysByBuilding(this.selected_building);
         this.dataSource.data = this.saved_surveys;
 
         this.building_levels = [
@@ -353,8 +354,7 @@ export class SurveyListComponent implements OnInit {
     }
 
     sortByHeader(header: string): void {
-        console.log(this.saved_surveys);
-        this._filterSurveysByBuilding(this.page_title);
+        this._filterSurveysByBuilding(this.selected_building);
         const found_column: any = this.columns.find(
             (column) => column.header == header
         );
@@ -385,10 +385,9 @@ export class SurveyListComponent implements OnInit {
         }
     }
 
-    updateListView() {
-        this.dataSubscription = this.saved_surveys$.subscribe((data) => {
-            this.dataSource.data = data;
-        });
+    updateListView(): void {
+        this._filterSurveysByBuilding(this.selected_building);
+        this.dataSource.data = this.saved_surveys;
         const updated_view = this.dataSource.data.filter(
             (item) => item.level == this.selected_level
         );
@@ -397,12 +396,13 @@ export class SurveyListComponent implements OnInit {
         }
     }
 
-    viewSurvey(survey) {
+    viewSurvey(survey): void {
+        // link to view of survey results
         console.log(survey, 'to open');
     }
 
-    editSurvey(survey) {
-        //duplicate of view action?
+    editSurvey(survey): void {
+        //link to draft survey to be edited
     }
 
     deleteSurvey(survey) {
@@ -424,12 +424,15 @@ export class SurveyListComponent implements OnInit {
 
     back(): void {
         this.surveyCreatorService.updateCurrentBuilding('');
-        if (window.history.length > 0) {
-            this.location.back();
-        }
+        this.router.navigate(['/']);
     }
 
-    private _getParams() {
+    navigate(): void {
+        this.surveyCreatorService.updateCurrentBuilding(this.selected_building);
+        this.router.navigate(['create-survey']);
+    }
+
+    private _getParams(): void {
         let id: string;
         this.paramsSubscription = this.route.paramMap.subscribe((params) => {
             id = params.get('id') || '';
@@ -449,7 +452,7 @@ export class SurveyListComponent implements OnInit {
             }
         );
         this.surveyCreatorService.updateCurrentBuilding(found_building);
-        this.page_title = found_building.name;
+        this.selected_building = found_building.name;
     }
 
     private _filterSurveysByBuilding(building_name: string) {

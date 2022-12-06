@@ -10,6 +10,8 @@ import { SearchService } from '../search.service';
 import { FormControl, Validators } from '@angular/forms';
 import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
 import { Location } from '@angular/common';
+import { Router } from '@angular/router';
+import { BuildingsService } from '../buildings.service';
 
 @Component({
     selector: 'design-preview-container',
@@ -199,20 +201,9 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     selected_level: any = '';
     selected_zone: any = '';
     selected_trigger: any = '';
-    levels: any[] = [];
+    levels: any[] | '' = [];
     zones: any[] = [];
-    buildings = [
-        {
-            name: 'Building 1',
-            levels: ['Level 1', 'Level 2', 'Level 3'],
-            zone: 'ABC',
-        },
-        {
-            name: 'Building 5',
-            levels: ['LG', 'Ground', 'Level 1'],
-            zone: 'CDE',
-        },
-    ];
+    buildings: any = [];
 
     locations = [{ name: 'Sydney' }, { name: 'Melbourne' }];
 
@@ -244,14 +235,25 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         public surveyCreatorService: SurveyCreatorService,
         public searchService: SearchService,
         public addDialog: MatDialog,
-        private location: Location
+        private location: Location,
+        public router: Router,
+        public buildingsService: BuildingsService
     ) {}
 
     ngOnInit(): void {
-        console.log(this.searchService.question_bank, 'q bank');
+        this.buildings = this.buildingsService.buildings;
         this.question_bank$ = this.searchService.question_bank$;
-        this.selected_building = this.buildings[0].name;
-        this.selected_location = this.locations[0].name;
+
+        if (this.surveyCreatorService.current_building) {
+            this.selected_building = this.surveyCreatorService.current_building;
+            this.selected_location = this.buildings.find(
+                (building) =>
+                    building.name == this.surveyCreatorService.current_building
+            );
+        } else {
+            this.selected_building = this.buildings[0].name;
+            this.selected_location = this.buildings[0].address;
+        }
 
         const current_building = this.buildings.find(
             (building) => (building.name = this.selected_building)
@@ -261,7 +263,6 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         this.zones = this.buildings.map((building) =>
             this.zones.push(building.zone)
         );
-        console.log(this.zones, 'zones');
         this.selected_zone = this.zones[0];
         this.selected_trigger = this.triggers[0];
     }
@@ -318,10 +319,26 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         console.log(survey, 'get survey by id');
     }
 
-    back() {
+    async complete() {
+        await this.surveyCreatorService.submitSurvey();
+        this.navigate();
+    }
+
+    back(): void {
         if (window.history.length > 0) {
             this.location.back();
         }
+    }
+
+    navigate(): void {
+        console.log(
+            this.surveyCreatorService.current_building,
+            'current building'
+        );
+        this.router.navigate([
+            'survey-list',
+            this.surveyCreatorService.current_building,
+        ]);
     }
 
     updateBuilding() {

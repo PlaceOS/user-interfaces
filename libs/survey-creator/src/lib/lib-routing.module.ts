@@ -10,7 +10,7 @@ import { NotFoundComponent } from './pages/not-found.component';
 const routes: Routes = [
     { path: '', component: BuildingListComponent },
     { path: 'survey-list/:id', component: SurveyListComponent },
-    { path: 'create-survey/:id', component: DesignPreviewContainerComponent },
+    { path: 'create-survey', component: DesignPreviewContainerComponent },
     { path: 'complete-survey/:id', component: CompleteSurveyComponent },
     { path: '404', component: NotFoundComponent },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
