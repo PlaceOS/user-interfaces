@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -86,7 +86,7 @@ export class AppComponent extends BaseClass implements OnInit {
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
-        private _translate: TranslateService
+        @Optional() private _translate: TranslateService
     ) {
         super();
     }
@@ -131,7 +131,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
             if (params.has('lang')) {
                 const locale = params.get('lang');
-                this._translate.use(locale);
+                this._translate?.use(locale);
                 localStorage.setItem('PLACEOS.locale', locale);
             }
         });
@@ -179,15 +179,15 @@ export class AppComponent extends BaseClass implements OnInit {
     private _initLocale() {
         let locale = localStorage.getItem('PLACEOS.locale');
         const locales = this._settings.get('app.locales') || [];
-        this._translate.addLangs(locales.map(_ => _.id));
+        this._translate?.addLangs(locales.map(_ => _.id));
         if (locale) {
-            this._translate.use(locale);
+            this._translate?.use(locale);
         } else {
             const list = navigator.languages;
             for (const lang of list) {
                 locale = locales.find(_ => _.id === lang);
                 if (locale) {
-                    this._translate.use(lang);
+                    this._translate?.use(lang);
                     localStorage.setItem('PLACEOS.locale', lang);
                     break;
                 }
