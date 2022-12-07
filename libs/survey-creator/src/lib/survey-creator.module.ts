@@ -80,7 +80,7 @@ const COMPONENTS: Type<any>[] = [
         MatButtonModule,
         MatSelectModule,
         MatSlideToggleModule,
-        // ComponentsModule,
+        ComponentsModule,
         RouterModule,
         MatTableModule,
         MatMenuModule,

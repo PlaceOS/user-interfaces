@@ -57,96 +57,113 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                     </div>
                 </div>
 
-                <div class="table-container">
-                    <table mat-table [dataSource]="dataSource" class=" table">
-                        <ng-container
-                            *ngFor="let column of columns"
-                            [matColumnDef]="column.columnDef"
-                            ]
+                <ng-container
+                    [ngTemplateOutlet]="
+                        dataSource.data.length ? tableContent : none
+                    "
+                >
+                    <ng-template #tableContent>
+                        <table
+                            mat-table
+                            [dataSource]="dataSource"
+                            class=" table"
                         >
-                            <th
-                                mat-header-cell
-                                *matHeaderCellDef
-                                (click)="sortByHeader(column.header)"
+                            <ng-container
+                                *ngFor="let column of columns"
+                                [matColumnDef]="column.columnDef"
+                                ]
                             >
-                                <div class="header-wrapper">
-                                    <span>
-                                        {{ column.header }}
-                                    </span>
-                                    <span
-                                        *ngIf="
-                                            column.header != 'Link' &&
-                                            column.header != 'Options'
-                                        "
-                                    >
-                                        <mat-icon
-                                            [ngClass]="{
-                                                'descending-icon':
-                                                    !column.ascending
-                                            }"
-                                            >filter_list</mat-icon
+                                <th
+                                    mat-header-cell
+                                    *matHeaderCellDef
+                                    (click)="sortByHeader(column.header)"
+                                >
+                                    <div class="header-wrapper">
+                                        <span>
+                                            {{ column.header }}
+                                        </span>
+                                        <span
+                                            *ngIf="
+                                                column.header != 'Link' &&
+                                                column.header != 'Options'
+                                            "
                                         >
-                                    </span>
-                                </div>
-                            </th>
-                            <td mat-cell *matCellDef="let row">
-                                <div *ngIf="column.cell(row) !== 'open'">
-                                    {{ column.cell(row) }}
-                                </div>
-                                <div *ngIf="column.cell(row) == 'open'">
-                                    <button
-                                        mat-icon-button
-                                        [matMenuTriggerFor]="optionsMenu"
-                                        aria-label="button to see more options"
-                                        class="options-button"
-                                    >
-                                        <mat-icon class="ellipse"
-                                            >more_horiz</mat-icon
+                                            <mat-icon
+                                                [ngClass]="{
+                                                    'descending-icon':
+                                                        !column.ascending
+                                                }"
+                                                >filter_list</mat-icon
+                                            >
+                                        </span>
+                                    </div>
+                                </th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div *ngIf="column.cell(row) !== 'open'">
+                                        {{ column.cell(row) }}
+                                    </div>
+                                    <div *ngIf="column.cell(row) == 'open'">
+                                        <button
+                                            mat-icon-button
+                                            [matMenuTriggerFor]="optionsMenu"
+                                            aria-label="button to see more options"
+                                            class="options-button"
                                         >
-                                    </button>
-                                    <mat-menu #optionsMenu="matMenu">
-                                        <div class="menu-wrapper">
-                                            <button
-                                                mat-menu-item
-                                                (click)="viewSurvey(row)"
+                                            <mat-icon class="ellipse"
+                                                >more_horiz</mat-icon
                                             >
-                                                <mat-icon>visibility</mat-icon>
-                                                <span>View</span>
-                                            </button>
-                                            <button
-                                                mat-menu-item
-                                                (click)="editSurvey(row)"
-                                            >
-                                                <mat-icon>edit</mat-icon>
-                                                <span>Edit</span>
-                                            </button>
-                                            <button
-                                                mat-menu-item
-                                                (click)="deleteSurvey(row)"
-                                            >
-                                                <mat-icon
-                                                    >delete_forever</mat-icon
+                                        </button>
+                                        <mat-menu #optionsMenu="matMenu">
+                                            <div class="menu-wrapper">
+                                                <button
+                                                    mat-menu-item
+                                                    (click)="viewSurvey(row)"
                                                 >
-                                                <span>Delete</span>
-                                            </button>
-                                        </div>
-                                    </mat-menu>
-                                </div>
-                            </td>
-                        </ng-container>
+                                                    <mat-icon
+                                                        >visibility</mat-icon
+                                                    >
+                                                    <span>View</span>
+                                                </button>
+                                                <button
+                                                    mat-menu-item
+                                                    (click)="editSurvey(row)"
+                                                >
+                                                    <mat-icon>edit</mat-icon>
+                                                    <span>Edit</span>
+                                                </button>
+                                                <button
+                                                    mat-menu-item
+                                                    (click)="deleteSurvey(row)"
+                                                >
+                                                    <mat-icon
+                                                        >delete_forever</mat-icon
+                                                    >
+                                                    <span>Delete</span>
+                                                </button>
+                                            </div>
+                                        </mat-menu>
+                                    </div>
+                                </td>
+                            </ng-container>
 
-                        <tr
-                            mat-header-row
-                            *matHeaderRowDef="displayedColumns"
-                            class="header-row"
-                        ></tr>
-                        <tr
-                            mat-row
-                            *matRowDef="let row; columns: displayedColumns"
-                            class="rows"
-                        ></tr>
-                    </table>
-                </div>
+                            <tr
+                                mat-header-row
+                                *matHeaderRowDef="displayedColumns"
+                                class="header-row"
+                            ></tr>
+                            <tr
+                                mat-row
+                                *matRowDef="let row; columns: displayedColumns"
+                                class="rows"
+                            ></tr>
+                        </table>
+                    </ng-template>
+                    <ng-template #none>
+                        <div class="none-selected">
+                            <span>No saved surveys for this building</span>
+                        </div>
+                    </ng-template>
+                </ng-container>
             </main>
         </section>
     `,
@@ -249,6 +266,15 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
             .descending-icon {
                 transform: rotate(180deg);
                 margin-bottom: 12px;
+            }
+            .none-selected {
+                display: flex;
+                flex-direction: column;
+                color: #808080;
+                width: 300px;
+                height: 200px;
+                text-align: center;
+                margin: 200px auto;
             }
         `,
     ],
