@@ -196,13 +196,13 @@ const EMPTY = [];
                         <app-icon>more_horiz</app-icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
-                        <button
+                        <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
                             <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
-                        </button>
+                        </button> -->
                         <button
                             mat-menu-item
                             (click)="toggleFavourite(item.type, item.id)"
