@@ -16,6 +16,7 @@ a[button],
     background-color: var(--color);
     border: 1px solid var(--color);
     color: var(--font-light);
+    font-size: 1rem;
     min-height: 3em;
 
     &.inverse {
