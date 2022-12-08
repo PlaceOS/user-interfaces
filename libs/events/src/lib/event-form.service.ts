@@ -40,6 +40,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { getFreeTimeSlots, periodInFreeTimeSlot } from './helpers';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -84,6 +85,7 @@ export class EventFormService extends BaseClass {
     private _date = new BehaviorSubject(Date.now());
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
+    private _space_pipe: SpacePipe;
 
     public last_success: CalendarEvent = new CalendarEvent(
         JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}')
@@ -266,9 +268,10 @@ export class EventFormService extends BaseClass {
         private _router: Router,
         private _payments: PaymentsService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
+        this._space_pipe = new SpacePipe(this._org);
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {
@@ -480,7 +483,7 @@ export class EventFormService extends BaseClass {
         exclude?: { start: number; end: number },
         ignore?: string
     ) {
-        const space_ids = spaces.map((s) => s.id);
+        const space_ids = (await Promise.all(spaces.map(_ => this._space_pipe.transform(_.id || _.email)))).map(_ => _.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
