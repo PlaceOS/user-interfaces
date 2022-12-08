@@ -5,6 +5,7 @@ import { currentUser, SettingsService } from '@placeos/common';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { Router } from '@angular/router';
 
 export interface ExploreBookingModalData {
     space: Space;
@@ -100,7 +101,8 @@ export class ExploreBookingModalComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) private _data: ExploreBookingModalData,
         private _settings: SettingsService,
         private _event_form: EventFormService,
-        private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>
+        private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>,
+        private _router: Router
     ) {}
 
     public ngOnInit() {
@@ -114,6 +116,7 @@ export class ExploreBookingModalComponent implements OnInit {
 
     public async save() {
         await this._event_form.postForm();
+        this._router.navigate(['/book', 'meeting', 'success']);
         this._dialog_ref.close();
     }
 }
