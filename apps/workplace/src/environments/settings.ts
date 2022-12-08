@@ -10,6 +10,7 @@ const general: any = {
     search: true,
     copyright: 'PlaceOS',
     position: 'right',
+    dark_mode: false
 };
 /**
  * HELP/SUPPORT SETTINGS

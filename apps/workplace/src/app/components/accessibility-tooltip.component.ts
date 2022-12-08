@@ -14,6 +14,7 @@ import { CustomTooltipData } from '@placeos/components';
             </div>
             <div
                 action
+                *ngIf="can_change_dark_mode"
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"
             >
                 <div
@@ -73,6 +74,10 @@ export class AccessibilityTooltipComponent {
 
     public get dark_mode() {
         return !!this._settings.get('dark_mode');
+    }
+
+    public get can_change_dark_mode() {
+        return !!this._settings.get('app.general.dark_mode');
     }
 
     public get accessible() {
