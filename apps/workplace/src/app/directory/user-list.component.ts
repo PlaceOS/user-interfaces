@@ -92,7 +92,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
             }
 
             mat-form-field {
-                width: 768px;
+                width: 48rem;
                 max-width: calc(100% - 2rem);
             }
         `,

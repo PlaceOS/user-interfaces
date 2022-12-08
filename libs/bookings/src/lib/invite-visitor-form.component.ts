@@ -185,7 +185,7 @@ import { User } from '@placeos/users';
                 sent
                 class="absolute inset-0 bg-white dark:bg-neutral-700 flex flex-col items-center justify-center text-center"
             >
-                <div class="w-full max-w-[512px] flex-1 h-1/2 space-y-2 m-8">
+                <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
                     <h2 class="text-3xl" i18n>
                         Visitor invite sent to
                         {{ last_success?.asset_name || last_success?.asset_id }}
@@ -206,7 +206,7 @@ import { User } from '@placeos/users';
                     class="w-full p-2 border-t border-gray-200 dark:border-neutral-500"
                 >
                     <div
-                        class="mx-auto flex items-center space-x-2 w-full max-w-[512px]"
+                        class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >
                         <button mat-button class="flex-1" (click)="onDone()" i18n>
                             Great, thanks

@@ -10,7 +10,7 @@ import { EventFormService } from '@placeos/events';
             >
                 <h2 class="text-2xl font-medium">{{ "WPA.BOOKING_CONFIRMED" | translate }}</h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center max-w-[512px]" i18n>
+                <p class="text-center max-w-[32rem]" i18n>
                     Your
                     <span *ngIf="space">
                         room booking for
@@ -26,7 +26,7 @@ import { EventFormService } from '@placeos/events';
                 </p>
             </main>
             <footer class="p-2 w-full border-t border-gray-200 dark:bg-neutral-500 mt-4 flex items-center justify-center">
-                <a button mat-button class="w-full max-w-[512px]" [routerLink]="['/']">
+                <a button mat-button class="w-full max-w-[32rem]" [routerLink]="['/']">
                     {{ "WPA.BOOKING_DONE_CONTINUE" | translate }}
                 </a>
             </footer>

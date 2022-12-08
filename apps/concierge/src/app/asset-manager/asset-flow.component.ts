@@ -8,7 +8,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <ng-container *ngIf="!loading; else load_state">
             <div
-                class="flex flex-col h-full max-w-full w-[768px] overflow-hidden px-2 py-4 mx-auto"
+                class="flex flex-col h-full max-w-full w-[48rem] overflow-hidden px-2 py-4 mx-auto"
                 *ngIf="!success; else success_state"
             >
                 <div class="flex items-center px-4 space-x-4">
@@ -131,7 +131,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 class="h-full w-full flex flex-col items-center justify-center space-y-2"
             >
                 <div
-                    class="w-[768px] bg-white rounded p-8 relative space-y-2 flex flex-col items-center"
+                    class="w-[48rem] bg-white rounded p-8 relative space-y-2 flex flex-col items-center"
                 >
                     <h2 class="text-2xl">New Asset Created</h2>
                     <img class="w-60" src="assets/asset_success.svg" />

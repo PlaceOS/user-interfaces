@@ -8,7 +8,7 @@ import { BookingFormService } from '@placeos/bookings';
             class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
         >
             <h2 class="text-2xl font-medium" i18n>Parking Space Confirmed!</h2>
-            <p class="text-center max-w-[512px]" i18n>
+            <p class="text-center max-w-[32rem]" i18n>
                 Your
                 <span>
                     parking space reservation for
@@ -28,7 +28,7 @@ import { BookingFormService } from '@placeos/bookings';
             <a
                 button
                 mat-button
-                class="w-full max-w-[512px]"
+                class="w-full max-w-[32rem]"
                 [routerLink]="['/']"
                 i18n
             >

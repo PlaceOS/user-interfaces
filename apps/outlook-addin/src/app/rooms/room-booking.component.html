@@ -2,7 +2,7 @@
     <form *ngIf="form" [formGroup]="form">
         <section class="flex flex-col border-b border-gray-300 dark:border-neutral-500 py-5 items-center">
             <div
-                class="flex flex-col w-[calc(100%-2rem)] max-w-[360px] self-center"
+                class="flex flex-col w-[calc(100%-2rem)] max-w-[22.5rem] self-center"
             >
                 <span class="flex text-xl font-bold mb-2"> Book Room</span>
 
@@ -24,7 +24,7 @@
                             matInput
                             placeholder="e.g Team meeting"
                             formControlName="title"
-                            class="text-sm max-w-[360px]"
+                            class="text-sm max-w-[22.5rem]"
                         />
                     </mat-form-field>
                 </div>
@@ -35,7 +35,7 @@
                     <a-date-field
                         [from]="min_date"
                         formControlName="date"
-                        class="text-sm max-w-[360px]"
+                        class="text-sm max-w-[22.5rem]"
                     ></a-date-field>
                 </div>
                 <div class="flex flex-row -mb-5 space-x-2">
@@ -71,7 +71,7 @@
             class="flex flex-col py-3 border-b border-gray-300 dark:border-neutral-500 items-center"
         >
             <div
-                class="flex flex-col w-[calc(100%-2rem)] max-w-[360px] self-center"
+                class="flex flex-col w-[calc(100%-2rem)] max-w-[22.5rem] self-center"
             >
                 <div class="flex flex-row">
                     <div
@@ -89,7 +89,7 @@
 
                     <a-user-list-field
                         formControlName="attendees"
-                        class="text-sm max-w-[360px]"
+                        class="text-sm max-w-[22.5rem]"
                         [custom_template]="true"
                         (download)="downloadTemplate()"
                     ></a-user-list-field>

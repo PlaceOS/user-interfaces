@@ -40,12 +40,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </div>
             <div class="flex items-center">
-                <div class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[360px]">
+                <div class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]">
                     <image-carousel
                         [images]="(asset | async)?.images || []"
                     ></image-carousel>
                 </div>
-                <div class="w-[512px] h-[360px] px-4 flex flex-col">
+                <div class="w-[32rem] h-[22.5rem] px-4 flex flex-col">
                     <div
                         class="w-full flex items-center justify-between border-b border-gray-300 dark:border-neutral-500"
                     >
