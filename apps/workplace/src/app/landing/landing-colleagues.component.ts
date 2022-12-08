@@ -207,7 +207,7 @@ export class LandingColleaguesComponent extends BaseClass {
             list.filter(
                 (_) =>
                     !contacts.find(
-                        (user) => user.id !== _.id && user.email !== _.email
+                        (user) => user.id === _.id || user.email === _.email
                     )
             )
         )
