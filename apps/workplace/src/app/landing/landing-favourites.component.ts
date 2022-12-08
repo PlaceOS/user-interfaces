@@ -72,8 +72,8 @@ const EMPTY = [];
                                 />
                             </ng-template>
                         </div>
-                        <div class="h-20">
-                            <div class="truncate mb-4">
+                        <div class="h-20 flex-1 w-1/2">
+                            <div class="truncate mb-4 w-full pr-12">
                                 {{
                                     (item | space | async)?.display_name ||
                                         (item | space | async)?.name
