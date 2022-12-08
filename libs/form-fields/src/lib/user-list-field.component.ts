@@ -45,7 +45,7 @@ function validateEmail(email) {
     selector: 'a-user-list-field',
     template: `
         <div
-            class="mb-4bg-white text-black"
+            class="mb-4"
             form-field
             [attr.disabled]="disabled"
         >
