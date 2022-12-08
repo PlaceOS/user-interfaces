@@ -142,16 +142,25 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
+                            class="overflow-hidden flex flex-col items-center"
                             [@show]="hide_block.resources ? 'hide' : 'show'"
                         >
+                            <div
+                                *ngIf="!strict_capacity_check && total_capacity && total_capacity <=
+                                    form.value.attendees?.length
+                                "
+                                class="bg-yellow-500 rounded shadow p-2 text-xs mx-auto my-2 text-black inline-flex"
+                            >
+                                The selected room has less capacity than the
+                                number of meeting attendees.
+                            </div>
                             <space-list-field
-                                class="mt-4"
+                                class="w-full"
                                 formControlName="resources"
                             ></space-list-field>
                         </div>
                     </section>
-                    <section class="p-2" *ngIf="(has_catering | async)">
+                    <section class="p-2" *ngIf="has_catering | async">
                         <h3 class="space-x-2 flex items-center">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -275,8 +284,10 @@ export class MeetingFlowFormComponent extends BaseClass {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
-    
-    public readonly has_catering = this._catering.available_menu.pipe(map(l => l.length > 0));
+
+    public readonly has_catering = this._catering.available_menu.pipe(
+        map((l) => l.length > 0)
+    );
 
     public get form() {
         return this._state.form;
@@ -298,11 +309,31 @@ export class MeetingFlowFormComponent extends BaseClass {
         return this._settings.get('app.events.allow_externals');
     }
 
+    public get strict_capacity_check() {
+        return this._settings.get('app.events.strict_capacity_check');
+    }
+
+    public get total_capacity() {
+        return this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0;
+    }
+
+    public get attendee_count() {
+        const user = currentUser();
+        let count = this.form.value.attendees?.length || 0;
+        if (!this.form.value.attendees.find(_ => _.email.toLowerCase() === user.email.toLowerCase())) {
+            count += 1;
+        }
+        return count;
+    }
+
     public readonly clearForm = () => this._state.resetForm();
 
     public readonly viewConfirm = () => {
         if (!this.form.value.host)
             this.form.patchValue({ host: currentUser()?.email });
+        if (this.strict_capacity_check && this.attendee_count > this.total_capacity) {
+            return notifyError('Attendee count is greater than the capacity of the selected rooms')
+        }
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
@@ -381,10 +412,23 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     private async _checkCateringEligibility(list: Space[]) {
         if (list?.length) {
-            const menu = await this._catering.available_menu.pipe(take(1)).toPromise();
-            const disabled_rooms = await this._catering.availability.pipe(take(1)).toPromise();
-            const can_cater = list.every((s) => menu.filter(_ => !_.hide_for_zones.find(z => s.zones.includes(z))).length);
-            if (!can_cater || disabled_rooms.find(_ => list.find(i => i.id === _))) {
+            const menu = await this._catering.available_menu
+                .pipe(take(1))
+                .toPromise();
+            const disabled_rooms = await this._catering.availability
+                .pipe(take(1))
+                .toPromise();
+            const can_cater = list.every(
+                (s) =>
+                    menu.filter(
+                        (_) =>
+                            !_.hide_for_zones.find((z) => s.zones.includes(z))
+                    ).length
+            );
+            if (
+                !can_cater ||
+                disabled_rooms.find((_) => list.find((i) => i.id === _))
+            ) {
                 this.form.patchValue({ catering: [] });
                 this.form.controls.catering.disable();
                 notifyWarn(
