@@ -609,6 +609,10 @@ custom-table[header-dark] {
                 @apply text-white;
             }
         }
+
+        .mat-datepicker-toggle button {
+            color: #fff;
+        }
     
         nav {
             .mat-tab-links {

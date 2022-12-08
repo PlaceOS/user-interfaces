@@ -38,7 +38,7 @@ import {
                 (ngModelChange)="setValue($event)"
             />
             <button mat-icon-button matSuffix class="relative top-1 -right-1" (click)="showSelect()">
-                <app-icon class="text-2xl text-black text-opacity-50">
+                <app-icon class="text-2xl text-opacity-50">
                     arrow_drop_down
                 </app-icon>
             </button>
