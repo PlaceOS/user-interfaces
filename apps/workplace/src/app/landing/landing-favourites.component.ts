@@ -7,6 +7,8 @@ import {
 } from '@placeos/bookings';
 import { BaseClass, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
@@ -85,7 +87,7 @@ const EMPTY = [];
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <div>
                                     {{
-                                        (item | space | async)?.level
+                                        level((item | space | async))
                                             ?.display_name
                                     }}
                                 </div>
@@ -272,7 +274,12 @@ export class LandingFavouritesComponent extends BaseClass {
         return this._settings.get<string[]>(FAV_PARKING_KEY) || EMPTY;
     }
 
+    public level(space: Space) {
+        return this._org.levelWithID(space?.zones || []);
+    }
+
     constructor(
+        private _org: OrganisationService,
         private _settings: SettingsService,
         private _space_pipe: SpacePipe,
         private _event_form: EventFormService,
