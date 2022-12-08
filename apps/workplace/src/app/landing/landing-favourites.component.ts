@@ -119,16 +119,16 @@ const EMPTY = [];
                         <app-icon>more_horiz</app-icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
-                        <button
+                        <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
                             <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
-                        </button>
+                        </button> -->
                         <button
                             mat-menu-item
-                            (click)="toggleFavourite('space', id)"
+                            (click)="toggleFavourite('space', item)"
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
@@ -209,7 +209,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
+                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }} </div>
                         </button>
                     </mat-menu>
                 </div>
