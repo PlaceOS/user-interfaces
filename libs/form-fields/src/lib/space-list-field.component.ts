@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
+import { OrganisationService } from '@placeos/organisation';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -57,7 +58,7 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>
-                        <p>{{ space.location }}</p>
+                        <p>{{ space.location || level(space.zones)?.display_name || level(space.zones)?.name }}</p>
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
@@ -142,8 +143,13 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
+        private _org: OrganisationService,
         private _dialog: MatDialog
     ) {}
+
+    public level(zones: string[]) {
+        return this._org.levelWithID(zones);
+    }
 
     /** Add or edit selected spaces */
     public changeSpaces() {
