@@ -45,8 +45,8 @@ import { LandingStateService } from './landing-state.service';
                         ></div>
                     </div>
                     <div class="leading-tight flex-1 w-1/2">
-                        <div class="truncate">{{ user.name }}</div>
-                        <div class="text-sm truncate">
+                        <div class="truncate" [matTooltip]="user.name">{{ user.name }}</div>
+                        <div class="text-sm truncate" [matTooltip]="user.organisation">
                             {{ user.organisation }}
                         </div>
                         <div class="text-xs opacity-60 truncate">
