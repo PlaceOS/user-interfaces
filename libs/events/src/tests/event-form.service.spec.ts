@@ -42,6 +42,7 @@ describe('EventFormService', () => {
 
     beforeEach(() => {
         (cal_mod as any).querySpaceAvailability = jest.fn(() => of([]));
+        (ts_client as any).querySystems = jest.fn(() => of({ data: [] }));
         spectator = createService();
     });
 

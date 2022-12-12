@@ -54,11 +54,11 @@ import { CateringOrderStateService } from './catering-order-state.service';
                                 <p class="flex-1 w-px" *ngIf="item.unit_price">
                                     {{ item.unit_price / 100 | currency:code }}
                                 </p>
-                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-green-500 flex items-center justify-center" *ngIf="item.tags.includes('Gluten Free')">GF</div>
-                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-blue-600 flex items-center justify-center" *ngIf="item.tags.includes('Vegan')">VG</div>
-                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-blue-400 flex items-center justify-center" *ngIf="item.tags.includes('Vegetarian')">V</div>
-                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-yellow-600 flex items-center justify-center" *ngIf="item.tags.includes('Contains Dairy')">D</div>
-                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-orange-600 flex items-center justify-center" *ngIf="item.tags.includes('Contains Nuts')">N</div>
+                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-green-500 flex items-center justify-center" *ngIf="item.tags?.includes('Gluten Free')">GF</div>
+                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-blue-600 flex items-center justify-center" *ngIf="item.tags?.includes('Vegan')">VG</div>
+                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-blue-400 flex items-center justify-center" *ngIf="item.tags?.includes('Vegetarian')">V</div>
+                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-yellow-500 flex items-center justify-center" *ngIf="item.tags?.includes('Contains Dairy')">D</div>
+                                <div class="text-xs h-5 w-7 rounded-xl shadow bg-orange-600 flex items-center justify-center" *ngIf="item.tags?.includes('Contains Nuts')">N</div>
                             </div>
                         </div>
                     </button>
@@ -118,7 +118,7 @@ export class CateringItemListComponent {
     constructor(private _state: CateringOrderStateService) {}
 
     public isFavourite(item_id: string) {
-        return this.favorites.includes(item_id);
+        return this.favorites?.includes(item_id);
     }
 
     public selectItem(item: CateringItem) {

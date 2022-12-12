@@ -437,18 +437,12 @@ export class OrganisationService {
     }
 
     private _setDefaultBuilding() {
-        console.log('Set Default Building:', this.buildings);
         if (!this.buildings.length) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
         } else {
             const timezone = this.timezone;
-            console.log(
-                'Timezone:',
-                timezone,
-                this.buildings.map((_) => `${_.name}|${_.timezone}`)
-            );
             for (const bld of this.buildings) {
                 if (bld.timezone === timezone) {
                     this.building = bld;

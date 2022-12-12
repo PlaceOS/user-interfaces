@@ -1,55 +1,52 @@
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatBottomSheetRef } from "@angular/material/bottom-sheet";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatSelectModule } from "@angular/material/select";
-import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { BookingFormService } from "@placeos/bookings";
-import { SettingsService } from "@placeos/common";
-import { IconComponent } from "@placeos/components";
-import { DateFieldComponent, DurationFieldComponent, TimeFieldComponent } from "@placeos/form-fields";
-import { Building, OrganisationService } from "@placeos/organisation";
-import { MockComponent, MockModule } from "ng-mocks";
-import { BehaviorSubject, of } from "rxjs";
-import { DeskFiltersComponent } from "../../lib/desk-select-modal/desk-filters.component";
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { BookingFormService } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
+import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
 
 describe('DeskFiltersComponent', () => {
     let spectator: Spectator<DeskFiltersComponent>;
     const createComponent = createComponentFactory({
         component: DeskFiltersComponent,
         providers: [
-            {
-                provide: MatBottomSheetRef,
-                useValue: { dismiss: jest.fn() },
-            },
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn() },
-            },
-            {
-                provide: OrganisationService,
-                useValue: { 
-                    building_list: of([new Building({id:'1'})]),
-                    building: new Building({id:'1'})
-                },
-            },
-            {
-                provide: BookingFormService,
-                useValue: {
-                    features: new BehaviorSubject(['standing']),
-                    form: new FormGroup({
-                        date: new FormControl(),
-                        duration: new FormControl(),
-                        all_day : new FormControl()
-                    })
-                }
-            }
+            MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, {
+                active_buildings: of([new Building({ id: '1' })]),
+                building: new Building({ id: '1' }),
+            }),
+            MockProvider(BookingFormService, {
+                features: new BehaviorSubject(['standing']),
+                form: new FormGroup({
+                    date: new FormControl(),
+                    duration: new FormControl(),
+                    all_day: new FormControl(),
+                }),
+            } as any),
         ],
         declarations: [
             MockComponent(DateFieldComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
-            MockComponent(IconComponent)
+            MockComponent(IconComponent),
         ],
         imports: [
             MockModule(MatCheckboxModule),
@@ -57,14 +54,16 @@ describe('DeskFiltersComponent', () => {
             MockModule(MatSelectModule),
             MockModule(FormsModule),
             MockModule(ReactiveFormsModule),
-        ]
-    })
+        ],
+    });
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => expect(spectator.component).toBeTruthy());
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
 
-    it('should allow changing building', async () => expect('[name="building"]').toExist());
+    it('should allow changing building', async () =>
+        expect('[name="building"]').toExist());
 
     it('should allow changing date', () =>
         expect('[formControlName="date"]').toExist());
@@ -92,4 +91,4 @@ describe('DeskFiltersComponent', () => {
         spectator.click('button[close]');
         expect(spectator.inject(MatBottomSheetRef).dismiss).toBeCalled();
     });
-})
+});

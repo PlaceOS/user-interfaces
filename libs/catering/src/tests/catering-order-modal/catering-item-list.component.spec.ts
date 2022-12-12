@@ -1,6 +1,6 @@
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
@@ -10,17 +10,12 @@ describe('CateringItemListComponent', () => {
     const createComponent = createRoutingFactory({
         component: CateringItemListComponent,
         providers: [
-            {
-                provide: CateringOrderStateService,
-                useValue: {
-                    loading: new BehaviorSubject(''),
-                    filtered_menu: new BehaviorSubject([]),
-                },
-            },
+            MockProvider(CateringOrderStateService, {
+                loading: new BehaviorSubject(''),
+                filtered_menu: new BehaviorSubject([]),
+            }),
         ],
-        declarations: [
-            MockComponent(IconComponent)
-        ],
+        declarations: [MockComponent(IconComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));

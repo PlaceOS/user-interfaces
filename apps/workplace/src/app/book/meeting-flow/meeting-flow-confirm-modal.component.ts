@@ -254,7 +254,6 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
 
     public async ngOnInit() {
         this._space = await this._space_pipe.transform(this.event.resources[0].email) || this._space;
-        console.log('Space:', this._space);
     }
 
     public get event() {

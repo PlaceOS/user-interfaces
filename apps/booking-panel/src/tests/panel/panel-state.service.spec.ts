@@ -1,7 +1,9 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
+import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
 
@@ -10,12 +12,10 @@ describe('PanelStateService', () => {
     const createService = createServiceFactory({
         service: PanelStateService,
         providers: [
-            {
-                provide: SpacesService,
-                useValue: { list: new BehaviorSubject([]) },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
-            { provide: EventFormService, useValue: {  } }
+            MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(EventFormService, {  } ),
+            MockProvider(OrganisationService, {})
         ],
     });
 

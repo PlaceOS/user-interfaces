@@ -3,6 +3,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import {
+    BindingDirective,
     IconComponent,
     ImageCarouselComponent,
     InteractiveMapComponent,
@@ -31,6 +32,7 @@ describe('EventDetailsModalComponent', () => {
             MockComponent(IconComponent),
             MockComponent(UserAvatarComponent),
             MockComponent(AttendeeListComponent),
+            MockComponent(BindingDirective)
         ],
         imports: [MockModule(MatMenuModule)],
     });

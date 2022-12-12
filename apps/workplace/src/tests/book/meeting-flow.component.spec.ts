@@ -1,6 +1,6 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { EventFormService } from '@placeos/events';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BookMeetingFlowComponent } from '../../app/book/meeting-flow.component';
 import { MeetingFlowConfirmComponent } from '../../app/book/meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowFormComponent } from '../../app/book/meeting-flow/meeting-flow-form.component';
@@ -11,28 +11,26 @@ describe('BookMeetingFlowComponent', () => {
     const createComponent = createRoutingFactory({
         component: BookMeetingFlowComponent,
         providers: [
-            {
-                provide: EventFormService,
-                useValue: {
-                    loadForm: jest.fn(),
-                    newForm: jest.fn(),
-                    setView: jest.fn(),
-                    view: '',
-                    last_success: null,
-                },
-            },
+            MockProvider(EventFormService, {
+                loadForm: jest.fn(),
+                newForm: jest.fn(),
+                setView: jest.fn(),
+                view: '',
+                listenForStatusChanges: jest.fn(),
+                last_success: null,
+            } as any),
         ],
         declarations: [
             MockComponent(MeetingFlowFormComponent),
             MockComponent(MeetingFlowSuccessComponent),
-            MockComponent(MeetingFlowConfirmComponent)
+            MockComponent(MeetingFlowConfirmComponent),
         ],
     });
 
     beforeEach(() => {
         spectator = createComponent();
         const event_service: any = spectator.inject(EventFormService);
-        event_service.setView.mockImplementation(_ => {
+        event_service.setView.mockImplementation((_) => {
             event_service.view = _;
             spectator.detectChanges();
         });

@@ -3,7 +3,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { OrganisationService } from '@placeos/organisation';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { SpaceListComponent } from '../../lib/space-select-modal/space-list.component';
 import { Space } from '../../lib/spaces';
@@ -13,21 +14,16 @@ describe('SpaceListComponent', () => {
     const createComponent = createComponentFactory({
         component: SpaceListComponent,
         providers: [
-            {
-                provide: EventFormService,
-                useValue: {
-                    available_spaces: new BehaviorSubject([]),
-                    loading: new BehaviorSubject(''),
-                    setView: jest.fn(),
-                },
-            },
-            {
-                provide: SettingsService,
-                useValue: {
-                    get: jest.fn(),
-                    saveUserSetting: jest.fn(),
-                },
-            },
+            MockProvider(EventFormService, {
+                available_spaces: new BehaviorSubject([]),
+                loading: new BehaviorSubject(''),
+                setView: jest.fn(),
+            }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                saveUserSetting: jest.fn(),
+            }),
+            MockProvider(OrganisationService, { levelWithID: jest.fn() })
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatProgressSpinnerModule)],
@@ -54,7 +50,9 @@ describe('SpaceListComponent', () => {
 
     it('should show loading list state', () => {
         expect('[loading]').not.toExist();
-        (spectator.inject(EventFormService).loading as any).next('Loading available spaces...');
+        (spectator.inject(EventFormService).loading as any).next(
+            'Loading available spaces...'
+        );
         spectator.detectChanges();
         expect('[loading]').toExist();
     });

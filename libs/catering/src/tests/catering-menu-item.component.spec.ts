@@ -1,7 +1,9 @@
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { CateringItem } from '../lib/catering-item.class';
 
@@ -14,18 +16,16 @@ describe('CateringMenuItemComponent', () => {
         component: CateringMenuItemComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [
-            {
-                provide: CateringStateService,
-                useValue: {
-                    addOption: jest.fn(),
-                    deleteOption: jest.fn(),
-                    addItem: jest.fn(),
-                    removeItem: jest.fn(),
-                    currency: of('USD'),
-                },
-            },
+            MockProvider(CateringStateService, {
+                addOption: jest.fn(),
+                deleteOption: jest.fn(),
+                addItem: jest.fn(),
+                removeItem: jest.fn(),
+                currency: of('USD'),
+                is_editable: true
+            } as any),
         ],
-        imports: [MatMenuModule],
+        imports: [MatMenuModule, MockModule(MatCheckboxModule), FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

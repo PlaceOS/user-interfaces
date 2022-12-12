@@ -2,7 +2,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SpaceListFieldComponent } from '../lib/space-list-field.component';
@@ -10,17 +10,18 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { fakeAsync } from '@angular/core/testing';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('SpaceListFieldComponent', () => {
     let spectator: Spectator<SpaceListFieldComponent>;
     const createComponent = createComponentFactory({
         component: SpaceListFieldComponent,
         providers: [
-            {
-                provide: MatDialog,
-                useValue: { open: jest.fn(() => ({ afterClosed: () => of([{}]) })) },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            MockProvider(MatDialog, {
+                open: jest.fn(() => ({ afterClosed: () => of([{}]) })),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatRadioModule), FormsModule],
@@ -48,15 +49,16 @@ describe('SpaceListFieldComponent', () => {
 
     it('should handle space changes', fakeAsync(() => {
         let count = 0;
-        spectator
-            .inject(MatDialog)
-            .open.mockImplementation(
-                (_, { data: { spaces } }) =>
-                    ({
-                        afterClosed: () =>
-                            of([...(spaces || []), new Space({ id: `${count++}` })]),
-                    } as any)
-            );
+        spectator.inject(MatDialog).open.mockImplementation(
+            (_, { data: { spaces } }) =>
+                ({
+                    afterClosed: () =>
+                        of([
+                            ...(spaces || []),
+                            new Space({ id: `${count++}` }),
+                        ]),
+                } as any)
+        );
         spectator.click('button[add-space]');
         spectator.tick(1001);
         spectator.detectChanges();

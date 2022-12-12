@@ -152,7 +152,6 @@ export class EventFormService extends BaseClass {
     ]).pipe(
         distinctUntilChanged(([s1], [s2]) => s1 !== s2),
         switchMap(([_, list]) => {
-            console.log(_, list);
             return combineLatest(
                 (list || []).map((_) => {
                     const binding = getModule(_.id, 'Bookings').binding(

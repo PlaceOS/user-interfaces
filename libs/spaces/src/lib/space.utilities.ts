@@ -11,7 +11,7 @@ const SPACE_LIST_REQUESTS: Record<string, Observable<Space[]>> = {};
 export function requestSpacesForZone(id: string) {
     if (SPACE_LIST_REQUESTS[id]) return SPACE_LIST_REQUESTS[id];
     SPACE_LIST_REQUESTS[id] = querySystems({ zone_id: id, limit: 500 }).pipe(
-        map((_) => _.data.map((_) => new Space(_ as any))),
+        map((_) => (_.data || []).map((_) => new Space(_ as any))),
         tap((_) => updateSpaceList(_)),
         shareReplay(1)
     );

@@ -1,4 +1,4 @@
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -10,7 +10,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { ImageListFieldComponent } from 'libs/form-fields/src/lib/image-list-field.component';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
 import { CateringItem } from '../lib/catering-item.class';
@@ -22,16 +22,13 @@ describe('CateringItemModalComponent', () => {
         declarations: [
             MockComponent(IconComponent),
             MockComponent(CounterComponent),
-            MockComponent(ImageListFieldComponent)
+            MockComponent(ImageListFieldComponent),
         ],
         providers: [
-            {
-                provide: MAT_DIALOG_DATA,
-                useValue: {
-                    item: new CateringItem(),
-                    catergories: {},
-                },
-            },
+            MockProvider(MAT_DIALOG_DATA, {
+                item: new CateringItem(),
+                catergories: {},
+            }),
         ],
         imports: [
             MatAutocompleteModule,
@@ -41,6 +38,8 @@ describe('CateringItemModalComponent', () => {
             MatCheckboxModule,
             ReactiveFormsModule,
             MatProgressSpinnerModule,
+            FormsModule,
+            ReactiveFormsModule,
         ],
     });
 

@@ -1,4 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -13,11 +14,10 @@ describe('LandingAvailabilityComponent', () => {
         declarations: [MockComponent(IconComponent)],
         providers: [
             MockProvider(LandingStateService, {
-                free_spaces: new BehaviorSubject([]),
+                free_space_list: new BehaviorSubject([]),
                 level_occupancy: new BehaviorSubject([]),
-                pollFreeSpaces: jest.fn(),
-                stopPollingFreeSpaces: jest.fn(),
             }),
+            MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {}),
         ],
     });

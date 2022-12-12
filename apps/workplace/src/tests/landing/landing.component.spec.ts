@@ -1,4 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -22,6 +23,7 @@ describe('LandingComponent', () => {
             MockComponent(IconComponent)
         ],
         providers: [
+            MockProvider(SettingsService),
             MockProvider(OrganisationService)
         ]
     });

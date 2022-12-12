@@ -44,11 +44,7 @@ function validateEmail(email) {
 @Component({
     selector: 'a-user-list-field',
     template: `
-        <div
-            class="mb-4"
-            form-field
-            [attr.disabled]="disabled"
-        >
+        <div class="mb-4" form-field [attr.disabled]="disabled">
             <div search>
                 <mat-form-field
                     class="w-full"
@@ -70,7 +66,7 @@ function validateEmail(email) {
                         </mat-chip>
                         <input
                             #search_field
-                            placeholder="Type a name or email" 
+                            placeholder="Type a name or email"
                             i18n-placeholder
                             name="user_email"
                             [ngModel]="search$ | async"
@@ -92,7 +88,8 @@ function validateEmail(email) {
                 <mat-autocomplete #auto="matAutocomplete">
                     <mat-option
                         *ngIf="search_valid_email"
-                        (click)="addUserFromEmail()" i18n
+                        (click)="addUserFromEmail()"
+                        i18n
                     >
                         Add external user with email "{{ search$.getValue() }}"
                     </mat-option>
@@ -202,48 +199,35 @@ export class UserListFieldComponent
         debounceTime(300),
         switchMap((_) => {
             this.loading = true;
-            console.log('Search:', _);
             return (
                 _
                     ? this.guests
                         ? combineLatest([searchStaff(_), searchGuests(_)]).pipe(
-                                map(([staff, guests]) => {
-                                    console.log('Users:', staff, guests);
-                                    const visitors_list = [];
-                                    const visitors =
-                                        this._settings.get('visitor-invitees') ||
-                                        [];
-                                    for (const item of visitors) {
-                                        const [email, name, company] =
-                                            item.split('|');
-                                        visitors_list.push({
-                                            email,
-                                            name,
-                                            company,
-                                        });
-                                    }
-                                    console.log(
-                                        'Users:',
-                                        staff,
-                                        guests,
-                                        visitors_list
-                                    );
-                                    return unique(
-                                        (staff as any)
-                                            .concat(guests)
-                                            .concat(visitors_list),
-                                        'email'
-                                    );
-                                })
-                            )
+                              map(([staff, guests]) => {
+                                  const visitors_list = [];
+                                  const visitors =
+                                      this._settings.get('visitor-invitees') ||
+                                      [];
+                                  for (const item of visitors) {
+                                      const [email, name, company] =
+                                          item.split('|');
+                                      visitors_list.push({
+                                          email,
+                                          name,
+                                          company,
+                                      });
+                                  }
+                                  return unique(
+                                      (staff as any)
+                                          .concat(guests)
+                                          .concat(visitors_list),
+                                      'email'
+                                  );
+                              })
+                          )
                         : searchStaff(_)
                     : of([])
-            ).pipe(
-                catchError((_) => {
-                    console.log(_);
-                    return of([]);
-                })
-            );
+            ).pipe(catchError((_) => of([])));
         }),
         tap((_) => (this.loading = false))
     );

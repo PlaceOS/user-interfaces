@@ -1,6 +1,6 @@
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { ngMocks } from 'ng-mocks';
+import { MockProvider, ngMocks } from 'ng-mocks';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
@@ -47,73 +47,58 @@ describe('FindSpaceComponent', () => {
             ComponentsModule,
         ],
         providers: [
-            {
-                provide: MatBottomSheet,
-                useValue: {
-                    open: jest.fn(() => {}),
-                    afterDismissed: jest.fn(),
-                },
-            },
-            { provide: OrganisationService, useValue: { building_list: of([]) } },
-            {
-                provide: MAT_BOTTOM_SHEET_DATA,
-                useValue: {},
-            },
-            {
-                provide: MatBottomSheetRef,
-                useValue: {
-                    dismiss: jest.fn(),
-                },
-            },
-            {
-                provide: FeaturesFilterService,
-                useValue: {
-                    features$: of([
-                        {
-                            name: 'Video Conference (VC)',
-                            id: 'VidConf',
-                            value: false,
-                        },
-                        {
-                            name: 'Conference Phone',
-                            id: 'ConfPhone',
-                            value: false,
-                        },
-                        {
-                            name: 'Wireless Content Sharing',
-                            id: 'Wireless',
-                            value: false,
-                        },
-                        { name: 'Video Wall', id: 'VidWall', value: false },
-                        { name: 'Whiteboard', id: 'Whiteboard', value: false },
-                        { name: 'Jamboard', id: 'Jamboard', value: false },
-                        { name: 'Projector', id: 'Projector', value: false },
-                        { name: 'Views', id: 'Views', value: false },
-                    ]),
-                    applyFilter: jest.fn(),
-                    getSelectedFeatures: jest.fn(),
-                },
-            },
-            {
-                provide: EventFormService,
-                useValue: {
-                    setView: jest.fn(() => {}),
-                    newForm: jest.fn(() => {}),
-                    clearForm: jest.fn(),
-                    storeForm: jest.fn(() => {}),
-                    loadForm: jest.fn(),
-                    postForm: jest.fn(),
-                    setOptions: jest.fn(() => {}),
-                    view: '',
-                    available_spaces: of(
-                        mockSpace,
-                        mockSpace,
-                        mockSpace,
-                        mockSpaceWithViews
-                    ),
-                    options: of(mockEventFlowOptions),
-                },
-            },
+            MockProvider(MatBottomSheet, {
+                open: jest.fn(() => {}),
+                afterDismissed: jest.fn(),
+            } as any),
+            MockProvider(OrganisationService, { building_list: of([]) }),
+            MockProvider(MAT_BOTTOM_SHEET_DATA, {}),
+            MockProvider(MatBottomSheetRef, {
+                dismiss: jest.fn(),
+            }),
+            MockProvider(FeaturesFilterService, {
+                features$: of([
+                    {
+                        name: 'Video Conference (VC)',
+                        id: 'VidConf',
+                        value: false,
+                    },
+                    {
+                        name: 'Conference Phone',
+                        id: 'ConfPhone',
+                        value: false,
+                    },
+                    {
+                        name: 'Wireless Content Sharing',
+                        id: 'Wireless',
+                        value: false,
+                    },
+                    { name: 'Video Wall', id: 'VidWall', value: false },
+                    { name: 'Whiteboard', id: 'Whiteboard', value: false },
+                    { name: 'Jamboard', id: 'Jamboard', value: false },
+                    { name: 'Projector', id: 'Projector', value: false },
+                    { name: 'Views', id: 'Views', value: false },
+                ]),
+                applyFilter: jest.fn(),
+                getSelectedFeatures: jest.fn(),
+            }),
+            MockProvider(EventFormService, {
+                setView: jest.fn(() => {}),
+                newForm: jest.fn(() => {}),
+                clearForm: jest.fn(),
+                storeForm: jest.fn(() => {}),
+                loadForm: jest.fn(),
+                postForm: jest.fn(),
+                setOptions: jest.fn(() => {}),
+                view: '',
+                available_spaces: of(
+                    mockSpace,
+                    mockSpace,
+                    mockSpace,
+                    mockSpaceWithViews
+                ),
+                options: of(mockEventFlowOptions),
+            } as any),
         ],
         declarations: [],
     });

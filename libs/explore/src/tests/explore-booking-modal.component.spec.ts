@@ -3,8 +3,8 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
@@ -16,31 +16,25 @@ import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.compo
 import { fakeAsync } from '@angular/core/testing';
 
 describe('ExploreBookingModalComponent', () => {
-    let spectator: Spectator<ExploreBookingModalComponent>;
-    const createComponent = createComponentFactory({
+    let spectator: SpectatorRouting<ExploreBookingModalComponent>;
+    const createComponent = createRoutingFactory({
         component: ExploreBookingModalComponent,
         declarations: [
             MockComponent(IconComponent),
             MockComponent(DurationFieldComponent),
         ],
         providers: [
-            {
-                provide: MAT_DIALOG_DATA,
-                useValue: {
-                    space: { id: 'one', name: 'Test Space', email: '1' },
-                },
-            },
-            {
-                provide: EventFormService,
-                useValue: {
-                    form: generateEventForm(),
-                    newForm: jest.fn(),
-                    postForm: jest.fn(async () => ({})),
-                    loading: of(''),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
+            MockProvider(MAT_DIALOG_DATA, {
+                space: { id: 'one', name: 'Test Space', email: '1' },
+            }),
+            MockProvider(EventFormService, {
+                form: generateEventForm(),
+                newForm: jest.fn(),
+                postForm: jest.fn(async () => ({})),
+                loading: of(''),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MatDialogRef, { close: jest.fn() }),
         ],
         imports: [
             MatFormFieldModule,
@@ -51,7 +45,7 @@ describe('ExploreBookingModalComponent', () => {
         ],
     });
 
-    beforeEach(() => spectator = createComponent());
+    beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();

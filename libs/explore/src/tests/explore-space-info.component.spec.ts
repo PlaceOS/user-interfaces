@@ -2,6 +2,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { CustomTooltipComponent, MAP_FEATURE_DATA } from '@placeos/components';
 import { Space } from '@placeos/spaces';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { ExploreSpaceInfoComponent } from '../lib/explore-space-info.component';
 
@@ -9,9 +10,10 @@ describe('ExploreSpaceInfoComponent', () => {
     let spectator: Spectator<ExploreSpaceInfoComponent>;
     const createComponent = createComponentFactory({
         component: ExploreSpaceInfoComponent,
+        declarations: [MockComponent(CustomTooltipComponent)],
         providers: [
-            { provide: MAP_FEATURE_DATA, useValue: {} },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(MAP_FEATURE_DATA, {}),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
     });
 

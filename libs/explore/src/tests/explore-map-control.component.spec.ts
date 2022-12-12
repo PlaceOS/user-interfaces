@@ -19,7 +19,7 @@ describe('ExploreMapControlComponent', () => {
                 provide: OrganisationService,
                 useValue: {
                     initialised: of(true),
-                    building_list: new BehaviorSubject([]),
+                    active_buildings: new BehaviorSubject([]),
                     active_building: new BehaviorSubject(null),
                     active_levels: new BehaviorSubject([]),
                 },
@@ -46,7 +46,7 @@ describe('ExploreMapControlComponent', () => {
     it('should show dropdowns for buildings and levels', () => {
         expect('[buildings]').not.toExist();
         expect('[levels]').not.toExist();
-        const buildings = spectator.inject(OrganisationService).building_list;
+        const buildings = spectator.inject(OrganisationService).active_buildings;
         const levels = spectator.inject(OrganisationService).active_levels;
         (levels as any).next([
             { id: 'lvl-1', name: 'Level 1' },
@@ -65,7 +65,7 @@ describe('ExploreMapControlComponent', () => {
     });
 
     it('should allow switching buildings', () => {
-        const buildings = spectator.inject(OrganisationService).building_list;
+        const buildings = spectator.inject(OrganisationService).active_buildings;
         (buildings as any).next([
             { id: 'bld-1', name: 'Building 1' },
             { id: 'bld-2', name: 'Building 2' },

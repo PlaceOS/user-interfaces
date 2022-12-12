@@ -1,6 +1,5 @@
 import { Validators } from '@angular/forms';
 import { Space } from '@placeos/spaces';
-import { CalendarEvent } from '@placeos/events';
 
 export let mockForm = {
     id: 1,
@@ -119,6 +118,7 @@ export const mockSpace: Space = {
         tags: ['tag-1'],
         settings: {},
         locations: [] as any,
+        images: []
     },
     features: [''],
     availability: [
@@ -155,6 +155,7 @@ export const mockSpaceWithViews: Space = {
         tags: ['tag-1'],
         settings: {},
         locations: [] as any,
+        images: []
     },
     features: [''],
     availability: [
