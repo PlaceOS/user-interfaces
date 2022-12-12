@@ -75,7 +75,7 @@ import { LandingStateService } from './landing-state.service';
                         </button>
                         <button
                             mat-menu-item
-                            (click)="removeContact(user)"
+                            (click)="removeUser(user)"
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
