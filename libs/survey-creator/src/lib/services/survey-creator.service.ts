@@ -12,6 +12,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
+import { ApiMethodsService } from './api-methods.service';
 
 @Injectable({
     providedIn: 'root',
@@ -89,7 +90,7 @@ export class SurveyCreatorService {
     );
     choice_error$: Observable<boolean> = this._choice_error.asObservable();
 
-    constructor() {
+    constructor(private _apiMethodsService: ApiMethodsService) {
         //Mock question bank
         this.question_bank = [
             {
@@ -185,7 +186,6 @@ export class SurveyCreatorService {
             },
         ];
     }
-
     drop(event: any) {
         if (event.previousContainer === event.container) {
             //TODO: re-order items

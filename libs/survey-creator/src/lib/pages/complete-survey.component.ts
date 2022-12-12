@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SurveyNG, Model } from 'survey-angular';
-import { SurveyCreatorService } from '@placeos/survey';
+import { SurveyCreatorService } from '@placeos/survey-creator';
 
 @Component({
     selector: 'placeos-complete-survey',

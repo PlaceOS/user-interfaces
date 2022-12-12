@@ -13,7 +13,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
-import { SurveyCreatorModule } from '@placeos/survey';
+import { SurveyCreatorModule } from '@placeos/survey-creator';
 
 @NgModule({
     declarations: [AppComponent],

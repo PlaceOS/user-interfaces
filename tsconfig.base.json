@@ -29,7 +29,7 @@
             "@placeos/payments": ["libs/payments/src/index.ts"],
             "@placeos/spaces": ["libs/spaces/src/index.ts"],
             "@placeos/users": ["libs/users/src/index.ts"],
-            "@placeos/survey": ["libs/survey-creator/src/index.ts"]
+            "@placeos/survey-creator": ["libs/survey-creator/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]

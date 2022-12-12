@@ -88,6 +88,6 @@ const COMPONENTS: Type<any>[] = [
         LibRoutingModule,
         SurveyModule,
     ],
-    exports: [...COMPONENTS],
+    exports: [...COMPONENTS, DragdropDirective],
 })
 export class SurveyCreatorModule {}
