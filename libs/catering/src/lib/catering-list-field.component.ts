@@ -1,4 +1,4 @@
-import { Component, forwardRef } from "@angular/core";
+import { Component, forwardRef, Input } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { SettingsService } from "@placeos/common";
@@ -88,6 +88,11 @@ const EMPTY_FAVS = [];
     ],
 })
 export class CateringListFieldComponent implements ControlValueAccessor {
+    @Input() public options: {
+        date?: number,
+        duration?: number,
+        zone_id?: string; 
+    } = {};
     public items: CateringItem[] = [];
     public disabled = false;
 
@@ -134,7 +139,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
 
     public addItems(item?: CateringItem) {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
-            data: this.items,
+            data: [this.items, this.options],
         });
         ref.afterClosed().subscribe((items?: CateringItem[]) => {
             if (!items) return;

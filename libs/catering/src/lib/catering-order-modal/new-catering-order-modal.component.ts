@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringItem } from '../catering-item.class';
+import { CateringOrderStateService } from './catering-order-state.service';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -120,7 +121,7 @@ const EMPTY_FAVS: string[] = [];
 })
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;
-    public selected: CateringItem[] = [...(this._items || [])];
+    public selected: CateringItem[] = [...(this._data[0] || [])];
 
     public get favorites() {
         return (
@@ -142,9 +143,12 @@ export class NewCateringOrderModalComponent {
 
     constructor(
         private _settings: SettingsService,
+        private _order: CateringOrderStateService,
         private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _items: CateringItem[]
-    ) {}
+        @Inject(MAT_DIALOG_DATA) private _data: [CateringItem[], any]
+    ) {
+        this._order.setFilters(this._data[1]);
+    }
 
     public isSelected(id: string) {
         return id && this.selected_ids.includes(id);

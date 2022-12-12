@@ -190,6 +190,11 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                         >
                             <catering-list-field
                                 formControlName="catering"
+                                [options]="{ 
+                                    date: form.value.date, 
+                                    duration: form.value.duration, 
+                                    zone_id: form.value.resources[0]?.level?.parent_id 
+                                }"
                             ></catering-list-field>
                         </div>
                     </section>

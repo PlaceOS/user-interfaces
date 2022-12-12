@@ -4,6 +4,21 @@ import { stringToMinutes } from 'libs/events/src/lib/helpers';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { CateringItem } from './catering-item.class';
 import { CateringRuleset } from './catering.interfaces';
+import { Observable, of } from 'rxjs';
+import { showMetadata } from '@placeos/ts-client';
+import { catchError, map } from 'rxjs/operators';
+
+const RULE_REQUESTS: Record<string, Observable<CateringRuleset[]>> = {};
+
+export function getCateringRulesForZone(zone_id: string, fresh: boolean = false) {
+    if (!zone_id) return of([] as CateringRuleset[]);
+    if (!RULE_REQUESTS[zone_id] || fresh)
+        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config').pipe(
+            map((_) => _.details as CateringRuleset[]),
+            catchError((e) => of([] as CateringRuleset[]))
+        );
+    return RULE_REQUESTS[zone_id];
+}
 
 export function cateringItemAvailable(
     item: CateringItem,

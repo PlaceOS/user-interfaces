@@ -6,12 +6,16 @@ import { showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { catchError, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
+import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 
 export interface CateringOrderOptions { // Affects backend requests
     zone?: string;
 }
 
 export interface CateringOrderFilters { // Affects frontend filtering
+    date?: number;
+    duration?: number;
+    zone_id?: string;
     search: string;
     tags: string[];
     categories: string[];
@@ -59,11 +63,13 @@ export class CateringOrderStateService {
         this._filters,
         this.available_menu,
     ]).pipe(
-        map(([{ search, tags, categories }, l]) => {
+        switchMap(async ([{ search, tags, categories, zone_id, date, duration }, l]) => {
+            const rules = await getCateringRulesForZone(zone_id).toPromise();
             search = search.toLowerCase();
             let list = search ? l.filter(_ => _.name.toLowerCase().includes(search)) : l;
             list = tags.length ? l.filter(_ => tags.every((t) => _.tags.includes(t))) : list;
             list = categories.length ? l.filter(_ => categories.includes(_.category)) : list;
+            list = l.filter(_ => cateringItemAvailable(_, rules, { date, duration } as any));
             return list;
         }),
         shareReplay(1)
