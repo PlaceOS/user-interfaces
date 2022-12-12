@@ -7,7 +7,7 @@ export const MOCK_MENU = [
         name: 'Coffee',
         unit_price: 200,
         category: 'Drinks',
-        tags: ['drink'],
+        tags: ['drink', 'Contains Nuts', 'Contains Dairy'],
         options: [
             { id: 'opt-1', name: 'Cappacino', group: 'type' },
             { id: 'opt-2', name: 'Latte', group: 'type' },

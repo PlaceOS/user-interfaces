@@ -63,7 +63,7 @@ interface CateringOptionGroup {
                 </section>
                 <section class="flex items-center flex-wrap">
                     <div
-                        class="px-2 py-1 rounded-2xl bg-gray-200 dark:bg-neutral-500 text-sm capitalize"
+                        class="px-2 py-1 rounded-2xl bg-gray-200 dark:bg-neutral-500 text-sm capitalize m-1"
                         *ngFor="let tag of item.tags"
                     >
                         {{ tag }}
