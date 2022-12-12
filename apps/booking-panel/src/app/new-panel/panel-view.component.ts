@@ -21,7 +21,7 @@ import { PanelStateService } from '../panel-state.service';
                     class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-4 text-5xl bg-pending rounded shadow text-white font-medium"
                 >
                     {{
-                        (system | async)?.display_name ||
+                        name || (system | async)?.display_name ||
                             (system | async)?.name ||
                             '&lt;Unknown Space&gt;'
                     }}
@@ -38,6 +38,10 @@ import { PanelStateService } from '../panel-state.service';
 })
 export class PanelViewComponent extends BaseClass {
     public readonly system = this._state.space;
+
+    public get name() {
+        return this._state.setting('room_name');
+    }
 
     public get show_offline() {
         return (

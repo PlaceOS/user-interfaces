@@ -21,6 +21,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 
 export interface PanelSettings {
+    /** Name of the room */
+    room_name?: string;
     /** URL for the image to display when system is not bookable */
     offline_image?: string;
     /** Background color to display when system is not bookable */
@@ -144,6 +146,7 @@ export class PanelStateService extends BaseClass {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
+                'room_name',
                 'custom_qr_url',
                 'custom_qr_color',
                 'disable_book_now',
