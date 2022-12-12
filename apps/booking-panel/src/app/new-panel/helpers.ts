@@ -20,21 +20,14 @@ export function currentPeriod(current: CalendarEvent, next: CalendarEvent) {
     const next_diff = differenceInMinutes(next?.date, Date.now());
     if (!current)
         return next && next_diff < 24 * 60
-            ? `Free for ${formatDuration({
-                  hours: Math.floor(next_diff / 60),
-                  minutes: next_diff % 60,
-              }) || 'less than 1 minute'}`
-            : '';
+            ? [false, Math.floor(next_diff / 60), next_diff % 60]
+            : [];
     const checked_in = true;
     const current_diff = differenceInMinutes(
         current.event_end * 1000,
         Date.now()
     );
-    const curr_avail = formatDuration({
-        hours: Math.floor(current_diff / 60),
-        minutes: current_diff % 60,
-    });
     return checked_in
-        ? `Free in ${ current_diff < 1 ? 'less than 1 minute' : curr_avail}`
-        : `You meeting will be cancelled in ${'8 minutes'} if you do not check-in`;
+        ? [true, Math.floor(current_diff / 60), current_diff % 60]
+        : [];
 }
