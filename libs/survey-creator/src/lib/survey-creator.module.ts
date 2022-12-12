@@ -39,6 +39,7 @@ import { BuildingListComponent } from './pages/building-list.component';
 import { BuildingListItemComponent } from './components/building-list-item.component';
 import { AddBuildingModalComponent } from './components/add-building-modal.component';
 import { DragdropDirective } from './components/dragdrop.directive';
+import { SurveyModule } from 'survey-angular-ui';
 
 const COMPONENTS: Type<any>[] = [
     InputTitleComponent,
@@ -85,6 +86,7 @@ const COMPONENTS: Type<any>[] = [
         MatTableModule,
         MatMenuModule,
         LibRoutingModule,
+        SurveyModule,
     ],
     exports: [...COMPONENTS],
 })
