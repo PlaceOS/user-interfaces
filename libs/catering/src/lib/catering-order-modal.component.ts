@@ -1,16 +1,14 @@
 import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { isAfter, setHours, isBefore } from 'date-fns';
 import { Observable } from 'rxjs';
 
 import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { stringToMinutes } from 'libs/events/src/lib/helpers';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import { CateringOption, CateringRuleset } from './catering.interfaces';
 import { OrganisationService } from '@placeos/organisation';
+import { cateringItemAvailable } from './utilities';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
@@ -19,59 +17,6 @@ export interface CateringOrderModalData {
     loading: Observable<boolean>;
     getCateringConfig: (_: string) => Promise<CateringRuleset[]>;
     selectOptions: (_: CateringOption[]) => Promise<CateringOption[]>;
-}
-
-export function cateringItemAvailable(
-    item: CateringItem,
-    rules: CateringRuleset[],
-    event: CalendarEvent
-) {
-    let is_available = true;
-    for (const rule of rules) {
-        if (
-            item.category === rule.name ||
-            item.tags.includes(rule.name) ||
-            event.space?.zones.includes(rule.name) ||
-            rule.name === '*'
-        ) {
-            let matches = 0;
-            for (const condition of rule.rules) {
-                const date = new Date(event.date);
-                switch (condition[0]) {
-                    case 'after_hour':
-                        matches += isAfter(date, setHours(date, condition[1]))
-                            ? 1
-                            : 0;
-                        break;
-                    case 'before_hour':
-                        matches += isBefore(date, setHours(date, condition[1]))
-                            ? 1
-                            : 0;
-                        break;
-                    case 'min_length':
-                        matches +=
-                            event.duration >= stringToMinutes(condition[1])
-                                ? 1
-                                : 0;
-                        break;
-                    case 'max_length':
-                        matches +=
-                            event.duration <= stringToMinutes(condition[1])
-                                ? 1
-                                : 0;
-                        break;
-                    case 'visitor_type':
-                        matches +=
-                            event.ext('visitor_type') === condition[1] ? 1 : 0;
-                        break;
-                    default:
-                        matches++;
-                }
-            }
-            is_available = matches >= rule.rules.length;
-        }
-    }
-    return is_available;
 }
 
 // TODO: Split template into 2 children components. Order menu and Order Confirm;
@@ -107,7 +52,10 @@ export function cateringItemAvailable(
                                     <div
                                         class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
                                     >
-                                        {{ item.unit_price / 100 | currency:code }}
+                                        {{
+                                            item.unit_price / 100
+                                                | currency: code
+                                        }}
                                     </div>
                                     <a-counter
                                         ngDefaultControl
@@ -219,7 +167,7 @@ export function cateringItemAvailable(
                     <div
                         class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
                     >
-                        {{ item.total_cost / 100 | currency:code }}
+                        {{ item.total_cost / 100 | currency: code }}
                     </div>
                     <a-counter
                         [ngModel]="item.quantity"
@@ -283,7 +231,7 @@ export class CateringOrderModalComponent extends BaseClass implements OnInit {
     public menu_items: HashMap<CateringItem[]> = {};
     /** List of categories for the active menu */
     public categories: string[] = [];
-    
+
     public get code() {
         return this._org.currency_code;
     }

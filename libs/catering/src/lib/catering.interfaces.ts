@@ -1,7 +1,12 @@
 import { Identity } from '@placeos/common';
 
 // Event catering order interfaces
-export type CateringOrderStatus = 'accepted' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+export type CateringOrderStatus =
+    | 'accepted'
+    | 'preparing'
+    | 'ready'
+    | 'delivered'
+    | 'cancelled';
 
 export interface CateringOptionGroup {
     name: string;
@@ -25,8 +30,8 @@ export interface CateringOption {
 }
 
 export type CateringRule =
-    | ['after_hour' | 'before_hour', number]
-    | ['min_length' | 'max_length' | 'is_before' | 'is_after' | 'visitor_type', string]
+    | ['after_hour' | 'before_hour' | 'is_before' | 'within_hours', number]
+    | ['min_length' | 'max_length' | 'visitor_type', string]
     | ['groups', string[]];
 
 export interface CateringRuleset {
@@ -39,12 +44,12 @@ export interface CateringRuleset {
 }
 
 export const RULE_TYPES: Identity[] = [
-    { id: 'after_hour', name: 'After Hour' },
-    { id: 'before_hour', name: 'Before Hour' },
+    { id: 'after_hour', name: 'After Hour of Day' },
+    { id: 'before_hour', name: 'Before Hour of Day' },
     { id: 'min_length', name: 'Min. Meeting Length' },
     { id: 'max_length', name: 'Max. Meeting Length' },
-    { id: 'is_before', name: 'Is Before Time' },
-    { id: 'is_after', name: 'Is After Time' },
+    { id: 'is_before', name: 'Is Hours before Meeting' },
+    { id: 'within_hours', name: 'Within Hours before Meeting' },
     { id: 'visitor_type', name: 'Visitor Type' },
     { id: 'groups', name: 'User in Groups' },
-]
+];
