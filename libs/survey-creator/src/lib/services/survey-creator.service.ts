@@ -13,6 +13,7 @@ import {
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { querySurveys, showSurvey, createSurvey } from '../surveys.fn';
 import { ApiMethodsService } from './api-methods.service';
+import { token } from '@placeos/ts-client';
 
 @Injectable({
     providedIn: 'root',
@@ -185,6 +186,8 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
         ];
+
+        this._apiMethodsService.testApi();
     }
     drop(event: any) {
         if (event.previousContainer === event.container) {
