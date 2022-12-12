@@ -17,6 +17,8 @@ import {
 import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
+import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
+import { map, take } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
@@ -27,7 +29,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
             class="h-full w-full bg-gray-100 dark:bg-neutral-900 overflow-auto"
         >
             <div
-                class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-[#1F2021] border border-gray-300 dark:border-neutral-700"
+                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-white dark:bg-[#1F2021] border border-gray-300 dark:border-neutral-700"
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-700"
@@ -89,7 +91,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="bg-none underline text-xs text-blue-500"
                                 (click)="findAvailableTime()"
                             >
-                                {{ 'WPA.AVAILABILTY' | translate }}
+                                {{ 'WPA.AVAILABILITY' | translate }}
                             </button>
                             <button
                                 mat-icon-button
@@ -140,16 +142,25 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
+                            class="overflow-hidden flex flex-col items-center"
                             [@show]="hide_block.resources ? 'hide' : 'show'"
                         >
+                            <div
+                                *ngIf="!strict_capacity_check && total_capacity && total_capacity <=
+                                    form.value.attendees?.length
+                                "
+                                class="bg-yellow-500 rounded shadow p-2 text-xs mx-auto my-2 text-black inline-flex"
+                            >
+                                The selected room has less capacity than the
+                                number of meeting attendees.
+                            </div>
                             <space-list-field
-                                class="mt-4"
+                                class="w-full"
                                 formControlName="resources"
                             ></space-list-field>
                         </div>
                     </section>
-                    <section class="p-2" *ngIf="has_catering">
+                    <section class="p-2" *ngIf="has_catering | async">
                         <h3 class="space-x-2 flex items-center">
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -187,7 +198,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
-                                {{ !has_catering ? '4' : '5' }}
+                                {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
                             <div class="text-xl">
                                 {{ 'WPA.ASSETS' | translate }}
@@ -219,8 +230,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 {{
-                                    !has_catering || !has_assets
-                                        ? !has_catering && !has_assets
+                                    !(has_catering | async) || !has_assets
+                                        ? !(has_catering | async) && !has_assets
                                             ? '4'
                                             : '5'
                                         : '6'
@@ -274,15 +285,12 @@ export class MeetingFlowFormComponent extends BaseClass {
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
 
+    public readonly has_catering = this._catering.available_menu.pipe(
+        map((l) => l.length > 0)
+    );
+
     public get form() {
         return this._state.form;
-    }
-
-    public get has_catering() {
-        return (
-            !!this._settings.get('app.events.catering_enabled') ||
-            !!this._settings.get('app.events.has_catering')
-        );
     }
 
     public get has_assets() {
@@ -301,11 +309,31 @@ export class MeetingFlowFormComponent extends BaseClass {
         return this._settings.get('app.events.allow_externals');
     }
 
+    public get strict_capacity_check() {
+        return this._settings.get('app.events.strict_capacity_check');
+    }
+
+    public get total_capacity() {
+        return this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0;
+    }
+
+    public get attendee_count() {
+        const user = currentUser();
+        let count = this.form.value.attendees?.length || 0;
+        if (!this.form.value.attendees.find(_ => _.email.toLowerCase() === user.email.toLowerCase())) {
+            count += 1;
+        }
+        return count;
+    }
+
     public readonly clearForm = () => this._state.resetForm();
 
     public readonly viewConfirm = () => {
         if (!this.form.value.host)
             this.form.patchValue({ host: currentUser()?.email });
+        if (this.strict_capacity_check && this.attendee_count > this.total_capacity) {
+            return notifyError('Attendee count is greater than the capacity of the selected rooms')
+        }
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
@@ -343,6 +371,7 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     constructor(
         private _state: EventFormService,
+        private _catering: CateringOrderStateService,
         private _settings: SettingsService,
         private _router: Router,
         private _dialog: MatDialog,
@@ -381,11 +410,25 @@ export class MeetingFlowFormComponent extends BaseClass {
         });
     }
 
-    private _checkCateringEligibility(list: Space[]) {
-        const zone = this._settings.get('app.events.catering_enabled');
-        if (zone && list?.length) {
-            const can_cater = list.every((s) => s.zones.includes(zone));
-            if (!can_cater) {
+    private async _checkCateringEligibility(list: Space[]) {
+        if (list?.length) {
+            const menu = await this._catering.available_menu
+                .pipe(take(1))
+                .toPromise();
+            const disabled_rooms = await this._catering.availability
+                .pipe(take(1))
+                .toPromise();
+            const can_cater = list.every(
+                (s) =>
+                    menu.filter(
+                        (_) =>
+                            !_.hide_for_zones.find((z) => s.zones.includes(z))
+                    ).length
+            );
+            if (
+                !can_cater ||
+                disabled_rooms.find((_) => list.find((i) => i.id === _))
+            ) {
                 this.form.patchValue({ catering: [] });
                 this.form.controls.catering.disable();
                 notifyWarn(
@@ -394,6 +437,8 @@ export class MeetingFlowFormComponent extends BaseClass {
             } else {
                 this.form.controls.catering.enable();
             }
+        } else {
+            this.form.controls.catering.disable();
         }
     }
 }

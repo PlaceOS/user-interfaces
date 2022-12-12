@@ -52,7 +52,7 @@ interface CateringOptionGroup {
                             {{ item.name }}
                         </h2>
                         <p *ngIf="item.unit_price">
-                            {{ item.unit_price / 100 | currency:code }}
+                            {{ item.unit_price / 100 | currency: code }}
                         </p>
                     </div>
                     <a-counter
@@ -60,6 +60,14 @@ interface CateringOptionGroup {
                         [min]="1"
                         [max]="item.count || 10"
                     ></a-counter>
+                </section>
+                <section class="flex items-center flex-wrap">
+                    <div
+                        class="px-2 py-1 rounded-2xl bg-gray-200 dark:bg-neutral-500 text-sm"
+                        *ngFor="let tag of item.tags"
+                    >
+                        {{ tag }}
+                    </div>
                 </section>
                 <hr />
                 <section details class="space-y-2">
@@ -108,7 +116,7 @@ interface CateringOptionGroup {
                                                 >
                                                     +{{
                                                         opt.unit_price / 100
-                                                            | currency:code
+                                                            | currency: code
                                                     }}
                                                 </div>
                                             </div>
@@ -134,7 +142,7 @@ interface CateringOptionGroup {
                                             >
                                                 +{{
                                                     opt.unit_price / 100
-                                                        | currency:code
+                                                        | currency: code
                                                 }}
                                             </div>
                                         </div>

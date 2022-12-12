@@ -118,7 +118,7 @@ import { CateringOption } from './catering.interfaces';
         `
             :host {
                 overflow: hidden;
-                width: 768px;
+                width: 48rem;
                 margin: 0.5rem auto;
                 max-width: calc(100vw - 1rem);
             }

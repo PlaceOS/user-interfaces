@@ -148,7 +148,7 @@ export interface AppLocale {
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1" i18n>Language: English</div>
+                        <div class="flex-1" i18n>{{ 'COMMON.LANGUAGE_LABEL' | translate }}: {{ 'COMMON.LANGUAGE' | translate }}</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -174,7 +174,7 @@ export interface AppLocale {
                     Sign Out
                 </button>
                 <div class="text-xs opacity-60 w-full">
-                    <ng-container i18n>Version:</ng-container>
+                    <ng-container i18n>Version: </ng-container>
                     <button
                         class="underline p-0 m-0 bg-none border-none text-xs"
                         (click)="viewChangelog()"

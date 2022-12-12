@@ -93,11 +93,13 @@ import { PanelStateService } from '../panel-state.service';
                 (event)="newBooking($event)"
             ></checkin-timetable>
         </div>
-        <h3 class="p-4 text-xl font-medium">
+        <h3 class="p-4 text-xl font-medium" 
+            *ngIf="false">
             {{ 'PANEL.FEATURES' | translate }}
         </h3>
         <div
             class="bg-white overflow-auto flex-1 h-px divide-y divide-gray-200"
+            *ngIf="false"
         >
             <button matRipple class="flex items-center p-4 w-full">
                 <div

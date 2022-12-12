@@ -27,7 +27,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 ></div>
                 <h3 class="text-4xl uppercase font-medium mt-4">{{ "PANEL.NOW" | translate }}</h3>
                 <p class="text-2xl font-light mt-4">
-                    {{ (event_state | async)?.current || 'No current event' }}
+                    {{ (event_state | async)?.current || ('PANEL.NO_CURRENT' | translate) }}
                 </p>
                 <div
                     class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
@@ -55,7 +55,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 ></div>
                 <h3 class="text-4xl uppercase font-medium">{{ "PANEL.NEXT" | translate }}</h3>
                 <p class="text-2xl font-light">
-                    {{ (event_state | async)?.next || 'No upcoming events' }}
+                    {{ (event_state | async)?.next || ('PANEL.NO_UPCOMING' | translate) }}
                 </p>
             </div>
         </div>

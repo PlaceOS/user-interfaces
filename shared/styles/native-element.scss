@@ -4,6 +4,17 @@ textarea {
     background: none;
 }
 
+.dark {
+
+    input {
+        color-scheme: dark;
+    }
+    input::placeholder {
+        color: inherit;
+        opacity: 0.6;
+    }
+}
+
 label {
     width: 100%;
     font-size: 0.875rem;

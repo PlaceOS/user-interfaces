@@ -18,7 +18,7 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
             class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto"
         >
             <div
-                class="max-w-full w-[768px] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
+                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"

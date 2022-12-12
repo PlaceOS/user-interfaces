@@ -1,8 +1,9 @@
-import { del, get, post, put } from '@placeos/ts-client';
+import { cleanObject, del, get, post, put } from '@placeos/ts-client';
 import { toQueryString } from 'libs/common/src/lib/api';
 import { catchError, map } from 'rxjs/operators';
 import { Asset } from './asset.class';
 import { Observable, of } from 'rxjs';
+import { getUnixTime } from 'date-fns';
 
 const ASSET_ENDPOINT = '/api/engine/v2/assets';
 
@@ -31,7 +32,9 @@ export function deleteAsset(id: string) {
  * @param asset Asset details
  */
 export function createAsset(asset: Asset): Observable<Asset> {
-    return post(`${ASSET_ENDPOINT}`, asset).pipe(map((_) => new Asset(_)));
+    const data = cleanObject(asset, [undefined, null, '']);
+    data.purchase_date = getUnixTime(data.purchase_date);
+    return post(`${ASSET_ENDPOINT}`, data).pipe(map((_) => new Asset(_)));
 }
 
 /**

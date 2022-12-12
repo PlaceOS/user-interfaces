@@ -8,6 +8,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
+import { FormFieldsModule } from '@placeos/form-fields';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
@@ -28,8 +31,7 @@ import { CateringItemListComponent } from './catering-order-modal/catering-item-
 import { CateringItemDetailsComponent } from './catering-order-modal/catering-item-details.component';
 import { CateringItemFiltersComponent } from './catering-order-modal/catering-item-filters.component';
 import { CateringListFieldComponent } from './catering-list-field.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { CateringRoomsStateModalComponent } from './catering-rooms-state-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
@@ -48,7 +50,8 @@ const COMPONENTS: Type<any>[] = [
     NewCateringOrderModalComponent,
     CateringItemListComponent,
     CateringItemDetailsComponent,
-    CateringItemFiltersComponent
+    CateringItemFiltersComponent,
+    CateringRoomsStateModalComponent
 ];
 
 @NgModule({

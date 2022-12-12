@@ -10,6 +10,7 @@ const general: any = {
     search: true,
     copyright: 'PlaceOS',
     position: 'right',
+    dark_mode: false
 };
 /**
  * HELP/SUPPORT SETTINGS
@@ -98,6 +99,7 @@ const directory: any = {
 ||    SCHEULDE SETTINGS   ||
 \*===========================*/
 const schedule = {
+    use_websocket: false,
     legend: [
         { name: 'Accepted', color: '#21A453' },
         { name: 'Pending', color: '#ffbf1f' },
@@ -159,6 +161,7 @@ const app: any = {
     features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
     currency: '',
     default_route: '/landing',
+    use_geolocation: false,
     new_features: true,
     can_deliver: true,
     no_user_calendar: false,

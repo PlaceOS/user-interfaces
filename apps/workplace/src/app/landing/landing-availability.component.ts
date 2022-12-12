@@ -117,7 +117,7 @@ import { LandingStateService } from './landing-state.service';
                                 >place</app-icon
                             >
                             <span>{{
-                                space.level.display_name || space.level.name
+                                level(space.zones)?.display_name || level(space.zones)?.name
                             }}</span>
                         </div>
                     </div>
@@ -149,6 +149,10 @@ export class LandingAvailabilityComponent {
 
     public trackBySpaceId(index: number, space: Space) {
         return space.id;
+    }
+
+    public level(zones: string[]) {
+        return this._org.levelWithID(zones);
     }
 
     public building(id: string) {

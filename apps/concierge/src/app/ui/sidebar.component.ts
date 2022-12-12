@@ -37,8 +37,8 @@ import { OrganisationService } from '@placeos/organisation';
                 <app-icon>business</app-icon>
                 <div class="truncate">
                     {{
-                        (active_building | async).display_name ||
-                            (active_building | async).name
+                        (active_building | async)?.display_name ||
+                            (active_building | async)?.name
                     }}
                 </div>
             </button>

@@ -80,20 +80,12 @@ import { Space } from '../space.class';
                     </div>
                 </section>
                 <hr />
-                <section facilities class="space-y-2">
+                <section facilities class="space-y-2" *ngIf="space.features?.length">
                     <h2 class="text-xl font-medium" i18n>Room Facilities</h2>
-                    <!-- <div class="flex items-center space-x-2">
-                        <app-icon>people</app-icon>
-                        <p i18n>WiFi Available</p>
+                    <div class="flex items-center space-x-2" *ngFor="let feature of space.features">
+                        <!-- <app-icon>people</app-icon> -->
+                        <p i18n>{{ feature }}</p>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>restaurant</app-icon>
-                        <p i18n>Catering Available</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>edit</app-icon>
-                        <p i18n>Whiteboard</p>
-                    </div> -->
                 </section>
                 <section
                     map

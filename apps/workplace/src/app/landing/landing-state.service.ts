@@ -20,16 +20,14 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { endOfDay } from 'date-fns';
 
 import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
-import { requestSpacesForZone, Space, SpacesStatusService } from '@placeos/spaces';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import { requestSpacesForZone } from '@placeos/spaces';
+import { CalendarEvent } from '@placeos/events';
 import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
-import { A } from '@angular/cdk/keycodes';
 
 export interface LandingOptions {
     search?: string;
@@ -84,23 +82,6 @@ export class LandingStateService extends BaseClass {
         ),
         shareReplay(1)
     );
-    /** Switch to use ws real time free space subscription */
-    public free_spaces = this._spacesStatus.list_free_spaces.pipe(
-        map((list) =>
-            this._org.building
-                ? list
-                      .filter((e) => e.zones.includes(this._org.building.id))
-                      .filter(
-                          (space) =>
-                              !space.availability.length ||
-                              space.availability.find(
-                                  (_) => _.status !== 'busy'
-                              )
-                      )
-                      .sort((a, b) => a.capacity - b.capacity)
-                : []
-        )
-    );
     /**  */
     public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
         map((_) => _.filter((i) => i instanceof CalendarEvent))
@@ -131,8 +112,7 @@ export class LandingStateService extends BaseClass {
     constructor(
         private _calendar: CalendarService,
         private _schedule: ScheduleStateService,
-        private _org: OrganisationService,
-        private _spacesStatus: SpacesStatusService
+        private _org: OrganisationService
     ) {
         super();
         this.init();
@@ -161,7 +141,7 @@ export class LandingStateService extends BaseClass {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public pollUpcomingEvents(delay: number = 10 * 1000) {
+    public pollUpcomingEvents(delay: number = 5 * 60 * 1000) {
         this._schedule.setDate(Date.now());
         return this._schedule.startPolling(delay);
     }

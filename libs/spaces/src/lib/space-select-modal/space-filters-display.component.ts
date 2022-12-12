@@ -59,7 +59,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 {{ end | date: 'shortTime' }}
             </div>
             <div filter-item count class="dark:border-neutral-500" i18n>
-                Min. {{ (options | async)?.capcaity || 2 }} People
+                Min. {{ (options | async)?.capacity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p>{{ feat }}</p>

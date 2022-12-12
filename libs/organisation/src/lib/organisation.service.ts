@@ -395,34 +395,40 @@ export class OrganisationService {
             }
             const use_location = !!this._service.get('app.use_geolocation');
             if (use_location && 'geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const { latitude, longitude } = position.coords;
-                    console.log('Location:', +latitude, +longitude);
-                    let closest_bld = null;
-                    for (const bld of this.buildings) {
-                        if (!closest_bld) closest_bld = bld;
-                        else {
-                            const [c_lat, c_long] = (
-                                closest_bld.location || '0,0'
-                            ).split(',');
-                            const [b_lat, b_long] = (
-                                bld.location || '0,0'
-                            ).split(',');
-                            const b_dist = Math.sqrt(
-                                Math.pow(latitude - +b_lat, 2) +
-                                    Math.pow(longitude - +b_long, 2)
-                            );
-                            const c_dist = Math.sqrt(
-                                Math.pow(latitude - +c_lat, 2) +
-                                    Math.pow(longitude - +c_long, 2)
-                            );
-                            if (b_dist < c_dist) closest_bld = bld;
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        let closest_bld = null;
+                        for (const bld of this.buildings) {
+                            if (!bld.location || bld.location === '0,0') continue;
+                            if (!closest_bld) closest_bld = bld;
+                            else {
+                                const [c_lat, c_long] = (
+                                    closest_bld.location || '0,0'
+                                ).split(',');
+                                const [b_lat, b_long] = (
+                                    bld.location || '0,0'
+                                ).split(',');
+                                const b_dist = Math.sqrt(
+                                    Math.pow(latitude - +b_lat, 2) +
+                                        Math.pow(longitude - +b_long, 2)
+                                );
+                                const c_dist = Math.sqrt(
+                                    Math.pow(latitude - +c_lat, 2) +
+                                        Math.pow(longitude - +c_long, 2)
+                                );
+                                if (b_dist < c_dist) closest_bld = bld;
+                            }
                         }
+                        if (closest_bld) this.building = closest_bld;
+                        if (!this.building?.id) this._setDefaultBuilding();
+                        resolve();
+                    },
+                    () => {
+                        if (!this.building?.id) this._setDefaultBuilding();
+                        resolve();
                     }
-                    if (closest_bld) this.building = closest_bld;
-                    if (!this.building?.id) this._setDefaultBuilding();
-                    resolve();
-                });
+                );
             } else if (!this.building?.id) {
                 this._setDefaultBuilding();
                 resolve();
@@ -431,14 +437,28 @@ export class OrganisationService {
     }
 
     private _setDefaultBuilding() {
+        console.log('Set Default Building:', this.buildings);
         if (!this.buildings.length) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
         } else {
             const timezone = this.timezone;
+            console.log(
+                'Timezone:',
+                timezone,
+                this.buildings.map((_) => `${_.name}|${_.timezone}`)
+            );
             for (const bld of this.buildings) {
                 if (bld.timezone === timezone) {
+                    this.building = bld;
+                    break;
+                }
+            }
+            if (this.building) return;
+            const tz_start = timezone.split('/')[0];
+            for (const bld of this.buildings) {
+                if (bld.timezone.startsWith(tz_start)) {
                     this.building = bld;
                     break;
                 }

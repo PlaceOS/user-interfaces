@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { differenceInDays } from 'date-fns';
 import { Space } from '../space.class';
 
 @Component({
@@ -63,8 +65,8 @@ import { Space } from '../space.class';
                                 <p>
                                     {{
                                         space.location ||
-                                            space.level?.display_name ||
-                                            space.level?.name
+                                            level(space.zones)?.display_name ||
+                                            level(space.zones)?.name
                                     }}
                                 </p>
                             </div>
@@ -134,11 +136,15 @@ export class SpaceListComponent {
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
-
-    public readonly available_spaces = this._event_form.available_spaces;
     public readonly loading = this._event_form.loading;
+    
+    public readonly available_spaces = this._event_form.available_spaces;
 
-    constructor(private _event_form: EventFormService) {}
+    constructor(private _event_form: EventFormService, private _org: OrganisationService) {}
+
+    public level(zones: string[]) {
+        return this._org.levelWithID(zones);
+    }
 
     public ngOnInit() {
         this._event_form.setView('find');

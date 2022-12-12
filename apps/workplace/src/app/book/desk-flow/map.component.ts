@@ -43,7 +43,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             </mat-menu>
             <div listing class="flex flex-1 h-1/2 relative space-x-2">
                 <ul
-                    class="list-style-none w-full sm:w-[20rem] max-w-[768px] mx-auto bg-gray-100 dark:bg-neutral-600 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+                    class="list-style-none w-full sm:w-[20rem] max-w-[48rem] mx-auto bg-gray-100 dark:bg-neutral-600 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
                     [class.!w-full]="hide_map"
                     [class.rounded-tl-lg]="hide_map"
                 >

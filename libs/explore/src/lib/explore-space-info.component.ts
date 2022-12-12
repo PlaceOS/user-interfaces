@@ -45,14 +45,17 @@ export interface SpaceInfoData {
                 <div class="arrow"></div>
                 <div class="relative">
                     <div
-                        class="w-full h-32 overflow-hidden bg-black/20 flex items-center justify-center relative"
+                        class="w-full overflow-hidden flex items-center justify-center relative bg-opacity-20"
+                        [class.bg-black]="space.images[0]"
+                        [class.h-32]="space.images[0]"
+                        [class.h-8]="!space.images[0]"
                     >
                         <img
                             *ngIf="space.images[0]"
                             [src]="space.images[0]"
                             class="object-cover min-h-full min-w-full"
                         />
-                        <div class="absolute inset-0 bg-black/30"></div>
+                        <div class="absolute inset-0 bg-black/30" *ngIf="space.images[0]"></div>
                     </div>
                     <div class="absolute top-2 left-2 flex flex-wrap text-sm ">
                         <div

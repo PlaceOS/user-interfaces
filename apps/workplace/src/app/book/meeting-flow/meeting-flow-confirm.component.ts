@@ -3,6 +3,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BaseClass, notifyError } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
     selector: 'meeting-flow-confirm',
@@ -66,7 +67,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
                         <div>
-                            {{ s.level?.display_name || s.level?.name }},
+                            {{ level?.display_name || level?.name }},
                             {{ s.display_name || s.name }}
                         </div>
                     </div>
@@ -117,6 +118,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    providers: [SpacePipe]
 })
 export class MeetingFlowConfirmComponent extends BaseClass {
     @Input() public show_close: boolean = false;
@@ -133,26 +135,39 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     public readonly cancelPost = () => this._event_form.cancelPostForm();
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e)
 
+    private _space = this.event.resources[0];
+
+    public async ngOnInit() {
+        this._space = await this._space_pipe.transform(this.event.resources[0].email) || this._space;
+    }
+
     public get event(): CalendarEvent {
         return this._event_form.form.value as any;
     }
 
     public get space() {
-        return this.event.resources[0];
+        return this._space;
+    }
+
+    public get level() {
+        return this._org.levelWithID(this.space.zones);
     }
 
     public get location() {
         const building = this._org.buildings.find(
-            (_) => _.id === this.space?.level?.parent_id
+            (_) => this.space.zones.includes(_.id)
         );
         return (
-            building?.address || building?.display_name || building?.name || '~Unspecified Location~'
+            building?.address ||
+            building?.display_name ||
+            building?.name
         );
     }
 
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
+        private _space_pipe: SpacePipe,
         @Optional() private _sheet_ref: MatBottomSheetRef
     ) {
         super();

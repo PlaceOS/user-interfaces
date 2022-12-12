@@ -20,23 +20,22 @@ import { querySystems } from '@placeos/ts-client';
         <div
             class="rounded shadow m-4 bg-white dark:bg-neutral-700 border border-gray-200 dark:border-neutral-500 overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-red-700 text-white py-2 px-4 m-0 w-full text-2xl" i18n>
-                Booking Panel Setup
+            <h2 class="bg-red-700 text-white py-2 px-4 m-0 w-full text-2xl">
+                {{ 'PANEL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             <ng-container
                 *ngIf="!loading || loading === 'search'; else load_state"
             >
-                <p class="description py-4" i18n>
-                    Input the PlaceOS <em>System ID</em> to bootstrap
+                <p class="description py-4">
+                    {{ 'PANEL.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
                 <mat-form-field appearance="outline">
-                    <mat-label i18n>System ID</mat-label>
+                    <mat-label>{{ 'PANEL.BOOTSTRAP_LABEL' | translate }}</mat-label>
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
                         placeholder="System ID"
-                        i18n-placeholder
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -63,9 +62,8 @@ import { querySystems } from '@placeos/ts-client';
                             system_id$.getValue()?.length < 2 &&
                             !(space_list | async)?.length
                         "
-                        i18n
                     >
-                        Start typing to search for a room
+                    {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
                 <button
@@ -74,14 +72,14 @@ import { querySystems } from '@placeos/ts-client';
                     (click)="bootstrap()"
                     i18n
                 >
-                    Submit
+                    {{ 'COMMON.CONTINUE' | translate }}
                 </button>
             </ng-container>
         </div>
         <ng-template #load_state>
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4" i18n>Loading system data... {{ loading }}</div>
+                <div class="m-4" i18n>{{ 'PANEL.LOADING_SYSTEM' | translate }} {{ loading }}</div>
             </div>
         </ng-template>
     `,

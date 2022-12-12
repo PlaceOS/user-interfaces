@@ -7,6 +7,8 @@ import {
 } from '@placeos/bookings';
 import { BaseClass, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
@@ -72,8 +74,8 @@ const EMPTY = [];
                                 />
                             </ng-template>
                         </div>
-                        <div class="h-20">
-                            <div class="truncate mb-4">
+                        <div class="h-20 flex-1 w-1/2">
+                            <div class="truncate mb-4 w-full pr-12">
                                 {{
                                     (item | space | async)?.display_name ||
                                         (item | space | async)?.name
@@ -85,7 +87,7 @@ const EMPTY = [];
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <div>
                                     {{
-                                        (item | space | async)?.level
+                                        level((item | space | async))
                                             ?.display_name
                                     }}
                                 </div>
@@ -119,16 +121,16 @@ const EMPTY = [];
                         <app-icon>more_horiz</app-icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
-                        <button
+                        <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
                             <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
-                        </button>
+                        </button> -->
                         <button
                             mat-menu-item
-                            (click)="toggleFavourite('space', id)"
+                            (click)="toggleFavourite('space', item)"
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
@@ -196,20 +198,20 @@ const EMPTY = [];
                         <app-icon>more_horiz</app-icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
-                        <button
+                        <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
                             <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
-                        </button>
+                        </button> -->
                         <button
                             mat-menu-item
                             (click)="toggleFavourite(item.type, item.id)"
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
+                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }} </div>
                         </button>
                     </mat-menu>
                 </div>
@@ -272,7 +274,12 @@ export class LandingFavouritesComponent extends BaseClass {
         return this._settings.get<string[]>(FAV_PARKING_KEY) || EMPTY;
     }
 
+    public level(space: Space) {
+        return this._org.levelWithID(space?.zones || []);
+    }
+
     constructor(
+        private _org: OrganisationService,
         private _settings: SettingsService,
         private _space_pipe: SpacePipe,
         private _event_form: EventFormService,

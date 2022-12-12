@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -40,6 +40,7 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { TranslateService } from '@ngx-translate/core';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -84,7 +85,8 @@ export class AppComponent extends BaseClass implements OnInit {
         private _snackbar: MatSnackBar,
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        @Optional() private _translate: TranslateService
     ) {
         super();
     }
@@ -123,9 +125,15 @@ export class AppComponent extends BaseClass implements OnInit {
                 setTimeout(() => location.reload(), 2000);
             });
         });
+        this._initLocale();
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
+            if (params.has('lang')) {
+                const locale = params.get('lang');
+                this._translate?.use(locale);
+                localStorage.setItem('PLACEOS.locale', locale);
+            }
         });
         setNotifyOutlet(this._snackbar);
         /** Wait for settings to initialise */
@@ -166,5 +174,25 @@ export class AppComponent extends BaseClass implements OnInit {
         if (isMock() || currentUser()?.is_logged_in) return;
         invalidateToken();
         location.reload();
+    }
+
+    private _initLocale() {
+        let locale = localStorage.getItem('PLACEOS.locale');
+        const locales = this._settings.get('app.locales') || [];
+        this._translate?.addLangs(locales.map(_ => _.id));
+        if (locale) {
+            this._translate?.use(locale);
+            
+        } else {
+            const list = navigator.languages;
+            for (const lang of list) {
+                locale = locales.find(_ => _.id === lang);
+                if (locale) {
+                    this._translate?.use(lang);
+                    localStorage.setItem('PLACEOS.locale', lang);
+                    break;
+                }
+            }
+        }
     }
 }
