@@ -117,20 +117,20 @@ import { Building, BookingRuleDetails } from '@placeos/organisation';
             <footer>
                 <button
                     mat-button
-                    class="cancel-button"
+                    class="cancel-button align-middle"
                     color="basic"
                     (click)="closeDialog()"
                 >
-                    Cancel
+                    <span>Cancel</span>
                 </button>
                 <button
                     mat-button
-                    class="add-button"
+                    class="add-button align-middle"
                     color="primary"
                     (click)="addBuilding()"
                     [disabled]="!buildingForm.valid"
                 >
-                    Add
+                <span> Add </span>
                 </button>
             </footer>
         </section>

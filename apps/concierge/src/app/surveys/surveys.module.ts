@@ -14,16 +14,22 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { ComponentsModule } from '@placeos/components';
 
+import { UIModule } from '../ui/ui.module';
+
 import { AddBuildingModalComponent } from './components/add-building-modal.component'
 import { BuildingListComponent } from './pages/building-list.component'
 import { SurveyListComponent } from './pages/survey-list.component'
+
+import { BuildingListItemComponent} from './components/building-list-item.component'
 
 const routes: Routes = [
   { path: '', component: BuildingListComponent}
 ] 
 
+const COMPONENTS = [AddBuildingModalComponent, BuildingListComponent, SurveyListComponent, BuildingListItemComponent]
+
 @NgModule({
-  declarations: [ AddBuildingModalComponent, BuildingListComponent, SurveyListComponent],
+  declarations: [...COMPONENTS ],
   imports: [
     CommonModule, RouterModule.forChild(routes),
     MatDialogModule,
@@ -40,6 +46,7 @@ const routes: Routes = [
     RouterModule,
     MatTableModule,
     MatMenuModule,
+    UIModule
   ]
 })
 export class SurveysModule { }

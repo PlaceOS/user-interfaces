@@ -12,6 +12,8 @@ import { BuildingsService } from '../services/buildings.service';
 @Component({
     selector: 'building-list',
     template: `
+        <sidebar class="h-full"></sidebar>
+        <main class="relative w-full h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto">
         <section>
             <header class="heading-wrapper">
                 <div class="left-wrapper">
@@ -26,11 +28,11 @@ import { BuildingsService } from '../services/buildings.service';
 
                 <button
                     mat-button
-                    class="add-button"
+                    class="add-button align-middle"
                     color="primary"
                     (click)="addBuilding()"
                 >
-                    Add Building
+                    <span>Add Building</span>
                     <mat-icon>add</mat-icon>
                 </button>
             </header>
@@ -43,21 +45,27 @@ import { BuildingsService } from '../services/buildings.service';
                 </div>
             </main>
         </section>
+        </main>
     `,
     styles: [
         `
-            section {
-                background-color: #fff;
+            :host {
+                display: flex;
+                height: 100%;
+                width: 100%;
             }
-            main {
-                padding-bottom: 30px;
+            section {
+                margin-top: -20px;
+                margin-right: 0;
+                width: 100%;
+                
             }
             .heading-wrapper {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 margin: 20px 0px 0px 200px;
-                width: 80%;
+                /* width: 80%; */
             }
             .heading {
                 font-size: 20px;
@@ -68,7 +76,7 @@ import { BuildingsService } from '../services/buildings.service';
                 color: #fff;
                 background-color: #292f5b;
                 border-radius: 2px;
-                margin: 20px 0px 20px 20px;
+                margin: 20px;
                 padding: 0px 20px;
             }
         `,

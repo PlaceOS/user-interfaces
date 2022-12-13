@@ -11,6 +11,8 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
 @Component({
     selector: 'survey-list',
     template: `
+         <sidebar></sidebar>
+         <main class="relative h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto">
         <section class="page-wrapper">
             <header class="heading-wrapper">
                 <div class="left-wrapper">
@@ -166,6 +168,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 </ng-container>
             </main>
         </section>
+        </main>
     `,
     styles: [
         `
