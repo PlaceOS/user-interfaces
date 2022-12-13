@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import {
     generateCalendarFileLink,
@@ -7,6 +7,7 @@ import {
     generateMicrosoftCalendarLink,
 } from 'libs/common/src/lib/calendar-links';
 import { CalendarEvent } from './event.class';
+import { notifyError } from '@placeos/common';
 
 @Component({
     selector: 'event-link-modal',
@@ -52,7 +53,7 @@ import { CalendarEvent } from './event.class';
             <button
                 class="w-64"
                 mat-button
-                [mat-dialog-close]="has_actioned"
+                (click)="close()"
                 i18n
             >
                 Close
@@ -87,6 +88,13 @@ export class EventLinkModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
-        private _settings: SettingsService
+        private _dialog: MatDialogRef<EventLinkModalComponent>
     ) {}
+
+    public close() {
+        if (!this.has_actioned) {
+            return notifyError('You need to select a calendar option to finish creating this booking');
+        }
+        this._dialog.close(true);
+    }
 }
