@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1670815957886,
+  "timestamp": 1670904363819,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -168,7 +168,7 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_workplace_src_app_book_book_module_ts.js": "cc0ed1f3a832a1cc0a6bc8abdd59226e4fec026d",
+    "./apps_workplace_src_app_book_book_module_ts.js": "7c31c2323531a3b4d18f2de48b5e18cda47bf14c",
     "./apps_workplace_src_app_control_control_module_ts.js": "4ef80e2411573421adff1456b69a5c99d16ee109",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "bf353740e70d16ac387718b71577701a2754aa99",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "b497f8027d1986f60f00ede27fff5ae91c32feed",
@@ -276,10 +276,10 @@
     "./assets/img/tick.svg": "d940fcfe7bffcd4785f687cf13b014ea92e2738b",
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
-    "./assets/locale/en.json": "1ef89b591f69d608e0745aef2d584f3167c7f37d",
+    "./assets/locale/en.json": "fbb18ef18037c6666c36bc0680673823a5a44bc7",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
-    "./assets/locale/pt.json": "51a354e014d1a122ca24fae674a93e460bb6e707",
+    "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -297,12 +297,12 @@
     "./common.js": "e1163ecbf65e1cb8566f8c68cfb8aaee8e3d0d8b",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "f2a35088d13c20a8961716d915f17f9ec9be7afa",
-    "./main.js": "13fcdfc2681d1c5507ada540ca3e594d78921790",
+    "./main.js": "1cc19f20008687a697f891d18a3103811d57e6f5",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "b834ea14ae6dd9819f7306a06ce0eda8693fcae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "eb1bb41fda050d3085578fd25534002698584d61",
+    "./styles.css": "ccfb51dd0ab0f8db230d6797a2b637eee0001cbc",
     "./vendor.js": "185e96988fb6b2f10bb40d27a54bfaa55558505c"
   },
   "navigationUrls": [
