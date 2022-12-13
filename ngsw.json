@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1670904922046,
+  "timestamp": 1670919475120,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -124,7 +124,7 @@
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "7085b6fc6fe36c03e2316a971362d867b52ab681",
-    "./apps_concierge_src_app_catering_catering_module_ts.js": "05cbcfd7bf5be9772d48a3b7f6cbede699289bb2",
+    "./apps_concierge_src_app_catering_catering_module_ts.js": "004e19dee55919883b07114c076fc68e3618f0e9",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "164477c9d770f178058fec14db00e96b40e72990",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "63af12fcc5a1caed38036bceffe2f146bb90cf50",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "6d5a27d3362385faded99fa493401e403c751103",
@@ -202,17 +202,17 @@
     "./common.js": "4a8cc587259a4723162bc7915cab88c925bc86e7",
     "./default-libs_bookings_src_index_ts.js": "0b804381e50a4d082ff06d4bb3b871c56afc0877",
     "./default-libs_bookings_src_lib_booking-form_service_ts.js": "bb179ae1bcaf3387194ea2618a630358ffb02aa1",
-    "./default-libs_catering_src_index_ts.js": "f66cbcf4ca152ebe3f9290b3c877e4cc1dbb3697",
+    "./default-libs_catering_src_index_ts.js": "3acea696a6618810816308fc000341fb4bced43b",
     "./default-libs_explore_src_index_ts.js": "2d92a1ca9383cc93c0e48f84a2df1cba646a33d6",
     "./default-libs_users_src_index_ts.js": "db785157876e4b5ab8aede66697f1d5f4d24711f",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "371ae9acf14d83a4fea70e8830f89346e0fc669c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "6c45b15804889df46fc03160121fbe61b9084d9a",
-    "./main.js": "07ef7ae7dabc8e57fd60b8a20205b882ea24031f",
+    "./main.js": "f291f6737b7e121495c1707e1ae594ea3c8bae80",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "5406139c6e3f6297e8bc1ea9507f53a64c73c257",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "ccfb51dd0ab0f8db230d6797a2b637eee0001cbc",
+    "./styles.css": "0326fb5a4864ec41a12ab40a303058927bdb4a2a",
     "./vendor.js": "c47da718d50fdb89ede904d28dc6aa14a2a1bbd7"
   },
   "navigationUrls": [
