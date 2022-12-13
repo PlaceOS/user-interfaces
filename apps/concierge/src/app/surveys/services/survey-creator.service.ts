@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-// import { Model, SurveyNG } from 'survey-angular';
+import { Model } from 'survey-core';
+import { SurveyNG} from 'survey-angular'
 import { Question, QuestionType, Tag, Survey } from '../survey-types';
 import {
     DragDropModule,
@@ -315,13 +316,13 @@ export class SurveyCreatorService {
     }
 
     private async _buildSurvey(): Promise<void> {
-        // const survey = new Model(this.surveyJSON);
+        const survey = new Model(this.surveyJSON);
 
-        // SurveyNG.render('surveyContainer', { model: survey });
-        // survey.onComplete.add((sender: any) => {
-        //     console.log('completed');
-        //     document.getElementById('surveyResults').innerHTML =
-        //         Object.values(sender.data).toString() || '';
-        // });
+        SurveyNG.render('surveyContainer', { model: survey });
+        survey.onComplete.add((sender: any) => {
+            console.log('completed');
+            document.getElementById('surveyResults').innerHTML =
+                Object.values(sender.data).toString() || '';
+        });
     }
 }
