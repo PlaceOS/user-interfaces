@@ -146,8 +146,11 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             [@show]="hide_block.resources ? 'hide' : 'show'"
                         >
                             <div
-                                *ngIf="!strict_capacity_check && total_capacity && total_capacity <=
-                                    form.value.attendees?.length
+                                *ngIf="
+                                    !strict_capacity_check &&
+                                    total_capacity &&
+                                    total_capacity <=
+                                        form.value.attendees?.length
                                 "
                                 class="bg-yellow-500 rounded shadow p-2 text-xs mx-auto my-2 text-black inline-flex"
                             >
@@ -190,12 +193,20 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                         >
                             <catering-list-field
                                 formControlName="catering"
-                                [options]="{ 
-                                    date: form.value.date, 
-                                    duration: form.value.duration, 
-                                    zone_id: form.value.resources[0]?.level?.parent_id 
+                                [options]="{
+                                    date: form.value.date,
+                                    duration: form.value.duration,
+                                    zone_id:
+                                        form.value.resources[0]?.level
+                                            ?.parent_id
                                 }"
                             ></catering-list-field>
+                            <textarea
+                                *ngIf="form.value.catering?.length"
+                                class="mt-4 w-full p-2 border border-gray-300 focus:shadow-inner focus:border-black block rounded"
+                                formControlName="catering_notes"
+                                placeholder="Extra catering details..."
+                            ></textarea>
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_assets">
@@ -319,13 +330,19 @@ export class MeetingFlowFormComponent extends BaseClass {
     }
 
     public get total_capacity() {
-        return this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0;
+        return (
+            this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0
+        );
     }
 
     public get attendee_count() {
         const user = currentUser();
         let count = this.form.value.attendees?.length || 0;
-        if (!this.form.value.attendees.find(_ => _.email.toLowerCase() === user.email.toLowerCase())) {
+        if (
+            !this.form.value.attendees.find(
+                (_) => _.email.toLowerCase() === user.email.toLowerCase()
+            )
+        ) {
             count += 1;
         }
         return count;
@@ -336,8 +353,13 @@ export class MeetingFlowFormComponent extends BaseClass {
     public readonly viewConfirm = () => {
         if (!this.form.value.host)
             this.form.patchValue({ host: currentUser()?.email });
-        if (this.strict_capacity_check && this.attendee_count > this.total_capacity) {
-            return notifyError('Attendee count is greater than the capacity of the selected rooms')
+        if (
+            this.strict_capacity_check &&
+            this.attendee_count > this.total_capacity
+        ) {
+            return notifyError(
+                'Attendee count is greater than the capacity of the selected rooms'
+            );
         }
         if (!this.form.valid)
             return notifyError(

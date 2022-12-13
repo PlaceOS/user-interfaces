@@ -14,7 +14,11 @@ const EMPTY_FAVS: string[] = [];
             class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button mat-icon-button mat-dialog-close class="bg-black/20">
+                <button
+                    mat-icon-button
+                    [mat-dialog-close]="selected"
+                    class="bg-black/20"
+                >
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Add Catering</h3>
@@ -66,7 +70,7 @@ const EMPTY_FAVS: string[] = [];
                     class="inverse sm:hidden w-full sm:w-auto"
                     *ngIf="displayed"
                     (click)="displayed = null"
-                     i18n
+                    i18n
                 >
                     Back
                 </button>
@@ -94,7 +98,9 @@ const EMPTY_FAVS: string[] = [];
                         <div class="mr-1 underline" i18n>Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm" i18n>{{ count }} items(s) added</p>
+                <p class="opacity-60 text-sm" i18n>
+                    {{ count }} items(s) added
+                </p>
                 <button
                     mat-button
                     [disabled]="!displayed"

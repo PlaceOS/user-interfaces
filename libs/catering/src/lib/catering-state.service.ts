@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { updateMetadata, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { updateMetadata, showMetadata, PlaceMetadata } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { catchError, filter, first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import {
     BaseClass,
@@ -58,6 +58,15 @@ export class CateringStateService extends BaseClass {
     public readonly loading = this._loading.asObservable();
     /** Observable for the currency code of the active building */
     public readonly currency = this._currency.asObservable();
+
+    public readonly charge_codes = this._org.active_building.pipe(
+        filter((_) => !!_),
+        switchMap((_) =>
+            showMetadata(_.id, 'charge_codes').pipe(catchError((_) => of({} as PlaceMetadata)))
+        ),
+        map((_) => (_.details instanceof Array ? _.details : []) as string[]),
+        shareReplay(1)
+    );
 
     public readonly availability: Observable<string[]> = combineLatest([
         this._org.active_building,
@@ -380,6 +389,15 @@ export class CateringStateService extends BaseClass {
             name: 'catering_config',
             details: config,
             description: `Catering menu config for ${zone_id}`,
+        }).toPromise();
+    }
+
+    public updateChargeCodes(codes: string[], zone_id: string = this._org.building?.id) {
+        return updateMetadata(zone_id, {
+            id: zone_id,
+            name: 'charge_codes',
+            details: codes,
+            description: `Charge codes for ${zone_id}`,
         }).toPromise();
     }
 

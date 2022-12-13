@@ -23,6 +23,8 @@ export class CateringOrder {
     public readonly charge_code: string;
     /** Unix epoch in seconds of order delivery time */
     public readonly deliver_at: number;
+    /** Notes associated with the order */
+    public readonly notes: string;
     /** Current status of the order */
     public readonly status: CateringOrderStatus;
     /** Event associated with the order */
@@ -45,6 +47,7 @@ export class CateringOrder {
         this.status = data.status || 'accepted';
         this.invoice_number = data.invoice_number || '';
         this.event = data.event || null;
+        this.notes = data.notes || '';
         this.deliver_at =
             data.deliver_at ||
             (data as any).date ||
