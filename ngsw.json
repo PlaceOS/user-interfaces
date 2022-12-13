@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1670815682204,
+  "timestamp": 1670904344746,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -143,10 +143,10 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/en.json": "1ef89b591f69d608e0745aef2d584f3167c7f37d",
+    "./assets/locale/en.json": "fbb18ef18037c6666c36bc0680673823a5a44bc7",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
-    "./assets/locale/pt.json": "51a354e014d1a122ca24fae674a93e460bb6e707",
+    "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -163,11 +163,11 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "117725e3c5d7d5b0b73686363ca228bbb7fc1019",
-    "./main.js": "8b754e20397202937df95af8585cf78868763a43",
+    "./main.js": "21a88872654f46a4d16e126ad6d6de7cf6f14760",
     "./manifest.webmanifest": "f23567bd46672c5628059833da39da05adf508d6",
     "./polyfills.js": "36729f3ab919487a5086e7191102ec21348ceb89",
     "./runtime.js": "5a8f6f7dd76b0eab08d1857e135ab9614b029c3e",
-    "./styles.css": "778436c82ad45d060144432b91cdfc0ace57d72d"
+    "./styles.css": "43eef38001baf001729d67288d7820d3dfa2168e"
   },
   "navigationUrls": [
     {
