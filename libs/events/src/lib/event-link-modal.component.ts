@@ -49,7 +49,7 @@ import { CalendarEvent } from './event.class';
                 <span i18n>Download iCal File</span>
             </a>
             <button class="w-64" mat-button [mat-dialog-close]="true" i18n>
-                Done
+                Close
             </button>
         </div>
         <button mat-icon-button mat-dialog-close class="absolute top-2 right-0">
