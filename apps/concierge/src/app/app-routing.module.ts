@@ -3,9 +3,9 @@ import { RouterModule, Routes } from '@angular/router';
 import {
     AuthorisedUserGuard,
     RedirectComponent,
-    UnauthorisedComponent
+    UnauthorisedComponent,
 } from '@placeos/components';
-
+import { BuildingListComponent } from './surveys/building-list.component';
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },
@@ -43,7 +43,9 @@ const routes: Routes = [
     {
         path: 'asset-manager',
         loadChildren: () =>
-            import('./asset-manager/asset-manager.module').then((m) => m.AppAssetManangerModule),
+            import('./asset-manager/asset-manager.module').then(
+                (m) => m.AppAssetManangerModule
+            ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
@@ -86,6 +88,13 @@ const routes: Routes = [
         path: 'parking',
         loadChildren: () =>
             import('./parking/parking.module').then((m) => m.AppParkingModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
+        path: 'surveys',
+        loadChildren: () =>
+            import('./surveys/surveys.module').then((m) => m.SurveysModule),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },

@@ -27,3 +27,4 @@ export * from './lib/components/add-building-modal.component';
 export * from './lib/components/dragdrop.directive';
 export * from './lib/surveys.fn';
 export * from './lib/pages/not-found.component';
+export * from './lib/lib-routing.module';
