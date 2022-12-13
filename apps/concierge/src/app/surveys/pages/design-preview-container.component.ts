@@ -17,6 +17,11 @@ import { BuildingsService } from '../services/buildings.service';
     templateUrl: './design-preview-container.component.html',
     styles: [
         `
+            :host {
+                display: flex;
+                height: 100%;
+                width: 100%;
+            }
             .page-wrapper {
                 background-color: #fff;
                 padding: 20px;
@@ -325,13 +330,14 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
             'current building'
         );
         this.router.navigate([
+            'surveys',
             'survey-list',
             this.surveyCreatorService.current_building,
         ]);
     }
 
     updateBuilding() {
-        //TODO: update Levels
+        //TODO: update backend
         return;
     }
     updateLocation() {

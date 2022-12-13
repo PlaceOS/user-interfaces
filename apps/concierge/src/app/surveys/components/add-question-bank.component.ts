@@ -41,7 +41,7 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
                     (newChoiceEvent)="updateChoice($event)"
                     (allChoicesEvent)="updateAllChoices($event)"
                 ></question-container>
-                <div>
+                <!-- <div>
                     <button
                         mat-button
                         class="add-another-question"
@@ -49,7 +49,7 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
                     >
                         Add another
                     </button>
-                </div>
+                </div> -->
             </main>
             <footer>
                 <button

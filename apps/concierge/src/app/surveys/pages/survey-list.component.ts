@@ -50,11 +50,11 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
 
                         <button
                             mat-button
-                            class="add-button"
+                            class="add-button align-middle"
                             color="primary"
                             (click)="navigate()"
                         >
-                            Add New Survey
+                            <span> Add New Survey</span>
                             <mat-icon>add</mat-icon>
                         </button>
                     </div>
@@ -481,7 +481,7 @@ export class SurveyListComponent implements OnInit {
 
     navigate(): void {
         this.surveyCreatorService.updateCurrentBuilding(this.selected_building);
-        this.router.navigate(['create']);
+        this.router.navigate(['surveys', 'create']);
     }
 
     private _getParams(): void {

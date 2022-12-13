@@ -27,11 +27,22 @@ import { SearchBarComponent } from './components/search-bar.component';
 import { InputTitleComponent } from './components/input-title.component';
 import { QuestionContainerComponent } from './components/question-container.component';
 import { ButtonBorderlessComponent } from './components/button-borderless.component';
+import { QuestionListItemComponent } from './components/question-list-item.component';
+import { QuestionBoxComponent } from './components/question-box.component';
+import { CheckboxQuestionComponent } from './components/question-type-components/checkbox-question.component';
+import { CommentBoxQuestionComponent } from './components/question-type-components/comment-box-question.component';
+import { DropdownQuestionComponent } from './components/question-type-components/dropdown-question.component';
+import { RatingQuestionComponent } from './components/question-type-components/rating-question.component';
+import { TextQuestionComponent } from './components/question-type-components/text-question.component';
+import { PlusButtonComponent } from './components/plus-button.component';
+import { MinusButtonComponent } from './components/minus-button.component';
+import { DragdropDirective } from './components/dragdrop.directive';
 
 const routes: Route[] = [
     { path: '', component: BuildingListComponent },
     { path: 'survey-list/:id', component: SurveyListComponent },
     { path: 'create', component: DesignPreviewContainerComponent },
+    { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
 
 const COMPONENTS = [
@@ -46,10 +57,19 @@ const COMPONENTS = [
     InputTitleComponent,
     QuestionContainerComponent,
     ButtonBorderlessComponent,
+    CheckboxQuestionComponent,
+    CommentBoxQuestionComponent,
+    DropdownQuestionComponent,
+    RatingQuestionComponent,
+    TextQuestionComponent,
+    QuestionListItemComponent,
+    QuestionBoxComponent,
+    PlusButtonComponent,
+    MinusButtonComponent,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
+    declarations: [...COMPONENTS, DragdropDirective],
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
