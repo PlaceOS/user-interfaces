@@ -41,6 +41,7 @@ import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { getFreeTimeSlots, periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { Validators } from '@angular/forms';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -284,11 +285,25 @@ export class EventFormService extends BaseClass {
         );
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(({ date }) => {
+            this._form.valueChanges.subscribe(({ date, catering }) => {
                 if (date && date !== this._date.getValue()) this._date.next(date);
                 this.storeForm();
             })
         );
+        let count = 0;
+        this.interval('catering', () => {
+            const catering = this._form.value.catering;
+            if (count === catering?.length) return;
+            count = catering.length;
+            if (catering?.length && this._settings.get('app.events.catering_notes_required')) {
+                this._form.get('catering_notes')?.setValidators([Validators.required]);
+                this._form.get('catering_notes').patchValue(this._form.value.catering_notes);
+            } else {
+                this._form.get('catering_notes')?.clearValidators();
+                this._form.get('catering_notes').setErrors(null);
+            }
+            this._form.updateValueAndValidity();
+        }, 500);
     }
 
     public listenForStatusChanges() {
@@ -431,7 +446,9 @@ export class EventFormService extends BaseClass {
                 ? startOfDay(value.date).valueOf()
                 : value.date;
             if (catering.length && !('items' in catering[0])) {
-                catering = [new CateringOrder({ items: catering as any })];
+                catering = [new CateringOrder({ items: catering as any, notes: value.catering_notes })];
+            } else {
+                catering.notes = value.catering_notes;
             }
             const result = await this._makeBooking(
                 new CalendarEvent({

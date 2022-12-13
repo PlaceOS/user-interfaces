@@ -1,4 +1,5 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Validators } from '@angular/forms';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -201,12 +202,14 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                             ?.parent_id
                                 }"
                             ></catering-list-field>
-                            <textarea
-                                *ngIf="form.value.catering?.length"
-                                class="mt-4 w-full p-2 border border-gray-300 focus:shadow-inner focus:border-black block rounded"
-                                formControlName="catering_notes"
-                                placeholder="Extra catering details..."
-                            ></textarea>
+                            <mat-form-field appearance="outline" class="w-full mt-2" *ngIf="form.value.catering?.length">
+                                <textarea
+                                    matInput
+                                    formControlName="catering_notes"
+                                    placeholder="Extra catering details..."
+                                ></textarea>
+                                <mat-error>Catering Order notes are required</mat-error>
+                            </mat-form-field>
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_assets">
@@ -361,6 +364,7 @@ export class MeetingFlowFormComponent extends BaseClass {
                 'Attendee count is greater than the capacity of the selected rooms'
             );
         }
+        this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
