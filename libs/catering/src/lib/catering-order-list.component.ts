@@ -13,7 +13,8 @@ import { CateringOrdersService } from './catering-orders.service';
             <div class="w-24">Time</div>
             <div class="flex-1">Location</div>
             <div class="w-56">Host</div>
-            <div class="w-24">Charge Code</div>
+            <div class="w-28">Charge Code</div>
+            <div class="w-24">Notes</div>
             <div class="w-28">Invoice No.</div>
             <div class="w-36">Status</div>
             <div class="w-12"></div>

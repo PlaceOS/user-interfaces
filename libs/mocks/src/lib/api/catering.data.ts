@@ -105,6 +105,7 @@ export function generateCateringOrder(event: HashMap) {
             event.event_start * 1000,
             predictableRandomInt(Math.floor(duration / 5)) * 5
         ),
+        notes: predictableRandomInt(9999_9999) % 2 === 0 ? 'Test notes' : '',
         items: new Array(3).fill(0).map((_, idx) => ({
             ...MOCK_MENU[(mx * idx) % MOCK_MENU.length],
             options: [],

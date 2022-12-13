@@ -43,7 +43,10 @@ import { CATERING_STATUSES } from './catering.vars';
                         '~ Unknown Host ~'
                 }}
             </div>
-            <div class="w-24">{{ order.charge_code || '~ No Code ~' }}</div>
+            <div class="w-28">{{ order.charge_code || '~ No Code ~' }}</div>
+            <div class="w-24">
+                <button *ngIf="order.notes" class="clear underline" [matTooltip]="order.notes">View</button>
+            </div>
             <div class="w-28">
                 {{ order.invoice_number || '~ No Invoice ~' }}
             </div>
