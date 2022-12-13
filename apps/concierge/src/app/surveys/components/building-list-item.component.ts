@@ -60,7 +60,7 @@ import { Router, ActivatedRoute } from '@angular/router';
             <div class="button-container">
                 <button
                     mat-button
-                    class="view-button"
+                    class="view-button align-middle"
                     color="basic"
                     (click)="navigate()"
                 >

@@ -11,167 +11,194 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
 @Component({
     selector: 'survey-list',
     template: `
-         <sidebar></sidebar>
-         <main class="relative h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto">
-        <section class="page-wrapper">
-            <header class="heading-wrapper">
-                <div class="left-wrapper">
-                    <span
-                        ><mat-icon class="back-arrow" (click)="back()"
-                            >arrow_back</mat-icon
-                        ></span
-                    >
-                    <span class="page-heading">{{ selected_building }}</span>
-                </div>
-
-                <div class="right-wrapper">
-                    <div class="dropdown-container">
-                        <mat-form-field appearance="outline" class="dropdown">
-                            <mat-select
-                                [(value)]="selected_level"
-                                (selectionChange)="updateListView()"
-                            >
-                                <mat-option
-                                    *ngFor="let level of building_levels"
-                                    [value]="level.level"
-                                >
-                                    {{ level.display }}</mat-option
-                                >
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-
-                    <button
-                        mat-button
-                        class="add-button"
-                        color="primary"
-                        (click)="navigate()"
-                    >
-                        Add New Survey
-                        <mat-icon>add</mat-icon>
-                    </button>
-                </div>
-            </header>
-            <main>
-                <div class="table-container ">
-                    <div class="loading" *ngIf="isLoading">
-                        <mat-spinner *ngIf="isLoading"></mat-spinner>
-                    </div>
-                </div>
-
-                <ng-container
-                    [ngTemplateOutlet]="
-                        dataSource.data.length ? tableContent : none
-                    "
-                >
-                    <ng-template #tableContent>
-                        <table
-                            mat-table
-                            [dataSource]="dataSource"
-                            class=" table"
+        <sidebar></sidebar>
+        <main
+            class="relative w-full h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto"
+        >
+            <section class="page-wrapper">
+                <header class="heading-wrapper">
+                    <div class="left-wrapper">
+                        <span
+                            ><mat-icon class="back-arrow" (click)="back()"
+                                >arrow_back</mat-icon
+                            ></span
                         >
-                            <ng-container
-                                *ngFor="let column of columns"
-                                [matColumnDef]="column.columnDef"
-                                ]
-                            >
-                                <th
-                                    mat-header-cell
-                                    *matHeaderCellDef
-                                    (click)="sortByHeader(column.header)"
-                                >
-                                    <div class="header-wrapper">
-                                        <span>
-                                            {{ column.header }}
-                                        </span>
-                                        <span
-                                            *ngIf="
-                                                column.header != 'Link' &&
-                                                column.header != 'Options'
-                                            "
-                                        >
-                                            <mat-icon
-                                                [ngClass]="{
-                                                    'descending-icon':
-                                                        !column.ascending
-                                                }"
-                                                >filter_list</mat-icon
-                                            >
-                                        </span>
-                                    </div>
-                                </th>
-                                <td mat-cell *matCellDef="let row">
-                                    <div *ngIf="column.cell(row) !== 'open'">
-                                        {{ column.cell(row) }}
-                                    </div>
-                                    <div *ngIf="column.cell(row) == 'open'">
-                                        <button
-                                            mat-icon-button
-                                            [matMenuTriggerFor]="optionsMenu"
-                                            aria-label="button to see more options"
-                                            class="options-button"
-                                        >
-                                            <mat-icon class="ellipse"
-                                                >more_horiz</mat-icon
-                                            >
-                                        </button>
-                                        <mat-menu #optionsMenu="matMenu">
-                                            <div class="menu-wrapper">
-                                                <button
-                                                    mat-menu-item
-                                                    (click)="viewSurvey(row)"
-                                                >
-                                                    <mat-icon
-                                                        >visibility</mat-icon
-                                                    >
-                                                    <span>View</span>
-                                                </button>
-                                                <button
-                                                    mat-menu-item
-                                                    (click)="editSurvey(row)"
-                                                >
-                                                    <mat-icon>edit</mat-icon>
-                                                    <span>Edit</span>
-                                                </button>
-                                                <button
-                                                    mat-menu-item
-                                                    (click)="deleteSurvey(row)"
-                                                >
-                                                    <mat-icon
-                                                        >delete_forever</mat-icon
-                                                    >
-                                                    <span>Delete</span>
-                                                </button>
-                                            </div>
-                                        </mat-menu>
-                                    </div>
-                                </td>
-                            </ng-container>
+                        <span class="page-heading">{{
+                            selected_building
+                        }}</span>
+                    </div>
 
-                            <tr
-                                mat-header-row
-                                *matHeaderRowDef="displayedColumns"
-                                class="header-row"
-                            ></tr>
-                            <tr
-                                mat-row
-                                *matRowDef="let row; columns: displayedColumns"
-                                class="rows"
-                            ></tr>
-                        </table>
-                    </ng-template>
-                    <ng-template #none>
-                        <div class="none-selected">
-                            <span>No saved surveys for this building</span>
+                    <div class="right-wrapper">
+                        <div class="dropdown-container">
+                            <mat-form-field
+                                appearance="outline"
+                                class="dropdown"
+                            >
+                                <mat-select
+                                    [(value)]="selected_level"
+                                    (selectionChange)="updateListView()"
+                                >
+                                    <mat-option
+                                        *ngFor="let level of building_levels"
+                                        [value]="level.level"
+                                    >
+                                        {{ level.display }}</mat-option
+                                    >
+                                </mat-select>
+                            </mat-form-field>
                         </div>
-                    </ng-template>
-                </ng-container>
-            </main>
-        </section>
+
+                        <button
+                            mat-button
+                            class="add-button"
+                            color="primary"
+                            (click)="navigate()"
+                        >
+                            Add New Survey
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+                </header>
+                <main>
+                    <div class="table-container ">
+                        <div class="loading" *ngIf="isLoading">
+                            <mat-spinner *ngIf="isLoading"></mat-spinner>
+                        </div>
+                    </div>
+
+                    <ng-container
+                        [ngTemplateOutlet]="
+                            dataSource.data.length ? tableContent : none
+                        "
+                    >
+                        <ng-template #tableContent>
+                            <table
+                                mat-table
+                                [dataSource]="dataSource"
+                                class=" table"
+                            >
+                                <ng-container
+                                    *ngFor="let column of columns"
+                                    [matColumnDef]="column.columnDef"
+                                    ]
+                                >
+                                    <th
+                                        mat-header-cell
+                                        *matHeaderCellDef
+                                        (click)="sortByHeader(column.header)"
+                                    >
+                                        <div class="header-wrapper">
+                                            <span>
+                                                {{ column.header }}
+                                            </span>
+                                            <span
+                                                *ngIf="
+                                                    column.header != 'Link' &&
+                                                    column.header != 'Options'
+                                                "
+                                            >
+                                                <mat-icon
+                                                    [ngClass]="{
+                                                        'descending-icon':
+                                                            !column.ascending
+                                                    }"
+                                                    >filter_list</mat-icon
+                                                >
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <div
+                                            *ngIf="column.cell(row) !== 'open'"
+                                        >
+                                            {{ column.cell(row) }}
+                                        </div>
+                                        <div *ngIf="column.cell(row) == 'open'">
+                                            <button
+                                                mat-icon-button
+                                                [matMenuTriggerFor]="
+                                                    optionsMenu
+                                                "
+                                                aria-label="button to see more options"
+                                                class="options-button"
+                                            >
+                                                <mat-icon class="ellipse"
+                                                    >more_horiz</mat-icon
+                                                >
+                                            </button>
+                                            <mat-menu #optionsMenu="matMenu">
+                                                <div class="menu-wrapper">
+                                                    <button
+                                                        mat-menu-item
+                                                        (click)="
+                                                            viewSurvey(row)
+                                                        "
+                                                    >
+                                                        <mat-icon
+                                                            >visibility</mat-icon
+                                                        >
+                                                        <span>View</span>
+                                                    </button>
+                                                    <button
+                                                        mat-menu-item
+                                                        (click)="
+                                                            editSurvey(row)
+                                                        "
+                                                    >
+                                                        <mat-icon
+                                                            >edit</mat-icon
+                                                        >
+                                                        <span>Edit</span>
+                                                    </button>
+                                                    <button
+                                                        mat-menu-item
+                                                        (click)="
+                                                            deleteSurvey(row)
+                                                        "
+                                                    >
+                                                        <mat-icon
+                                                            >delete_forever</mat-icon
+                                                        >
+                                                        <span>Delete</span>
+                                                    </button>
+                                                </div>
+                                            </mat-menu>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <tr
+                                    mat-header-row
+                                    *matHeaderRowDef="displayedColumns"
+                                    class="header-row"
+                                ></tr>
+                                <tr
+                                    mat-row
+                                    *matRowDef="
+                                        let row;
+                                        columns: displayedColumns
+                                    "
+                                    class="rows"
+                                ></tr>
+                            </table>
+                        </ng-template>
+                        <ng-template #none>
+                            <div class="none-selected">
+                                <span>No saved surveys for this building</span>
+                            </div>
+                        </ng-template>
+                    </ng-container>
+                </main>
+            </section>
         </main>
     `,
     styles: [
         `
+            :host {
+                display: flex;
+                height: 100%;
+                width: 100%;
+            }
             .page-wrapper {
                 background-color: #fff;
                 padding: 10px;
@@ -449,12 +476,12 @@ export class SurveyListComponent implements OnInit {
 
     back(): void {
         this.surveyCreatorService.updateCurrentBuilding('');
-        this.router.navigate(['/']);
+        this.router.navigate(['surveys']);
     }
 
     navigate(): void {
         this.surveyCreatorService.updateCurrentBuilding(this.selected_building);
-        this.router.navigate(['create-survey']);
+        this.router.navigate(['create']);
     }
 
     private _getParams(): void {
