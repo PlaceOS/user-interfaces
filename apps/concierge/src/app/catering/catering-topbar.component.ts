@@ -4,7 +4,7 @@ import { first } from 'rxjs/operators';
 
 import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { CateringOrdersService, CateringStateService } from '@placeos/catering';
+import { CateringOrdersService, CateringStateService, ChargeCodeListModalComponent } from '@placeos/catering';
 import { CateringRoomsStateModalComponent } from 'libs/catering/src/lib/catering-rooms-state-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -44,6 +44,9 @@ import { MatDialog } from '@angular/material/dialog';
             </button>
             <button *ngIf="page === 'menu'" mat-button (click)="setRoomAvailability()">
                 Room Availability
+            </button>
+            <button *ngIf="page === 'menu'" mat-button (click)="setChargeCodes()">
+                Charge Codes
             </button>
             <div class="flex-1 w-2"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
@@ -137,5 +140,9 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
 
     public setRoomAvailability() {
         this._dialog.open(CateringRoomsStateModalComponent);
+    }
+
+    public setChargeCodes() {
+        this._dialog.open(ChargeCodeListModalComponent);
     }
 }
