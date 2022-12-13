@@ -50,6 +50,11 @@ const general = {
             name: 'Reports',
             icon: { class: 'material-icons', content: 'analytics' },
         },
+        {
+            route: 'surveys',
+            name: 'Surveys',
+            icon: { class: 'material-icons', content: 'create' },
+        },
     ],
 };
 
