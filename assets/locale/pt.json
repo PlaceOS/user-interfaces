@@ -52,9 +52,9 @@
         "ROOM_CAPACITY": "Room capacity",
         "CHECKIN_INPUT": "Touch or scan to check-in",
         "BOOKING_INPUT": "Touch or scan to book",
-        "SCAN_QR_CODE": "Digitalize o código QR para reservar este quarto ou ver os detalhes",
+        "SCAN_QR_CODE": "Aponte para o QR Code para agendar esta sala ou ver mais detalhes.",
         "NEXT": "PRÓXIMA REUNIÃO",
-        "NOW": "DISPONÍVEL",
+        "NOW": "EM REUNIÃO",
         "HOST": "Host:",
         "MEETING_IN_PROGRESS": "está em andamento",
         "BOOK": "Book",
@@ -72,7 +72,13 @@
         "BOOTSTRAP_DESCRIPTION": "Input the PlaceOS System ID to bootstrap",
         "BOOTSTRAP_LABEL": "System ID",
         "BOOTSTRAP_INPUT_PLACEHOLDER": "Start typing to search for a room",
-        "LOADING_SYSTEM": "Loading system data..."
+        "LOADING_SYSTEM": "Loading system data...",
+        "FREE_IN_HOURS_AND_MINUTES": "Disponível em {{ hour }} hora {{ minute }} minuto",
+        "FREE_IN_MINUTES": "Disponível em {{ minute }} minutes",
+        "FREE_IN_LESS_THAN_MINUTE": "Disponível em Disponível por menos de",
+        "FREE_FOR_HOURS_AND_MINUTES": "Disponível por {{ hour }} hora {{ minute }} minuto",
+        "FREE_FOR_MINUTES": "Disponível por {{ minute }} minutes",
+        "FREE_FOR_LESS_THAN_MINUTE": "Disponível por Disponível por menos de"
     },
     "FORM": {
         "ALL_DAY": "All Day",
