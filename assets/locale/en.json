@@ -76,7 +76,13 @@
         "BOOTSTRAP_DESCRIPTION": "Input the PlaceOS System ID to bootstrap",
         "BOOTSTRAP_LABEL": "System ID",
         "BOOTSTRAP_INPUT_PLACEHOLDER": "Start typing to search for a room",
-        "LOADING_SYSTEM": "Loading system data..."
+        "LOADING_SYSTEM": "Loading system data...",
+        "FREE_IN_HOURS_AND_MINUTES": "Free in {{ hour }} hours and {{ minute }} minutes",
+        "FREE_IN_MINUTES": "Free in {{ minute }} minutes",
+        "FREE_IN_LESS_THAN_MINUTE": "Free in less than a minute",
+        "FREE_FOR_HOURS_AND_MINUTES": "Free for {{ hour }} hours and {{ minute }} minutes",
+        "FREE_FOR_MINUTES": "Free for {{ minute }} minutes",
+        "FREE_FOR_LESS_THAN_MINUTE": "Free for less than a minute"
     },
     "FORM": {
         "ALL_DAY": "All Day",
