@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
         >
             <div class="mx-3 flex flex-row">
                 <img
-                    src="assets/not-found.svg"
+                    src="assets/icons/not-found.svg"
                     alt="graphic of magnifying glass"
                     width="200px"
                     class="items-center"
