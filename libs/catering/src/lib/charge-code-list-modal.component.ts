@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { csvToJson, notifyError, unique } from '@placeos/common';
 import { take } from 'rxjs/operators';
 import { CateringStateService } from './catering-state.service';
 
@@ -14,10 +15,10 @@ import { CateringStateService } from './catering-state.service';
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="overflow-auto max-h-[65vh] min-h-[20rem] flex flex-col space-y-2"
+            class="overflow-auto max-h-[65vh] min-h-[20rem] flex flex-col"
         >
             <div
-                class="flex items-center space-x-2 w-full hover:bg-black/10 px-2 py-1"
+                class="flex items-center space-x-2 w-full hover:bg-black/10 px-2"
                 *ngFor="let code of charge_codes; let i = index"
             >
                 <mat-form-field appearance="outline" class="h-14 flex-1">
@@ -28,7 +29,15 @@ import { CateringStateService } from './catering-state.service';
                 </button>
             </div>
         </main>
-        <footer class="flex items-center p-2 space-x-2" *ngIf="!loading">
+        <footer class="flex items-center p-2 space-x-2 border-t border-gray-200" *ngIf="!loading">
+            <button mat-button class="w-48 inverse relative">
+                Import Codes
+                <input
+                    class="opacity-0 absolute inset-0"
+                    type="file"
+                    (change)="addCodesFromFile($event)"
+                />
+            </button>
             <button mat-button class="w-48" (click)="newCode()">Add Code</button>
             <button mat-button class="w-48" (click)="saveChargeCodes()">Save Changes</button>
         </footer>
@@ -63,6 +72,33 @@ export class ChargeCodeListModalComponent {
 
     public removeCode(index: number) {
         this.charge_codes.splice(index, 1);
+    }
+
+    /**
+     * Load CSV file and populate the code list with the contents
+     * @param event File input field event
+     */
+    public addCodesFromFile(event) {
+        /* istanbul ignore else */
+        if (event.target) {
+            const file = event.target.files[0];
+            /* istanbul ignore else */
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.addEventListener('load', (evt) => {
+                    const list = csvToJson((evt.srcElement as any).result) || [];
+                    for (const { code, description } of list) {
+                        this.charge_codes.push(code);
+                    }
+                    this.charge_codes = unique(this.charge_codes);
+                    event.target.value = '';
+                });
+                reader.addEventListener('error', (_) =>
+                    notifyError('Error reading file.')
+                );
+            }
+        }
     }
 
     public async saveChargeCodes() {
