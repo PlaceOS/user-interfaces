@@ -20,7 +20,7 @@
                     class="add-button"
                     color="primary"
                     (click)="surveyCreatorService.updateSurveysList()"
-                    [routerLink]="'/list'"
+                    (click)="navigate()"
                 >
                     Save Survey
                 </button>
