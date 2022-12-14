@@ -214,6 +214,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     triggers = [
         { name: 'Meetings in Zone 1', metadata: '' },
         { name: 'All Monday meetings', metadata: '' },
+        { name: 'Meetings on 17/12/2020', metadata: '' },
     ];
 
     survey_title: FormControl = new FormControl('Survey Title', [

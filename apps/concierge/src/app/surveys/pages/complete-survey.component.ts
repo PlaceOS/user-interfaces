@@ -3,25 +3,28 @@ import { SurveyNG, Model } from 'survey-angular';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 
 @Component({
-    selector: 'placeos-complete-survey',
+    selector: 'complete-survey',
     template: `
-        <section>
-            <div id="surveyContainer"></div>
+        <div class="flex flex-col bg-gray-300 w-full h-full  justify-center">
+            <div class="mt-24">
+                <span class="font-bold font-lg">Survey</span>
+            </div>
+            <div id="surveyContainer" class="bg-white rounded-md m-30 "></div>
 
             Survey results:
             <div id="surveyResults"></div>
-        </section>
+        </div>
     `,
     styles: [
         `
-            section {
-                background-color: #fff;
-                padding: 50px;
-            }
             #surveyContainer {
-                display: inline-block;
-                width: 100%;
+                display: flex;
+                width: 500px;
+                height: 800px;
                 min-height: 500px;
+                margin: 20px;
+                border-radius: 10px;
+                padding: 15%;
             }
         `,
     ],

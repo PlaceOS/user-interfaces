@@ -44,7 +44,7 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="dropdown-container">
+            <!-- <div class="dropdown-container">
                 <mat-label>Location</mat-label>
                 <mat-form-field appearance="outline" class="dropdown">
                     <mat-select
@@ -59,7 +59,7 @@
                         >
                     </mat-select>
                 </mat-form-field>
-            </div>
+            </div> -->
             <div class="dropdown-container">
                 <mat-label>Level</mat-label>
                 <mat-form-field appearance="outline" class="dropdown">
@@ -95,6 +95,7 @@
                     <mat-select
                         [(value)]="selected_trigger"
                         (selectionChange)="updateTrigger()"
+                        placeholder="Select trigger"
                     >
                         <mat-option
                             *ngFor="let trigger of triggers"
