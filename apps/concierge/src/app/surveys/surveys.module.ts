@@ -45,7 +45,7 @@ const routes: Route[] = [
     { path: 'survey-list/:id', component: SurveyListComponent },
     { path: 'create', component: DesignPreviewContainerComponent },
     { path: 'complete/:id', component: CompleteSurveyComponent },
-    // { path: '404', component: NotFoundComponent },
+    { path: '404', component: NotFoundComponent },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
 
