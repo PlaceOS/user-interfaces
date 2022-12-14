@@ -28,6 +28,7 @@ import { Router, ActivatedRoute } from '@angular/router';
             </mat-menu>
             <div *ngIf="building.image" class="image-container">
                 <img
+                    class="object-fill "
                     [src]="building.image"
                     alt="image of building"
                     height="230"
@@ -49,7 +50,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                 </div>
 
                 <span class="building-title">
-                    {{ building.name }}
+                    {{ building.display_name }}
                 </span>
                 <ul class="details-text">
                     <li>surveys live</li>
@@ -58,10 +59,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                 </ul>
             </div>
             <div class="button-container">
-                <button
-                    mat-stroked-button
-                    (click)="navigate()"
-                >
+                <button mat-stroked-button (click)="navigate()">
                     <div class="flex items-center justify-center space-x-1">
                         <span>View</span>
                         <mat-icon>chevron_right</mat-icon>
