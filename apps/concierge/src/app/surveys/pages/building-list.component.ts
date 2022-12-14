@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, BehaviorSubject, Subscription } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
+    Building
 } from '@placeos/organisation';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { AddBuildingModalComponent } from '../components/add-building-modal.component';
 import { BuildingsService } from '../services/buildings.service';
 
@@ -13,38 +11,27 @@ import { BuildingsService } from '../services/buildings.service';
     selector: 'building-list',
     template: `
         <sidebar class="h-full"></sidebar>
-        <main class="relative w-full h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto">
-        <section>
-            <header class="heading-wrapper">
-                <div class="left-wrapper">
-                    <span class="heading">{{ building_count }} </span>
-                    <span *ngIf="building_count == 1" class="heading"
-                        >Building</span
-                    >
-                    <span *ngIf="building_count != 1" class="heading">
-                        Buildings</span
-                    >
-                </div>
+        <main class="flex flex-col flex-1 relative h-full bg-white dark:bg-neutral-600 pt-4 overflow-y-auto">
+            <section>
 
-                <button
-                    mat-button
-                    class="add-button align-middle"
-                    color="primary"
-                    (click)="addBuilding()"
-                >
-                    <span>Add Building</span>
-                    <mat-icon>add</mat-icon>
-                </button>
-            </header>
-            <main>
-                <div *ngFor="let building of buildings$ | async">
-                    <building-list-item
-                        [building]="building"
-                        (deleteBuildingEvent)="deleteBuilding($event)"
-                    ></building-list-item>
+                <div class="flex flex-col">
+                    <div class="flex w-full items-center justify-between py-4 bg-white max-w-[68rem] m-auto">
+                        <span class="text-lg font-semibold">{{building_count}} Building{{building_count > 1 ? 's':''}}</span>
+                        <button
+                            mat-button
+                            (click)="addBuilding()">
+                            <span>Add Building</span>
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+                    <div *ngFor="let building of buildings$ | async">
+                        <building-list-item
+                            [building]="building"
+                            (deleteBuildingEvent)="deleteBuilding($event)"
+                        ></building-list-item>
+                    </div>
                 </div>
-            </main>
-        </section>
+            </section>
         </main>
     `,
     styles: [
@@ -54,7 +41,7 @@ import { BuildingsService } from '../services/buildings.service';
                 height: 100%;
                 width: 100%;
             }
-            section {
+            /* section {
                 margin-top: -20px;
                 margin-right: 0;
                 width: 100%;
@@ -65,20 +52,19 @@ import { BuildingsService } from '../services/buildings.service';
                 align-items: center;
                 justify-content: space-between;
                 margin: 20px 0px 0px 200px;
-                /* width: 80%; */
             }
             .heading {
                 font-size: 20px;
                 font-weight: 500;
             }
-            .add-button {
+             .add-button {
                 display: flex;
                 color: #fff;
                 background-color: #292f5b;
                 border-radius: 2px;
                 margin: 20px;
                 padding: 0px 20px;
-            }
+            } */
         `,
     ],
 })

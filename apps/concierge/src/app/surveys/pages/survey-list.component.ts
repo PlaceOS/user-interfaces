@@ -13,23 +13,23 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
     template: `
         <sidebar></sidebar>
         <main
-            class="relative w-full h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto"
+            class="relative w-full h-full bg-white dark:bg-neutral-600 overflow-y-auto"
         >
-            <section class="page-wrapper">
-                <header class="heading-wrapper">
-                    <div class="left-wrapper">
+            <section class="flex flex-col bg-white w-full max-w-[68rem] m-auto ">
+                <header class="flex items-center justify-between py-4 pt-8 mb-4 w-full">
+                    <div class="flex items-center">
                         <span
-                            ><mat-icon class="back-arrow" (click)="back()"
+                            ><mat-icon class="flex mr-2" (click)="back()"
                                 >arrow_back</mat-icon
                             ></span
                         >
-                        <span class="page-heading">{{
+                        <span class="text-2xl">{{
                             selected_building
                         }}</span>
                     </div>
 
-                    <div class="right-wrapper">
-                        <div class="dropdown-container">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex h-[3.25rem]">
                             <mat-form-field
                                 appearance="outline"
                                 class="dropdown"
@@ -50,8 +50,6 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
 
                         <button
                             mat-button
-                            class="add-button align-middle"
-                            color="primary"
                             (click)="navigate()"
                         >
                             <span> Add New Survey</span>
@@ -59,7 +57,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                         </button>
                     </div>
                 </header>
-                <main>
+                <main class="flex flex-col w-full">
                     <div class="table-container ">
                         <div class="loading" *ngIf="isLoading">
                             <mat-spinner *ngIf="isLoading"></mat-spinner>
@@ -75,7 +73,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                             <table
                                 mat-table
                                 [dataSource]="dataSource"
-                                class=" table"
+                                class="border"
                             >
                                 <ng-container
                                     *ngFor="let column of columns"
@@ -83,15 +81,16 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                     ]
                                 >
                                     <th
+                                        class="text-sm font-normal"
                                         mat-header-cell
                                         *matHeaderCellDef
                                         (click)="sortByHeader(column.header)"
                                     >
-                                        <div class="header-wrapper">
+                                        <div class="flex items-center space-x-2">
                                             <span>
                                                 {{ column.header }}
                                             </span>
-                                            <span
+                                            <span class="mt-2"
                                                 *ngIf="
                                                     column.header != 'Link' &&
                                                     column.header != 'Options'
@@ -99,7 +98,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                             >
                                                 <mat-icon
                                                     [ngClass]="{
-                                                        'descending-icon':
+                                                        'rotate-180 mb-2':
                                                             !column.ascending
                                                     }"
                                                     >filter_list</mat-icon
@@ -107,7 +106,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                             </span>
                                         </div>
                                     </th>
-                                    <td mat-cell *matCellDef="let row">
+                                    <td class="py-4" mat-cell *matCellDef="let row">
                                         <div
                                             *ngIf="column.cell(row) !== 'open'"
                                         >
@@ -120,14 +119,14 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                     optionsMenu
                                                 "
                                                 aria-label="button to see more options"
-                                                class="options-button"
+                                                class=""
                                             >
-                                                <mat-icon class="ellipse"
+                                                <mat-icon class="flex justify-center"
                                                     >more_horiz</mat-icon
                                                 >
                                             </button>
                                             <mat-menu #optionsMenu="matMenu">
-                                                <div class="menu-wrapper">
+                                                <div class="flex flex-col min-w-[10rem]">
                                                     <button
                                                         mat-menu-item
                                                         (click)="
@@ -178,12 +177,12 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                         let row;
                                         columns: displayedColumns
                                     "
-                                    class="rows"
+                                    class="font-normal text-base"
                                 ></tr>
                             </table>
                         </ng-template>
                         <ng-template #none>
-                            <div class="none-selected">
+                            <div class="flex flex-col text-gray-700 justify-center items-center min-h-[20rem]">
                                 <span>No saved surveys for this building</span>
                             </div>
                         </ng-template>
@@ -199,7 +198,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 height: 100%;
                 width: 100%;
             }
-            .page-wrapper {
+            /* .page-wrapper {
                 background-color: #fff;
                 padding: 10px;
             }
@@ -227,7 +226,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 font-size: 26px;
                 font-weight: 400;
             }
-            .dropdown-container {
+             .dropdown-container {
                 display: flex;
                 height: 53px;
             }
@@ -249,17 +248,17 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 font-size: 16px;
                 line-height: 20px;
                 font-weight: 400;
-            }
+            } */
             .header-row {
                 background-color: #e0e0e0;
-                font-size: 16px;
+                /* font-size: 16px;
                 line-height: 20px;
-                font-weight: 400;
+                font-weight: 400; */
             }
-            .columns {
+            /* .columns {
                 background-color: red;
             }
-            .menu-wrapper {
+             .menu-wrapper {
                 display: flex;
                 flex-direction: column;
                 height: 140px;
@@ -280,7 +279,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 align-items: center;
                 justify-content: center;
             }
-            .header-wrapper {
+             .header-wrapper {
                 display: flex;
                 justify-content: left;
                 align-items: center;
@@ -305,7 +304,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 height: 200px;
                 text-align: center;
                 margin: 200px auto;
-            }
+            } */
         `,
     ],
 })

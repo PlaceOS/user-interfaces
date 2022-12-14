@@ -6,7 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
     selector: 'building-list-item',
     template: `
-        <section class="building-wrapper">
+        <section class="building-wrapper bg-white my-4 mx-auto">
             <div
                 class="options"
                 [matMenuTriggerFor]="optionsMenu"
@@ -59,18 +59,13 @@ import { Router, ActivatedRoute } from '@angular/router';
             </div>
             <div class="button-container">
                 <button
-                    mat-button
-                    class="view-button align-middle"
-                    color="basic"
+                    mat-stroked-button
                     (click)="navigate()"
                 >
-                    <span>View</span>
-
-                    <span>
-                        <mat-icon class="right_arrow"
-                            >chevron_right</mat-icon
-                        ></span
-                    >
+                    <div class="flex items-center justify-center space-x-1">
+                        <span>View</span>
+                        <mat-icon>chevron_right</mat-icon>
+                    </div>
                 </button>
             </div>
         </section>
@@ -84,9 +79,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                 position: relative;
                 justify-content: flex-start;
                 height: 260px;
-                min-width: 1100px;
-                width: 80%;
-                margin: 25px 200px;
+                max-width: 68rem;
                 border: 1px solid #e6e6e6;
                 box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
                 border-radius: 6px;
@@ -115,7 +108,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                 display: flex;
                 height: 100%;
                 width: 380px;
-                background-color: rgba(0, 0, 0, 0.12);
+                background-color: rgba(0, 0, 0, 0.22);
                 align-items: center;
                 justify-content: center;
             }
@@ -161,7 +154,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                 bottom: 20px;
                 right: 20px;
             }
-            .view-button {
+            /* .view-button {
                 display: inline-flex;
                 color: #292f5b;
                 background-color: #fff;
@@ -177,7 +170,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                 display: flex;
                 justify-content: center;
                 align-items: center;
-            }
+            } */
         `,
     ],
 })
