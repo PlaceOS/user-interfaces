@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { ComponentsModule } from '@placeos/components';
 import { UIModule } from '../ui/ui.module';
 
@@ -93,6 +94,7 @@ const COMPONENTS = [
         RouterModule,
         MatTableModule,
         MatMenuModule,
+        MatFormFieldModule,
         UIModule,
     ],
 })

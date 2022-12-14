@@ -49,7 +49,7 @@ import { Question } from '../survey-types';
                 vertical-align: center;
                 justify-content: center;
                 align-items: center;
-                margin-right: 5px;
+                margin: 0px 5px 0px 5px;
             }
             .tick-icon {
                 position: absolute;

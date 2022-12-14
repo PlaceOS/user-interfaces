@@ -108,6 +108,7 @@ import { Observable } from 'rxjs';
             }
             .input-field {
                 display: flex;
+                border: 1px solid rgb(0, 0, 0, 0.12);
                 width: 500px;
                 height: 30px;
                 margin-bottom: 10px;
