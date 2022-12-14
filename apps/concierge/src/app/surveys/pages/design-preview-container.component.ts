@@ -343,10 +343,6 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
         this.router.navigate(['surveys', 'survey-list', found_id]);
     }
 
-    updateBuilding() {
-        //TODO: update backend
-        return;
-    }
     updateLocation() {
         return;
     }

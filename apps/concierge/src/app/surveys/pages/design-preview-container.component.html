@@ -31,10 +31,7 @@
             <div class="dropdown-container">
                 <mat-label>Building</mat-label>
                 <mat-form-field appearance="outline" class="dropdown">
-                    <mat-select
-                        [(value)]="selected_building"
-                        (selectionChange)="updateBuilding()"
-                    >
+                    <mat-select [(value)]="selected_building" [disabled]="true">
                         <mat-option
                             *ngFor="let building of buildings"
                             [value]="building.name"
