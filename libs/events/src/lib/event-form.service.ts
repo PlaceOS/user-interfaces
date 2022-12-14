@@ -446,9 +446,10 @@ export class EventFormService extends BaseClass {
                 ? startOfDay(value.date).valueOf()
                 : value.date;
             if (catering.length && !('items' in catering[0])) {
-                catering = [new CateringOrder({ items: catering as any, notes: value.catering_notes })];
+                catering = [new CateringOrder({ items: catering as any, notes: value.catering_notes, charge_code: value.catering_charge_code })];
             } else {
                 catering.notes = value.catering_notes;
+                catering.charge_code = value.catering_charge_code;
             }
             const result = await this._makeBooking(
                 new CalendarEvent({

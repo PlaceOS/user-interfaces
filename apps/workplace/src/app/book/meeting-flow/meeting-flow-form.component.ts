@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import {
     MatBottomSheet,
@@ -19,7 +19,8 @@ import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { map, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
@@ -202,13 +203,56 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                             ?.parent_id
                                 }"
                             ></catering-list-field>
-                            <mat-form-field appearance="outline" class="w-full mt-2" *ngIf="form.value.catering?.length">
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-full mt-2"
+                                *ngIf="
+                                    form.value.catering?.length && has_codes
+                                        | async
+                                "
+                                (openedChange)="focusInput()"
+                            >
+                                <mat-select
+                                    formControlName="catering_charge_code"
+                                    placeholder="Charge Code"
+                                >
+                                    <input
+                                        #input
+                                        class="sticky top-0 bg-white px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-gray-200 w-full rounded-none z-50"
+                                        [ngModel]="code_filter.getValue()"
+                                        (ngModelChange)="
+                                            code_filter.next($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        placeholder="Search charge codes..."
+                                    />
+                                    <mat-option class="hidden"></mat-option>
+                                    <mat-option
+                                        *ngFor="
+                                            let code of filtered_codes | async
+                                        "
+                                        [value]="code"
+                                    >
+                                        {{ code }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error>
+                                    Catering charge code is required
+                                </mat-error>
+                            </mat-form-field>
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-full"
+                                *ngIf="form.value.catering?.length"
+                            >
                                 <textarea
                                     matInput
                                     formControlName="catering_notes"
                                     placeholder="Extra catering details..."
                                 ></textarea>
-                                <mat-error>Catering Order notes are required</mat-error>
+                                <mat-error>
+                                    Catering Order notes are required
+                                </mat-error>
                             </mat-form-field>
                         </div>
                     </section>
@@ -303,9 +347,23 @@ export class MeetingFlowFormComponent extends BaseClass {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
+    public code_filter = new BehaviorSubject('');
 
     public readonly has_catering = this._catering.available_menu.pipe(
         map((l) => l.length > 0)
+    );
+
+    public readonly has_codes = this._catering.charge_codes.pipe(
+        map((l) => l.length > 0)
+    );
+
+    public readonly filtered_codes = combineLatest([
+        this.code_filter,
+        this._catering.charge_codes,
+    ]).pipe(
+        map(([s, l]) =>
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
+        )
     );
 
     public get form() {
@@ -399,6 +457,7 @@ export class MeetingFlowFormComponent extends BaseClass {
     };
 
     @ViewChild('confirm_ref') private _confirm_ref: TemplateRef<any>;
+    @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
 
     constructor(
         private _state: EventFormService,
@@ -419,6 +478,18 @@ export class MeetingFlowFormComponent extends BaseClass {
             )
         );
         this._checkCateringEligibility(this.form.value.resources || []);
+    }
+
+    public focusInput() {
+        console.log('Focus');
+        this.timeout(
+            'input-focus',
+            () => {
+                this._input_el.nativeElement.value = '';
+                this._input_el?.nativeElement?.focus();
+            },
+            300
+        );
     }
 
     public findAvailableTime() {
