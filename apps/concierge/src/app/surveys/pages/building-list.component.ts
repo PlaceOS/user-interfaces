@@ -16,7 +16,7 @@ import { BuildingsService } from '../services/buildings.service';
 
                 <div class="flex flex-col">
                     <div class="flex w-full items-center justify-between py-4 bg-white max-w-[68rem] m-auto">
-                        <span class="text-lg font-semibold">{{building_count}} Building{{building_count > 1 ? 's':''}}</span>
+                        <span class="text-2xl">{{building_count}} Building{{building_count > 1 ? 's':''}}</span>
                         <button
                             mat-button
                             (click)="addBuilding()">
