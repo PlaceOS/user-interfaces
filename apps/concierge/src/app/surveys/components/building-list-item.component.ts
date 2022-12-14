@@ -28,11 +28,9 @@ import { Router, ActivatedRoute } from '@angular/router';
             </mat-menu>
             <div *ngIf="building.image" class="image-container">
                 <img
-                    class="object-fill "
+                    class="flex object-fill "
                     [src]="building.image"
                     alt="image of building"
-                    height="230"
-                    width="350"
                 />
             </div>
             <div *ngIf="!building.image" class="image-container">
