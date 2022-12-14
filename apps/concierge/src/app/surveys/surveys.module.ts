@@ -18,6 +18,8 @@ import { UIModule } from '../ui/ui.module';
 import { BuildingListComponent } from './pages/building-list.component';
 import { SurveyListComponent } from './pages/survey-list.component';
 import { DesignPreviewContainerComponent } from './pages/design-preview-container.component';
+import { CompleteSurveyComponent } from './pages/complete-survey.component';
+import { NotFoundComponent } from './pages/not-found.component';
 
 import { BuildingListItemComponent } from './components/building-list-item.component';
 import { AddBuildingModalComponent } from './components/add-building-modal.component';
@@ -42,7 +44,9 @@ const routes: Route[] = [
     { path: '', component: BuildingListComponent },
     { path: 'survey-list/:id', component: SurveyListComponent },
     { path: 'create', component: DesignPreviewContainerComponent },
-    { path: '**', redirectTo: '', pathMatch: 'full' },
+    { path: 'complete/:id', component: CompleteSurveyComponent },
+    // { path: '404', component: NotFoundComponent },
+    { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
 
 const COMPONENTS = [
@@ -66,6 +70,8 @@ const COMPONENTS = [
     QuestionBoxComponent,
     PlusButtonComponent,
     MinusButtonComponent,
+    CompleteSurveyComponent,
+    NotFoundComponent,
 ];
 
 @NgModule({
