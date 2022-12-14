@@ -74,8 +74,8 @@ export class CateringStateService extends BaseClass {
         shareReplay(1)
     );
 
-    public readonly charge_codes = this.settings.pipe(map(_ => _.charge_codes));
-    public readonly availability = this.settings.pipe(map(_ => _.disabled_rooms));
+    public readonly charge_codes = this.settings.pipe(map(_ => _.charge_codes || []));
+    public readonly availability = this.settings.pipe(map(_ => _.disabled_rooms || []));
 
     public zone = '';
 

@@ -62,7 +62,7 @@ export class ChargeCodeListModalComponent {
     public async ngOnInit() {
         this.charge_codes = await this._state.charge_codes
             .pipe(take(1))
-            .toPromise();
+            .toPromise() || [];
             
     }
 
