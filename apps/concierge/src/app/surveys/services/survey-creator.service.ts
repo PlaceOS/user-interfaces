@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model } from 'survey-core';
-import { SurveyNG} from 'survey-angular'
+import { SurveyNG } from 'survey-angular';
 import { Question, QuestionType, Tag, Survey } from '../survey-types';
 import {
     DragDropModule,
@@ -12,7 +12,6 @@ import {
     transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-
 
 @Injectable({
     providedIn: 'root',
@@ -259,10 +258,10 @@ export class SurveyCreatorService {
             surveys.push({
                 building_name: this.current_building,
                 level: '01',
-                type: '',
+                type: 'Room',
                 title: this.survey_title.getValue(),
                 date: date.toLocaleDateString('en-GB'),
-                link: '111',
+                link: Math.floor(100000 + Math.random() * 900000).toString(),
                 options: ['open'],
             })
         );
