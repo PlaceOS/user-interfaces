@@ -50,10 +50,10 @@ import { Router, ActivatedRoute } from '@angular/router';
                 <span class="building-title">
                     {{ building.display_name }}
                 </span>
-                <ul class="details-text">
-                    <li>surveys live</li>
-                    <li>draft</li>
-                    <li>responses</li>
+                <ul class="details-text mt-3">
+                    <li>surveys live: {{ mock_count }}</li>
+                    <li>drafts: {{ mock_count - 1 }}</li>
+                    <li>responses: {{ mock_count - 3 }}</li>
                 </ul>
             </div>
             <div class="button-container">
@@ -173,6 +173,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
     // @Output() deleteBuildingEvent = new EventEmitter<any>();
+    mock_count: number;
 
     constructor(
         public buildingsService: BuildingsService,
@@ -180,7 +181,9 @@ export class BuildingListItemComponent implements OnInit {
         public route: ActivatedRoute
     ) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.mock_count = Math.floor(Math.random() * (8 - 3) + 3);
+    }
 
     editBuilding() {}
 
