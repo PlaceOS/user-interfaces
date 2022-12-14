@@ -104,7 +104,7 @@ export class ChargeCodeListModalComponent {
     public async saveChargeCodes() {
         this.loading = true;
         const cleaned_codes = this.charge_codes.filter(_ => _ && _.trim());
-        await this._state.updateChargeCodes(cleaned_codes);
+        await this._state.saveSettings({ charge_codes: cleaned_codes });
         this._dialog_ref.close();
     }
 }
