@@ -192,7 +192,7 @@ export class BuildingListItemComponent implements OnInit {
     }
 
     navigate(): void {
-        this.router.navigate(['survey-list', this.building.name], {
+        this.router.navigate(['survey-list', this.building.id], {
             relativeTo: this.route,
         });
     }

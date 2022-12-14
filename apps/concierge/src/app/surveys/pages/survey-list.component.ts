@@ -15,17 +15,19 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
         <main
             class="relative w-full h-full bg-white dark:bg-neutral-600 overflow-y-auto"
         >
-            <section class="flex flex-col bg-white w-full max-w-[68rem] m-auto ">
-                <header class="flex items-center justify-between py-4 pt-8 mb-4 w-full">
+            <section
+                class="flex flex-col bg-white w-full max-w-[68rem] m-auto "
+            >
+                <header
+                    class="flex items-center justify-between py-4 pt-8 mb-4 w-full"
+                >
                     <div class="flex items-center">
                         <span
                             ><mat-icon class="flex mr-2" (click)="back()"
                                 >arrow_back</mat-icon
                             ></span
                         >
-                        <span class="text-2xl">{{
-                            selected_building
-                        }}</span>
+                        <span class="text-2xl">{{ selected_building }}</span>
                     </div>
 
                     <div class="flex items-center space-x-4">
@@ -48,10 +50,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                             </mat-form-field>
                         </div>
 
-                        <button
-                            mat-button
-                            (click)="navigate()"
-                        >
+                        <button mat-button (click)="navigate()">
                             <span> Add New Survey</span>
                             <mat-icon>add</mat-icon>
                         </button>
@@ -86,11 +85,14 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                         *matHeaderCellDef
                                         (click)="sortByHeader(column.header)"
                                     >
-                                        <div class="flex items-center space-x-2">
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
                                             <span>
                                                 {{ column.header }}
                                             </span>
-                                            <span class="mt-2"
+                                            <span
+                                                class="mt-2"
                                                 *ngIf="
                                                     column.header != 'Link' &&
                                                     column.header != 'Options'
@@ -106,7 +108,11 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                             </span>
                                         </div>
                                     </th>
-                                    <td class="py-4" mat-cell *matCellDef="let row">
+                                    <td
+                                        class="py-4"
+                                        mat-cell
+                                        *matCellDef="let row"
+                                    >
                                         <div
                                             *ngIf="column.cell(row) !== 'open'"
                                         >
@@ -121,12 +127,15 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                 aria-label="button to see more options"
                                                 class=""
                                             >
-                                                <mat-icon class="flex justify-center"
+                                                <mat-icon
+                                                    class="flex justify-center"
                                                     >more_horiz</mat-icon
                                                 >
                                             </button>
                                             <mat-menu #optionsMenu="matMenu">
-                                                <div class="flex flex-col min-w-[10rem]">
+                                                <div
+                                                    class="flex flex-col min-w-[10rem]"
+                                                >
                                                     <button
                                                         mat-menu-item
                                                         (click)="
@@ -182,7 +191,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                             </table>
                         </ng-template>
                         <ng-template #none>
-                            <div class="flex flex-col text-gray-700 justify-center items-center min-h-[20rem]">
+                            <div
+                                class="flex flex-col text-gray-700 justify-center items-center min-h-[20rem]"
+                            >
                                 <span>No saved surveys for this building</span>
                             </div>
                         </ng-template>
@@ -493,17 +504,17 @@ export class SurveyListComponent implements OnInit {
         }
     }
 
-    private _findBuilding(building_name: string) {
+    private _findBuilding(building_id: string) {
         let found_building;
         this.buildingSubscription = this.buildingsService.buildings$.subscribe(
             (buildings) => {
                 found_building = buildings.find(
-                    (item) => item.name == building_name
+                    (item) => item.id == building_id
                 );
             }
         );
         this.surveyCreatorService.updateCurrentBuilding(found_building);
-        this.selected_building = found_building.name;
+        this.selected_building = found_building.display_name;
     }
 
     private _filterSurveysByBuilding(building_name: string) {

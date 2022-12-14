@@ -329,11 +329,17 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
             this.surveyCreatorService.current_building,
             'current building'
         );
-        this.router.navigate([
-            'surveys',
-            'survey-list',
-            this.surveyCreatorService.current_building,
-        ]);
+        let found_id;
+        this.buildingsService.buildings$.subscribe((buildings) => {
+            const found_building = buildings.find(
+                (item) =>
+                    item.display_name ==
+                    this.surveyCreatorService.current_building
+            );
+            found_id = found_building.id;
+        });
+
+        this.router.navigate(['surveys', 'survey-list', found_id]);
     }
 
     updateBuilding() {

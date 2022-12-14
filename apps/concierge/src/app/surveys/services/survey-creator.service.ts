@@ -139,48 +139,48 @@ export class SurveyCreatorService {
         //Mock saved surveys
         this.saved_surveys = [
             {
-                building_name: 'Building 1',
+                building_name: 'Ellwood Tower',
                 level: '01',
                 type: 'Desk',
                 title: 'Satisfaction survey',
                 date: '25/08/2022',
-                link: '12345',
+                link: '369495',
                 options: ['open'],
             },
             {
-                building_name: 'Building 2',
+                building_name: 'Glemsford Building',
                 level: '02',
                 type: 'Room',
                 title: 'Satisfaction survey',
                 date: '30/08/2022',
-                link: '2345',
+                link: '234335',
                 options: ['open'],
             },
             {
-                building_name: 'Building 1',
+                building_name: 'Ellwood Tower',
                 level: '01',
                 type: 'Desk',
                 title: 'Satisfaction survey',
                 date: '30/09/2022',
-                link: '7777',
+                link: '773457',
                 options: ['open'],
             },
             {
-                building_name: 'Building 1',
+                building_name: 'Ellwood Tower',
                 level: '03',
                 type: 'Room',
                 title: 'Satisfaction survey',
                 date: '30/23/2022',
-                link: '7489',
+                link: '748994',
                 options: ['open'],
             },
             {
-                building_name: 'Building 4',
+                building_name: 'Glemsford Building',
                 level: '03',
                 type: 'Visitors',
                 title: 'Satisfaction survey',
                 date: '30/10/2022',
-                link: '15838',
+                link: '158380',
                 options: ['open'],
             },
         ];
@@ -256,6 +256,7 @@ export class SurveyCreatorService {
 
         this.saved_surveys$.subscribe((surveys) =>
             surveys.push({
+                id: Math.floor(Math.random() * (4 - 2) + 2).toString(),
                 building_name: this.current_building,
                 level: '01',
                 type: 'Room',
