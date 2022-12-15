@@ -87,8 +87,12 @@ import { CateringStateService } from './catering';
             <footer
                 class="flex items-center p-2 justify-end space-x-2 border-t border-gray-200 dark:border-neutral-500"
             >
-                <button mat-button (click)="enableSelected()">Enable Selected</button>
-                <button mat-button (click)="disableSelected()">Disable Selected</button>
+                <button mat-button (click)="enableSelected()">
+                    Enable Selected
+                </button>
+                <button mat-button (click)="disableSelected()">
+                    Disable Selected
+                </button>
             </footer>
         </div>
         <ng-template #load_state>
@@ -136,14 +140,18 @@ export class CateringRoomsStateModalComponent {
         this.loading = true;
         const disabled_list = await this.availability.pipe(take(1)).toPromise();
         const list = disabled_list.filter((_) => !this.selected.includes(_));
-        await this._catering.saveDisabledRooms(list).catch(() => null);
+        await this._catering
+            .saveSettings({ disabled_rooms: list })
+            .catch(() => null);
         this.loading = false;
     }
 
     public async disableSelected() {
         const disabled_list = await this.availability.pipe(take(1)).toPromise();
         const list = unique(disabled_list.concat(this.selected));
-        await this._catering.saveDisabledRooms(list).catch(() => null);
+        await this._catering
+            .saveSettings({ disabled_rooms: list })
+            .catch(() => null);
         this.loading = false;
     }
 }

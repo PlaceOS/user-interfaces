@@ -1,8 +1,21 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { updateMetadata, showMetadata, PlaceMetadata } from '@placeos/ts-client';
+import {
+    updateMetadata,
+    showMetadata,
+    PlaceMetadata,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, filter, first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import {
+    catchError,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 
 import {
     BaseClass,
@@ -39,7 +52,12 @@ import {
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
-import { query } from '@angular/animations';
+
+export interface CateringSettings {
+    require_notes?: boolean;
+    charge_codes?: string[];
+    disabled_rooms?: string[];
+}
 
 @Injectable({
     providedIn: 'root',
@@ -59,22 +77,25 @@ export class CateringStateService extends BaseClass {
     /** Observable for the currency code of the active building */
     public readonly currency = this._currency.asObservable();
 
-    public readonly charge_codes = this._org.active_building.pipe(
+    public readonly settings = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'charge_codes').pipe(catchError((_) => of({} as PlaceMetadata)))
+            showMetadata(_.id, 'catering-settings').pipe(
+                catchError((_) => of({} as PlaceMetadata))
+            )
         ),
-        map((_) => (_.details instanceof Array ? _.details : []) as string[]),
+        map((_) => _.details as CateringSettings),
+        tap((_) =>
+            this._settings.post('require_catering_notes', !!_.require_notes)
+        ),
         shareReplay(1)
     );
 
-    public readonly availability: Observable<string[]> = combineLatest([
-        this._org.active_building,
-        this._updated
-    ]).pipe(
-        switchMap(([bld]) => showMetadata(bld.id, 'disabled-catering-rooms')),
-        map((d) => (d.details instanceof Array ? d.details : []) as string[]),
-        shareReplay(1)
+    public readonly charge_codes = this.settings.pipe(
+        map((_) => _.charge_codes || [])
+    );
+    public readonly availability = this.settings.pipe(
+        map((_) => _.disabled_rooms || [])
     );
 
     public zone = '';
@@ -302,6 +323,7 @@ export class CateringStateService extends BaseClass {
 
     public async editConfig() {
         const config = await this.getCateringConfig(this._org.building.id);
+        const { require_notes } = await this.settings.pipe(take(1)).toPromise();
         const menu = this._menu.getValue();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
         const ref = this._dialog.open<
@@ -311,6 +333,8 @@ export class CateringStateService extends BaseClass {
             data: {
                 config,
                 types,
+                require_notes,
+                saveNotes: (b) => this.saveSettings({ require_notes: b }),
             },
         });
         const details = await Promise.race([
@@ -359,13 +383,14 @@ export class CateringStateService extends BaseClass {
         }).toPromise();
     }
 
-    public saveDisabledRooms(list: string[]) {
+    public async saveSettings(settings: CateringSettings) {
+        const old_settings = await this.settings.pipe(take(1)).toPromise();
         return updateMetadata(this._org.building.id, {
             id: this._org.building.id,
-            name: 'disabled-catering-rooms',
-            details: list,
-            description: `Rooms with catering disabled under ${this._org.building.id}`,
-        }).pipe(tap(() => this._updated.next(Date.now()))).toPromise();
+            name: 'catering-settings',
+            details: { ...old_settings, ...settings },
+            description: `Catering settings for ${this._org.building.id}`,
+        }).toPromise();
     }
 
     private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {
@@ -389,15 +414,6 @@ export class CateringStateService extends BaseClass {
             name: 'catering_config',
             details: config,
             description: `Catering menu config for ${zone_id}`,
-        }).toPromise();
-    }
-
-    public updateChargeCodes(codes: string[], zone_id: string = this._org.building?.id) {
-        return updateMetadata(zone_id, {
-            id: zone_id,
-            name: 'charge_codes',
-            details: codes,
-            description: `Charge codes for ${zone_id}`,
         }).toPromise();
     }
 

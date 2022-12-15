@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import {
     MatBottomSheet,
-    MatBottomSheetRef
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
     notifyError,
-    SettingsService
+    SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';

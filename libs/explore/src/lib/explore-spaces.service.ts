@@ -4,7 +4,12 @@ import { getModule } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import { map } from 'rxjs/operators';
 
-import { BaseClass, currentUser, HashMap, SettingsService } from '@placeos/common';
+import {
+    BaseClass,
+    currentUser,
+    HashMap,
+    SettingsService,
+} from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -83,9 +88,9 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
             );
         }
         this._event_form.newForm();
-        this._event_form.form.patchValue({ 
+        this._event_form.form.patchValue({
             host: currentUser()?.email,
-            resources: [space]
+            resources: [space],
         });
         if (this._settings.get('app.events.booking_unavailable')) {
             return this._event_form.openEventLinkModal();
@@ -167,6 +172,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
     private updateActions(spaces: Space[]) {
         const actions: ViewAction[] = [];
         for (const space of spaces) {
+            if (!space.map_id) continue;
             actions.push({
                 id: space.map_id,
                 action: 'click',

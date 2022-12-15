@@ -86,6 +86,11 @@ function registerMocks() {
                 const id = parts[parts.length - 1];
                 return generateParkingSpaces(id);
             }
+            if (request.query_params.name === 'charge_codes') {
+                const parts = request.route_params.id.split('-');
+                const id = parts[parts.length - 1];
+                return { charge_codes: { details: new Array(30).fill(0).map((_, idx) => `C-${idx}`) } };
+            }
             if (request.query_params.name === 'map_regions') {
                 return {
                     map_regions: {

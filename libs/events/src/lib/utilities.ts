@@ -1,4 +1,4 @@
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import {
     add,
     formatDuration,
@@ -20,6 +20,13 @@ import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
+
+const validateCateringField = (catering_control: AbstractControl) => (control: AbstractControl) => {
+    if (catering_control.value?.length && !control.value) {
+        return { catering_field: 'Catering sub-fields are required' };
+    }
+    return null;
+}
 
 export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     if (!event) event = new CalendarEvent();
@@ -48,7 +55,8 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
         catering: new FormControl((event.extension_data?.catering[0]?.items || []) as any),
-        catering_notes: new FormControl(event.extension_data?.catering[0]?.notes || []),
+        catering_notes: new FormControl(event.extension_data?.catering[0]?.notes || ''),
+        catering_charge_code: new FormControl(event.extension_data?.catering[0]?.charge_code || ''),
         assets: new FormControl(event.extension_data?.assets || []),
         // has_catering: new FormControl(event.has_catering || false),
         visitor_type: new FormControl(event.extension_data?.visitor_type),
@@ -69,6 +77,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         if (all_day) form.controls.duration.disable();
         else form.controls.duration.enable();
     });
+    form.get('catering_charge_code').setValidators([validateCateringField(form.get('catering'))]);
     if (event.id) {
         form.get('host').disable();
         form.get('organiser').disable();

@@ -41,6 +41,7 @@ import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { getFreeTimeSlots, periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { Validators } from '@angular/forms';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -193,56 +194,63 @@ export class EventFormService extends BaseClass {
         shareReplay(1)
     );
 
-    public readonly future_available_spaces: Observable<Space[]> = combineLatest([
-        this.filtered_spaces,
-    ]).pipe(
-        filter(() => !this._loading.getValue()),
-        debounceTime(300),
-        switchMap(([spaces]) => {
-            if (!spaces.length) return of([]);
-            this._loading.next('Retrieving available spaces...');
-            const { date, duration } = this._form.getRawValue();
-            const query = {
-                period_start: getUnixTime(date),
-                period_end: getUnixTime(date + duration * MINUTES),
-            };
-            return (
-                !this.has_calendar
-                    ? queryResourceAvailability(
-                          spaces.map(({ id }) => id),
-                          { ...query, type: 'room' }
-                      ).pipe(
-                          map((_) =>
-                              _.map((id) => spaces.find((s) => id === s.id))
+    public readonly future_available_spaces: Observable<Space[]> =
+        combineLatest([this.filtered_spaces]).pipe(
+            filter(() => !this._loading.getValue()),
+            debounceTime(300),
+            switchMap(([spaces]) => {
+                if (!spaces.length) return of([]);
+                this._loading.next('Retrieving available spaces...');
+                const { date, duration } = this._form.getRawValue();
+                const query = {
+                    period_start: getUnixTime(date),
+                    period_end: getUnixTime(date + duration * MINUTES),
+                };
+                return (
+                    !this.has_calendar
+                        ? queryResourceAvailability(
+                              spaces.map(({ id }) => id),
+                              { ...query, type: 'room' }
+                          ).pipe(
+                              map((_) =>
+                                  _.map((id) => spaces.find((s) => id === s.id))
+                              )
                           )
-                      )
-                    : querySpaceAvailability(
-                          {
-                              ...query,
-                              system_ids: spaces.map(({ id }) => id).join(','),
-                          },
-                          this._org
-                      )
-            ).pipe(
-                map((_) => _.map(({ id }) => spaces.find((s) => id === s.id))),
-                catchError((_) => [])
-            );
-        }),
-        map((_) =>
-            _.filter(
-                (space) =>
-                    !space.availability?.length ||
-                    space.availability?.find((_) => _.status !== 'busy')
-            )
-        ),
-        tap((_) => this._loading.next('')),
-        shareReplay(1)
-    );
+                        : querySpaceAvailability(
+                              {
+                                  ...query,
+                                  system_ids: spaces
+                                      .map(({ id }) => id)
+                                      .join(','),
+                              },
+                              this._org
+                          )
+                ).pipe(
+                    map((_) =>
+                        _.map(({ id }) => spaces.find((s) => id === s.id))
+                    ),
+                    catchError((_) => [])
+                );
+            }),
+            map((_) =>
+                _.filter(
+                    (space) =>
+                        !space.availability?.length ||
+                        space.availability?.find((_) => _.status !== 'busy')
+                )
+            ),
+            tap((_) => this._loading.next('')),
+            shareReplay(1)
+        );
 
-    public readonly available_spaces = this._date.pipe(switchMap((d) => {
-        const diff = Math.abs(differenceInDays(d, Date.now()));
-        return diff < 14 ? this.current_available_spaces : this.future_available_spaces;
-    }))
+    public readonly available_spaces = this._date.pipe(
+        switchMap((d) => {
+            const diff = Math.abs(differenceInDays(d, Date.now()));
+            return diff < 14
+                ? this.current_available_spaces
+                : this.future_available_spaces;
+        })
+    );
 
     public get view() {
         return this._view.getValue();
@@ -267,7 +275,7 @@ export class EventFormService extends BaseClass {
         private _router: Router,
         private _payments: PaymentsService,
         private _settings: SettingsService,
-        private _dialog: MatDialog,
+        private _dialog: MatDialog
     ) {
         super();
         this._space_pipe = new SpacePipe(this._org);
@@ -284,18 +292,42 @@ export class EventFormService extends BaseClass {
         );
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(({ date }) => {
-                if (date && date !== this._date.getValue()) this._date.next(date);
+            this._form.valueChanges.subscribe(({ date, catering }) => {
+                if (date && date !== this._date.getValue())
+                    this._date.next(date);
                 this.storeForm();
             })
+        );
+        let count = 0;
+        this.interval(
+            'catering',
+            () => {
+                const catering = this._form.value.catering;
+                if (count === catering?.length) return;
+                count = catering?.length;
+                if (
+                    catering?.length &&
+                    (this._settings.get('app.events.catering_notes_required') ||
+                        this._settings.value('require_catering_notes'))
+                ) {
+                    this._form
+                        .get('catering_notes')
+                        ?.setValidators([Validators.required]);
+                    this._form
+                        .get('catering_notes')
+                        .patchValue(this._form.value.catering_notes);
+                } else {
+                    this._form.get('catering_notes')?.clearValidators();
+                    this._form.get('catering_notes').setErrors(null);
+                }
+                this._form.updateValueAndValidity();
+            },
+            500
         );
     }
 
     public listenForStatusChanges() {
-        this.subscription(
-            'status:rooms',
-            this.available_spaces.subscribe()
-        );
+        this.subscription('status:rooms', this.available_spaces.subscribe());
     }
 
     public setView(value: EventFlowView) {
@@ -314,11 +346,14 @@ export class EventFormService extends BaseClass {
 
     public resetForm() {
         this._form.reset();
-        const event = this._event.getValue() || {} as Partial<CalendarEvent>;
+        const event = this._event.getValue() || ({} as Partial<CalendarEvent>);
         this._form.patchValue({
             ...event,
             ...event.extension_data,
-            date: !event.id && isBefore(event.date || 0, Date.now()) ? Date.now() : event.date,
+            date:
+                !event.id && isBefore(event.date || 0, Date.now())
+                    ? Date.now()
+                    : event.date,
             host: event?.host || currentUser().email,
         });
         this._options.next({ features: [] });
@@ -431,7 +466,16 @@ export class EventFormService extends BaseClass {
                 ? startOfDay(value.date).valueOf()
                 : value.date;
             if (catering.length && !('items' in catering[0])) {
-                catering = [new CateringOrder({ items: catering as any })];
+                catering = [
+                    new CateringOrder({
+                        items: catering as any,
+                        notes: value.catering_notes,
+                        charge_code: value.catering_charge_code,
+                    }),
+                ];
+            } else {
+                catering.notes = value.catering_notes;
+                catering.charge_code = value.catering_charge_code;
             }
             const result = await this._makeBooking(
                 new CalendarEvent({
@@ -482,7 +526,11 @@ export class EventFormService extends BaseClass {
         exclude?: { start: number; end: number },
         ignore?: string
     ) {
-        const space_ids = (await Promise.all(spaces.map(_ => this._space_pipe.transform(_.id || _.email)))).map(_ => _.id);
+        const space_ids = (
+            await Promise.all(
+                spaces.map((_) => this._space_pipe.transform(_.id || _.email))
+            )
+        ).map((_) => _.id);
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),

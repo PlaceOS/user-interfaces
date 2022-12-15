@@ -75,8 +75,11 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
         )}`,
     };
     const emails = (event.attendees || []).map((_: any) => _.email || _);
-    const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map((_: any) => _?.email || _)
-    if (emails.length || resources.length) details.add = unique([...emails, ...resources]).join();
+    const resources = (
+        (event.resources?.length ? event.resources : null) || [event.system]
+    ).map((_: any) => _?.email || _);
+    if (emails.length || resources.length)
+        details.add = unique([...emails, ...resources]).join();
     return `https://calendar.google.com/calendar/render?${toQueryString(
         details
     )}`;
@@ -87,7 +90,7 @@ export function generateMicrosoftCalendarLink(
     type: 'outlook' | 'office' = 'outlook'
 ): string {
     if (!event.date) event.date = Date.now();
-    const data = {
+    const data: any = {
         path: '/calendar/action/compose',
         rru: 'addevent',
         startdt: new Date(event.date).toISOString(),
@@ -97,6 +100,12 @@ export function generateMicrosoftCalendarLink(
         location: event.location,
         allday: event.all_day ?? false,
     };
+    const emails = (event.attendees || []).map((_: any) => _.email || _);
+    const resources = (
+        (event.resources?.length ? event.resources : null) || [event.system]
+    ).map((_: any) => _?.email || _);
+    if (emails.length || resources.length)
+        data.to = unique([...emails, ...resources]).join();
     return type === 'office'
         ? `https://outlook.office.com/calendar/0/deeplink/compose?${toQueryString(
               data

@@ -1,4 +1,5 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
+import { Validators } from '@angular/forms';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -15,10 +16,12 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { map, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, timer } from 'rxjs';
+import { first, map, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
@@ -201,12 +204,57 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                             ?.parent_id
                                 }"
                             ></catering-list-field>
-                            <textarea
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-full mt-2"
+                                *ngIf="
+                                    form.value.catering?.length && has_codes
+                                        | async
+                                "
+                                (openedChange)="focusInput()"
+                            >
+                                <mat-select
+                                    formControlName="catering_charge_code"
+                                    placeholder="Charge Code"
+                                >
+                                    <input
+                                        #input
+                                        class="sticky top-0 bg-white px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-gray-200 w-full rounded-none z-50"
+                                        [ngModel]="code_filter.getValue()"
+                                        (ngModelChange)="
+                                            code_filter.next($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        placeholder="Search charge codes..."
+                                    />
+                                    <mat-option class="hidden"></mat-option>
+                                    <mat-option
+                                        *ngFor="
+                                            let code of filtered_codes | async
+                                        "
+                                        [value]="code"
+                                    >
+                                        {{ code }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error>
+                                    Catering charge code is required
+                                </mat-error>
+                            </mat-form-field>
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-full"
                                 *ngIf="form.value.catering?.length"
-                                class="mt-4 w-full p-2 border border-gray-300 focus:shadow-inner focus:border-black block rounded"
-                                formControlName="catering_notes"
-                                placeholder="Extra catering details..."
-                            ></textarea>
+                            >
+                                <textarea
+                                    matInput
+                                    formControlName="catering_notes"
+                                    placeholder="Extra catering details..."
+                                ></textarea>
+                                <mat-error>
+                                    Catering Order notes are required
+                                </mat-error>
+                            </mat-form-field>
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_assets">
@@ -300,9 +348,23 @@ export class MeetingFlowFormComponent extends BaseClass {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
+    public code_filter = new BehaviorSubject('');
 
     public readonly has_catering = this._catering.available_menu.pipe(
         map((l) => l.length > 0)
+    );
+
+    public readonly has_codes = this._catering.charge_codes.pipe(
+        map((l) => l.length > 0)
+    );
+
+    public readonly filtered_codes = combineLatest([
+        this.code_filter,
+        this._catering.charge_codes,
+    ]).pipe(
+        map(([s, l]) =>
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
+        )
     );
 
     public get form() {
@@ -361,6 +423,7 @@ export class MeetingFlowFormComponent extends BaseClass {
                 'Attendee count is greater than the capacity of the selected rooms'
             );
         }
+        this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
@@ -395,6 +458,7 @@ export class MeetingFlowFormComponent extends BaseClass {
     };
 
     @ViewChild('confirm_ref') private _confirm_ref: TemplateRef<any>;
+    @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
 
     constructor(
         private _state: EventFormService,
@@ -402,19 +466,45 @@ export class MeetingFlowFormComponent extends BaseClass {
         private _settings: SettingsService,
         private _router: Router,
         private _dialog: MatDialog,
-        private _bottom_sheet: MatBottomSheet
+        private _bottom_sheet: MatBottomSheet,
+        private _org: OrganisationService
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'space_changes',
             this.form.controls.resources.valueChanges.subscribe((l) =>
                 this._checkCateringEligibility(l)
             )
         );
+        this.subscription(
+            'date_changes',
+            this.form.controls.date.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(this.form.value.resources)
+            )
+        );
+        this.subscription(
+            'duration_changes',
+            this.form.controls.duration.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(this.form.value.resources)
+            )
+        );
+        this._catering.setOptions({ zone: '' });
         this._checkCateringEligibility(this.form.value.resources || []);
+    }
+
+    public focusInput() {
+        this.timeout(
+            'input-focus',
+            () => {
+                this._input_el.nativeElement.value = '';
+                this._input_el?.nativeElement?.focus();
+            },
+            300
+        );
     }
 
     public findAvailableTime() {
@@ -439,7 +529,17 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     private async _checkCateringEligibility(list: Space[]) {
         if (list?.length) {
-            const menu = await this._catering.available_menu
+            await timer(100).toPromise();
+            const value = this.form.getRawValue();
+            this._catering.setFilters({
+                search: '',
+                date: value.date,
+                duration: value.duration,
+                resources: list,
+                zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
+            });
+            await timer(500).toPromise();
+            const menu = await this._catering.filtered_menu
                 .pipe(take(1))
                 .toPromise();
             const disabled_rooms = await this._catering.availability
@@ -450,7 +550,7 @@ export class MeetingFlowFormComponent extends BaseClass {
                     menu.filter(
                         (_) =>
                             !_.hide_for_zones.find((z) => s.zones.includes(z))
-                    ).length
+                    ).length > 0
             );
             if (
                 !can_cater ||

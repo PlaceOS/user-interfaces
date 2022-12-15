@@ -191,6 +191,7 @@ export class AppComponent extends BaseClass implements OnInit {
             const list = navigator.languages;
             for (const lang of list) {
                 locale = locales.find((_) => _.id === lang);
+                if (!locale) locale = locales.find((_) => lang.includes(_.id));
                 if (locale) {
                     this._translate?.use(lang);
                     localStorage.setItem('PLACEOS.locale', lang);

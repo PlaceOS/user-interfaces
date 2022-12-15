@@ -64,7 +64,9 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                                 formControlName="title"
                                 placeholder="e.g. Focus Time"
                             />
-                            <mat-error i18n>Booking title is required.</mat-error>
+                            <mat-error i18n
+                                >Booking title is required.</mat-error
+                            >
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[256px]">
@@ -76,7 +78,9 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>Start Time<span>*</span></label>
+                        <label for="start-time" i18n
+                            >Start Time<span>*</span></label
+                        >
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -85,7 +89,9 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time" i18n>End Time<span>*</span></label>
+                        <label for="end-time" i18n
+                            >End Time<span>*</span></label
+                        >
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -135,14 +141,12 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     <div class="text-xl" i18n>Group Members</div>
                     <div class="flex-1 w-px"></div>
                 </h3>
-                <div
-                    class="overflow-hidden"
-                >
+                <div class="overflow-hidden">
                     <a-user-list-field
                         class="mt-4"
-                            [ngModel]="(options | async)?.members || []"
-                            (ngModelChange)="setOptions({ members: $event })"
-                            [ngModelOptions]="{ standalone: true }"
+                        [ngModel]="(options | async)?.members || []"
+                        (ngModelChange)="setOptions({ members: $event })"
+                        [ngModelOptions]="{ standalone: true }"
                     ></a-user-list-field>
                 </div>
             </section>
@@ -157,7 +161,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                 </h3>
                 <desk-list-field formControlName="resources"></desk-list-field>
             </section>
-            <section class="p-2">
+            <section class="p-2" *ngIf="has_assets">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
                         class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -212,6 +216,10 @@ export class NewDeskFormDetailsComponent extends BaseClass {
 
     public get allow_groups() {
         return this._settings.get('app.desks.allow_groups');
+    }
+
+    public get has_assets() {
+        return !!this._settings.get('app.desks.has_assets');
     }
 
     public get needs_reason() {
