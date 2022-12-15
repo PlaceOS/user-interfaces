@@ -77,7 +77,6 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                 <ng-container
                                     *ngFor="let column of columns"
                                     [matColumnDef]="column.columnDef"
-                                    ]
                                 >
                                     <th
                                         class="text-sm font-normal"
@@ -112,66 +111,71 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                         class="py-4"
                                         mat-cell
                                         *matCellDef="let row"
+                                        [ngSwitch]="column.columnDef"
                                     >
-                                        <div
-                                            *ngIf="column.cell(row) !== 'open'"
-                                        >
-                                            {{ column.cell(row) }}
+                                        <div *ngSwitchCase="'link'">
+                                            <a class="text-blue-700" [routerLink]="['/surveys','complete',column.cell(row)]">{{column.cell(row)}}</a>
                                         </div>
-                                        <div *ngIf="column.cell(row) == 'open'">
-                                            <button
-                                                mat-icon-button
-                                                [matMenuTriggerFor]="
-                                                    optionsMenu
-                                                "
-                                                aria-label="button to see more options"
-                                                class=""
-                                            >
-                                                <mat-icon
-                                                    class="flex justify-center"
-                                                    >more_horiz</mat-icon
+                                        <div *ngSwitchCase="'options'">
+                                            <ng-container *ngIf="column.cell(row) == 'open'; else notOpen;">
+                                                <button
+                                                    mat-icon-button
+                                                    [matMenuTriggerFor]="
+                                                        optionsMenu
+                                                    "
+                                                    aria-label="button to see more options"
+                                                    class=""
                                                 >
-                                            </button>
-                                            <mat-menu #optionsMenu="matMenu">
-                                                <div
-                                                    class="flex flex-col min-w-[10rem]"
-                                                >
-                                                    <button
-                                                        mat-menu-item
-                                                        (click)="
-                                                            viewSurvey(row)
-                                                        "
+                                                    <mat-icon
+                                                        class="flex justify-center"
+                                                        >more_horiz</mat-icon
                                                     >
-                                                        <mat-icon
-                                                            >visibility</mat-icon
-                                                        >
-                                                        <span>View</span>
-                                                    </button>
-                                                    <button
-                                                        mat-menu-item
-                                                        (click)="
-                                                            editSurvey(row)
-                                                        "
+                                                </button>
+                                                <mat-menu #optionsMenu="matMenu">
+                                                    <div
+                                                        class="flex flex-col min-w-[10rem]"
                                                     >
-                                                        <mat-icon
-                                                            >edit</mat-icon
+                                                        <button
+                                                            mat-menu-item
+                                                            (click)="
+                                                                viewSurvey(row)
+                                                            "
                                                         >
-                                                        <span>Edit</span>
-                                                    </button>
-                                                    <button
-                                                        mat-menu-item
-                                                        (click)="
-                                                            deleteSurvey(row)
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            >delete_forever</mat-icon
+                                                            <mat-icon
+                                                                >visibility</mat-icon
+                                                            >
+                                                            <span>View</span>
+                                                        </button>
+                                                        <button
+                                                            mat-menu-item
+                                                            (click)="
+                                                                editSurvey(row)
+                                                            "
                                                         >
-                                                        <span>Delete</span>
-                                                    </button>
-                                                </div>
-                                            </mat-menu>
+                                                            <mat-icon
+                                                                >edit</mat-icon
+                                                            >
+                                                            <span>Edit</span>
+                                                        </button>
+                                                        <button
+                                                            mat-menu-item
+                                                            (click)="
+                                                                deleteSurvey(row)
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                >delete_forever</mat-icon
+                                                            >
+                                                            <span>Delete</span>
+                                                        </button>
+                                                    </div>
+                                                </mat-menu>
+                                            </ng-container>
+                                            <ng-template #notOpen>
+                                                {{column.cell(row)}}
+                                            </ng-template>
                                         </div>
+                                        <span *ngSwitchDefault>{{column.cell(row)}}</span>
                                     </td>
                                 </ng-container>
 
@@ -345,8 +349,8 @@ export class SurveyListComponent implements OnInit {
             ascending: null,
         },
         {
-            columnDef: 'name',
-            header: 'Name',
+            columnDef: 'title',
+            header: 'Title',
             cell: (element) => `${element.title}`,
             ascending: null,
         },
@@ -375,7 +379,7 @@ export class SurveyListComponent implements OnInit {
     saved_surveys$: Observable<any[]> =
         this.surveyCreatorService.saved_surveys$;
     saved_surveys: any[];
-    dataSource: any = new MatTableDataSource<any>();
+    dataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
 
     dataSubscription: Subscription = new Subscription();
     buildingSubscription: Subscription = new Subscription();

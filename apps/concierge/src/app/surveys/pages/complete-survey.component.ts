@@ -10,7 +10,7 @@ import { Model } from 'survey-core';
             <span class="text-2xl font-bold self-center mt-6 mb-4">{{
                 surveyCreatorService.survey_title.getValue()
             }}</span>
-            <survey [model]="surveyCreatorService.surveyModel"></survey>
+            <survey [model]="survey"></survey>
         </div>
     `,
     styles: [
@@ -28,7 +28,7 @@ import { Model } from 'survey-core';
                 background-color: #f3f3f3;
             }
             button {
-                background-color: ##292f5b;
+                background-color: #292f5b;
             }
         `,
     ],
@@ -36,17 +36,19 @@ import { Model } from 'survey-core';
 export class CompleteSurveyComponent implements OnInit {
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
+    survey: Model;
+
     ngOnInit(): void {
-        const survey = new Model(this.surveyCreatorService.surveyJSON);
+        this.survey = new Model(this.surveyCreatorService.surveyJSON);
         SurveyNG.render('surveyContainer', {
-            model: survey,
+            model: this.survey,
         });
 
-        survey.onComplete.add((sender: any) => {
-            console.log('completed');
-            document.getElementById('surveyResults').innerHTML = Object.values(
-                sender.data
-            ).toString();
+        this.survey.onComplete.add((sender: any) => {
+            console.log('completed survey', sender.data);
+            // document.getElementById('surveyResults').innerHTML = Object.values(
+            //     sender.data
+            // ).toString();
         });
     }
 }
