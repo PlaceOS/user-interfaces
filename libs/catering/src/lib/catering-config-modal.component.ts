@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { BaseClass } from '@placeos/common';
 
 import { DialogEvent, Identity } from 'libs/common/src/lib/types';
 
@@ -10,6 +11,8 @@ export interface CateringConfigModalData {
     config: CateringRuleset[];
     /** List of available categories and tags */
     types?: string[];
+    require_notes?: boolean;
+    saveNotes?: (v: boolean) => void;
 }
 
 @Component({
@@ -22,6 +25,14 @@ export interface CateringConfigModalData {
             </button>
         </header>
         <main class="overflow-auto text-center">
+            <mat-checkbox
+                class="m-2"
+                [ngModel]="require_notes"
+                (ngModelChange)="saveNotesSetting($event)"
+            >
+                Require notes for orders
+            </mat-checkbox>
+            <br />
             <button
                 mat-button
                 (click)="rulesets.push({ id: new_id, rules: [] })"
@@ -61,7 +72,11 @@ export interface CateringConfigModalData {
                                 : 'expand_more'
                         }}</app-icon>
                     </button>
-                    <button mat-icon-button class="mb-6" (click)="rulesets.splice(i, 1)">
+                    <button
+                        mat-icon-button
+                        class="mb-6"
+                        (click)="rulesets.splice(i, 1)"
+                    >
                         <app-icon>delete</app-icon>
                     </button>
                 </div>
@@ -101,7 +116,11 @@ export interface CateringConfigModalData {
                             />
                             <mat-error>Rule value is required</mat-error>
                         </mat-form-field>
-                        <button mat-icon-button class="mb-6" (click)="set.rules.splice(i, 1)">
+                        <button
+                            mat-icon-button
+                            class="mb-6"
+                            (click)="set.rules.splice(i, 1)"
+                        >
                             <app-icon>delete</app-icon>
                         </button>
                     </div>
@@ -132,13 +151,14 @@ export interface CateringConfigModalData {
         `,
     ],
 })
-export class CateringConfigModalComponent {
+export class CateringConfigModalComponent extends BaseClass {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
     public loading = false;
     /** Whether to show rules for a ruleset */
     public show_rules: string;
+    public require_notes = this._data.require_notes;
 
     public readonly rulesets: CateringRuleset[];
 
@@ -151,6 +171,7 @@ export class CateringConfigModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringConfigModalData
     ) {
+        super();
         this.rulesets = (_data.config || []).map((set) => {
             set.rules = set.rules.map((i) => [
                 i[0],
@@ -158,6 +179,14 @@ export class CateringConfigModalComponent {
             ]) as any;
             return set;
         });
+    }
+
+    public saveNotesSetting(value: boolean) {
+        this.timeout(
+            'save-notes',
+            () => (this._data.saveNotes ? this._data.saveNotes(value) : ''),
+            1000
+        );
     }
 
     public saveChanges() {

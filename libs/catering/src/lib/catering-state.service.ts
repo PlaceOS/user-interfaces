@@ -1,8 +1,21 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { updateMetadata, showMetadata, PlaceMetadata } from '@placeos/ts-client';
+import {
+    updateMetadata,
+    showMetadata,
+    PlaceMetadata,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, filter, first, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import {
+    catchError,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 
 import {
     BaseClass,
@@ -67,15 +80,23 @@ export class CateringStateService extends BaseClass {
     public readonly settings = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'catering-settings').pipe(catchError((_) => of({} as PlaceMetadata)))
+            showMetadata(_.id, 'catering-settings').pipe(
+                catchError((_) => of({} as PlaceMetadata))
+            )
         ),
         map((_) => _.details as CateringSettings),
-        tap(_ => this._settings.post('require_catering_notes', !!_.require_notes)),
+        tap((_) =>
+            this._settings.post('require_catering_notes', !!_.require_notes)
+        ),
         shareReplay(1)
     );
 
-    public readonly charge_codes = this.settings.pipe(map(_ => _.charge_codes || []));
-    public readonly availability = this.settings.pipe(map(_ => _.disabled_rooms || []));
+    public readonly charge_codes = this.settings.pipe(
+        map((_) => _.charge_codes || [])
+    );
+    public readonly availability = this.settings.pipe(
+        map((_) => _.disabled_rooms || [])
+    );
 
     public zone = '';
 
@@ -302,6 +323,7 @@ export class CateringStateService extends BaseClass {
 
     public async editConfig() {
         const config = await this.getCateringConfig(this._org.building.id);
+        const { require_notes } = await this.settings.pipe(take(1)).toPromise();
         const menu = this._menu.getValue();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
         const ref = this._dialog.open<
@@ -311,6 +333,8 @@ export class CateringStateService extends BaseClass {
             data: {
                 config,
                 types,
+                require_notes,
+                saveNotes: (b) => this.saveSettings({ require_notes: b }),
             },
         });
         const details = await Promise.race([
