@@ -19,17 +19,28 @@ import { CateringStateService } from './catering-state.service';
         >
             <div
                 class="flex items-center space-x-2 w-full hover:bg-black/10 px-2"
-                *ngFor="let code of charge_codes; let i = index"
+                *ngFor="
+                    let code of charge_codes;
+                    let i = index;
+                    trackBy: trackByFn
+                "
             >
                 <mat-form-field appearance="outline" class="h-14 flex-1">
-                    <input matInput [(ngModel)]="charge_codes[i]" placeholder="Charge Code" />
+                    <input
+                        matInput
+                        [(ngModel)]="charge_codes[i]"
+                        placeholder="Charge Code"
+                    />
                 </mat-form-field>
                 <button mat-icon-button (click)="removeCode(i)">
                     <app-icon>delete</app-icon>
                 </button>
             </div>
         </main>
-        <footer class="flex items-center p-2 space-x-2 border-t border-gray-200" *ngIf="!loading">
+        <footer
+            class="flex items-center p-2 space-x-2 border-t border-gray-200"
+            *ngIf="!loading"
+        >
             <button mat-button class="w-48 inverse relative">
                 Import Codes
                 <input
@@ -38,11 +49,17 @@ import { CateringStateService } from './catering-state.service';
                     (change)="addCodesFromFile($event)"
                 />
             </button>
-            <button mat-button class="w-48" (click)="newCode()">Add Code</button>
-            <button mat-button class="w-48" (click)="saveChargeCodes()">Save Changes</button>
+            <button mat-button class="w-48" (click)="newCode()">
+                Add Code
+            </button>
+            <button mat-button class="w-48" (click)="saveChargeCodes()">
+                Save Changes
+            </button>
         </footer>
         <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center p-20 space-y-2">
+            <main
+                class="flex flex-col items-center justify-center p-20 space-y-2"
+            >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>Saving changes to charge codes...</p>
             </main>
@@ -60,10 +77,8 @@ export class ChargeCodeListModalComponent {
     ) {}
 
     public async ngOnInit() {
-        this.charge_codes = await this._state.charge_codes
-            .pipe(take(1))
-            .toPromise() || [];
-            
+        this.charge_codes =
+            (await this._state.charge_codes.pipe(take(1)).toPromise()) || [];
     }
 
     public newCode() {
@@ -87,7 +102,8 @@ export class ChargeCodeListModalComponent {
                 const reader = new FileReader();
                 reader.readAsText(file, 'UTF-8');
                 reader.addEventListener('load', (evt) => {
-                    const list = csvToJson((evt.srcElement as any).result) || [];
+                    const list =
+                        csvToJson((evt.srcElement as any).result) || [];
                     for (const { code, description } of list) {
                         this.charge_codes.push(code);
                     }
@@ -103,8 +119,12 @@ export class ChargeCodeListModalComponent {
 
     public async saveChargeCodes() {
         this.loading = true;
-        const cleaned_codes = this.charge_codes.filter(_ => _ && _.trim());
+        const cleaned_codes = this.charge_codes.filter((_) => _ && _.trim());
         await this._state.saveSettings({ charge_codes: cleaned_codes });
         this._dialog_ref.close();
+    }
+
+    public trackByFn(idx: number, item: any) {
+        return idx;
     }
 }
