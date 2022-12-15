@@ -339,8 +339,9 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
             );
             found_id = found_building.id;
         });
-
-        this.router.navigate(['surveys', 'survey-list', found_id]);
+        if (found_id) {
+            this.router.navigate(['surveys', 'survey-list', found_id]);
+        }
     }
 
     updateLocation() {
