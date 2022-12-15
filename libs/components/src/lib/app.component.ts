@@ -42,6 +42,11 @@ import {
 } from '@placeos/cloud-uploads';
 import { TranslateService } from '@ngx-translate/core';
 
+import { StylesManager } from 'survey-core';
+
+//SurveyJS styling
+StylesManager.applyTheme('modern');
+
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
     Sentry.init({

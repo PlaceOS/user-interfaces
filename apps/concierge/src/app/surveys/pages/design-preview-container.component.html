@@ -1,0 +1,337 @@
+`
+<sidebar></sidebar>
+<main
+    class="relative w-full h-full bg-gray-100 dark:bg-neutral-600 overflow-y-auto"
+>
+    <section class="page-wrapper">
+        <header class="heading-wrapper">
+            <div class="left-wrapper">
+                <span
+                    ><mat-icon class="back-arrow" (click)="back()"
+                        >arrow_back</mat-icon
+                    ></span
+                >
+                <span class="page-heading">New Survey</span>
+            </div>
+
+            <div class="right-wrapper">
+                <button
+                    mat-button
+                    class="add-button align-middle"
+                    color="primary"
+                    (click)="complete()"
+                >
+                    <span>Save Survey</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="dropdown-options">
+            <div class="dropdown-container">
+                <mat-label>Building</mat-label>
+                <mat-form-field appearance="outline" class="dropdown">
+                    <mat-select [(value)]="selected_building" [disabled]="true">
+                        <mat-option
+                            *ngFor="let building of buildings"
+                            [value]="building.name"
+                        >
+                            {{ building.name }}</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <!-- <div class="dropdown-container">
+                <mat-label>Location</mat-label>
+                <mat-form-field appearance="outline" class="dropdown">
+                    <mat-select
+                        [(value)]="selected_location"
+                        (selectionChange)="updateLocation()"
+                    >
+                        <mat-option
+                            *ngFor="let location of locations"
+                            [value]="location.name"
+                        >
+                            {{ location.name }}</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+            </div> -->
+            <div class="dropdown-container">
+                <mat-label>Level</mat-label>
+                <mat-form-field appearance="outline" class="dropdown">
+                    <mat-select
+                        [(value)]="selected_level"
+                        (selectionChange)="updateLevel()"
+                    >
+                        <mat-option
+                            *ngFor="let level of levels"
+                            [value]="level"
+                        >
+                            {{ level }}</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="dropdown-container">
+                <mat-label>Zone</mat-label>
+                <mat-form-field appearance="outline" class="dropdown">
+                    <mat-select
+                        [(value)]="selected_zone"
+                        (selectionChange)="updateZone()"
+                    >
+                        <mat-option *ngFor="let zone of zones" [value]="zone">
+                            {{ zone }}</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="dropdown-container">
+                <mat-label>Trigger</mat-label>
+                <mat-form-field appearance="outline" class="dropdown">
+                    <mat-select
+                        [(value)]="selected_trigger"
+                        (selectionChange)="updateTrigger()"
+                        placeholder="Select trigger"
+                    >
+                        <mat-option
+                            *ngFor="let trigger of triggers"
+                            [value]="trigger.name"
+                        >
+                            {{ trigger.name }}</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="section-wrapper" cdkDropListGroup>
+            <section class="design-preview-section">
+                <mat-tab-group
+                    #tabGroup
+                    mat-align-tabs="start"
+                    animationDuration="0ms"
+                    (selectedTabChange)="tabChanged($event)"
+                >
+                    <mat-tab label="Design">
+                        <ng-template matTabContent class="design-content">
+                            <div class="survey-title-container">
+                                <input
+                                    matInput
+                                    type="text"
+                                    class="survey-title"
+                                    [formControl]="survey_title"
+                                    [placeholder]="'Survey Title'"
+                                    (keyup)="onKey($event)"
+                                />
+                            </div>
+                            <mat-error
+                                class="input-error"
+                                *ngIf="survey_title.hasError('required')"
+                                >Please enter a survey title</mat-error
+                            >
+                            <div class="selected-questions-container">
+                                <div
+                                    id="question_bank"
+                                    cdkDropList
+                                    cdkDropListConnectedTo="question_bank"
+                                    (cdkDropListDropped)="
+                                        surveyCreatorService.drop($event);
+                                        checkTitle()
+                                    "
+                                    class="selected-questions-list"
+                                >
+                                    <div
+                                        *ngIf="
+                                            selected_questions.length;
+                                            else none
+                                        "
+                                    >
+                                        <div
+                                            *ngFor="
+                                                let item of selected_questions
+                                            "
+                                            [cdkDropListData]="
+                                                selected_questions
+                                            "
+                                            cdkDrag
+                                        >
+                                            <rating-question
+                                                *ngIf="item.type === 'Rating'"
+                                                [question]="item"
+                                                [preview]="false"
+                                                [draft]="false"
+                                            >
+                                            </rating-question>
+                                            <text-question
+                                                *ngIf="item.type === 'Text'"
+                                                [question]="item"
+                                                [preview]="false"
+                                                [view]="'nonDraft'"
+                                            ></text-question>
+                                            <comment-box-question
+                                                *ngIf="item.type === 'Comment'"
+                                                [question]="item"
+                                                [preview]="false"
+                                                [draft]="false"
+                                            ></comment-box-question>
+                                            <checkbox-question
+                                                *ngIf="item.type === 'Checkbox'"
+                                                [question]="item"
+                                                [preview]="false"
+                                                [draft]="false"
+                                            ></checkbox-question>
+                                            <dropdown-question
+                                                *ngIf="item.type === 'Dropdown'"
+                                                [question]="item"
+                                                [preview]="false"
+                                                [draft]="false"
+                                            ></dropdown-question>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </mat-tab>
+                    <mat-tab
+                        label="Preview"
+                        #preview
+                        [disabled]="!(enable_preview$ | async)"
+                    >
+                        <ng-template matTabContent class="preview-content">
+                            <div class="preview-survey-title">
+                                <span>
+                                    {{
+                                        surveyCreatorService.survey_title$
+                                            | async
+                                    }}</span
+                                >
+                            </div>
+
+                            <div class="preview-questions-container">
+                                <div
+                                    *ngIf="!selected_questions.length"
+                                    class="none-selected"
+                                >
+                                    <img
+                                        src="assets/icons/dragdrop.svg"
+                                        class="h-12"
+                                        alt="Icon of drag and drop"
+                                    />
+                                    <span
+                                        >Please add a question in the 'Design'
+                                        tab</span
+                                    >
+                                </div>
+                                <div
+                                    *ngFor="let item of selected_questions"
+                                    class="preview-list"
+                                >
+                                    <rating-question
+                                        *ngIf="item.type === 'Rating'"
+                                        [question]="item"
+                                        [preview]="true"
+                                        [draft]="false"
+                                    >
+                                    </rating-question>
+                                    <text-question
+                                        *ngIf="item.type === 'Text'"
+                                        [question]="item"
+                                        [preview]="true"
+                                        [draft]="false"
+                                    ></text-question>
+                                    <comment-box-question
+                                        *ngIf="item.type === 'Comment'"
+                                        [question]="item"
+                                        [preview]="true"
+                                        [draft]="false"
+                                    ></comment-box-question>
+                                    <checkbox-question
+                                        *ngIf="item.type === 'Checkbox'"
+                                        [question]="item"
+                                        [preview]="true"
+                                        [draft]="false"
+                                    ></checkbox-question>
+                                    <dropdown-question
+                                        *ngIf="item.type === 'Dropdown'"
+                                        [question]="item"
+                                        [preview]="true"
+                                        [draft]="false"
+                                    ></dropdown-question>
+                                </div>
+                                <div
+                                    class="preview-list"
+                                    *ngIf="selected_questions.length"
+                                >
+                                    <button
+                                        mat-button
+                                        color="primary"
+                                        class="complete-button"
+                                        (click)="complete()"
+                                    >
+                                        Complete
+                                    </button>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </mat-tab>
+                </mat-tab-group>
+            </section>
+            <aside class="question-bank-section">
+                <header class="header">
+                    <span class="title">Question Bank</span>
+                    <div class="edit-add-buttons">
+                        <button-borderless
+                            [button_title]="'Edit'"
+                            [icon]="'edit'"
+                            [icon_color]="'blue'"
+                            [text_color]="'blue'"
+                            (click)="openEditQuestionBankDialog()"
+                        ></button-borderless>
+                        <button-borderless
+                            [button_title]="'Add'"
+                            [icon]="'add'"
+                            [icon_color]="'blue'"
+                            [text_color]="'blue'"
+                            (click)="openAddQuestionBankDialog()"
+                        ></button-borderless>
+                    </div>
+                </header>
+                <search-bar [view]="'button'"></search-bar>
+                <ng-container #outlet [ngTemplateOutlet]="content">
+                </ng-container>
+
+                <ng-template #content class="question-bank-container">
+                    <div
+                        id="selected_questions"
+                        cdkDropList
+                        cdkDropListConnectedTo="selected_questions"
+                        [cdkDropListData]="this.question_bank$ | async"
+                        (cdkDropListDropped)="surveyCreatorService.drop($event)"
+                        [cdkDropListEnterPredicate]="noReturnPredicate"
+                    >
+                        <div
+                            *ngFor="let item of this.question_bank$ | async"
+                            cdkDrag
+                        >
+                            <question-list-item [question]="item">
+                            </question-list-item>
+                        </div>
+                    </div>
+                </ng-template>
+            </aside>
+        </div>
+    </section>
+</main>
+
+<ng-template #none>
+    <div class="none-selected">
+        <img
+            src="assets/icons/dragdrop.svg"
+            class="h-12"
+            alt="Icon of drag and drop"
+        />
+        <span>Click and drag to add questions from the question bank here</span>
+    </div>
+</ng-template>
+
+`

@@ -89,6 +89,13 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'surveys',
+        loadChildren: () => 
+            import('./surveys/surveys.module').then((m) => m.SurveysModule),
+            canActivate: [AuthorisedUserGuard],
+            canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '-' },
 ];
 

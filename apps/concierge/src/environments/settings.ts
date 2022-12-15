@@ -49,7 +49,7 @@ const general = {
             route: 'reports',
             name: 'Reports',
             icon: { class: 'material-icons', content: 'analytics' },
-        },
+        }
     ],
 };
 
