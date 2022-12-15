@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1671080149731,
+  "timestamp": 1671084699395,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -44,6 +44,7 @@
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
         "./assets/icons/desk-placeholder.svg",
+        "./assets/icons/dragdrop.svg",
         "./assets/icons/gcal.svg",
         "./assets/icons/home-filled.svg",
         "./assets/icons/home-outline.svg",
@@ -62,6 +63,7 @@
         "./assets/icons/more-outline.svg",
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
+        "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
         "./assets/icons/parking-success.svg",
@@ -87,6 +89,9 @@
         "./assets/maps/level_G.svg",
         "./assets/maps/level_P1.svg",
         "./assets/maps/test.svg",
+        "./assets/mocks/building1.jpg",
+        "./assets/mocks/building2.jpg",
+        "./assets/mocks/building3.jpg",
         "./assets/not-supported.html",
         "./assets/support/chrome-logo.svg",
         "./assets/support/edge-logo.svg",
@@ -114,6 +119,7 @@
     "./assets/icons/desk-filled.svg": "94a3f30d44f92b852a0f18641939c8305dca0113",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
     "./assets/icons/desk-placeholder.svg": "18e77e05727acfaab8ad7b9fb68b69518b10cf2d",
+    "./assets/icons/dragdrop.svg": "dfa458acfabf638365babd3d23fd92ae0c9b2608",
     "./assets/icons/gcal.svg": "b8d23e34f4c427fd40b111f8b0dfaafbd1d1e77c",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
     "./assets/icons/home-outline.svg": "0a7375fdb84d3b06f05435c96448b64a3548d2fb",
@@ -132,6 +138,7 @@
     "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
+    "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
     "./assets/icons/parking-success.svg": "f50d3173f7e5ff00f4175ac6fd85f0bd1f5da57b",
@@ -157,6 +164,9 @@
     "./assets/maps/level_G.svg": "34941af9a8f84b60d820fe3230f88d2c5374b8f1",
     "./assets/maps/level_P1.svg": "d143761b1d22330cb22c6d29ac1b0eb2dc37d29e",
     "./assets/maps/test.svg": "6b8cf2e8673469599a1a6d246b5e13650477aa2e",
+    "./assets/mocks/building1.jpg": "9170087fb243e25d0dbd5a29c58aafd4e1a4daee",
+    "./assets/mocks/building2.jpg": "9fcdd5204d4294effd515b8b97fac937f494d7e4",
+    "./assets/mocks/building3.jpg": "782111d26faa182f2c163fd972a021357fd384c8",
     "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
     "./assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
     "./assets/support/edge-logo.svg": "28d8691fd6c19223a3d99dd8732416d32a82d496",
@@ -164,12 +174,12 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "117725e3c5d7d5b0b73686363ca228bbb7fc1019",
-    "./main.js": "7a77a0e40fdd9d8557d64346eec5d9c49d5d7d77",
+    "./index.html": "71ff09e00a5d402d4aa5f6617cf2787d1627d9f0",
+    "./main.js": "6badd449137f8d3fc82f0444868219e4ca56ecb1",
     "./manifest.webmanifest": "f23567bd46672c5628059833da39da05adf508d6",
     "./polyfills.js": "36729f3ab919487a5086e7191102ec21348ceb89",
     "./runtime.js": "5a8f6f7dd76b0eab08d1857e135ab9614b029c3e",
-    "./styles.css": "68c3ebddccd64843120b52c4cfa7f71cc3c8406b"
+    "./styles.css": "4f8043b514067995b9ca6dde67800cd90ade4efe"
   },
   "navigationUrls": [
     {
