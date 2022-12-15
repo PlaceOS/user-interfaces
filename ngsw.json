@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1671080158352,
+  "timestamp": 1671084760942,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -45,6 +45,7 @@
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
         "./assets/icons/desk-placeholder.svg",
+        "./assets/icons/dragdrop.svg",
         "./assets/icons/gcal.svg",
         "./assets/icons/home-filled.svg",
         "./assets/icons/home-outline.svg",
@@ -63,6 +64,7 @@
         "./assets/icons/more-outline.svg",
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
+        "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
         "./assets/icons/parking-success.svg",
@@ -88,6 +90,9 @@
         "./assets/maps/level_G.svg",
         "./assets/maps/level_P1.svg",
         "./assets/maps/test.svg",
+        "./assets/mocks/building1.jpg",
+        "./assets/mocks/building2.jpg",
+        "./assets/mocks/building3.jpg",
         "./assets/not-supported.html",
         "./assets/support/chrome-logo.svg",
         "./assets/support/edge-logo.svg",
@@ -115,6 +120,7 @@
     "./assets/icons/desk-filled.svg": "94a3f30d44f92b852a0f18641939c8305dca0113",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
     "./assets/icons/desk-placeholder.svg": "18e77e05727acfaab8ad7b9fb68b69518b10cf2d",
+    "./assets/icons/dragdrop.svg": "dfa458acfabf638365babd3d23fd92ae0c9b2608",
     "./assets/icons/gcal.svg": "b8d23e34f4c427fd40b111f8b0dfaafbd1d1e77c",
     "./assets/icons/home-filled.svg": "96184359a17eaa01b3e50134124eb0034d3e4f34",
     "./assets/icons/home-outline.svg": "0a7375fdb84d3b06f05435c96448b64a3548d2fb",
@@ -133,6 +139,7 @@
     "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
+    "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
     "./assets/icons/parking-success.svg": "f50d3173f7e5ff00f4175ac6fd85f0bd1f5da57b",
@@ -158,6 +165,9 @@
     "./assets/maps/level_G.svg": "34941af9a8f84b60d820fe3230f88d2c5374b8f1",
     "./assets/maps/level_P1.svg": "d143761b1d22330cb22c6d29ac1b0eb2dc37d29e",
     "./assets/maps/test.svg": "6b8cf2e8673469599a1a6d246b5e13650477aa2e",
+    "./assets/mocks/building1.jpg": "9170087fb243e25d0dbd5a29c58aafd4e1a4daee",
+    "./assets/mocks/building2.jpg": "9fcdd5204d4294effd515b8b97fac937f494d7e4",
+    "./assets/mocks/building3.jpg": "782111d26faa182f2c163fd972a021357fd384c8",
     "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
     "./assets/support/chrome-logo.svg": "265fb92c1ab3d68ac7fc58c70c6a42e77569288f",
     "./assets/support/edge-logo.svg": "28d8691fd6c19223a3d99dd8732416d32a82d496",
@@ -165,13 +175,13 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "c80f06e8195ac9145055faeeb2d32665a9e9fb84",
-    "./main.js": "9c41be2d83c62bbdd0d9374c8ea26ce97b69ae85",
+    "./index.html": "5cf2a7b37c57a580a3419055c831108b49ac5f86",
+    "./main.js": "24174025a9cee489dc0f315c893c62d18e039ee9",
     "./manifest.webmanifest": "b30b41151999cb79f3543fe06f73f6ab763c8a38",
-    "./polyfills.js": "1b53e3418e782376a25fd5b4c799100c71083dd4",
+    "./polyfills.js": "45d880d0b5cf9b92770e93ebdf8c08097afd7c09",
     "./runtime.js": "01e665b7ad10cdee9442514f16179dbb3d255fc8",
-    "./styles.css": "dd1a293654cbc36ce01b9979e08f5a168cb62899",
-    "./vendor.js": "edf493fe1014a8e3f12ac83878b3a1f038484ad1"
+    "./styles.css": "b8c77fe14a4e974c6bc7a81df4d9c1c090ecf3b6",
+    "./vendor.js": "131dc5da9d63604dc62f26c1b38c3cbec8e6c86a"
   },
   "navigationUrls": [
     {
