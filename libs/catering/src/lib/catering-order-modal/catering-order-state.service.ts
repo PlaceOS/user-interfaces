@@ -48,7 +48,9 @@ export class CateringOrderStateService {
     public readonly charge_codes = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'charge_codes').pipe(catchError((_) => of({} as PlaceMetadata)))
+            showMetadata(_.id, 'charge_codes').pipe(
+                catchError((_) => of({} as PlaceMetadata))
+            )
         ),
         map((_) => (_.details instanceof Array ? _.details : []) as string[]),
         shareReplay(1)
@@ -64,15 +66,12 @@ export class CateringOrderStateService {
 
     public readonly available_menu: Observable<CateringItem[]> = combineLatest([
         this._options,
-        this._org.initialised,
+        this._org.active_building,
     ]).pipe(
-        filter(([_, init]) => init),
-        switchMap(([{ zone }]) => {
+        filter(([_, bld]) => !!bld),
+        switchMap(([{ zone }, bld]) => {
             this._loading.next('[Menu]');
-            return showMetadata(
-                zone || this._org.building?.id,
-                'catering'
-            ).pipe(
+            return showMetadata(zone || bld.id, 'catering').pipe(
                 map((d) => d.details.map((_) => new CateringItem(_))),
                 catchError((_) => [])
             );

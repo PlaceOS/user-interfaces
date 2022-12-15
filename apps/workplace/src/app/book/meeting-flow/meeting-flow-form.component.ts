@@ -477,6 +477,7 @@ export class MeetingFlowFormComponent extends BaseClass {
                 this._checkCateringEligibility(l)
             )
         );
+        this._catering.setOptions({ zone: '' });
         this._checkCateringEligibility(this.form.value.resources || []);
     }
 
