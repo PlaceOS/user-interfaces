@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { unique } from '@placeos/common';
+import { SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -14,6 +13,7 @@ import {
 } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
 import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
+import { CateringSettings } from '../catering-state.service';
 
 export interface CateringOrderOptions {
     // Affects backend requests
@@ -45,23 +45,25 @@ export class CateringOrderStateService {
     public readonly loading = this._loading.asObservable();
     public readonly filters = this._filters.asObservable();
 
-    public readonly charge_codes = this._org.active_building.pipe(
+    public readonly settings = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'charge_codes').pipe(
+            showMetadata(_.id, 'catering-settings').pipe(
                 catchError((_) => of({} as PlaceMetadata))
             )
         ),
-        map((_) => (_.details instanceof Array ? _.details : []) as string[]),
+        map((_) => _.details as CateringSettings),
+        tap((_) =>
+            this._settings.post('require_catering_notes', !!_.require_notes)
+        ),
         shareReplay(1)
     );
 
-    public readonly availability: Observable<string[]> = combineLatest([
-        this._org.active_building,
-    ]).pipe(
-        switchMap(([bld]) => showMetadata(bld.id, 'disabled-catering-rooms')),
-        map((d) => (d.details instanceof Array ? d.details : []) as string[]),
-        shareReplay(1)
+    public readonly charge_codes = this.settings.pipe(
+        map((_) => _.charge_codes || [])
+    );
+    public readonly availability = this.settings.pipe(
+        map((_) => _.disabled_rooms || [])
     );
 
     public readonly available_menu: Observable<CateringItem[]> = combineLatest([
@@ -119,7 +121,10 @@ export class CateringOrderStateService {
         return this._org.currency_code;
     }
 
-    constructor(private _org: OrganisationService) {}
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {}
 
     public setOptions(opts: Partial<CateringOrderOptions>) {
         this._options.next({ ...this._options.getValue(), ...opts });
