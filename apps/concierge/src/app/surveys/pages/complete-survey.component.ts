@@ -27,6 +27,9 @@ import { Model } from 'survey-core';
             .complete-container {
                 background-color: #f3f3f3;
             }
+            button {
+                background-color: ##292f5b;
+            }
         `,
     ],
 })

@@ -44,7 +44,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { StylesManager } from 'survey-core';
 
-StylesManager.applyTheme('defaultV2');
+//SurveyJS styling
+StylesManager.applyTheme('modern');
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
