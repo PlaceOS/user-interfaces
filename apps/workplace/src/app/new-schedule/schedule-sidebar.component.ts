@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
@@ -17,6 +18,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <button
                     matRipple
                     class="flex items-center space-x-2 w-full text-left"
+                    *ngIf="hasFeature('spaces')"
                     (click)="toggleType('event')"
                 >
                     <div
@@ -39,6 +41,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <button
                     matRipple
                     class="flex items-center space-x-2 w-full text-left"
+                    *ngIf="hasFeature('desks')"
                     (click)="toggleType('desk')"
                 >
                     <div
@@ -61,6 +64,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <button
                     matRipple
                     class="flex items-center space-x-2 w-full text-left"
+                    *ngIf="hasFeature('parking')"
                     (click)="toggleType('parking')"
                 >
                     <div
@@ -83,6 +87,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <button
                     matRipple
                     class="flex items-center space-x-2 w-full text-left"
+                    *ngIf="hasFeature('visitor-invite')"
                     (click)="toggleType('visitor')"
                 >
                     <div
@@ -121,5 +126,12 @@ export class ScheduleSidebarComponent {
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
 
-    constructor(private _state: ScheduleStateService) {}
+    public hasFeature(feature: string) {
+        return this._settings.get('app.features')?.includes(feature);
+    }
+
+    constructor(
+        private _state: ScheduleStateService,
+        private _settings: SettingsService
+    ) {}
 }
