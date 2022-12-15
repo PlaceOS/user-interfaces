@@ -304,7 +304,7 @@ export class EventFormService extends BaseClass {
             () => {
                 const catering = this._form.value.catering;
                 if (count === catering?.length) return;
-                count = catering.length;
+                count = catering?.length;
                 if (
                     catering?.length &&
                     (this._settings.get('app.events.catering_notes_required') ||
