@@ -41,6 +41,8 @@ import { PlusButtonComponent } from './components/plus-button.component';
 import { MinusButtonComponent } from './components/minus-button.component';
 import { DragdropDirective } from './components/dragdrop.directive';
 
+import { SurveyModule } from 'survey-angular-ui';
+
 const routes: Route[] = [
     { path: '', component: BuildingListComponent },
     { path: 'survey-list/:id', component: SurveyListComponent },
@@ -96,6 +98,7 @@ const COMPONENTS = [
         MatMenuModule,
         MatFormFieldModule,
         UIModule,
+        SurveyModule,
     ],
 })
 export class SurveysModule {}

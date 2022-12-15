@@ -81,6 +81,8 @@ export class SurveyCreatorService {
         return this._surveyJSON.getValue();
     }
 
+    surveyModel: Model;
+
     //Form error
     _title_error: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
     title_error$: Observable<boolean> = this._title_error.asObservable();
@@ -317,6 +319,7 @@ export class SurveyCreatorService {
 
     private async _buildSurvey(): Promise<void> {
         const survey = new Model(this.surveyJSON);
+        this.surveyModel = survey;
 
         SurveyNG.render('surveyContainer', { model: survey });
         survey.onComplete.add((sender: any) => {

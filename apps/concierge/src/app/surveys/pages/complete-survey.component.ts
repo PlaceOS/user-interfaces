@@ -1,18 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { SurveyNG, Model } from 'survey-angular';
+import { SurveyNG } from 'survey-angular';
 import { SurveyCreatorService } from '../services/survey-creator.service';
+
+import { Model, StylesManager } from 'survey-core';
+
+StylesManager.applyTheme('defaultV2');
 
 @Component({
     selector: 'complete-survey',
     template: `
-        <div class="flex flex-col bg-gray-300 w-full h-full  justify-center">
-            <div class="mt-24">
-                <span class="font-bold font-lg">Survey</span>
-            </div>
-            <div id="surveyContainer" class="bg-white rounded-md m-30 "></div>
-
-            Survey results:
-            <div id="surveyResults"></div>
+        <div class="flex flex-col bg-white w-full h-full ">
+            <survey [model]="surveyCreatorService.surveyModel"></survey>
         </div>
     `,
     styles: [
@@ -30,10 +28,10 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
     ],
 })
 export class CompleteSurveyComponent implements OnInit {
-    constructor(private _surveyCreatorService: SurveyCreatorService) {}
+    constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {
-        const survey = new Model(this._surveyCreatorService.surveyJSON);
+        const survey = new Model(this.surveyCreatorService.surveyJSON);
         SurveyNG.render('surveyContainer', {
             model: survey,
         });
