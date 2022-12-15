@@ -16,11 +16,12 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, timer } from 'rxjs';
+import { first, map, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 
@@ -465,16 +466,30 @@ export class MeetingFlowFormComponent extends BaseClass {
         private _settings: SettingsService,
         private _router: Router,
         private _dialog: MatDialog,
-        private _bottom_sheet: MatBottomSheet
+        private _bottom_sheet: MatBottomSheet,
+        private _org: OrganisationService
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'space_changes',
             this.form.controls.resources.valueChanges.subscribe((l) =>
                 this._checkCateringEligibility(l)
+            )
+        );
+        this.subscription(
+            'date_changes',
+            this.form.controls.date.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(this.form.value.resources)
+            )
+        );
+        this.subscription(
+            'duration_changes',
+            this.form.controls.duration.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(this.form.value.resources)
             )
         );
         this._catering.setOptions({ zone: '' });
@@ -482,7 +497,6 @@ export class MeetingFlowFormComponent extends BaseClass {
     }
 
     public focusInput() {
-        console.log('Focus');
         this.timeout(
             'input-focus',
             () => {
@@ -515,7 +529,17 @@ export class MeetingFlowFormComponent extends BaseClass {
 
     private async _checkCateringEligibility(list: Space[]) {
         if (list?.length) {
-            const menu = await this._catering.available_menu
+            await timer(100).toPromise();
+            const value = this.form.getRawValue();
+            this._catering.setFilters({
+                search: '',
+                date: value.date,
+                duration: value.duration,
+                resources: list,
+                zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
+            });
+            await timer(500).toPromise();
+            const menu = await this._catering.filtered_menu
                 .pipe(take(1))
                 .toPromise();
             const disabled_rooms = await this._catering.availability
@@ -526,7 +550,7 @@ export class MeetingFlowFormComponent extends BaseClass {
                     menu.filter(
                         (_) =>
                             !_.hide_for_zones.find((z) => s.zones.includes(z))
-                    ).length
+                    ).length > 0
             );
             if (
                 !can_cater ||

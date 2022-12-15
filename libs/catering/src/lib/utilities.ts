@@ -10,7 +10,10 @@ import { catchError, map } from 'rxjs/operators';
 
 const RULE_REQUESTS: Record<string, Observable<CateringRuleset[]>> = {};
 
-export function getCateringRulesForZone(zone_id: string, fresh: boolean = false) {
+export function getCateringRulesForZone(
+    zone_id: string,
+    fresh: boolean = false
+) {
     if (!zone_id) return of([] as CateringRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
         RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config').pipe(
@@ -30,6 +33,7 @@ export function cateringItemAvailable(
         if (
             item.category === rule.name ||
             item.tags.includes(rule.name) ||
+            event.resources.find((_) => _.zones.includes(rule.name)) ||
             event.space?.zones.includes(rule.name) ||
             rule.name === '*'
         ) {
@@ -80,7 +84,7 @@ export function cateringItemAvailable(
                             event.ext('visitor_type') === condition[1] ? 1 : 0;
                         break;
                     default:
-                        matches++;
+                        matches += 1;
                 }
             }
             is_available = matches >= rule.rules.length;

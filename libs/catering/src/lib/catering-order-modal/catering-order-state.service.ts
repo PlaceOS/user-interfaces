@@ -14,6 +14,7 @@ import {
 import { CateringItem } from '../catering-item.class';
 import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 import { CateringSettings } from '../catering-state.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 export interface CateringOrderOptions {
     // Affects backend requests
@@ -25,6 +26,7 @@ export interface CateringOrderFilters {
     date?: number;
     duration?: number;
     zone_id?: string;
+    resources?: Space[];
     search: string;
     tags: string[];
     categories: string[];
@@ -92,7 +94,15 @@ export class CateringOrderStateService {
     ]).pipe(
         switchMap(
             async ([
-                { search, tags, categories, zone_id, date, duration },
+                {
+                    search,
+                    tags,
+                    categories,
+                    zone_id,
+                    date,
+                    duration,
+                    resources,
+                },
                 l,
             ]) => {
                 const rules = await getCateringRulesForZone(
@@ -109,7 +119,11 @@ export class CateringOrderStateService {
                     ? l.filter((_) => categories.includes(_.category))
                     : list;
                 list = l.filter((_) =>
-                    cateringItemAvailable(_, rules, { date, duration } as any)
+                    cateringItemAvailable(_, rules, {
+                        date,
+                        duration,
+                        resources,
+                    } as any)
                 );
                 return list;
             }
