@@ -253,7 +253,6 @@ export class SurveyCreatorService {
     }
 
     updateSurveysList() {
-        this.survey_title;
         const date = new Date();
 
         this.saved_surveys$.subscribe((surveys) =>
@@ -311,6 +310,7 @@ export class SurveyCreatorService {
         this.surveyJSON = {
             pages: [
                 {
+                    name: this.survey_title.getValue(),
                     elements: [],
                 },
             ],

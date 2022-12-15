@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { SurveyNG } from 'survey-angular';
 import { SurveyCreatorService } from '../services/survey-creator.service';
-
-import { Model, StylesManager } from 'survey-core';
-
-StylesManager.applyTheme('defaultV2');
+import { Model } from 'survey-core';
 
 @Component({
     selector: 'complete-survey',
     template: `
-        <div class="flex flex-col bg-white w-full h-full ">
+        <div class="flex flex-col w-full h-full complete-container ">
+            <span class="text-2xl font-bold self-center mt-6 mb-4">{{
+                surveyCreatorService.survey_title.getValue()
+            }}</span>
             <survey [model]="surveyCreatorService.surveyModel"></survey>
         </div>
     `,
@@ -23,6 +23,9 @@ StylesManager.applyTheme('defaultV2');
                 margin: 20px;
                 border-radius: 10px;
                 padding: 15%;
+            }
+            .complete-container {
+                background-color: #f3f3f3;
             }
         `,
     ],
