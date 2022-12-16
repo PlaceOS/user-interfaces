@@ -300,7 +300,7 @@ export class OrganisationService {
      * Load buildings data for the organisation
      */
     public async loadBuildings(
-        parent_id: string = this._organisation.id
+        parent_id: string = this._organisation?.id
     ): Promise<Building[]> {
         const building_list = await queryZones({
             tags: 'building',
@@ -356,10 +356,10 @@ export class OrganisationService {
             this._service.app_name || 'workplace'
         ).toLowerCase()}_app`;
         const app_settings = (
-            await showMetadata(this._organisation.id, app_name).toPromise()
+            await showMetadata(this._organisation?.id, app_name).toPromise()
         )?.details;
         const global_settings = (
-            await showMetadata(this._organisation.id, 'settings').toPromise()
+            await showMetadata(this._organisation?.id, 'settings').toPromise()
         )?.details;
         this._settings = [global_settings, app_settings];
         const regions = this.regions;
@@ -400,7 +400,8 @@ export class OrganisationService {
                         const { latitude, longitude } = position.coords;
                         let closest_bld = null;
                         for (const bld of this.buildings) {
-                            if (!bld.location || bld.location === '0,0') continue;
+                            if (!bld.location || bld.location === '0,0')
+                                continue;
                             if (!closest_bld) closest_bld = bld;
                             else {
                                 const [c_lat, c_long] = (

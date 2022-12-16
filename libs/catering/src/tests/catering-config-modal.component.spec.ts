@@ -1,11 +1,11 @@
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { CateringConfigModalComponent } from '../lib/catering-config-modal.component';
 
@@ -15,19 +15,16 @@ describe('CateringConfigModalComponent', () => {
         component: CateringConfigModalComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [
-            {
-                provide: MAT_DIALOG_DATA,
-                useValue: {
-                    config: [],
-                    catergories: {},
-                },
-            },
+            MockProvider(MAT_DIALOG_DATA, {
+                config: [],
+                catergories: {},
+            }),
         ],
         imports: [
-            MatSelectModule,
-            MatFormFieldModule,
-            MatInputModule,
-            ReactiveFormsModule,
+            MockModule(MatSelectModule),
+            MockModule(MatFormFieldModule),
+            MockModule(MatInputModule),
+            MockModule(FormsModule),
         ],
     });
 

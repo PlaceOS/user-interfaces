@@ -8,10 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    BookingFormService,
-    generateBookingForm,
-} from '@placeos/bookings';
+import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import {
@@ -23,7 +20,7 @@ import { Building, Desk, OrganisationService } from '@placeos/organisation';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
 import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
 import { AssetListFieldComponent } from 'libs/form-fields/src/lib/asset-list-field.component';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 describe('NewDeskFormDetailsComponent', () => {
@@ -31,37 +28,25 @@ describe('NewDeskFormDetailsComponent', () => {
     const createComponent = createComponentFactory({
         component: NewDeskFormDetailsComponent,
         providers: [
-            {
-                provide: SettingsService,
-                useValue: {
-                    get: jest.fn(),
-                    saveUserSetting: jest.fn(),
-                },
-            },
-            {
-                provide: BookingFormService,
-                useValue: {
-                    form: new FormGroup({}),
-                    options: new BehaviorSubject({}),
-                    features: new BehaviorSubject([]),
-                    setOptions: jest.fn(),
-                    setFeature: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    building_list: new BehaviorSubject([]),
-                    active_levels: new BehaviorSubject([]),
-                    building: new Building({ id: '1' }),
-                },
-            },
-            {
-                provide: MatDialog,
-                useValue: {
-                    open: jest.fn(() => ({ afterClosed: jest.fn(() => of()) })),
-                },
-            },
+            MockProvider(SettingsService, {
+                get: jest.fn(() => true),
+                saveUserSetting: jest.fn(),
+            } as any),
+            MockProvider(BookingFormService, {
+                form: new FormGroup({}),
+                options: new BehaviorSubject({}),
+                features: new BehaviorSubject([]),
+                setOptions: jest.fn(),
+                setFeature: jest.fn(),
+            } as any),
+            MockProvider(OrganisationService, {
+                building_list: new BehaviorSubject([]),
+                active_levels: new BehaviorSubject([]),
+                building: new Building({ id: '1' }),
+            }),
+            MockProvider(MatDialog, {
+                open: jest.fn(() => ({ afterClosed: jest.fn(() => of()) })),
+            } as any),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -102,7 +87,7 @@ describe('NewDeskFormDetailsComponent', () => {
 
     it('should allow changing selected desks', () =>
         expect('[formControlName="resources"]').toExist());
-        
+
     it('should allow requesting assets', () =>
         expect('[formControlName="assets"]').toExist());
 });

@@ -53,7 +53,9 @@ describe('EventFormComponent', () => {
     });
 
     it('should allow selecting spaces', async () => {
-        const form = generateEventForm({ extension_data: {} } as any);
+        const form = generateEventForm({
+            extension_data: { catering: [] },
+        } as any);
         const spy = jest.spyOn(form, 'patchValue');
         spectator.setInput({ form });
         spectator.detectChanges();

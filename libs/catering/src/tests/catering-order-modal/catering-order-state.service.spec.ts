@@ -1,6 +1,9 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 
@@ -9,14 +12,12 @@ describe('CateringOrderStateService', () => {
     const createService = createServiceFactory({
         service: CateringOrderStateService,
         providers: [
-            {
-                provide: MatDialog,
-                useValue: { open: jest.fn() },
-            },
-            {
-                provide: OrganisationService,
-                useValue: { building: { id: '' } },
-            },
+            MockProvider(MatDialog, { open: jest.fn() } as any),
+            MockProvider(OrganisationService, {
+                building: { id: '' },
+                active_building: of({}),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
     });
 
