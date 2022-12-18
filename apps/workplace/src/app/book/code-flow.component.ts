@@ -243,7 +243,10 @@ export class BookCodeFlowComponent
         }
     }
 
-    private async _checkinBooking(asset_id: string, type: BookingType = 'desk') {
+    private async _checkinBooking(
+        asset_id: string,
+        type: BookingType = 'desk'
+    ) {
         this.loading = true;
         const bookings = await queryBookings({
             period_start: getUnixTime(Date.now()),
@@ -264,6 +267,7 @@ export class BookCodeFlowComponent
                     throw _;
                 });
             notifySuccess(`Successfully checked in booking.`);
+            this._router.navigate(['/book', 'code', 'success']);
             this.loading = false;
         } else {
             this._booking_form.newForm(new Booking({ asset_id, type }));
@@ -296,6 +300,8 @@ export class BookCodeFlowComponent
                     throw _;
                 });
             notifySuccess(`Successfully checked in booking.`);
+            this._router.navigate(['/book', 'code', 'success']);
+            this.loading = false;
         } else {
             const space = await showSystem(space_id).toPromise();
             if (space) {
