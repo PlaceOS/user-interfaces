@@ -51,7 +51,9 @@
         "CONFIRM_MEETING": "Confirm Meeting",
         "CLEAR_FORM": "Form",
         "BOOKING_CONFIRMED": "Booking Confirmed!",
-        "BOOKING_DONE_CONTINUE": "Great, thanks!"
+        "BOOKING_DONE_CONTINUE": "Great, thanks!",
+        "RESOURCE_CHECKED_IN": "Successfully checked-in",
+        "CHECKED_IN": "Your event has been successfully checked in."
     },
     "PANEL": {
         "ROOM_CAPACITY": "Room capacity",
