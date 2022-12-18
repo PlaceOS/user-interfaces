@@ -8,7 +8,7 @@ import {
     notifySuccess,
     openConfirmModal,
     randomInt,
-    unique
+    unique,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
@@ -110,7 +110,9 @@ const QR_CODES = {};
                 <div class="flex items-center justify-center pl-4">
                     <mat-checkbox
                         [ngModel]="changes[row.id]?.bookable ?? data"
-                        (ngModelChange)="setRowValue(row.id, 'bookable', $event)"
+                        (ngModelChange)="
+                            setRowValue(row.id, 'bookable', $event)
+                        "
                     ></mat-checkbox>
                 </div>
             </ng-template>
@@ -199,7 +201,10 @@ export class DesksManageComponent extends BaseClass {
     ]).pipe(map(([d, n]) => d.concat(n)));
 
     public get changed() {
-        return (Object.keys(this.changes).length || 0) + (this._state.new_desk_count || 0);
+        return (
+            (Object.keys(this.changes).length || 0) +
+            (this._state.new_desk_count || 0)
+        );
     }
 
     public setRowValue(id: string, key: string, value: any) {
@@ -208,15 +213,18 @@ export class DesksManageComponent extends BaseClass {
     }
 
     public async removeDesk(desk: Desk) {
-        const resp = await openConfirmModal({
-            title: 'Remove desk',
-            content: `Remove desk ${desk.name}?`,
-            icon: { content: 'delete' }
-        }, this._dialog);
+        const resp = await openConfirmModal(
+            {
+                title: 'Remove desk',
+                content: `Remove desk ${desk.name}?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog
+        );
         if (resp.reason !== 'done') return;
         resp.close();
         const desks = await this.desks.pipe(take(1)).toPromise();
-        const updated_desks = desks.filter(_ => _.id !== desk.id);
+        const updated_desks = desks.filter((_) => _.id !== desk.id);
         const filters = await this.filters.pipe(take(1)).toPromise();
         const level = this._org.levelWithID(filters.zones);
         this.loading = 'Removing desk...';
@@ -239,9 +247,12 @@ export class DesksManageComponent extends BaseClass {
     public async save() {
         this.loading = 'Saving changes to desks...';
         const desks = await this.desks.pipe(take(1)).toPromise();
-        const updated_desks = unique(desks.map((_) =>
-            new Desk({ ..._, ...(this.changes[_.id] || {}) }).toJSON()
-        ), 'id');
+        const updated_desks = unique(
+            desks.map((_) =>
+                new Desk({ ..._, ...(this.changes[_.id] || {}) }).toJSON()
+            ),
+            'id'
+        );
         const filters = await this.filters.pipe(take(1)).toPromise();
         const level = this._org.levelWithID(filters.zones);
         await updateMetadata(level.id, {
@@ -252,7 +263,10 @@ export class DesksManageComponent extends BaseClass {
             .toPromise()
             .catch((e) => {
                 this.loading = '';
-                const msg = e?.status === 403 ? 'You do not have the required permissions to save desk changes.' : e.message || e;
+                const msg =
+                    e?.status === 403
+                        ? 'You do not have the required permissions to save desk changes.'
+                        : e.message || e;
                 notifyError(`Error saving desk data. Error: ${msg}`);
                 throw e;
             });
@@ -264,9 +278,9 @@ export class DesksManageComponent extends BaseClass {
 
     public loadQrCode(item: any) {
         item.qr_code = generateQRCode(
-            `${location.origin}/workplace/#/book/code?checkin=${encodeURIComponent(
-                item.id
-            )}`
+            `${
+                location.origin
+            }/workplace/#/book/code?asset_id=${encodeURIComponent(item.id)}`
         );
     }
 
