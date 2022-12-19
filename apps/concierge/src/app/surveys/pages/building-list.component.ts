@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    Building
-} from '@placeos/organisation';
+import { Building } from '@placeos/organisation';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { AddBuildingModalComponent } from '../components/add-building-modal.component';
 import { BuildingsService } from '../services/buildings.service';
@@ -11,15 +9,20 @@ import { BuildingsService } from '../services/buildings.service';
     selector: 'building-list',
     template: `
         <sidebar class="h-full"></sidebar>
-        <main class="flex flex-col flex-1 relative h-full bg-white dark:bg-neutral-600 pt-4 overflow-y-auto">
+        <main
+            class="flex flex-col flex-1 relative h-full bg-white dark:bg-neutral-600 pt-4 overflow-y-auto"
+        >
             <section>
-
                 <div class="flex flex-col">
-                    <div class="flex w-full items-center justify-between py-4 bg-white max-w-[68rem] m-auto">
-                        <span class="text-2xl">{{building_count}} Building{{building_count > 1 ? 's':''}}</span>
-                        <button
-                            mat-button
-                            (click)="addBuilding()">
+                    <div
+                        class="flex w-full items-center justify-between py-4 bg-white max-w-[68rem] m-auto"
+                    >
+                        <span class="text-2xl"
+                            >{{ building_count }} Building{{
+                                building_count > 1 ? 's' : ''
+                            }}</span
+                        >
+                        <button mat-button (click)="addBuilding()">
                             <span>Add Building</span>
                             <mat-icon>add</mat-icon>
                         </button>
@@ -41,30 +44,6 @@ import { BuildingsService } from '../services/buildings.service';
                 height: 100%;
                 width: 100%;
             }
-            /* section {
-                margin-top: -20px;
-                margin-right: 0;
-                width: 100%;
-                
-            }
-            .heading-wrapper {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin: 20px 0px 0px 200px;
-            }
-            .heading {
-                font-size: 20px;
-                font-weight: 500;
-            }
-             .add-button {
-                display: flex;
-                color: #fff;
-                background-color: #292f5b;
-                border-radius: 2px;
-                margin: 20px;
-                padding: 0px 20px;
-            } */
         `,
     ],
 })
@@ -78,7 +57,7 @@ export class BuildingListComponent implements OnInit {
 
     dialogConfig = {
         width: '430px',
-        height: '730px',
+        height: '720px',
     };
 
     constructor(

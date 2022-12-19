@@ -111,19 +111,12 @@ import { Building, BookingRuleDetails } from '@placeos/organisation';
                 >
             </form>
         </main>
-        <footer>
-            <button
-                mat-button
-                class="cancel-button align-middle"
-                color="basic"
-                (click)="closeDialog()"
-            >
+        <footer class="flex space-x-4 mr-[24px] mt-16">
+            <button mat-stroked-button (click)="closeDialog()">
                 <span>Cancel</span>
             </button>
             <button
                 mat-button
-                class="add-button align-middle"
-                color="primary"
                 (click)="addBuilding()"
                 [disabled]="!buildingForm.valid"
             >
@@ -223,13 +216,13 @@ import { Building, BookingRuleDetails } from '@placeos/organisation';
                 border-radius: 2px;
                 margin: 20px 0px 20px 20px;
             }
-            .add-button {
+            /* .add-button {
                 display: flex;
                 color: #fff;
                 background-color: #292f5b;
                 border-radius: 2px;
                 margin: 20px 0px 20px 20px;
-            }
+            } */
             footer {
                 display: flex;
                 flex-direction: row;
