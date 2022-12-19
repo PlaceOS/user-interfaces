@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SurveyNG } from 'survey-angular';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 import { Model } from 'survey-core';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
 @Component({
     selector: 'complete-survey',
@@ -34,21 +35,30 @@ import { Model } from 'survey-core';
     ],
 })
 export class CompleteSurveyComponent implements OnInit {
-    constructor(public surveyCreatorService: SurveyCreatorService) {}
+    constructor(
+        public surveyCreatorService: SurveyCreatorService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) {}
 
     survey: Model;
 
     ngOnInit(): void {
-        this.survey = new Model(this.surveyCreatorService.surveyJSON);
+        const survey_id: string = this.route.snapshot.paramMap.get('id');
+        console.log(survey_id, 'survey id');
+
+        const current_survey = JSON.parse(sessionStorage.getItem(survey_id));
+        this.survey = new Model(current_survey);
+
         SurveyNG.render('surveyContainer', {
             model: this.survey,
         });
 
-        this.survey.onComplete.add((sender: any) => {
-            console.log('completed survey', sender.data);
-            // document.getElementById('surveyResults').innerHTML = Object.values(
-            //     sender.data
-            // ).toString();
-        });
+        // this.survey.onComplete.add((sender: any) => {
+        //     console.log('completed survey', sender.data);
+        //     // document.getElementById('surveyResults').innerHTML = Object.values(
+        //     //     sender.data
+        //     // ).toString();
+        // });
     }
 }
