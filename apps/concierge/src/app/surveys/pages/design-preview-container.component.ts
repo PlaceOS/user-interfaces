@@ -316,6 +316,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
 
     async complete() {
         await this.surveyCreatorService.submitSurvey();
+        this.surveyCreatorService.clearSelectedQuestions();
         this.navigate();
     }
 

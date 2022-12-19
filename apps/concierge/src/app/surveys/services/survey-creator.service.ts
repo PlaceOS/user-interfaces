@@ -219,6 +219,11 @@ export class SurveyCreatorService {
         this.selected_questions.splice(index_to_delete, 1);
     }
 
+    clearSelectedQuestions() {
+        this.selected_questions.map((item) => (item.selected = false));
+        this.selected_questions = [];
+    }
+
     newForm() {
         this.new_question_form = new FormGroup({
             title: new FormControl('', Validators.required),
