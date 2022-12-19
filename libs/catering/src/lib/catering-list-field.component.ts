@@ -1,82 +1,96 @@
-import { Component, forwardRef, Input } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { SettingsService } from "@placeos/common";
+import { Component, forwardRef, Input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { SettingsService } from '@placeos/common';
 
-import { CateringItem } from "libs/catering/src/lib/catering-item.class";
+import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 
 const EMPTY_FAVS = [];
 
 @Component({
     selector: `catering-list-field`,
-    template: `
-    <div list class="space-y-2">
-        <div
-            space
-            class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
-            *ngFor="let item of items"
-        >
-            <div class="w-16 h-16 rounded-xl bg-black/20 mr-4"></div>
-            <div class="pb-4">
-                <div class="font-medium">
-                    {{ item.name || 'Item' }}
-                </div>
-                <div>{{ item.quantity }} requested</div>
-                <div
-                    class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
-                >
-                    <button
-                        mat-button
-                        edit-space
-                        class="clear"
-                        (click)="addItems(item)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <app-icon>edit</app-icon>
-                            Change
-                        </div>
-                    </button>
-                    <button
-                        mat-button
-                        remove-space
-                        class="clear"
-                        (click)="removeItem(item)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <app-icon>close</app-icon>
-                            Remove
-                        </div>
-                    </button>
-                </div>
-            </div>
-            <button
-                mat-icon-button
-                fav
-                class="absolute top-1 right-1"
-                [class.text-blue-400]="favorites.includes(item.id)"
-                (click)="toggleFavourite(item)"
+    template: ` <div list class="space-y-2">
+            <div
+                space
+                class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
+                *ngFor="let item of items"
             >
-                <app-icon>{{
-                    favorites.includes(item.id)
-                        ? 'favorite'
-                        : 'favorite_border'
-                }}</app-icon>
-            </button>
+                <div
+                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden"
+                >
+                    <img
+                        *ngIf="item.images?.length"
+                        class="object-cover min-h-full min-w-full"
+                        [src]="item.images[0]"
+                    />
+                </div>
+                <div class="pb-4">
+                    <div class="font-medium flex items-center">
+                        {{ item.name || 'Item' }}
+                        <span
+                            class="text-xs opacity-60 ml-4 font-normal"
+                            *ngIf="item.option_list.length"
+                            [matTooltip]="optionList(item)"
+                        >
+                            {{ item.option_list.length }} option(s)
+                        </span>
+                    </div>
+                    <div>{{ item.quantity }} requested</div>
+                    <div
+                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                    >
+                        <button
+                            mat-button
+                            edit-space
+                            class="clear"
+                            (click)="addItems(item)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon>edit</app-icon>
+                                Change
+                            </div>
+                        </button>
+                        <button
+                            mat-button
+                            remove-space
+                            class="clear"
+                            (click)="removeItem(item)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon>close</app-icon>
+                                Remove
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <button
+                    mat-icon-button
+                    fav
+                    class="absolute top-1 right-1"
+                    [class.text-blue-400]="favorites.includes(item.id)"
+                    (click)="toggleFavourite(item)"
+                >
+                    <app-icon>{{
+                        favorites.includes(item.id)
+                            ? 'favorite'
+                            : 'favorite_border'
+                    }}</app-icon>
+                </button>
+            </div>
         </div>
-    </div>
-    <button
-        mat-button
-        add-space
-        class="w-full inverse mt-2"
-        [disabled]="disabled"
-        (click)="addItems()"
-    >
-        <div class="flex items-center justify-center space-x-2">
-            <app-icon>search</app-icon>
-            <span>Add Item</span>
-        </div>
-    </button>`,
+        <button
+            mat-button
+            add-space
+            class="w-full inverse mt-2"
+            [disabled]="disabled"
+            (click)="addItems()"
+        >
+            <div class="flex items-center justify-center space-x-2">
+                <app-icon>search</app-icon>
+                <span>Add Item</span>
+            </div>
+        </button>`,
     styles: [``],
     providers: [
         {
@@ -89,9 +103,9 @@ const EMPTY_FAVS = [];
 })
 export class CateringListFieldComponent implements ControlValueAccessor {
     @Input() public options: {
-        date?: number,
-        duration?: number,
-        zone_id?: string; 
+        date?: number;
+        duration?: number;
+        zone_id?: string;
     } = {};
     public items: CateringItem[] = [];
     public disabled = false;
@@ -101,7 +115,9 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public selected: CateringItem[] = [];
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_menu_items') || EMPTY_FAVS;
+        return (
+            this._settings.get<string[]>('favourite_menu_items') || EMPTY_FAVS
+        );
     }
 
     constructor(
@@ -145,6 +161,10 @@ export class CateringListFieldComponent implements ControlValueAccessor {
             if (!items) return;
             this.setValue(items);
         });
+    }
+
+    public optionList(item: CateringItem) {
+        return item.option_list.map((_) => _.name).join('\n');
     }
 
     public toggleFavourite(cateringitem: CateringItem) {

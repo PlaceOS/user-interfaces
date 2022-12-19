@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
 import { CateringStateService } from '../catering-state.service';
 import { CateringOrderStateService } from './catering-order-state.service';
@@ -7,6 +15,25 @@ import { CateringOrderStateService } from './catering-order-state.service';
     selector: 'catering-item-list',
     template: `
         <div class="w-full h-full overflow-auto py-2">
+            <ng-container *ngIf="(custom_items | async)?.length">
+                <h3 class="font-bold px-2">Custom Items</h3>
+                <p count class="text-sm opacity-60 mb-4 px-2">
+                    {{ (custom_items | async)?.length || 0 }} items(s)
+                </p>
+
+                <ul class="list-style-none space-y-2 p-2">
+                    <catering-item-list-item
+                        class="block"
+                        *ngFor="let item of custom_items | async"
+                        [item]="item"
+                        [active]="active === item.custom_id"
+                        [selected]="true"
+                        [favourite]="isFavourite(item.id)"
+                        (toggleFav)="toggleFav(item.id)"
+                        (select)="selectItem(item, true)"
+                    ></catering-item-list-item>
+                </ul>
+            </ng-container>
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (item_list | async)?.length || 0 }} result(s) found
@@ -16,109 +43,16 @@ import { CateringOrderStateService } from './catering-order-state.service';
                     class="list-style-none space-y-2 p-2"
                     *ngIf="(item_list | async)?.length; else empty_state"
                 >
-                    <li
-                        item
+                    <catering-item-list-item
+                        class="block"
                         *ngFor="let item of item_list | async"
-                        [class.!border-black]="active === item.id"
-                        class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-600 border-gray-200 dark:border-neutral-500"
-                    >
-                        <button
-                            matRipple
-                            select
-                            class="w-full h-full flex items-center"
-                            (click)="selectItem(item)"
-                        >
-                            <div
-                                class="relative w-16 h-16 rounded-xl bg-black/20 mr-4"
-                            >
-                                <div
-                                    class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white text-xs"
-                                    *ngIf="selected.includes(item.id)"
-                                >
-                                    {{ item.quantity || '1' }}
-                                </div>
-                                <img
-                                    *ngIf="item.images?.length"
-                                    class="object-cover h-full"
-                                    [src]="item.images[0]"
-                                />
-                            </div>
-                            <div class="space-y-2 text-left flex-1">
-                                <div class="font-medium flex flex-col pr-10">
-                                    <div>{{ item.name || 'Item' }}</div>
-                                    <div class="opacity-60 text-xs">
-                                        {{ item.category }}
-                                    </div>
-                                </div>
-                                <div
-                                    class="flex items-center text-sm space-x-1"
-                                >
-                                    <p
-                                        class="flex-1 w-px"
-                                        *ngIf="item.unit_price"
-                                    >
-                                        {{
-                                            item.unit_price / 100
-                                                | currency: code
-                                        }}
-                                    </p>
-                                    <div
-                                        class="text-xs h-5 w-7 rounded-xl shadow bg-green-500 flex items-center justify-center"
-                                        *ngIf="
-                                            item.tags?.includes('Gluten Free')
-                                        "
-                                    >
-                                        GF
-                                    </div>
-                                    <div
-                                        class="text-xs h-5 w-7 rounded-xl shadow bg-blue-600 flex items-center justify-center"
-                                        *ngIf="item.tags?.includes('Vegan')"
-                                    >
-                                        VG
-                                    </div>
-                                    <div
-                                        class="text-xs h-5 w-7 rounded-xl shadow bg-blue-400 flex items-center justify-center"
-                                        *ngIf="
-                                            item.tags?.includes('Vegetarian')
-                                        "
-                                    >
-                                        V
-                                    </div>
-                                    <div
-                                        class="text-xs h-5 w-7 rounded-xl shadow bg-yellow-500 flex items-center justify-center"
-                                        *ngIf="
-                                            item.tags?.includes(
-                                                'Contains Dairy'
-                                            )
-                                        "
-                                    >
-                                        D
-                                    </div>
-                                    <div
-                                        class="text-xs h-5 w-7 rounded-xl shadow bg-orange-600 flex items-center justify-center"
-                                        *ngIf="
-                                            item.tags?.includes('Contains Nuts')
-                                        "
-                                    >
-                                        N
-                                    </div>
-                                </div>
-                            </div>
-                        </button>
-                        <button
-                            mat-icon-button
-                            fav
-                            class="absolute top-1 right-1"
-                            [class.text-blue-400]="isFavourite(item.id)"
-                            (click)="toggleFav.emit(item)"
-                        >
-                            <app-icon>{{
-                                isFavourite(item.id)
-                                    ? 'favorite'
-                                    : 'favorite_border'
-                            }}</app-icon>
-                        </button>
-                    </li>
+                        [item]="item"
+                        [active]="active === item.custom_id"
+                        [selected]="selected.includes(item.custom_id)"
+                        [favourite]="isFavourite(item.id)"
+                        (toggleFav)="toggleFav(item.id)"
+                        (select)="selectItem(item, true)"
+                    ></catering-item-list-item>
                 </ul>
             </ng-container>
         </div>
@@ -147,12 +81,18 @@ import { CateringOrderStateService } from './catering-order-state.service';
 export class CateringItemListComponent {
     @Input() public active: string = '';
     @Input() public selected: string = '';
+    @Input() public selected_items: CateringItem[] = [];
     @Input() public favorites: string[] = [];
     @Output() public toggleFav = new EventEmitter<CateringItem>();
     @Output() public onSelect = new EventEmitter<CateringItem>();
 
+    public readonly list = new BehaviorSubject<CateringItem[]>([]);
     public readonly loading = this._state.loading;
     public readonly item_list = this._state.filtered_menu;
+    public readonly custom_items = combineLatest([
+        this.list,
+        this._state.available_menu,
+    ]).pipe(map(([l, m]) => l.filter((_) => _.option_list?.length)));
 
     public get code() {
         return this._state.currency_code;
@@ -160,11 +100,21 @@ export class CateringItemListComponent {
 
     constructor(private _state: CateringOrderStateService) {}
 
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.selected_items) {
+            console.log('Selected:', this.selected_items);
+            this.list.next(this.selected_items || []);
+        }
+    }
+
     public isFavourite(item_id: string) {
         return this.favorites?.includes(item_id);
     }
 
-    public selectItem(item: CateringItem) {
+    public selectItem(item: CateringItem, clear_state: boolean = false) {
         this.onSelect.emit(item);
+        if (clear_state) {
+            item.options.forEach((_) => delete _.active);
+        }
     }
 }

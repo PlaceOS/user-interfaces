@@ -87,7 +87,7 @@ interface CateringOptionGroup {
                                     <mat-radio-group
                                         class="flex flex-col"
                                         aria-label="Select an option"
-                                        ngModel
+                                        [(ngModel)]="group_state[group.name]"
                                         (ngModelChange)="
                                             updateGroupOption(group, $event)
                                         "
@@ -207,6 +207,7 @@ export class CateringItemDetailsComponent {
     @Output() public close = new EventEmitter<void>();
 
     public option_state: Record<string, boolean> = {};
+    public group_state: Record<string, string> = {};
     public groups: CateringOptionGroup[];
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -216,15 +217,20 @@ export class CateringItemDetailsComponent {
     }
 
     public updateGroupOption(group: CateringOptionGroup, id: string) {
+        if (!group) return;
+        this.group_state[group.name] = id;
         for (const option of group.options) {
             option.active = option.id === id;
         }
     }
 
     private _update() {
+        if (!this.item) return;
         if (!this.item.quantity) {
             (this.item as any).quantity = 1;
         }
+        this.option_state = {};
+        this.group_state = {};
         const groups = unique(this.item.options.map((i) => i.group || 'Other'));
         const group_list = [];
         for (const group of groups) {
@@ -236,5 +242,18 @@ export class CateringItemDetailsComponent {
             });
         }
         this.groups = group_list;
+        if (this.item.option_list) {
+            for (const opt of this.item.option_list) {
+                const option = this.item.options.find((_) => _.id === opt.id);
+                if (option) {
+                    option.active = true;
+                    this.option_state[opt.id] = true;
+                    this.updateGroupOption(
+                        this.groups.find((g) => g.name === option.group),
+                        option.id
+                    );
+                }
+            }
+        }
     }
 }

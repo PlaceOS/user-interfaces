@@ -37,8 +37,9 @@ const EMPTY_FAVS: string[] = [];
                         [search]="true"
                     ></catering-item-filters>
                     <catering-item-list
-                        [active]="displayed?.id"
+                        [active]="displayed?.custom_id"
                         [selected]="selected_ids"
+                        [selected_items]="selected"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
@@ -50,7 +51,7 @@ const EMPTY_FAVS: string[] = [];
                     class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[16rem] z-20 bg-white dark:bg-neutral-700"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
-                    [active]="selected_ids.includes(displayed?.id || '')"
+                    [active]="selected_ids.includes(displayed?.custom_id || '')"
                     (activeChange)="setSelected(displayed!, $event)"
                     [code]="code"
                     [fav]="
@@ -104,16 +105,21 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     mat-button
                     [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [class.inverse]="isSelected(displayed?.custom_id)"
+                    (click)="
+                        setSelected(
+                            displayed,
+                            !isSelected(displayed?.custom_id)
+                        )
+                    "
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            isSelected(displayed?.custom_id) ? 'remove' : 'add'
                         }}</app-icon>
                         <div class="mr-1">
                             {{
-                                isSelected(displayed?.id)
+                                isSelected(displayed?.custom_id)
                                     ? 'Remove from Booking'
                                     : 'Add to booking'
                             }}
@@ -136,7 +142,7 @@ export class NewCateringOrderModalComponent {
     }
 
     public get selected_ids() {
-        return this.selected.map((_) => _.id).join(',');
+        return this.selected.map((_) => _.custom_id).join(',');
     }
 
     public get count() {
@@ -161,8 +167,15 @@ export class NewCateringOrderModalComponent {
     }
 
     public setSelected(item: CateringItem, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== item.id);
-        if (state) list.push(item);
+        console.log('Select:', item, state);
+        const list = this.selected.filter(
+            (_) => _.custom_id !== item.custom_id
+        );
+        if (state) {
+            const new_item = new CateringItem(item);
+            list.push(new_item);
+            this.displayed = new_item;
+        }
         this.selected = list;
     }
 
