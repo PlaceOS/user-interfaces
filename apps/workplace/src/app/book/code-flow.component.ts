@@ -254,9 +254,17 @@ export class BookCodeFlowComponent
             type,
         })
             .toPromise()
-            .catch((_) => []);
+            .catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
+            if (
+                item.booked_by_email.toLowerCase() === currentUser().email ||
+                item.user_email.toLowerCase() === currentUser().email
+            ) {
+                return notifyError(
+                    `Resource is booked by another user "${asset_id}"`
+                );
+            }
             await checkinBooking(item.id, true)
                 .toPromise()
                 .catch((_) => {
