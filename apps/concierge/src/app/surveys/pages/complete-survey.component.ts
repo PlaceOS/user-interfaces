@@ -45,7 +45,6 @@ export class CompleteSurveyComponent implements OnInit {
 
     ngOnInit(): void {
         const survey_id: string = this.route.snapshot.paramMap.get('id');
-        console.log(survey_id, 'survey id');
 
         const current_survey = JSON.parse(sessionStorage.getItem(survey_id));
         this.survey = new Model(current_survey);

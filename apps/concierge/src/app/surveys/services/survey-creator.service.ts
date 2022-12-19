@@ -207,8 +207,6 @@ export class SurveyCreatorService {
 
             if (this.findQuestion(question)) return;
             this.selected_questions.push(question);
-
-            console.log(this.selected_questions, 'selected question in store');
         }
     }
 
@@ -240,8 +238,6 @@ export class SurveyCreatorService {
         !this.new_question_form.controls['choices']?.valid
             ? this._choice_error.next(true)
             : this._choice_error.next(false);
-
-        console.log(this.new_question_form);
     }
 
     updateValidators() {
@@ -249,8 +245,6 @@ export class SurveyCreatorService {
             Validators.required
         );
         this.new_question_form.controls['choices']?.updateValueAndValidity();
-
-        console.log('validator set');
     }
     clearChoicesValidators() {
         this.new_question_form.controls['choices']?.clearValidators();
@@ -280,8 +274,6 @@ export class SurveyCreatorService {
         this.surveyJSON.pages[0].elements = this.selected_questions.map(
             ({ selected, ...keepProperties }) => keepProperties
         );
-
-        console.log(this.surveyJSON, 'survey json');
         const survey_id = this._saveSurveyLocally();
         this._buildSurvey();
         this.updateSurveysList(survey_id);
