@@ -1634,6 +1634,32 @@
             },
             "tags": []
         },
+        "survey-suite": {
+            "projectType": "library",
+            "root": "libs/survey-suite",
+            "sourceRoot": "libs/survey-suite/src",
+            "prefix": "placeos",
+            "architect": {
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "outputs": ["coverage/libs/survey-suite"],
+                    "options": {
+                        "jestConfig": "libs/survey-suite/jest.config.ts",
+                        "passWithNoTests": true
+                    }
+                },
+                "lint": {
+                    "builder": "@nrwl/linter:eslint",
+                    "options": {
+                        "lintFilePatterns": [
+                            "libs/survey-suite/**/*.ts",
+                            "libs/survey-suite/**/*.html"
+                        ]
+                    }
+                }
+            },
+            "tags": []
+        },
         "timetable": {
             "$schema": "../../node_modules/nx/schemas/project-schema.json",
             "projectType": "application",
@@ -2018,7 +2044,10 @@
             "sourceRoot": "apps/workplace/src",
             "prefix": "placeos",
             "i18n": {
-                "sourceLocale": { "code": "en", "baseHref": "" },
+                "sourceLocale": {
+                    "code": "en",
+                    "baseHref": ""
+                },
                 "locales": {
                     "fr": {
                         "translation": "apps/workplace/src/locale/messages.fr.xlf",
