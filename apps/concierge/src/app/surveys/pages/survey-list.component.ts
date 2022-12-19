@@ -15,9 +15,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
         <main
             class="relative w-full h-full bg-white dark:bg-neutral-600 overflow-y-auto"
         >
-            <section
-                class="flex flex-col bg-white w-full max-w-[68rem] m-auto "
-            >
+            <div class="flex flex-col bg-white w-full max-w-[68rem] m-auto ">
                 <header
                     class="flex items-center justify-between py-4 pt-8 mb-4 w-full"
                 >
@@ -114,10 +112,23 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                         [ngSwitch]="column.columnDef"
                                     >
                                         <div *ngSwitchCase="'link'">
-                                            <a class="text-blue-700" [routerLink]="['/surveys','complete',column.cell(row)]">{{column.cell(row)}}</a>
+                                            <a
+                                                class="text-blue-700"
+                                                [routerLink]="[
+                                                    '/surveys',
+                                                    'complete',
+                                                    column.cell(row)
+                                                ]"
+                                                >{{ column.cell(row) }}</a
+                                            >
                                         </div>
                                         <div *ngSwitchCase="'options'">
-                                            <ng-container *ngIf="column.cell(row) == 'open'; else notOpen;">
+                                            <ng-container
+                                                *ngIf="
+                                                    column.cell(row) == 'open';
+                                                    else notOpen
+                                                "
+                                            >
                                                 <button
                                                     mat-icon-button
                                                     [matMenuTriggerFor]="
@@ -131,7 +142,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                         >more_horiz</mat-icon
                                                     >
                                                 </button>
-                                                <mat-menu #optionsMenu="matMenu">
+                                                <mat-menu
+                                                    #optionsMenu="matMenu"
+                                                >
                                                     <div
                                                         class="flex flex-col min-w-[10rem]"
                                                     >
@@ -160,7 +173,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                         <button
                                                             mat-menu-item
                                                             (click)="
-                                                                deleteSurvey(row)
+                                                                deleteSurvey(
+                                                                    row
+                                                                )
                                                             "
                                                         >
                                                             <mat-icon
@@ -172,10 +187,12 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                 </mat-menu>
                                             </ng-container>
                                             <ng-template #notOpen>
-                                                {{column.cell(row)}}
+                                                {{ column.cell(row) }}
                                             </ng-template>
                                         </div>
-                                        <span *ngSwitchDefault>{{column.cell(row)}}</span>
+                                        <span *ngSwitchDefault>{{
+                                            column.cell(row)
+                                        }}</span>
                                     </td>
                                 </ng-container>
 
@@ -203,7 +220,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                         </ng-template>
                     </ng-container>
                 </main>
-            </section>
+            </div>
         </main>
     `,
     styles: [

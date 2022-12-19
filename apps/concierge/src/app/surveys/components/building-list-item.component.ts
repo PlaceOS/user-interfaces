@@ -6,7 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
     selector: 'building-list-item',
     template: `
-        <section class="building-wrapper bg-white my-4 mx-auto">
+        <div class="building-wrapper bg-white my-4 mx-auto">
             <div
                 class="options"
                 [matMenuTriggerFor]="optionsMenu"
@@ -64,7 +64,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                     </div>
                 </button>
             </div>
-        </section>
+        </div>
     `,
     styles: [
         `
