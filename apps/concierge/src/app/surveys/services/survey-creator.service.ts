@@ -141,6 +141,7 @@ export class SurveyCreatorService {
         //Mock saved surveys
         this.saved_surveys = [
             {
+                id: '69495',
                 building_name: 'Ellwood Tower',
                 level: '01',
                 type: 'Desk',
@@ -150,6 +151,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '234335',
                 building_name: 'Glemsford Building',
                 level: '02',
                 type: 'Room',
@@ -159,6 +161,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '773457',
                 building_name: 'Ellwood Tower',
                 level: '01',
                 type: 'Desk',
@@ -168,6 +171,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '748994',
                 building_name: 'Ellwood Tower',
                 level: '03',
                 type: 'Room',
@@ -177,6 +181,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '158380',
                 building_name: 'Glemsford Building',
                 level: '03',
                 type: 'Visitors',
@@ -252,18 +257,18 @@ export class SurveyCreatorService {
         this.new_question_form.controls['choices']?.updateValueAndValidity();
     }
 
-    updateSurveysList() {
+    updateSurveysList(survey_id: string) {
         const date = new Date();
 
         this.saved_surveys$.subscribe((surveys) =>
             surveys.push({
-                id: Math.floor(Math.random() * (4 - 2) + 2).toString(),
+                id: survey_id,
                 building_name: this.current_building,
                 level: '01',
                 type: 'Room',
                 title: this.survey_title.getValue(),
                 date: date.toLocaleDateString('en-GB'),
-                link: Math.floor(100000 + Math.random() * 900000).toString(),
+                link: survey_id,
                 options: ['open'],
             })
         );
@@ -277,8 +282,9 @@ export class SurveyCreatorService {
         );
 
         console.log(this.surveyJSON, 'survey json');
+        const survey_id = this._saveSurveyLocally();
         this._buildSurvey();
-        this.updateSurveysList();
+        this.updateSurveysList(survey_id);
     }
 
     async saveSurvey() {
@@ -290,6 +296,14 @@ export class SurveyCreatorService {
         // };
         // // const confirm = await createSurvey(data).toPromise();
         // console.log(confirm, 'post to backend');
+    }
+
+    private _saveSurveyLocally(): string {
+        const survey_id: string = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+        sessionStorage.setItem(survey_id, JSON.stringify(this.surveyJSON));
+        return survey_id;
     }
 
     public findQuestion(question: Question) {
