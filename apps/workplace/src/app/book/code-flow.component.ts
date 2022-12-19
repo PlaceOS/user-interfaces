@@ -255,11 +255,16 @@ export class BookCodeFlowComponent
         })
             .toPromise()
             .catch((_) => [] as Booking[]);
+        console.log('Bookings:', bookings);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
+            const email = currentUser().email.toLowerCase();
+            console.log('Items:', item, email);
             if (
-                item.booked_by_email.toLowerCase() === currentUser().email ||
-                item.user_email.toLowerCase() === currentUser().email
+                !(
+                    item.booked_by_email.toLowerCase() === email ||
+                    item.user_email.toLowerCase() === email
+                )
             ) {
                 return notifyError(
                     `Resource is booked by another user "${asset_id}"`
