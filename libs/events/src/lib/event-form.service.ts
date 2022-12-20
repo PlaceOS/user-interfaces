@@ -123,7 +123,7 @@ export class EventFormService extends BaseClass {
     ]).pipe(
         map(([spaces, { show_fav, features, capacity }]) =>
             spaces
-                .filter((s) => {
+                .filter((s: Space) => {
                     const domain = (currentUser()?.email || '@').split('@')[1];
                     const zone = (this._settings.get(
                         'app.events.restrict_spaces'
@@ -135,6 +135,7 @@ export class EventFormService extends BaseClass {
                         limited_zones.includes(_)
                     );
                     return (
+                        s.bookable &&
                         (!zone || s.zones.includes(zone)) &&
                         (!zone_limit || limit_map[zone_limit] === domain) &&
                         (!show_fav || this.favorite_spaces.includes(s.id)) &&
