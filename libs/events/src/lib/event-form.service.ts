@@ -482,9 +482,11 @@ export class EventFormService extends BaseClass {
                 new CalendarEvent({
                     ...value,
                     host:
+                        this._settings.get('app.events.force_host') ||
                         (this._settings.get('app.events.room_as_host')
                             ? value.resources[0].email
-                            : '') || value.host,
+                            : '') ||
+                        value.host,
                     date: d,
                     catering,
                 }),
