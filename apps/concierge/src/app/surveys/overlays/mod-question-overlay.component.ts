@@ -1,6 +1,7 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { generateNewQuestion, Question } from "@placeos/survey-suite";
+import { generateNewQuestion, Question, QuestionComponent } from "@placeos/survey-suite";
+
 
 @Component({
     selector: 'mod-question-overlay',
@@ -8,21 +9,22 @@ import { generateNewQuestion, Question } from "@placeos/survey-suite";
     template:`
     
         <header class="flex items-center justify-between px-2 w-full">
-            <h2 class="px-2">{{isEdit ? 'Update' : 'Add'}} Question</h2>
+            <h2 (click)="verbose()" class="px-2">{{isEdit ? 'Update' : 'Add'}} Question</h2>
             <button mat-icon-button mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="flex flex-col p-4">
-            <placeos-question [value]="question"></placeos-question>
+        <main class="flex flex-col p-4 min-w-[40rem]">
+            <placeos-question #questionElement [value]="question"></placeos-question>
         </main>
         <div class="flex flex-row justify-end space-x-2 px-4 py-2" mat-dialog-actions>
-            <button mat-button mat-dialog-close>Cancel</button>
-            <button mat-button (click)="done()">{{isEdit ? 'Update' : 'Add to bank'}}</button>
+            <button mat-button [disabled]="!questionElement.valid" (click)="done()">{{isEdit ? 'Update' : 'Add to bank'}}</button>
         </div>
     `
 })
 export class ModQuestionOverlayComponent implements OnInit{
+
+    @ViewChild('questionElement') questionElement: QuestionComponent;
 
     isEdit:boolean = false;
     question:Question;
@@ -33,10 +35,15 @@ export class ModQuestionOverlayComponent implements OnInit{
     ){
         this.isEdit = !!this._data;
         this.question = this._data || generateNewQuestion();
+        this.questionElement
     }
 
     ngOnInit(): void {
         
+    }
+
+    verbose(){
+        console.log("is valid", this.questionElement)
     }
 
     public done(){

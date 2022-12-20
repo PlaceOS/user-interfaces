@@ -278,7 +278,10 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     openAddQuestionBankDialog(): void {
-        this.addDialog.open(ModQuestionOverlayComponent, this.dialogConfig);
+        this.addDialog.open(ModQuestionOverlayComponent, {
+            width:'auto',
+            height:'auto'
+        });
         this.surveyCreatorService.newForm();
     }
 

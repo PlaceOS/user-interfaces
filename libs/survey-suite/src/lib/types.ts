@@ -2,10 +2,10 @@ import { getEnumOptions } from "./helper";
 
 export enum QuestionType {
     Single_Line_Text = 'singletext',
-    Multi_Select = 'multiselect',
-    Single_Select = 'singleselect',
-    Rating = 'rating',
     Multi_Line_Text = 'multitext',
+    Single_Select = 'singleselect',
+    Multi_Select = 'multiselect',
+    Rating = 'rating',
 }
 
 export const QuestionTypeOptions = getEnumOptions(QuestionType);

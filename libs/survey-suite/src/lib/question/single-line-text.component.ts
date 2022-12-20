@@ -1,5 +1,4 @@
-import { Component, OnInit } from "@angular/core";
-import { QuestionType } from "../types";
+import { Component } from "@angular/core";
 import { BaseQuestionComponent } from "./base-question.component";
 
 
@@ -7,32 +6,18 @@ import { BaseQuestionComponent } from "./base-question.component";
     selector: 'single-line-text',
     styles: [],
     template: `
-        <div class="flex flex-col w-full items-center justify-between p-4">
-
-            <mat-form-field appearance="outline" *ngIf="!isPreview; else previewTitle;">
-                <input matInput 
-                    [placeholder]="placeholderTitle"
-                    type="text" 
-                    [ngModel]="question.title"
-                    [disabled]="readonly">
-                <mat-error class="input-error" *ngIf="!question?.title">Please enter a question</mat-error>
+        <div class="flex flex-col w-full" *ngIf="readonly">
+            <mat-form-field apppearance="outline">
+                <input matInput type="text"/>
+                <mat-hint>*Type your answer above</mat-hint>
             </mat-form-field>
-
-            <ng-template #previewTitle>
-                <span>{{question.title}}</span>
-            </ng-template>
-
         </div>
-    
     `
 })
 
-export class SingleLineTextComponent extends BaseQuestionComponent implements OnInit{
+export class SingleLineTextComponent extends BaseQuestionComponent{
 
     constructor(){
         super();
-    }
-
-    ngOnInit(){
     }
 }

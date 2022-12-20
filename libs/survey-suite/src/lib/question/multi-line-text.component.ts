@@ -6,31 +6,18 @@ import { BaseQuestionComponent } from "./base-question.component";
     selector: 'multi-line-text',
     styles: [],
     template: `
-        <div class="flex flex-col w-full items-center justify-between p-4">
-
-            <mat-form-field appearance="outline" *ngIf="!isPreview; else previewTitle;">
-                <input matInput 
-                    [placeholder]="placeholderTitle"
-                    type="text" 
-                    [ngModel]="question.title"
-                    [disabled]="readonly">
-                <mat-error class="input-error" *ngIf="!question?.title">Please enter a question</mat-error>
+        <div class="flex flex-col w-full" *ngIf="readonly">
+            <mat-form-field appearance="outline">
+                <textarea matInput cols="30" rows="5"></textarea>
+                <mat-hint>*Type your answer above. Multiple lines supported</mat-hint>
             </mat-form-field>
-
-            <ng-template #previewTitle>
-                <span>{{question.title || 'No question'}}</span>
-            </ng-template>
-
         </div>
     `
 })
 
-export class MultiLineTextComponent extends BaseQuestionComponent implements OnInit{
+export class MultiLineTextComponent extends BaseQuestionComponent{
 
     constructor(){
         super();
-    }
-
-    ngOnInit(): void {
     }
 }
