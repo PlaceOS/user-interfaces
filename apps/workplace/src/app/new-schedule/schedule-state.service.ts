@@ -80,17 +80,30 @@ export class ScheduleStateService extends BaseClass {
         );
 
     public readonly ws_events = this._space_bookings.pipe(
-        tap(_ => console.log('Events:', _.map(_ => `${_.host} | [${_.attendees.map(a => a.email).join(',')}]`))),
+        tap((_) =>
+            console.log(
+                'Events:',
+                _.map(
+                    (_) =>
+                        `${_.host} | [${_.attendees
+                            .map((a) => a.email)
+                            .join(',')}]`
+                )
+            )
+        ),
         map((_) => {
             const user = currentUser();
             console.log('User:', user);
             return _.filter(
                 (_) =>
                     _.host.toLowerCase() === user.email.toLowerCase() ||
-                    _.attendees.find((a) => a.email.toLowerCase() === user.email.toLowerCase())
+                    _.attendees.find(
+                        (a) =>
+                            a.email.toLowerCase() === user.email.toLowerCase()
+                    )
             );
         }),
-        tap(_ => console.log('Your events:', _)),
+        tap((_) => console.log('Your events:', _))
     );
     /** List of calendar events for the selected date */
     public readonly api_events: Observable<CalendarEvent[]> = this._update.pipe(
@@ -99,7 +112,7 @@ export class ScheduleStateService extends BaseClass {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
             };
-            return this._settings.get('app.no_user_calendar')
+            return this._settings.get('app.events.use_bookings')
                 ? queryBookings({ ...query, type: 'room' }).pipe(
                       map((_) => _.map((i) => newCalendarEventFromBooking(i))),
                       catchError((_) => [])

@@ -268,7 +268,7 @@ export class EventFormService extends BaseClass {
     }
 
     public get has_calendar() {
-        return this._settings.get('app.no_user_calendar') !== true;
+        return this._settings.get('app.events.use_bookings') !== true;
     }
 
     constructor(

@@ -48,7 +48,7 @@ export class CalendarService extends BaseClass {
     }
 
     public async init() {
-        if (this._settings.get('app.no_user_calendar')) return;
+        if (this._settings.get('app.events.use_bookings')) return;
         this._initialised.next(true);
     }
 
