@@ -127,6 +127,9 @@ interface CateringOptionGroup {
                                     <mat-checkbox
                                         *ngFor="let opt of group?.options"
                                         [(ngModel)]="option_state[opt.id]"
+                                        (ngModelChange)="
+                                            updateCheckedState(opt.id, $event)
+                                        "
                                     >
                                         <div
                                             class="flex items-center justify-center"
@@ -222,6 +225,11 @@ export class CateringItemDetailsComponent {
         for (const option of group.options) {
             option.active = option.id === id;
         }
+    }
+
+    public updateCheckedState(id: string, state: boolean) {
+        const option = this.item?.options.find((_) => _.id === id);
+        if (option) option.active = state;
     }
 
     private _update() {
