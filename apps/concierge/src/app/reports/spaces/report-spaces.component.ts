@@ -7,7 +7,7 @@ import { ReportsStateService } from '../reports-state.service';
     selector: '[report-spaces]',
     template: `
         <reports-options></reports-options>
-        <div class="flex-1 h-1/2 w-full overflow-auto">
+        <div class="relative flex-1 h-1/2 w-full overflow-auto z-0">
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <report-spaces-overall></report-spaces-overall>
@@ -30,12 +30,15 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </ng-template>
     `,
-    styles: [`
-        :host {
-            display: flex;
-            flex-direction: column;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class ReportSpacesComponent {
     public readonly total_count = this._state.stats.pipe(

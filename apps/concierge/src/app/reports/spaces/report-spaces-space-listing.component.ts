@@ -15,7 +15,7 @@ import { ReportsStateService } from '../reports-state.service';
             <div
                 class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center"
             >
-                <h3 class="font-bold text-xl flex-1">Space Utilisation</h3>
+                <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
                 <button mat-icon-button (click)="download()">
                     <app-icon>download</app-icon>
                 </button>
@@ -25,6 +25,7 @@ import { ReportsStateService } from '../reports-state.service';
                 [pagination]="true"
                 [columns]="column_list | async"
                 [display_column]="column_name_list | async"
+                [column_size]="['flex']"
             ></custom-table>
         </div>
     `,
@@ -58,6 +59,8 @@ export class ReportSpacesSpaceListing {
                             count: 0,
                             attendance: 0,
                             avg_attendance: 0,
+                            min_attendance: 0,
+                            max_attendance: 0,
                             attendees: 0,
                             avg_attendees: 0,
                             usage: 0,
@@ -69,6 +72,12 @@ export class ReportSpacesSpaceListing {
                     }
                     details.count += 1;
                     details.attendance +=
+                        booking.extension_data?.people_count?.max ?? 0;
+                    details.avg_attendance +=
+                        booking.extension_data?.people_count?.avg ?? 0;
+                    details.min_attendance +=
+                        booking.extension_data?.people_count?.min ?? 0;
+                    details.max_attendance +=
                         booking.extension_data?.people_count?.max ?? 0;
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
@@ -110,23 +119,18 @@ export class ReportSpacesSpaceListing {
     public readonly column_list = this.has_attendance.pipe(
         map((_) =>
             !_
-                ? [
-                      'name',
-                      'capacity',
-                      'count',
-                      'utilisation',
-                      'avg_attendees',
-                      'occupancy',
-                  ]
+                ? ['name', 'capacity', 'count', 'utilisation', 'avg_attendees']
                 : [
                       'name',
                       'capacity',
                       'count',
                       'utilisation',
                       'avg_attendees',
-                      'occupancy',
                       'attendance',
                       'avg_attendance',
+                      'no_shows',
+                      'min_attendance',
+                      'max_attendance',
                   ]
         )
     );
@@ -139,7 +143,6 @@ export class ReportSpacesSpaceListing {
                       'Bookings',
                       '% Time booked during office hrs',
                       'Avg. invitees per booking',
-                      'Occupancy',
                   ]
                 : [
                       'Name',
@@ -147,9 +150,11 @@ export class ReportSpacesSpaceListing {
                       'Bookings',
                       '% Time booked during office hrs',
                       'Avg. invitees per booking',
-                      'Occupancy',
                       'Total In-room Attendance',
                       'Avg. In-room Attendance',
+                      'No Shows',
+                      'Min. In-room Attendance',
+                      'Max. In-room Attendance',
                   ]
         )
     );
