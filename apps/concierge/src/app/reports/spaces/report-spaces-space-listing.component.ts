@@ -79,7 +79,7 @@ export class ReportSpacesSpaceListing {
                         booking.extension_data?.people_count?.max ?? 0;
                     details.avg_attendance +=
                         booking.extension_data?.people_count?.avg ?? 0;
-                    details.min_attendance += Math.min(
+                    details.min_attendance = Math.min(
                         details.max_attendance,
                         booking.extension_data?.people_count?.max ?? 99
                     );
