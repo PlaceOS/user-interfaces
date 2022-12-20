@@ -15,9 +15,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
         <main
             class="relative w-full h-full bg-white dark:bg-neutral-600 overflow-y-auto"
         >
-            <section
-                class="flex flex-col bg-white w-full max-w-[68rem] m-auto "
-            >
+            <div class="flex flex-col bg-white w-full max-w-[68rem] m-auto ">
                 <header
                     class="flex items-center justify-between py-4 pt-8 mb-4 w-full"
                 >
@@ -114,10 +112,23 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                         [ngSwitch]="column.columnDef"
                                     >
                                         <div *ngSwitchCase="'link'">
-                                            <a class="text-blue-700" [routerLink]="['/surveys','complete',column.cell(row)]">{{column.cell(row)}}</a>
+                                            <a
+                                                class="text-blue-700"
+                                                [routerLink]="[
+                                                    '/surveys',
+                                                    'complete',
+                                                    column.cell(row)
+                                                ]"
+                                                >{{ column.cell(row) }}</a
+                                            >
                                         </div>
                                         <div *ngSwitchCase="'options'">
-                                            <ng-container *ngIf="column.cell(row) == 'open'; else notOpen;">
+                                            <ng-container
+                                                *ngIf="
+                                                    column.cell(row) == 'open';
+                                                    else notOpen
+                                                "
+                                            >
                                                 <button
                                                     mat-icon-button
                                                     [matMenuTriggerFor]="
@@ -131,7 +142,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                         >more_horiz</mat-icon
                                                     >
                                                 </button>
-                                                <mat-menu #optionsMenu="matMenu">
+                                                <mat-menu
+                                                    #optionsMenu="matMenu"
+                                                >
                                                     <div
                                                         class="flex flex-col min-w-[10rem]"
                                                     >
@@ -160,7 +173,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                         <button
                                                             mat-menu-item
                                                             (click)="
-                                                                deleteSurvey(row)
+                                                                deleteSurvey(
+                                                                    row
+                                                                )
                                                             "
                                                         >
                                                             <mat-icon
@@ -172,10 +187,12 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                 </mat-menu>
                                             </ng-container>
                                             <ng-template #notOpen>
-                                                {{column.cell(row)}}
+                                                {{ column.cell(row) }}
                                             </ng-template>
                                         </div>
-                                        <span *ngSwitchDefault>{{column.cell(row)}}</span>
+                                        <span *ngSwitchDefault>{{
+                                            column.cell(row)
+                                        }}</span>
                                     </td>
                                 </ng-container>
 
@@ -203,7 +220,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                         </ng-template>
                     </ng-container>
                 </main>
-            </section>
+            </div>
         </main>
     `,
     styles: [
@@ -213,113 +230,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                 height: 100%;
                 width: 100%;
             }
-            /* .page-wrapper {
-                background-color: #fff;
-                padding: 10px;
-            }
-            .heading-wrapper {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin: 20px 0px 0px 20px;
-                width: 90%;
-            }
-            .left-wrapper {
-                display: flex;
-                align-items: center;
-            }
-            .right-wrapper {
-                display: flex;
-                align-items: center;
-            }
-            .back-arrow {
-                display: flex;
-                margin-right: 10px;
-            }
-            .page-heading {
-                line-height: 34px;
-                font-size: 26px;
-                font-weight: 400;
-            }
-             .dropdown-container {
-                display: flex;
-                height: 53px;
-            }
-            .add-button {
-                display: flex;
-                color: #fff;
-                background-color: #292f5b;
-                border-radius: 2px;
-                margin: 20px 0px 20px 20px;
-                padding: 0px 20px;
-            }
-            .table {
-                width: 90%;
-                margin: 20px;
-                border: 1px solid rgba(0, 0, 0, 0.12);
-            }
-            .rows {
-                height: 95px;
-                font-size: 16px;
-                line-height: 20px;
-                font-weight: 400;
-            } */
             .header-row {
                 background-color: #e0e0e0;
-                /* font-size: 16px;
-                line-height: 20px;
-                font-weight: 400; */
             }
-            /* .columns {
-                background-color: red;
-            }
-             .menu-wrapper {
-                display: flex;
-                flex-direction: column;
-                height: 140px;
-                width: 135px;
-            }
-            .options-button {
-                display: flex;
-                background-color: #fff;
-                border: none;
-                align-items: center;
-                justify-content: center;
-                height: 40px;
-                width: 40px;
-            }
-            .ellipse {
-                display: flex;
-                font-size: 20px;
-                align-items: center;
-                justify-content: center;
-            }
-             .header-wrapper {
-                display: flex;
-                justify-content: left;
-                align-items: center;
-                height: 30px;
-            }
-            .header-wrapper span:nth-of-type(2) {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                margin: 7px 0px 0px 5px;
-            }
-            .descending-icon {
-                transform: rotate(180deg);
-                margin-bottom: 12px;
-            }
-            .none-selected {
-                display: flex;
-                flex-direction: column;
-                color: #808080;
-                width: 300px;
-                height: 200px;
-                text-align: center;
-                margin: 200px auto;
-            } */
         `,
     ],
 })

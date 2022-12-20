@@ -11,7 +11,12 @@ import {
 } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import {
+    MockComponent,
+    MockDirective,
+    MockModule,
+    MockProvider,
+} from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
@@ -23,8 +28,11 @@ describe('EventDetailsModalComponent', () => {
         component: EventDetailsModalComponent,
         providers: [
             MockProvider(MAT_DIALOG_DATA, new CalendarEvent()),
-            MockProvider(OrganisationService, { levelWithID: jest.fn(), buildings: [] }),
-            MockProvider(SettingsService, { get: jest.fn() })
+            MockProvider(OrganisationService, {
+                levelWithID: jest.fn(),
+                buildings: [],
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(ImageCarouselComponent),
@@ -32,7 +40,7 @@ describe('EventDetailsModalComponent', () => {
             MockComponent(IconComponent),
             MockComponent(UserAvatarComponent),
             MockComponent(AttendeeListComponent),
-            MockComponent(BindingDirective)
+            MockDirective(BindingDirective),
         ],
         imports: [MockModule(MatMenuModule)],
     });
@@ -44,7 +52,9 @@ describe('EventDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).event = new CalendarEvent({ system: { images: ['test.png'] }} as any);
+        (spectator.component as any).event = new CalendarEvent({
+            system: { images: ['test.png'] },
+        } as any);
         spectator.detectChanges();
         expect('image-carousel').toExist();
     });

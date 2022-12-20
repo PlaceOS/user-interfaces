@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
     selector: 'question-box',
-    template: ` <section class="box">
+    template: ` <div class="box">
         <input-title [placeholder]="'Page 1'" [fontSize]="'24'"></input-title>
         <input-title
             [placeholder]="'Description'"
@@ -18,7 +18,7 @@ import { Component, OnInit } from '@angular/core';
             </div>
         </div>
         <div class="question-wrapper"></div>
-    </section>`,
+    </div>`,
     styles: [
         `
             .box {

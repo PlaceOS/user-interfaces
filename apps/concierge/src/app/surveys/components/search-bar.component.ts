@@ -8,7 +8,7 @@ import { isThisSecond } from 'date-fns/esm';
 @Component({
     selector: 'search-bar',
     template: `
-        <section class="search-bar-wrapper">
+        <div class="search-bar-wrapper">
             <div class="search-input-box">
                 <span>
                     <input-title
@@ -70,7 +70,7 @@ import { isThisSecond } from 'date-fns/esm';
                     </div>
                 </div>
             </ng-template>
-        </section>
+        </div>
     `,
     styles: [
         `

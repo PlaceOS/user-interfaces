@@ -29,7 +29,7 @@ import {
     queryEvents,
 } from '@placeos/events';
 import { showSystem } from '@placeos/ts-client';
-import { getUnixTime } from 'date-fns';
+import { addMinutes, getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
 @Component({
@@ -193,7 +193,7 @@ export class BookCodeFlowComponent
     }
 
     public ngOnDestroy() {
-        if (this._video_el.nativeElement.srcObject) {
+        if (this._video_el?.nativeElement?.srcObject) {
             (this._video_el.nativeElement.srcObject as any)
                 .getTracks()
                 .forEach((track) => track?.stop());
@@ -217,7 +217,7 @@ export class BookCodeFlowComponent
     }
 
     public ngAfterViewInit() {
-        if (!navigator.mediaDevices?.getUserMedia) return;
+        if (!navigator.mediaDevices?.getUserMedia || this.loading) return;
         navigator.mediaDevices
             .getUserMedia({ video: true })
             .then((stream) => (this._video_el.nativeElement.srcObject = stream))
@@ -243,17 +243,28 @@ export class BookCodeFlowComponent
         }
     }
 
-    private async _checkinBooking(asset_id: string, type: BookingType = 'desk') {
+    private async _checkinBooking(
+        asset_id: string,
+        type: BookingType = 'desk'
+    ) {
         this.loading = true;
         const bookings = await queryBookings({
             period_start: getUnixTime(Date.now()),
-            period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+            period_end: getUnixTime(addMinutes(Date.now(), 5)),
             type,
         })
             .toPromise()
-            .catch((_) => []);
+            .catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
+            if (
+                item.booked_by_email.toLowerCase() === currentUser().email ||
+                item.user_email.toLowerCase() === currentUser().email
+            ) {
+                return notifyError(
+                    `Resource is booked by another user "${asset_id}"`
+                );
+            }
             await checkinBooking(item.id, true)
                 .toPromise()
                 .catch((_) => {
@@ -263,7 +274,7 @@ export class BookCodeFlowComponent
                     this.loading = false;
                     throw _;
                 });
-            notifySuccess(`Successfully checked in booking.`);
+            this._router.navigate(['/book', 'code', 'success']);
             this.loading = false;
         } else {
             this._booking_form.newForm(new Booking({ asset_id, type }));
@@ -295,7 +306,8 @@ export class BookCodeFlowComponent
                     this.loading = false;
                     throw _;
                 });
-            notifySuccess(`Successfully checked in booking.`);
+            this._router.navigate(['/book', 'code', 'success']);
+            this.loading = false;
         } else {
             const space = await showSystem(space_id).toPromise();
             if (space) {

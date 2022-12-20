@@ -299,8 +299,8 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     tabChanged(event: any): void {
-        console.log(this.tabGroup.selectedIndex);
-        console.log(event.index, 'index');
+        // console.log(this.tabGroup.selectedIndex);
+        // console.log(event.index, 'index');
     }
 
     checkTitle(): void {
@@ -319,6 +319,7 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
 
     async complete() {
         await this.surveyCreatorService.submitSurvey();
+        this.surveyCreatorService.clearSelectedQuestions();
         this.navigate();
     }
 
@@ -329,10 +330,6 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     navigate(): void {
-        console.log(
-            this.surveyCreatorService.current_building,
-            'current building'
-        );
         let found_id;
         this.buildingsService.buildings$.subscribe((buildings) => {
             const found_building = buildings.find(

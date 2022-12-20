@@ -84,9 +84,9 @@ export class CateringStateService extends BaseClass {
                 catchError((_) => of({} as PlaceMetadata))
             )
         ),
-        map((_) => _.details as CateringSettings),
+        map((_) => (_.details as CateringSettings) || {}),
         tap((_) =>
-            this._settings.post('require_catering_notes', !!_.require_notes)
+            this._settings.post('require_catering_notes', !!_?.require_notes)
         ),
         shareReplay(1)
     );

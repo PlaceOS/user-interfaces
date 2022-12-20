@@ -49,7 +49,9 @@ export class DesksStateService extends BaseClass {
 
     public readonly new_desks = this._new_desks.asObservable();
 
-    public get new_desk_count() { return this._new_desks.getValue()?.length || 0; }
+    public get new_desk_count() {
+        return this._new_desks.getValue()?.length || 0;
+    }
 
     public readonly loading = this._loading.asObservable();
 
@@ -79,7 +81,7 @@ export class DesksStateService extends BaseClass {
                 (i) =>
                     new Desk({
                         ...i,
-                        qr_code: "",
+                        qr_code: '',
                     })
             );
             return this._desks;
@@ -115,7 +117,7 @@ export class DesksStateService extends BaseClass {
                         extension_data: {
                             ..._.extension_data,
                             checkin_qr_code: generateQRCode(
-                                `/workplace/#/book/code?checkin=${encodeURIComponent(
+                                `/workplace/#/book/code?asset_id=${encodeURIComponent(
                                     _.asset_id
                                 )}`
                             ),
@@ -222,23 +224,25 @@ export class DesksStateService extends BaseClass {
 
     public async rejectAllDesks() {
         const list = this._desk_bookings || [];
-        if (list.length <= 0) return notifyInfo('No desks to reject for the selected date');
-        const resp = await openConfirmModal({
-            title: 'Cancel all desk bookings',
-            content:
-                'Are you sure you want to cancel all bookings for the selected date?',
-            icon: {
-                type: 'icon',
-                class: 'material-icons',
-                content: 'delete',
+        if (list.length <= 0)
+            return notifyInfo('No desks to reject for the selected date');
+        const resp = await openConfirmModal(
+            {
+                title: 'Cancel all desk bookings',
+                content:
+                    'Are you sure you want to cancel all bookings for the selected date?',
+                icon: {
+                    type: 'icon',
+                    class: 'material-icons',
+                    content: 'delete',
+                },
             },
-        }, this._dialog);
+            this._dialog
+        );
         if (resp.reason === 'done') return;
         resp.loading('Rejecting all desks for selected date...');
         await Promise.all(
-            list.map((desk) =>
-                rejectBooking(desk.id).toPromise()
-            )
+            list.map((desk) => rejectBooking(desk.id).toPromise())
         );
         notifySuccess(
             'Successfull rejected all desk bookings for selected date.'

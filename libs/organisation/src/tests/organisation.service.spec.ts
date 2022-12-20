@@ -67,10 +67,11 @@ describe('OrganisationService', () => {
             id: 'org-1',
         });
         (ts_client as any).queryZones = jest.fn(() => of({ data: blds }));
-        await spectator.service.loadBuildings();
+        const list = await spectator.service.loadBuildings();
+        (spectator.service as any)._buildings.next(list);
         await spectator.service.loadSettings();
-        expect(spectator.service.buildings).toHaveLength(2);
-        expect(spectator.service.buildings[0]).toBeInstanceOf(Building);
+        expect(list).toHaveLength(2);
+        expect(list[0]).toBeInstanceOf(Building);
         expect(spectator.service.building.id).toBe('bld-1');
         localStorage.setItem('PLACEOS.building', 'bld-2');
         await spectator.service.loadSettings();
@@ -84,11 +85,15 @@ describe('OrganisationService', () => {
     it('should load levels', async () => {
         const router = spectator.inject(Router);
         router.navigate.mockReset();
-        const blds = [{ id: 'bld-1' }]
-        const lvls = [{ id: 'lvl-1', parent_id: 'bld-2' }, { id: 'lvl-2', parent_id: 'bld-1' }];
+        const blds = [{ id: 'bld-1' }];
+        const lvls = [
+            { id: 'lvl-1', parent_id: 'bld-2' },
+            { id: 'lvl-2', parent_id: 'bld-1' },
+        ];
         (ts_client as any).showMetadata = jest.fn(() => of({ details: {} }));
         (ts_client as any).queryZones = jest.fn(() => of({ data: blds }));
-        await spectator.service.loadBuildings();
+        const list = await spectator.service.loadBuildings();
+        (spectator.service as any)._buildings.next(list);
         (ts_client as any).queryZones = jest.fn(() => of({ data: [] }));
         expect(router.navigate).not.toHaveBeenCalledWith(['/misconfigured']);
         await spectator.service.loadLevels();
@@ -122,7 +127,7 @@ describe('OrganisationService', () => {
         for (const { id } of spectator.service.buildings) {
             expect(ts_client.showMetadata).toBeCalledWith(id, 'workplace_app');
         }
-        expect(settings.overrides).toEqual([{}, {}, {}]);
+        expect(settings.overrides).toEqual([{}, {}, {}, {}]);
         settings.get.mockReset();
         (settings as any).app_name = 'another';
         await spectator.service.loadSettings();

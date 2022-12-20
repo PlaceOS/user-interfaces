@@ -47,12 +47,12 @@ export class CateringOrdersService extends BaseClass {
         this._poll,
     ]).pipe(
         debounceTime(500),
-        switchMap(([filters]) => {
+        switchMap(([{ date, zones }]) => {
             this._loading.next(true);
-            const start = getUnixTime(startOfDay(filters.date || Date.now()));
-            const end = getUnixTime(endOfDay(filters.date || Date.now()));
+            const start = getUnixTime(startOfDay(date || Date.now()));
+            const end = getUnixTime(endOfDay(date || Date.now()));
             return queryEvents({
-                zone_ids: (filters.zones || []).join(','),
+                zone_ids: (zones || []).join(','),
                 period_start: start,
                 period_end: end,
             });

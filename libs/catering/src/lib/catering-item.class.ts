@@ -34,6 +34,11 @@ export class CateringItem {
     /** Zones in which this item is not allow to be ordered in */
     public readonly hide_for_zones: string[];
 
+    public get custom_id() {
+        const options = this.option_list.map((_) => _.id).join('+');
+        return `${this.id}[${options}]`;
+    }
+
     constructor(data: Partial<CateringItem> = {}) {
         this.id = data.id || '';
         this.name = data.name || data.id || '';
@@ -43,10 +48,17 @@ export class CateringItem {
         this.quantity = data.quantity || 0;
         this.discount_cap = data.discount_cap || 0;
         this.accept_points = !!data.accept_points;
-        this.options = data.options || [];
         this.tags = data.tags || [];
         this.images = data.images || [];
-        this.option_list = this.options.filter((_) => _.active);
+        this.options = data.options || [];
+        this.option_list = this.options.filter((_) => _.active === true);
+        console.log(
+            'Options:',
+            this.name,
+            this.options,
+            this.option_list,
+            this.options.filter((_) => _.active === true)
+        );
         this.hide_for_zones = data.hide_for_zones || [];
         this.unit_price_with_options =
             this.unit_price +

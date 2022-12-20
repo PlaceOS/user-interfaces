@@ -128,7 +128,7 @@ export interface CateringConfigModalData {
             </div>
         </main>
         <footer
-            class="flex p-2 items-center justify-center border-none border-t border-solid border-gray-300"
+            class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
         >
             <button mat-button (click)="saveChanges()">Save Changes</button>
         </footer>

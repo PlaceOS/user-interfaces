@@ -8,15 +8,20 @@ import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/cat
 import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
+import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 
 describe('NewCateringOrderModalComponent', () => {
     let spectator: Spectator<NewCateringOrderModalComponent>;
     const createComponent = createRoutingFactory({
         component: NewCateringOrderModalComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn(), saveUserSetting: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                saveUserSetting: jest.fn(),
+            }),
             MockProvider(MAT_DIALOG_DATA, []),
-            MockProvider(OrganisationService, {})
+            MockProvider(OrganisationService, {}),
+            MockProvider(CateringOrderStateService, {}),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -24,7 +29,7 @@ describe('NewCateringOrderModalComponent', () => {
             MockComponent(CateringItemFiltersComponent),
             MockComponent(CateringItemListComponent),
         ],
-        imports: [MatDialogModule]
+        imports: [MatDialogModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -35,7 +40,7 @@ describe('NewCateringOrderModalComponent', () => {
     it('should show catering item list', () => {
         expect('catering-item-list').toExist();
     });
-    
+
     it('should show catering item filters', () => {
         expect('catering-item-filters').toExist();
     });
