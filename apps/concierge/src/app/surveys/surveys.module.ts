@@ -41,7 +41,9 @@ import { PlusButtonComponent } from './components/plus-button.component';
 import { MinusButtonComponent } from './components/minus-button.component';
 import { DragdropDirective } from './components/dragdrop.directive';
 
+import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
+import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
 
 const routes: Route[] = [
     { path: '', component: BuildingListComponent },
@@ -75,6 +77,7 @@ const COMPONENTS = [
     MinusButtonComponent,
     CompleteSurveyComponent,
     NotFoundComponent,
+    ModQuestionOverlayComponent
 ];
 
 @NgModule({
@@ -98,6 +101,7 @@ const COMPONENTS = [
         MatMenuModule,
         MatFormFieldModule,
         UIModule,
+        SurveySuiteModule,
         SurveyModule,
     ],
 })

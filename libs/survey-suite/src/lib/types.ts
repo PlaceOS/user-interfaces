@@ -1,10 +1,15 @@
+import { getEnumOptions } from "./helper";
+
 export enum QuestionType {
-    text = 'Text',
-    checkbox = 'Checkbox',
-    dropdown = 'Dropdown',
-    rating = 'Rating',
-    comment = 'Comment',
+    Single_Line_Text = 'singletext',
+    Multi_Select = 'multiselect',
+    Single_Select = 'singleselect',
+    Rating = 'rating',
+    Multi_Line_Text = 'multitext',
 }
+
+export const QuestionTypeOptions = getEnumOptions(QuestionType);
+
 export interface Question {
     selected?: boolean;
     type: QuestionType;
@@ -13,6 +18,13 @@ export interface Question {
     choices?: string[];
     rateValues?: number[];
     tags: string[];
+    isRequired?: boolean;
+    options?: Choice[];
+}
+
+export interface Choice{
+    text:string;
+    value?: string;
 }
 
 export enum Tag {
@@ -35,7 +47,7 @@ export class Survey {
     /** Building that survey is associated with */
     public readonly building_name: string;
     /** Level that survey is associated with */
-    public readonly level: string;
+    public readonly level?: string;
     /** Date of survey creation */
     public readonly date_created: string;
     /** Link to survey for user completion */

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subscription, BehaviorSubject, of } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
-import { Question, QuestionType } from '../survey-types';
+import { Question, QuestionType } from '@placeos/survey-suite';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 import { SearchService } from '../services/search.service';
 
@@ -231,7 +231,7 @@ export class EditQuestionBankComponent implements OnInit {
 
         found_question.type = event;
 
-        if (event == QuestionType.checkbox || QuestionType.dropdown) {
+        if (event == QuestionType.Multi_Select || QuestionType.Single_Select) {
             found_question.choices = ['Type a choice here...'];
         }
 

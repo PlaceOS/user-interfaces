@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Observable, fromEvent, BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from '../components/add-question-bank.component';
@@ -11,6 +10,8 @@ import { FormControl, Validators } from '@angular/forms';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { BuildingsService } from '../services/buildings.service';
+import { Question } from '@placeos/survey-suite';
+import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
 
 @Component({
     selector: 'design-preview-container',
@@ -277,12 +278,14 @@ export class DesignPreviewContainerComponent implements OnInit, AfterViewInit {
     }
 
     openAddQuestionBankDialog(): void {
-        this.addDialog.open(AddQuestionBankComponent, this.dialogConfig);
+        this.addDialog.open(ModQuestionOverlayComponent, this.dialogConfig);
         this.surveyCreatorService.newForm();
     }
 
     openEditQuestionBankDialog(): void {
-        this.addDialog.open(EditQuestionBankComponent, this.dialogConfig);
+        this.addDialog.open(EditQuestionBankComponent, {
+            height:'auto'
+        });
     }
     noReturnPredicate() {
         // return false;

@@ -3,7 +3,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model } from 'survey-core';
 import { SurveyNG } from 'survey-angular';
-import { Question, QuestionType, Tag, Survey } from '../survey-types';
+import { Question, QuestionType, Tag, Survey } from '@placeos/survey-suite';
 import {
     DragDropModule,
     CdkDragDrop,
@@ -95,40 +95,40 @@ export class SurveyCreatorService {
         //Mock question bank
         this.question_bank = [
             {
-                type: QuestionType.text,
+                type: QuestionType.Single_Line_Text,
                 name: '',
                 title: 'What feature did you like most?',
                 tags: [Tag.desk, Tag.room],
             },
             {
-                type: QuestionType.rating,
+                type: QuestionType.Rating,
                 name: '',
                 title: 'On a scale of 1-10, how likely would you recommend this space?',
                 rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 tags: [Tag.desk, Tag.room, Tag.parking],
             },
             {
-                type: QuestionType.dropdown,
+                type: QuestionType.Single_Select,
                 name: '',
                 title: 'What was this meeting booked for?',
                 choices: ['External calls', 'Internal calls', 'Rather not say'],
                 tags: [Tag.room],
             },
             {
-                type: QuestionType.comment,
+                type: QuestionType.Multi_Line_Text,
                 name: '',
                 title: 'Any additional feedback?',
                 tags: [Tag.desk, Tag.room],
             },
             {
-                type: QuestionType.checkbox,
+                type: QuestionType.Multi_Select,
                 name: '',
                 title: 'Which features were available?',
                 choices: ['whiteboard', 'jamboard'],
                 tags: [Tag.room],
             },
             {
-                type: QuestionType.dropdown,
+                type: QuestionType.Single_Select,
                 name: '',
                 title: 'Was the parking space easy to find?',
                 choices: ['Yes', 'No'],

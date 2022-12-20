@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Question, Tag } from '../survey-types';
+import { Question, Tag } from '@placeos/survey-suite';
 import { SurveyCreatorService } from './survey-creator.service';
 import { Observable, BehaviorSubject } from 'rxjs';
 

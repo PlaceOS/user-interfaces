@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Question } from '../survey-types';
+import { Question } from '@placeos/survey-suite';
 
 @Component({
     selector: 'question-list-item',

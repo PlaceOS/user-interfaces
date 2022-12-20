@@ -2,7 +2,7 @@ import { ConstantPool } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SurveyCreatorService } from './survey-creator.service';
-import { Question, QuestionType } from '../survey-types';
+import { Question, QuestionType } from '@placeos/survey-suite';
 
 @Injectable({
     providedIn: 'root',
@@ -10,7 +10,7 @@ import { Question, QuestionType } from '../survey-types';
 export class QuestionCreatorService {
     //Store of selected question type
     private _selected_tag: BehaviorSubject<string> =
-        new BehaviorSubject<string>(QuestionType.rating);
+        new BehaviorSubject<string>(QuestionType.Rating);
 
     get selected_tag() {
         return this._selected_tag.getValue();

@@ -13,7 +13,7 @@ import { BuildingsService } from '../services/buildings.service';
         <sidebar class="h-full"></sidebar>
         <main class="flex flex-col flex-1 relative h-full bg-white dark:bg-neutral-600 pt-4 overflow-y-auto">
             <section>
-
+                <placeos-survey-builder></placeos-survey-builder>
                 <div class="flex flex-col">
                     <div class="flex w-full items-center justify-between py-4 bg-white max-w-[68rem] m-auto">
                         <span class="text-2xl">{{building_count}} Building{{building_count > 1 ? 's':''}}</span>

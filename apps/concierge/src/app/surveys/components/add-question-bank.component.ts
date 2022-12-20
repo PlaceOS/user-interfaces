@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { Question, QuestionType, Tag } from '../survey-types';
 import { SurveyCreatorService } from '../services/survey-creator.service';
+import { Question, QuestionType, Tag } from '@placeos/survey-suite';
 
 @Component({
     selector: 'add-question-bank',
@@ -182,6 +182,7 @@ export class AddQuestionBankComponent implements OnInit {
             rateValues: [],
             choices: [],
             tags: [],
+            isRequired: false
         };
     }
 

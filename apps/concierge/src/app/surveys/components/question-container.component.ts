@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Question, QuestionType } from '../survey-types';
+import { Question, QuestionType } from '@placeos/survey-suite';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 
 @Component({
@@ -9,13 +9,13 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
             <div class="new-question">
                 <ng-container
                     [ngTemplateOutlet]="
-                        question_type == QuestionType.text
+                        question_type == QuestionType.Single_Line_Text
                             ? Text
-                            : question_type == QuestionType.checkbox
+                            : question_type == QuestionType.Multi_Select
                             ? Checkbox
-                            : question_type == QuestionType.comment
+                            : question_type == QuestionType.Multi_Line_Text
                             ? Comment
-                            : question_type == QuestionType.dropdown
+                            : question_type == QuestionType.Single_Select
                             ? Dropdown
                             : Rating
                     "
@@ -197,13 +197,14 @@ export class QuestionContainerComponent implements OnInit {
     public QuestionType = QuestionType;
     placeholder_choice: string = 'Type a choice here...';
     placeholder_question_text: Question = {
-        type: QuestionType.text || QuestionType.comment || QuestionType.rating,
+        type: QuestionType.Single_Line_Text || QuestionType.Multi_Line_Text || QuestionType.Rating,
         title: 'Type a question...',
         name: '',
         tags: [],
+        isRequired: false
     };
     placeholder_question_select: Question = {
-        type: QuestionType.checkbox || QuestionType.dropdown,
+        type: QuestionType.Single_Select || QuestionType.Multi_Select,
         title: 'Type a question...',
         name: '',
         choices: [this.placeholder_choice],
@@ -213,7 +214,7 @@ export class QuestionContainerComponent implements OnInit {
     constructor(public surveyCreatorService: SurveyCreatorService) {}
 
     ngOnInit(): void {
-        this.question_type = this.question?.type || QuestionType.rating;
+        this.question_type = this.question?.type || QuestionType.Rating;
         this.selected_type = this.question_type;
     }
     updateSelectedTag() {
@@ -222,8 +223,8 @@ export class QuestionContainerComponent implements OnInit {
         this.surveyCreatorService.newForm();
         this.surveyCreatorService.clearChoicesValidators();
         if (
-            this.selected_type === QuestionType.checkbox ||
-            this.selected_type === QuestionType.dropdown
+            this.selected_type === QuestionType.Multi_Select ||
+            this.selected_type === QuestionType.Single_Select
         ) {
             this.surveyCreatorService.updateValidators();
         }

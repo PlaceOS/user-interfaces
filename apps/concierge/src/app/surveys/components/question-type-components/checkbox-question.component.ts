@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Question } from '../../survey-types';
+import { Question } from '@placeos/survey-suite';
 import { SurveyCreatorService } from '../../services/survey-creator.service';
 import { QuestionCreatorService } from '../../services/question-creator.service';
 import { FormGroup, FormControl } from '@angular/forms';
