@@ -42,6 +42,12 @@ import { CateringItem } from '../catering-item.class';
                             {{ item.unit_price / 100 | currency: code }}
                         </p>
                         <div
+                            class="text-xs px-2 py-1 rounded-2xl shadow border border-gray-100"
+                            *ngIf="item.option_list.length"
+                        >
+                            {{ options }}
+                        </div>
+                        <div
                             class="text-xs h-5 w-7 rounded-xl shadow bg-green-500 flex items-center justify-center"
                             *ngIf="item.tags?.includes('Gluten Free')"
                         >
@@ -96,4 +102,8 @@ export class CateringItemListItemComponent {
     @Input() public favourite = false;
     @Output() public toggleFav = new EventEmitter();
     @Output() public select = new EventEmitter();
+
+    public get options() {
+        return this.item.option_list.map((_) => _.name).join(', ');
+    }
 }

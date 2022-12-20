@@ -17,7 +17,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
         <div class="w-full h-full overflow-auto py-2">
             <ng-container *ngIf="(custom_items | async)?.length">
                 <h3 class="font-bold px-2">Custom Items</h3>
-                <p count class="text-sm opacity-60 mb-4 px-2">
+                <p count class="text-sm opacity-60 mb-2 px-2">
                     {{ (custom_items | async)?.length || 0 }} items(s)
                 </p>
 
@@ -35,7 +35,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                 </ul>
             </ng-container>
             <h3 class="font-bold px-2">Results</h3>
-            <p count class="text-sm opacity-60 mb-4 px-2">
+            <p count class="text-sm opacity-60 mb-2 px-2">
                 {{ (item_list | async)?.length || 0 }} result(s) found
             </p>
             <ng-container *ngIf="!(loading | async); else load_state">
