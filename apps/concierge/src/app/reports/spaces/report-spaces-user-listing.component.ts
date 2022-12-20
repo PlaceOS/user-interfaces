@@ -72,7 +72,9 @@ export class ReportSpacesUserListingComponent {
                     };
                     list.push(details);
                 }
-                if (!booking.extension_data.people_count) details.no_shows += 1;
+                if (booking.extension_data?.people_count?.max === 0) {
+                    details.no_shows += 1;
+                }
                 details.count += 1;
                 details.attendees += booking.attendees.length;
             }

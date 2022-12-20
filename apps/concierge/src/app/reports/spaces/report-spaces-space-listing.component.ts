@@ -59,7 +59,7 @@ export class ReportSpacesSpaceListing {
                             count: 0,
                             attendance: 0,
                             avg_attendance: 0,
-                            min_attendance: 0,
+                            min_attendance: 99,
                             max_attendance: 0,
                             attendees: 0,
                             avg_attendees: 0,
@@ -71,17 +71,22 @@ export class ReportSpacesSpaceListing {
                         if (!details.id || !details.name) continue;
                         list.push(details);
                     }
-                    if (!booking.extension_data.people_count)
+                    if (booking.extension_data?.people_count?.max === 0) {
                         details.no_shows += 1;
+                    }
                     details.count += 1;
                     details.attendance +=
                         booking.extension_data?.people_count?.max ?? 0;
                     details.avg_attendance +=
                         booking.extension_data?.people_count?.avg ?? 0;
-                    details.min_attendance +=
-                        booking.extension_data?.people_count?.min ?? 0;
-                    details.max_attendance +=
-                        booking.extension_data?.people_count?.max ?? 0;
+                    details.min_attendance += Math.min(
+                        details.max_attendance,
+                        booking.extension_data?.people_count?.max ?? 99
+                    );
+                    details.max_attendance = Math.max(
+                        details.max_attendance,
+                        booking.extension_data?.people_count?.max ?? 0
+                    );
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
                     has_attendance =
@@ -102,6 +107,8 @@ export class ReportSpacesSpaceListing {
                         (space.usage / 60 / 8 / period_in_days) * 10000
                     ) / 100
                 }%`;
+                space.min_attendance =
+                    space.min_attendance === 99 ? '?' : space.min_attendance;
                 space.occupancy = `${
                     Math.floor((space.avg_attendees / space.capacity) * 10000) /
                     100
