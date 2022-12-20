@@ -69,7 +69,7 @@ export class ReportSpacesOverallComponent {
         map((i) => i.count || 0)
     );
     public readonly avg_length = this._state.stats.pipe(
-        map((i) => formatDuration({ minutes: i.avg_length || 0 }))
+        map((i) => formatDuration({ minutes: Math.floor(i.avg_length || 0) }))
     );
     public readonly attendance = this._state.stats.pipe(
         map(({ events }) =>

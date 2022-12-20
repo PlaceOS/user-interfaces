@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { User } from '@placeos/users';
+import { formatDuration } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -26,14 +27,14 @@ import { ReportsStateService } from '../reports-state.service';
                     'name',
                     'count',
                     'avg_attendees',
-                    'occupancy',
+                    'total_time',
                     'no_shows'
                 ]"
                 [display_column]="[
                     'Name',
                     'Bookings',
-                    'Avg. Attendees',
-                    'Occupancy',
+                    'Avg. Invitees per Booking',
+                    'Total Booked Time',
                     'No Shows'
                 ]"
                 [column_size]="['flex']"
@@ -69,6 +70,7 @@ export class ReportSpacesUserListingComponent {
                         avg_attendees: 0,
                         no_shows: 0,
                         occupancy: 0,
+                        total_time: 0,
                     };
                     list.push(details);
                 }
@@ -77,6 +79,7 @@ export class ReportSpacesUserListingComponent {
                 }
                 details.count += 1;
                 details.attendees += booking.attendees.length;
+                details.total_time += booking.duration || 15;
             }
             for (const space of list) {
                 space.avg_attendees =
@@ -84,6 +87,10 @@ export class ReportSpacesUserListingComponent {
                 space.occupancy =
                     Math.floor((space.avg_attendees / space.capacity) * 100) /
                     100;
+                space.total_time = formatDuration({
+                    hours: Math.floor(space.total_time.duration / 60),
+                    minutes: space.total_time % 60,
+                });
             }
             return list;
         }),

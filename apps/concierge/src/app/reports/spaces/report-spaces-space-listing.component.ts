@@ -102,16 +102,14 @@ export class ReportSpacesSpaceListing {
                     Math.floor((space.attendees / space.count) * 100) / 100;
                 space.avg_attendance =
                     Math.floor((space.attendance / space.count) * 100) / 100;
-                space.utilisation = `${
-                    Math.floor(
-                        (space.usage / 60 / 8 / period_in_days) * 10000
-                    ) / 100
-                }%`;
+                space.utilisation = `${Math.floor(
+                    (space.usage / 60 / 8 / period_in_days) * 100
+                )}%`;
                 space.min_attendance =
                     space.min_attendance === 99 ? '?' : space.min_attendance;
                 space.occupancy = `${
-                    Math.floor((space.avg_attendees / space.capacity) * 10000) /
-                    100
+                    Math.floor((space.avg_attendees / space.capacity) * 1000) /
+                    10
                 }%`;
                 if (space.attendance < 0 || !has_attendance) {
                     space.attendance = '?';
