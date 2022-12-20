@@ -64,12 +64,15 @@ export class ReportSpacesSpaceListing {
                             attendees: 0,
                             avg_attendees: 0,
                             usage: 0,
+                            no_shows: 0,
                             utilisation: 0,
                             occupancy: 0,
                         };
                         if (!details.id || !details.name) continue;
                         list.push(details);
                     }
+                    if (!booking.extension_data.people_count)
+                        details.no_shows += 1;
                     details.count += 1;
                     details.attendance +=
                         booking.extension_data?.people_count?.max ?? 0;
