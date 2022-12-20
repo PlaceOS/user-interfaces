@@ -88,7 +88,7 @@ export class ReportSpacesUserListingComponent {
                     Math.floor((space.avg_attendees / space.capacity) * 100) /
                     100;
                 space.total_time = formatDuration({
-                    hours: Math.floor(space.total_time.duration / 60),
+                    hours: Math.floor(space.total_time / 60),
                     minutes: space.total_time % 60,
                 });
             }
