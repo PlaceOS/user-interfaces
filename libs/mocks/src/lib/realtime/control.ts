@@ -44,10 +44,11 @@ class RoomModule {
 
     public readonly inputs;
     public readonly outputs;
+    public readonly available_outputs;
     public readonly environment;
 
     public readonly help = {
-        'help': {
+        help: {
             title: 'Help',
             content: `
 # Using the asset browser
@@ -69,31 +70,31 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
 1. Test1
 2. Test2
 3. Test3
-            `
+            `,
         },
         'laptop-help': {
             icon: 'web_asset',
             title: 'Asset Browser',
-            content: `# Test 2`
-        }
-    }
+            content: `# Test 2`,
+        },
+    };
 
-    public tabs =[
+    public tabs = [
         {
-           icon: "laptop",
-           name: "Laptop",
-           type: 'Display',
-           inputs: ['Display_1'],
-           help: "laptop-help"
-         },
+            icon: 'laptop',
+            name: 'Laptop',
+            type: 'Display',
+            inputs: ['Display_1'],
+            help: 'laptop-help',
+        },
         {
-           icon: "call",
-           name: "VC",
-           inputs: ["VidConf_1"],
-           help: "vidconf-help",
-           controls: "vidconf-controls"
-         },
-      ]
+            icon: 'call',
+            name: 'VC',
+            inputs: ['VidConf_1'],
+            help: 'vidconf-help',
+            controls: 'vidconf-controls',
+        },
+    ];
 
     public volume = 0;
 
@@ -106,6 +107,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
         this.env_sources = _data.env_sources || [];
         this.inputs = Object.keys(this.input_list || {}) || [];
         this.outputs = Object.keys(this.output_list || {}) || [];
+        this.available_outputs = this.outputs;
         const types = unique(this.env_sources.map((_) => _.type)) || [];
         types.forEach(
             (t) =>

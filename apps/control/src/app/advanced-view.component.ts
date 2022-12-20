@@ -46,6 +46,7 @@ import { ControlStateService } from './control-state.service';
     styles: [
         `
             :host {
+                position: relative;
                 display: flex;
                 width: 100%;
                 height: 100%;
