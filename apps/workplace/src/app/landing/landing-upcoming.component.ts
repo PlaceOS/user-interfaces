@@ -12,20 +12,22 @@ import { LandingStateService } from './landing-state.service';
     template: `
         <div class="py-2">
             <div class="flex items-center justify-between mb-2 sm:mb-4 px-4">
-                <div class="sm:text-lg font-medium">{{ "WPA.YOUR_BOOKINGS" | translate }}</div>
+                <div class="sm:text-lg font-medium">
+                    {{ 'WPA.YOUR_BOOKINGS' | translate }}
+                </div>
                 <a
                     button
                     mat-button
                     class="inverse hidden sm:block"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ "WPA.VIEW_ALL" | translate }}
+                    {{ 'WPA.VIEW_ALL' | translate }}
                 </a>
                 <a
                     class="inverse block sm:hidden text-blue-500 underline relative top-8"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ "WPA.VIEW_ALL" | translate }}
+                    {{ 'WPA.VIEW_ALL' | translate }}
                 </a>
             </div>
             <div class="space-y-4 px-4">
@@ -34,7 +36,7 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <ng-container
                         *ngFor="
-                            let event of upcoming_events | async | slice: 0:3;
+                            let event of upcoming_events | async | slice: 0:5;
                             trackBy: trackByFn
                         "
                     >
@@ -62,7 +64,9 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full p-8 flex flex-col items-center justify-center space-y-4"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
-                <p class="opacity-30">{{ "WPA.NO_UPCOMING_BOOKINGS" | translate }}</p>
+                <p class="opacity-30">
+                    {{ 'WPA.NO_UPCOMING_BOOKINGS' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
@@ -111,16 +115,18 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
             { title: `Delete booking`, content, icon: { content: 'delete' } },
             this._dialog
         );
-        console
+        console;
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             item.id
-        ).toPromise().catch(e => {
-            notifyError(`Unable to delete booking. ${e}`);
-            resp.close();
-            throw e;
-        });
+        )
+            .toPromise()
+            .catch((e) => {
+                notifyError(`Unable to delete booking. ${e}`);
+                resp.close();
+                throw e;
+            });
         notifySuccess('Successfully deleted booking.');
         resp.close();
     }
