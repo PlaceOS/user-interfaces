@@ -5,7 +5,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 import { BaseClass } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
-import { EventDetailsModalComponent } from './event-details-modal.component'
+import { EventDetailsModalComponent } from './event-details-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 @Component({
@@ -189,7 +189,7 @@ export class EventCardComponent extends BaseClass {
         const zone =
             this._org.levelWithID(this.event.space?.zones) ||
             this._org.buildings.find((_) =>
-                this.event.space?.zones.includes(_.id)
+                this.event.space?.zones?.includes(_.id)
             );
         return `${zone ? (zone.display_name || zone.name) + ', ' : ''} ${
             this.event.space?.display_name || this.event.space?.name
@@ -211,10 +211,18 @@ export class EventCardComponent extends BaseClass {
 
     public viewDetails() {
         if (!this.event) return;
-        this.timeout('open', () =>{
-            const ref = this._dialog.open(EventDetailsModalComponent, { data: this.event });
-            this.subscription('edit', ref.componentInstance.edit.subscribe(() => this.edit.emit()));
-            this.subscription('remove', ref.componentInstance.remove.subscribe(() => this.remove.emit()));
+        this.timeout('open', () => {
+            const ref = this._dialog.open(EventDetailsModalComponent, {
+                data: this.event,
+            });
+            this.subscription(
+                'edit',
+                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+            );
+            this.subscription(
+                'remove',
+                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+            );
         });
     }
 }
