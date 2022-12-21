@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BaseClass, unique } from '@placeos/common';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 
@@ -31,7 +31,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         <div
             class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
         >
-            <mat-form-field levels appearance="outline" class="w-full h-[3.25rem]">
+            <mat-form-field
+                levels
+                appearance="outline"
+                class="w-full h-[3.25rem]"
+            >
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
@@ -85,7 +89,12 @@ export class DeskMapComponent extends BaseClass implements OnInit {
     }
 
     public readonly levels = this._state.available_assets.pipe(
-        map((desks) => unique(desks.map((desk) => desk.zone)))
+        map((desks) =>
+            unique(
+                desks.map((desk) => desk.zone),
+                'id'
+            )
+        )
     );
 
     public readonly actions = this._state.available_assets.pipe(
@@ -117,8 +126,10 @@ export class DeskMapComponent extends BaseClass implements OnInit {
     ngOnInit(): void {
         this.subscription(
             'levels_update',
-            this.levels.pipe(distinctUntilChanged()).subscribe((levels) => {
-                this.level = levels[0];
+            this.levels.subscribe((levels) => {
+                if (!levels.find((_) => _.id === this.level?.id)) {
+                    this.level = levels[0];
+                }
             })
         );
     }

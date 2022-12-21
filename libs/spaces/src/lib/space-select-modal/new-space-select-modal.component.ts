@@ -18,6 +18,26 @@ import { Space } from '../space.class';
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Space</h3>
+                <div class="hidden sm:flex items-center justify-end flex-1">
+                    <button
+                        mat-button
+                        map
+                        class="rounded-l rounded-r-none"
+                        [class.inverse]="view !== 'map'"
+                        (click)="view = 'map'"
+                    >
+                        Map
+                    </button>
+                    <button
+                        mat-button
+                        list
+                        class="rounded-r rounded-l-none"
+                        [class.inverse]="view !== 'list'"
+                        (click)="view = 'list'"
+                    >
+                        List
+                    </button>
+                </div>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -104,8 +124,9 @@ import { Space } from '../space.class';
                         <app-icon class="text-xl">{{
                             isSelected(displayed?.id) ? 'remove' : 'add'
                         }}</app-icon>
-                        <div class="mr-1"s>
-                            { isSelected(displayed?.id), select, true { Remove from Booking } false { Add to booking } }
+                        <div class="mr-1" s>
+                            { isSelected(displayed?.id), select, true { Remove
+                            from Booking } false { Add to booking } }
                         </div>
                     </div>
                 </button>
