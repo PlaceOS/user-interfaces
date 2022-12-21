@@ -478,6 +478,10 @@ export class EventFormService extends BaseClass {
                 catering.notes = value.catering_notes;
                 catering.charge_code = value.catering_charge_code;
             }
+            const attendees = unique(
+                [...value.attendees, value.organiser || currentUser()],
+                'email'
+            );
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
@@ -487,6 +491,7 @@ export class EventFormService extends BaseClass {
                             ? value.resources[0].email
                             : '') ||
                         value.host,
+                    attendees,
                     date: d,
                     catering,
                 }),
