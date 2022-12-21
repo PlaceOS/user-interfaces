@@ -1,7 +1,6 @@
-
 export interface AssetResource {
     id?: string;
-    name: string,
+    name: string;
     url: string;
     price?: number;
 }
@@ -28,6 +27,7 @@ export class Asset {
     public readonly description: string;
     public readonly specifications: Record<string, string>;
     public readonly purchase_date: number;
+    public readonly purchase_price: number;
     public readonly purchase_details: AssetPurchase[];
     public readonly consumables: AssetDetail[];
     public readonly general_details: AssetDetail[];
@@ -47,6 +47,7 @@ export class Asset {
         this.description = _data.description || '';
         this.specifications = _data.specifications || {};
         this.purchase_date = _data.purchase_date * 1000 || Date.now();
+        this.purchase_price = _data.purchase_price || 0;
         this.purchase_details = _data.purchase_details || [];
         this.consumables = _data.consumables || [];
         this.general_details = _data.general_details || [];
