@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1671589611354,
+  "timestamp": 1671592221619,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -309,7 +309,7 @@
     "./common.js": "8b52eb3358fcabfba61ff83fc1cd151bcc0809c0",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2d0733538048080dc1886ef3bc247e17699895a8",
-    "./main.js": "7f0b30fbfa3b4bd8f8a973eb279b658eddf98a4f",
+    "./main.js": "56cbe09dc62f8294b79d60ccf68341911cba23b1",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "00abef50e7ee128848c72792fd231064e7e4dd3d",
     "./polyfills.js": "64298df3136fc2535813b562c6dd49dbff47ead4",
