@@ -65,7 +65,14 @@ export class ScheduleStateService extends BaseClass {
                             .listen()
                             .pipe(
                                 map((_) =>
-                                    (_ || []).map((i) => new CalendarEvent(i))
+                                    (_ || []).map(
+                                        (i) =>
+                                            new CalendarEvent({
+                                                ...i,
+                                                resources: [_],
+                                                system: _,
+                                            })
+                                    )
                                 )
                             );
                         if (!this.hasSubscription(`bind:${_.id}`)) {
