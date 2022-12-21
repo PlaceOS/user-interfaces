@@ -252,24 +252,12 @@ export class BookCodeFlowComponent
             period_start: getUnixTime(Date.now()),
             period_end: getUnixTime(addMinutes(Date.now(), 5)),
             type,
+            email: currentUser().email,
         })
             .toPromise()
             .catch((_) => [] as Booking[]);
-        console.log('Bookings:', bookings);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
-            const email = currentUser().email.toLowerCase();
-            console.log('Items:', item, email);
-            if (
-                !(
-                    item.booked_by_email.toLowerCase() === email ||
-                    item.user_email.toLowerCase() === email
-                )
-            ) {
-                return notifyError(
-                    `Resource is booked by another user "${asset_id}"`
-                );
-            }
             await checkinBooking(item.id, true)
                 .toPromise()
                 .catch((_) => {
@@ -282,6 +270,19 @@ export class BookCodeFlowComponent
             this._router.navigate(['/book', 'code', 'success']);
             this.loading = false;
         } else {
+            const bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                type,
+            })
+                .toPromise()
+                .catch((_) => [] as Booking[]);
+            const item = bookings.find((_) => _.asset_id === asset_id);
+            if (item) {
+                return notifyError(
+                    `Resource is booked by another user "${asset_id}"`
+                );
+            }
             this._booking_form.newForm(new Booking({ asset_id, type }));
             this._booking_form.setOptions({ type });
             this._router.navigate(['/book', 'newdesk']);
