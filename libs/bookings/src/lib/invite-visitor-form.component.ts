@@ -15,7 +15,7 @@ import { User } from '@placeos/users';
     template: `
         <ng-container *ngIf="!sent; else send_state">
             <div
-                class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto"
+                class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto max-h-full"
                 *ngIf="!(loading | async); else load_state"
             >
                 <div
@@ -25,7 +25,9 @@ import { User } from '@placeos/users';
                 </div>
                 <form *ngIf="form" [formGroup]="form" class="p-4">
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
-                        <label for="building" i18n>Building<span>*</span></label>
+                        <label for="building" i18n
+                            >Building<span>*</span></label
+                        >
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [ngModel]="form.value.zones[0]"
@@ -64,7 +66,9 @@ import { User } from '@placeos/users';
                             ></a-time-field>
                         </div>
                         <div class="flex-1 flex flex-col w-1/3">
-                            <label for="end-time" i18n>End Time<span>*</span></label>
+                            <label for="end-time" i18n
+                                >End Time<span>*</span></label
+                            >
                             <a-duration-field
                                 name="end-time"
                                 formControlName="duration"
@@ -120,7 +124,9 @@ import { User } from '@placeos/users';
                                 (focus)="filterVisitors(form.value.asset_id)"
                                 [matAutocomplete]="email_auto"
                             />
-                            <mat-error i18n>A valid email is required</mat-error>
+                            <mat-error i18n
+                                >A valid email is required</mat-error
+                            >
                         </mat-form-field>
                         <mat-autocomplete #email_auto="matAutocomplete">
                             <mat-option
@@ -166,7 +172,7 @@ import { User } from '@placeos/users';
                     </div>
                 </form>
                 <div
-                    class="sticky p-4 border-t border-gray-200 dark:border-neutral-500 bottom-0"
+                    class="sticky p-4 border-t bg-white border-gray-200 dark:border-neutral-500 bottom-0"
                 >
                     <button
                         mat-button
@@ -208,7 +214,12 @@ import { User } from '@placeos/users';
                     <div
                         class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >
-                        <button mat-button class="flex-1" (click)="onDone()" i18n>
+                        <button
+                            mat-button
+                            class="flex-1"
+                            (click)="onDone()"
+                            i18n
+                        >
                             Great, thanks
                         </button>
                         <button
@@ -344,7 +355,7 @@ export class InviteVisitorFormComponent extends BaseClass {
         this.sent = true;
     }
 
-    private async initFormZone(){
+    private async initFormZone() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._service.setOptions({ type: 'visitor' });
         this.form.patchValue({ zones: [this._org.building?.id] });
