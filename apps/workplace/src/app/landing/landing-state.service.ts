@@ -28,6 +28,7 @@ import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
+import { isAfter } from 'date-fns';
 
 export interface LandingOptions {
     search?: string;
@@ -83,7 +84,9 @@ export class LandingStateService extends BaseClass {
         shareReplay(1)
     );
     /**  */
-    public readonly upcoming_events = this._schedule.filtered_bookings;
+    public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
+        map((_) => _.filter((i) => isAfter(i.date, Date.now())))
+    );
     /**  */
     public contacts = this._contacts.asObservable();
     /**  */
