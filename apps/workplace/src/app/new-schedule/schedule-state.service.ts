@@ -63,8 +63,8 @@ export class ScheduleStateService extends BaseClass {
                             'bookings'
                         );
                         const obs = binding.listen().pipe(
-                            map((_) =>
-                                (_ || []).map(
+                            map((event_list) =>
+                                (event_list || []).map(
                                     (i) =>
                                         new CalendarEvent({
                                             ...i,
