@@ -4,7 +4,6 @@ import { SurveyBuilderComponent } from './survey-builder/survey-builder.componen
 import { QuestionComponent } from './question/question.component';
 import { SingleLineTextComponent } from './question/single-line-text.component';
 import { MultiLineTextComponent } from './question/multi-line-text.component';
-import { MultiSelectComponent } from './question/multi-select.component';
 import { RatingsComponent } from './question/rating.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SelectionComponent } from './question/selection.component';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
     imports: [
@@ -25,7 +25,8 @@ import { SelectionComponent } from './question/selection.component';
         MatSlideToggleModule,
         MatInputModule,
         MatIconModule,
-        MatButtonModule
+        MatButtonModule,
+        MatSliderModule
     ],
     declarations: [
         SurveyBuilderComponent,
@@ -33,7 +34,6 @@ import { SelectionComponent } from './question/selection.component';
         SingleLineTextComponent,
         SelectionComponent,
         MultiLineTextComponent,
-        MultiSelectComponent,
         RatingsComponent,
     ],
     exports: [SurveyBuilderComponent, QuestionComponent],

@@ -5,15 +5,14 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
     selector: 'placeos-question',
     styles: [],
     template: `
-        <div class="shadow flex flex-col w-full items-center justify-between px-4 py-2">
-            <ng-container *ngIf="!readonly; else previewTitle">
+        <div class="border bg-white shadow flex flex-col w-full items-center justify-between px-4 py-2">
+            <ng-container *ngIf="!preview; else previewTitle">
                 <mat-form-field class="w-full" appearance="outline">
                     <input
                         matInput
                         placeholder="Enter your question here"
                         type="text"
-                        [(ngModel)]="question.title"
-                        [disabled]="readonly">
+                        [(ngModel)]="question.title">
                     <mat-error class="input-error" *ngIf="!question?.title">Please enter a question</mat-error>
                 </mat-form-field>
             </ng-container>
@@ -24,27 +23,27 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
 
             <div class="flex flex-col w-full mb-4" [ngSwitch]="question.type">
                 <ng-container *ngSwitchCase="QuestionType.Multi_Line_Text">
-                    <multi-line-text [question]="question" [readonly]="readonly"></multi-line-text>
+                    <multi-line-text [question]="question" [preview]="preview"></multi-line-text>
                 </ng-container>
 
                 <ng-container *ngSwitchCase="QuestionType.Single_Line_Text">
-                    <single-line-text [question]="question" [readonly]="readonly"></single-line-text>
+                    <single-line-text [question]="question" [preview]="preview"></single-line-text>
                 </ng-container>
 
                 <ng-container *ngSwitchCase="QuestionType.Multi_Select">
-                    <selection [value]="question" [readonly]="readonly"></selection>
+                    <selection [value]="question" [preview]="preview"></selection>
                 </ng-container>
 
                 <ng-container *ngSwitchCase="QuestionType.Single_Select">
-                    <selection [value]="question" [readonly]="readonly"></selection>
+                    <selection [value]="question" [preview]="preview"></selection>
                 </ng-container>
 
                 <ng-container *ngSwitchCase="QuestionType.Rating">
-                    <rating [value]="question" [readonly]="readonly"></rating>
+                    <rating [value]="question" [preview]="preview"></rating>
                 </ng-container>
             </div>
 
-            <div class="flex flex-row w-full items-center justify-end space-x-4" *ngIf="!readonly">
+            <div class="flex flex-row w-full items-center justify-end space-x-4" *ngIf="!preview">
                 <mat-form-field appearance="none" class="h-[2rem]">
                     <div class="mat-form-field-wrapper" style="margin-bottom: 0;">
                         <mat-select [(ngModel)]="question.type">
@@ -59,16 +58,13 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
                 </mat-form-field>
 
                 <mat-slide-toggle [(ngModel)]="question.isRequired"> Required</mat-slide-toggle>
-                <mat-slide-toggle [(ngModel)]="readonly"> Preview</mat-slide-toggle>
-                <!-- <button mat-icon-button color="warn" >
-                    <mat-icon>delete_outline</mat-icon>
-                </button> -->
+                <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->
             </div>
         </div>
     `,
 })
 export class QuestionComponent implements OnInit {
-    @Input() readonly: boolean = false;
+    @Input() preview: boolean = false;
     @Input() set value(value: Question) {
         if (value) {
             this.question = value;
@@ -85,9 +81,9 @@ export class QuestionComponent implements OnInit {
     constructor() {}
 
     public get valid(){
-        if(!this.question) return false;
+        if(!this.question?.title) return false;
         const q = this.question;
-        let valid = !!q.title;
+        let valid = false;
 
         switch(q.type){
             case QuestionType.Single_Select:
@@ -96,7 +92,7 @@ export class QuestionComponent implements OnInit {
                 valid = !!checkop?.length && checkop.reduce((acc,val) => acc && val);
                 break;
             case QuestionType.Rating:
-                valid = !!q.rateValues?.length;
+                valid = q.rateMax >= 3;
         }
 
         return valid;

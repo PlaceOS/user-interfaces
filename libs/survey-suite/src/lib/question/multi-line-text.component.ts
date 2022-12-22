@@ -6,7 +6,7 @@ import { BaseQuestionComponent } from "./base-question.component";
     selector: 'multi-line-text',
     styles: [],
     template: `
-        <div class="flex flex-col w-full" *ngIf="readonly">
+        <div class="flex flex-col w-full" *ngIf="preview">
             <mat-form-field appearance="outline">
                 <textarea matInput cols="30" rows="5"></textarea>
                 <mat-hint>*Type your answer above. Multiple lines supported</mat-hint>

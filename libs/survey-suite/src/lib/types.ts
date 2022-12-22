@@ -20,6 +20,7 @@ export interface Question {
     tags: string[];
     isRequired?: boolean;
     options?: Choice[];
+    rateMax?: number;
 }
 
 export interface Choice{

@@ -14,7 +14,7 @@ import { generateNewQuestion, Question, QuestionComponent } from "@placeos/surve
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="flex flex-col p-4 min-w-[40rem]">
+        <main class="flex flex-col p-4 min-w-[40rem] bg-gray-100">
             <placeos-question #questionElement [value]="question"></placeos-question>
         </main>
         <div class="flex flex-row justify-end space-x-2 px-4 py-2" mat-dialog-actions>

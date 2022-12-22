@@ -6,7 +6,7 @@ import { BaseQuestionComponent } from "./base-question.component";
     selector: 'single-line-text',
     styles: [],
     template: `
-        <div class="flex flex-col w-full" *ngIf="readonly">
+        <div class="flex flex-col w-full" *ngIf="preview">
             <mat-form-field apppearance="outline">
                 <input matInput type="text"/>
                 <mat-hint>*Type your answer above</mat-hint>

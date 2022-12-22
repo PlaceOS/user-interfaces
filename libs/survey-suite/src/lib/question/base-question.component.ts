@@ -8,8 +8,8 @@ import { Question, QuestionType } from "../types";
 })
 
 export class BaseQuestionComponent{
-    @Input() isPreview: boolean = false;
-    @Input() readonly: boolean = false;
+    @Input() preview: boolean = false;
+    // @Input() readonly: boolean = false;
     @Input() set value(value:Question){
         if(value){
             this.question = value;
