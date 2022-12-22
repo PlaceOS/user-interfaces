@@ -58,8 +58,8 @@ export class ScheduleStateService extends BaseClass {
             switchMap((list) => {
                 this._loading.next(false);
                 return combineLatest(
-                    (list || []).map((_) => {
-                        const binding = getModule(_.id, 'Bookings').binding(
+                    (list || []).map((space) => {
+                        const binding = getModule(space.id, 'Bookings').binding(
                             'bookings'
                         );
                         const obs = binding.listen().pipe(
@@ -68,14 +68,21 @@ export class ScheduleStateService extends BaseClass {
                                     (i) =>
                                         new CalendarEvent({
                                             ...i,
-                                            resources: [_],
-                                            system: _,
+                                            resources: i.attendees.filter(
+                                                (_) =>
+                                                    _.email === space.email ||
+                                                    _.resource
+                                            ),
+                                            system: space,
                                         })
                                 )
                             )
                         );
-                        if (!this.hasSubscription(`bind:${_.id}`)) {
-                            this.subscription(`bind:${_.id}`, binding.bind());
+                        if (!this.hasSubscription(`bind:${space.id}`)) {
+                            this.subscription(
+                                `bind:${space.id}`,
+                                binding.bind()
+                            );
                         }
                         return obs;
                     })
