@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1671682855308,
+  "timestamp": 1671686566200,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -174,7 +174,7 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_workplace_src_app_book_book_module_ts.js": "12c7a61e96632b17f7d611be4c6c321b040bf218",
+    "./apps_workplace_src_app_book_book_module_ts.js": "1c248b5f795efa09d8f23d37d717ae7222714012",
     "./apps_workplace_src_app_control_control_module_ts.js": "15814175d9186d3c009e953ea18bfcb82a9f6753",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "d4f26276b337dc61f0f8db2de66dee02a77a7be4",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "832610833954154347d68727f56387585a8e22fc",
@@ -285,7 +285,7 @@
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
     "./assets/locale/en-US.json": "5c425955273c60677bf7d079cd2a0ea74b41a279",
-    "./assets/locale/en.json": "ace717e4692733595de03fabcdc0ef14cdc92da4",
+    "./assets/locale/en.json": "eba212e230cbb53d4e3e3a102950757c8a4c4f7a",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
@@ -309,7 +309,7 @@
     "./common.js": "605fcdb4898082d4f2defab0fa9d069392bd819f",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2d0733538048080dc1886ef3bc247e17699895a8",
-    "./main.js": "83ededb5d14ddffc4aa69ceece991b65811cc803",
+    "./main.js": "eeada26672ea754c37b959ea68b6ba1a422de0f7",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "00abef50e7ee128848c72792fd231064e7e4dd3d",
     "./polyfills.js": "64298df3136fc2535813b562c6dd49dbff47ead4",
