@@ -268,7 +268,6 @@ export class BookCodeFlowComponent
                     throw _;
                 });
             this._router.navigate(['/book', 'code', 'success']);
-            this.loading = false;
         } else {
             const bookings = await queryBookings({
                 period_start: getUnixTime(Date.now()),

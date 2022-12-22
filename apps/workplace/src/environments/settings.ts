@@ -5,12 +5,12 @@ const general: any = {
     banner: {
         id: '2',
         type: 'info',
-        content: ``
+        content: ``,
     },
     search: true,
     copyright: 'PlaceOS',
     position: 'right',
-    dark_mode: true
+    dark_mode: true,
 };
 /**
  * HELP/SUPPORT SETTINGS
@@ -80,7 +80,7 @@ const events: any = {
     features_label: '',
     features_on_form: false,
     booking_unavailable: false,
-    allow_externals: true
+    allow_externals: true,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -135,7 +135,7 @@ const explore: any = {
         ['Available', '#43a047'],
         ['In Use', '#e53935'],
         ['Pending', '#ffb300'],
-        ['Signs of Life', '#1565c0']
+        ['Signs of Life', '#1565c0'],
     ],
 };
 /**
@@ -156,9 +156,18 @@ const app: any = {
     },
     locales: [
         { id: 'en', name: 'English', flag: '🇦🇺' },
-        { id: 'fr', name: 'French', flag: '🇫🇷' }
+        { id: 'fr', name: 'French', flag: '🇫🇷' },
     ],
-    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
+    features: [
+        'spaces',
+        'desks',
+        'explore',
+        'parking',
+        'help',
+        'schedule',
+        'wfh',
+        'payments',
+    ],
     currency: '',
     default_route: '/landing',
     use_geolocation: false,
@@ -173,7 +182,7 @@ const app: any = {
     directory,
     explore,
     bookings: {
-        no_approval: false
+        no_approval: false,
     },
     booking: {
         allowed_daily_visitor_count: 100,
@@ -191,7 +200,7 @@ const app: any = {
         tracking_id: '',
     },
     hide_contacts: false,
-    schedule
+    schedule,
 };
 /**
  * ROOT SETTIGNS

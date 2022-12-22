@@ -186,11 +186,13 @@ export class EventCardComponent extends BaseClass {
     }
 
     public get location() {
+        const zone_list: string[] =
+            this.event?.space?.zones ||
+            (this.event?.system?.zones as any) ||
+            [];
         const zone =
-            this._org.levelWithID(this.event.space?.zones) ||
-            this._org.buildings.find((_) =>
-                this.event.space?.zones?.includes(_.id)
-            );
+            this._org.levelWithID(zone_list) ||
+            this._org.buildings.find((_) => zone_list.includes(_.id));
         return `${zone ? (zone.display_name || zone.name) + ', ' : ''} ${
             this.event.space?.display_name || this.event.space?.name
         }`;

@@ -184,7 +184,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
             } catch (e) {
                 element[key] = row[i] || '';
             }
-            if (element[key] === 'TRUE' || element[key] === 'FALSE') 
+            if (element[key] === 'TRUE' || element[key] === 'FALSE')
                 element[key] = element[key] === 'TRUE';
         }
         return element;
@@ -272,7 +272,7 @@ export function parseJWT(token: string) {
  * Flatten nested array
  * @param an_array Array to flatten
  */
-export function flatten<T = any>(an_array: T[]) {
+export function flatten<T = any>(an_array: any[]): T[] {
     const stack = [...an_array];
     const res = [];
     while (stack.length) {
@@ -376,7 +376,7 @@ export function getInvalidFields(form: FormGroup, prefix: string = '') {
 
 export function removeEmptyFields(obj: Record<string, any>) {
     for (const key in obj) {
-        if (obj[key] === undefined || obj[key] === null || obj[key] === "") {
+        if (obj[key] === undefined || obj[key] === null || obj[key] === '') {
             delete obj[key];
         }
     }

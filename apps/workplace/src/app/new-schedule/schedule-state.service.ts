@@ -56,25 +56,24 @@ export class ScheduleStateService extends BaseClass {
             }), // Get list of spaces for building
             distinctUntilChanged(([s1], [s2]) => s1 !== s2),
             switchMap((list) => {
+                this._loading.next(false);
                 return combineLatest(
                     (list || []).map((_) => {
                         const binding = getModule(_.id, 'Bookings').binding(
                             'bookings'
                         );
-                        const obs = binding
-                            .listen()
-                            .pipe(
-                                map((_) =>
-                                    (_ || []).map(
-                                        (i) =>
-                                            new CalendarEvent({
-                                                ...i,
-                                                resources: [_],
-                                                system: _,
-                                            })
-                                    )
+                        const obs = binding.listen().pipe(
+                            map((_) =>
+                                (_ || []).map(
+                                    (i) =>
+                                        new CalendarEvent({
+                                            ...i,
+                                            resources: [_],
+                                            system: _,
+                                        })
                                 )
-                            );
+                            )
+                        );
                         if (!this.hasSubscription(`bind:${_.id}`)) {
                             this.subscription(`bind:${_.id}`, binding.bind());
                         }
@@ -82,7 +81,7 @@ export class ScheduleStateService extends BaseClass {
                     })
                 );
             }),
-            map((_) => flatten(_)),
+            map((_) => flatten<CalendarEvent>(_)),
             shareReplay(1)
         );
 
