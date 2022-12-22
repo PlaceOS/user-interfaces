@@ -29,7 +29,7 @@ import {
     queryEvents,
 } from '@placeos/events';
 import { showSystem } from '@placeos/ts-client';
-import { addMinutes, getUnixTime } from 'date-fns';
+import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
 @Component({
@@ -249,7 +249,7 @@ export class BookCodeFlowComponent
         type: BookingType = 'desk'
     ) {
         this.loading = true;
-        const bookings = await queryBookings({
+        let bookings = await queryBookings({
             period_start: getUnixTime(Date.now()),
             period_end: getUnixTime(addMinutes(Date.now(), 5)),
             type,
@@ -270,14 +270,28 @@ export class BookCodeFlowComponent
                 });
             this._router.navigate(['/book', 'code', 'success']);
         } else {
-            const bookings = await queryBookings({
+            bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type,
+            })
+                .toPromise()
+                .catch((_) => [] as Booking[]);
+            let item = bookings.find((_) => _.asset_id === asset_id);
+            if (item) {
+                this._router.navigate(['/book', 'code', 'error'], {
+                    queryParams: { type: 'not_started', asset_id },
+                });
+                return;
+            }
+            bookings = await queryBookings({
                 period_start: getUnixTime(Date.now()),
                 period_end: getUnixTime(addMinutes(Date.now(), 5)),
                 type,
             })
                 .toPromise()
                 .catch((_) => [] as Booking[]);
-            const item = bookings.find((_) => _.asset_id === asset_id);
+            item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
                     queryParams: { type: 'wrong_resource', asset_id },
