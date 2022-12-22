@@ -24,12 +24,12 @@ export interface AppLocale {
         <div
             class="rounded bg-white dark:bg-neutral-700 dark:text-white shadow mt-1 flex flex-col relative divide-y divide-gray-300 dark:divide-neutral-500"
         >
-            <div
-                avatar
-                class="flex flex-col items-center p-2 w-[18rem]"
-                [matTooltip]="groups"
-            >
-                <a-user-avatar class="text-2xl" [user]="user"></a-user-avatar>
+            <div avatar class="flex flex-col items-center p-2 w-[18rem]">
+                <a-user-avatar
+                    class="text-2xl"
+                    [user]="user"
+                    [matTooltip]="groups"
+                ></a-user-avatar>
                 <div class="">{{ user?.name }}</div>
                 <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
             </div>
@@ -148,7 +148,10 @@ export interface AppLocale {
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1" i18n>{{ 'COMMON.LANGUAGE_LABEL' | translate }}: {{ 'COMMON.LANGUAGE' | translate }}</div>
+                        <div class="flex-1" i18n>
+                            {{ 'COMMON.LANGUAGE_LABEL' | translate }}:
+                            {{ 'COMMON.LANGUAGE' | translate }}
+                        </div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
