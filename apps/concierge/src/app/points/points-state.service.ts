@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogEvent, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';

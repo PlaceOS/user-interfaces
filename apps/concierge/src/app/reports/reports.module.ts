@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Route } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatLegacyPaginatorModule as MatPaginatorModule } from '@angular/material/legacy-paginator';
 
 import { ReportsComponent } from './reports.component';
 import { SharedSpacesModule } from '@placeos/spaces';

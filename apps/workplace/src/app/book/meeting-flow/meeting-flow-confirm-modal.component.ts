@@ -1,5 +1,5 @@
 import { Component, Input, Optional } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { CateringOrder } from '@placeos/catering';
 import { BaseClass, notifyError } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';

@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';

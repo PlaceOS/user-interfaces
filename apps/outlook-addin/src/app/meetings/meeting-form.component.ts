@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ANIMATION_SHOW_CONTRACT_EXPAND, BaseClass, currentUser, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { FindAvailabilityModalComponent } from '@placeos/users';

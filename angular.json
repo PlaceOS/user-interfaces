@@ -10,7 +10,7 @@
             "architect": {
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/assets"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/assets"],
                     "options": {
                         "jestConfig": "libs/assets/jest.config.ts",
                         "passWithNoTests": true
@@ -66,7 +66,7 @@
                             "apps/booking-panel/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/booking-panel/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -167,7 +167,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/booking-panel"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
                     "options": {
                         "jestConfig": "apps/booking-panel/jest.config.ts",
                         "passWithNoTests": true
@@ -227,7 +227,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/bookings"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/bookings"],
                     "options": {
                         "jestConfig": "libs/bookings/jest.config.ts",
                         "passWithNoTests": true
@@ -255,7 +255,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/calendar"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/calendar"],
                     "options": {
                         "jestConfig": "libs/calendar/jest.config.ts",
                         "passWithNoTests": true
@@ -302,7 +302,7 @@
                             "apps/caterer-ui/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/caterer-ui/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -403,7 +403,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/caterer-ui"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/caterer-ui"],
                     "options": {
                         "jestConfig": "apps/caterer-ui/jest.config.ts",
                         "passWithNoTests": true
@@ -461,7 +461,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/catering"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/catering"],
                     "options": {
                         "jestConfig": "libs/catering/jest.config.ts",
                         "passWithNoTests": true
@@ -489,7 +489,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/common"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/common"],
                     "options": {
                         "jestConfig": "libs/common/jest.config.ts",
                         "passWithNoTests": true
@@ -517,7 +517,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/components"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/components"],
                     "options": {
                         "jestConfig": "libs/components/jest.config.ts",
                         "passWithNoTests": true
@@ -569,7 +569,7 @@
                             "apps/concierge/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "./node_modules/survey-core/modern.min.css",
                             "apps/concierge/src/styles.css",
                             "shared/styles/application.scss",
@@ -671,7 +671,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/concierge"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/concierge"],
                     "options": {
                         "jestConfig": "apps/concierge/jest.config.ts",
                         "passWithNoTests": true
@@ -748,7 +748,7 @@
                             "apps/control/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/control/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -849,7 +849,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/control"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/control"],
                     "options": {
                         "jestConfig": "apps/control/jest.config.ts",
                         "passWithNoTests": true
@@ -921,7 +921,7 @@
                             "apps/enrolment/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/enrolment/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1024,7 +1024,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/enrolment"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/enrolment"],
                     "options": {
                         "jestConfig": "apps/enrolment/jest.config.ts",
                         "passWithNoTests": true
@@ -1082,7 +1082,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/events"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/events"],
                     "options": {
                         "jestConfig": "libs/events/jest.config.ts",
                         "passWithNoTests": true
@@ -1110,7 +1110,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/explore"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/explore"],
                     "options": {
                         "jestConfig": "libs/explore/jest.config.ts",
                         "passWithNoTests": true
@@ -1138,7 +1138,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/form-fields"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/form-fields"],
                     "options": {
                         "jestConfig": "libs/form-fields/jest.config.ts",
                         "passWithNoTests": true
@@ -1185,7 +1185,7 @@
                             "apps/map-kiosk/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/map-kiosk/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1286,7 +1286,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/map-kiosk"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/map-kiosk"],
                     "options": {
                         "jestConfig": "apps/map-kiosk/jest.config.ts",
                         "passWithNoTests": true
@@ -1344,7 +1344,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/mocks"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/mocks"],
                     "options": {
                         "jestConfig": "libs/mocks/jest.config.ts",
                         "passWithNoTests": true
@@ -1372,7 +1372,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/organisation"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/organisation"],
                     "options": {
                         "jestConfig": "libs/organisation/jest.config.ts",
                         "passWithNoTests": true
@@ -1434,7 +1434,7 @@
                             }
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/outlook-addin/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1539,7 +1539,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/outlook-addin"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/outlook-addin"],
                     "options": {
                         "jestConfig": "apps/outlook-addin/jest.config.ts",
                         "passWithNoTests": true
@@ -1588,7 +1588,7 @@
             "architect": {
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/payments"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/payments"],
                     "options": {
                         "jestConfig": "libs/payments/jest.config.ts",
                         "passWithNoTests": true
@@ -1625,7 +1625,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/spaces"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/spaces"],
                     "options": {
                         "jestConfig": "libs/spaces/jest.config.ts",
                         "passWithNoTests": true
@@ -1667,7 +1667,7 @@
                             "apps/timetable/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/timetable/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1764,7 +1764,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/timetable"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
                     "options": {
                         "jestConfig": "apps/timetable/jest.config.ts",
                         "passWithNoTests": true
@@ -1822,7 +1822,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/libs/users"],
+                    "outputs": ["{workspaceRoot}/coverage/libs/users"],
                     "options": {
                         "jestConfig": "libs/users/jest.config.ts",
                         "passWithNoTests": true
@@ -1869,7 +1869,7 @@
                             "apps/visitor-kiosk/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/visitor-kiosk/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1970,7 +1970,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/visitor-kiosk"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/visitor-kiosk"],
                     "options": {
                         "jestConfig": "apps/visitor-kiosk/jest.config.ts",
                         "passWithNoTests": true
@@ -2018,7 +2018,10 @@
             "sourceRoot": "apps/workplace/src",
             "prefix": "placeos",
             "i18n": {
-                "sourceLocale": { "code": "en", "baseHref": "" },
+                "sourceLocale": {
+                    "code": "en",
+                    "baseHref": ""
+                },
                 "locales": {
                     "fr": {
                         "translation": "apps/workplace/src/locale/messages.fr.xlf",
@@ -2058,7 +2061,7 @@
                             "apps/workplace/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
                             "apps/workplace/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -2159,7 +2162,7 @@
                 },
                 "test": {
                     "builder": "@nrwl/jest:jest",
-                    "outputs": ["coverage/apps/workplace"],
+                    "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
                     "options": {
                         "jestConfig": "apps/workplace/jest.config.ts",
                         "passWithNoTests": true

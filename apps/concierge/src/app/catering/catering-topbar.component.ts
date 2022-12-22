@@ -6,7 +6,7 @@ import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringOrdersService, CateringStateService, ChargeCodeListModalComponent } from '@placeos/catering';
 import { CateringRoomsStateModalComponent } from 'libs/catering/src/lib/catering-rooms-state-modal.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 @Component({
     selector: 'catering-topbar',

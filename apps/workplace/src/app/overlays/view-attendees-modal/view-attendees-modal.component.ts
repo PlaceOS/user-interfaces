@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 
 import { BaseClass } from '@placeos/common';
 import { User } from '@placeos/users';

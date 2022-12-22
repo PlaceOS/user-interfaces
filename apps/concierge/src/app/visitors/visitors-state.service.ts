@@ -28,7 +28,7 @@ import {
     queryEvents,
 } from '@placeos/events';
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { checkinBookingAttendee, queryBookings } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 

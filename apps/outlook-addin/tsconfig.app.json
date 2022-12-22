@@ -6,7 +6,9 @@
         "experimentalDecorators": true,
         "noEmitOnError": true,
         "sourceMap": true,
-        "module": "commonjs"
+        "module": "commonjs",
+        "target": "ES2022",
+        "useDefineForClassFields": false
     },
     "ts-node": {
         "files": true

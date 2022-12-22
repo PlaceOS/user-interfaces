@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { OrganisationService } from '@placeos/organisation';
 import { Observable } from 'rxjs';
 import { PaymentCardDetails } from './card-input-field.component';

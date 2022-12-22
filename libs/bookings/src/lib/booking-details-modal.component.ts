@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { notifySuccess } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';

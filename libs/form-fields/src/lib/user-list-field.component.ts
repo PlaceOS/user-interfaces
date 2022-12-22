@@ -25,7 +25,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { BehaviorSubject, combineLatest, of, zip } from 'rxjs';
 

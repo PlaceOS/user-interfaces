@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Location } from '@angular/common';
 import { Subscription, Observable } from 'rxjs';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 import { BuildingsService } from '../services/buildings.service';
 import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.component';

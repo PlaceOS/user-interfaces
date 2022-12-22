@@ -99,7 +99,7 @@ const directory: any = {
 ||    SCHEULDE SETTINGS   ||
 \*===========================*/
 const schedule = {
-    use_websocket: false,
+    use_websocket: true,
     legend: [
         { name: 'Accepted', color: '#21A453' },
         { name: 'Pending', color: '#ffbf1f' },

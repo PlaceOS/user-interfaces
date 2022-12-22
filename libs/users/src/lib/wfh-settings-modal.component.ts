@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { currentUser, SettingsService } from '@placeos/common';
 import { endOfDay, getUnixTime, setDay, startOfDay } from 'date-fns';
 import { Booking } from 'libs/bookings/src/lib/booking.class';

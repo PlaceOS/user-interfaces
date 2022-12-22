@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subscription, BehaviorSubject, of } from 'rxjs';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../services/survey-creator.service';

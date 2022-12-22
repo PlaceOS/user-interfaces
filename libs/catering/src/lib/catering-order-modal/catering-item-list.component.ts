@@ -16,7 +16,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
     template: `
         <div class="w-full h-full overflow-auto py-2">
             <ng-container *ngIf="(custom_items | async)?.length">
-                <h3 class="font-bold px-2">Custom Items</h3>
+                <h3 class="font-bold px-2">Ordered Items</h3>
                 <p count class="text-sm opacity-60 mb-2 px-2">
                     {{ (custom_items | async)?.length || 0 }} items(s)
                 </p>

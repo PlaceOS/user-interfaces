@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { BuildingsService } from '../services/buildings.service';
 import { Building, BookingRuleDetails } from '@placeos/organisation';

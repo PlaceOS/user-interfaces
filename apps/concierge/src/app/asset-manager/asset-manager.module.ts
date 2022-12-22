@@ -2,14 +2,14 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { UIModule } from '../ui/ui.module';
 
 import { AssetListingComponent } from './asset-listing.component';
 import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
 import { AssetManagerComponent } from './asset-manager.component';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
 import { AssetViewComponent } from './asset-view.component';
 import { AssetFlowComponent } from './asset-flow.component';
 import { AssetFlowConsumablesComponent } from './asset-flow-consumables.component';
