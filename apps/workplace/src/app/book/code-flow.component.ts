@@ -133,6 +133,7 @@ import QrScanner from 'qr-scanner';
                 height: 100vh;
                 display: flex;
                 flex-direction: column;
+                background: #f0f0f0;
             }
 
             [box] {
@@ -278,13 +279,16 @@ export class BookCodeFlowComponent
                 .catch((_) => [] as Booking[]);
             const item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
-                return notifyError(
-                    `Resource is booked by another user "${asset_id}"`
-                );
+                this._router.navigate(['/book', 'code', 'error'], {
+                    queryParams: { type: 'wrong_resource', asset_id },
+                });
+                return;
             }
+            this._router.navigate(['/book', 'code', 'error'], {
+                queryParams: { type: 'no_booking', asset_id },
+            });
             this._booking_form.newForm(new Booking({ asset_id, type }));
             this._booking_form.setOptions({ type });
-            this._router.navigate(['/book', 'newdesk']);
         }
         this.loading = false;
     }
