@@ -140,7 +140,12 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
-    providers: [ExploreSpacesService, ExploreDesksService, ExploreZonesService, SpacePipe],
+    providers: [
+        ExploreSpacesService,
+        ExploreDesksService,
+        ExploreZonesService,
+        SpacePipe,
+    ],
 })
 export class ExploreComponent extends BaseClass implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
@@ -207,6 +212,7 @@ export class ExploreComponent extends BaseClass implements OnInit {
         this.resetKiosk();
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
+        this.subscription('desks', this._desks.startPolling());
         this.subscription(
             'level',
             this._state.level.subscribe(() =>
