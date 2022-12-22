@@ -194,6 +194,7 @@ export class AppComponent extends BaseClass implements OnInit {
                 if (!locale) locale = locales.find((_) => lang.includes(_.id));
                 if (locale) {
                     this._translate?.use(lang);
+
                     localStorage.setItem('PLACEOS.locale', lang);
                     break;
                 }
