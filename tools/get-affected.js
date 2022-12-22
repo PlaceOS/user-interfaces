@@ -7,7 +7,6 @@ const baseSha = ref;
 const cmd = process.argv[3] || 'build';
 
 // prints an object with keys {lint1: [...], lint2: [...], lint3: [...], test1: [...], .... build3: [...]}
-console.log(ref, cmd);
 console.log(JSON.stringify(commands(cmd)));
 
 function commands(target) {
