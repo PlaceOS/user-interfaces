@@ -1,8 +1,15 @@
 import { Injectable } from '@angular/core';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { getModule, showSystem } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
-import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+} from 'rxjs/operators';
 
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
@@ -19,6 +26,7 @@ import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal
 import { getUnixTime } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
+import { Router } from '@angular/router';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -85,7 +93,6 @@ export type CalendarEventStatus =
     providedIn: 'root',
 })
 export class PanelStateService extends BaseClass {
-
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
     /** Polling observable */
     private _poll = interval(1000);
@@ -97,7 +104,15 @@ export class PanelStateService extends BaseClass {
     public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
     public readonly space = this._system.pipe(
-        switchMap((id) => showSystem(id)),
+        switchMap((id) =>
+            showSystem(id).pipe(
+                catchError(({ status }) => {
+                    console.log('Status:', status);
+                    status === 404 ? this._router.navigate(['/bootstrap']) : '';
+                    return of(new PlaceSystem());
+                })
+            )
+        ),
         map((_) => new Space(_ as any)),
         shareReplay(1)
     );
@@ -141,7 +156,8 @@ export class PanelStateService extends BaseClass {
         private _spaces: SpacesService,
         private _dialog: MatDialog,
         private _events: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _router: Router
     ) {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
