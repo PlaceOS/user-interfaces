@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Question, QuestionType, Tag } from '../survey-types';
@@ -42,8 +42,7 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
                     (allChoicesEvent)="updateAllChoices($event)"
                 ></question-container>
                 <!-- <div>
-                    <button
-                        mat-button
+                    <button btn matRipple
                         class="add-another-question"
                         (click)="addAnotherQuestion()"
                     >
@@ -53,7 +52,7 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
             </main>
             <footer>
                 <button
-                    mat-button
+                    matRipple
                     class="cancel-button"
                     color="basic"
                     (click)="closeDialog()"
@@ -61,7 +60,7 @@ import { SurveyCreatorService } from '../services/survey-creator.service';
                     Cancel
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="add-button"
                     color="primary"
                     (click)="addQuestion()"

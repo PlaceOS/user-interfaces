@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { currentUser, SettingsService } from '@placeos/common';
 
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -63,7 +63,7 @@ export interface ExploreBookingModalData {
                 </div>
             </main>
             <footer class="flex justify-center p-2 border-t border-gray-200">
-                <button mat-button (click)="save()" i18n>Save</button>
+                <button btn matRipple (click)="save()" i18n>Save</button>
             </footer>
         </ng-container>
         <ng-template #load_state>

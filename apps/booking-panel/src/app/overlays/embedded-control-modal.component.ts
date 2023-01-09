@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { BaseClass } from '@placeos/common';
 
@@ -28,7 +28,8 @@ export interface EmbeddedControlModalData {
         <div class="absolute top-0 left-0 flex items-center h-12">
             <div countdown class="text-2xl mx-2">{{ countdown }}</div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 class="close"
                 (click)="close()"
                 (contextmenu)="$event.preventDefault()"

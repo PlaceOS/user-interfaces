@@ -34,7 +34,7 @@ import { CheckinStateService } from './checkin-state.service';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <button mat-button class="w-32" (click)="update()">
+            <button btn matRipple class="w-32" (click)="update()">
                 {{ beverage ? 'Update' : 'Continue' }}
             </button>
             <a

@@ -1,6 +1,10 @@
-<div class="flex flex-1 flex-col z-0 m-0 bg-gray-50 dark:bg-neutral-600 h-full overflow-y-auto">
+<div
+    class="flex flex-1 flex-col z-0 m-0 bg-gray-50 dark:bg-neutral-600 h-full overflow-y-auto"
+>
     <form *ngIf="form" [formGroup]="form">
-        <section class="flex flex-col border-b border-gray-300 dark:border-neutral-500 py-5 items-center">
+        <section
+            class="flex flex-col border-b border-gray-300 dark:border-neutral-500 py-5 items-center"
+        >
             <div
                 class="flex flex-col w-[calc(100%-2rem)] max-w-[22.5rem] self-center"
             >
@@ -16,9 +20,7 @@
                 </div>
 
                 <div class="flex flex-col">
-                    <label class="text-sm font-bold mb-1"
-                        >Add Title*</label
-                    >
+                    <label class="text-sm font-bold mb-1">Add Title*</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -29,9 +31,7 @@
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label class="text-sm font-bold mb-1"
-                        >Date*</label
-                    >
+                    <label class="text-sm font-bold mb-1">Date*</label>
                     <a-date-field
                         [from]="min_date"
                         formControlName="date"
@@ -97,11 +97,10 @@
             </div>
         </section>
 
-        <section
-            class="flex flex-col py-3 items-center justify-center"
-        >
+        <section class="flex flex-col py-3 items-center justify-center">
             <button
-                mat-button
+                btn
+                matRipple
                 type="submit"
                 (click)="findSpace()"
                 class="text-sm bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
@@ -109,7 +108,8 @@
                 <span class="text-sm">Find room</span>
             </button>
             <button
-                mat-button
+                btn
+                matRipple
                 (click)="clearForm()"
                 class="text-sm bg-transparent text-secondary border-secondary my-2 min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
             >

@@ -7,10 +7,10 @@
                 class="flex flex-col w-[calc(100%-2rem)] max-w-[22.5rem] self-center"
             >
                 <div class="flex flex-row items-center">
-                    <button (click)="closeModal()">
-                        <mat-icon
+                    <button icon matRipple (click)="closeModal()">
+                        <app-icon
                             class="flex items-center justify-center text-3xl text-gray-700"
-                            >close</mat-icon
+                            >close</app-icon
                         >
                     </button>
 
@@ -135,7 +135,8 @@
             class="flex flex-col py-3 mt-5 border-t border-gray-300 top-box-shadow items-center justify-center"
         >
             <button
-                mat-button
+                btn
+                matRipple
                 type="submit"
                 (click)="applyFilters()"
                 class="filter-button text-sm bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto text-center"

@@ -1,6 +1,6 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
@@ -27,7 +27,8 @@ const EMPTY_FAVS: string[] = [];
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             edit-space
                             class="clear"
                             (click)="addAssets(asset)"
@@ -38,7 +39,8 @@ const EMPTY_FAVS: string[] = [];
                             </div>
                         </button>
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             remove-space
                             class="clear"
                             (click)="removeAsset(asset)"
@@ -51,7 +53,8 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(asset.id)"
@@ -66,7 +69,8 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </div>
         <button
-            mat-button
+            btn
+            matRipple
             add-space
             class="w-full inverse mt-2"
             (click)="addAssets()"

@@ -1,5 +1,5 @@
 import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
 import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
@@ -77,7 +77,8 @@ export interface CateringOrderModalData {
                                             "
                                         >
                                             <button
-                                                mat-icon-button
+                                                icon
+                                                matRipple
                                                 [disabled]="true"
                                             >
                                                 <app-icon>remove</app-icon>
@@ -89,7 +90,8 @@ export interface CateringOrderModalData {
                                             {{ item.quantity }}
                                         </div>
                                         <button
-                                            mat-icon-button
+                                            icon
+                                            matRipple
                                             (click)="addItem(item)"
                                         >
                                             <app-icon>add</app-icon>
@@ -107,7 +109,7 @@ export interface CateringOrderModalData {
             class="flex items-center justify-center space-x-2 p-2 border-t border-gray-200"
         >
             <ng-container *ngIf="!show_order_details; else order_actions">
-                <button mat-button class="inverse" mat-dialog-close>
+                <button btn matRipple class="inverse" mat-dialog-close>
                     Cancel
                 </button>
                 <button
@@ -124,7 +126,7 @@ export interface CateringOrderModalData {
             </ng-container>
             <ng-template #order_actions>
                 <button
-                    mat-button
+                    matRipple
                     class="inverse"
                     (click)="show_order_details = false"
                 >

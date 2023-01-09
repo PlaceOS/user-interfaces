@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -13,7 +13,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
         <header>
             <h2 class="truncate" i18n>Book - {{ space?.name }}</h2>
             <div class="flex-1"></div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>

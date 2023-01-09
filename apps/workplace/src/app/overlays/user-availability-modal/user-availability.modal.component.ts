@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
@@ -18,7 +18,8 @@ import { queryEvents } from '@placeos/events';
 })
 export class UserAvailabilityModalComponent
     extends BaseClass
-    implements OnInit {
+    implements OnInit
+{
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of Users to check availability */

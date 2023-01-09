@@ -46,7 +46,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                 </div>
             </main>
             <footer class="flex justify-center items-center p-2">
-                <button mat-button (click)="submit()" i18n>Submit</button>
+                <button btn matRipple (click)="submit()" i18n>Submit</button>
             </footer>
             <button close mat-icon-button mat-dialog-close>
                 <i class="material-icons">close</i>
@@ -92,7 +92,8 @@ export class DeskQuestionsModalComponent {
     public failure: boolean;
 
     public submit() {
-        this.form.markAllAsTouched();if (
+        this.form.markAllAsTouched();
+        if (
             Object.keys(this.form.value).find(
                 (key) =>
                     this.form.value[key] === true ||

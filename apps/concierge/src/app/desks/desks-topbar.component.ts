@@ -42,14 +42,14 @@ import { randomInt } from '@placeos/common';
                 </mat-select>
             </mat-form-field>
             <button
-                mat-button
+                matRipple
                 *ngIf="manage"
                 class="mx-2 w-32"
                 (click)="newDesk()"
             >
                 New Desk
             </button>
-            <button mat-button *ngIf="manage" class="relative w-32">
+            <button btn matRipple *ngIf="manage" class="relative w-32">
                 Upload CSV
                 <input
                     type="file"

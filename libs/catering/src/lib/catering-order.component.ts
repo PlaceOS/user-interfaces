@@ -45,7 +45,13 @@ import { CATERING_STATUSES } from './catering.vars';
             </div>
             <div class="w-28">{{ order.charge_code || '~ No Code ~' }}</div>
             <div class="w-24">
-                <button *ngIf="order.notes" class="clear underline" [matTooltip]="order.notes">View</button>
+                <button
+                    *ngIf="order.notes"
+                    class="clear underline"
+                    [matTooltip]="order.notes"
+                >
+                    View
+                </button>
             </div>
             <div class="w-28">
                 {{ order.invoice_number || '~ No Invoice ~' }}
@@ -65,7 +71,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 </button>
             </div>
             <div class="w-12">
-                <button mat-icon-button (click)="show_items = !show_items">
+                <button icon (click)="show_items = !show_items">
                     <app-icon>{{
                         show_items
                             ? 'keyboard_arrow_down'

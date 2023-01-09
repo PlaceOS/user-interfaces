@@ -18,7 +18,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     *ngIf="(filters | async)?.shown_types?.includes('event')"
                 >
                     <div class=" px-2">{{ 'WPA.ROOMS' | translate }}</div>
-                    <button mat-icon-button (click)="toggleType('event', true)">
+                    <button icon (click)="toggleType('event', true)">
                         <app-icon>close</app-icon>
                     </button>
                 </div>
@@ -27,7 +27,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     *ngIf="(filters | async)?.shown_types?.includes('desk')"
                 >
                     <div class="px-2">{{ 'WPA.DESKS' | translate }}</div>
-                    <button mat-icon-button (click)="toggleType('desk', true)">
+                    <button icon (click)="toggleType('desk', true)">
                         <app-icon>close</app-icon>
                     </button>
                 </div>
@@ -37,7 +37,8 @@ import { ScheduleStateService } from './schedule-state.service';
                 >
                     <div class=" px-2">{{ 'WPA.PARKING' | translate }}</div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="toggleType('parking', true)"
                     >
                         <app-icon>close</app-icon>
@@ -49,7 +50,8 @@ import { ScheduleStateService } from './schedule-state.service';
                 >
                     <div class=" px-2">{{ 'WPA.VISITORS' | translate }}</div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="toggleType('visitor', true)"
                     >
                         <app-icon>close</app-icon>
@@ -58,7 +60,12 @@ import { ScheduleStateService } from './schedule-state.service';
             </div>
         </div>
         <div class="sm:hidden flex items-center space-x-2">
-            <button mat-button class="min-w-0 sm:w-24" (click)="openFilters()">
+            <button
+                btn
+                matRipple
+                class="min-w-0 sm:w-24"
+                (click)="openFilters()"
+            >
                 <div class="flex items-center justify-center space-x-2">
                     <app-icon class="text-xl">filter_list</app-icon>
                     <!-- <div class="mr-2">{{ "WPA.FILTERS" | translate }}</div> -->
@@ -69,7 +76,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 *ngIf="(filters | async)?.shown_types?.includes('event')"
             >
                 <div>{{ 'WPA.ROOMS' | translate }}</div>
-                <button mat-icon-button (click)="toggleType('event', true)">
+                <button icon (click)="toggleType('event', true)">
                     <app-icon>close</app-icon>
                 </button>
             </div>
@@ -78,7 +85,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 *ngIf="(filters | async)?.shown_types?.includes('desk')"
             >
                 <div>{{ 'WPA.DESKS' | translate }}</div>
-                <button mat-icon-button (click)="toggleType('desk', true)">
+                <button icon (click)="toggleType('desk', true)">
                     <app-icon>close</app-icon>
                 </button>
             </div>
@@ -87,7 +94,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 *ngIf="(filters | async)?.shown_types?.includes('parking')"
             >
                 <div>{{ 'WPA.PARKING' | translate }}</div>
-                <button mat-icon-button (click)="toggleType('parking', true)">
+                <button icon (click)="toggleType('parking', true)">
                     <app-icon>close</app-icon>
                 </button>
             </div>

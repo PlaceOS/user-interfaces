@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     BaseClass,
@@ -545,7 +545,7 @@ export class BookingFormService extends BaseClass {
                     )
                 )
             )
-        )
+        );
     }
 
     private async _getNearbyResources(

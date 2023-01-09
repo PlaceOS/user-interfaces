@@ -1,4 +1,4 @@
-import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarConfig as MatSnackBarConfig } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 let _service: MatSnackBar;
 
@@ -24,7 +24,10 @@ export function notify(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     if (!_service) {
-        return !window.jest && console.warn("Snackbar service hasn't been initialised");
+        return (
+            !window.jest &&
+            console.warn("Snackbar service hasn't been initialised")
+        );
     }
     const snackbar_ref = _service.open(message, action, {
         panelClass: [type],

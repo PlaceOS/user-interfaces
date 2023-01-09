@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
 import { BaseClass } from '@placeos/common';
@@ -43,7 +43,7 @@ export interface Locatable {
         <footer
             class="w-full border-t border-gray-200 flex items-center justify-center p-2"
         >
-            <button mat-button class="inverse w-32" mat-dialog-close>
+            <button btn matRipple class="inverse w-32" mat-dialog-close>
                 Close
             </button>
         </footer>
@@ -80,10 +80,14 @@ export class MapLocateModalComponent extends BaseClass implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.timeout('init', () => {
-            this.processFeature();
-            this.processStyles();
-        }, 1000);
+        this.timeout(
+            'init',
+            () => {
+                this.processFeature();
+                this.processStyles();
+            },
+            1000
+        );
     }
 
     public processStyles(): void {

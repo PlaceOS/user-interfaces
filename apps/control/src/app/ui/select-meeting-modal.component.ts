@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { notifySuccess, openConfirmModal } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { format } from 'date-fns';
@@ -10,7 +10,8 @@ import { ControlStateService } from '../control-state.service';
     template: `
         <div class="fixed inset-0 bg-white">
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute top-2 right-2"
             >
@@ -49,6 +50,7 @@ import { ControlStateService } from '../control-state.service';
                         *ngIf="(events | async)?.length; else empty_state"
                     >
                         <button
+                            btn
                             matRipple
                             class="flex items-center p-4 w-full border border-gray-200 rounded"
                             *ngFor="let event of events | async"

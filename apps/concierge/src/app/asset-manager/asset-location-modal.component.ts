@@ -11,7 +11,8 @@ import {
     template: `
         <div class="p-6 relative">
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute top-4 right-4"
             >
@@ -55,13 +56,23 @@ import {
                 <div
                     class="flex-1 h-[60vh] w-1/2 border border-gray-300 bg-gray-100 relative flex items-center justify-center"
                 >
-                    <div class="absolute top-4 left-4 bg-white px-4 py-2 rounded-3xl border border-gray-300" *ngIf="selected">
-                        {{selected.extension_data?.space?.level?.display_name || selected.extension_data?.space?.level?.name}}
+                    <div
+                        class="absolute top-4 left-4 bg-white px-4 py-2 rounded-3xl border border-gray-300"
+                        *ngIf="selected"
+                    >
+                        {{
+                            selected.extension_data?.space?.level
+                                ?.display_name ||
+                                selected.extension_data?.space?.level?.name
+                        }}
                     </div>
                     <i-map
                         *ngIf="selected; else empty_state"
                         [src]="selected.extension_data?.space?.level?.map_id"
-                        [styles]="{ '#Zones': { display: 'none' },'#zones': { display: 'none' } }"
+                        [styles]="{
+                            '#Zones': { display: 'none' },
+                            '#zones': { display: 'none' }
+                        }"
                         [features]="selected_feature"
                     ></i-map>
                 </div>
@@ -124,12 +135,18 @@ export class AssetLocationModalComponent {
     public updateFeatures() {
         const space = this.selected.extension_data?.space || {};
         this.selected_feature = this.selected
-            ? [{
-                  location: space.map_id,
-                  content: MapPinComponent,
-                  z_index: 99,
-                  data: { message: `${space.display_name || space.name} is here` },
-              }]
+            ? [
+                  {
+                      location: space.map_id,
+                      content: MapPinComponent,
+                      z_index: 99,
+                      data: {
+                          message: `${
+                              space.display_name || space.name
+                          } is here`,
+                      },
+                  },
+              ]
             : [];
     }
 

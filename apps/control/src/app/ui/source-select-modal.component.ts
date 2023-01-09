@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export class SourceSelectModalData {
     output: string;
@@ -22,7 +22,8 @@ export class SourceSelectModalData {
                 (source)="close()"
             ></source-select>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute"
                 [class.top-8]="!simple"

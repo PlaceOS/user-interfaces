@@ -36,7 +36,8 @@ import { BookingFormService } from '../booking-form.service';
             class="sm:hidden space-x-2 flex flex-row items-center p-2"
         >
             <button
-                mat-button
+                btn
+                matRipple
                 filters
                 class="flex-1 w-1/2"
                 (click)="editFilter()"
@@ -46,7 +47,8 @@ import { BookingFormService } from '../booking-form.service';
             </button>
             <div class="flex items-center">
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     map
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
@@ -56,7 +58,8 @@ import { BookingFormService } from '../booking-form.service';
                     Map
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     list
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
@@ -75,12 +78,14 @@ import { BookingFormService } from '../booking-form.service';
                 {{ end | date: 'shortTime' }}
             </div>
             <div
-                filter-item features
+                filter-item
+                features
                 *ngFor="let feat of (options | async)?.features || []"
             >
                 <p>{{ feat }}</p>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="-mr-4"
                     (click)="setFeature(feat, false)"
                 >
@@ -90,7 +95,8 @@ import { BookingFormService } from '../booking-form.service';
             <div filter-item *ngIf="(options | async)?.show_fav">
                 <span i18n>Favourites Only</span>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="-mr-4"
                     (click)="setOptions({ show_fav: false })"
                 >

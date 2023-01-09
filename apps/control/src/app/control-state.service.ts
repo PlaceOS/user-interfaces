@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { getModule } from '@placeos/ts-client';
 import {
     debounceTime,
@@ -125,7 +125,7 @@ export class ControlStateService extends BaseClass {
     );
     public readonly presentables$ = this._input_data.pipe(
         map((l) => l.filter((_) => _.presentable !== false)),
-        tap(l => console.log('Presentable Inputs:', l)),
+        tap((l) => console.log('Presentable Inputs:', l)),
         shareReplay(1)
     );
     /** List of available output sources */
@@ -188,18 +188,24 @@ export class ControlStateService extends BaseClass {
         switchMap((id) => this._listenToSystemBinding(id, 'joined')),
         shareReplay(1)
     );
-    public readonly lighting_scenes: Observable<LightScene[]> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'lighting_scenes')),
-        shareReplay(1)
-    );
+    public readonly lighting_scenes: Observable<LightScene[]> =
+        this.system_id.pipe(
+            switchMap((id) =>
+                this._listenToSystemBinding(id, 'lighting_scenes')
+            ),
+            shareReplay(1)
+        );
     public readonly lighting_scene: Observable<string> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'lighting_scene')),
         shareReplay(1)
     );
-    public readonly room_accessories: Observable<RoomAccessory[]> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'room_accessories')),
-        shareReplay(1)
-    );
+    public readonly room_accessories: Observable<RoomAccessory[]> =
+        this.system_id.pipe(
+            switchMap((id) =>
+                this._listenToSystemBinding(id, 'room_accessories')
+            ),
+            shareReplay(1)
+        );
     public readonly joined = combineLatest([
         this.join_modes,
         this.joined_id,
@@ -440,13 +446,19 @@ export class ControlStateService extends BaseClass {
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
         this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
         this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));
-        this.bindTo(id, 'qsc_dial_number', undefined, (v) => this.updateProperty('phone', v));
+        this.bindTo(id, 'qsc_dial_number', undefined, (v) =>
+            this.updateProperty('phone', v)
+        );
         this.bindTo(id, 'qsc_dial_bindings', undefined, (v) => {
             if (v) {
-                this.bindTo(id, v.offhook_id, 'Mixer', (l) => this.updateProperty('offhook', l));
-                this.bindTo(id, v.ringing_id, 'Mixer', (l) => this.updateProperty('ringing', l));
+                this.bindTo(id, v.offhook_id, 'Mixer', (l) =>
+                    this.updateProperty('offhook', l)
+                );
+                this.bindTo(id, v.ringing_id, 'Mixer', (l) =>
+                    this.updateProperty('ringing', l)
+                );
             }
-            this.updateProperty('dial_bindings', v)
+            this.updateProperty('dial_bindings', v);
         });
     }
 

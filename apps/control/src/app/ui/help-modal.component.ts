@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
 import { marked } from 'marked';
@@ -63,7 +63,8 @@ import { marked } from 'marked';
                 [innerHTML]="content | safe"
             ></div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 class="absolute top-2 right-2 text-white sm:text-black"
                 mat-dialog-close
             >

@@ -37,7 +37,8 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                     >
                         <h4 class="text-center underline">{{ type }}</h4>
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             source
                             class="w-48"
                             [class.inverse]="

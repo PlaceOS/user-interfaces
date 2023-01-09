@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -38,7 +38,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
         MeetingBookingComponent,
         MeetingBookingFormComponent,
         MeetingBookingSuccessComponent,
-        MeetingFlowConfirmComponent
+        MeetingFlowConfirmComponent,
     ],
     imports: [
         BrowserModule,

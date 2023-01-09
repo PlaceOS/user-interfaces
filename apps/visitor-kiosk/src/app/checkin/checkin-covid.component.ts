@@ -6,7 +6,9 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: '[checkin-covid]',
     template: `
-        <div class="bg-white rounded p-4 relative overflow-y-auto overflow-x-hidden">
+        <div
+            class="bg-white rounded p-4 relative overflow-y-auto overflow-x-hidden"
+        >
             <h3 class="text-xl font-medium mb-4">COVID Disclaimer</h3>
             <ol class="list-decimal list-inside">
                 <li>
@@ -51,7 +53,7 @@ import { CheckinStateService } from './checkin-state.service';
                     </mat-radio-group>
                 </li>
             </ol>
-            <button mat-button (click)="confirm()">Confirm</button>
+            <button btn matRipple (click)="confirm()">Confirm</button>
             <a
                 mat-icon-button
                 [attr.disabled]="!symptoms && !contact"
@@ -112,7 +114,9 @@ export class CheckinCovidComponent {
         if (this.symptoms === 'false' && this.contact === 'false') {
             this._router.navigate(['/checkin', 'results']);
         } else {
-            this._checkin.setError('Please get tested for COVID-19 and self-isolate at home for 14 days');
+            this._checkin.setError(
+                'Please get tested for COVID-19 and self-isolate at home for 14 days'
+            );
             this._router.navigate(['/checkin', 'error']);
         }
     }

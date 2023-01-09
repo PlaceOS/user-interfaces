@@ -5,8 +5,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
-import { MAT_LEGACY_CHIPS_DEFAULT_OPTIONS as MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/legacy-chips';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
 import { UnauthorisedComponent } from '@placeos/components';

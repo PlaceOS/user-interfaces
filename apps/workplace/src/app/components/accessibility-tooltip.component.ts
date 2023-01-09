@@ -44,7 +44,10 @@ import { CustomTooltipData } from '@placeos/components';
                 ></mat-slide-toggle>
             </div>
             <ng-container *ngIf="accessible">
-                <div class="px-8 py-4 bg-gray-200 dark:bg-neutral-600 text-center" i18n>
+                <div
+                    class="px-8 py-4 bg-gray-200 dark:bg-neutral-600 text-center"
+                    i18n
+                >
                     Adjust your preferred reading size below.
                 </div>
                 <div class="flex items-center px-4 space-x-4">
@@ -53,10 +56,14 @@ import { CustomTooltipData } from '@placeos/components';
                         class="flex-1 w-1/2"
                         [min]="10"
                         [max]="22"
-                        [ngModel]="font_size"
-                        (ngModelChange)="applySetting('font_size', $event)"
                         [step]="2"
-                    ></mat-slider>
+                    >
+                        <input
+                            matSliderThumb
+                            [ngModel]="font_size"
+                            (ngModelChange)="applySetting('font_size', $event)"
+                        />
+                    </mat-slider>
                     <span class="text-2xl">A</span>
                 </div>
             </ng-container>
@@ -71,7 +78,6 @@ import { CustomTooltipData } from '@placeos/components';
     ],
 })
 export class AccessibilityTooltipComponent {
-
     public get dark_mode() {
         return !!this._settings.get('dark_mode');
     }

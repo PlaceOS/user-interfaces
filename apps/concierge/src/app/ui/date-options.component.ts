@@ -4,19 +4,29 @@ import { addDays, subDays } from 'date-fns';
 @Component({
     selector: 'date-options',
     template: `
-        <button mat-icon-button (click)="previousDay()">
+        <button icon matRipple (click)="previousDay()">
             <app-icon
-                [icon]="{ class: 'material-icons', content: 'keyboard_arrow_left' }"
+                [icon]="{
+                    class: 'material-icons',
+                    content: 'keyboard_arrow_left'
+                }"
             ></app-icon>
         </button>
-        <button mat-icon-button (click)="nextDay()">
+        <button icon matRipple (click)="nextDay()">
             <app-icon
-                [icon]="{ class: 'material-icons', content: 'keyboard_arrow_right' }"
+                [icon]="{
+                    class: 'material-icons',
+                    content: 'keyboard_arrow_right'
+                }"
             ></app-icon>
         </button>
-        <div class="display m-4 text-center" style="width: 7em;">{{ date | date: 'mediumDate' }}</div>
-        <button class="rounded relative" mat-icon-button (click)="picker.open()">
-            <app-icon [icon]="{ class: 'material-icons', content: 'today' }"></app-icon>
+        <div class="display m-4 text-center" style="width: 7em;">
+            {{ date | date: 'mediumDate' }}
+        </div>
+        <button icon matRipple class="rounded relative" (click)="picker.open()">
+            <app-icon
+                [icon]="{ class: 'material-icons', content: 'today' }"
+            ></app-icon>
             <input
                 class="absolute inset-0"
                 [(ngModel)]="date"

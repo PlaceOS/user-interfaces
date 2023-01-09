@@ -41,8 +41,9 @@ enum TOOLTIP {
             <ng-container *ngFor="let item of action_list">
                 <div customTooltip [content]="cmp[item.id]" *ngIf="item.show">
                     <button
+                        icon
+                        matRipple
                         [attr.type]="item.id"
-                        mat-icon-button
                         [class.bg-success]="item.enabled"
                         (click)="item.action ? item.action() : ''"
                     >
@@ -52,7 +53,8 @@ enum TOOLTIP {
             </ng-container>
         </div>
         <button
-            mat-icon-button
+            icon
+            matRipple
             [matMenuTriggerFor]="menu"
             class="sm:hidden mr-2 bg-none"
         >
@@ -197,7 +199,7 @@ export class TopbarHeaderComponent extends BaseClass {
                 this._state.join_modes,
                 this._state.joined,
                 this._call.speaker_track,
-                this._state.lighting_scenes
+                this._state.lighting_scenes,
             ]).subscribe(
                 ([
                     mics,
@@ -211,11 +213,11 @@ export class TopbarHeaderComponent extends BaseClass {
                     join_modes,
                     joined,
                     speaker_track,
-                    l_scenes
+                    l_scenes,
                 ]) => {
-                    (this.action_list as any)[
-                        TOOLTIP.PHONE
-                    ].show = !!(system as any).dial_bindings;
+                    (this.action_list as any)[TOOLTIP.PHONE].show = !!(
+                        system as any
+                    ).dial_bindings;
                     (this.action_list as any)[TOOLTIP.PHONE].enabled =
                         (system as any).offhook || (system as any).ringing;
                     (this.action_list as any)[TOOLTIP.VC].show =
@@ -237,7 +239,8 @@ export class TopbarHeaderComponent extends BaseClass {
                     this.action_list[TOOLTIP.CAMERA].show =
                         (cams as any)?.length > 0 && !speaker_track;
                     this.action_list = [...this.action_list];
-                    this.action_list[TOOLTIP.LIGHT_SCENES].show = l_scenes != null;
+                    this.action_list[TOOLTIP.LIGHT_SCENES].show =
+                        l_scenes != null;
                 }
             )
         );

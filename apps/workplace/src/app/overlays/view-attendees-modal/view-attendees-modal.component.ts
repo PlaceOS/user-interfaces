@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { BaseClass } from '@placeos/common';
 import { User } from '@placeos/users';
@@ -7,21 +7,21 @@ import { User } from '@placeos/users';
 @Component({
     selector: 'schedule-view-attendees',
     templateUrl: './view-attendees-modal.component.html',
-    styleUrls: ['./view-attendees-modal.component.scss']
+    styleUrls: ['./view-attendees-modal.component.scss'],
 })
-export class ViewAttendeesModalComponent extends BaseClass implements OnChanges, OnInit {
+export class ViewAttendeesModalComponent
+    extends BaseClass
+    implements OnChanges, OnInit
+{
     public attendees: User[];
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: { attendees: User[] }) {
         super();
     }
 
-    public ngOnChanges() {
-
-    }
+    public ngOnChanges() {}
 
     public ngOnInit() {
-            this.attendees = this._data.attendees;
+        this.attendees = this._data.attendees;
     }
-
 }

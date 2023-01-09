@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'confirm-delete-modal',
@@ -10,7 +10,7 @@ import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from
             >
             <div class="button-wrapper">
                 <button
-                    mat-button
+                    matRipple
                     (click)="cancel()"
                     class="cancel-button"
                     aria-label="do not delete survey"

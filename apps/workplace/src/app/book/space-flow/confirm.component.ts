@@ -85,7 +85,7 @@ import { OrganisationService } from '@placeos/organisation';
                         {{ form.get('resources')?.value?.length }} Space(s)
                     </div>
                     <button
-                        mat-button
+                        matRipple
                         [disabled]="!form.get('resources')?.value?.length"
                         class="clear bg-transparent border-none underline"
                         (click)="show_spaces = !show_spaces"
@@ -119,7 +119,7 @@ import { OrganisationService } from '@placeos/organisation';
                         >
 
                         <button
-                            mat-button
+                            matRipple
                             class="bg-transparent border-none underline"
                             *ngIf="can_view_location"
                         >
@@ -140,7 +140,7 @@ import { OrganisationService } from '@placeos/organisation';
                         Attendee(s)
                     </div>
                     <button
-                        mat-button
+                        matRipple
                         [disabled]="!form.get('attendees')?.value?.length"
                         class="clear bg-transparent border-none underline"
                         (click)="show_people = !show_people"
@@ -175,7 +175,10 @@ import { OrganisationService } from '@placeos/organisation';
                     </div>
                 </div>
             </div>
-            <div class="border-b border-gray-200 w-full" *ngIf="form.value.catering?.length">
+            <div
+                class="border-b border-gray-200 w-full"
+                *ngIf="form.value.catering?.length"
+            >
                 <div class="flex items-center py-2 space-x-2 ">
                     <div
                         class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
@@ -187,7 +190,7 @@ import { OrganisationService } from '@placeos/organisation';
                         Catering Item(s)
                     </div>
                     <button
-                        mat-button
+                        matRipple
                         class="clear bg-transparent border-none underline"
                         (click)="show_catering = !show_catering"
                     >
@@ -229,16 +232,14 @@ import { OrganisationService } from '@placeos/organisation';
                         <div
                             class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
                         >
-                            {{ item.total_cost / 100 | currency:code }}
+                            {{ item.total_cost / 100 | currency: code }}
                         </div>
-                        <a-counter
-                            [(ngModel)]="item.quantity"
-                        ></a-counter>
+                        <a-counter [(ngModel)]="item.quantity"></a-counter>
                     </div>
                 </div>
             </div>
             <button
-                mat-button
+                matRipple
                 class="w-32"
                 confirm
                 [disabled]="loading"

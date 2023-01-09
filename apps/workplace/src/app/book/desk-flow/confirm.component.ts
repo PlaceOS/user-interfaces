@@ -5,9 +5,9 @@ import { Component } from '@angular/core';
     template: `
         <div topbar class="">
             <a
-                button
+                btn
+                matRipple
                 class="clear h-[2.75rem] text-white"
-                mat-button
                 [routerLink]="['/book', 'desks', 'map']"
             >
                 <div class="flex items-center justify-center h-full">

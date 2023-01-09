@@ -1,8 +1,8 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent, randomInt } from '@placeos/common';
 import { CateringItem } from './catering-item.class';
 
@@ -15,8 +15,8 @@ export interface CateringItemModalData {
     selector: 'catering-item-modal',
     template: `
         <header>
-            <h3 mat-dialog-title>{{ item.id ? 'Edit' : 'Add' }} Item</h3>
-            <button mat-icon-button mat-dialog-close *ngIf="!loading">
+            <h3>{{ item.id ? 'Edit' : 'Add' }} Item</h3>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -26,7 +26,7 @@ export interface CateringItemModalData {
             [formGroup]="form"
         >
             <div class="flex items-center space-x-2">
-                <div class="field" *ngIf="form.controls.name">
+                <div class="flex flex-col" *ngIf="form.controls.name">
                     <label
                         for="title"
                         [class.error]="
@@ -46,7 +46,7 @@ export interface CateringItemModalData {
                         <mat-error>Name is required</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="field" *ngIf="form.controls.category">
+                <div class="flex flex-col" *ngIf="form.controls.category">
                     <label
                         for="category"
                         [class.error]="
@@ -68,7 +68,7 @@ export interface CateringItemModalData {
                     </mat-form-field>
                 </div>
             </div>
-            <div class="field" *ngIf="form.controls.tags">
+            <div class="flex flex-col" *ngIf="form.controls.tags">
                 <label
                     for="tags"
                     [class.error]="
@@ -79,35 +79,32 @@ export interface CateringItemModalData {
                     Tags:
                 </label>
                 <mat-form-field appearance="outline">
-                    <mat-chip-list #chipList aria-label="Item Tags">
-                        <mat-chip
-                            *ngFor="let tag of tag_list"
-                            [selectable]="true"
-                            [removable]="true"
-                            (removed)="removeTag(tag)"
+                    <mat-chip-grid #chipList aria-label="Item Tags">
+                        <mat-chip-row
+                            *ngFor="let item of tag_list"
+                            (removed)="removeTag(item)"
                         >
-                            {{ tag }}
-                            <app-icon
+                            {{ item }}
+                            <button
                                 matChipRemove
-                                [icon]="{
-                                    class: 'material-icons',
-                                    content: 'close'
-                                }"
-                            ></app-icon>
-                        </mat-chip>
-                        <input
-                            name="tags"
-                            placeholder="Item tags e.g. Gluten Free, Vegan etc."
-                            i18n-placeholder="@@zoneTagsPlaceholder"
-                            [matChipInputFor]="chipList"
-                            [matChipInputSeparatorKeyCodes]="separators"
-                            [matChipInputAddOnBlur]="true"
-                            (matChipInputTokenEnd)="addTag($event)"
-                        />
-                    </mat-chip-list>
+                                [attr.aria-label]="'Remove ' + item"
+                            >
+                                <app-icon>cancel</app-icon>
+                            </button>
+                        </mat-chip-row>
+                    </mat-chip-grid>
+                    <input
+                        name="tags"
+                        placeholder="Item tags e.g. Gluten Free, Vegan etc."
+                        i18n-placeholder="@@zoneTagsPlaceholder"
+                        [matChipInputFor]="chipList"
+                        [matChipInputSeparatorKeyCodes]="separators"
+                        [matChipInputAddOnBlur]="true"
+                        (matChipInputTokenEnd)="addTag($event)"
+                    />
                 </mat-form-field>
             </div>
-            <div class="field" *ngIf="form.controls.description">
+            <div class="flex flex-col" *ngIf="form.controls.description">
                 <label for="description">Description:</label>
                 <mat-form-field appearance="outline">
                     <textarea
@@ -118,7 +115,7 @@ export interface CateringItemModalData {
                     ></textarea>
                 </mat-form-field>
             </div>
-            <div class="field" *ngIf="form.controls.unit_price">
+            <div class="flex flex-col" *ngIf="form.controls.unit_price">
                 <label
                     for="title"
                     [class.error]="
@@ -145,7 +142,7 @@ export interface CateringItemModalData {
                     form.get('accept_points')?.value ? 'No' : 'Yes'
                 }}</mat-checkbox>
             </div>
-            <div class="flex items-center flex-wrap" list>
+            <div class="flex items-center flex-wrap max-w-lg" list>
                 <mat-checkbox
                     [ngModel]="hasTag('Gluten Free')"
                     (ngModelChange)="
@@ -169,7 +166,9 @@ export interface CateringItemModalData {
                 <mat-checkbox
                     [ngModel]="hasTag('Vegetarian')"
                     (ngModelChange)="
-                        $event ? addTag({ value: 'Vegetarian' }) : removeTag('Vegetarian')
+                        $event
+                            ? addTag({ value: 'Vegetarian' })
+                            : removeTag('Vegetarian')
                     "
                     [ngModelOptions]="{ standalone: true }"
                 >
@@ -209,7 +208,7 @@ export interface CateringItemModalData {
                     [render_fn]="renderPercent"
                 ></a-counter>
             </div>
-            <div class="field" *ngIf="form.controls.images">
+            <div class="flex flex-col" *ngIf="form.controls.images">
                 <label for="images" i18n="@@imagesLabel">Images:</label>
                 <image-list-field
                     name="images"
@@ -221,7 +220,12 @@ export interface CateringItemModalData {
             *ngIf="!loading"
             class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
         >
-            <button mat-button [disabled]="!form.dirty" (click)="saveChanges()">
+            <button
+                btn
+                matRipple
+                [disabled]="!form.dirty"
+                (click)="saveChanges()"
+            >
                 Save
             </button>
         </footer>
@@ -239,11 +243,6 @@ export interface CateringItemModalData {
     `,
     styles: [
         `
-            .field {
-                display: flex;
-                flex-wrap: wrap;
-            }
-
             [list] mat-checkbox {
                 margin: 0.5rem;
             }

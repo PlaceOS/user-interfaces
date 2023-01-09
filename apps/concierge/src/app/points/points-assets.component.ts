@@ -50,10 +50,15 @@ export interface PointAsset {
             empty="No priced assets"
         ></custom-table>
         <ng-template #type_template let-data="data">
-            <span class="p-2 bg-gray-200 dark:bg-neutral-500 rounded capitalize">{{ data }}</span>
+            <span
+                class="p-2 bg-gray-200 dark:bg-neutral-500 rounded capitalize"
+                >{{ data }}</span
+            >
         </ng-template>
         <ng-template #price_template let-data="data">
-            <span class="text-xs"> {{ data / 100 | currency:code }} per hour </span>
+            <span class="text-xs">
+                {{ data / 100 | currency: code }} per hour
+            </span>
         </ng-template>
         <ng-template #accept_template let-data="data">
             <div class="flex justify-center h-px">
@@ -71,19 +76,25 @@ export interface PointAsset {
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="h-6 flex items-center justify-end">
-                <button mat-icon-button (click)="edit(row)"><app-icon>edit</app-icon></button>
-                <button mat-icon-button (click)="remove(row)"><app-icon>delete</app-icon></button>
+                <button icon (click)="edit(row)">
+                    <app-icon>edit</app-icon>
+                </button>
+                <button icon (click)="remove(row)">
+                    <app-icon>delete</app-icon>
+                </button>
             </div>
         </ng-template>
     `,
-    styles: [`
-        :host {
-            height: 100%;
-            width: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                height: 100%;
+                width: 100%;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+        `,
+    ],
 })
 export class PointsAssetsComponent {
     public asset_list = this._state.assets;
@@ -95,5 +106,8 @@ export class PointsAssetsComponent {
         return this._org.currency_code;
     }
 
-    constructor(private _state: PointsStateService, private _org: OrganisationService) {}
+    constructor(
+        private _state: PointsStateService,
+        private _org: OrganisationService
+    ) {}
 }

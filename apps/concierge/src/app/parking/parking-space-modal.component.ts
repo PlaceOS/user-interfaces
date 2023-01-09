@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
 import { User } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
@@ -56,10 +56,10 @@ import { ParkingSpace } from './parking-state.service';
                     ></textarea>
                 </mat-form-field>
                 <div class="flex items-center justify-center space-x-2">
-                    <button mat-button class="w-32 inverse" mat-dialog-close>
+                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
                     </button>
-                    <button mat-button class="w-32">Save</button>
+                    <button btn matRipple class="w-32">Save</button>
                 </div>
             </main>
         </div>

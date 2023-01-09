@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { BuildingsService } from '../services/buildings.service';
 import { Building, BookingRuleDetails } from '@placeos/organisation';
@@ -116,7 +116,7 @@ import { Building, BookingRuleDetails } from '@placeos/organisation';
             </main>
             <footer>
                 <button
-                    mat-button
+                    matRipple
                     class="cancel-button align-middle"
                     color="basic"
                     (click)="closeDialog()"
@@ -124,13 +124,13 @@ import { Building, BookingRuleDetails } from '@placeos/organisation';
                     <span>Cancel</span>
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="add-button align-middle"
                     color="primary"
                     (click)="addBuilding()"
                     [disabled]="!buildingForm.valid"
                 >
-                <span> Add </span>
+                    <span> Add </span>
                 </button>
             </footer>
         </section>

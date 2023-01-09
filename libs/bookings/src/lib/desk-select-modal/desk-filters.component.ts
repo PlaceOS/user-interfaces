@@ -24,7 +24,8 @@ import { BookingFormService } from '../booking-form.service';
         >
             <div class="flex-1 pl-2">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     close
                     class="sm:hidden"
                     *ngIf="can_close"
@@ -70,8 +71,10 @@ import { BookingFormService } from '../booking-form.service';
                     </mat-form-field>
                 </div>
                 <!-- level -->
-                <div *ngIf="(levels | async)?.length > 1"
-                    class="flex-1 min-w-[256px] flex flex-col">
+                <div
+                    *ngIf="(levels | async)?.length > 1"
+                    class="flex-1 min-w-[256px] flex flex-col"
+                >
                     <label>Level</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -173,7 +176,7 @@ import { BookingFormService } from '../booking-form.service';
             class="px-2 py-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button mat-button close class="w-full" (click)="close()" i18n>
+            <button btn matRipple close class="w-full" (click)="close()" i18n>
                 Apply Filters
             </button>
         </div>

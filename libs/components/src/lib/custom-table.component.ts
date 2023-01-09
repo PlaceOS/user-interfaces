@@ -9,9 +9,9 @@ import {
     TemplateRef,
     ViewChild,
 } from '@angular/core';
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { BaseClass } from '@placeos/common';
 import { Observable } from 'rxjs';
 
@@ -96,7 +96,8 @@ import { Observable } from 'rxjs';
 })
 export class CustomTableComponent<T extends {} = any>
     extends BaseClass
-    implements AfterViewInit, OnChanges {
+    implements AfterViewInit, OnChanges
+{
     /** Data source to render in the table */
     @Input() public dataSource: T[] | Observable<T[]>;
     /** Whether table should use pagination */
@@ -166,7 +167,8 @@ export class CustomTableComponent<T extends {} = any>
         }
         if (changes.columns && this.columns) {
             this.display_column = this.columns.map(
-                (_, idx) => (this.display_column || [])[idx] || _.split('_').join(' ')
+                (_, idx) =>
+                    (this.display_column || [])[idx] || _.split('_').join(' ')
             );
         }
         if (!this.column_size) {

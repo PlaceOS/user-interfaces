@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BaseClass } from '@placeos/common';
 
 import { DialogEvent, Identity } from 'libs/common/src/lib/types';
@@ -20,7 +20,7 @@ export interface CateringConfigModalData {
     template: `
         <header>
             <h3>Edit Catering Configuration</h3>
-            <button mat-icon-button mat-dialog-close *ngIf="!loading">
+            <button icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -34,7 +34,7 @@ export interface CateringConfigModalData {
             </mat-checkbox>
             <br />
             <button
-                mat-button
+                matRipple
                 (click)="rulesets.push({ id: new_id, rules: [] })"
             >
                 New Ruleset
@@ -52,14 +52,16 @@ export interface CateringConfigModalData {
                         <mat-error>Ruleset name is required</mat-error>
                     </mat-form-field>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="mb-6"
                         (click)="set.rules.push(['', '']); show_rules = set.id"
                     >
                         <app-icon>add</app-icon>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="mb-6"
                         [disabled]="!set.rules.length"
                         (click)="
@@ -73,7 +75,8 @@ export interface CateringConfigModalData {
                         }}</app-icon>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="mb-6"
                         (click)="rulesets.splice(i, 1)"
                     >
@@ -117,7 +120,8 @@ export interface CateringConfigModalData {
                             <mat-error>Rule value is required</mat-error>
                         </mat-form-field>
                         <button
-                            mat-icon-button
+                            icon
+                            matRipple
                             class="mb-6"
                             (click)="set.rules.splice(i, 1)"
                         >
@@ -130,7 +134,7 @@ export interface CateringConfigModalData {
         <footer
             class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
         >
-            <button mat-button (click)="saveChanges()">Save Changes</button>
+            <button btn matRipple (click)="saveChanges()">Save Changes</button>
         </footer>
     `,
     styles: [

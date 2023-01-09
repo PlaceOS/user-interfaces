@@ -27,7 +27,7 @@ import { DashboardStateService } from './dashboard-state.service';
                     <div name="dot" class="mr-2"></div>
                     Level 12
                 </div> -->
-                <button mat-icon-button name="close" (click)="removeUser(user)">
+                <button icon name="close" (click)="removeUser(user)">
                     <app-icon
                         [icon]="{ class: 'material-icons', content: 'close' }"
                     ></app-icon>
@@ -41,7 +41,9 @@ import { DashboardStateService } from './dashboard-state.service';
                 (menuOpened)="focusInput()"
                 (menuClosed)="clearInput()"
             >
-                <div class="flex flex-col items-center p-4 text-black dark:text-white w-full">
+                <div
+                    class="flex flex-col items-center p-4 text-black dark:text-white w-full"
+                >
                     <app-icon
                         class="text-2xl"
                         [icon]="{

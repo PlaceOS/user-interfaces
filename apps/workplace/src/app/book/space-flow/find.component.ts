@@ -170,7 +170,8 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </div>
                     </div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="pointer-events-auto"
                         (click)="
                             this.handleBookEvent(space, false);

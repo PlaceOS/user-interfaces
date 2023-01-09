@@ -84,7 +84,8 @@ import { Space } from '../space.class';
                         </div>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         fav
                         class="absolute top-1 right-1"
                         [class.text-blue-400]="isFavourite(space.id)"
@@ -137,10 +138,13 @@ export class SpaceListComponent {
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
     public readonly loading = this._event_form.loading;
-    
+
     public readonly available_spaces = this._event_form.available_spaces;
 
-    constructor(private _event_form: EventFormService, private _org: OrganisationService) {}
+    constructor(
+        private _event_form: EventFormService,
+        private _org: OrganisationService
+    ) {}
 
     public level(zones: string[]) {
         return this._org.levelWithID(zones);

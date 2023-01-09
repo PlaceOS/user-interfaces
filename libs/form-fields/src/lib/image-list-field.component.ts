@@ -1,7 +1,7 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
     humanReadableByteCount,
@@ -115,13 +115,13 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                         actions
                         class="absolute top-0 left-0 right-0 flex items-center justify-center space-x-2 opacity-0"
                     >
-                        <button mat-icon-button (click)="copyLink(url)">
+                        <button icon (click)="copyLink(url)">
                             <app-icon>link</app-icon>
                         </button>
-                        <button mat-icon-button (click)="viewImage(url)">
+                        <button icon (click)="viewImage(url)">
                             <app-icon>visibility</app-icon>
                         </button>
-                        <button mat-icon-button (click)="removeImage(url)">
+                        <button icon (click)="removeImage(url)">
                             <app-icon>close</app-icon>
                         </button>
                     </div>
@@ -153,7 +153,8 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                 </div>
             </div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 *ngIf="length > view_space"
                 [disabled]="offset === 0"
                 class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white"
@@ -162,7 +163,8 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                 <app-icon>chevron_left</app-icon>
             </button>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 *ngIf="length > view_space"
                 [disabled]="offset >= length - view_space"
                 class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white"
@@ -172,16 +174,25 @@ export function uploadFile(file: File): Observable<UploadDetails> {
             </button>
         </div>
         <mat-form-field appearance="outline" class="w-full">
-            <mat-chip-list #chipList aria-label="Editor Groups">
-                <input
-                    placeholder="Add image via URL"
-                    i18n-placeholder
-                    [matChipInputFor]="chipList"
-                    [matChipInputSeparatorKeyCodes]="separators"
-                    [matChipInputAddOnBlur]="true"
-                    (matChipInputTokenEnd)="addImage($event)"
-                />
-            </mat-chip-list>
+            <mat-chip-grid #chipList aria-label="Image List">
+                <mat-chip-row
+                    *ngFor="let item of list"
+                    (removed)="removeItem(item)"
+                >
+                    <div class="truncate max-w-md">{{ item }}</div>
+                    <button matChipRemove [attr.aria-label]="'Remove ' + item">
+                        <app-icon>cancel</app-icon>
+                    </button>
+                </mat-chip-row>
+            </mat-chip-grid>
+            <input
+                placeholder="Add image via URL"
+                i18n-placeholder
+                [matChipInputFor]="chipList"
+                [matChipInputSeparatorKeyCodes]="separators"
+                [matChipInputAddOnBlur]="true"
+                (matChipInputTokenEnd)="addImage($event)"
+            />
         </mat-form-field>
     `,
     styles: [

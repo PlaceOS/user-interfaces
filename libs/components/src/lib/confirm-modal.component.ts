@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ApplicationIcon, DialogEvent } from 'libs/common/src/lib/types';
 
@@ -44,10 +44,16 @@ export const CONFIRM_METADATA = {
             class="flex items-center justify-center p-2 space-x-2"
             *ngIf="!loading"
         >
-            <button mat-button class="inverse w-32" mat-dialog-close>
+            <button btn matRipple class="inverse w-32" mat-dialog-close>
                 {{ cancel_text }}
             </button>
-            <button mat-button name="accept" class="w-32" (click)="onConfirm()">
+            <button
+                btn
+                matRipple
+                name="accept"
+                class="w-32"
+                (click)="onConfirm()"
+            >
                 {{ confirm_text }}
             </button>
         </footer>

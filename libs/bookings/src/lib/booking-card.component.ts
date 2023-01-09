@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
@@ -167,12 +167,18 @@ export class BookingCardComponent extends BaseClass {
 
     public viewDetails() {
         if (!this.booking) return;
-        this.timeout('open', () =>{
+        this.timeout('open', () => {
             const ref = this._dialog.open(BookingDetailsModalComponent, {
                 data: this.booking,
-            })
-            this.subscription('edit', ref.componentInstance.edit.subscribe(() => this.edit.emit()));
-            this.subscription('remove', ref.componentInstance.remove.subscribe(() => this.remove.emit()));
-       } );
+            });
+            this.subscription(
+                'edit',
+                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+            );
+            this.subscription(
+                'remove',
+                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+            );
+        });
     }
 }

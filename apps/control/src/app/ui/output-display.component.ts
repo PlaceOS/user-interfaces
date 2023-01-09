@@ -31,7 +31,9 @@ export const ICON_MAP = {
                     {{ item?.name }}
                 </div>
                 <app-icon class="text-7xl">{{
-                    (input | async)?.icon || icons[(input | async)?.type] || 'add_to_queue'
+                    (input | async)?.icon ||
+                        icons[(input | async)?.type] ||
+                        'add_to_queue'
                 }}</app-icon>
                 <p class="font-medium">
                     {{
@@ -45,7 +47,7 @@ export const ICON_MAP = {
                 </p>
             </div>
             <div class="flex items-center space-x-2 w-full">
-                <button mat-icon-button (click)="setMute(!item.mute)">
+                <button icon matRipple (click)="setMute(!item.mute)">
                     <app-icon>{{
                         item.mute
                             ? 'volume_off'
@@ -54,11 +56,12 @@ export const ICON_MAP = {
                             : 'volume_mute'
                     }}</app-icon>
                 </button>
-                <mat-slider
-                    [ngModel]="!mute ? item.volume : 0"
-                    (ngModelChange)="setVolume($event)"
-                    class="flex-1"
-                ></mat-slider>
+                <mat-slider class="flex-1"
+                    ><input
+                        matSliderThumb
+                        [ngModel]="!mute ? item.volume : 0"
+                        (ngModelChange)="setVolume($event)"
+                /></mat-slider>
             </div>
         </div>
     `,

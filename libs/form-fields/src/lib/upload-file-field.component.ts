@@ -10,7 +10,9 @@ import { uploadFiles } from '@placeos/cloud-uploads';
 @Component({
     selector: 'upload-file',
     template: `
-        <div class="bg-gray-50 hover:bg-gray-100 cursor-pointer p-2 rounded border border-gray-200 w-full relative">
+        <div
+            class="bg-gray-50 hover:bg-gray-100 cursor-pointer p-2 rounded border border-gray-200 w-full relative"
+        >
             <input
                 type="file"
                 class="absolute inset-0 opacity-0 max-w-full z-10"
@@ -50,7 +52,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                 >
                     <app-icon>link</app-icon>
                 </a>
-                <button mat-icon-button (click)="writeValue(null)">
+                <button icon (click)="writeValue(null)">
                     <app-icon>close</app-icon>
                 </button>
             </div>

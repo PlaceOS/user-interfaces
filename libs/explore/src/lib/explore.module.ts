@@ -3,7 +3,7 @@ import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ComponentsModule } from '@placeos/components';
 
-import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 
@@ -30,7 +30,7 @@ const COMPONENTS: Type<any>[] = [
     ExploreZoomControlComponent,
     ExploreBookingModalComponent,
     SetDatetimeModalComponent,
-    ExploreBookQrComponent
+    ExploreBookQrComponent,
 ];
 
 @NgModule({
@@ -43,7 +43,7 @@ const COMPONENTS: Type<any>[] = [
         MatSlideToggleModule,
         OverlayModule,
         PortalModule,
-        FormFieldsModule
+        FormFieldsModule,
     ],
     exports: [...COMPONENTS],
 })

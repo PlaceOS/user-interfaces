@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.component';
 
@@ -32,7 +32,7 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
                     ></div>
                 </div>
                 <button
-                    mat-button
+                    matRipple
                     class="w-full mt-2"
                     (click)="registerDelivery()"
                 >

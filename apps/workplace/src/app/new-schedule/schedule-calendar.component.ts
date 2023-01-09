@@ -18,11 +18,11 @@ import {
                 <div class="px-2 font-medium">
                     {{ date_list[6]?.id || active_date | date: 'LLLL' }}
                 </div>
-                <div class="">
-                    <button mat-icon-button (click)="changeMonth(-1)">
+                <div class="flex items-center">
+                    <button icon matRipple (click)="changeMonth(-1)">
                         <app-icon>chevron_left</app-icon>
                     </button>
-                    <button mat-icon-button (click)="changeMonth(1)">
+                    <button icon matRipple (click)="changeMonth(1)">
                         <app-icon>chevron_right</app-icon>
                     </button>
                 </div>
@@ -37,7 +37,8 @@ import {
             </div>
             <div class="flex items-center flex-wrap">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="min-w-[14%] flex-1"
                     *ngFor="let day of date_list"
                     [class.text-opacity-30]="!day.is_month"

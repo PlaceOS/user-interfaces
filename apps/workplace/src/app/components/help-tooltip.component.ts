@@ -9,18 +9,22 @@ import { CustomTooltipData } from '@placeos/components';
             class="flex flex-col w-[18.5rem] rounded bg-white shadow relative -top-12 -right-1 dark:bg-neutral-700 dark:text-white divide-y divide-gray-300 dark:divide-neutral-500"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2 p-2 border-b dark:border-neutral-500">
+            <div
+                class="flex items-center space-x-2 p-2 border-b dark:border-neutral-500"
+            >
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="" i18n>Help & Support</div>
             </div>
             <a
-                button
-                mat-button
+                btn
+                matRipple
                 *ngFor="let tile of tiles"
                 class="clear w-full text-left h-auto"
                 [href]="tile.link"
             >
-                <div class="flex items-center space-x-2 dark:text-white py-2">
+                <div
+                    class="flex items-center space-x-2 dark:text-white py-2 w-full"
+                >
                     <div
                         class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                     >

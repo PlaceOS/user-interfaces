@@ -50,7 +50,8 @@ import { ReportsStateService } from './reports-state.service';
                 <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
             <button
-                mat-button
+                btn
+                matRipple
                 class="ml-4"
                 [disabled]="
                     !!(loading | async) || !(options | async)?.zones?.length
@@ -64,7 +65,8 @@ import { ReportsStateService } from './reports-state.service';
                 <p *ngIf="!(loading | async)">Generate Report</p>
             </button>
             <button
-                mat-button
+                btn
+                matRipple
                 class="ml-4"
                 [disabled]="!(bookings | async)?.length"
                 (click)="downloadReport()"

@@ -175,7 +175,8 @@ import { User } from '@placeos/users';
                     class="sticky p-4 border-t bg-white border-gray-200 dark:border-neutral-500 bottom-0"
                 >
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         send
                         class="w-full sm:w-auto"
                         (click)="sendInvite()"
@@ -215,7 +216,7 @@ import { User } from '@placeos/users';
                         class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >
                         <button
-                            mat-button
+                            matRipple
                             class="flex-1"
                             (click)="onDone()"
                             i18n
@@ -223,7 +224,7 @@ import { User } from '@placeos/users';
                             Great, thanks
                         </button>
                         <button
-                            mat-button
+                            matRipple
                             class="flex-1"
                             (click)="sent = false"
                             i18n

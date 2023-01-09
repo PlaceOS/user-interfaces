@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import {
     BaseClass,
     csvToJson,
@@ -125,11 +125,12 @@ const QR_CODES = {};
                     >
                         <app-icon>warning</app-icon>
                     </div>
-                    <button mat-icon-button (click)="removeDesk(row)">
+                    <button icon (click)="removeDesk(row)">
                         <app-icon>delete</app-icon>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         [matMenuTriggerFor]="menu"
                         (click)="loadQrCode(row)"
                     >
@@ -142,7 +143,7 @@ const QR_CODES = {};
                             <img class="w-48" [src]="row.qr_code" />
                         </div>
                         <div mat-menu-item class="underline">
-                            <button mat-button class="w-full">
+                            <button btn matRipple class="w-full">
                                 Print QR Code
                             </button>
                         </div>

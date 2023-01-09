@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     Booking,
@@ -47,15 +47,15 @@ import { MapLocateModalComponent } from '@placeos/components';
                 <div
                     class="flex items-center py-2 space-x-2 w-full !border-none"
                 >
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
                         {{ event.date | date: 'longDate' }}
                         <span
-                            *ngIf="
-                                !event.all_day && event.duration < 12 * 60;
-                            "
+                            *ngIf="!event.all_day && event.duration < 12 * 60"
                         >
                             at {{ event.date | date: 'shortTime' }} ~
                             {{
@@ -65,26 +65,34 @@ import { MapLocateModalComponent } from '@placeos/components';
                         </span>
                     </div>
                 </div>
-                <div
-                    class="flex items-center py-2 space-x-2 w-full"
-                >
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                <div class="flex items-center py-2 space-x-2 w-full">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>schedule</app-icon>
                     </div>
-                    <div class="flex-1 truncate">{{ !event.all_day && event.duration < 12 * 60 ? duration : 'All Day' }}</div>
+                    <div class="flex-1 truncate">
+                        {{
+                            !event.all_day && event.duration < 12 * 60
+                                ? duration
+                                : 'All Day'
+                        }}
+                    </div>
                 </div>
                 <div
                     class="flex items-center py-2 space-x-2 w-full"
                     *ngIf="event.asset_id"
                 >
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>menu_book</app-icon>
                     </div>
                     <div class="flex-1 truncate">
                         {{ event.description || '&lt;No Asset&gt;' }}
                     </div>
                     <button
-                        mat-button
+                        matRipple
                         locate
                         *ngIf="event.extension_data.map_id && can_view_location"
                         class="bg-transparent border-none underline text-black"
@@ -98,7 +106,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     *ngIf="!has_ended && is_host"
                 >
                     <button
-                        mat-button
+                        matRipple
                         remove
                         class="w-32 error inverse"
                         [disabled]="loading"
@@ -149,10 +157,12 @@ export class ScheduleViewBookingComponent extends BaseClass {
     }
 
     public get duration() {
-        return this.event.all_day || this.event.duration >= 12 * 60 ? 'All Day' : formatDuration({
-            hours: Math.floor(this.event?.duration / 60),
-            minutes: this.event?.duration % 60,
-        });
+        return this.event.all_day || this.event.duration >= 12 * 60
+            ? 'All Day'
+            : formatDuration({
+                  hours: Math.floor(this.event?.duration / 60),
+                  minutes: this.event?.duration % 60,
+              });
     }
 
     public get has_ended() {

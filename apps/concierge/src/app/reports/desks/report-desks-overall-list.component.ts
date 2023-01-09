@@ -8,10 +8,14 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-overall-list',
     template: `
-        <div class="m-4 rounded bg-white dark:bg-neutral-700 shadow overflow-hidden">
-            <div class="border-b border-gray-300 dark:border-neutral-500 p-4 flex items-center">
+        <div
+            class="m-4 rounded bg-white dark:bg-neutral-700 shadow overflow-hidden"
+        >
+            <div
+                class="border-b border-gray-300 dark:border-neutral-500 p-4 flex items-center"
+            >
                 <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>
-                <button mat-icon-button (click)="download()">
+                <button icon (click)="download()">
                     <app-icon>download</app-icon>
                 </button>
             </div>

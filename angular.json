@@ -66,7 +66,7 @@
                             "apps/booking-panel/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/booking-panel/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -302,7 +302,7 @@
                             "apps/caterer-ui/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/caterer-ui/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -569,7 +569,7 @@
                             "apps/concierge/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "./node_modules/survey-core/modern.min.css",
                             "apps/concierge/src/styles.css",
                             "shared/styles/application.scss",
@@ -748,7 +748,7 @@
                             "apps/control/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/control/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -921,7 +921,7 @@
                             "apps/enrolment/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/enrolment/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -959,8 +959,8 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "500kb",
-                                    "maximumError": "1mb"
+                                    "maximumWarning": "800kb",
+                                    "maximumError": "2mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
@@ -1185,7 +1185,7 @@
                             "apps/map-kiosk/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/map-kiosk/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1434,7 +1434,7 @@
                             }
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/outlook-addin/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1667,7 +1667,7 @@
                             "apps/timetable/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/timetable/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -1699,8 +1699,8 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "500kb",
-                                    "maximumError": "1mb"
+                                    "maximumWarning": "1mb",
+                                    "maximumError": "4mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
@@ -1869,7 +1869,7 @@
                             "apps/visitor-kiosk/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/visitor-kiosk/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",
@@ -2061,7 +2061,7 @@
                             "apps/workplace/src/manifest.webmanifest"
                         ],
                         "styles": [
-                            "./node_modules/@angular/material/legacy-prebuilt-themes/legacy-indigo-pink.css",
+                            "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                             "apps/workplace/src/styles.css",
                             "shared/styles/application.scss",
                             "shared/styles/custom-element.scss",

@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ComponentsModule } from '@placeos/components';
 
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
@@ -21,7 +21,7 @@ import { AssetsModule } from '@placeos/assets';
         AppComponent,
         AppTimetableComponent,
         SpaceTimetableComponent,
-        SpaceEventDetailsComponent
+        SpaceEventDetailsComponent,
     ],
     imports: [
         BrowserModule,
@@ -30,10 +30,13 @@ import { AssetsModule } from '@placeos/assets';
         MatSnackBarModule,
         PaymentsModule,
         AssetsModule,
-        RouterModule.forRoot([
-            { path: '', component: AppTimetableComponent },
-            { path: '**', redirectTo: '' },
-        ], { useHash: true }),
+        RouterModule.forRoot(
+            [
+                { path: '', component: AppTimetableComponent },
+                { path: '**', redirectTo: '' },
+            ],
+            { useHash: true }
+        ),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
             // Register the ServiceWorker as soon as the app is stable

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { currentUser, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
     template: `
         <header class="flex items-center justify-between">
             <h2 i18n>Raise a support ticket</h2>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -56,7 +56,9 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-form-field>
                 </div>
                 <div>
-                    <label class="mb-4" i18n>Issue Description<span>*</span></label>
+                    <label class="mb-4" i18n
+                        >Issue Description<span>*</span></label
+                    >
                     <rich-text-input
                         placeholder="Issue Description"
                         formControlName="description"
@@ -74,7 +76,9 @@ import { OrganisationService } from '@placeos/organisation';
         <footer
             class="p-2 border-t border-gray-200 flex items-center justify-center"
         >
-            <button mat-button class="w-32" (click)="submit()" i18n>Submit</button>
+            <button btn matRipple class="w-32" (click)="submit()" i18n>
+                Submit
+            </button>
         </footer>
     `,
     styles: [

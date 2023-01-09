@@ -5,7 +5,9 @@ import { Asset } from '../asset.class';
 @Component({
     selector: 'asset-list',
     template: `
-        <div class="w-full h-full overflow-auto py-2 bg-black/5 dark:bg-white/10 dark:border-neutral-500">
+        <div
+            class="w-full h-full overflow-auto py-2 bg-black/5 dark:bg-white/10 dark:border-neutral-500"
+        >
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (assets | async)?.length || 0 }} result(s) found
@@ -33,13 +35,19 @@ import { Asset } from '../asset.class';
                                     class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                     *ngIf="selected.includes(asset.id)"
                                 >
-                                   <span class="text-xs">{{asset.amount || 1}}</span>
+                                    <span class="text-xs">{{
+                                        asset.amount || 1
+                                    }}</span>
                                 </div>
                             </div>
                             <div class="space-y-2 text-left flex-1">
-                                <div class="font-medium flex items-center justify-between">
+                                <div
+                                    class="font-medium flex items-center justify-between"
+                                >
                                     <div>{{ asset.name || 'Asset' }}</div>
-                                    <div class="opacity-60 text-xs">{{ asset.category }}</div>
+                                    <div class="opacity-60 text-xs">
+                                        {{ asset.category }}
+                                    </div>
                                 </div>
                                 <div
                                     class="flex items-center text-sm space-x-2"
@@ -52,7 +60,8 @@ import { Asset } from '../asset.class';
                             </div>
                         </button>
                         <button
-                            mat-icon-button
+                            icon
+                            matRipple
                             fav
                             class="absolute top-1 right-1"
                             [class.text-blue-400]="isFavourite(asset.id)"
@@ -88,12 +97,14 @@ import { Asset } from '../asset.class';
             </div>
         </ng-template>
     `,
-    styles: [`
-        :host {
-            width: 100%;
-            height: 100%;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                width: 100%;
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class AssetListComponent {
     @Input() public selected: string = '';

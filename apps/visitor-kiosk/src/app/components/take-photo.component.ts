@@ -46,7 +46,7 @@ import {
             <button class="inverse" mat-button (click)="cancelPhoto()">
                 Cancel
             </button>
-            <button mat-button (click)="acceptPhoto()">Accept</button>
+            <button btn matRipple (click)="acceptPhoto()">Accept</button>
         </ng-template>
     `,
     styles: [

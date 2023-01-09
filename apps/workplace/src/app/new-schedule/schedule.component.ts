@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, removeBooking } from '@placeos/bookings';
 import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
@@ -28,7 +28,9 @@ import { ScheduleStateService } from './schedule-state.service';
                 <schedule-filters></schedule-filters>
                 <h3 class="font-medium my-2">
                     {{ date | async | date: 'EEE dd LLL yyyy' }}
-                    <span *ngIf="is_today | async">({{ "COMMON.TODAY" | translate }})</span>
+                    <span *ngIf="is_today | async"
+                        >({{ 'COMMON.TODAY' | translate }})</span
+                    >
                 </h3>
                 <ng-container
                     *ngIf="(bookings | async)?.length; else empty_state"
@@ -69,7 +71,7 @@ import { ScheduleStateService } from './schedule-state.service';
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">
-                    {{ "WPA.SCHEDULE_EMPTY" | translate }}
+                    {{ 'WPA.SCHEDULE_EMPTY' | translate }}
                     {{ date | async | date: 'EEEE, dd LLL yyyy' }}
                 </p>
             </div>

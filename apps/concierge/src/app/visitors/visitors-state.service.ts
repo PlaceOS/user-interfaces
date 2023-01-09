@@ -28,7 +28,7 @@ import {
     queryEvents,
 } from '@placeos/events';
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { checkinBookingAttendee, queryBookings } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -287,7 +287,7 @@ export class VisitorsStateService extends BaseClass {
         if (guests.length <= 0) throw new Error('No Guests to checkin');
         const attendees = await Promise.all(
             guests.map((user) =>
-            this._checkinCall(event, user.email, true).toPromise()
+                this._checkinCall(event, user.email, true).toPromise()
             )
         ).catch((e) => {
             notifyError(
@@ -342,12 +342,16 @@ export class VisitorsStateService extends BaseClass {
         });
     }
 
-    private _checkinCall(event: CalendarEvent, email: string, state: boolean = true) {
+    private _checkinCall(
+        event: CalendarEvent,
+        email: string,
+        state: boolean = true
+    ) {
         return event.from_bookings
-        ? checkinBookingAttendee(event.id, email, state)
-        : checkinEventGuest(event.id, email, state, {
-              system_id: event.system?.id || event.resources[0]?.id,
-          });
+            ? checkinBookingAttendee(event.id, email, state)
+            : checkinEventGuest(event.id, email, state, {
+                  system_id: event.system?.id || event.resources[0]?.id,
+              });
     }
 
     public async downloadVisitorsList() {

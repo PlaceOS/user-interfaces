@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
+import { BehaviorSubject, interval, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -107,7 +107,6 @@ export class PanelStateService extends BaseClass {
         switchMap((id) =>
             showSystem(id).pipe(
                 catchError(({ status }) => {
-                    console.log('Status:', status);
                     status === 404 ? this._router.navigate(['/bootstrap']) : '';
                     return of(new PlaceSystem());
                 })

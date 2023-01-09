@@ -27,7 +27,9 @@ import { PanelStateService } from '../panel-state.service';
                 }}
             </div>
         </div>
-        <h3 class="p-4 text-xl font-medium">{{ "PANEL.UPCOMING" | translate }}</h3>
+        <h3 class="p-4 text-xl font-medium">
+            {{ 'PANEL.UPCOMING' | translate }}
+        </h3>
         <div class="bg-white divide-y divide-gray-200">
             <div class="flex items-center p-2">
                 <div
@@ -37,7 +39,9 @@ import { PanelStateService } from '../panel-state.service';
                     [class.bg-pending]="(state | async) === 'pending'"
                 ></div>
                 <div class="text-sm  flex-1 px-2">
-                    <div class="font-medium uppercase">{{ "PANEL.NOW" | translate }}</div>
+                    <div class="font-medium uppercase">
+                        {{ 'PANEL.NOW' | translate }}
+                    </div>
                     <div class="">
                         {{
                             (event_state | async)?.current || 'No current event'
@@ -45,7 +49,7 @@ import { PanelStateService } from '../panel-state.service';
                     </div>
                 </div>
                 <button
-                    mat-button
+                    matRipple
                     class="w-24"
                     *ngIf="(state | async) === 'pending'"
                     (click)="checkInCurrent()"
@@ -53,7 +57,7 @@ import { PanelStateService } from '../panel-state.service';
                     {{ 'PANEL.CHECKIN' | translate }}
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="w-24"
                     *ngIf="(state | async) === 'free'"
                     (click)="newBooking()"
@@ -76,7 +80,7 @@ import { PanelStateService } from '../panel-state.service';
                     </div>
                 </div>
                 <button
-                    mat-button
+                    matRipple
                     class="w-24"
                     *ngIf="!(event_state | async)?.next"
                 >
@@ -93,15 +97,14 @@ import { PanelStateService } from '../panel-state.service';
                 (event)="newBooking($event)"
             ></checkin-timetable>
         </div>
-        <h3 class="p-4 text-xl font-medium" 
-            *ngIf="false">
+        <h3 class="p-4 text-xl font-medium" *ngIf="false">
             {{ 'PANEL.FEATURES' | translate }}
         </h3>
         <div
             class="bg-white overflow-auto flex-1 h-px divide-y divide-gray-200"
             *ngIf="false"
         >
-            <button matRipple class="flex items-center p-4 w-full">
+            <button btn matRipple class="flex items-center p-4 w-full">
                 <div
                     class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
                 >
@@ -112,7 +115,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button matRipple class="flex items-center p-4 w-full">
+            <button btn matRipple class="flex items-center p-4 w-full">
                 <div
                     class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
                 >
@@ -123,7 +126,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button matRipple class="flex items-center p-4 w-full">
+            <button btn matRipple class="flex items-center p-4 w-full">
                 <div
                     class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
                 >
@@ -134,7 +137,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button matRipple class="flex items-center p-4 w-full">
+            <button btn matRipple class="flex items-center p-4 w-full">
                 <div
                     class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
                 >

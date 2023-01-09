@@ -59,7 +59,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
             </mat-checkbox>
             <div class="flex items-center justify-center space-x-4">
                 <button
-                    mat-button
+                    matRipple
                     class="w-32"
                     [disabled]="!form.valid"
                     (click)="updateGuest()"
@@ -67,7 +67,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     Save
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="w-32"
                     [disabled]="!form.valid"
                     (click)="checkin()"
@@ -88,5 +88,8 @@ export class EnrolmentGuestConfirmComponent {
         return this._settings.get('app.guests.vaccine_check');
     }
 
-    constructor(private _state: EnrolmentStateService, private _settings: SettingsService) {}
+    constructor(
+        private _state: EnrolmentStateService,
+        private _settings: SettingsService
+    ) {}
 }

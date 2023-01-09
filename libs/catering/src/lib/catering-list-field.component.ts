@@ -1,6 +1,6 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
@@ -41,8 +41,9 @@ const EMPTY_FAVS = [];
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
                         <button
-                            mat-button
-                            edit-space
+                            btn
+                            matRipple
+                            edit
                             class="clear"
                             (click)="addItems(item)"
                         >
@@ -52,8 +53,9 @@ const EMPTY_FAVS = [];
                             </div>
                         </button>
                         <button
-                            mat-button
-                            remove-space
+                            btn
+                            matRipple
+                            remove
                             class="clear"
                             (click)="removeItem(item)"
                         >
@@ -65,7 +67,8 @@ const EMPTY_FAVS = [];
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(item.id)"
@@ -80,7 +83,8 @@ const EMPTY_FAVS = [];
             </div>
         </div>
         <button
-            mat-button
+            btn
+            matRipple
             add-space
             class="w-full inverse mt-2"
             [disabled]="disabled"

@@ -4,11 +4,11 @@ import { RouterModule } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacySliderModule as MatSliderModule } from '@angular/material/legacy-slider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSliderModule } from '@angular/material/slider';
 
 import { ComponentsModule } from '@placeos/components';
 
@@ -33,7 +33,7 @@ import { CameraControlsComponent } from './camera-controls.component';
 import { PhoneDiallingTooltipComponent } from './phone-dialling-tooltip.component';
 import { JoinRoomTooltipComponent } from './join-room-tooltip.component';
 import { LightingSceneTooltipComponent } from './lighting-scene-tooltip.component';
- 
+
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
     PowerTooltipComponent,
@@ -56,7 +56,7 @@ const COMPONENTS: Type<any>[] = [
     LightingSceneTooltipComponent,
 
     DurationPipe,
-    MarkdownPipe
+    MarkdownPipe,
 ];
 
 const MAT_MODULES: any[] = [
@@ -65,7 +65,7 @@ const MAT_MODULES: any[] = [
     MatAutocompleteModule,
     MatButtonModule,
     MatSliderModule,
-    MatRippleModule
+    MatRippleModule,
 ];
 
 const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
@@ -77,7 +77,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ComponentsModule,
         ...MAT_MODULES,
         ...ANGULAR_MODULES,
-        RouterModule.forChild([])
+        RouterModule.forChild([]),
     ],
     exports: [
         ComponentsModule,

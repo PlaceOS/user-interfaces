@@ -81,7 +81,8 @@ import { CateringItem } from '../catering-item.class';
                 </div>
             </button>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 fav
                 class="absolute top-1 right-1"
                 [class.text-blue-400]="favourite"

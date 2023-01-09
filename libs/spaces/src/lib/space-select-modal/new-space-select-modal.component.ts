@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import {
     EventFlowOptions,
@@ -14,13 +14,14 @@ import { Space } from '../space.class';
             class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button mat-icon-button mat-dialog-close class="bg-black/20">
+                <button icon matRipple mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Space</h3>
                 <div class="hidden sm:flex items-center justify-end flex-1">
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         map
                         class="rounded-l rounded-r-none"
                         [class.inverse]="view !== 'map'"
@@ -29,7 +30,8 @@ import { Space } from '../space.class';
                         Map
                     </button>
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         list
                         class="rounded-r rounded-l-none"
                         [class.inverse]="view !== 'list'"
@@ -78,7 +80,8 @@ import { Space } from '../space.class';
                 class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     return
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
@@ -88,7 +91,8 @@ import { Space } from '../space.class';
                     Back
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
@@ -102,7 +106,8 @@ import { Space } from '../space.class';
                 class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -115,7 +120,8 @@ import { Space } from '../space.class';
                     {{ selected.length }} room(s) added
                 </p>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"
@@ -124,9 +130,12 @@ import { Space } from '../space.class';
                         <app-icon class="text-xl">{{
                             isSelected(displayed?.id) ? 'remove' : 'add'
                         }}</app-icon>
-                        <div class="mr-1" s>
-                            { isSelected(displayed?.id), select, true { Remove
-                            from Booking } false { Add to booking } }
+                        <div class="mr-1">
+                            {{
+                                isSelected(displayed?.id)
+                                    ? 'Remove from Booking'
+                                    : 'Add to booking'
+                            }}
                         </div>
                     </div>
                 </button>

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, removeBooking } from '@placeos/bookings';
 import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
@@ -16,15 +16,14 @@ import { LandingStateService } from './landing-state.service';
                     {{ 'WPA.YOUR_BOOKINGS' | translate }}
                 </div>
                 <a
-                    button
-                    mat-button
-                    class="inverse hidden sm:block"
+                    btn
+                    class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
                     {{ 'WPA.VIEW_ALL' | translate }}
                 </a>
                 <a
-                    class="inverse block sm:hidden text-blue-500 underline relative top-8"
+                    class="inverse flex sm:hidden text-blue-500 underline relative top-8"
                     [routerLink]="['/your-bookings']"
                 >
                     {{ 'WPA.VIEW_ALL' | translate }}

@@ -10,7 +10,7 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'week-view-topbar',
     template: `
-        <button mat-button new class="w-12 xl:w-auto" (click)="newBooking()">
+        <button btn matRipple new class="w-12 xl:w-auto" (click)="newBooking()">
             <div class="flex items-center">
                 <app-icon class="mr-2">add</app-icon>
                 <div class="hidden xl:block">New Booking</div>

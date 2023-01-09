@@ -1,13 +1,13 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector: 'set-datetime-modal',
     template: `
         <header classs="flex items-center justify-between">
             <h2>Set date and time</h2>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -46,8 +46,12 @@ import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/leg
                 </div>
             </div>
         </main>
-        <footer class="w-full p-2 border-t border-gray-200 flex items-center justify-center">
-            <button mat-button [mat-dialog-close]="form.value" class="w-32">Continue</button>
+        <footer
+            class="w-full p-2 border-t border-gray-200 flex items-center justify-center"
+        >
+            <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
+                Continue
+            </button>
         </footer>
     `,
     styles: [``],

@@ -24,6 +24,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <a-user-search-field
                     [ngModel]="null"
                     (ngModelChange)="setHost($event)"
+                    class="white"
                     placeholder="User for bookings..."
                 ></a-user-search-field>
             </div>

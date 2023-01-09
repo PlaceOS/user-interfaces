@@ -1,5 +1,5 @@
 import { Component, Inject, Output, EventEmitter } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 import { unique } from 'libs/common/src/lib/general';
@@ -16,7 +16,7 @@ export interface CateringOrderOptionsModalData {
     template: `
         <header>
             <h3>Select options</h3>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -51,7 +51,10 @@ export interface CateringOrderOptionsModalData {
                                         class="opacity-60 text-xs"
                                         *ngIf="opt.unit_price"
                                     >
-                                        +{{ opt.unit_price / 100 | currency:code }}
+                                        +{{
+                                            opt.unit_price / 100
+                                                | currency: code
+                                        }}
                                     </div>
                                 </div>
                             </mat-radio-button>
@@ -70,7 +73,7 @@ export interface CateringOrderOptionsModalData {
                                     class="opacity-60 text-xs"
                                     *ngIf="opt.unit_price"
                                 >
-                                    +{{ opt.unit_price / 100 | currency:code }}
+                                    +{{ opt.unit_price / 100 | currency: code }}
                                 </div>
                             </div>
                         </mat-checkbox>
@@ -79,7 +82,7 @@ export interface CateringOrderOptionsModalData {
             </div>
         </main>
         <footer class="p-2">
-            <button mat-button class="w-32" (click)="saveOptions()">
+            <button btn matRipple class="w-32" (click)="saveOptions()">
                 Save
             </button>
         </footer>

@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
+import { MatButtonModule } from '@angular/material/button';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner';
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
@@ -22,7 +22,7 @@ const COMPONENTS = [
     EventDetailsModalComponent,
     AttendeeListComponent,
     EventCardComponent,
-    EventLinkModalComponent
+    EventLinkModalComponent,
 ];
 
 @NgModule({
@@ -39,7 +39,7 @@ const COMPONENTS = [
         MatDialogModule,
         MatProgressSpinnerModule,
         FormFieldsModule,
-        ComponentsModule
+        ComponentsModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

@@ -83,7 +83,8 @@ import { currentBooking } from './panel-state.service';
                     class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center bg-white rounded-b p-2"
                 >
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="action close"
                         (click)="close()"
                         (contextmenu)="$event.preventDefault()"

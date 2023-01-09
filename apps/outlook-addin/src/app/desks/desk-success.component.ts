@@ -4,7 +4,9 @@ import { BookingFormService } from '@placeos/bookings';
 @Component({
     selector: 'desk-booking-success',
     template: `
-        <div class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col items-center justify-center space-y-4 p-4 text-center">
+        <div
+            class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col items-center justify-center space-y-4 p-4 text-center"
+        >
             <h3 class="text-3xl">Booking Confirmed!</h3>
             <img src="assets/tick_success.svg" />
             <p>
@@ -18,17 +20,19 @@ import { BookingFormService } from '@placeos/bookings';
                         | date: 'shortTime'
                 }}
             </p>
-            <a button mat-button [routerLink]="['/book', 'desks']" class="w-64">
+            <a btn mat-button [routerLink]="['/book', 'desks']" class="w-64">
                 New Booking
             </a>
         </div>
     `,
-    styles: [`
-        :host {
-            height: 100%;
-            width: 100%;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                height: 100%;
+                width: 100%;
+            }
+        `,
+    ],
 })
 export class DeskBookingSuccessComponent {
     public readonly last_success = this._service.last_success;

@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringItem } from '../catering-item.class';
@@ -15,7 +15,8 @@ const EMPTY_FAVS: string[] = [];
         >
             <header class="flex items-center space-x-4 w-full">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     [mat-dialog-close]="selected"
                     class="bg-black/20"
                 >
@@ -66,7 +67,8 @@ const EMPTY_FAVS: string[] = [];
                 class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     back-btn
                     class="inverse sm:hidden w-full sm:w-auto"
                     *ngIf="displayed"
@@ -76,7 +78,8 @@ const EMPTY_FAVS: string[] = [];
                     Back
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
@@ -90,7 +93,8 @@ const EMPTY_FAVS: string[] = [];
                 class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -103,7 +107,8 @@ const EMPTY_FAVS: string[] = [];
                     {{ count }} items(s) added
                 </p>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.custom_id)"
                     (click)="

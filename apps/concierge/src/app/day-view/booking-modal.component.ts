@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
@@ -14,7 +14,7 @@ export interface BookingModalData {
         <header>
             <h2>New Booking</h2>
             <div class="flex-1 w-0"></div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -28,7 +28,7 @@ export interface BookingModalData {
             *ngIf="!(loading | async)"
             class="flex justify-center items-center p-2 border-t border-gray-200"
         >
-            <button mat-button (click)="save()">Save</button>
+            <button btn matRipple (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
             <main

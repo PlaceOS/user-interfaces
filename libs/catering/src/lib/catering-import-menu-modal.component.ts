@@ -7,7 +7,7 @@ import { CateringItem } from './catering-item.class';
     template: `
         <header class="h-12 bg-primary flex items-center justify-between px-4">
             <h2>Import Catering Menu</h2>
-            <button mat-icon-button mat-dialog-close *ngIf="!loading">
+            <button icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -25,7 +25,7 @@ import { CateringItem } from './catering-item.class';
             </div>
             <div class="flex items-center justify-center px-4 pb-4">
                 <button
-                    mat-button
+                    matRipple
                     class="clear underline w-48"
                     (click)="downloadTemplate()"
                 >

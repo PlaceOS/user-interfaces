@@ -11,10 +11,14 @@ import { ReportsStateService } from '../reports-state.service';
     selector: 'report-desks-levels-list',
     template: `
         <div class="px-4 mb-4 w-full">
-            <div class="rounded bg-white dark:bg-neutral-700 shadow overflow-hidden w-full">
-                <div class="border-b border-gray-300 dark:border-neutral-500 p-4 flex items-center">
+            <div
+                class="rounded bg-white dark:bg-neutral-700 shadow overflow-hidden w-full"
+            >
+                <div
+                    class="border-b border-gray-300 dark:border-neutral-500 p-4 flex items-center"
+                >
                     <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
-                    <button mat-icon-button (click)="download()">
+                    <button icon (click)="download()">
                         <app-icon>download</app-icon>
                     </button>
                 </div>
@@ -70,7 +74,7 @@ export class ReportDesksLevelListComponent {
                 levels.push({
                     name: lvl?.display_name || lvl?.name,
                     free,
-                    approved: events.filter(_ => _.approved).length || 0,
+                    approved: events.filter((_) => _.approved).length || 0,
                     avg_usage: events.length / duration,
                     total: count,
                     count: events.length,

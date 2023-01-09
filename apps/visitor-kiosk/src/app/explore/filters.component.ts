@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 
 import { Identity } from '@placeos/common';
 
@@ -14,7 +14,7 @@ import { Identity } from '@placeos/common';
         >
             {{ item.name }}
         </mat-checkbox>
-        <button mat-button (click)="applyChanges()">Apply</button>
+        <button btn matRipple (click)="applyChanges()">Apply</button>
     `,
     styles: [
         `

@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { ANIMATION_SHOW_CONTRACT_EXPAND, BaseClass, currentUser, SettingsService } from '@placeos/common';
+import { MatDialog } from '@angular/material/dialog';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    BaseClass,
+    currentUser,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 
@@ -22,7 +27,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <div class="text-xl">Details</div>
                     <div class="flex-1 w-px"></div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="hide_block.details = !hide_block.details"
                     >
                         <app-icon>{{
@@ -114,7 +120,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         Availability
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="hide_block.attendees = !hide_block.attendees"
                     >
                         <app-icon>{{
@@ -142,7 +149,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <div class="text-xl">Room</div>
                     <div class="flex-1 w-px"></div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="hide_block.resources = !hide_block.resources"
                     >
                         <app-icon>{{
@@ -170,7 +178,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <div class="text-xl">Catering</div>
                     <div class="flex-1 w-px"></div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="hide_block.catering = !hide_block.catering"
                     >
                         <app-icon>{{
@@ -184,10 +193,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 >
                     <catering-list-field
                         formControlName="catering"
-                        [options]="{ 
-                            date: form.value.date, 
-                            duration: form.value.duration, 
-                            zone_id: form.value.resources[0]?.level?.parent_id 
+                        [options]="{
+                            date: form.value.date,
+                            duration: form.value.duration,
+                            zone_id: form.value.resources[0]?.level?.parent_id
                         }"
                     ></catering-list-field>
                 </div>
@@ -202,7 +211,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     <div class="text-xl">Assets</div>
                     <div class="flex-1 w-px"></div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="hide_block.assets = !hide_block.assets"
                     >
                         <app-icon>{{
@@ -240,12 +250,12 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
         </div>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND]
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
 export class MeetingBookingFormComponent extends BaseClass {
     public readonly form = this._service.form;
 
-    public hide_block: Record<string, boolean> = {}
+    public hide_block: Record<string, boolean> = {};
 
     public get has_catering() {
         return (
@@ -285,17 +295,17 @@ export class MeetingBookingFormComponent extends BaseClass {
                 users: attendees,
                 host: organiser || currentUser(),
                 date,
-                duration
-            }
+                duration,
+            },
         });
-        ref.afterClosed().subscribe(d => {
+        ref.afterClosed().subscribe((d) => {
             if (!d) return;
             this.form.patchValue({
                 date: ref.componentInstance.date,
                 attendees: ref.componentInstance.users,
-                duration: ref.componentInstance.duration
+                duration: ref.componentInstance.duration,
             });
-        })
+        });
     }
 
     constructor(

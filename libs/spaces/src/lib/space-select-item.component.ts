@@ -20,7 +20,8 @@ import { Space } from './space.class';
                 <div>{{ space.capacity }}</div>
             </div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 *ngIf="multiple; else single_button"
                 (click)="action.emit()"
             >
@@ -30,7 +31,12 @@ import { Space } from './space.class';
             </button>
         </div>
         <ng-template #single_button>
-            <button mat-button class="w-32" [class.request]="space.by_request">
+            <button
+                btn
+                matRipple
+                class="w-32"
+                [class.request]="space.by_request"
+            >
                 {{ space.by_request ? 'Request' : 'Book' }}
             </button>
         </ng-template>

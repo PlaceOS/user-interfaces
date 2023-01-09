@@ -16,7 +16,7 @@ import { ReportsStateService } from '../reports-state.service';
                 class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center"
             >
                 <h3 class="font-bold text-xl flex-1">Meeting Organisers</h3>
-                <button mat-icon-button (click)="download()">
+                <button icon (click)="download()">
                     <app-icon>download</app-icon>
                 </button>
             </div>

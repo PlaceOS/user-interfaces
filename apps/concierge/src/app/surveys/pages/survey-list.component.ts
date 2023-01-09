@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Location } from '@angular/common';
 import { Subscription, Observable } from 'rxjs';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 import { BuildingsService } from '../services/buildings.service';
 import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.component';
@@ -50,7 +50,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                             </mat-form-field>
                         </div>
 
-                        <button mat-button (click)="navigate()">
+                        <button btn matRipple (click)="navigate()">
                             <span> Add New Survey</span>
                             <mat-icon>add</mat-icon>
                         </button>
@@ -114,12 +114,26 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                         [ngSwitch]="column.columnDef"
                                     >
                                         <div *ngSwitchCase="'link'">
-                                            <a class="text-blue-700" [routerLink]="['/surveys','complete',column.cell(row)]">{{column.cell(row)}}</a>
+                                            <a
+                                                class="text-blue-700"
+                                                [routerLink]="[
+                                                    '/surveys',
+                                                    'complete',
+                                                    column.cell(row)
+                                                ]"
+                                                >{{ column.cell(row) }}</a
+                                            >
                                         </div>
                                         <div *ngSwitchCase="'options'">
-                                            <ng-container *ngIf="column.cell(row) == 'open'; else notOpen;">
+                                            <ng-container
+                                                *ngIf="
+                                                    column.cell(row) == 'open';
+                                                    else notOpen
+                                                "
+                                            >
                                                 <button
-                                                    mat-icon-button
+                                                    icon
+                                                    matRipple
                                                     [matMenuTriggerFor]="
                                                         optionsMenu
                                                     "
@@ -131,7 +145,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                         >more_horiz</mat-icon
                                                     >
                                                 </button>
-                                                <mat-menu #optionsMenu="matMenu">
+                                                <mat-menu
+                                                    #optionsMenu="matMenu"
+                                                >
                                                     <div
                                                         class="flex flex-col min-w-[10rem]"
                                                     >
@@ -160,7 +176,9 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                         <button
                                                             mat-menu-item
                                                             (click)="
-                                                                deleteSurvey(row)
+                                                                deleteSurvey(
+                                                                    row
+                                                                )
                                                             "
                                                         >
                                                             <mat-icon
@@ -172,10 +190,12 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                 </mat-menu>
                                             </ng-container>
                                             <ng-template #notOpen>
-                                                {{column.cell(row)}}
+                                                {{ column.cell(row) }}
                                             </ng-template>
                                         </div>
-                                        <span *ngSwitchDefault>{{column.cell(row)}}</span>
+                                        <span *ngSwitchDefault>{{
+                                            column.cell(row)
+                                        }}</span>
                                     </td>
                                 </ng-container>
 

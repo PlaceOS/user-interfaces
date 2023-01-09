@@ -44,7 +44,7 @@ import {
                     *ngIf="show_links"
                 >
                     <a
-                        button
+                        btn
                         matRipple
                         class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                         [href]="outlook_link | sanitize: 'url'"
@@ -55,7 +55,7 @@ import {
                         <span i18n>Add to Outlook</span>
                     </a>
                     <a
-                        button
+                        btn
                         matRipple
                         class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                         [href]="google_link | sanitize: 'url'"
@@ -66,7 +66,7 @@ import {
                         <span i18n>Add to Google Calendar</span>
                     </a>
                     <a
-                        button
+                        btn
                         matRipple
                         class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                         [href]="ical_link | safe: 'url'"
@@ -81,7 +81,13 @@ import {
             <footer
                 class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4 flex items-center justify-center"
             >
-                <a button mat-button class="w-full max-w-[32rem] mx-auto" [routerLink]="['/']" i18n>
+                <a
+                    btn
+                    matRipple
+                    class="w-full max-w-[32rem] mx-auto"
+                    [routerLink]="['/']"
+                    i18n
+                >
                     Great, thanks!
                 </a>
             </footer>

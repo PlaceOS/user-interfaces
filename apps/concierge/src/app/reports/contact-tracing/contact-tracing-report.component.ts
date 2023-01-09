@@ -71,7 +71,8 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             </ng-container>
         </div>
         <button
-            mat-icon-button
+            icon
+            matRipple
             class="bg-white dark:bg-neutral-700 absolute bottom-2 left-2 shadow"
             matTooltip="Download Report"
             (click)="downloadReport()"

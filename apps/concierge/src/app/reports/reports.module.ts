@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Route } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
-import { MatLegacyPaginatorModule as MatPaginatorModule } from '@angular/material/legacy-paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 import { ReportsComponent } from './reports.component';
 import { SharedSpacesModule } from '@placeos/spaces';
@@ -36,7 +36,10 @@ const ROUTES: Route[] = [
             { path: 'spaces', component: ReportSpacesComponent },
             { path: 'desks', component: ReportDesksComponent },
             { path: 'catering', component: CateringReportComponent },
-            { path: 'contact-tracing', component: ContactTracingReportComponent },
+            {
+                path: 'contact-tracing',
+                component: ContactTracingReportComponent,
+            },
             { path: '**', redirectTo: 'desks', pathMatch: 'full' },
         ],
     },
@@ -65,7 +68,7 @@ const ROUTES: Route[] = [
 
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,
-        GetUserPipe
+        GetUserPipe,
     ],
     imports: [
         CommonModule,

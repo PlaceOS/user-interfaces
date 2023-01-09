@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     BaseClass,
@@ -86,7 +86,7 @@ import { CateringItem } from '@placeos/catering';
                             {{ event.resources?.length }} Space(s)
                         </div>
                         <button
-                            mat-button
+                            matRipple
                             [disabled]="!event.resources?.length"
                             class="clear bg-transparent border-none underline"
                             (click)="show_spaces = !show_spaces"
@@ -126,7 +126,7 @@ import { CateringItem } from '@placeos/catering';
                                 "
                             ></span>
                             <button
-                                mat-button
+                                matRipple
                                 locate
                                 class="bg-transparent border-none underline text-black"
                                 (click)="viewLocation(space)"
@@ -149,7 +149,7 @@ import { CateringItem } from '@placeos/catering';
                             Attendee(s)
                         </div>
                         <button
-                            mat-button
+                            matRipple
                             [disabled]="!event.attendees?.length"
                             class="clear bg-transparent border-none underline"
                             (click)="show_people = !show_people"
@@ -211,7 +211,7 @@ import { CateringItem } from '@placeos/catering';
                                 Catering Item(s)
                             </div>
                             <button
-                                mat-button
+                                matRipple
                                 class="clear bg-transparent border-none underline"
                                 (click)="show_catering = !show_catering"
                             >
@@ -288,7 +288,7 @@ import { CateringItem } from '@placeos/catering';
                     *ngIf="event.state !== 'done'"
                 >
                     <button
-                        mat-button
+                        matRipple
                         edit
                         class="w-32"
                         [disabled]="loading"
@@ -298,7 +298,7 @@ import { CateringItem } from '@placeos/catering';
                         Edit Event
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         remove
                         class="w-32 error inverse"
                         [disabled]="loading"

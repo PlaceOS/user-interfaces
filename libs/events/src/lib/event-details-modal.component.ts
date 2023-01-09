@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { addMinutes, format, formatDuration, getUnixTime } from 'date-fns';
 
 import { CalendarEvent } from './event.class';
@@ -101,15 +101,14 @@ import { getModule } from '@placeos/ts-client';
                         *ngIf="event.state !== 'done'"
                     >
                         <button
-                            mat-button
+                            matRipple
                             class="flex-1 h-10"
-                            *ngIf="
-                                event.can_check_in &&
-                                room_status !== 'free'
-                            "
+                            *ngIf="event.can_check_in && room_status !== 'free'"
                             [class.bg-green-600]="room_status !== 'pending'"
                             [class.border-none]="room_status !== 'pending'"
-                            [class.pointer-events-none]="room_status !== 'pending'"
+                            [class.pointer-events-none]="
+                                room_status !== 'pending'
+                            "
                             (click)="checkin()"
                         >
                             <div
@@ -130,7 +129,8 @@ import { getModule } from '@placeos/ts-client';
                             </div>
                         </button>
                         <button
-                            mat-icon-button
+                            icon
+                            matRipple
                             [matMenuTriggerFor]="menu"
                             class="bg-primary rounded text-white h-10 w-10"
                             *ngIf="allow_edit"
@@ -181,7 +181,7 @@ import { getModule } from '@placeos/ts-client';
                     >
                         <h3 class="text-lg font-medium" i18n>Attendees</h3>
                         <button
-                            mat-button
+                            matRipple
                             show-attendees
                             class="clear text-xs underline"
                             (click)="show_attendees = true"
@@ -290,7 +290,8 @@ import { getModule } from '@placeos/ts-client';
                     ></div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     mat-dialog-close
                     class="absolute top-2 left-2 bg-black/30 text-white"
                 >

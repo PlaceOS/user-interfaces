@@ -16,10 +16,10 @@ import { ParkingStateService } from './parking-state.service';
         ></custom-table>
         <ng-template #action_template let-row="row">
             <div class="w-full flex items-center justify-end">
-                <button mat-icon-button (click)="editSpace(row)">
+                <button icon (click)="editSpace(row)">
                     <app-icon>edit</app-icon>
                 </button>
-                <button mat-icon-button (click)="removeSpace(row)">
+                <button icon (click)="removeSpace(row)">
                     <app-icon>delete</app-icon>
                 </button>
             </div>

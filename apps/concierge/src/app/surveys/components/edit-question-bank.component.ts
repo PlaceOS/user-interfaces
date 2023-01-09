@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subscription, BehaviorSubject, of } from 'rxjs';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../services/survey-creator.service';
@@ -44,7 +44,7 @@ import { SearchService } from '../services/search.service';
             </main>
             <footer>
                 <button
-                    mat-button
+                    matRipple
                     class="cancel-button"
                     color="basic"
                     (click)="closeDialog()"
@@ -52,7 +52,7 @@ import { SearchService } from '../services/search.service';
                     Cancel
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="update-button"
                     color="primary"
                     (click)="updateQuestions()"

@@ -9,7 +9,13 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
 @Component({
     selector: 'tab-outlet,[tab-outlet]',
     template: `
-        <i binding [sys]="id" mod="HearingAugmentation" bind="join_code" [(model)]="join_code"></i>
+        <i
+            binding
+            [sys]="id"
+            mod="HearingAugmentation"
+            bind="join_code"
+            [(model)]="join_code"
+        ></i>
         <div
             class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2 dark:text-white"
         >
@@ -18,7 +24,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 [class.pr-24]="join_code"
             >
                 <a
-                    mat-button
+                    matRipple
                     class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 bg-gray-300 dark:bg-neutral-800 text-black/60 dark:text-white/60 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
                     [routerLink]="['/tabbed', id, tab.id || tab.name]"
                     routerLinkActive="border-primary !bg-white dark:!bg-[#1F2021] !text-primary"
@@ -50,7 +56,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         Available Inputs
                     </h3>
                     <button
-                        mat-button
+                        matRipple
                         class="w-full"
                         *ngFor="let input of inputs | async"
                         [class.inverse]="
@@ -120,7 +126,8 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     </ng-container>
                     <button
                         *ngIf="(tab | async)?.help && (tab | async)?.controls"
-                        mat-button
+                        btn
+                        matRipple
                         class="absolute top-4 right-4 w-32 inverse black"
                         (click)="viewHelp()"
                     >

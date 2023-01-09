@@ -29,7 +29,8 @@ import { Space } from '../space.class';
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     close
                     (click)="close.emit()"
                     class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
@@ -37,7 +38,8 @@ import { Space } from '../space.class';
                     <app-icon>arrow_back</app-icon>
                 </button>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
@@ -80,9 +82,16 @@ import { Space } from '../space.class';
                     </div>
                 </section>
                 <hr />
-                <section facilities class="space-y-2" *ngIf="space.features?.length">
+                <section
+                    facilities
+                    class="space-y-2"
+                    *ngIf="space.features?.length"
+                >
                     <h2 class="text-xl font-medium" i18n>Room Facilities</h2>
-                    <div class="flex items-center space-x-2" *ngFor="let feature of space.features">
+                    <div
+                        class="flex items-center space-x-2"
+                        *ngFor="let feature of space.features"
+                    >
                         <!-- <app-icon>people</app-icon> -->
                         <p i18n>{{ feature }}</p>
                     </div>
@@ -101,7 +110,8 @@ import { Space } from '../space.class';
             </div>
             <div class="p-2 border-t border-gray-200 shadow sm:hidden">
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [class.inverse]="active"
                     class="w-full"
                     (click)="active = !active; activeChange.emit(active)"

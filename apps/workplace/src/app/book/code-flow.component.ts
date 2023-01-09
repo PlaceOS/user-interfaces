@@ -90,7 +90,7 @@ import QrScanner from 'qr-scanner';
                     class="m-4 p-2 flex items-center space-x-2 bg-white bg-opacity-50 rounded"
                 >
                     <button
-                        mat-button
+                        matRipple
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (is_scanning
@@ -102,7 +102,7 @@ import QrScanner from 'qr-scanner';
                         Scan Code
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (!is_scanning

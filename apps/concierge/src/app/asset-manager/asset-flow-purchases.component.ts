@@ -43,7 +43,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="ml-2 bg-gray-50 border border-gray-200"
                     [class.mt-6]="i === 0"
                     (click)="removeInvoice(invoice)"
@@ -52,7 +53,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
-                mat-button
+                matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addInvoice()"
             >
@@ -91,7 +92,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="ml-2 bg-gray-50 border border-gray-200"
                     [class.mt-6]="i === 0"
                     (click)="removeProperty(pair)"
@@ -100,7 +102,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
-                mat-button
+                matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addProperty()"
             >

@@ -17,7 +17,8 @@
             <div class="flex flex-row justify-between mt-3 align-middle">
                 <div class="flex w-7/12 justify-center">
                     <button
-                        mat-flat-button
+                        btn
+                        matRipple
                         (click)="openFilter()"
                         class="bg-gray-300 w-full h-9 text-sm filter-button"
                     >
@@ -56,7 +57,7 @@
             </div>
 
             <section class="flex flex-row">
-                <mat-chip-list class="mt-2">
+                <!-- <mat-chip-list class="mt-2">
                     <mat-chip class="text-gray-700 text-xs">
                         {{ form?.controls?.date?.value | date: 'dd MMMM yyyy' }}
                     </mat-chip>
@@ -73,7 +74,7 @@
                         -
                         <span> {{ end_time$ | async }}</span>
                     </mat-chip>
-                </mat-chip-list>
+                </mat-chip-list> -->
             </section>
 
             <section class="flex flex-row my-2 border-t">
@@ -203,7 +204,7 @@
         >
             <div *ngIf="show_room_details$ | async">
                 <button
-                    mat-button
+                    matRipple
                     type="submit"
                     (click)="openRoomDetails()"
                     class="open-details-button bg-secondary border-secondary w-[300px] my-1"

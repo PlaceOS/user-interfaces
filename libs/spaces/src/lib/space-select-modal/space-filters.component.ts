@@ -13,7 +13,8 @@ import { SpacesService } from '../spaces.service';
         <div class="flex items-center border-b border-gray-200 pb-2 sm:hidden">
             <div class="flex-1 pl-2">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     close
                     *ngIf="can_close"
                     (click)="close()"
@@ -32,13 +33,20 @@ import { SpacesService } from '../spaces.service';
                 <h2 class="text-lg font-medium" i18n>Details</h2>
                 <div class="flex-1 min-w-[256px] flex flex-col">
                     <label for="location" i18n>Location</label>
-                    <mat-form-field appearance="outline" class="w-full" *ngIf="(buildings | async)?.length > 1">
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="(buildings | async)?.length > 1"
+                    >
                         <mat-select
                             name="building"
                             [ngModel]="building | async"
                             (ngModelChange)="setBuilding($event)"
                             [ngModelOptions]="{ standalone: true }"
-                            [placeholder]="(building | async)?.display_name || (building | async)?.name"
+                            [placeholder]="
+                                (building | async)?.display_name ||
+                                (building | async)?.name
+                            "
                         >
                             <mat-option
                                 *ngFor="let bld of buildings | async"
@@ -75,7 +83,9 @@ import { SpacesService } from '../spaces.service';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>Start Time<span>*</span></label>
+                        <label for="start-time" i18n
+                            >Start Time<span>*</span></label
+                        >
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -84,7 +94,9 @@ import { SpacesService } from '../spaces.service';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time" i18n>End Time<span>*</span></label>
+                        <label for="end-time" i18n
+                            >End Time<span>*</span></label
+                        >
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -134,7 +146,7 @@ import { SpacesService } from '../spaces.service';
             class="px-2 pt-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button mat-button close class="w-full" (click)="close()" i18n>
+            <button btn matRipple close class="w-full" (click)="close()" i18n>
                 Apply Filters
             </button>
         </div>
@@ -156,7 +168,7 @@ export class SpaceFiltersComponent {
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
-    public readonly levels = this._org.active_levels
+    public readonly levels = this._org.active_levels;
     public readonly features = combineLatest([
         this._spaces.features,
         this._event_form.available_spaces,

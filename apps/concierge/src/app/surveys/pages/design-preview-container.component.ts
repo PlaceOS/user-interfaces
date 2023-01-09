@@ -3,7 +3,7 @@ import { Observable, fromEvent, BehaviorSubject, of } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { Question, QuestionType } from '../survey-types';
 import { SurveyCreatorService } from '../services/survey-creator.service';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AddQuestionBankComponent } from '../components/add-question-bank.component';
 import { EditQuestionBankComponent } from '../components/edit-question-bank.component';
 import { SearchService } from '../services/search.service';

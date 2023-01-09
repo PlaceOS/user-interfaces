@@ -1,8 +1,7 @@
-
 import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
@@ -11,23 +10,19 @@ import { BookingModalComponent } from './booking-modal.component';
 
 const OVERLAYS: Type<any>[] = [
     EmbeddedControlModalComponent,
-    BookingModalComponent
+    BookingModalComponent,
 ];
 
 @NgModule({
-    declarations: [
-        ...OVERLAYS
-    ],
+    declarations: [...OVERLAYS],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         ComponentsModule,
         FormFieldsModule,
-        MatDialogModule
+        MatDialogModule,
     ],
-    exports: [
-        ...OVERLAYS
-    ]
+    exports: [...OVERLAYS],
 })
 export class SharedOverlaysModule {}

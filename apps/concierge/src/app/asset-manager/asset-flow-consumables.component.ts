@@ -37,7 +37,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="ml-2 bg-gray-50 border border-gray-200"
                     [class.mt-6]="i === 0"
                     (click)="removeItem(pair)"
@@ -46,7 +47,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
-                mat-button
+                matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addItem()"
             >
@@ -64,7 +65,10 @@ export class AssetFlowConsumablesComponent {
     public addItem() {
         const { consumables } = this.form?.value || { consumables: [] };
         this.form.patchValue({
-            consumables: [...consumables, { id: `item-${randomInt(99999)}`, name: '' }],
+            consumables: [
+                ...consumables,
+                { id: `item-${randomInt(99999)}`, name: '' },
+            ],
         });
     }
 

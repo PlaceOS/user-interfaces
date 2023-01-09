@@ -1,5 +1,5 @@
 import { FormGroup } from '@angular/forms';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 import {
     ConfirmModalComponent,

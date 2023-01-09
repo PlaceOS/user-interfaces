@@ -6,7 +6,8 @@ import { ExploreStateService } from './explore-state.service';
     template: `
         <button
             z-in
-            mat-icon-button
+            icon
+            matRipple
             class="bg-white dark:bg-neutral-800"
             (click)="zoomIn()"
             matTooltip="Zoom In"
@@ -16,7 +17,8 @@ import { ExploreStateService } from './explore-state.service';
         </button>
         <button
             z-out
-            mat-icon-button
+            icon
+            matRipple
             class="bg-white dark:bg-neutral-800"
             (click)="zoomOut()"
             matTooltip="Zoom Out"
@@ -26,7 +28,8 @@ import { ExploreStateService } from './explore-state.service';
         </button>
         <button
             reset
-            mat-icon-button
+            icon
+            matRipple
             class="bg-white dark:bg-neutral-800"
             (click)="reset()"
             matTooltip="Reset Zoom & Center"

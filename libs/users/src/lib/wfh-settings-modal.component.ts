@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { currentUser, SettingsService } from '@placeos/common';
 import { endOfDay, getUnixTime, setDay, startOfDay } from 'date-fns';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
@@ -27,7 +27,7 @@ const WFH_SETTING_KEY = 'wfh-days';
                     Today's Working Location
                 </h3>
                 <button
-                    mat-button
+                    matRipple
                     today-location
                     class="inverse rounded-3xl w-auto"
                     [matMenuTriggerFor]="menu"
@@ -76,7 +76,7 @@ const WFH_SETTING_KEY = 'wfh-days';
             </div>
             <div class="flex items-center justify-end px-4 pb-4">
                 <button
-                    mat-button
+                    matRipple
                     save
                     [disabled]="!changed"
                     (click)="saveChanges()"
@@ -85,7 +85,8 @@ const WFH_SETTING_KEY = 'wfh-days';
                 </button>
             </div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute top-0 left-0"
             >
@@ -138,7 +139,15 @@ export class WFHSettingsModalComponent implements OnInit {
     ) {}
 
     public ngOnInit() {
-        this.settings = this._settings.get(WFH_SETTING_KEY) || [true, true, true, true, true, true, true];
+        this.settings = this._settings.get(WFH_SETTING_KEY) || [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+        ];
         this._initWeekdays();
         this._loadOptionForToday();
     }
@@ -150,7 +159,10 @@ export class WFHSettingsModalComponent implements OnInit {
     public async saveChanges() {
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        if (this.option !== this.options[0].id && this.option !== this._booking.asset_id) {
+        if (
+            this.option !== this.options[0].id &&
+            this.option !== this._booking.asset_id
+        ) {
             await saveBooking(
                 new Booking({ ...this._booking, asset_id: this.option })
             )

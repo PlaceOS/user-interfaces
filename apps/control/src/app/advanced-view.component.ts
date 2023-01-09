@@ -25,7 +25,8 @@ import { ControlStateService } from './control-state.service';
             *ngIf="(page_count | async)?.length > 1"
         >
             <button
-                mat-icon-button
+                icon
+                matRipple
                 *ngFor="let idx of page_count | async; let i = index"
                 [class.bg-primary]="page === i"
                 [class.text-black]="page !== i"

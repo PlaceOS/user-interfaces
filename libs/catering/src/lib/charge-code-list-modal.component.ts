@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { csvToJson, notifyError, unique } from '@placeos/common';
 import { take } from 'rxjs/operators';
 import { CateringStateService } from './catering-state.service';
@@ -9,7 +9,7 @@ import { CateringStateService } from './catering-state.service';
     template: `
         <header>
             <h2>Edit Charge Codes</h2>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -32,7 +32,7 @@ import { CateringStateService } from './catering-state.service';
                         placeholder="Charge Code"
                     />
                 </mat-form-field>
-                <button mat-icon-button (click)="removeCode(i)">
+                <button icon (click)="removeCode(i)">
                     <app-icon>delete</app-icon>
                 </button>
             </div>
@@ -41,7 +41,7 @@ import { CateringStateService } from './catering-state.service';
             class="flex items-center p-2 space-x-2 border-t border-gray-200"
             *ngIf="!loading"
         >
-            <button mat-button class="w-48 inverse relative">
+            <button btn matRipple class="w-48 inverse relative">
                 Import Codes
                 <input
                     class="opacity-0 absolute inset-0"
@@ -49,10 +49,10 @@ import { CateringStateService } from './catering-state.service';
                     (change)="addCodesFromFile($event)"
                 />
             </button>
-            <button mat-button class="w-48" (click)="newCode()">
+            <button btn matRipple class="w-48" (click)="newCode()">
                 Add Code
             </button>
-            <button mat-button class="w-48" (click)="saveChargeCodes()">
+            <button btn matRipple class="w-48" (click)="saveChargeCodes()">
                 Save Changes
             </button>
         </footer>

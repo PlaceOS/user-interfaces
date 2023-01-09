@@ -8,7 +8,7 @@ import { ScheduleStateService } from './schedule-state.service';
         <div
             class="flex items-center border-b border-gray-300 dark:bg-neutral-700 space-x-2 mb-4"
         >
-            <button mat-icon-button (click)="dismiss()">
+            <button icon (click)="dismiss()">
                 <app-icon>chevron_left</app-icon>
             </button>
             <h2 class="flex-1 w-1/2 text-center font-medium">
@@ -107,7 +107,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
         </div>
         <div class="px-2 pb-2">
-            <button mat-button class="w-full" (click)="dismiss()">
+            <button btn matRipple class="w-full" (click)="dismiss()">
                 {{ 'WPA.FILTERS_APPLY' | translate }}
             </button>
         </div>

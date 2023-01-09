@@ -11,7 +11,7 @@ import { CateringStateService } from './catering';
         <div>
             <header class="flex items-center justify-between p-2">
                 <h3 class="p-2">Set Catering Availability for Rooms</h3>
-                <button mat-icon-button mat-dialog-close>
+                <button icon mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
             </header>
@@ -87,10 +87,10 @@ import { CateringStateService } from './catering';
             <footer
                 class="flex items-center p-2 justify-end space-x-2 border-t border-gray-200 dark:border-neutral-500"
             >
-                <button mat-button (click)="enableSelected()">
+                <button btn matRipple (click)="enableSelected()">
                     Enable Selected
                 </button>
-                <button mat-button (click)="disableSelected()">
+                <button btn matRipple (click)="disableSelected()">
                     Disable Selected
                 </button>
             </footer>

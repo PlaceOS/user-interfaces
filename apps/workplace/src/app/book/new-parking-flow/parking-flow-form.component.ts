@@ -40,7 +40,8 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                             <div class="text-xl" i18n>Details</div>
                             <div class="flex-1 w-px"></div>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 (click)="
                                     hide_block.details = !hide_block.details
                                 "
@@ -72,10 +73,9 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                             <div class="text-xl" i18n>Space</div>
                             <div class="flex-1 w-px"></div>
                             <button
-                                mat-icon-button
-                                (click)="
-                                    hide_block.space = !hide_block.space
-                                "
+                                icon
+                                matRipple
+                                (click)="hide_block.space = !hide_block.space"
                             >
                                 <app-icon>{{
                                     hide_block.space
@@ -88,14 +88,17 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                             class="overflow-hidden"
                             [@show]="hide_block.space ? 'hide' : 'show'"
                         >
-                            <parking-space-list-field formControlName="resources"></parking-space-list-field>
+                            <parking-space-list-field
+                                formControlName="resources"
+                            ></parking-space-list-field>
                         </div>
                     </section>
                     <section
                         class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
@@ -104,7 +107,8 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                             Confirm Reservation
                         </button>
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
@@ -150,7 +154,9 @@ export class ParkingFlowFormComponent extends BaseClass {
                     ', '
                 )}]`
             );
-        this.sheet_ref = this._bottom_sheet.open(NewParkingFlowConfirmComponent);
+        this.sheet_ref = this._bottom_sheet.open(
+            NewParkingFlowConfirmComponent
+        );
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {

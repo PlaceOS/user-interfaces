@@ -1,5 +1,5 @@
 import { Component, Inject, Output, EventEmitter } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { addMinutes, getUnixTime } from 'date-fns';
@@ -37,7 +37,7 @@ export interface SpaceSelectModalData {
             <div class="text-xl font-semibold flex-1">
                 Select space{{ multiple ? 's' : '' }}
             </div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon class="text-3xl">close</app-icon>
             </button>
         </header>
@@ -113,7 +113,7 @@ export interface SpaceSelectModalData {
                 </div>
             </div>
             <footer *ngIf="multiple">
-                <button mat-button (click)="save()">
+                <button btn matRipple (click)="save()">
                     Save selected spaces({{ spaces.length || '0' }})
                 </button>
             </footer>
