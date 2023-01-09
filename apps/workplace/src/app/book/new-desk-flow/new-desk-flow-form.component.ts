@@ -38,6 +38,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                     class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"
                 >
                     <button
+                        btn
                         matRipple
                         confirm
                         class="w-full sm:w-auto"
