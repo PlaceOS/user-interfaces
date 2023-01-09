@@ -13,9 +13,10 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
             class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
         >
             <a
+                btn
                 matRipple
                 *ngIf="page"
-                class="flex items-center space-x-2 pl-4 py-2 pr-8 rounded"
+                class="clear flex items-center space-x-2 pl-4 py-2 pr-8 rounded"
                 [routerLink]="['/']"
             >
                 <app-icon>arrow_back</app-icon>
@@ -36,10 +37,15 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <button *ngIf="page === 'menu'" mat-button (click)="addItem()">
+            <button *ngIf="page === 'menu'" btn matRipple (click)="addItem()">
                 Add Item
             </button>
-            <button *ngIf="page === 'menu'" mat-button (click)="editConfig()">
+            <button
+                *ngIf="page === 'menu'"
+                btn
+                matRipple
+                (click)="editConfig()"
+            >
                 Edit Config
             </button>
             <div class="flex-1 w-2"></div>
