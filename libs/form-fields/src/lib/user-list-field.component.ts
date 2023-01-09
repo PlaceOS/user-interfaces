@@ -127,7 +127,7 @@ function validateEmail(email) {
                     matRipple
                     type="button"
                     name="upload-csv"
-                    class="inverse flex-1 sm:flex-none"
+                    class="relative inverse flex-1 sm:flex-none"
                     i18n="Upload attendee list from CSV file"
                 >
                     <div class="flex items-center justify-center">
