@@ -38,19 +38,25 @@ import {
             <div class="flex items-center flex-wrap">
                 <button
                     icon
-                    matRipple
-                    class="min-w-[14%] flex-1"
+                    class="min-w-[14%] flex-1 relative overflow-visible"
                     *ngFor="let day of date_list"
+                    [class.hover:bg-blue-600]="day.id !== active_date"
+                    [class.hover:bg-opacity-20]="day.id !== active_date"
                     [class.text-opacity-30]="!day.is_month"
-                    [class.text-primary]="day.id === active_date"
+                    [class.text-white]="day.id === active_date"
                     [class.text-black]="day.id !== active_date"
                     [class.dark:text-white]="day.id !== active_date"
                     [class.dark:text-opacity-30]="!day.is_month"
-                    [class.bg-gray-200]="day.id === active_date"
+                    [class.bg-primary]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"
                 >
                     {{ day.id | date: 'd' }}
+                    <div
+                        class="absolute -inset-[2px] border border-primary rounded-full overflow-hidden"
+                        matRipple
+                        *ngIf="today === day.id"
+                    ></div>
                 </button>
             </div>
         </div>
@@ -66,6 +72,7 @@ import {
 })
 export class ScheduleCalendarComponent implements OnInit, ControlValueAccessor {
     public active_date = startOfDay(Date.now()).valueOf();
+    public today = startOfDay(Date.now()).valueOf();
     public offset = 0;
     public date_list = [];
 
@@ -85,6 +92,7 @@ export class ScheduleCalendarComponent implements OnInit, ControlValueAccessor {
     public setValue(new_value: number) {
         this.active_date = startOfDay(new_value).valueOf();
         this.offset = 0;
+        this.generateDates();
         if (this._onChange) {
             this._onChange(new_value);
         }

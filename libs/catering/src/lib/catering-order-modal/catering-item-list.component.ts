@@ -102,7 +102,6 @@ export class CateringItemListComponent {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.selected_items) {
-            console.log('Selected:', this.selected_items);
             this.list.next(this.selected_items || []);
         }
     }

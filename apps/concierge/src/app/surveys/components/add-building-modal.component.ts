@@ -1,8 +1,7 @@
-import { Component, HostListener, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { BuildingsService } from '../services/buildings.service';
-import { Building, BookingRuleDetails } from '@placeos/organisation';
 
 @Component({
     selector: 'add-building-modal',
@@ -279,10 +278,6 @@ export class AddBuildingModalComponent implements OnInit {
     }
 
     addBuilding(): void {
-        console.log(
-            this.buildingForm.get('building_name')?.value,
-            this.buildingForm.get('building_location')?.value
-        );
         const building = {
             id: 'bld-02',
             name: this.buildingForm.get('building_name')?.value,
@@ -326,7 +321,6 @@ export class AddBuildingModalComponent implements OnInit {
     uploadFiles(files: File[]) {
         for (const item of files) {
             this.files.push(item);
-            console.log(this.files, 'files');
         }
         this.previewImage(files);
     }

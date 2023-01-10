@@ -214,9 +214,7 @@ export class AddQuestionBankComponent implements OnInit {
     updateRating(event) {
         this.new_question.rateValues = event || [1, 2, 3, 4, 5];
     }
-    addAnotherQuestion() {
-        // console.log('add');
-    }
+    addAnotherQuestion() {}
     addQuestion() {
         this._update_flag.next(true);
 

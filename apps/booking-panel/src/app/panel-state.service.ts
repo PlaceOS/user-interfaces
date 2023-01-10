@@ -191,7 +191,6 @@ export class PanelStateService extends BaseClass {
         user: boolean = false
     ) {
         const space = await this._space_pipe.transform(this.system);
-        console.log('Space:', space);
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),

@@ -27,13 +27,14 @@ const WFH_SETTING_KEY = 'wfh-days';
                     Today's Working Location
                 </h3>
                 <button
+                    btn
                     matRipple
                     today-location
                     class="inverse rounded-3xl w-auto"
                     [matMenuTriggerFor]="menu"
                 >
-                    <div class="flex items-center justify-between">
-                        <div class="uppercase">{{ option }}</div>
+                    <div class="flex items-center justify-between w-full">
+                        <div class="uppercase flex-1 w-1/2">{{ option }}</div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
                     </div>
                 </button>
@@ -57,15 +58,13 @@ const WFH_SETTING_KEY = 'wfh-days';
                     class="border border-gray-200 rounded flex items-center justify-between px-2 pt-2"
                 >
                     <div
-                        class="flex flex-col items-center"
+                        class="flex flex-col items-center flex-1 w-px"
                         *ngFor="let day of weekdays; let i = index"
                     >
                         <div class="text-sm font-light">
                             {{ day | date: 'EEE' }}
                         </div>
-                        <div
-                            class="h-8 w-8 flex items-center justify-center pr-2"
-                        >
+                        <div class="h-8 w-8 flex items-center justify-center">
                             <mat-checkbox
                                 [(ngModel)]="settings[available_weekdays[i]]"
                                 (ngModelChange)="changed = true"
@@ -76,6 +75,7 @@ const WFH_SETTING_KEY = 'wfh-days';
             </div>
             <div class="flex items-center justify-end px-4 pb-4">
                 <button
+                    btn
                     matRipple
                     save
                     [disabled]="!changed"

@@ -172,7 +172,6 @@ export class NewCateringOrderModalComponent {
     }
 
     public setSelected(item: CateringItem, state: boolean) {
-        console.log('Select:', item, state);
         const list = this.selected.filter(
             (_) => _.custom_id !== item.custom_id
         );

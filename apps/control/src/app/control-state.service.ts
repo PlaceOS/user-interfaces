@@ -125,7 +125,6 @@ export class ControlStateService extends BaseClass {
     );
     public readonly presentables$ = this._input_data.pipe(
         map((l) => l.filter((_) => _.presentable !== false)),
-        tap((l) => console.log('Presentable Inputs:', l)),
         shareReplay(1)
     );
     /** List of available output sources */

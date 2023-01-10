@@ -105,6 +105,7 @@ export interface AppLocale {
             </div>
             <div *ngIf="features.includes('wfh')">
                 <button
+                    btn
                     matRipple
                     class="clear w-full text-left h-[3.5rem]"
                     (click)="openWfhModal()"

@@ -261,7 +261,6 @@ export class VideoCallPageComponent extends BaseClass {
             .toPromise();
         this.loading = '';
         this.clearTimeout('check_call');
-        console.log('Present Output:', this.present_output);
     }
 
     public selectCamera(camera: string) {
@@ -271,7 +270,6 @@ export class VideoCallPageComponent extends BaseClass {
     }
 
     private _onCallEnded() {
-        console.log('Redirect:', this.redirect);
         if (this.redirect) this._router.navigate(['/panel', this._control.id]);
     }
 }
