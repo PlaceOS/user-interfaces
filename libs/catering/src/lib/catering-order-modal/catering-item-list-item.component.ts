@@ -16,7 +16,7 @@ import { CateringItem } from '../catering-item.class';
                 (click)="select.emit()"
             >
                 <div
-                    class="relative w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden border border-gray-100 dark:border-neutral-600"
+                    class="relative w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden border border-gray-100 dark:border-neutral-600 flex items-center justify-center"
                 >
                     <div
                         class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white text-xs"
@@ -25,10 +25,16 @@ import { CateringItem } from '../catering-item.class';
                         {{ item.quantity || '1' }}
                     </div>
                     <img
-                        *ngIf="item.images?.length"
+                        *ngIf="item.images?.length; else placeholder"
                         class="object-cover min-h-full min-w-full"
                         [src]="item.images[0]"
                     />
+                    <ng-template #placeholder>
+                        <img
+                            class="m-auto"
+                            src="assets/icons/catering-placeholder.svg"
+                        />
+                    </ng-template>
                 </div>
                 <div class="space-y-2 text-left flex-1">
                     <div class="font-medium flex flex-col pr-10">

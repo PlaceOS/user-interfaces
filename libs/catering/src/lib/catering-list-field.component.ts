@@ -17,13 +17,19 @@ const EMPTY_FAVS = [];
                 *ngFor="let item of items"
             >
                 <div
-                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden"
+                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
-                        *ngIf="item.images?.length"
+                        *ngIf="item.images?.length; else placeholder"
                         class="object-cover min-h-full min-w-full"
                         [src]="item.images[0]"
                     />
+                    <ng-template #placeholder>
+                        <img
+                            class="m-auto"
+                            src="assets/icons/catering-placeholder.svg"
+                        />
+                    </ng-template>
                 </div>
                 <div class="pb-4">
                     <div class="font-medium flex items-center">
