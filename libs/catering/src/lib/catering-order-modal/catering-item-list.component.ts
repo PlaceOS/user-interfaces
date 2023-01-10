@@ -29,7 +29,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                         [active]="active === item.custom_id"
                         [selected]="true"
                         [favourite]="isFavourite(item.id)"
-                        (toggleFav)="toggleFav(item.id)"
+                        (toggleFav)="toggleFav.emit(item.id)"
                         (select)="selectItem(item, true)"
                     ></catering-item-list-item>
                 </ul>
@@ -113,7 +113,7 @@ export class CateringItemListComponent {
     public selectItem(item: CateringItem, clear_state: boolean = false) {
         this.onSelect.emit(item);
         if (clear_state) {
-            item.options.forEach((_) => delete _.active);
+            item.options?.forEach((_) => delete _.active);
         }
     }
 }

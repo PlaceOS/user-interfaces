@@ -2,7 +2,13 @@ import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BindingDirective, IconComponent } from '@placeos/components';
-import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
+import {
+    MockComponent,
+    MockDirective,
+    MockModule,
+    MockPipe,
+    MockProvider,
+} from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
@@ -19,17 +25,14 @@ describe('ControlStatusBarComponent', () => {
             MockPipe(DurationPipe),
         ],
         providers: [
-            {
-                provide: ControlStateService,
-                useValue: {
-                    volume: new BehaviorSubject(0),
-                    system: new BehaviorSubject({}),
-                    capture_list: new BehaviorSubject([]),
-                    setVolume: jest.fn(),
-                },
-            },
+            MockProvider(ControlStateService, {
+                volume: new BehaviorSubject(0),
+                system: new BehaviorSubject({}),
+                capture_list: new BehaviorSubject([]),
+                setVolume: jest.fn(),
+            }),
         ],
-        imports: [MatSliderModule, FormsModule],
+        imports: [MockModule(MatSliderModule), MockModule(FormsModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));

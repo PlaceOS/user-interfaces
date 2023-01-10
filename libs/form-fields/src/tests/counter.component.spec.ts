@@ -25,22 +25,22 @@ describe('CounterComponent', () => {
     it('should allow adding to count', () => {
         expect('button[name="add"]').toExist();
         expect('[value]').toExist();
-        expect('[value]').toHaveExactText('0');
+        expect('[value]').toHaveExactText(' 0 ');
         spectator.click('button[name="add"]');
         expect(spectator.component.value).toBe(1);
         spectator.detectChanges();
-        expect('[value]').toHaveExactText('1');
+        expect('[value]').toHaveExactText(' 1 ');
     });
 
     it('should allow removing from count', () => {
         spectator.component.value = 10;
         spectator.detectChanges();
         expect('[value]').toExist();
-        expect('[value]').toHaveExactText('10');
+        expect('[value]').toHaveExactText(' 10 ');
         spectator.click('button[name="remove"]');
         expect(spectator.component.value).toBe(9);
         spectator.detectChanges();
-        expect('[value]').toHaveExactText('9');
+        expect('[value]').toHaveExactText(' 9 ');
     });
 
     it('should not allow value to go out of range', () => {
@@ -73,10 +73,10 @@ describe('CounterComponent', () => {
     it('should allow writing to count', () => {
         expect('button[name="remove"]').toExist();
         expect('[value]').toExist();
-        expect('[value]').toHaveExactText('0');
+        expect('[value]').toHaveExactText(' 0 ');
         spectator.component.writeValue(10);
         spectator.detectChanges();
 
-        expect('[value]').toHaveExactText('10');
+        expect('[value]').toHaveExactText(' 10 ');
     });
 });

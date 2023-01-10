@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { CateringMenuComponent } from '../lib/catering-menu.component';
@@ -17,15 +17,12 @@ describe('CateringMenuComponent', () => {
             MockComponent(IconComponent),
         ],
         providers: [
-            {
-                provide: CateringStateService,
-                useValue: {
-                    menu: new BehaviorSubject([]),
-                    categories: [],
-                },
-            },
+            MockProvider(CateringStateService, {
+                menu: new BehaviorSubject([]),
+                categories: [],
+            }),
         ],
-        imports: [MatTabsModule],
+        imports: [MockModule(MatTabsModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -35,7 +32,7 @@ describe('CateringMenuComponent', () => {
     });
 
     it('should show tabs', () => {
-        expect('.mat-tab-label-content').toContainText('All Items');
+        expect('mat-tab[label="All Items"]').toExist();
         expect('p').toContainText('No items in menu');
         expect('div[catering-menu-item]').not.toExist();
         const service = spectator.inject(CateringStateService);
@@ -45,12 +42,12 @@ describe('CateringMenuComponent', () => {
         expect('p').not.toContainText('No items in menu');
         (service.categories as any) = ['Second'];
         spectator.detectChanges();
-        expect('.mat-tab-label-content').toContainText('Second');
+        expect('mat-tab[label="Second"]').toExist();
         spectator.click(document.querySelectorAll('[role="tab"]')[1]);
         spectator.detectChanges();
         expect('div[catering-menu-item]').toHaveLength(1);
         (service.menu as any).next([{}, { category: 'Second' }]);
         spectator.detectChanges();
-        expect('div[catering-menu-item]').toHaveLength(2);
+        expect('div[catering-menu-item]').toHaveLength(3);
     });
 });

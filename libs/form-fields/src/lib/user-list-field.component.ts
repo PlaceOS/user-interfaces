@@ -54,12 +54,14 @@ function validateEmail(email) {
                 >
                     <mat-chip-grid #chipList aria-label="User Seleciom">
                         <mat-chip-row
+                            user
                             *ngFor="let item of active_list"
                             (removed)="removeUser(item)"
                         >
                             {{ item.name || item.email }}
                             <button
                                 matChipRemove
+                                remove
                                 [attr.aria-label]="
                                     'Remove ' + (item.name || item.email)
                                 "

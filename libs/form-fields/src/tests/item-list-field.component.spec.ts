@@ -27,17 +27,17 @@ describe('ItemListFieldComponent', () => {
         spectator.component.add({ input, value: input.value } as any);
         spectator.detectChanges();
         expect(spectator.component.value).toHaveLength(1);
-        expect('mat-chip').toExist();
-        expect('mat-chip').toContainText('MyElement');
+        expect('mat-chip-row').toExist();
+        expect('mat-chip-row').toContainText('MyElement');
     });
 
     it('should allow removing items', () => {
         spectator.component.value = ['Element1', 'Element2'];
         spectator.detectChanges();
-        expect('mat-chip').toHaveLength(2);
-        spectator.dispatchFakeEvent('mat-chip', 'removed');
+        expect('mat-chip-row').toHaveLength(2);
+        spectator.dispatchFakeEvent('mat-chip-row', 'removed');
         spectator.detectChanges();
-        expect('mat-chip').toHaveLength(1);
+        expect('mat-chip-row').toHaveLength(1);
         expect(
             spectator.component.value.find((_) => _ === 'Element1')
         ).toBeFalsy();
@@ -47,9 +47,9 @@ describe('ItemListFieldComponent', () => {
     });
 
     it('should allow updating from external values', () => {
-        expect('mat-chip').toHaveLength(0);
+        expect('mat-chip-row').toHaveLength(0);
         spectator.component.writeValue(['Element1', 'Element2']);
         spectator.detectChanges();
-        expect('mat-chip').toHaveLength(2);
+        expect('mat-chip-row').toHaveLength(2);
     });
 });

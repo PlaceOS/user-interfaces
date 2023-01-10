@@ -17,7 +17,7 @@ describe('NewDeskFlowSuccessComponent', () => {
                 },
             },
             { provide: MatDialog, useValue: { open: jest.fn() } },
-            MockProvider(SettingsService, { get: jest.fn() })
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [],
     });
@@ -30,22 +30,22 @@ describe('NewDeskFlowSuccessComponent', () => {
     it('should show assets if available', () => {
         expect('[assets]').not.toExist();
         spectator.inject(BookingFormService).last_success = new Booking({
-            extension_data: { assets: [{id:'1'}]}
+            extension_data: { assets: [{ id: '1' }] },
         });
         spectator.detectChanges();
         expect('[assets]').toExist();
-    })
+    });
 
     it('should resolve location', () => {
         spectator.inject(BookingFormService).last_success = new Booking({
-            extension_data: { booking_asset: {zone: {id:'1'} }}
+            extension_data: { booking_asset: { zone: { id: '1' } } },
         });
         expect(spectator.component.location).toBe(', 1');
     });
 
     it('should navigate to root when done', () => {
         location.pathname = '/book/newdesk/success';
-        spectator.click('a[button]');
+        spectator.click('a[btn]');
         expect(location.pathname).toBe('/');
     });
 });
