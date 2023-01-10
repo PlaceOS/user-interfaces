@@ -158,7 +158,7 @@ const QR_CODES = {};
                     {{ changed }} Desk(s) with unsaved changes
                 </p>
                 <div class="flex items-center justify-center">
-                    <button save mat-button (click)="save()">
+                    <button save btn matRipple (click)="save()">
                         Save Changes
                     </button>
                 </div>

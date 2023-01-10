@@ -42,7 +42,8 @@ import { MapLocateModalComponent } from '@placeos/components';
                 </button>
                 <button
                     locate
-                    mat-button
+                    btn
+                    matRipple
                     class="inverse"
                     (click)="viewLocation()"
                 >

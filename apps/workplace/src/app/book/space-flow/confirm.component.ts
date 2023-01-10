@@ -11,7 +11,8 @@ import { OrganisationService } from '@placeos/organisation';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/book', 'spaces', 'find']"
             >
                 <div class="flex items-center justify-center h-full">
@@ -45,7 +46,8 @@ import { OrganisationService } from '@placeos/organisation';
                     </span>
                 </div>
                 <a
-                    mat-button
+                    btn
+                    matRipple
                     class="clear underline"
                     [routerLink]="['/book', 'spaces', 'form']"
                     >Edit</a
@@ -67,7 +69,8 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
                 <a
-                    mat-button
+                    btn
+                    matRipple
                     class="clear underline"
                     [routerLink]="['/book', 'spaces', 'form']"
                 >
@@ -93,7 +96,8 @@ import { OrganisationService } from '@placeos/organisation';
                         {{ show_spaces ? 'Hide' : 'Show' }}
                     </button>
                     <a
-                        mat-button
+                        btn
+                        matRipple
                         class="clear underline"
                         [routerLink]="['/book', 'spaces', 'find']"
                         >Edit</a
@@ -148,7 +152,8 @@ import { OrganisationService } from '@placeos/organisation';
                         {{ show_people ? 'Hide' : 'Show' }}
                     </button>
                     <a
-                        mat-button
+                        btn
+                        matRipple
                         class="clear underline"
                         [routerLink]="['/book', 'spaces', 'form']"
                         >Edit</a
@@ -197,7 +202,8 @@ import { OrganisationService } from '@placeos/organisation';
                         {{ show_people ? 'Hide' : 'Show' }}
                     </button>
                     <a
-                        mat-button
+                        btn
+                        matRipple
                         class="clear underline"
                         [routerLink]="['/book', 'spaces', 'form']"
                         >Edit</a

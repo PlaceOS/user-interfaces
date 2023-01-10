@@ -110,7 +110,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             mode="indeterminate"
         ></mat-progress-bar>
         <ng-template #empty_state>
-            <div class="flex flex-col items-center justify-center p-8 space-y-4 h-full w-full">
+            <div
+                class="flex flex-col items-center justify-center p-8 space-y-4 h-full w-full"
+            >
                 <p class="opacity-40">
                     {{
                         (options | async)?.search
@@ -120,7 +122,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </p>
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     *ngIf="!(options | async)?.search"
                     [routerLink]="['/asset-manager', 'manage', 'details']"
                 >

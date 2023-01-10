@@ -20,7 +20,8 @@ import { BookingLike } from './schedule-state.service';
                 </div>
             </div>
             <a
-                mat-button
+                btn
+                matRipple
                 item
                 *ngSwitchDefault
                 class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white dark:bg-neutral-700 hover:shadow p-0"
@@ -28,7 +29,10 @@ import { BookingLike } from './schedule-state.service';
                 [routerLink]="[
                     '/schedule',
                     'view',
-                    item?.id + (((item?.system?.email) | space | async)?.id ? '|' + ((item?.system?.email) | space | async)?.id : ''),
+                    item?.id +
+                        ((item?.system?.email | space | async)?.id
+                            ? '|' + (item?.system?.email | space | async)?.id
+                            : ''),
                     type
                 ]"
             >

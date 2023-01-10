@@ -59,7 +59,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div class="flex items-center text-sm ">
                             <a
                                 button
-                                mat-button
+                                btn
+                                matRipple
                                 class="clear"
                                 [routerLink]="[
                                     '/asset-manager',

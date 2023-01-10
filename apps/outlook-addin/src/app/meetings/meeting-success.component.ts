@@ -22,7 +22,13 @@ import { EventFormService } from '@placeos/events';
                         | date: 'shortTime'
                 }}
             </p>
-            <a btn mat-button [routerLink]="['/book', 'meeting']" class="w-64">
+            <a
+                btn
+                btn
+                matRipple
+                [routerLink]="['/book', 'meeting']"
+                class="w-64"
+            >
                 New Booking
             </a>
         </div>

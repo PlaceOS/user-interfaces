@@ -87,6 +87,7 @@ import { checkinBooking } from './bookings.fn';
                         *ngIf="!booking.is_done"
                     >
                         <button
+                            btn
                             matRipple
                             class="flex-1 h-10"
                             [class.inverse]="booking.checked_in"

@@ -17,7 +17,7 @@ export interface ExploreBookingModalData {
         <header>
             <h2 i18n>New Booking</h2>
             <div class="flex-1"></div>
-            <button *ngIf="!(loading | async)" mat-icon-button mat-dialog-close>
+            <button *ngIf="!(loading | async)" icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>

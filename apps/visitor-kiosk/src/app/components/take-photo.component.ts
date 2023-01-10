@@ -36,14 +36,15 @@ import {
             <button
                 class="take-photo"
                 *ngIf="!hasPhoto; else accept_state"
-                mat-button
+                btn
+                matRipple
                 (click)="takePhoto()"
             >
                 Take Photo
             </button>
         </div>
         <ng-template #accept_state>
-            <button class="inverse" mat-button (click)="cancelPhoto()">
+            <button class="inverse" btn matRipple (click)="cancelPhoto()">
                 Cancel
             </button>
             <button btn matRipple (click)="acceptPhoto()">Accept</button>

@@ -220,7 +220,8 @@ import { VisitorsStateService } from './visitors-state.service';
             </action-icon>
             <a
                 [href]="'mailto:' + row?.email"
-                mat-icon-button
+                icon
+                matRipple
                 [matTooltip]="row?.organizer ? 'Email Host' : 'Email Guest'"
             >
                 <app-icon>email</app-icon>
@@ -238,7 +239,8 @@ import { VisitorsStateService } from './visitors-state.service';
             class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12"
             matTooltip="Download Visitor List"
             matTooltipPosition="left"
-            mat-icon-button
+            icon
+            matRipple
             *ngIf="(guests | async)?.length"
             (click)="downloadVisitorList()"
         >

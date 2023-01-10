@@ -55,7 +55,8 @@ import { CheckinStateService } from './checkin-state.service';
             </ol>
             <button btn matRipple (click)="confirm()">Confirm</button>
             <a
-                mat-icon-button
+                icon
+                matRipple
                 [attr.disabled]="!symptoms && !contact"
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"

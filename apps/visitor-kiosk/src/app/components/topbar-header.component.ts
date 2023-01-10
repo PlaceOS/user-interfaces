@@ -6,7 +6,8 @@ import { format } from 'date-fns';
     template: `
         <div class="flex items-center justify-between bg-secondary shadow">
             <a
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/']"
                 class="h-full flex flex-col justify-center px-4"
             >

@@ -2,10 +2,7 @@ import { Component } from '@angular/core';
 import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 
-import {
-    ControlStateService,
-    LightScene,
-} from '../control-state.service';
+import { ControlStateService, LightScene } from '../control-state.service';
 
 @Component({
     selector: 'lighting-tooltip',
@@ -14,17 +11,20 @@ import {
             class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
         >
             <h3 class="mb-2 text-xl font-medium">Lighting Scenes</h3>
-            <ng-container *ngIf="(scenes | async).length else empty_state">
+            <ng-container *ngIf="(scenes | async).length; else empty_state">
                 <button
                     state
-                    mat-button
+                    btn
+                    matRipple
                     class="w-64"
-                    *ngFor="let item of (scenes | async)"
+                    *ngFor="let item of scenes | async"
                     [class.inverse]="(scene | async) !== item.id"
                     (click)="setScene(item.name)"
                 >
                     <div class="flex items-center space-x-4">
-                        <app-icon [style.opacity]="item.opacity || 1">{{item.icon}}</app-icon>
+                        <app-icon [style.opacity]="item.opacity || 1">{{
+                            item.icon
+                        }}</app-icon>
                         <div>{{ item.name }}</div>
                     </div>
                 </button>
@@ -39,7 +39,6 @@ import {
     styles: [``],
 })
 export class LightingSceneTooltipComponent {
-
     public readonly scene = this._state.lighting_scene;
     public readonly scenes = this._state.lighting_scenes;
     /** Close the tooltip */

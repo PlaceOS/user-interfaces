@@ -67,7 +67,8 @@ import { VisitorsStateService } from './visitors-state.service';
                 >
                 </action-icon>
                 <a
-                    mat-icon-button
+                    icon
+                    matRipple
                     [href]="'mailto:' + event?.organiser?.email"
                     matTooltip="Email Host"
                 >

@@ -25,7 +25,8 @@ import { MapLocateModalComponent } from '@placeos/components';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/schedule']"
             >
                 <div class="flex items-center justify-center h-full">

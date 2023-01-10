@@ -27,7 +27,8 @@ import { BookingFormService } from '@placeos/bookings';
         >
             <a
                 button
-                mat-button
+                btn
+                matRipple
                 class="w-full max-w-[32rem]"
                 [routerLink]="['/']"
                 i18n
@@ -43,7 +44,11 @@ export class ParkingFlowSuccessComponent {
         const resource = this.last_event?.extension_data?.booking_asset;
         if (!resource) return '';
         return resource.zone
-            ? `, ${resource.zone.display_name || resource.zone.name || resource.zone.id}`
+            ? `, ${
+                  resource.zone.display_name ||
+                  resource.zone.name ||
+                  resource.zone.id
+              }`
             : '';
     }
 

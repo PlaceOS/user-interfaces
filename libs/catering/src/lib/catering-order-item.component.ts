@@ -14,7 +14,8 @@ import { CateringItem } from './catering-item.class';
             <div class="w-12 mr-4">
                 <button
                     action
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="border border-gray-300 dark:border-neutral-500 border-dashed text-xl text-dark-fade p-2"
                     [class.bg-success]="active"
                     [class.text-white]="active"

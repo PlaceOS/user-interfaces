@@ -26,7 +26,8 @@ import { Space } from '@placeos/spaces';
                 class="flex w-full sm:w-auto sm:flex-col items-center space-x-2 sm:space-x-0 sm:space-y-2 mt-4 sm:mt-0"
             >
                 <a
-                    mat-button
+                    btn
+                    matRipple
                     button
                     control
                     class="w-32 flex-1 sm:flex-none"
@@ -35,7 +36,8 @@ import { Space } from '@placeos/spaces';
                     Control
                 </a>
                 <a
-                    mat-button
+                    btn
+                    matRipple
                     button
                     locate
                     class="w-32 flex-1 sm:flex-none inverse"

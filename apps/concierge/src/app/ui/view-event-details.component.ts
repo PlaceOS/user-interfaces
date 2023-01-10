@@ -92,14 +92,14 @@ import { SettingsService } from '@placeos/common';
                 *ngIf="!is_delegated"
                 class="flex items-center justify-content p-4 space-x-4"
             >
-                <button class="flex-1 inverse" mat-button (click)="remove()">
+                <button class="flex-1 inverse" btn matRipple (click)="remove()">
                     Remove Booking
                 </button>
-                <button class="flex-1" mat-button (click)="edit()">
+                <button class="flex-1" btn matRipple (click)="edit()">
                     Edit Booking
                 </button>
             </div>
-            <button name="close" mat-icon-button (click)="close()">
+            <button name="close" icon matRipple (click)="close()">
                 <app-icon>close</app-icon>
             </button>
         </div>

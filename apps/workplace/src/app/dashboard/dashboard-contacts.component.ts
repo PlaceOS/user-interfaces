@@ -35,7 +35,8 @@ import { DashboardStateService } from './dashboard-state.service';
             </div>
             <button
                 name="contact"
-                mat-button
+                btn
+                matRipple
                 class="rounded-lg flex-1 w-full dark:bg-neutral-800"
                 [matMenuTriggerFor]="menu"
                 (menuOpened)="focusInput()"

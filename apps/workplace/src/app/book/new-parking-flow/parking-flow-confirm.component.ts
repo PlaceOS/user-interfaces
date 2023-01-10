@@ -8,7 +8,8 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'new-parking-flow-confirm',
     template: ` <button
             close
-            mat-icon-button
+            icon
+            matRipple
             *ngIf="show_close"
             (click)="dismiss()"
         >

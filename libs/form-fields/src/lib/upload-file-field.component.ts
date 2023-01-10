@@ -45,7 +45,8 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                 </ng-container>
                 <a
                     [href]="item.url"
-                    mat-icon-button
+                    icon
+                    matRipple
                     *ngIf="item.progress >= 100"
                     target="_blank"
                     rel="noopener noreferrer"

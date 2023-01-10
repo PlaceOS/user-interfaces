@@ -24,7 +24,7 @@ export interface CateringConfigModalData {
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="overflow-auto text-center">
+        <main class="overflow-auto text-center max-w-lg px-4 pt-2 pb-4">
             <mat-checkbox
                 class="m-2"
                 [ngModel]="require_notes"
@@ -134,23 +134,15 @@ export interface CateringConfigModalData {
         <footer
             class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
         >
-            <button btn matRipple (click)="saveChanges()">Save Changes</button>
+            <button btn matRipple class="mx-auto w-32" (click)="saveChanges()">
+                Save Changes
+            </button>
         </footer>
     `,
     styles: [
         `
             [name='rules'] {
                 transition: height 200ms;
-            }
-
-            main {
-                width: 32em;
-                padding: 0.5em 1em 1em;
-            }
-
-            main button.mat-button {
-                margin: 0 auto 0.5em;
-                min-width: 12em;
             }
         `,
     ],

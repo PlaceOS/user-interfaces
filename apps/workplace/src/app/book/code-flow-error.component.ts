@@ -36,7 +36,8 @@ import { BaseClass } from '@placeos/common';
             >
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/book', 'code']"
                     [queryParams]="{ asset_id: asset_id }"
@@ -46,7 +47,8 @@ import { BaseClass } from '@placeos/common';
                 </a>
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/book', 'newdesk']"
                     [queryParams]="{ asset_id: asset_id }"
@@ -56,7 +58,8 @@ import { BaseClass } from '@placeos/common';
                 </a>
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     class="w-full max-w-[32rem] inverse"
                     [routerLink]="['/']"
                 >

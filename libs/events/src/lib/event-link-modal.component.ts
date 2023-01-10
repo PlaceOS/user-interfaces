@@ -50,7 +50,7 @@ import { notifyError } from '@placeos/common';
                 <app-icon class="text-xl">download</app-icon>
                 <span i18n>Download iCal File</span>
             </a>
-            <button class="w-64" mat-button (click)="close()" i18n>
+            <button class="w-64" btn matRipple (click)="close()" i18n>
                 Close
             </button>
         </div>

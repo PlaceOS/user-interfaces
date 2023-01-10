@@ -38,7 +38,8 @@ import { CheckinStateService } from './checkin-state.service';
                 {{ beverage ? 'Update' : 'Continue' }}
             </button>
             <a
-                mat-icon-button
+                icon
+                matRipple
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >

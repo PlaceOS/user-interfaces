@@ -25,12 +25,12 @@ describe('SpaceSelectItemComponent', () => {
         expect('[space]').toExist();
     });
 
-    it('should icon button for multi-select', () => {
+    it('should show icon button for multi-select', () => {
         spectator.setInput({ space: new Space(generateMockSpace()) });
-        expect('[mat-icon-button]').not.toExist();
+        expect('[icon]').not.toExist();
         spectator.setInput({ multiple: true });
         spectator.detectChanges();
-        expect('[mat-icon-button]').toExist();
+        expect('[icon]').toExist();
     });
 
     it('should emit changes to selected state', (done) => {
@@ -57,9 +57,9 @@ describe('SpaceSelectItemComponent', () => {
 
     it('should button for single-select', () => {
         spectator.setInput({ space: new Space(generateMockSpace()) });
-        expect('[mat-button]').toExist();
+        expect('[btn]').toExist();
         spectator.setInput({ multiple: true });
         spectator.detectChanges();
-        expect('[mat-button]').not.toExist();
+        expect('[btn]').not.toExist();
     });
 });

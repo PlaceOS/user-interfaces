@@ -101,6 +101,7 @@ import { getModule } from '@placeos/ts-client';
                         *ngIf="event.state !== 'done'"
                     >
                         <button
+                            btn
                             matRipple
                             class="flex-1 h-10"
                             *ngIf="event.can_check_in && room_status !== 'free'"

@@ -74,7 +74,8 @@ import { ControlStateService } from '../control-state.service';
                     >
                         <button
                             mute
-                            mat-icon-button
+                            icon
+                            matRipple
                             [disabled]="!mic.mute_id?.length"
                             (click)="mute[i] = !mute[i]"
                         >

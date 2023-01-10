@@ -29,7 +29,8 @@ import { CateringItem } from '@placeos/catering';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/schedule']"
             >
                 <div class="flex items-center justify-center h-full">

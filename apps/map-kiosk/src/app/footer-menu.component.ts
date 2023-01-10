@@ -7,7 +7,8 @@ import { Component } from '@angular/core';
             class="flex items-center bg-white divide-x border-t border-solid border-gray-300 w-full"
         >
             <a
-                mat-button
+                btn
+                matRipple
                 class="flex-1 h-16 !rounded-none"
                 [routerLink]="['/desks']"
                 routerLinkActive="!bg-primary !text-white"
@@ -18,7 +19,8 @@ import { Component } from '@angular/core';
                 </div>
             </a>
             <a
-                mat-button
+                btn
+                matRipple
                 class="flex-1 h-16 !rounded-none"
                 [routerLink]="['/explore']"
                 routerLinkActive="!bg-primary !text-white"
@@ -29,6 +31,6 @@ import { Component } from '@angular/core';
                 </div>
             </a>
         </div>
-    `
+    `,
 })
 export class FooterMenuComponent {}

@@ -21,7 +21,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         `,
     ],
     template: `
-        <button close mat-icon-button *ngIf="show_close" (click)="dismiss()">
+        <button close icon matRipple *ngIf="show_close" (click)="dismiss()">
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">

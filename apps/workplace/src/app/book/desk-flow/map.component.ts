@@ -14,7 +14,8 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/book', 'desks', 'form']"
             >
                 <div class="flex items-center justify-center h-full">

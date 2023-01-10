@@ -21,7 +21,8 @@ export interface PopoutAction extends ApplicationIcon {
         </button>
         <button
             name="root"
-            mat-icon-button
+            icon
+            matRipple
             [class.show]="show"
             (click)="show = !show"
             (window:click)="show ? close() : ''"

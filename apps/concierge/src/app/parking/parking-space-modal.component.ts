@@ -13,7 +13,7 @@ import { ParkingSpace } from './parking-state.service';
                 class="flex items-center justify-between bg-secondary px-2 w-full"
             >
                 <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking Space</h2>
-                <button *ngIf="!loading" mat-icon-button mat-dialog-close>
+                <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
             </header>

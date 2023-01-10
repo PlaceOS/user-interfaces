@@ -114,7 +114,8 @@ export interface CateringOrderModalData {
                 </button>
                 <button
                     confirm
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!order.item_count"
                     [matBadge]="order.item_count"
                     [matBadgeHidden]="!order.item_count"
@@ -132,7 +133,7 @@ export interface CateringOrderModalData {
                 >
                     Back
                 </button>
-                <button save mat-button (click)="saveOrder()">
+                <button save btn matRipple (click)="saveOrder()">
                     Save Order
                 </button>
             </ng-template>

@@ -13,7 +13,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             >
                 <div class="flex items-center px-4 space-x-4">
                     <a
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="bg-white rounded-none border border-solid border-gray-300"
                         [routerLink]="['/asset-manager', 'list']"
                         (click)="clearActiveAsset()"
@@ -38,7 +39,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     button
-                                    mat-button
+                                    btn
+                                    matRipple
                                     class="inverse"
                                     [routerLink]="['/asset-manager', 'list']"
                                     (click)="clearActiveAsset()"
@@ -155,7 +157,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </button>
                         <a
                             button
-                            mat-button
+                            btn
+                            matRipple
                             class="w-32"
                             [routerLink]="['/asset-manager', 'view', id]"
                         >
@@ -163,7 +166,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </a>
                     </div>
                     <a
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="absolute top-1 right-1 !m-0 opacity-30 hover:opacity-100"
                         [routerLink]="['/asset-manager', 'list']"
                     >
