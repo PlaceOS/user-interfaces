@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1673316276644,
+  "timestamp": 1673323250764,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -41,6 +41,7 @@
         "./assets/icons/car-outline.svg",
         "./assets/icons/car-placeholder.svg",
         "./assets/icons/car.svg",
+        "./assets/icons/catering-placeholder.svg",
         "./assets/icons/cost.svg",
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
@@ -116,6 +117,7 @@
     "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
     "./assets/icons/car-placeholder.svg": "965222ac719c07ed27d33e870624036aa9d4dcd5",
     "./assets/icons/car.svg": "2369f881099a2a3967987685891a974af32276b7",
+    "./assets/icons/catering-placeholder.svg": "92bda6e963a359fdab429b19d8ffd0d9b1650e83",
     "./assets/icons/cost.svg": "93706c1d453d3069c3a1b3f09f2a5dd1e1b39518",
     "./assets/icons/desk-filled.svg": "94a3f30d44f92b852a0f18641939c8305dca0113",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
@@ -176,7 +178,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "c0d22f78e8f40ddf18ae76ab42cdd594f25f4d20",
-    "./main.js": "5778b9fb5bff1cb8673c35bdafbf35626aa5dac4",
+    "./main.js": "2a3fa35159b10beb85f871323df956f152048af7",
     "./manifest.webmanifest": "b77d510a22ab8c2bbb2bd38f11b3b266666784f3",
     "./polyfills.js": "621e07a2fb55ccf2ad84af4ef9da71f22d7e28ca",
     "./runtime.js": "0848b84d6864b60f032539f0b297643742c3445e",
