@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1673316327032,
+  "timestamp": 1673323320575,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -52,6 +52,7 @@
         "./assets/icons/car-outline.svg",
         "./assets/icons/car-placeholder.svg",
         "./assets/icons/car.svg",
+        "./assets/icons/catering-placeholder.svg",
         "./assets/icons/cost.svg",
         "./assets/icons/desk-filled.svg",
         "./assets/icons/desk-outline.svg",
@@ -174,7 +175,7 @@
   "hashTable": {
     "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
     "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./apps_workplace_src_app_book_book_module_ts.js": "ef3fcd5ca8f01b0564b33b80b307f4c9432301b6",
+    "./apps_workplace_src_app_book_book_module_ts.js": "5252d55c9bfc803115f1c33f4b962f2a288eaf11",
     "./apps_workplace_src_app_control_control_module_ts.js": "860e02a168ded4f4a07fe2caf5b3a22b36eb5318",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "536c4c6d088843fd33c1e11fde6d9bcae5682e4e",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "08ada9196ea8d0abeb797305be2146110f0f39d8",
@@ -192,6 +193,7 @@
     "./assets/icons/car-outline.svg": "7cdb33613efbbb15edbb2ed8a053187ea77c77e6",
     "./assets/icons/car-placeholder.svg": "965222ac719c07ed27d33e870624036aa9d4dcd5",
     "./assets/icons/car.svg": "2369f881099a2a3967987685891a974af32276b7",
+    "./assets/icons/catering-placeholder.svg": "92bda6e963a359fdab429b19d8ffd0d9b1650e83",
     "./assets/icons/cost.svg": "93706c1d453d3069c3a1b3f09f2a5dd1e1b39518",
     "./assets/icons/desk-filled.svg": "94a3f30d44f92b852a0f18641939c8305dca0113",
     "./assets/icons/desk-outline.svg": "2152faed198dccbf406db80006492ec63bbfb8e7",
@@ -309,7 +311,7 @@
     "./common.js": "b12231946917cf421a673c5073fb44af5d4d6be9",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2d0733538048080dc1886ef3bc247e17699895a8",
-    "./main.js": "e85080ae64fac6322de3e179d34204816344ea42",
+    "./main.js": "595f7c7cf9b475d711b919097e534da089a010ef",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "e0e8d24eecba226092319da89d4d7e2e9a179b3b",
