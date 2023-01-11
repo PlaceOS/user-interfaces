@@ -14,7 +14,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     catchError,
@@ -92,16 +92,21 @@ export class ScheduleStateService extends BaseClass {
             shareReplay(1)
         );
 
-    public readonly ws_events = this._space_bookings.pipe(
-        map((_) => {
+    public readonly ws_events = combineLatest([
+        this._space_bookings,
+        this._update,
+    ]).pipe(
+        map(([_, [date]]) => {
             const user = currentUser();
             return _.filter(
                 (_) =>
-                    _.host.toLowerCase() === user.email.toLowerCase() ||
-                    _.attendees.find(
-                        (a) =>
-                            a.email.toLowerCase() === user.email.toLowerCase()
-                    )
+                    isSameDay(_.date, date) &&
+                    (_.host.toLowerCase() === user.email.toLowerCase() ||
+                        _.attendees.find(
+                            (a) =>
+                                a.email.toLowerCase() ===
+                                user.email.toLowerCase()
+                        ))
             );
         })
     );
