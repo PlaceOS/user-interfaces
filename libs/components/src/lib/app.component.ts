@@ -8,6 +8,7 @@ import {
     invalidateToken,
     isMock,
     refreshToken,
+    setAPI_Key,
     token,
 } from '@placeos/ts-client';
 import { ActivatedRoute } from '@angular/router';
@@ -138,6 +139,9 @@ export class AppComponent extends BaseClass implements OnInit {
                 const locale = params.get('lang');
                 this._translate?.use(locale);
                 localStorage.setItem('PLACEOS.locale', locale);
+            }
+            if (params.has('x-api-key')) {
+                setAPI_Key(params.get('x-api-key'));
             }
         });
         setNotifyOutlet(this._snackbar);
