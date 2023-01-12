@@ -105,7 +105,7 @@ import { checkinBooking } from './bookings.fn';
                                     {{
                                         booking.checked_in
                                             ? 'Checked in'
-                                            : 'Not checked in'
+                                            : 'Check in'
                                     }}
                                 </div>
                             </div>
