@@ -191,6 +191,8 @@ const app: any = {
         can_book_lockers: true,
         can_book_for_others: true,
         allow_groups: true,
+        allow_time_changes: true,
+        allow_all_day: true,
         auto_allocation: false,
         show_calendar_links: true,
         hide_map: false,

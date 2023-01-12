@@ -113,7 +113,7 @@ import { SpacesService } from '../spaces.service';
                 </h2>
                 <div class="flex items-center">
                     <div for="fav" class="flex-1 w-1/2" i18n>
-                        Only show favourite rooms
+                        {{ 'ROOMS.SHOW_FAVOURITES' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"

@@ -137,10 +137,12 @@ import { BookingFormService } from '../booking-form.service';
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium" i18n>Favourites</h2>
+                <h2 class="text-lg font-medium" i18n>
+                    {{ 'COMMON.FAVOURITES' | translate }}
+                </h2>
                 <div class="flex items-center">
                     <div for="fav" class="flex-1 w-1/2" i18n>
-                        Only show favourite desks
+                        {{ 'DESKS.SHOW_FAVOURITES' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"
