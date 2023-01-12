@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1673426861395,
+  "timestamp": 1673483454351,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -286,8 +286,8 @@
     "./assets/img/tick.svg": "d940fcfe7bffcd4785f687cf13b014ea92e2738b",
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
-    "./assets/locale/en-US.json": "5c425955273c60677bf7d079cd2a0ea74b41a279",
-    "./assets/locale/en.json": "eba212e230cbb53d4e3e3a102950757c8a4c4f7a",
+    "./assets/locale/en-US.json": "ec9dd4c8121b41bdda0b022c0852852b47ceadb7",
+    "./assets/locale/en.json": "3249b4e4d6d4634da824fef5746fd972c816ba09",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
@@ -311,7 +311,7 @@
     "./common.js": "590680045a1bcfb86e86f059124afa2bea8994b7",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2d0733538048080dc1886ef3bc247e17699895a8",
-    "./main.js": "6cae2fb8429001252c3b2618c418a03eb83c6098",
+    "./main.js": "842af0a9975c01283d4e4e4c33b4907bf84845b6",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "e0e8d24eecba226092319da89d4d7e2e9a179b3b",
