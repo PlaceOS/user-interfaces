@@ -1,8 +1,14 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { currentUser, notifySuccess } from '@placeos/common';
+import {
+    currentUser,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'support-ticket-modal',
@@ -13,7 +19,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="w-[32rem] max-w-[100vw]">
+        <main class="w-[32rem] max-w-[100vw]" *ngIf="!loading; else load_state">
             <form class="p-2" [formGroup]="form">
                 <div class="flex items-center space-x-2">
                     <div class="flex flex-col flex-1">
@@ -80,6 +86,14 @@ import { OrganisationService } from '@placeos/organisation';
                 Submit
             </button>
         </footer>
+        <ng-template #load_state>
+            <main
+                class="w-[32rem] min-h-[24rem] max-w-[100vw] flex items-center justify-center"
+            >
+                <mat-spinner></mat-spinner>
+                <p>Sending support ticket...</p>
+            </main>
+        </ng-template>
     `,
     styles: [
         `
@@ -90,6 +104,7 @@ import { OrganisationService } from '@placeos/organisation';
     ],
 })
 export class SupportTicketModalComponent {
+    public loading = false;
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
         email: new FormControl('', [Validators.required]),
@@ -104,11 +119,16 @@ export class SupportTicketModalComponent {
         );
     }
 
+    public get support_email() {
+        return this._settings.get('app.support_email') || 'support@place.tech';
+    }
+
     public readonly buildings = this._org.building_list;
 
     constructor(
         private _dialog_ref: MatDialogRef<SupportTicketModalComponent>,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 
     public ngOnInit() {
@@ -127,11 +147,32 @@ export class SupportTicketModalComponent {
         }
     }
 
-    public submit() {
+    public async submit() {
+        this.loading = true;
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (this.form.valid) {
+            const stmp_system = this._org.binding('smtp');
+            if (!stmp_system) {
+                return notifyError(
+                    'Mailing system not configured for application.'
+                );
+            }
+            const mod = getModule(stmp_system, 'Mailer');
+            const { name, email, location, description } = this.form.value;
+            await mod.execute('send_mail', [
+                this.support_email,
+                `Support Ticket from Workplace Application`,
+                `${name}\n\n${location}\n\n${description}`,
+                null,
+                [],
+                [],
+                [],
+                [],
+                `${name}<${email}>`,
+            ]);
             this._dialog_ref.close();
+            this.loading = false;
             notifySuccess('Successfully submitted support ticket');
         }
     }
