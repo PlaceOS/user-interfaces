@@ -109,7 +109,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                         <mat-checkbox
                             formControlName="all_day"
                             *ngIf="allow_all_day"
-                            class="absolute top-0 right-0"
+                            class="absolute -top-2 right-0"
                             i18n
                         >
                             All Day
