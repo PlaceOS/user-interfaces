@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1673483405582,
+  "timestamp": 1673512031076,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -153,8 +153,8 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/en-US.json": "ec9dd4c8121b41bdda0b022c0852852b47ceadb7",
-    "./assets/locale/en.json": "3249b4e4d6d4634da824fef5746fd972c816ba09",
+    "./assets/locale/en-US.json": "933a6a20a6d21d538d7f09face30b7c416fdab64",
+    "./assets/locale/en.json": "615e2feeeb84c22d9bc31f551604449c9e434ecf",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
@@ -177,11 +177,11 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "71ff09e00a5d402d4aa5f6617cf2787d1627d9f0",
-    "./main.js": "b69cc8f40e8fc565701c8d7c28e947169a0b2664",
+    "./main.js": "14bc3c864bbf52108d1d28fbf8b20c914b609de9",
     "./manifest.webmanifest": "f23567bd46672c5628059833da39da05adf508d6",
     "./polyfills.js": "36729f3ab919487a5086e7191102ec21348ceb89",
     "./runtime.js": "5a8f6f7dd76b0eab08d1857e135ab9614b029c3e",
-    "./styles.css": "f2883873405c2fba931a55d3f2c939e7f2f74ba0"
+    "./styles.css": "e992a6381fc205b9ed47d8d8f8bec92f4f356c9c"
   },
   "navigationUrls": [
     {
