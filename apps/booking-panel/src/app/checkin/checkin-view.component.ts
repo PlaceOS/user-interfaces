@@ -43,12 +43,114 @@ import { PanelStateService } from '../panel-state.service';
                         {{ 'PANEL.NOW' | translate }}
                     </div>
                     <div class="">
-                        {{
-                            (event_state | async)?.current || 'No current event'
-                        }}
+                        <ng-container
+                            *ngIf="
+                                (event_state | async)?.current?.length;
+                                else no_current_state
+                            "
+                        >
+                            <ng-container
+                                *ngIf="
+                                    (event_state | async)?.current[0];
+                                    else free_for_state
+                                "
+                            >
+                                <ng-container
+                                    *ngIf="
+                                        (event_state | async)?.current[1] > 0
+                                    "
+                                >
+                                    {{
+                                        'PANEL.FREE_IN_HOURS_AND_MINUTES'
+                                            | translate
+                                                : {
+                                                      hour: (
+                                                          event_state | async
+                                                      )?.current[1],
+                                                      minute: (
+                                                          event_state | async
+                                                      )?.current[2]
+                                                  }
+                                    }}
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="
+                                        (event_state | async)?.current[1] <= 0
+                                    "
+                                >
+                                    {{
+                                        'PANEL.FREE_IN_MINUTES'
+                                            | translate
+                                                : {
+                                                      minute: (
+                                                          event_state | async
+                                                      )?.current[2]
+                                                  }
+                                    }}
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="
+                                        (event_state | async)?.current[1] <=
+                                            0 &&
+                                        (event_state | async)?.current[2] <= 1
+                                    "
+                                >
+                                    {{
+                                        'PANEL.FREE_IN_LESS_THAN_MINUTE'
+                                            | translate
+                                    }}
+                                </ng-container>
+                            </ng-container>
+                            <ng-template #free_for_state>
+                                <ng-container
+                                    *ngIf="(event_state | async)?.current[1]"
+                                >
+                                    {{
+                                        'PANEL.FREE_FOR_HOURS_AND_MINUTES'
+                                            | translate
+                                                : {
+                                                      hour: (
+                                                          event_state | async
+                                                      )?.current[1],
+                                                      minute: (
+                                                          event_state | async
+                                                      )?.current[2]
+                                                  }
+                                    }}
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="!(event_state | async)?.current[1]"
+                                >
+                                    {{
+                                        'PANEL.FREE_FOR_MINUTES'
+                                            | translate
+                                                : {
+                                                      minute: (
+                                                          event_state | async
+                                                      )?.current[2]
+                                                  }
+                                    }}
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="
+                                        !(event_state | async)?.current[1] &&
+                                        (event_state | async)?.current[2] < 1
+                                    "
+                                >
+                                    {{
+                                        'PANEL.FREE_FOR_LESS_THAN_MINUTE'
+                                            | translate
+                                    }}
+                                </ng-container>
+                            </ng-template>
+                        </ng-container>
+                        <ng-template #no_current_state>
+                            {{ 'PANEL.NO_CURRENT' | translate }}
+                        </ng-template>
                     </div>
                 </div>
                 <button
+                    btn
                     matRipple
                     class="w-24"
                     *ngIf="(state | async) === 'pending'"
@@ -57,6 +159,7 @@ import { PanelStateService } from '../panel-state.service';
                     {{ 'PANEL.CHECKIN' | translate }}
                 </button>
                 <button
+                    btn
                     matRipple
                     class="w-24"
                     *ngIf="(state | async) === 'free'"
@@ -80,6 +183,7 @@ import { PanelStateService } from '../panel-state.service';
                     </div>
                 </div>
                 <button
+                    btn
                     matRipple
                     class="w-24"
                     *ngIf="!(event_state | async)?.next"

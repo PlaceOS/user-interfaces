@@ -69,6 +69,7 @@ import { querySystems } from '@placeos/ts-client';
                     </mat-option>
                 </mat-autocomplete>
                 <button
+                    btn
                     matRipple
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
