@@ -8,6 +8,12 @@
         "ORGANISATION": "Organization",
         "FAVOURITES": "Favorites"
     },
+    "DESKS": {
+        "SHOW_FAVOURITES": "Only show favorite desks"
+    },
+    "ROOMS": {
+        "SHOW_FAVOURITES": "Only show favorite rooms"
+    },
     "WPA": {
         "COLLEAGUES": "Colleagues",
         "FAVOURITES": "Favorites",
