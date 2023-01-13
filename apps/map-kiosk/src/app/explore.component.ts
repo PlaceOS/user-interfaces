@@ -29,7 +29,7 @@ import { first, take } from 'rxjs/operators';
     selector: '[app-explore]',
     template: `
         <div
-            class="absolute top-0 left-0 bg-secondary rounded-br-xl p-4 z-10 shadow"
+            class="absolute top-0 left-0 bg-gray-900 rounded-br-2xl p-4 z-10 shadow border-b border-r border-gray-200"
         >
             <img class="w-32" [src]="logo?.src" />
         </div>

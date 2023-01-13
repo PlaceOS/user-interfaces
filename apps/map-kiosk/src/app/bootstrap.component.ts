@@ -99,6 +99,7 @@ import { first } from 'rxjs/operators';
                     </mat-form-field>
                 </div>
                 <button
+                    btn
                     matRipple
                     class="mb-2"
                     [disabled]="!active_building && !active_level"
