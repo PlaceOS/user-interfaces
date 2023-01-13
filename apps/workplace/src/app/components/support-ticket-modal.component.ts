@@ -81,6 +81,7 @@ import { getModule } from '@placeos/ts-client';
         </main>
         <footer
             class="p-2 border-t border-gray-200 flex items-center justify-center"
+            *ngIf="!loading"
         >
             <button btn matRipple class="w-32" (click)="submit()" i18n>
                 Submit
@@ -88,9 +89,9 @@ import { getModule } from '@placeos/ts-client';
         </footer>
         <ng-template #load_state>
             <main
-                class="w-[32rem] min-h-[24rem] max-w-[100vw] flex items-center justify-center"
+                class="w-[32rem] min-h-[24rem] max-w-[100vw] flex flex-col items-center justify-center space-y-2"
             >
-                <mat-spinner></mat-spinner>
+                <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Sending support ticket...</p>
             </main>
         </ng-template>
@@ -169,7 +170,7 @@ export class SupportTicketModalComponent {
                 [],
                 [],
                 [],
-                `${name}<${email}>`,
+                `${email}`,
             ]);
             this._dialog_ref.close();
             this.loading = false;
