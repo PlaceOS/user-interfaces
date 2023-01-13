@@ -124,12 +124,13 @@ export class ScheduleStateService extends BaseClass {
                   )
                 : queryEvents({ ...query }).pipe(catchError((_) => []));
         }),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );
     /** List of calendar events for the selected date */
-    public readonly events = this._poll_type.pipe(
-        switchMap((t) => (t === 'api' ? this.api_events : this.ws_events))
+    public readonly events = combineLatest([this._poll_type]).pipe(
+        switchMap(([t]) => (t === 'api' ? this.api_events : this.ws_events)),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
     );
     /** List of desk bookings for the selected date */
     public readonly visitors: Observable<Booking[]> = this._update.pipe(
