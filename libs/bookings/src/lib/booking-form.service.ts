@@ -374,7 +374,7 @@ export class BookingFormService extends BaseClass {
                 form.getRawValue().booking_type ||
                 this._options.getValue().type,
         });
-        const value = form.getRawValue();
+        let value = form.getRawValue();
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 value,
@@ -387,6 +387,7 @@ export class BookingFormService extends BaseClass {
                 date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
                 duration: 12 * 60,
             });
+            value = form.getRawValue();
         }
         if (this._payments.payment_module) {
             const receipt = await this._payments.makePayment({
