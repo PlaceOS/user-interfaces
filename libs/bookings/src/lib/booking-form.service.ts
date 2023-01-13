@@ -381,6 +381,7 @@ export class BookingFormService extends BaseClass {
                 this._options.getValue().type
             );
         }
+        console.log('Is All Day:', value.duration >= 12 * 60, value.all_day);
         if (value.duration >= 12 * 60 || value.all_day) {
             form.patchValue({
                 date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),

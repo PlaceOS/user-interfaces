@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { TranslateModule } from '@ngx-translate/core';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
@@ -54,6 +55,7 @@ describe('SpaceFiltersComponent', () => {
             MockModule(MatSelectModule),
             MockModule(FormsModule),
             MockModule(ReactiveFormsModule),
+            MockModule(TranslateModule),
         ],
     });
 

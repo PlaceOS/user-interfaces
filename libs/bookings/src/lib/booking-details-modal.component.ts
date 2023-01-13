@@ -225,6 +225,7 @@ export class BookingDetailsModalComponent {
     ) {}
 
     public get period() {
+        if (this.booking?.all_day) return 'All Day';
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);

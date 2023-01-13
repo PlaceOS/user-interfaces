@@ -199,6 +199,7 @@ export class EventCardComponent extends BaseClass {
     }
 
     public get period() {
+        if (this.event?.all_day) return 'All Day';
         const start = this.event?.date || Date.now();
         const duration = this.event?.duration || 60;
         const end = addMinutes(start, duration);
