@@ -11,7 +11,7 @@ import { checkinBooking } from './bookings.fn';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-auto sm:w-[51rem] sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
