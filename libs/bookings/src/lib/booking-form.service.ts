@@ -349,13 +349,13 @@ export class BookingFormService extends BaseClass {
         details.loading('Performing booking request...');
         if (options.group) {
             await this.postFormForGroup().catch((_) => {
-                notifyError(_);
+                notifyError(JSON.stringify(_));
                 details.close();
                 throw _;
             });
         } else
             await this.postForm().catch((_) => {
-                notifyError(_);
+                notifyError(JSON.stringify(_));
                 details.close();
                 throw _;
             });

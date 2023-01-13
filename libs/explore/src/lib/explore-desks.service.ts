@@ -294,7 +294,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     options.host || currentUser()
                 )?.name;
                 notifySuccess(
-                    `Successfull booked desk ${desk.name || desk.id}`
+                    `Successfully booked desk ${desk.name || desk.id}`
                 );
             };
             actions.push({

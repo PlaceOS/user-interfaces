@@ -50,6 +50,20 @@
     background-color: #fff;
 }
 
+.mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
+        top: 22px;
+    }
+
+    &.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {
+        border-right: none;
+    }
+
+    label {
+        width: auto;
+    }
+}
+
 .mdc-dialog__container {
     padding: 0;
 
