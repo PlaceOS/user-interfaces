@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { ViewerLabel, Point } from '@placeos/svg-viewer';
+import { ViewerLabel, Point, ViewerFeature } from '@placeos/svg-viewer';
 import { first, map } from 'rxjs/operators';
 
 import { BaseClass, HashMap, SettingsService } from '@placeos/common';
@@ -9,6 +9,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { MapPolygonComponent } from 'libs/components/src/lib/map-polygon.component';
+import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
 
 const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 
@@ -29,11 +30,11 @@ export interface ZoneData {
 @Injectable()
 export class ExploreZonesService extends BaseClass {
     private _statuses: HashMap<string> = {};
-    private _labels: HashMap<ViewerLabel> = {};
     private _location: HashMap<Point> = {};
     private _capacity: HashMap<number> = {};
     private _draw: HashMap<boolean> = {};
     private _points: HashMap<[number, number][]> = {};
+    private _features: ViewerFeature[] = [];
 
     private _bind = this._state.level.pipe(
         map((lvl) => {
@@ -96,6 +97,7 @@ export class ExploreZonesService extends BaseClass {
     public parseData(data?: { value: ZoneData[] }) {
         const value = data?.value || [];
         const labels = [];
+        const features = [];
         for (const zone of value) {
             const filled = zone.count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
@@ -116,14 +118,27 @@ export class ExploreZonesService extends BaseClass {
             if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
             if (zone.counter) content += `Count: ${zone.counter}\n`;
-            this._labels[zone.area_id] = {
+            labels.push({
                 location: this._location[zone.area_id],
                 content,
                 z_index: 100,
-            };
-            labels.push(this._labels[zone.area_id]);
+            });
+            if (
+                this._settings.get('app.explore.show_simple_sensor_info') &&
+                (zone.temperature || zone.humidity)
+            ) {
+                features.push({
+                    location: this._location[zone.area_id],
+                    content: ExploreSensorInfoComponent,
+                    data: { temp: zone.temperature, humidity: zone.humidity },
+                    z_index: 98,
+                });
+            }
         }
-        this._state.setLabels('zones', labels);
+        this._features = features;
+        if (!this._settings.get('app.explore.show_simple_sensor_info')) {
+            this._state.setLabels('zones', labels);
+        }
         this.updateStatus();
     }
 
@@ -153,7 +168,7 @@ export class ExploreZonesService extends BaseClass {
                 };
             }
         }
-        this._state.setFeatures('zones', features);
+        this._state.setFeatures('zones', [...features, this._features]);
         this._state.setStyles('zones', style_map);
     }
 }

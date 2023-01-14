@@ -19,6 +19,7 @@ import { ExploreBookingModalComponent } from './explore-booking-modal.component'
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
+import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
 
 const COMPONENTS: Type<any>[] = [
     ExploreMapControlComponent,
@@ -31,6 +32,7 @@ const COMPONENTS: Type<any>[] = [
     ExploreBookingModalComponent,
     SetDatetimeModalComponent,
     ExploreBookQrComponent,
+    ExploreSensorInfoComponent,
 ];
 
 @NgModule({
