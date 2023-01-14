@@ -27,7 +27,7 @@ export const CONFIRM_METADATA = {
     selector: 'confirm-modal',
     template: `
         <header>
-            <h3 mat-dialog-title>{{ title }}</h3>
+            <h3>{{ title }}</h3>
         </header>
         <main
             *ngIf="!loading; else load_state"
