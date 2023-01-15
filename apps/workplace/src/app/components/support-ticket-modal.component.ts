@@ -19,9 +19,9 @@ import { getModule } from '@placeos/ts-client';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="w-[32rem] max-w-[100vw]" *ngIf="!loading; else load_state">
+        <main class="w-[32rem] max-w-[85vw]" *ngIf="!loading; else load_state">
             <form class="p-2" [formGroup]="form">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center sm:space-x-2 flex-wrap">
                     <div class="flex flex-col flex-1">
                         <label i18n>Name<span>*</span></label>
                         <mat-form-field appearance="outline">

@@ -58,7 +58,7 @@ const EMPTY_FAVS: string[] = [];
                         />
                     </ng-template>
                 </div>
-                <div class="space-y-2 pb-4">
+                <div class="sm:space-y-2 pb-4">
                     <div class="font-medium">
                         {{
                             space.display_name || space.name || 'Meeting Space'

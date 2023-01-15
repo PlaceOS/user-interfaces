@@ -11,7 +11,11 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main *ngIf="form" [formGroup]="form" class="w-[24rem] pt-4">
+        <main
+            *ngIf="form"
+            [formGroup]="form"
+            class="w-[24rem] max-w-[85vw] pt-4"
+        >
             <div
                 class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
