@@ -11,6 +11,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
     template: `
         <section actions class="sm:hidden space-x-2 flex items-center p-2">
             <button
+                btn
                 matRipple
                 filters
                 class="flex-1 w-1/2"
@@ -21,6 +22,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             </button>
             <div class="flex items-center">
                 <button
+                    btn
                     matRipple
                     map
                     class="rounded-l rounded-r-none"
@@ -31,6 +33,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     Map
                 </button>
                 <button
+                    btn
                     matRipple
                     list
                     class="rounded-r rounded-l-none"
