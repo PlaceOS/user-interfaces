@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { getModule, querySystems } from '@placeos/ts-client';
-import { unique } from '@placeos/common';
+import { getModule, querySystems, queryUsers } from '@placeos/ts-client';
+import { SettingsService, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -128,9 +128,15 @@ export class ExploreSearchService {
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
     /** Function used to query for users */
-    public search_fn = (q: string) => searchStaff(q);
+    public search_fn = (q: string) =>
+        this._settings.get('app.basic_user_search')
+            ? queryUsers({ q })
+            : searchStaff(q);
 
-    constructor(private _org: OrganisationService) {
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         this.search_results.subscribe();
         this.init();
     }
