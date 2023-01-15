@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { getModule, querySystems, queryUsers } from '@placeos/ts-client';
+import {
+    authority,
+    getModule,
+    querySystems,
+    queryUsers,
+} from '@placeos/ts-client';
 import { SettingsService, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
@@ -130,7 +135,7 @@ export class ExploreSearchService {
     /** Function used to query for users */
     public search_fn = (q: string) =>
         this._settings.get('app.basic_user_search')
-            ? queryUsers({ q })
+            ? queryUsers({ q, authority_id: authority()?.id })
             : searchStaff(q);
 
     constructor(
