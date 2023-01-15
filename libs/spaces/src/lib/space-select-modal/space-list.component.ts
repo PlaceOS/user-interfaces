@@ -29,7 +29,7 @@ import { Space } from '../space.class';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
+                            class="relative min-w-[5rem] h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
@@ -62,7 +62,7 @@ import { Space } from '../space.class';
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <p>
+                                <p class="truncate">
                                     {{
                                         space.location ||
                                             level(space.zones)?.display_name ||
