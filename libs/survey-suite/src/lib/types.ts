@@ -1,25 +1,27 @@
 import { getEnumOptions } from "./helper";
 
 export enum QuestionType {
-    Single_Line_Text = 'singletext',
-    Multi_Line_Text = 'multitext',
-    Single_Select = 'singleselect',
-    Multi_Select = 'multiselect',
+    Single_Line_Text = 'text',
+    Multi_Line_Text = 'comment',
+    Single_Select = 'dropdown',
+    Multi_Select = 'checkbox',
     Rating = 'rating',
 }
 
 export const QuestionTypeOptions = getEnumOptions(QuestionType);
 
 export interface Question {
+    id?:number;
     selected?: boolean;
     type: QuestionType;
-    name: string;
+    name?: string;
     title: string;
-    choices?: string[];
-    rateValues?: number[];
-    tags: string[];
+    description?: string;
+    choices?: any[];
+    rateValues?: number[]; //To be removed
+    tags?: string[];
     isRequired?: boolean;
-    options?: Choice[];
+    options?: any;
     rateMax?: number;
 }
 
