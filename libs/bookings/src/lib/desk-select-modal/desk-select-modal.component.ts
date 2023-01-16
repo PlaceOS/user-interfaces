@@ -59,7 +59,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     ></desk-filters-display>
                     <desk-list
                         *ngIf="view === 'list'; else map_view"
-                        [attr.active]="displayed?.id"
+                        [active]="displayed?.id"
                         [selected]="selected_ids"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
