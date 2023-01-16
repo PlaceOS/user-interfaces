@@ -158,7 +158,7 @@ const app: any = {
     },
     locales: [
         { id: 'en', name: 'English', flag: '🇦🇺' },
-        { id: 'fr', name: 'French', flag: '🇫🇷' },
+        // { id: 'fr', name: 'French', flag: '🇫🇷' },
     ],
     features: [
         'spaces',
