@@ -131,6 +131,8 @@ const explore: any = {
     can_select_building: true,
     show_legend_group_names: true,
     show_legend: true,
+    use_zone_polygons: false,
+    show_simple_sensor_info: false,
     legend: [
         ['Available', '#43a047'],
         ['In Use', '#e53935'],
@@ -174,6 +176,7 @@ const app: any = {
     new_features: true,
     can_deliver: true,
     no_user_calendar: false,
+    basic_user_search: false,
     no_maps: true,
     general,
     help,
