@@ -270,7 +270,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             });
             if (!desk.bookable) continue;
             const book_fn = async () => {
-                if (this._statuses[desk.id] !== 'free') return;
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
                 const { date, duration } = await this._setBookingTime(
